@@ -68,7 +68,7 @@ def make_hudl_mutations(df: pl.DataFrame):
             pl.when((pl.col("play_type").is_in(["pass","extra_point","no_play"])) & (pl.col("RESULT").str.contains("Complete"))).then(pl.lit(1))
             .when((pl.col("play_type").is_in(["pass","extra_point","no_play"])) & (pl.col("RESULT") == "Incomplete")).then(pl.lit(0))
             .when((pl.col("yardline_50") != pl.col("yardline_50_after")) & (pl.col("posteam") == pl.col("posteam_after"))).then(pl.lit(1))
-            .when(down=4 & (pl.col("posteam") != pl.col("posteam_after"))).then(pl.lit(0))
+            .when((pl.col("down")==4) & (pl.col("posteam") != pl.col("posteam_after"))).then(pl.lit(0))
             .otherwise(pl.lit(0))        
         )
         .with_columns(
@@ -124,7 +124,6 @@ def make_hudl_mutations(df: pl.DataFrame):
         )
         .with_columns(
             pl.when((pl.col('scoring_play') == 1) & (pl.col("touchdown") | pl.col("one_point_conv_success") | pl.col("two_point_conv_success") == 1)).then(pl.col("posteam"))
-            .when((pl.col('scoring_play') == 1) & (pl.col("def_touchdown") | pl.col("defensive_two_point_conv") | pl.col("safety") == 1)).then(pl.col("defteam"))
             .otherwise(pl.lit(None))
             .alias('scoring_play_team')
         )
@@ -334,6 +333,7 @@ def prepare_ep_data(df: pl.DataFrame):
                 .with_columns(game_end = pl.when((pl.col("half_end") == 1 ) & (pl.col("half") == 2)).then(1).otherwise(0))
                 .with_columns(
                     pl.when(pl.col("touchdown") == 1).then(pl.lit("Touchdown"))
+                    .when(pl.col("def_touchdown") == 1).then(pl.lit("Touchdown"))
                     .when(pl.col("safety") == 1).then(pl.lit("Safety"))
                     .when(pl.col("one_point_conv_success") == 1).then(pl.lit("Extra_Point"))
                     .when(pl.col("two_point_conv_success") == 1).then(pl.lit("Two_Point_Conversion"))

@@ -1,0 +1,645 @@
+Team,Player ID,Name,Uniform Number,Position,Club
+Finland,745,Alexander Wasiljeff,2,DB,Helsinki FlagLions
+Finland,746,Pekka Rantala,4,DB,free agent
+Finland,747,Jaakko Jokinen,5,DB,Helsinki Roosters
+Finland,748,Phung Nguyen,6,WR,Helsinki FlagLions
+Finland,749,Miro Kadmiry,7,QB,Helsinki FlagLions
+Finland,750,Anton Kalliokoski,8,DB,Helsinki FlagLions
+Finland,751,Micky Kyei,10,WR,Helsinki FlagLions
+Finland,752,Willem Kajander,11,WR,Helsinki FlagLions
+Finland,753,Sampo Ranta,12,DB,free agent
+Finland,754,Petrus Penkki,14,QB,Helsinki Flag Football
+Finland,755,Ville Karhinen,91,WR,Helsinki FlagLions
+Finland,756,Juuso Arminen,15,WR,Helsinki FlagLions
+USA,437,Deliah Autry,13,DB/C,""
+USA,438,Laneah Bryan,25,DB/WR,""
+USA,439,Amber Clark,10,DB/WR,""
+USA,440,Ashley Edwards,2,DB/WR,""
+USA,441,Kennedy Foster,24,WR/DB,""
+USA,442,Madison Fulford,5,WR/DB,""
+USA,443,"Isabella ""Izzy""  Geraci",23,WR/DB,""
+USA,444,Maci Joncich,7,WR/DB,""
+USA,445,Ashlea Klam,32,C/DB,""
+USA,446,Vanita Krouch,4,QB,""
+USA,447,Megan Majors,12,DB/WR,""
+USA,448,"Addison ""Addie"" Orsborn",17,RSH/WR,""
+Australia,305,Bree Payne,44,PR/ DB,Flag Gremlins
+Australia,306,Casey Cubis,14,QB,Salsadevils
+Australia,307,Hannah Monty,99,DB,Flag Gremlins
+Australia,308,Jordan Di Mizio,27,DB,""
+Australia,309,Kodie Fuller,4,WR,Salsadevils
+Australia,310,Laura St Ruth,35,DB,""
+Australia,311,Marissa Hayes,13,C/WR,Salsadevils
+Australia,312,Olivia Manfre,17,WR,South Western FC
+Australia,313,Pier Pritchard,10,DB,Sydney Rebels
+Australia,314,Rebecca Gordon,8,DB,Sydney Rebels
+Australia,315,Tegan Brown,18,WR,""
+Australia,316,Tamika Sutton,88,C/WR,Sydney Rebels
+France,425,Naissa CHARANI,1,WR,Blue Stars (Marseille)
+France,426,Adeline BENOIT-ORIEUX,3,WR,Pionniers (Tours)
+France,427,Valentine LEBLOND,4,DB,Salamandres (Le Havre)
+France,428,Lucie HOURET,5,QB,Pionniers (Tours)
+France,429,Marina MARTIN,7,Centre,Météores (Fontenay-sous-Bois)
+France,430,Justine DONZEL,8,Blitz,Fenris (Dijon)
+France,431,Louisa AJAYI,9,CB,Diables Rouges (Villepinte)
+France,432,Chloé PERRET,11,CB,Fenris (Dijon)
+France,433,Lilou DELAYEN,13,WR,Firebats (Valencia) / Fenris (Dijon)
+France,434,Lucie VINOT,18,Centre,Fenris (Dijon)
+France,435,Elisa DE SANTIS,19,WR,Molosses – Redlips (Asnières-sur-Seine)
+France,436,Lauren MEHEUST,23,DB,Juggernautes (Paris)
+Sweden,353,Josefina Kydönholma,1,DB,Arlanda Jets
+Sweden,354,Nina Lindholm,3,C,Arlanda Jets
+Sweden,355,Anna Brolin,4,WR,Arlanda Jets
+Sweden,356,Nellie Myrlander,5,WR,Nässjö Saints
+Sweden,357,Jenny Gramenius,6,DB,Arlanda Jets
+Sweden,358,Ellinor Jyrell,8,DB,Eskilstuna Sharks
+Sweden,359,Kristin Salmi,9,WR,Arlanda Jets
+Sweden,360,Erika Mörk,10,QB,Arlanda Jets
+Sweden,361,Hedvig Palocci,11,DB,Arlanda Jets
+Sweden,362,My Längeby,12,B,Arlanda Jets
+Sweden,363,Josefin Damm,13,DB,Eskilstuna Sharks
+Sweden,364,Sabina Rydberg,15,DB,Arlanda Jets
+Ireland,281,Lauren Cavanagh,3,QB,South Dublin Panthers
+Ireland,282,Kelly Dwyer,4,WR/DB,Copenhagen Towers
+Ireland,283,Helen Smyth,5,WR/QB,Belfast City Lions
+Ireland,284,Hayley Brown,6,DB,Laois Labs
+Ireland,285,Hannah King,7,C,Belfast Trojans
+Ireland,286,Sarah Eadie,8,WR/C,North Down Dragons
+Ireland,287,Megan Howe,10,WR/DB,South Dublin Panthers
+Ireland,288,Heidi Wallace,11,DB/Blitz,Belfast Trojans
+Ireland,289,Jenny Kavanagh,12,WR/DB,South Dublin Panthers
+Ireland,290,Caitlin O’Connor,13,DB,South Dublin Panthers
+Ireland,291,Orla Schutte,14,DB,South Dublin Panthers
+Ireland,292,Sophie Irvine,15,Blitz,Belfast Trojans
+Mexico,461,Victoria Chavez,2,WR,TEAM MEXICO
+Mexico,462,Silvia Contreras,3,C,TEAM MEXICO
+Mexico,463,Ana Aguayo,9,WR,TEAM MEXICO
+Mexico,464,Elizabeth Bourde,11,DB,TEAM MEXICO
+Mexico,465,Rebeca Landa,12,R,TEAM MEXICO
+Mexico,466,Andrea Martinez,13,WR,TEAM MEXICO
+Mexico,467,Ana Rojano,15,DB,TEAM MEXICO
+Mexico,468,Carranza Valeria,18,WR,TEAM MEXICO
+Mexico,469,Shantal Bravo,21,DB,TEAM MEXICO
+Mexico,470,Tania Rincon,31,QB,TEAM MEXICO
+Mexico,471,Diana Flores,33,QB,TEAM MEXICO
+Mexico,472,Angela Funes,99,DB,TEAM MEXICO
+Canada,341,Laurence Pontbriand,81,WR,Subzero
+Canada,342,Sarah Cormier,3,C,Subzero
+Canada,343,Erika Bastien,25,DB,""
+Canada,344,Caroline Moquin Joubert,15,WR,SubZero 
+Canada,345,Sabrina Gervais,12,DB,Subzero
+Canada,346,Emilie Carrier,44,Rec/Rush,""
+Canada,347,Catherine Gaumont,33,DB,University of Montreal
+Canada,348,Jessica Bositampen,19,Rusher,Subzero
+Canada,349,Jasmine Farmer,6,DB,Uqam
+Canada,350,Sara Parker,11,QB,Concordia University
+Canada,351,Tamara Jourmeau,31,DB,Subzero 2024
+Canada,352,Emma Racine,9,WR,University of Montreal
+Italy,509,Dell'Orto Nausicaa,82,WR,Mad Dogs Milano
+Italy,510,Fimiani Alice,1,WR,Mad Dogs Milano
+Italy,511,Germinetti Margherita,88,WR,Mad Dogs Milano
+Italy,512,Guglielmino Yvonne,43,DB,Elephants Catania
+Italy,513,Jirjena Renate,9,DB,Mad Dogs Milano
+Italy,514,Latera Laura,8,DB,Skorpions Varese
+Italy,515,Marcucci Martika,16,DB,FIDAF
+Italy,516,Mengo Marta,54,WR,Lions Bergamo
+Italy,517,Petrillo Sofia,11,QB,Skorpions Varese
+Italy,518,Privitera Giulia,14,DB,Elephants Catania
+Italy,519,Radisavljević Aleksandra,93,WR,Skorpions Varese
+Italy,520,Zocca Giada,99,DB,Panthers Parma
+Denmark,389,Louise Pii Frederiksen,11,S,Nørrebronx Næbdyr
+Denmark,390,Clara Stroustrup Hansen,5,C,Copenhagen Raptors
+Denmark,391,Clara Adda Bernth Hedvall,1,WR,Slagelse Wolfpack
+Denmark,392,Maria Kristiansen,18,CB,Aarhus Tigers
+Denmark,393,Kamma Astrid Faber Mygind,0,QB,Copenhagen Raptors
+Denmark,394,Cecilie Aarup Nielsen,33,B,Schwäbisch Hall Unicorns
+Denmark,395,Freja Jøhnke Overby,23,WR,Schwäbisch Hall Unicorns
+Denmark,396,Laura Anne Poyner-Rasmussen,6,WR,Triangle Razorbacks
+Denmark,397,Katarina Hviid Skjellerup,15,WR,Copenhagen Raptors
+Denmark,398,Kamille Lisborg Sommer,37,CB,Copenhagen Raptors
+Denmark,399,Maja Lisborg Sommer,24,S,Copenhagen Raptors
+Denmark,400,Luna Schytz Wolf,2,WR,Triangle Razorbacks
+Korea,473,Jiho Kim,8,Center/RB,Korea Raptors
+Korea,474,Hyebin Park,9,WR/QB/DB,Korea Raptors
+Korea,475,Minju Kim,10,WR/QB,Yonsei Eagles
+Korea,476,Woo Jung Kwon,11,RB/WR,Korea Raptors
+Korea,477,Yoonkyung Yoo,13,Center/DB,Korea Raptors
+Korea,478,Minjung Yoon,14,DB,Dongtan Hawkeyes
+Korea,479,Soyun Lee,17,Rusher/DB,Korea Raptors
+Korea,480,Ga Eun Suh,19,RB/Rusher,Korea Raptors
+Korea,481,Sung Eun Jeong,22,WR/DB,Korea Raptors
+Korea,482,Woojung Kwak,29,DB,Korea Raptors
+Korea,483,Seorin Kang,30,DB/WR,Korea Raptors
+Korea,484,Hyojin Pak,43,QB,Korea Raptors
+Japan,449,Akari Uematsu,1,DB/S,HYPERION TOKYO
+Japan,450,Koyuki Morinaga,2,C/WR,HYPERION TOKYO
+Japan,451,Asahi Kanatani,5,DB/LB,SENRIYAMA BLACK JAGUARS LADIES
+Japan,452,Yurika Omi,7,WR/QB,BLUE ROSES
+Japan,453,Yuri Nakahata,9,WR/C,UNKNOWNS
+Japan,454,Chihiro Iwata,10,QB/WR,KANSAS WESLEYAN UNIVERSITY
+Japan,455,Miyuna Yamamoto,11,S/DB,SENRIYAMA BLACK JAGUARS LADIES
+Japan,456,Akari Kitazaki,14,LB/DB,HYPERION TOKYO
+Japan,457,Tomoko Higuchi,21,DB/LB,SENRIYAMA BLACK JAGUARS LADIES
+Japan,458,Tomoyo Yagi,22,WR/QB,BLUE ROSES
+Japan,459,Renka Saito,40,DB/LB,HYPERION TOKYO
+Japan,460,Fuyuki Hamaguchi,88,WR,SHOWTIME (USA)
+Germany,485,Anja Pietryga,77,C,""
+Germany,486,Anne Streil,2,DB/B,""
+Germany,487,Dora Jung,27,DB,""
+Germany,488,Hannah Bahn,17,DB,""
+Germany,489,Jessica Macharia,84,B/DB,""
+Germany,490,Kristin Adrian,87,WR,""
+Germany,491,Kyra Fischer,7,WR/DB,""
+Germany,492,Pia Schwarz,26,WR/C,""
+Germany,493,Saskia Macharia,9,DB,""
+Germany,494,Saskia Nühse,30,QB/WR,""
+Germany,495,Stefanie Thiele,11,QB,""
+Germany,496,Zoe Song,82,DB,""
+Brazil,317,Karoline Souza,21,Athlete,Caipiras
+Brazil,318,Taísa Alencar,29,Athlete,Cobrarés
+Brazil,319,Amanda Boabaid,8,Athlete,Desterro Atlantis
+Brazil,320,Ellen Bruna Limeira de Alencar,83,Athlete,Sweet Heat
+Brazil,321,Thamires Soares Q. de Abreu,25,Athlete,Vasco Almirantes
+Brazil,322,Gabriela Felipe Bankhardt,77,Athlete,Desterro Atlantis
+Brazil,323,Lara Ferraz Torelli,7,Athlete,Vasco Almirantes
+Brazil,324,Fernanda Justino de Souza,0,Athlete,Parnamirim Scorpions
+Brazil,325,Ester Biss de Alencar,12,Athlete,Rio Preto Weilers
+Brazil,326,Karolyne Priscyla dos Santos,3,Athlete,Vasco Almirantes
+Brazil,327,Pamela Peres Soares,16,Athlete,Vasco Almirantes
+Brazil,328,Lara Rodrigues Nesralla,82,Athlete,Vasco Almirantes
+Finland,329,Amanda Rouhiainen,1,DB,Turku Trojans
+Finland,330,Anni Udd,5,DB/Blitz,Kouvola Indians
+Finland,331,Essi Saastamoinen,8,C/Blitz,Turku Trojans
+Finland,332,Heta Rantanen,9,DB,Helsinki Flag Football
+Finland,333,Inka Heikkinen,2,WR,Jyväskylä Jaguars
+Finland,334,Laura Karhu,12,DB,free agent
+Finland,335,Lea Kaszas,7,QB,Turku Trojans
+Finland,336,Lotta Ahonen,14,WR,Tampere Saints
+Finland,337,Lotta Wulff,4,QB/WR,Turku Trojans
+Finland,338,Miina Laukkanen,10,DB/WR,Tampere Saints
+Finland,339,Tiia Jansen,16,WR,Turku Trojans
+Finland,340,Veera Levijoki,13,DB/C,Helsinki Flag Football
+Poland,925,Anna Bąk,1,C/WR,""
+Poland,926,Aleksandra Chojnacka,2,DB,Warsaw Sirens
+Poland,927,Katarzyna Dziklińska,3,WR,""
+Poland,928,Gabriela Habrat,6,DB,""
+Poland,929,Justyna Hołownia-Malinowska,4,DB,Warsaw Sirens
+Poland,930,Anna Jędrasik,5,DB,Warsaw Sirens
+Poland,931,Magdalena Lonc,7,WR,Warsaw Sirens
+Poland,932,Aniela Machowska,8,WR,Warsaw Sirens
+Poland,933,Katarzyna Malarek,9,QB,Warsaw Sirens
+Poland,934,Dominika Pławińska,10,Db,SAKIS Kolbudy
+Poland,935,Jolanta Sampławska,11,QB,Warsaw Sirens
+Poland,936,Monika Skiba,12,DB,Warsaw Sirens
+Great Britain,497,Phoebe Schechter,16,"",""
+Great Britain,498,Amy Wells,4,"",""
+Great Britain,499,Brittany Botterill,19,"",""
+Great Britain,500,Grace Conway,5,"",""
+Great Britain,501,Ellie Thorpe,9,"",""
+Great Britain,502,Emily Kemp,15,"",""
+Great Britain,503,Kate Bruinvels,24,"",""
+Great Britain,504,Natasha Linton,13,"",""
+Great Britain,505,Lottie Laidler,2,"",""
+Great Britain,506,Emma Dedicoat,12,"",""
+Great Britain,507,Marta Mathews,11,"",""
+Great Britain,508,Sarah Wakelin,32,"",""
+Panama,401,Alejandra Sucre,10,WR/R,Honey Badgers
+Panama,402,Ana Paula De Leon,44,DB,Boomers
+Panama,403,Angeline Bunting,13,WR/DB,WARNER UNIVERSITY
+Panama,404,Arlen Hernandez,1,WR/LB,LUCKY ONES
+Panama,405,Clarisse Castillo,80,WR,LUCKY ONES
+Panama,406,Karla Holder,50,DB,MONSTERS
+Panama,407,Leslie Del cid,3,DR/WR,LUCKY ONES
+Panama,408,Maria Gallimore,6,DB/WR,LUCKY ONES
+Panama,409,Marian Torrero,11,R,HONEY BADGERS
+Panama,410,Melanie Ponce,4,QB,EL BLOQUE
+Panama,411,Orlanda Castro,7,QB,LUCKY ONES
+Panama,412,Tatiana Dos santos,8,WR/DB,OTTAWA UNIVERSITY
+Czechia,413,Evelína Adámková,13,DB,Brno Sígrs
+Czechia,414,Michaela Bajerová,21,DB,Prague Black Panthers
+Czechia,415,Kristýna Červenková,10,DB,Příbram Bobcats
+Czechia,416,Karolína Chmelíková,2,WR,Prague Black Panthers
+Czechia,417,Anna Dvořáková,1,WR/QB,Brno Sígrs
+Czechia,418,Alena Francúzová,19,DB,Brno Amazons
+Czechia,419,Markéta Gotschalková,12,WR,Prague Black Panthers
+Czechia,420,Kamila Ludlová,87,C,Brno Sígrs
+Czechia,421,Alžběta Nečasová,3,QB,Prague Black Panthers
+Czechia,422,Michaela Němcová,16,DB,Příbram Bobcats
+Czechia,423,Sabina Pokorná,11,DB,Prague Black Panthers
+Czechia,424,Nikola Vokurková,20,WR,Příbram Bobcats
+Israel,293,Rachel Shmidman,6,C,AFI
+Israel,294,Merav Green,4,QB,AFI
+Israel,295,Rivkah Weinberg,17,WR,AFI
+Israel,296,Ella Finzi,2,DB\WR,AFI
+Israel,297,Jordana Weinberg,22,DB\WR,AFI
+Israel,298,Ofir Avisar,23,DB\WR,AFI
+Israel,299,Sarah Meisenberg,24,DB\WR,AFI
+Israel,300,Chana Kaplan,3,DB\WR,AFI
+Israel,301,Amit Malka,11,DB\WR,AFI
+Israel,302,Yara Elhaj,13,DB\WR,AFI
+Israel,303,Yaara Gilan,7,R,AFI
+Israel,304,Leila Deluty,34,DB\WR,AFI
+Austria,377,Bianca Peham,3,Blitzer,Amstetten Thunder
+Austria,378,Jasmin Gruner-Straka,12,DB,Vienna Dark Angels
+Austria,379,Daniela Hader,8,DB,Amstetten Thunder
+Austria,380,Katrin Mansbart,6,C,Vienna Constables
+Austria,381,Magdalena Helm,4,WR,Amstetten Thunder
+Austria,382,Annika Wendschlag,7,DB,Vienna Constables
+Austria,383,Karoline Kugler,16,WR,Amstetten Thunder
+Austria,384,Sophie Spitzer,17,DB,DeLaSalle Saints
+Austria,385,Saskia Stribrny,10,QB,DeLaSalle Saints
+Austria,386,Sophie Lisa Einfal,22,DB,Vienna Constables
+Austria,387,Anna Valenta,13,WR,Vienna Dark Angels
+Austria,388,Franzisca Tabitha Sottner,1,WR,Vienna Constables
+Spain,365,María Vidal,1,CB/BLITZ,Gijón Mariners
+Spain,366,Victoria Sánchez,2,C/DB,Alicante Sharks
+Spain,367,Violeta Wiksten,3,C,Alicante Sharks
+Spain,368,Mar Hernández,4,WR,Las Rozas Black Demons
+Spain,369,Estefanía Sastre,5,DB,Gijón Mariners
+Spain,370,Laia Girona,6,DB,Barberá Rookies
+Spain,371,Elvira Núñez,7,B/WR,Las Rozas Black Demons
+Spain,372,Ana Leal,8,DB,Alicante Sharks
+Spain,373,Olga Sotillo,9,WR,Las Rozas Black Demons
+Spain,374,Mónica Rafecas,10,QB,Barberá Rookies
+Spain,375,Emma García,11,WR,Oviedo Phoenix
+Spain,376,Cristina Gómez,13,DB,Las Rozas Black Demons
+New Zealand,521,Jorja Mouat,9,DB / PR,Tauranga City Tridents
+New Zealand,522,Amorangi Ngata-Atkins,11,C / WR,Metro Lions
+New Zealand,523,Sia Matai,4,DB / QB,Papatoetoe Wildcats
+New Zealand,524,Taylor Leauanae,3,QB,Metro Lions
+New Zealand,525,Ellie McManaway,13,WR,Tauranga City Tridents
+New Zealand,526,Isabeau Short-Wilcox,8,WR,Metro Lions
+New Zealand,527,Shona-Leigh Matiu,1,DB,Metro Lions
+New Zealand,528,Shanaye Tissingh,10,WR,Hamilton Hawks
+New Zealand,529,Emma Johnson,24,PR / DB,Tauranga City Tridents
+New Zealand,530,Shirley Lam Sam,28,DB,Hutt Valley Spartans
+New Zealand,531,Rosa Maanaima Matautia,6,DB,Metro Lions
+New Zealand,532,Sarah Monteith,15,WR / C,Tauranga City Tridents
+Switzerland,533,Kristina Birchmeier,88,WR,Zürich Renegades
+Switzerland,534,Xenia Burkard,24,DB,ASVZ Nightbirds
+Switzerland,535,Gioja Camenzind,15,WR,"Winterthur Warriors Ladies, St. Gallen Wolfpack"
+Switzerland,536,Noemi Dopple,57,DB,Winterthur Warriors Ladies 
+Switzerland,537,Valentina Frei,37,DB,ASVZ Nightbirds
+Switzerland,538,Leandra Häfeli,2,DB,Winterthur Warriors Ladies
+Switzerland,539,Enja Hüberli,22,WR,Winterthur Warriors Ladies
+Switzerland,540,Anna Laura John,8,QB,Zürich Renegades
+Switzerland,541,Kozué Nussbaum,44,WR,Geneva Seahawks 
+Switzerland,542,Désirée Sommer,11,C,"St. Gallen Wolfpack, Winterthur Warriors Ladies"
+Switzerland,543,Amélie Stüssi,9,WR,Winterthur Warriors Ladies 
+Switzerland,544,Joëlle Waser,5,WR,Midland Bouncers
+USA,793,Michael Better,24,RSH/C,""
+USA,794,Aamir Brown,5,ATH,""
+USA,795,"Velton Brown, Jr.",13,WR/DB,""
+USA,796,Isaiah Calhoun,11,DB/WR,""
+USA,797,Mike Daniels,3,DB/WR,""
+USA,798,Laval Davis,4,WR/RSH,""
+USA,799,Darrell “Housh”  Doucette,7,QB/C,""
+USA,800,"Johnluis ""Lulu"" Hernandez",31,DB/C,""
+USA,801,Ja’Deion High,88,WR,""
+USA,802,Jamie Kennedy,21,DB/WR,""
+USA,803,Bruce Mapp,1,WR/DB,""
+USA,804,"Laderrick ""Pablo"" Smith",14,WR/QB,""
+Spain,605,Willem Jore-Sastre,1,CB/BLITZ,Valencia Firebats
+Spain,606,Matías Castagno,2,WR,Las Rozas Black Demons
+Spain,607,Álvaro Cansinos,3,CB,Las Rozas Black Demons
+Spain,608,Alejandro García,5,CB/WR,Atlantic Devils
+Spain,609,Jorge García,6,CB/WR,Las Rozas Black Demons
+Spain,610,Pablo De Diego,7,LB,Las Rozas Black Demons
+Spain,611,Guillermo Cámara,8,BLITZ,Valencia Firebats
+Spain,612,Jesús Clemente,9,C,Valencia Firebats
+Spain,613,Roque Alarcón,10,WR/BLITZ,Valencia Firebats
+Spain,614,Chus Batista,11,WR,Valencia Firebats
+Spain,615,Iván López,13,QB,Camioneros de Coslada
+Spain,616,Alejandro Silvestre,15,LB,Valencia Firebats
+Brazil,581,Victor Hugo Ferraz Souza,5,Player,Spartans
+Brazil,582,Athos Daniel Da Silva Costa,0,Player,Recife Mariners
+Brazil,583,Felipe Nunes Almeida dos Santos,24,Player,Cavalaria 2 de Julho
+Brazil,584,Edmar Dos Santos,7,Player,Gators
+Brazil,585,Matheus Rodrigo Fabiano Silva,14,Player,Coritiba Crocodiles
+Brazil,586,Matheus Silva Duarte de Oliveira,23,Player,Floripa Ghosts
+Brazil,587,Renato Esdras Santana Munford de Oliveira,2,Player,Floripa Ghosts
+Brazil,588,Pedro Henrique Clemente do Nascimento,13,Player,Vasco Almirantes
+Brazil,589,João Pedro Meneghetti Chermont de Miranda,32,Player,Rio Football Academy
+Brazil,590,Kyoshi Henrique Takemura Junior,17,Player,Floripa Ghosts
+Brazil,591,Felipe Alves Aymoré,70,Player,Caniballs
+Brazil,592,Nicolas Mendonça de Quadro,10,Player,Floripa Ghosts
+Serbia,805,Goran Zec,1,ATH,Indians Inđija
+Serbia,806,Tihomir Todorov,17,C/WR,Indians Inđija
+Serbia,807,Miloš Katić,48,DB,Indians Inđija
+Serbia,808,Nemanja Vučković,4,ATH,Indians Inđija
+Serbia,809,Vukašin Katić,28,DB/WR,Indians Inđija
+Serbia,810,Miloš Kolibar,5,DB/C,Sirmium Legionari
+Serbia,811,Marko Žurkić,6,ATH,Indians Inđija
+Serbia,812,Vukašin Gajović,0,WR/BL,Royal Crowns Kraljevo
+Serbia,813,Dejan Jašćur,2,WR/DB,Sirmium Legionari
+Serbia,814,Stefan Borković,14,WR/QB,Indians Inđija
+Serbia,815,Jovan Davidović,18,WR/DB,Indians Inđija
+Serbia,816,Milan Manić,12,QB,Orlovi Novi Beograd
+Mexico,829,Victor Balderramos,1,QB,TEAM MEXICO
+Mexico,830,Bruno Quijano,2,WR,TEAM MEXICO
+Mexico,831,Damian Chirinos,3,WR,TEAM MEXICO
+Mexico,832,Brett Reyes,7,DB,TEAM MEXICO
+Mexico,833,Ivan Orozco,8,QB,TEAM MEXICO
+Mexico,834,George Landeros,9,DB,TEAM MEXICO
+Mexico,835,Christopher Cardona,12,WR,TEAM MEXICO
+Mexico,836,Diego Yañez,15,WR,TEAM MEXICO
+Mexico,837,Sergio Gonzalez,17,DB,TEAM MEXICO
+Mexico,838,Alexis Ortega,20,R,TEAM MEXICO
+Mexico,839,Alonso Gaxiola,23,DB,TEAM MEXICO
+Mexico,840,Harold Garibay,80,DB,TEAM MEXICO
+Australia,569,Aaron Howard,10,PR/DB,Brotherly Shove/Gronk It
+Australia,570,Bart Foley,12,QB,2 Yard Curls/ Gronk It
+Australia,571,Brad Howard,7,WR,Brotherly Shove/Gronk It
+Australia,572,Dan O'Shaughnessy,15,QB,Algester Ambush
+Australia,573,Cody Donlan,9,DB,""
+Australia,574,Connor Young Free,3,DB,""
+Australia,575,Jack Straatsma,24,PR,""
+Australia,576,Jayden Paludan,1,DB,Fortitude Valley Vipers
+Australia,577,Luke Hegney,4,WR,""
+Australia,578,Matthew Barbara,81,C/WR,The Milkmen
+Australia,579,Mitch Collins,17,WR,Bad Hitches
+Australia,580,Tim Tuikaba,14,DB,""
+Chile,629,Felipe Huerta Vive,3,QB / DB,Felinos Football Americano
+Chile,630,Andre Espinoza Lopez,22,C / DB,Blindados Football Americano
+Chile,631,Ricardo De la Maza,17,WR,Bulldogs Football Americano
+Chile,632,Felipe León Clavería,13,C,Bulldogs Football Americano
+Chile,633,Mathias Acosta Ríos,7,WR / DB,Blindados Football Americano
+Chile,634,Rodrigo Fuentes,2,QB,Ferroviarios Football
+Chile,635,Sebastian Rivera Verdugo,52,R / DB,Bulldogs Football Americano
+Chile,636,Germán Orellana Morales,10,WR,Blindados Football Americano
+Chile,637,Diego Fuentes Elguera,20,S / LB/ WR,Felinos Football Americano
+Chile,638,Martín Orellana Morales,5,C / R,Blindados Football Americano
+Chile,639,Bastian Orellana Morales,4,QB / S,Blindados Football Americano
+Chile,640,Harry Salomon R,11,WR / R,Felinos Football Americano
+Cameroon,653,Vladimir Bemmo,3,WR,"Mastini Verona, Italy"
+Cameroon,654,Morgan Nkule,24,RB,"Helvetics Mercenaires, Geneva"
+Cameroon,655,James Tobbo James,17,WR,"Flash Courneuve, France"
+Cameroon,656,Frank Mbadja,11,Center,"Corsaires, France"
+Cameroon,657,Scanzi Dimitri,90,Center,"Templiers, France"
+Cameroon,658,Jordan Tonye Nsoga ,4,S,"Myrmidon, France"
+Cameroon,659,Paul Wilfried Mpoko,11,RB,"Parma Pathers, Italy"
+Cameroon,660,Hadrien Lynda,1,QB,"Blue de Marseille, France"
+Germany,853,Achenbach Fabian,21,WR,""
+Germany,854,Apfel Moritz,12,DB,""
+Germany,855,Braunsdorf Oliver,14,S,""
+Germany,856,Hachmann Nils,8,WR,""
+Germany,857,Haupert Alexander,22,C,turnes 30 at 28th of August
+Germany,858,Just Nils,2,CB,turnes 28 at 29th of August
+Germany,859,Klever Benjamin,23,QB,""
+Germany,860,Krämer Heiko,91,BL,""
+Germany,861,Peukert  Keanu ,13,WR,""
+Germany,862,McGeachie Marlon Balthasar,6,CB,""
+Germany,863,Straßburger Timo,7,CB,""
+Germany,864,Valdigem Luis,77,WR,""
+Great Britain,661,Andrew (AJ) Carr,0,WR,Cardiff Hurricanes
+Great Britain,662,Callum Stopani,21,DB,Glasgow Hornets
+Great Britain,663,Charles (Charlie) Williams,7,QB,London Smoke
+Great Britain,664,Henry Williams,5,"Blitz, C",London Smoke
+Great Britain,665,Jamahyl (Jam) Chan-Ellis,24,WR,London Smoke
+Great Britain,666,Johnnie Kerr,18,"DB, WR",London Smoke
+Great Britain,667,Kostas Karras,2,WR,Cardiff Hurricanes
+Great Britain,668,Liam Harper,14,"Blitz, WR",Manchester Crows
+Great Britain,669,Max Verlint,25,DB,Glasgow Hornets
+Great Britain,670,Oliver (Ollie) Dyer,27,DB,Glasgow Hornets
+Great Britain,671,Spencer  Brown,3,"C, WR, DB",Utah Thundercats
+Great Britain,672,David  McInally,20,DB,Glasgow Hornets
+Sweden,593,Jonathan Myrlander,5,R,Nässjö Saints
+Sweden,594,Linus Petersson,6,R,Nässjö Saints
+Sweden,595,Martin Lidén,8,DB,Göteborg Marvels
+Sweden,596,Matas Menkis,1,R,Uppsala 86ers
+Sweden,597,Nils-Fredrik Lindberg,14,DB,Uppsala 86ers
+Sweden,598,Oscar Hjerm,7,B,Göteborg Marvels
+Sweden,599,Philip Juhlin,2,QB,Kristianstad Predators
+Sweden,600,Philip Smith,11,R,Eskilstuna Sharks
+Sweden,601,Pontus Andersson,4,DB,Nässjö Saints
+Sweden,602,Simon Hornestedt,9,DB,Göteborg Marvels
+Sweden,603,Sundiata Owens,10,R,Uppsala 86ers
+Sweden,604,Víctor García Blombäck,12,DB,Uppsala 86ers
+Georgia,697,Saba Gogatishvili,11,QB,Eagles
+Georgia,698,Lasha Ungiadze,9,WR,Eagles
+Georgia,699,Aleksandre Gagoshidze,7,WR,Crusaders
+Georgia,700,Saba Kvernadze,87,WR,Steelers
+Georgia,701,Anri Simsive,14,C/WR,Crusaders
+Georgia,702,Saba Kapanadze,3,RB/Blitz,Falcons
+Georgia,703,Giorgi Kurashvili,23,DB,Crusaders
+Georgia,704,Papuna Songulia,88,C/QB,Crusaders
+Georgia,705,Nika Osiashvili,89,DB/Blitz,Steelers
+Georgia,706,Irakli Gulordava,13,DB,Crusaders
+Georgia,707,Zaza Karchiladze,5,DB/RB,Tbilisi
+Georgia,708,Vakhtang Agajanashvili,10,DB/Blitz,Tbilisi
+Austria,709,Gregor Bräuer,20,WR,St. Valentin Veterans
+Austria,710,Daniel Hochleitner,11,WR,Vienna Vipers
+Austria,711,Paul Leo Steidl,5,WR,Salzburg Ducks
+Austria,712,Martin Stur,13,C,Vienna Vipers
+Austria,713,David Alex Tescher,6,WR,""
+Austria,714,Felix Wasshuber,9,QB,Vienna Vipers
+Austria,715,Michael Bräuer,17,Blitzer,St. Valentin Veterans
+Austria,716,Alexander Hauch,4,DB,Salzburg Ducks
+Austria,717,Maximilian Hillebrand,7,DB,Vienna Vipers
+Austria,718,Daniel Kindl,2,DB,Klosterneuburg Indians
+Austria,719,Benedikt Wolf,3,DB,Vienna Vipers
+Austria,720,Sebastian Wolf,8,DB,Vienna Vipers
+Switzerland,889,Noah Auf der Maur,18,WR,Luzern Pikes
+Switzerland,890,Leon Auf der Maur,23,WR,Luzern Pikes
+Switzerland,891,Frédéric Eppisser,16,WR,ASVZ Blackbirds
+Switzerland,892,Claudio Ferrari,1,DB,ASVZ Blackbirds
+Switzerland,893,Marcandrea Hunkeler,13,DB,Lichtenberg Lions
+Switzerland,894,Linus Krummenacher,11,DB,Luzern Pikes
+Switzerland,895,Attila  Ujhazi ,12,QB,Zürich Renegades
+Switzerland,896,Oliver Verhoek,17,DB,ASVZ Blackbirds
+Switzerland,897,Justin Verhoek,3,DB,ASVZ Blackbirds
+Switzerland,898,Tim Vogler,10,C,ASVZ Mockingbirds
+Switzerland,899,Leandro Wälti,21,WR,Zürich Renegades
+Switzerland,900,Jan Weis,22,DB,Luzern Pikes
+Ukraine,673,Markiyan Shekel,9,QB,Lviv Lions
+Ukraine,674,Oleh Yablonskyi,99,CB,Lviv Lions
+Ukraine,675,Viacheslav Boichenko-Deikun,17,DB,Lviv Lions
+Ukraine,676,Andriy Svitlak,15,WR,Lviv Lions
+Ukraine,677,Severyn Fedyna,1,WR/C/DB,Lviv Lions
+Ukraine,678,Viktor Petriv,7,WR/RB/B,Lviv Lions
+Ukraine,679,Yevhen Khomyn,25,CB,Vinnytsia Wolves
+Ukraine,680,Volodymyr Zhyhanov,43,WR,Vinnytsia Wolves
+Ukraine,681,Oleksandr Bogach,88,CB,Vinnytsia Wolves
+Ukraine,682,Danil Tkachuk,6,WR/DB,Vinnytsia Wolves
+Ukraine,683,Dmytro Tatskov,3,DB/QB,Vinnytsia Wolves
+Ukraine,684,Andrii Medukha,87,WR,Dnipro Rockets
+Poland,913,Artur Czarnik,84,C,Warsaw Mets
+Poland,914,Witoltd Gajewski,12,QB,Jaguars Kąty Wrocłąwskie
+Poland,915,Bartosz Gnoza,2,WR,Kraków Kings
+Poland,916,Beniamin Iwanicki,3,WR,Żurawica Cranes
+Poland,917,Krzysztof Latusek,1,WR,Tychy Falcons
+Poland,918,Mateusz Wiecheć,18,QB,Kraków Kings
+Poland,919,Mateusz Patalas,81,WR,Swarco TIrol
+Poland,920,Kosma Pijagin,23,DB,Warsaw Mets
+Poland,921,Wojciech Przysowa,6,DB,Warsaw Eagles
+Poland,922,Kacper Rokiciński,9,DB,Angels Toruń
+Poland,923,Kamil Zboch,4,DB,Olsztyn Lakers
+Poland,924,Tomasz Nowak,10,C,Silesia Rebels
+Italy,865,Albericci Austin,10,WR,Marines Lazio
+Italy,866,Alinovi Simone,20,DB,Panthers Parma
+Italy,867,Fantin Andrea,22,DB,Raiders Roma
+Italy,868,Galante Matteo,7,BZ,Raiders Roma
+Italy,869,Latorraca Daniele,29,DB,Giaguari Torino
+Italy,870,Mibelli Giacomo,0,WR,Guelfi Firenze
+Italy,871,Papale Vincent,13,WR,FIDAF
+Italy,872,Petrilli Riccardo,26,DB,Dolphins Ancona
+Italy,873,Santagostino Gianluca,19,WR,FIDAF
+Italy,874,Seck Tamsir,21,WR,Giaguari Torino
+Italy,875,Scaperrotta Lorenzo,17,DB,Raiders Roma
+Italy,876,Zahradka Luke,1,QB,FIDAF
+Canada,685,Kyle Siemens,19,QB,Gamecocks
+Canada,686,Francois Rocheleau,1,WR,""
+Canada,687,Guillaume Beland,21,DB,Flag Football National Team 2023
+Canada,688,Chad Braun,11,C,University of Saskatchewan Huskies 2017
+Canada,689,Clovis Lumeka,18,DB,University of Saskatchewan Huskies
+Canada,690,Mason Nyhus,8,QB,"University of Saskatchewan Huskies, 2022"
+Canada,691,Mitchell Hillis,87,WR,""
+Canada,692,Everett Iverson,84,WR,University of Saskatchewan Huskies
+Canada,693,Nixen Voll,29,DB,University of Saskatchewan Huskies 2023
+Canada,694,Anthony Brisebois,2,WR,2023 Senior Men's Flag National Team
+Canada,695,Jean-Sebastien Belisle,9,DB,Team Canada (FLAG FOOTBALL)
+Canada,696,Colton Klassen,7,WR,U of S Huskies (2021)
+Singapore,721,Brian Ong,8,"QB, WR, DB",-
+Singapore,722,Dean Owyang,1,"QB, WR",-
+Singapore,723,Samuel Tan,32,"QB, DB, WR",-
+Singapore,724,Nathaniel Tan,18,"CENTRE, WR",-
+Singapore,725,Darren Wee,7,"WR, DB",-
+Singapore,726,Samuel Budimulia,23,"DB, PR",-
+Singapore,727,Jonathan Ma,13,"DB, PR",-
+Singapore,728,Shawn  Woo (c),12,"WR, DB",-
+Singapore,729,Lyon Chia,0,"WR, DB",-
+Singapore,730,Justin Tan,27,"WR, DB, CENTRE",""
+Singapore,731,Jeremy Teo,21,"PR, DB, CENTRE",""
+Singapore,732,Russell Ho,11,"WR, DB",""
+Panama,757,Adrian Roux,9,CB/WR,BULLDOGS
+Panama,758,Alvaro Roux,16,QB,BULLDOGS
+Panama,759,Carlos De la rosa,8,DB,TUNESQUAD
+Panama,760,Cesar Aguilera,82,DB,PIRATES
+Panama,761,Dennis Allen,2,QB/WR,GORILLAZ
+Panama,762,Gaspar Ramos,28,WR,BULLDOGS
+Panama,763,Hugo Prepville,88,DB,BULLDOGS
+Panama,764,Jayson Jaen,10,WR,GORILLAZ
+Panama,765,Ricardo Quijano,13,WR,GORILLAZ
+Panama,766,Jose Murillo,17,DB,GORILLAZ
+Panama,767,Juan Julio,6,WR,BULLDOGS
+Panama,768,Miguel Zubieta,23,DB,BULLDOGS
+New Zealand,877,Jackson Te Huki,2,QB,Wellington Wolves
+New Zealand,878,Adam Blake,11,DB,Hawkes Bay Heat
+New Zealand,879,Darcy Williams,3,DB,Metro Lions
+New Zealand,880,Matthew Hutcheson,18,PR / DB,Tamaki Lightning
+New Zealand,881,Daniel Thomson,4,WR,Canterbury AFC
+New Zealand,882,Jack Preston,1,WR,Tamaki Lightning
+New Zealand,883,Isaiah Laulu,56,WR,Wellington Wolves
+New Zealand,884,Tom Rance,14,WR,Otago AFC
+New Zealand,885,Ethan Rakete,20,DB,Papatoetoe Wildcats
+New Zealand,886,Tom Nairn,5,WR,Metro Lions
+New Zealand,887,Joshua Peden,8,WR,Hamilton Hawks
+New Zealand,888,Eddy Taylor,33,DB,Metro Lions
+Czechia,769,Ondřej Beneš,16,QB/WR,Prague Black Panthers
+Czechia,770,Matyáš Bílý,3,WR,Prague Lions
+Czechia,771,Jakub Čermák,12,B/WR,Prague Lions
+Czechia,772,Josef Drmla,22,C,Příbram Bobcats
+Czechia,773,Amos Feranec,15,QB,Ostrava Steelers
+Czechia,774,Radim Kalous,7,WR,Prague Lions
+Czechia,775,Ondřej Kyloušek,50,DB,Prague Black Panthers
+Czechia,776,David Lukšan,14,DB,Prague Lions
+Czechia,777,Miroslav Mašek,37,DB,Prague Mustangs
+Czechia,778,Adam Pařízek,1,DB/WR,Vysočina Gladiators
+Czechia,779,Sebastián Tesařík,89,DB,Příbram Bobcats
+Czechia,780,Jakub Woleský,2,WR,Prague Black Panthers
+Korea,841,Young O Jo,16,"C, WR",Beom
+Korea,842,Yong jun Lee,24,DB,Ligers
+Korea,843,SangJin Kim,2,WR,Beom
+Korea,844,Yucheon Park,9,DB,Beom
+Korea,845,Hyun Kyu Park,33,WR,Ligers
+Korea,846,Ga hun Cho,5,DB,Beom
+Korea,847,Younghoon Jung,14,WR,Beom
+Korea,848,Junho Jeon,20,DB,Beom
+Korea,849,Eun Chan Jung,84,WR,Beom
+Korea,850,Seongryeol Wee,3,DB,Beom
+Korea,851,Juwon Kim,17,QB,Ligers
+Korea,852,Juhyeon Kim,13,C / WR,Ligers
+Israel,557,Matan Bauman,10,DB\WR,Kfirim
+Israel,558,Joshua Leventhal,11,DB\WR,Rams
+Israel,559,Avraham Farkas,4,QB,Hammers
+Israel,560,Zvi Greenstone,6,QB\DB,Rebels
+Israel,561,Jonathan Curran,7,DB\WR,Hammers
+Israel,562,Yair Konigsberg,33,DB\WR,AFI
+Israel,563,David Ivashuk,21,DB\WR,Fogs
+Israel,564,Daniel Eastman,20,DB\WR,Hammers
+Israel,565,Michael Tover,13,R,AFI
+Israel,566,Daniel Mikahilov,87,DB\WR,Hammers
+Israel,567,Gideon Reiz,88,C\WR,Hammers
+Israel,568,Uziel Gyllenberg,8,DB\WR,Wolves
+Denmark,733,Alexander Kronborg Bjerre,7,QB,Amager Demons (flag) / Copenhagen Towers (tackle)
+Denmark,734,Benjamin Boraghi,15,DB/R,Allerød Armadillos
+Denmark,735,Frederik Daugaard Andersen,5,WR,Aarhus Tigers
+Denmark,736,Jonas Bo Hansen,81,WR,Allerød Armadillos
+Denmark,737,Kristoffer Skræddergaard Mogensen,17,WR/C,Copenhagen Creatures
+Denmark,738,Magnus Urth,6,WR,Aarhus Tigers
+Denmark,739,Markus Nørrung,11,WR/C,Amager Demons
+Denmark,740,Niklas Dyrby Johansen,23,DB,Allerød Armadillos
+Denmark,741,Oscar Broge-Starck,0,WR,Amager Demons
+Denmark,742,Rasmus Norup,24,DB,Allerød Armadillos
+Denmark,743,Samuel Ringheim,13,DB/R,Amager Demons
+Denmark,744,Thorkil Ørbæk,3,DB/R,Valby Royals
+Ireland,545,Ryan Eccles,2,WR/C,South Dublin Panthers
+Ireland,546,Jean-Luc Tubritt,3,Blitz/DB,Maynooth University Hurricanes
+Ireland,547,Matthew O’Meara,4,QB/WR,Dunboyne Wildcats
+Ireland,548,Luke McIntyre,5,DB,Maynooth University Hurricanes
+Ireland,549,Peter Loughran,7,QB,Craigavon Cowboys
+Ireland,550,Rex Harding,8,DB,Dublin Rebels
+Ireland,551,David Houston,9,DB/Blitz,Belfast City Lions
+Ireland,552,Finn Kearns,10,WR,Dunboyne Wildcats
+Ireland,553,Greg Johnson,11,WR,Dublin Rebels
+Ireland,554,Raymond Burke,15,WR,Belfast City Lions
+Ireland,555,Sean Douglas,13,C,South Dublin Panthers
+Ireland,556,Dave King,14,DB,Dublin Rebels
+Japan,817,Yuki Ikei,1,WR/QB,TOKYO VERDY
+Japan,818,Eiichi Rokukawa,2,C/DB,NAKANO BAGUS
+Japan,819,Kosei Ito,3,RB/BL,KYOTO JUVENILES
+Japan,820,Ryosuke Matsuo,5,WR/QB,KAWASAKI FRONTIERS
+Japan,821,Motohiro Isono,7,DB/QB,KYOTO JUVENILES
+Japan,822,Kai Takenami,9,DB/WR,KAWASAKI FRONTIERS
+Japan,823,Rintaro Mori,14,QB/WR,KYOTO JUVENILES
+Japan,824,Ryohei Uematsu,15,DB/C,SENRIYAMA BLACK JAGUARS
+Japan,825,Isao Nakayama,17,WR/BL,RIVERSIDE GAMBLERS
+Japan,826,Noriaki Kinoshita,18,WR/DB,TOKYO VERDY
+Japan,827,Toshiki Osumi,21,DB/WR,KITAOSAKA HUSKIES
+Japan,828,Masashi Fujimoto,22,DB/WR,TOKYO VERDY
+France,781,Hugo MELIZ,1,"",Molosses (Asnières)
+France,782,Anthony RIQUIN,2,"",Sphinx (Pau)
+France,783,Jordan LAVIOLETTE,3,"",Molosses (Asnières-sur-Seine)
+France,784,Corentin VASCONCELOS,7,"",Cobras (Mons-en-Barœul)
+France,785,François BREMOND,9,"",Flash (La Courneuve)
+France,786,Damien SABATINO,13,"",Salamandres (Le Havre)
+France,787,Scott HARRISON,19,"",Blue Stars (Marseille)
+France,788,Stéphane FORTES,21,"",Flash (La Courneuve)
+France,789,Romain AMIELL,22,"",Sphinx (Pau)
+France,790,Vincent LEMOINE,23,"",Juggernautes (Paris)
+France,791,Adrien DARMANA,24,"",Sphinx (Pau)
+France,792,Tanguy LOMINET,37,"",Centaures (Grenoble)
+Kuwait,617,Bader Mohammad,25,C,Qadsia Club
+Kuwait,618,Dawoud Alsarraj,10,R,Qadsia Club
+Kuwait,619,Emad Albannai,15,QB,Qadsia Club
+Kuwait,620,Mobarak Abdullah,66,S,Qadsia Club
+Kuwait,621,Abdullah Alsalem,71,R,Qadsia Club
+Kuwait,622,Salim Alsayar,14,CB,Qadsia Club
+Kuwait,623,Jarrah Alsaeed,2,CB,Qadsia Club
+Kuwait,624,Malk Almashmoum,4,CB,Qadsia Club
+Kuwait,625,Zaid Alkhabaz,13,WR,Qadsia Club
+Kuwait,626,Hasan Mohammad,11,CB,Qadsia Club
+Kuwait,627,Dari Alarfaj,1,S,Qadsia Club
+Kuwait,628,Faisal Farhan,9,B,Qadsia Club
+Argentina,641,Miguel López Gaudiero,3,QB,Corsarios 
+Argentina,642,Franco Franceschetti,5,DB,Legionarios
+Argentina,643,Román Hribar,11,WR,Tiburones
+Argentina,644,Nicolás Boero,15,WR,Dinos
+Argentina,645,Ilai Rozenblum,19,WR,Jabalíes
+Argentina,646,Tomás Álvarez Bentancur,20,DB,Dinos
+Argentina,647,Inti Sellares,22,WR,Legionarios
+Argentina,648,Marcelo Steinborn,23,WR,Jabalíes
+Argentina,649,Gianluca Salatino,40,DB,Cruzados
+Argentina,650,Juan Manuel Alonso,44,QB,Jabalíes
+Argentina,651,Tomás Kouba,83,WR,Corsarios
+Argentina,652,Guido Dworkind,85,C,Tiburones
