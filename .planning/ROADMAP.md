@@ -34,7 +34,12 @@ This roadmap uses `strand.phase` numbering intentionally (1.1–1.4 = Strand 1, 
   2. For each manually maintained field (`game_id`, `play_id`, `drive_id`, `half`, `posteam`, `yardline_50`) it is documented how it arrives in the export or is deterministically derived
   3. Time data is settled: the analyst delivers clip timestamps/game clock, or their unavailability is explicitly recorded (drives REQ-S1-15 scope)
   4. The charting protocol records the decision on defense fields (coverage shell, blitz, flag-pull causer) — adopted or explicitly skipped
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01.1-01-PLAN.md — Draft the full contract (schema JSON + German spec + half-boundary record) with explicit PENDING slots
+- [ ] 01.1-02-PLAN.md — Sight real defense-column values from sample exports; fix COVERAGE/DEF FRONT/BLITZ vocabulary
+- [ ] 01.1-03-PLAN.md — Analyst conversation: record outcomes, fill PENDING slots, finalize contract v1.0
 
 ### Phase 1.2: Repo to Pipeline
 **Goal**: The analysis runs as a reproducible package-based pipeline from raw exports to canonical, validated Parquet
@@ -140,7 +145,7 @@ This roadmap uses `strand.phase` numbering intentionally (1.1–1.4 = Strand 1, 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1.1 Data Contract | 0/TBD | Not started | - |
+| 1.1 Data Contract | 0/3 | Planned | - |
 | 1.2 Repo to Pipeline | 0/TBD | Not started | - |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
