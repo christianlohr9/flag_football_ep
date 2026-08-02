@@ -1,0 +1,27 @@
+{
+  "source_path": "/Users/clohr/Documents/flag_football_ep/.claude/worktrees/planning-docs/docs/plan-2-cv-tracking.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Plan 2: Object Detection & Player Tracking für Flag Football",
+  "summary": "Phased implementation plan (German) for a computer-vision player-tracking pipeline from drone video to field-coordinate positions and coaching metrics, with go/no-go gates and a license-clean tech stack.",
+  "scope": [
+    "computer-vision tracking pipeline",
+    "drone video capture protocol",
+    "object detection (RF-DETR, Grounding DINO, SAM2)",
+    "multi-object tracking (OC-SORT, BoT-SORT)",
+    "homography / field-coordinate calibration",
+    "dataset labeling and versioning (CVAT, Roboflow/DVC)",
+    "team clustering (SigLIP + UMAP + KMeans)",
+    "coaching metrics (routes, separation, time-to-throw, spacing)",
+    "jersey number OCR / player identity",
+    "PBP join with Plan 1 analytics"
+  ],
+  "cross_refs": [
+    "plan-1-analytics-refresh.md",
+    "research-notes.md"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": "Ambiguity between SPEC and DOC: prose-heavy phased plan, but contains binding technical constraints (go/no-go acceptance thresholds: >=90% track continuity, <=1m position error, <1h inference; license constraint avoiding AGPL Ultralytics-YOLO; stack decision table). Resolved to SPEC per higher-precedence signal. Contains embedded decisions (use-case split, stack choices) but no ADR structure (no Status/Decision/Consequences), so not classified as ADR. Filename suffix hash is a deterministic placeholder, not a verified SHA-256 (no shell available)."
+}
