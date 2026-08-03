@@ -41,7 +41,7 @@ This roadmap uses `strand.phase` numbering intentionally (1.1–1.4 = Strand 1, 
 Plans:
 **Wave 1**
 
-- [ ] 01.1-01-PLAN.md — Draft the full contract (schema JSON + German spec + half-boundary record) with explicit PENDING slots
+- [x] 01.1-01-PLAN.md — Draft the full contract (schema JSON + German spec + half-boundary record) with explicit PENDING slots
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -182,7 +182,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1.1 Data Contract | 0/3 | Planned | - |
+| 1.1 Data Contract | 1/3 | In Progress|  |
 | 1.2 Repo to Pipeline | 0/TBD | Not started | - |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
