@@ -9,8 +9,8 @@ IDs preserve the intel slugs from `.planning/intel/requirements.md` (shown in pa
 
 ### Strand 1 — Data Contract (Phase 1.1)
 
-- [ ] **REQ-S1-01** (hudl-data-contract): Full-year Hudl export defined with the Videoanalyst — games/tournaments, columns, an export preset so all games share identical column names and the fixed `RESULT` vocabulary; manual fields (`game_id`, `play_id`, `drive_id`, `half`, `posteam`, `yardline_50`) exported or deterministically derivable. Acceptance: all exported games parse through the pipeline without silent feature-construction breakage.
-- [ ] **REQ-S1-02** (time-data): Clip timestamps or game clock in the export so `half_seconds_remaining` becomes real instead of synthetic `1200 / max(play_id)` — the single biggest WP-model quality lever.
+- [x] **REQ-S1-01** (hudl-data-contract): Full-year Hudl export defined with the Videoanalyst — games/tournaments, columns, an export preset so all games share identical column names and the fixed `RESULT` vocabulary; manual fields (`game_id`, `play_id`, `drive_id`, `half`, `posteam`, `yardline_50`) exported or deterministically derivable. Acceptance: all exported games parse through the pipeline without silent feature-construction breakage.
+- [x] **REQ-S1-02** (time-data): Clip timestamps or game clock in the export so `half_seconds_remaining` becomes real instead of synthetic `1200 / max(play_id)` — the single biggest WP-model quality lever.
 - [ ] **REQ-S1-03** (defense-charting-fields, *optional, non-blocking*): 2–3 defense fields added to the charting protocol (coverage shell, blitz yes/no, flag-pull causer) — seconds per play for the analyst, enables defense scouting without CV.
 
 ### Strand 1 — Pipeline (Phase 1.2)
@@ -63,8 +63,8 @@ Mapped to a deferred roadmap phase; not part of the v1 gate.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| REQ-S1-01 | Phase 1.1 | Pending |
-| REQ-S1-02 | Phase 1.1 | Pending |
+| REQ-S1-01 | Phase 1.1 | Complete |
+| REQ-S1-02 | Phase 1.1 | Complete |
 | REQ-S1-03 | Phase 1.1 | Pending (optional) |
 | REQ-S1-04 | Phase 1.2 | Pending |
 | REQ-S1-05 | Phase 1.2 | Pending |
