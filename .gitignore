@@ -1,2 +1,5 @@
 # Hudl sample exports contain player names (PII) — never commit (T-1.1-03)
 data/samples/
+
+__pycache__/
+*.pyc
