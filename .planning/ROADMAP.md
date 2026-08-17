@@ -13,7 +13,7 @@ This roadmap uses `strand.phase` numbering intentionally (1.1–1.4 = Strand 1, 
 ## Phases
 
 - [x] **Phase 1.1: Data Contract with the Videoanalyst** - Hudl export preset, RESULT vocabulary, time data, optional defense fields (completed 2026-08-17)
-- [x] **Phase 1.2: Repo to Pipeline** - Notebook logic into `src/flag_football_ep`, ingest CLI with per-game validation, source merge (completed 2026-08-17)
+- [ ] **Phase 1.2: Repo to Pipeline** - Notebook logic into `src/flag_football_ep`, ingest CLI with per-game validation, source merge (plans 01–17 executed 2026-08-17; verification found gaps, gap-closure plans 18–24 pending)
 - [ ] **Phase 1.3: Methodical Model Retraining** - GroupKFold split fix, calibration, feature re-tests, empirical PAT baselines, model versioning
 - [ ] **Phase 1.4: Coaching Products** - Opponent tendency reports, own-efficiency report, decision charts, WP review charts, <10 min turnaround
 - [ ] **Phase 2.0: Capture Protocol & Material Inventory** - Analyst conversation, drone protocol, legal clearance, sync convention (parallel, no code)
@@ -62,7 +62,7 @@ Plans:
   2. The ingest CLI turns a folder of Hudl exports into canonical Parquet and emits a per-game validation report: downs 0–4, `yardline_50` in [0, 50], monotonic drive IDs, gapless play sequences, reconstructed score == final score per match report
   3. Hudl own games and sportapp.fi/IFAF tournament data share one canonical schema; raw files are consolidated under `data/` (no more repo-root CSV sprawl)
 
-**Plans**: 17 plans in 7 waves
+**Plans**: 24 plans in 10 waves (18–24 close the gaps found in `01.2-VERIFICATION.md`)
 Plans:
 **Wave 1**
 
@@ -101,6 +101,22 @@ Plans:
 **Wave 7** *(blocked on Wave 6)*
 
 - [x] 01.2-17-PLAN.md — Repo cleanup, `Python/` removal, thin demo notebooks, pipeline documentation
+
+**Wave 8** *(gap closure — four independent fixes, no shared files)*
+
+- [ ] 01.2-18-PLAN.md — CR-01: restore chronological row order before EP/WP variable derivation in `score_plays`
+- [ ] 01.2-19-PLAN.md — WR-04: scope the EP/WP `backward_fill`/`shift(-1)` operations to `game_id`
+- [ ] 01.2-20-PLAN.md — CR-02 (containment): non-strict ingest casts, complete per-file/per-game error handling, null-safe `gapless_play_ids`
+- [ ] 01.2-21-PLAN.md — WR-02: credit a score that happens on a game's first play
+
+**Wave 9** *(blocked on Wave 8)*
+
+- [ ] 01.2-22-PLAN.md — CR-02/WR-01 (reporting): source notices and skipped files in the report, console and CLI
+- [ ] 01.2-23-PLAN.md — WR-03/WR-11: IFAF defensive 2-pt conversions to the defense, one cross-source `play_type` vocabulary
+
+**Wave 10** *(blocked on Wave 9)*
+
+- [ ] 01.2-24-PLAN.md — Mixed-corpus end-to-end scoring test, notice/containment documentation, full-suite gate
 
 ### Phase 1.3: Methodical Model Retraining
 
@@ -221,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 17/17 | Complete   | 2026-08-17 |
+| 1.2 Repo to Pipeline | 17/24 | Gap closure (plans 18–24 pending) | - |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
