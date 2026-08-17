@@ -12,7 +12,7 @@ This roadmap uses `strand.phase` numbering intentionally (1.1–1.4 = Strand 1, 
 
 ## Phases
 
-- [ ] **Phase 1.1: Data Contract with the Videoanalyst** - Hudl export preset, RESULT vocabulary, time data, optional defense fields
+- [x] **Phase 1.1: Data Contract with the Videoanalyst** - Hudl export preset, RESULT vocabulary, time data, optional defense fields (completed 2026-08-17)
 - [ ] **Phase 1.2: Repo to Pipeline** - Notebook logic into `src/flag_football_ep`, ingest CLI with per-game validation, source merge
 - [ ] **Phase 1.3: Methodical Model Retraining** - GroupKFold split fix, calibration, feature re-tests, empirical PAT baselines, model versioning
 - [ ] **Phase 1.4: Coaching Products** - Opponent tendency reports, own-efficiency report, decision charts, WP review charts, <10 min turnaround
@@ -49,7 +49,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01.1-03-PLAN.md — Analyst conversation: record outcomes, fill PENDING slots, finalize contract v1.0
+- [x] 01.1-03-PLAN.md — Analyst conversation: record outcomes, fill PENDING slots, finalize contract v1.0
 
 ### Phase 1.2: Repo to Pipeline
 
@@ -182,7 +182,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1.1 Data Contract | 2/3 | In Progress|  |
+| 1.1 Data Contract | 3/3 | Complete   | 2026-08-17 |
 | 1.2 Repo to Pipeline | 0/TBD | Not started | - |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
