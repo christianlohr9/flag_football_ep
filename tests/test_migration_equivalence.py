@@ -47,6 +47,12 @@ block, one run should report every differing column and its delta, not just the 
    Documented here as a discovered, explained delta rather than asserted equal.
 
 Any delta on a column NOT in this list is a real port bug and must fail the test.
+
+The WR-02 fix to `canonical.add_score_columns` (evaluating the scoring branch before the
+play-1 zero seed, so a first-play score is no longer silently discarded) was verified to
+produce zero delta on this corpus: `data_raw.csv` has 0 first plays (of 47 games) with a
+non-null `scoring_play_team`, so the branch reorder never changes which value is selected
+here.
 """
 
 from __future__ import annotations
