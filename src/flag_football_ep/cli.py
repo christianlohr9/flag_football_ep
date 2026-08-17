@@ -48,6 +48,9 @@ def ingest(
     typer.echo(f"games:  {result.games_path} ({result.n_games} games, {result.n_quarantined} quarantined)")
     typer.echo(f"report: {result.report_path}")
 
+    for notice in result.notices:
+        typer.echo(f"notice: {notice}")
+
     if strict and result.n_quarantined > 0:
         raise typer.Exit(code=1)
 
@@ -238,6 +241,8 @@ def run(
         f"ingest: {result.ingest.plays_path} "
         f"({result.ingest.n_plays} plays, {result.ingest.n_quarantined} quarantined)"
     )
+    for notice in result.ingest.notices:
+        typer.echo(f"notice: {notice}")
     typer.echo(f"ep run:  {result.ep_run}")
     typer.echo(f"wp run:  {result.wp_run}")
     typer.echo(f"scored:  {result.scored_path}")
