@@ -203,13 +203,47 @@ def run(
     tune: bool = typer.Option(False, "--tune/--no-tune", help="Run hyperopt tuning"),
 ) -> None:
     """Run the full pipeline: ingest, train, score."""
-    from flag_football_ep.config import load_config
+    from flag_football_ep.config import load_config, secret
 
     cfg = load_config(config)
 
+    if not skip_fetch:
+        from flag_football_ep.fetch.ifaf import fetch_tournament
+        from flag_football_ep.fetch.sportapp import fetch_games
+        from flag_football_ep.reference import load_sportapp_games
+
+        sportapp_api_key = secret(cfg.sources.sportapp.api_key_env, required=False)
+        if sportapp_api_key:
+            game_ids = load_sportapp_games(cfg.reference.sportapp_games)["source_game_id"].to_list()
+            fetch_games(game_ids, cfg.paths.raw_sportapp, sportapp_api_key, cfg.sources.sportapp.base_url)
+        else:
+            typer.echo(
+                f"skipping sportapp.fi fetch: {cfg.sources.sportapp.api_key_env} is not set"
+            )
+
+        ifaf_api_key_env = getattr(cfg.sources.ifaf, "api_key_env", None)
+        ifaf_api_key = secret(ifaf_api_key_env, required=False) if ifaf_api_key_env else None
+        fetch_tournament(
+            cfg.sources.ifaf.base_url,
+            cfg.sources.ifaf.tournament,
+            cfg.paths.raw_ifaf,
+            api_key=ifaf_api_key,
+        )
+
     from flag_football_ep.pipeline import run_all
 
-    run_all(cfg, tune)
+    result = run_all(cfg, tune)
+
+    typer.echo(
+        f"ingest: {result.ingest.plays_path} "
+        f"({result.ingest.n_plays} plays, {result.ingest.n_quarantined} quarantined)"
+    )
+    typer.echo(f"ep run:  {result.ep_run}")
+    typer.echo(f"wp run:  {result.wp_run}")
+    typer.echo(f"scored:  {result.scored_path}")
+    for stage, seconds in result.durations.items():
+        typer.echo(f"  {stage}: {seconds:.2f}s")
+    typer.echo(f"  total: {sum(result.durations.values()):.2f}s")
 
 
 if __name__ == "__main__":
