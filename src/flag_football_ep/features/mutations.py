@@ -17,6 +17,8 @@ game clock, and do not source it from `game_clock_ms` here.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 import polars as pl
 
 # Hard-coded PAT success-rate assumptions from the notebook (1-pt try from the 5 yard line,
@@ -41,6 +43,15 @@ class MissingFeatureColumns(ValueError):
 
     The notebook let this surface as an opaque polars ColumnNotFound; this names every
     missing column instead.
+    """
+
+
+class DegenerateWeightRange(ValueError):
+    """Raised when Drive_Score_Dist_W or ScoreDiff_W would divide by a zero range.
+
+    These sample weights (RESEARCH Pitfall 4) must be computed on the full training corpus,
+    never per game or on any subset with no variation in Drive_Score_Dist / score_differential
+    -- a zero range silently produced NaN/inf weights in the notebook.
     """
 
 
@@ -470,3 +481,132 @@ def add_wp_variables(df: pl.DataFrame) -> pl.DataFrame:
         )
     )
     return df
+
+
+def make_ep_model_mutations(df: pl.DataFrame, selected_columns: Sequence[str]) -> pl.DataFrame:
+    """Port of `helper_add_model_mutations.make_ep_model_mutations`.
+
+    Adds `label` (0..4 from `Next_Score_Half`), `down0`..`down4`, `Drive_Score_Dist`,
+    `Drive_Score_Dist_W`, `ScoreDiff_W`, `Total_W`, `Total_W_Scaled`; filters null
+    `yardline_50`/`yards_to_go`; selects `selected_columns` in that exact order.
+
+    Must be called on the full training corpus, never per-game or on any subset with no
+    variation in `Drive_Score_Dist` / `score_differential` -- `DegenerateWeightRange` is
+    raised instead of silently emitting NaN/inf sample weights (RESEARCH Pitfall 4).
+    """
+    df = (
+        df.with_columns(
+            label=pl.when(pl.col("Next_Score_Half") == "Touchdown")
+            .then(pl.lit(0))
+            .when(pl.col("Next_Score_Half") == "Opp_Touchdown")
+            .then(pl.lit(1))
+            # .when(pl.col("Next_Score_Half") == "Extra_Point").then(pl.lit(2))
+            # .when(pl.col("Next_Score_Half") == "Two_Point_Conversion").then(pl.lit(3))
+            # .when(pl.col("Next_Score_Half") == "Opp_Two_Point_Conversion").then(pl.lit(4))
+            .when(pl.col("Next_Score_Half") == "Safety")
+            .then(pl.lit(2))
+            .when(pl.col("Next_Score_Half") == "Opp_Safety")
+            .then(pl.lit(3))
+            .when(pl.col("Next_Score_Half") == "No_Score")
+            .then(pl.lit(4))
+            .otherwise(pl.lit(None))
+        )
+        .with_columns(
+            down0=pl.when(pl.col("down") == 0).then(pl.lit(1)).otherwise(pl.lit(0)),
+            down1=pl.when(pl.col("down") == 1).then(pl.lit(1)).otherwise(pl.lit(0)),
+            down2=pl.when(pl.col("down") == 2).then(pl.lit(1)).otherwise(pl.lit(0)),
+            down3=pl.when(pl.col("down") == 3).then(pl.lit(1)).otherwise(pl.lit(0)),
+            down4=pl.when(pl.col("down") == 4).then(pl.lit(1)).otherwise(pl.lit(0)),
+        )
+        .with_columns(Drive_Score_Dist=pl.col("Drive_Score_Half") - pl.col("drive_id"))
+    )
+
+    drive_score_dist_max = df["Drive_Score_Dist"].max()
+    drive_score_dist_min = df["Drive_Score_Dist"].min()
+    if drive_score_dist_max == drive_score_dist_min:
+        raise DegenerateWeightRange(
+            "Drive_Score_Dist has zero range across the input frame (max == min == "
+            f"{drive_score_dist_max!r}). Drive_Score_Dist_W must be computed on the full "
+            "training corpus, never per game or on a subset with no variation."
+        )
+
+    score_diff_abs_max = df["score_differential"].abs().max()
+    score_diff_abs_min = df["score_differential"].abs().min()
+    if score_diff_abs_max == score_diff_abs_min:
+        raise DegenerateWeightRange(
+            "score_differential has zero absolute range across the input frame (max == min "
+            f"== {score_diff_abs_max!r}). ScoreDiff_W must be computed on the full training "
+            "corpus, never per game or on a subset with no variation."
+        )
+
+    model_data = (
+        df.with_columns(
+            Drive_Score_Dist_W=(
+                pl.col("Drive_Score_Dist").max() - pl.col("Drive_Score_Dist")
+            )
+            / (pl.col("Drive_Score_Dist").max() - pl.col("Drive_Score_Dist").min())
+        )
+        .with_columns(
+            ScoreDiff_W=(
+                pl.col("score_differential").abs().max() - pl.col("score_differential").abs()
+            )
+            / (
+                pl.col("score_differential").abs().max()
+                - pl.col("score_differential").abs().min()
+            )
+        )
+        .with_columns(Total_W=pl.col("Drive_Score_Dist_W") + pl.col("ScoreDiff_W"))
+        .with_columns(
+            Total_W_Scaled=(pl.col("Total_W") - pl.col("Total_W").min())
+            / (pl.col("Total_W").max() - pl.col("Total_W").min())
+        )
+        .filter(
+            pl.col("yardline_50").is_not_null(),
+            pl.col("yards_to_go").is_not_null(),
+        )
+        .select(list(selected_columns))
+    )
+    return model_data
+
+
+def make_wp_model_mutations(df: pl.DataFrame, selected_columns: Sequence[str]) -> pl.DataFrame:
+    """Port of `helper_add_model_mutations.make_wp_model_mutations`.
+
+    Adds `Winner` (backward-filled from the game_end scores) and `label` (1 when `posteam`
+    equals `Winner`, else 0 -- a tie yields label 0 for both teams since `Winner` is "TIE"
+    for every posteam); selects `selected_columns` in that exact order.
+
+    Fixed vs. the notebook: `Winner` is set to the actual team name (`pl.col("home_team")` /
+    `pl.col("away_team")`) instead of the literal strings `"home_team"`/`"away_team"`, which
+    could never match `posteam` and would have made every label 0. `Winner`'s backward_fill
+    is scoped `.over("game_id")` so a multi-game frame does not leak one game's winner into
+    another's rows.
+    """
+    model_data = (
+        df.with_columns(
+            Winner=pl.when(
+                (pl.col("game_end") == 1)
+                & (pl.col("home_team_score") > pl.col("away_team_score"))
+            )
+            .then(pl.col("home_team"))
+            .when(
+                (pl.col("game_end") == 1)
+                & (pl.col("home_team_score") < pl.col("away_team_score"))
+            )
+            .then(pl.col("away_team"))
+            .when(
+                (pl.col("game_end") == 1)
+                & (pl.col("home_team_score") == pl.col("away_team_score"))
+            )
+            .then(pl.lit("TIE"))
+            .otherwise(pl.lit(None))
+        )
+        .with_columns(Winner=pl.col("Winner").backward_fill().over("game_id"))
+        .with_columns(
+            label=pl.when(pl.col("posteam") == pl.col("Winner"))
+            .then(pl.lit(1))
+            .otherwise(pl.lit(0))
+        )
+        .select(list(selected_columns))
+    )
+    return model_data

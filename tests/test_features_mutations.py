@@ -15,12 +15,45 @@ from flag_football_ep.features.mutations import (
     EP_PROBABILITY_COLUMNS,
     PAT_BASELINE_ONE_POINT,
     PAT_BASELINE_TWO_POINT,
+    DegenerateWeightRange,
     MissingFeatureColumns,
     add_ep_variables,
     add_wp_variables,
+    make_ep_model_mutations,
+    make_wp_model_mutations,
     prepare_ep_data,
     prepare_wp_data,
 )
+
+_EP_MODEL_COLUMNS = [
+    "game_id",
+    "play_id",
+    "label",
+    "down0",
+    "down1",
+    "down2",
+    "down3",
+    "down4",
+    "Drive_Score_Dist",
+    "Drive_Score_Dist_W",
+    "ScoreDiff_W",
+    "Total_W",
+    "Total_W_Scaled",
+]
+
+
+def _multi_drive_ep_frame(n_games: int = 1, plays_per_game: int = 12) -> pl.DataFrame:
+    """A frame with >1 drive per half and one mid-half touchdown, so Drive_Score_Dist and
+    score_differential both vary (avoids the degenerate single-drive-per-half shape).
+    """
+    touchdown = [0] * plays_per_game
+    touchdown[5] = 1  # play_id 6: mid-half, second drive of the half
+    overrides = {"touchdown": touchdown * n_games}
+    return prepare_ep_data(
+        canonical_plays_with_scores(
+            n_games=n_games, plays_per_game=plays_per_game, overrides=overrides
+        )
+    )
 
 _EP_PROBS = {
     "Touchdown_Prob": 0.2,
@@ -481,3 +514,154 @@ class TestAddWpVariables:
 
         assert df.columns == original_columns
         assert "home_wp" not in df.columns
+
+
+class TestMakeEpModelMutations:
+    def test_label_mapping(self):
+        n = 12
+        touchdown = [0] * n
+        touchdown[5] = 1
+        df = prepare_ep_data(
+            canonical_plays_with_scores(
+                n_games=1, plays_per_game=n, overrides={"touchdown": touchdown}
+            )
+        )
+
+        out = make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+
+        # Every label present must be one of the five mapped values (Extra_Point /
+        # Two_Point_Conversion / Opp_Two_Point_Conversion stay unmapped -> null, as in the
+        # notebook's commented-out branches).
+        assert set(out["label"].drop_nulls().unique().to_list()) <= {0, 1, 2, 3, 4}
+
+    def test_down_dummies_one_hot_in_range(self):
+        df = _multi_drive_ep_frame()
+
+        out = make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+
+        down_sum = out["down0"] + out["down1"] + out["down2"] + out["down3"] + out["down4"]
+        assert set(down_sum.to_list()) == {1}
+
+    def test_drive_score_dist_equals_drive_score_half_minus_drive_id(self):
+        df = _multi_drive_ep_frame()
+
+        out = make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+
+        assert set(out["Drive_Score_Dist"].to_list()) == {0, 1}
+
+    def test_total_w_scaled_has_no_nan_no_inf_and_is_bounded(self):
+        df = _multi_drive_ep_frame(n_games=3, plays_per_game=12)
+
+        out = make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+
+        assert out["Total_W_Scaled"].is_nan().sum() == 0
+        assert out["Total_W_Scaled"].is_infinite().sum() == 0
+        assert out["Total_W_Scaled"].null_count() == 0
+        assert out["Total_W_Scaled"].min() >= 0
+        assert out["Total_W_Scaled"].max() <= 1
+
+    def test_degenerate_single_game_raises(self):
+        # A single game with no scoring at all: every row is "No_Score" on its own drive,
+        # so Drive_Score_Dist is 0 everywhere -> zero range.
+        df = prepare_ep_data(canonical_plays_with_scores(n_games=1, plays_per_game=8))
+
+        with pytest.raises(DegenerateWeightRange):
+            make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+
+    def test_null_yardline_50_rows_are_dropped(self):
+        df = _multi_drive_ep_frame()
+        df = df.with_columns(
+            pl.when(pl.col("play_id") == 1)
+            .then(None)
+            .otherwise(pl.col("yardline_50"))
+            .alias("yardline_50")
+        )
+
+        out = make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+
+        assert 1 not in out["play_id"].to_list()
+
+    def test_null_yards_to_go_rows_are_dropped(self):
+        df = _multi_drive_ep_frame()
+        df = df.with_columns(
+            pl.when(pl.col("play_id") == 1)
+            .then(None)
+            .otherwise(pl.col("yards_to_go"))
+            .alias("yards_to_go")
+        )
+
+        out = make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+
+        assert 1 not in out["play_id"].to_list()
+
+    def test_output_columns_equal_selected_columns_in_order(self):
+        df = _multi_drive_ep_frame()
+        columns = ["play_id", "down2", "label", "game_id"]
+
+        out = make_ep_model_mutations(df, columns)
+
+        assert out.columns == columns
+
+
+class TestMakeWpModelMutations:
+    def _wp_frame(self, n_games: int = 2, plays_per_game: int = 8) -> pl.DataFrame:
+        touchdown = [0] * plays_per_game
+        touchdown[-1] = 1  # last play of the game scores
+        return prepare_ep_data(
+            canonical_plays_with_scores(
+                n_games=n_games,
+                plays_per_game=plays_per_game,
+                overrides={"touchdown": touchdown * n_games},
+            )
+        )
+
+    def test_winner_matches_actual_team_not_literal_string(self):
+        df = self._wp_frame()
+
+        out = make_wp_model_mutations(
+            df, ["game_id", "play_id", "posteam", "home_team", "away_team", "Winner", "label"]
+        )
+
+        assert set(out["Winner"].unique().to_list()) <= {"HOME", "AWAY"}
+
+    def test_label_is_one_when_posteam_equals_winner(self):
+        df = self._wp_frame()
+
+        out = make_wp_model_mutations(
+            df, ["game_id", "play_id", "posteam", "Winner", "label"]
+        )
+
+        winners = out.filter(pl.col("posteam") == pl.col("Winner"))
+        losers = out.filter(pl.col("posteam") != pl.col("Winner"))
+        assert set(winners["label"].to_list()) == {1}
+        assert set(losers["label"].to_list()) == {0}
+
+    def test_tie_game_labels_both_teams_zero(self):
+        # No scoring at all -> home_team_score == away_team_score == 0 at game_end -> TIE.
+        df = prepare_ep_data(canonical_plays_with_scores(n_games=1, plays_per_game=8))
+
+        out = make_wp_model_mutations(df, ["posteam", "Winner", "label"])
+
+        assert set(out["Winner"].unique().to_list()) == {"TIE"}
+        assert set(out["label"].to_list()) == {0}
+
+    def test_two_game_winner_does_not_leak_across_games(self):
+        # Game 0 scores on the last play (AWAY wins); game 1 has no scoring (TIE).
+        touchdown_game0 = [0] * 8
+        touchdown_game0[-1] = 1
+        touchdown_game1 = [0] * 8
+        df = prepare_ep_data(
+            canonical_plays_with_scores(
+                n_games=2,
+                plays_per_game=8,
+                overrides={"touchdown": touchdown_game0 + touchdown_game1},
+            )
+        )
+
+        out = make_wp_model_mutations(df, ["game_id", "posteam", "Winner", "label"])
+
+        game_ids = sorted(out["game_id"].unique().to_list())
+        winner_game0 = out.filter(pl.col("game_id") == game_ids[0])["Winner"].unique().to_list()
+        winner_game1 = out.filter(pl.col("game_id") == game_ids[1])["Winner"].unique().to_list()
+        assert winner_game0 == ["AWAY"]
+        assert winner_game1 == ["TIE"]
