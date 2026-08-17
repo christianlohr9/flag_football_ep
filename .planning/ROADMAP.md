@@ -91,8 +91,8 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 01.2-14-PLAN.md — `ffep ingest`: source orchestration, atomic canonical Parquet, validation report
-- [ ] 01.2-15-PLAN.md — `ffep score`: MLflow run resolution, EPA/WPA scoring
+- [x] 01.2-14-PLAN.md — `ffep ingest`: source orchestration, atomic canonical Parquet, validation report
+- [x] 01.2-15-PLAN.md — `ffep score`: MLflow run resolution, EPA/WPA scoring
 
 **Wave 6** *(blocked on Wave 5)*
 
@@ -221,7 +221,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 13/17 | In Progress|  |
+| 1.2 Repo to Pipeline | 15/17 | In Progress|  |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
