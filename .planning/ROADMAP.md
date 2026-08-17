@@ -120,7 +120,7 @@ Plans:
 
 **Wave 11** *(gap closure after re-verification)*
 
-- [ ] 01.2-25-PLAN.md — IFAF per-game ingest containment: null/type-safe play sort key, per-game skip notices, explicit whole-source-drop wording
+- [x] 01.2-25-PLAN.md — IFAF per-game ingest containment: null/type-safe play sort key, per-game skip notices, explicit whole-source-drop wording
 
 ### Phase 1.3: Methodical Model Retraining
 
@@ -241,7 +241,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 24/24 | Complete   | 2026-08-17 |
+| 1.2 Repo to Pipeline | 25/25 | Complete   | 2026-08-17 |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
