@@ -83,11 +83,11 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 01.2-09-PLAN.md — Hudl ingest: filename, contract header, exact-token RESULT grammar, contract derivations
-- [ ] 01.2-10-PLAN.md — Legacy `data_raw.csv` ingest with frozen notebook semantics, warn-only validation
-- [ ] 01.2-11-PLAN.md — sportapp.fi snapshot ingest and the WC24 corpus disposition
-- [ ] 01.2-12-PLAN.md — IFAF/cpx.studio field mapping and snapshot ingest
-- [ ] 01.2-13-PLAN.md — EP/WP training with MLflow tracking, optional hyperopt, dated artifact export
+- [x] 01.2-09-PLAN.md — Hudl ingest: filename, contract header, exact-token RESULT grammar, contract derivations
+- [x] 01.2-10-PLAN.md — Legacy `data_raw.csv` ingest with frozen notebook semantics, warn-only validation
+- [x] 01.2-11-PLAN.md — sportapp.fi snapshot ingest and the WC24 corpus disposition
+- [x] 01.2-12-PLAN.md — IFAF/cpx.studio field mapping and snapshot ingest
+- [x] 01.2-13-PLAN.md — EP/WP training with MLflow tracking, optional hyperopt, dated artifact export
 
 **Wave 5** *(blocked on Wave 4)*
 
@@ -221,7 +221,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 8/17 | In Progress|  |
+| 1.2 Repo to Pipeline | 13/17 | In Progress|  |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
