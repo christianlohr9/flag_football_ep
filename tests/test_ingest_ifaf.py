@@ -237,11 +237,11 @@ def test_flatten_sets_source_column_ifaf():
 def test_derive_outcome_columns_maps_known_vocabulary():
     payload = [
         {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"},
-         "outcome": {"type": "TOUCHDOWN", "turnover": False}},
+         "outcome": {"type": "TOUCHDOWN", "turnover": False, "pointsScored": 6}},
         {"playNumber": 2, "context": {"half": 1, "possessionTeamId": "w-usa"},
-         "outcome": {"type": "TOUCHDOWN", "turnover": True}},  # defensive TD
+         "outcome": {"type": "TOUCHDOWN", "turnover": True, "pointsScored": 6}},  # defensive TD
         {"playNumber": 3, "context": {"half": 1, "possessionTeamId": "w-usa"},
-         "outcome": {"type": "TD", "turnover": False}},
+         "outcome": {"type": "TD", "turnover": False, "pointsScored": 6}},
         {"playNumber": 4, "context": {"half": 1, "possessionTeamId": "w-usa"},
          "outcome": {"type": "INTERCEPTION", "turnover": True}},
         {"playNumber": 5, "context": {"half": 1, "possessionTeamId": "w-usa"},
@@ -276,6 +276,52 @@ def test_derive_outcome_columns_maps_known_vocabulary():
     assert rows[9]["two_point_conv_success"] == 1
     assert rows[10]["safety"] == 1
     assert rows[11]["penalty"] == 1
+
+
+def test_derive_outcome_columns_touchdown_without_points_scored_is_not_credited():
+    """Regression test: a live-data finding — some "TOUCHDOWN"/"TD"-typed plays
+    carry no outcome.pointsScored at all and never move the real scoreboard
+    (consistent with an overturned/nullified play). outcome.type alone must
+    never be trusted to mean 6 points were actually scored."""
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "TOUCHDOWN", "turnover": True}},  # no pointsScored
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    df = derive_outcome_columns(df)
+    row = df.row(0, named=True)
+    assert row["touchdown"] == 0
+    assert row["def_touchdown"] == 0
+
+
+def test_derive_outcome_columns_touchdown_type_with_conversion_points_routes_to_conversion():
+    """Regression test: a live-data finding — some "TOUCHDOWN"-typed plays are
+    actually 1- or 2-point conversions (description.kind == "TRY" on those rows),
+    evidenced by outcome.pointsScored == 1 or 2 instead of 6."""
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "TOUCHDOWN", "turnover": False, "pointsScored": 1}},
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    df = derive_outcome_columns(df)
+    row = df.row(0, named=True)
+    assert row["touchdown"] == 0
+    assert row["one_point_conv_success"] == 1
+
+
+def test_derive_outcome_columns_try_is_variable_conversion_not_fixed_to_one_point():
+    """Regression test: outcome.type "TRY" is a generic PAT-success token that can
+    carry pointsScored 1 or 2 (docs/ifaf-field-mapping.md: 102 vs. 28 instances in
+    the live corpus) — unlike XP1/XP2, it must never be assumed to be worth 1 point."""
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "TRY", "pointsScored": 2}},
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    df = derive_outcome_columns(df)
+    row = df.row(0, named=True)
+    assert row["two_point_conv_success"] == 1
+    assert row["one_point_conv_success"] == 0
 
 
 def test_derive_outcome_columns_unmapped_value_leaves_flags_zero():
