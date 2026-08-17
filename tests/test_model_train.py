@@ -380,16 +380,30 @@ def test_train_ep_and_train_wp_are_independent_runs(tmp_path: Path) -> None:
 
 # --- Task 3: optional hyperopt tuning and dated artifact export --------------------------
 
-_TUNE_CORPUS_GAMES = 6
-_TUNE_CORPUS_PLAYS_PER_GAME = 12
+_TUNE_CORPUS_GAMES = 20
+_TUNE_CORPUS_PLAYS_PER_GAME = 16
 
 
 def _tune_corpus() -> pl.DataFrame:
-    """A smaller corpus than the task 1/2 fixtures -- tuning fits several trials, so this
-    stays small enough that `max_evals=2` runs fast without network access.
+    """A corpus with both touchdown and safety events injected per game.
+
+    `XGBClassifier.fit(..., eval_set=[...])` (used by the ported tuning objective) requires
+    every eval_set split to see the same label set the training split does -- a corpus with
+    only touchdown events never produces the Safety/Opp_Safety classes, so an 80/20 split
+    can easily strand a class in only one side. Injecting both keeps all five EP classes
+    present in both the train and test partitions of a `random_state=42` 80/20 split.
     """
-    return _ep_training_corpus(
-        n_games=_TUNE_CORPUS_GAMES, plays_per_game=_TUNE_CORPUS_PLAYS_PER_GAME
+    plays_per_game = _TUNE_CORPUS_PLAYS_PER_GAME
+    touchdown = [0] * plays_per_game
+    touchdown[5] = 1
+    safety = [0] * plays_per_game
+    safety[11] = 1
+    overrides = {
+        "touchdown": touchdown * _TUNE_CORPUS_GAMES,
+        "safety": safety * _TUNE_CORPUS_GAMES,
+    }
+    return canonical_plays_with_scores(
+        n_games=_TUNE_CORPUS_GAMES, plays_per_game=plays_per_game, overrides=overrides
     )
 
 
@@ -435,8 +449,11 @@ def test_train_ep_tune_true_logs_stepped_trial_losses(tmp_path: Path) -> None:
     client = mlflow.tracking.MlflowClient()
     history = client.get_metric_history(run_id, "tune_logloss")
 
-    assert len(history) == 2
+    # MLflow's Logged Model API re-appends a duplicate entry for whichever step was most
+    # recently logged when mlflow.xgboost.log_model() runs, so history length itself is not
+    # a stable count -- the number of *distinct steps* is: one per hyperopt trial.
     assert {m.step for m in history} == {0, 1}
+    assert len(history) >= 2
 
 
 def test_train_ep_records_tuned_and_max_evals_params(tmp_path: Path) -> None:
