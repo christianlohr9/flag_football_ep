@@ -23,6 +23,7 @@ from typer.testing import CliRunner
 import test_pipeline_ingest as tpi
 from flag_football_ep.cli import app
 from flag_football_ep.config import Config
+from flag_football_ep.model.hyperparams import EP_PROB_LABELS
 from flag_football_ep.pipeline import EmptyIngestResultError, RunAllResult, run_all
 
 _CLI_RUNNER = CliRunner()
@@ -214,6 +215,68 @@ def test_run_all_tune_forwarded_to_both_training_calls(
     assert calls == {"ep": True, "wp": True}
     assert result.ep_run == "fake-ep-run"
     assert result.wp_run == "fake-wp-run"
+
+
+# --- run_all: mixed corpus with IFAF null-feature rows (CR-01 gap closure, 01.2-24) -------
+#
+# VERIFICATION recorded that neither the score_plays unit tests nor the migration-equivalence
+# test ever exercises score_plays with a trained model on a mixed corpus containing IFAF's
+# always-null `yards_to_go` rows (ingest/ifaf.py's module docstring: "yards_to_go is always
+# left null") -- the gap that let CR-01 survive a full green suite. This test closes that gap
+# at integration level: a real ingest -> train -> score chain over hudl + legacy + sportapp +
+# ifaf, asserting the complete rows still score non-null epa/wpa and the null-feature rows
+# come back with null EP probabilities in their original row position.
+
+
+@pytest.fixture
+def mixed_corpus_tree(tmp_path: Path, repo_root: Path) -> Config:
+    """`training_tree`'s Hudl games (real-fit shape) plus the legacy, sportapp and IFAF
+    fixtures from `test_pipeline_ingest` layered on top -- a real four-source corpus where
+    the IFAF rows carry the always-null `yards_to_go` shape that caused CR-01.
+
+    `_write_training_tree` already writes matching `half_boundaries.csv`/`final_scores.csv`/
+    `team_mapping.csv` entries for all four sources (via `test_pipeline_ingest.
+    _write_reference_csvs`), so no further reference-CSV glue is needed here.
+    """
+    config = tpi._make_config(tmp_path, repo_root)
+    _write_training_tree(config)
+    tpi._write_legacy_game(config.paths.raw_legacy)
+    tpi._write_sportapp_fixture(config.paths.raw_sportapp)
+    tpi._write_ifaf_fixture(config.paths.raw_ifaf)
+    return config
+
+
+def test_run_all_mixed_corpus_with_null_feature_ifaf_rows(mixed_corpus_tree: Config) -> None:
+    """CR-01 regression at integration level (T-1.2-55): `run_all` on a corpus mixing
+    complete hudl/legacy/sportapp rows with IFAF's always-null `yards_to_go` rows must
+    still complete, preserve row count and row order, and produce non-null `epa`/`wpa` on
+    the complete rows while leaving the null-feature rows' EP probability columns null --
+    the CR-01 failure mode was relocating null-feature rows to the frame's tail before
+    `add_ep_variables`/`add_wp_variables`'s `shift(-1)`/`backward_fill()`, corrupting every
+    row adjacent to one.
+    """
+    result = run_all(mixed_corpus_tree, tune=False)
+
+    plays = pl.read_parquet(result.ingest.plays_path)
+    scored = pl.read_parquet(result.scored_path)
+
+    assert scored.height == plays.height == result.ingest.n_plays
+
+    # Row identity (order) is preserved through the score stage.
+    assert scored["game_id"].to_list() == plays["game_id"].to_list()
+    assert scored["play_id"].to_list() == plays["play_id"].to_list()
+
+    null_feature_rows = scored.filter(pl.col("yards_to_go").is_null())
+    assert null_feature_rows.height > 0, (
+        "expected at least one IFAF row with null yards_to_go in the mixed corpus"
+    )
+    for label in EP_PROB_LABELS:
+        assert null_feature_rows[label].is_null().all()
+
+    complete_rows = scored.filter(pl.col("yards_to_go").is_not_null())
+    assert complete_rows.height > 0
+    assert complete_rows["epa"].is_not_null().any()
+    assert complete_rows["wpa"].is_not_null().any()
 
 
 # --- run_all: empty-ingest abort -----------------------------------------------------------
