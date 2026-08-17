@@ -12,6 +12,7 @@ just the training stage in isolation).
 
 from __future__ import annotations
 
+import re
 import socket
 from pathlib import Path
 
@@ -266,3 +267,55 @@ def test_cli_run_output_reports_ep_and_wp_run_ids(training_tree_toml: Path) -> N
     assert "ep run:" in result.output
     assert "wp run:" in result.output
     assert "scored:" in result.output
+
+
+# --- suite hygiene: never clobber the operator's real data/processed (T-1.2-32) -----------
+
+# Subcommands whose default `--config` (checked-in `ffep.toml` at the repo root) would
+# make them read/write the operator's real `data/processed`, `mlruns`, `models` dirs. A
+# bare `--help` invocation is safe -- typer prints help and exits before the command body
+# (and `load_config`) ever runs.
+_STATEFUL_SUBCOMMANDS = ("ingest", "run", "train", "score", "fetch-sportapp", "fetch-ifaf")
+_INVOKE_CALL_RE = re.compile(r"\.invoke\(\s*app\s*,\s*(\[.*?\])", re.DOTALL)
+
+
+def test_no_test_invokes_a_stateful_cli_command_without_a_config_override(
+    repo_root: Path,
+) -> None:
+    """Statically scans every `tests/test_*.py` module for `<runner>.invoke(app, [...])`
+    calls: any call naming a stateful subcommand (`ingest`/`run`/`train`/`score`/
+    `fetch-sportapp`/`fetch-ifaf`) without either `--help` or `--config` in its argument
+    list would silently fall back to the checked-in `ffep.toml` and write into the
+    repository's real `data/processed` -- the mitigation for T-1.2-32.
+
+    This is a suite-hygiene guard, not a `flag_football_ep.pipeline` behaviour test: every
+    pipeline-driving test in this suite (`test_pipeline_ingest.py`, `test_cli_run.py`)
+    already builds its own `tmp_path`-rooted `Config`/`ffep.toml` and passes it explicitly
+    -- this test proves that convention holds for the whole suite, not just the modules an
+    author remembered to check by hand.
+    """
+    tests_dir = repo_root / "tests"
+    violations: list[str] = []
+
+    for path in sorted(tests_dir.glob("test_*.py")):
+        source = path.read_text(encoding="utf-8")
+        for match in _INVOKE_CALL_RE.finditer(source):
+            args_literal = match.group(1)
+            names_stateful_subcommand = any(
+                f'"{cmd}"' in args_literal or f"'{cmd}'" in args_literal
+                for cmd in _STATEFUL_SUBCOMMANDS
+            )
+            if not names_stateful_subcommand:
+                continue
+            if "--help" in args_literal:
+                continue
+            if "--config" in args_literal:
+                continue
+            line_no = source.count("\n", 0, match.start()) + 1
+            violations.append(f"{path.relative_to(repo_root)}:{line_no}: {args_literal!r}")
+
+    assert not violations, (
+        "CLI invocation(s) of a stateful subcommand without --config or --help -- would "
+        "fall back to the checked-in ffep.toml and write into the real data/processed:\n"
+        + "\n".join(violations)
+    )
