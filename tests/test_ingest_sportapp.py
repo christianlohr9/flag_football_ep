@@ -9,6 +9,8 @@ module, matching `ingest/sportapp.py`'s "no requests import" invariant.
 
 from __future__ import annotations
 
+import json
+import shutil
 from pathlib import Path
 
 import polars as pl
@@ -292,6 +294,84 @@ def test_ingest_snapshots_no_import_requests():
     import flag_football_ep.ingest.sportapp as mod
 
     assert "requests" not in dir(mod)
+
+
+# --- Task 2 (plan 20): non-strict yardage casts and per-game containment ------------
+
+
+def _write_bad_target_snapshot(tmp_path: Path, game_id: str) -> None:
+    """Copy the TEST001 fixture pair into tmp_path under a new game id, with the
+    first play's `target` replaced by a non-numeric value that isn't the "G"
+    sentinel, an empty string, or null -- the case `clean_yardage`'s non-strict
+    cast must turn into a null instead of raising.
+    """
+    drives_path = FIXTURE_DIR / "match-drives_TEST001.json"
+    match_path = FIXTURE_DIR / "match-v1_TEST001.json"
+
+    drives_data = json.loads(drives_path.read_text())
+    drives_data["drives"][0]["drives"][0]["eventGroups"][0]["target"] = "not-a-number"
+
+    (tmp_path / f"match-drives_{game_id}.json").write_text(json.dumps(drives_data))
+    shutil.copy(match_path, tmp_path / f"match-v1_{game_id}.json")
+
+
+def test_non_numeric_target_ingests_with_null_yards_to_go_and_no_exception(tmp_path):
+    _write_bad_target_snapshot(tmp_path, "TESTBADTARGET")
+
+    results = ingest_snapshots(tmp_path, TEAM_MAPPING, game_ids=["TESTBADTARGET"])
+
+    game_id, df, notices = results[0]
+    assert notices == []
+    assert df.height == 6
+    assert df["yards_to_go"][0] is None
+
+
+def test_polars_error_in_one_game_mutation_chain_skips_only_that_game(tmp_path, monkeypatch):
+    import flag_football_ep.ingest.sportapp as mod
+
+    # A second game id whose snapshot pair is a byte-identical copy of TEST001's --
+    # only its request order (first) determines which call fails below.
+    shutil.copy(FIXTURE_DIR / "match-drives_TEST001.json", tmp_path / "match-drives_TESTFAIL.json")
+    shutil.copy(FIXTURE_DIR / "match-v1_TEST001.json", tmp_path / "match-v1_TESTFAIL.json")
+    shutil.copy(FIXTURE_DIR / "match-drives_TEST001.json", tmp_path / "match-drives_TEST001.json")
+    shutil.copy(FIXTURE_DIR / "match-v1_TEST001.json", tmp_path / "match-v1_TEST001.json")
+
+    real_clean_yardage = mod.clean_yardage
+    calls: list[int] = []
+
+    def _flaky_clean_yardage(df):
+        calls.append(1)
+        if len(calls) == 1:
+            raise pl.exceptions.ComputeError("simulated clean_yardage failure")
+        return real_clean_yardage(df)
+
+    monkeypatch.setattr(mod, "clean_yardage", _flaky_clean_yardage)
+
+    results = mod.ingest_snapshots(tmp_path, TEAM_MAPPING, game_ids=["TESTFAIL", "TEST001"])
+    by_id = {game_id: (df, notices) for game_id, df, notices in results}
+
+    fail_df, fail_notices = by_id["TESTFAIL"]
+    ok_df, ok_notices = by_id["TEST001"]
+
+    assert fail_df.height == 0
+    assert fail_df.columns == list(CANONICAL_COLUMNS)
+    assert len(fail_notices) == 1
+    assert "ComputeError" in fail_notices[0]
+
+    assert ok_df.height == 6
+    assert ok_notices == []
+
+
+def test_ingest_snapshots_unmapped_team_raises_still_passes_with_containment():
+    """Re-assert test_ingest_snapshots_unmapped_team_raises' invariant holds with the
+    per-game try/except now wrapping the mutation chain -- UnmappedTeamError must
+    still propagate, not be swallowed as a notice.
+    """
+    incomplete_mapping = pl.DataFrame(
+        {"source": ["sportapp"], "source_team": ["101"], "canonical_team": ["HOM"]}
+    )
+    with pytest.raises(UnmappedTeamError):
+        ingest_snapshots(FIXTURE_DIR, incomplete_mapping, game_ids=["TEST001"])
 
 
 # --- read_mutated_sportapp_snapshot (WC24 grandfather path, plan 11 task 1) ----
