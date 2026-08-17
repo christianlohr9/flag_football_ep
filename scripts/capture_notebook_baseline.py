@@ -10,14 +10,19 @@ plan 16).
 
 Re-run this script any time you need to regenerate the baseline fixtures from
 the same inputs — with unchanged inputs and unmodified `Python/` helpers, the
-two Parquet frames are byte-identical across runs (`equals()` is True).
+two Parquet frames are byte-identical across runs (`equals()` is True) and the
+manifest is identical apart from `captured_at`.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
+import platform
 import sys
 import traceback
+from datetime import datetime, timezone
 from pathlib import Path
 
 import polars as pl
@@ -97,6 +102,14 @@ def resolve_legacy_csv(raw_arg: str) -> Path:
     return primary
 
 
+def sha256_of_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def import_helpers():
     """Import the exact, unmodified Python/ helper functions being frozen."""
     sys.path.insert(0, "Python")
@@ -156,6 +169,51 @@ def print_frame_stats(name: str, df: pl.DataFrame) -> None:
         print(f"  {col}: null_count={null_counts[col][0]}")
 
 
+def column_float_stats(df: pl.DataFrame, col: str) -> dict:
+    """min/max/mean/n_nan/n_null for a float column, guarding null-only frames.
+
+    n_nan is computed with is_nan() restricted to non-null values, because
+    is_nan() on a null returns null (not True/False) in polars — summing it
+    directly over a column with nulls would silently undercount.
+    """
+    series = df[col]
+    n_null = int(series.is_null().sum())
+    non_null = series.drop_nulls()
+    if non_null.len() == 0:
+        return {"min": None, "max": None, "mean": None, "n_nan": 0, "n_null": n_null}
+    n_nan = int(non_null.is_nan().sum())
+    non_nan = non_null.filter(~non_null.is_nan())
+    return {
+        "min": float(non_nan.min()) if non_nan.len() > 0 else None,
+        "max": float(non_nan.max()) if non_nan.len() > 0 else None,
+        "mean": float(non_nan.mean()) if non_nan.len() > 0 else None,
+        "n_nan": n_nan,
+        "n_null": n_null,
+    }
+
+
+def label_distribution(df: pl.DataFrame, col: str = "label") -> dict:
+    counts = df[col].value_counts()
+    dist: dict[str, int] = {}
+    for row in counts.iter_rows(named=True):
+        key = row[col]
+        dist["null" if key is None else str(key)] = int(row["count"])
+    dist.setdefault("null", 0)
+    return dist
+
+
+def frame_manifest_section(df: pl.DataFrame, weight_col: str, manifest_key: str) -> dict:
+    null_counts = df.null_count()
+    return {
+        "n_rows": df.height,
+        "columns": list(df.columns),
+        "dtypes": {col: str(dtype) for col, dtype in zip(df.columns, df.dtypes)},
+        "null_counts": {col: int(null_counts[col][0]) for col in df.columns},
+        "label_distribution": label_distribution(df),
+        manifest_key: column_float_stats(df, weight_col),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
 
@@ -196,8 +254,34 @@ def main(argv: list[str] | None = None) -> int:
     print_frame_stats("EP model data", ep_data)
     print_frame_stats("WP model data", wp_data)
 
+    manifest = {
+        "captured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "polars_version": pl.__version__,
+        "python_version": platform.python_version(),
+        "inputs": {
+            "legacy_csv": str(legacy_csv),
+            "legacy_csv_sha256": sha256_of_file(legacy_csv),
+            "wc24_csv": str(wc24_csv),
+            "wc24_csv_sha256": sha256_of_file(wc24_csv),
+        },
+        "ep_model_data": frame_manifest_section(ep_data, "Total_W_Scaled", "total_w_scaled"),
+        "wp_model_data": frame_manifest_section(
+            wp_data, "half_seconds_remaining", "half_seconds_remaining"
+        ),
+        "excluded_games": {"ep": EP_EXCLUDED_GAME_ID, "wp": WP_EXCLUDED_GAME_ID},
+        "notes": (
+            "These frames were produced by unmodified Python/ helpers "
+            "(helper_add_hudl_mutations.py, helper_add_model_mutations.py) "
+            "before the src/flag_football_ep package port. They are the "
+            "ground truth for tests/test_migration_equivalence.py (plan 16)."
+        ),
+    }
+    manifest_path = out_dir / "baseline_manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=False) + "\n")
+
     print(f"\nWrote {ep_path}")
     print(f"Wrote {wp_path}")
+    print(f"Wrote {manifest_path}")
 
     return 0
 
