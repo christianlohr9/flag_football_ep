@@ -257,11 +257,23 @@ def add_score_columns(df: pl.DataFrame) -> pl.DataFrame:
 
     Sorted explicitly by (game_id, play_id) before the cumulative window so
     ordering does not depend on read order. `home_team_points`/
-    `away_team_points` are 0 on play_id 1, the scoring event's point value
-    when that team equals `scoring_play_team`, and null otherwise; the
-    subsequent `cum_sum().over(["game_id", team])` therefore also emits null
-    on non-scoring, non-first rows, and `forward_fill()` carries the last
-    known cumulative score forward across them.
+    `away_team_points` are 0 on play_id 1 when that team did not score, the
+    scoring event's point value when that team equals `scoring_play_team`
+    (play 1 included), and null otherwise; the subsequent
+    `cum_sum().over(["game_id", team])` therefore also emits null on
+    non-scoring, non-first rows, and `forward_fill()` carries the last known
+    cumulative score forward across them.
+
+    Fixed bug: the ported notebook chain evaluated the play-1 zero seed
+    branch before the scoring branch, so a touchdown or safety on a game's
+    first play was silently zeroed. That corrupted the cumulative score,
+    `score_differential` and the WP `Winner` label, and made
+    `score_reconstruction` fail an otherwise-valid game. The scoring branch
+    now wins over the seed; the seed branch still fires on play 1 for a team
+    that did not score, including when `scoring_play_team` is null (Kleene
+    logic makes `home_team != scoring_play_team` evaluate to null rather than
+    True in that case, so a dedicated `play_id == 1` catch-all branch is kept
+    after the scoring branch to still seed 0 there).
     """
     df = df.sort(["game_id", "play_id"])
 
@@ -284,17 +296,25 @@ def add_score_columns(df: pl.DataFrame) -> pl.DataFrame:
 
     df = df.with_columns(
         [
-            pl.when(pl.col("play_id") == 1)
+            pl.when(
+                (pl.col("play_id") == 1) & (pl.col("home_team") != pl.col("scoring_play_team"))
+            )
             .then(pl.lit(0))
             .when(pl.col("home_team") == pl.col("scoring_play_team"))
             .then(points_value)
+            .when(pl.col("play_id") == 1)
+            .then(pl.lit(0))
             .otherwise(pl.lit(None))
             .cast(pl.Int32)
             .alias("home_team_points"),
-            pl.when(pl.col("play_id") == 1)
+            pl.when(
+                (pl.col("play_id") == 1) & (pl.col("away_team") != pl.col("scoring_play_team"))
+            )
             .then(pl.lit(0))
             .when(pl.col("away_team") == pl.col("scoring_play_team"))
             .then(points_value)
+            .when(pl.col("play_id") == 1)
+            .then(pl.lit(0))
             .otherwise(pl.lit(None))
             .cast(pl.Int32)
             .alias("away_team_points"),
