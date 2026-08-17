@@ -77,9 +77,9 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 01.2-06-PLAN.md — Six per-game validation checks, quarantine partition, Markdown report
-- [ ] 01.2-07-PLAN.md — Fetch layer: sportapp.fi and cpx.studio snapshot download with redaction and timeouts
-- [ ] 01.2-08-PLAN.md — Feature engineering port: EP/WP prep, EP/WP variables, model mutations
+- [x] 01.2-06-PLAN.md — Six per-game validation checks, quarantine partition, Markdown report
+- [x] 01.2-07-PLAN.md — Fetch layer: sportapp.fi and cpx.studio snapshot download with redaction and timeouts
+- [x] 01.2-08-PLAN.md — Feature engineering port: EP/WP prep, EP/WP variables, model mutations
 
 **Wave 4** *(blocked on Wave 3)*
 
@@ -221,7 +221,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 5/17 | In Progress|  |
+| 1.2 Repo to Pipeline | 8/17 | In Progress|  |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
