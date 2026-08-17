@@ -25,8 +25,8 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
-from flag_football_ep.model.hyperparams import EP_FEATURES, EP_PARAMS
-from flag_football_ep.model.train import MissingTrainingColumns, train_ep
+from flag_football_ep.model.hyperparams import EP_FEATURES, EP_PARAMS, WP_FEATURES, WP_PARAMS
+from flag_football_ep.model.train import MissingTrainingColumns, train_ep, train_wp
 from flag_football_ep.testing import canonical_plays_with_scores
 
 # --- shared test config/corpus helpers ---------------------------------------------------
@@ -89,6 +89,18 @@ def _ep_training_corpus(n_games: int = 12, plays_per_game: int = 16) -> pl.DataF
     return canonical_plays_with_scores(
         n_games=n_games, plays_per_game=plays_per_game, overrides=overrides
     )
+
+
+def _wp_training_corpus(n_games: int = 12, plays_per_game: int = 16) -> pl.DataFrame:
+    """A multi-game canonical frame with a real, varied home/away winner per game.
+
+    Reuses `_ep_training_corpus`'s mid-half-touchdown shape: the touchdown always lands on
+    an AWAY-possession play (even `play_id`), so every game has a decisive, non-tied score
+    (AWAY wins every game here, but `posteam` alternates play-to-play, so `label`
+    (`posteam == Winner`) still varies row-to-row within and across games) -- enough
+    variety for a real WP fit without a degenerate single-class target.
+    """
+    return _ep_training_corpus(n_games=n_games, plays_per_game=plays_per_game)
 
 
 def _run_dirs(mlruns_path: Path) -> list[Path]:
@@ -250,3 +262,116 @@ def test_train_ep_never_writes_fixed_ep_model_pkl(tmp_path: Path) -> None:
 
     matches = list(tmp_path.rglob("ep_model.pkl"))
     assert matches == []
+
+
+# --- Task 2: WP training on the shared run-logging helper --------------------------------
+
+
+def test_train_wp_returns_non_empty_run_id(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    run_id = train_wp(plays, config)
+
+    assert isinstance(run_id, str)
+    assert run_id
+
+
+def test_train_wp_logs_into_its_own_experiment(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    run_id = train_wp(plays, config)
+
+    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    client = mlflow.tracking.MlflowClient()
+    run = client.get_run(run_id)
+    experiment = client.get_experiment(run.info.experiment_id)
+
+    assert experiment.name == config.train.wp_experiment
+    assert experiment.name != config.train.ep_experiment
+
+
+def test_train_wp_logs_test_logloss_metric(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    run_id = train_wp(plays, config)
+
+    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    client = mlflow.tracking.MlflowClient()
+    run = client.get_run(run_id)
+
+    assert "test_logloss" in run.data.metrics
+
+
+def test_train_wp_drops_excluded_games_and_logs_them(tmp_path: Path) -> None:
+    plays = _wp_training_corpus(n_games=12, plays_per_game=16)
+    excluded_game_id = plays["game_id"].unique().sort()[0]
+    config = _make_config(tmp_path, exclude_games_wp=[excluded_game_id])
+
+    run_id = train_wp(plays, config)
+
+    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    client = mlflow.tracking.MlflowClient()
+    run = client.get_run(run_id)
+
+    assert excluded_game_id in run.data.params["excluded_game_ids"]
+
+    config_all = _make_config(tmp_path)
+    run_id_all = train_wp(plays, config_all)
+    run_all = client.get_run(run_id_all)
+    assert int(run.data.params["n_plays"]) < int(run_all.data.params["n_plays"])
+
+
+def test_train_wp_uses_no_sample_weights(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    captured: dict = {}
+    original_fit = __import__("xgboost").XGBRegressor.fit
+
+    def _spy_fit(self, X, y, *args, **kwargs):
+        captured["sample_weight"] = kwargs.get("sample_weight")
+        return original_fit(self, X, y, *args, **kwargs)
+
+    monkeypatch.setattr("xgboost.XGBRegressor.fit", _spy_fit)
+
+    train_wp(plays, config)
+
+    assert captured["sample_weight"] is None
+
+
+def test_train_wp_booster_feature_names_match_wp_features(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    run_id = train_wp(plays, config)
+
+    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    loaded = mlflow.xgboost.load_model(f"runs:/{run_id}/model")
+
+    assert loaded.get_booster().feature_names == list(WP_FEATURES)
+
+
+def test_train_ep_and_train_wp_are_independent_runs(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    ep_plays = _ep_training_corpus()
+    wp_plays = _wp_training_corpus()
+
+    ep_run_id = train_ep(ep_plays, config)
+    wp_run_id = train_wp(wp_plays, config)
+
+    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    client = mlflow.tracking.MlflowClient()
+
+    ep_experiment = client.get_experiment_by_name(config.train.ep_experiment)
+    wp_experiment = client.get_experiment_by_name(config.train.wp_experiment)
+    assert ep_experiment.experiment_id != wp_experiment.experiment_id
+
+    ep_runs = client.search_runs([ep_experiment.experiment_id])
+    wp_runs = client.search_runs([wp_experiment.experiment_id])
+    assert len(ep_runs) == 1
+    assert len(wp_runs) == 1
+    assert ep_runs[0].info.run_id == ep_run_id
+    assert wp_runs[0].info.run_id == wp_run_id
