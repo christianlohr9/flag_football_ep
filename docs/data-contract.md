@@ -1,6 +1,8 @@
 # Datenvertrag — Hudl-Export Flag Football Nationalteam
 
-Version 1.0-draft. Maschinenlesbares Gegenstück: `data-contract.schema.json` (wird vom Phase-1.2-Ingest-Validator direkt konsumiert — Spec und Validierung können nicht auseinanderlaufen). Offene Punkte tragen den Marker `PENDING-ANALYST` (Klärung im Analysten-Gespräch). Die Sichtung echter Export-Werte für die Defense-Spalten ist erfolgt (2026-08-17, drei Sample-Exporte); die verbleibenden Defense-Fragen sind als konkrete Punkte in der Gesprächsagenda (c) gelistet.
+Version 1.0. Maschinenlesbares Gegenstück: `data-contract.schema.json` (wird vom Phase-1.2-Ingest-Validator direkt konsumiert — Spec und Validierung können nicht auseinanderlaufen). Die Sichtung echter Export-Werte für die Defense-Spalten ist erfolgt (2026-08-17, drei Sample-Exporte).
+
+**Status: v1.0 einseitig festgelegt am 2026-08-17 — Analysten-Ratifizierung ausstehend (siehe DEFERRED-ANALYST-Block in §8 „Charting-Protokoll & Gesprächsagenda").** Das Analysten-Gespräch ist auf unbestimmte Zeit verschoben; alle Vertragsinhalte gelten ab sofort als einseitige Arbeitsentscheidungen des Nutzers.
 
 ## Zweck & Geltungsbereich — forward-only
 
@@ -27,7 +29,7 @@ Beispiel: `2026-06-14_GER-vs-AUT_EM-QUALI.csv`
 - ISO-Datum zuerst → Dateien sortieren chronologisch im Ingest-Ordner.
 - `_` trennt Felder, `-` verbindet Tokens innerhalb eines Feldes → eindeutiger Split auf `_`.
 - Teamcodes: 3-Buchstaben-IFAF-Codes in Großbuchstaben (`GER`, `AUT`, …).
-- `TEAM1` = Charting-Perspektive-Team ist ein **Vorschlag** — PENDING-ANALYST (siehe Gesprächsagenda, Punkt a).
+- **Perspektiv-Regel (einseitig festgelegt am 2026-08-17):** TEAM1 = Charting-Perspektive-Team im Dateinamen; posteam = TEAM1 wenn ODK == 'O', sonst TEAM2. Analysten-Ratifizierung ausstehend (siehe DEFERRED-ANALYST-Block in §8).
 
 Aus dem Dateinamen leitet der Ingest `game_id` und Metadaten (Datum, Teams, Wettbewerb) ab.
 
@@ -40,9 +42,9 @@ Kanonisches Vokabular: 13 Tokens, aufgeteilt in Basis- und Modifier-Tokens.
 
 **Grammatik:** Ein `RESULT`-Wert ist ein Basis-Token plus optionale Modifier, verbunden mit dem Separator `", "` (Komma + Leerzeichen), z. B. `Complete, TD` oder `Sack, Safety`. Matching ist **exakter Token-Vergleich nach Split auf den Separator, case-sensitiv**. Das ersetzt die fragile Substring-Semantik der bisherigen Pipeline (`str.contains` in `helper_add_hudl_mutations.py`), die nur durch Zufälle funktioniert: `Incomplete` matcht `contains("Complete")` nur deshalb nicht, weil polars case-sensitiv vergleicht; `TD` ⊂ `Def TD` wird per explizitem `Def`-Ausschluss abgefangen.
 
-**C-07-Amendment (explizite Entscheidung, nicht stillschweigend):** `No Good` (97 Legacy-Vorkommen) und `Fumble` (9 Vorkommen) werden der C-07-Liste hinzugefügt. `KNEEL` bleibt im Vokabular, obwohl es in 3.701 Legacy-Plays 0-mal vorkommt. Die Fumble-Semantik (Possession-Wechsel? Dead Ball?) ist PENDING-ANALYST.
+**C-07-Amendment (explizite Entscheidung, nicht stillschweigend):** `No Good` (97 Legacy-Vorkommen) und `Fumble` (9 Vorkommen) werden der C-07-Liste hinzugefügt. `KNEEL` bleibt im Vokabular, obwohl es in 3.701 Legacy-Plays 0-mal vorkommt. Das 13-Token-Vokabular inkl. C-07-Amendment ist als einseitige Arbeitsentscheidung bestätigt (2026-08-17). **Fumble-Arbeitssemantik:** Fumble = gecharteter Ballverlust-Tag; die Possession-Wechsel-Semantik wird bei der Analysten-Ratifizierung bestätigt (siehe DEFERRED-ANALYST-Block in §8).
 
-**`RESULT` ist verpflichtend (nicht-leer), forward-only.** Legacy-Defekt zur Einordnung: 846 von 3.701 Plays (23 %) haben ein leeres `RESULT` und werden von `helper_add_hudl_mutations.py` per `.otherwise(pl.lit("pass"))` stillschweigend als Pass klassifiziert. Fehlgeformte Legacy-Varianten (`Penalty (declined)`, `Complete Penalty` ohne Komma) sind grandfathered, forward ungültig.
+**`RESULT` ist verpflichtend (nicht-leer), forward-only** (einseitige Arbeitsentscheidung 2026-08-17, Ratifizierung ausstehend — §8). Legacy-Defekt zur Einordnung: 846 von 3.701 Plays (23 %) haben ein leeres `RESULT` und werden von `helper_add_hudl_mutations.py` per `.otherwise(pl.lit("pass"))` stillschweigend als Pass klassifiziert. Fehlgeformte Legacy-Varianten (`Penalty (declined)`, `Complete Penalty` ohne Komma) sind grandfathered, forward ungültig.
 
 **PAT-Semantik:** `DN` = 0 (`down == 0`) markiert einen PAT-Play. `Good` ist Exact-Match. `yardline_50` = 45 ist der 1-Punkt-Spot, 40 der 2-Punkt-Spot. Die aktuellen Baselines (50 % / 46 %) sind in `helper_add_ep_wp.py` hartkodiert und werden in Phase 1.3 empirisch ersetzt.
 
@@ -57,7 +59,7 @@ Die sechs bisher manuell gepflegten Spalten werden ab sofort deterministisch abg
 | `drive_id` | `ODK` + `RESULT` | Inkrement bei O/D-Possession-Flip; Scoring-/Turnover-`RESULT` (`TD`, `Def TD`, `Safety`, `Interception`, `Fumble` falls Turnover) schließt ebenfalls einen Drive | benötigt sauberes `ODK` ∈ {`O`, `D`, `K`}; Legacy-`ODK` ist verschmutzt (Teamnamen, Formationen) → Grandfathered-Pfad liest die manuelle `drive_id`-Spalte | Regel dokumentiert, Implementierung 1.2 |
 | `half` | `data/half_boundaries.csv` | `1 if PLAY # < half2_first_play else 2` | eine Zeile pro Spiel, Pflege durch den Nutzer | Legacy-`half` bestätigt 2-Halbzeit-Struktur |
 | `game_id` | Dateiname | geparst aus der Dateinamenskonvention; vom Ingest vergeben | Int-oder-str-Wahl liegt bei Phase 1.2 | — |
-| `posteam` | Dateiname + `ODK`-Perspektive | PENDING-ANALYST — Vorschlag: `TEAM1` im Dateinamen = Perspektive-Team | Caveat aus `get_games()`: Das Team mit dem ersten Drive wird aktuell als "home_team" angenommen | offen bis Gespräch |
+| `posteam` | Dateiname + `ODK` | TEAM1 = Charting-Perspektive-Team im Dateinamen; posteam = TEAM1 wenn ODK == 'O', sonst TEAM2 (einseitig festgelegt 2026-08-17, Ratifizierung ausstehend — §8) | Caveat aus `get_games()`: Das Team mit dem ersten Drive wird aktuell als "home_team" angenommen (nur für Scores/Differential relevant) | Regel konkret; Implementierung 1.2 |
 
 ## Zeitdaten (REQ-S1-02) — explizit: nicht verfügbar
 
@@ -95,10 +97,12 @@ Befunde:
 
 ### Kanonisches Vokabular
 
+Das gesichtete kanonische Vokabular für `DEF FRONT`, `COVERAGE` und `BLITZ` wird **einseitig festgelegt** (2026-08-17) und gilt ab sofort as-is; die Analysten-Ratifizierung ist ausstehend (siehe DEFERRED-ANALYST-Block in §8).
+
 **`DEF FRONT`** — zwei disjunkte Teil-Vokabulare je nach Film-Typ:
 
-- Scouting-Notation: `LINE 5`, `LINE 7` — plus eine einmalige Übergangsnotation `LINE 5 --> 7` (Front-Wechsel innerhalb eines Plays/Abschnitts; Semantik klärt das Gespräch).
-- Own-Game-Notation: numerische Vierer-Tupel (Muster `^\d+(-\d+){3}$`), gesichtet: `5-5-7-6`, `5-6-6-5`, `5-6-6-6`, `5-6-7-6`, `5-7-7-5`, `6-6-6-5`, `6-6-6-6`, `6-7-7-6`, `7-7-7-7`, `7-7-13-7`, `7-8-8-7`, `8-8-8-8`, `10-10-13-10` — mutmaßlich eine Tiefen-/Ausrichtungs-Staffelung der Front in Yards (Bedeutung im Gespräch bestätigen) — plus die Sammel-Calls `ALL GL` (Goal Line) und `ALL FIRST`.
+- Scouting-Notation: `LINE 5`, `LINE 7` — plus eine einmalige Übergangsnotation `LINE 5 --> 7` (Front-Wechsel innerhalb eines Plays/Abschnitts; Semantik bei der Ratifizierung zu klären).
+- Own-Game-Notation: numerische Vierer-Tupel (Muster `^\d+(-\d+){3}$`), gesichtet: `5-5-7-6`, `5-6-6-5`, `5-6-6-6`, `5-6-7-6`, `5-7-7-5`, `6-6-6-5`, `6-6-6-6`, `6-7-7-6`, `7-7-7-7`, `7-7-13-7`, `7-8-8-7`, `8-8-8-8`, `10-10-13-10` — mutmaßlich eine Tiefen-/Ausrichtungs-Staffelung der Front in Yards (Bedeutung bei der Ratifizierung bestätigen) — plus die Sammel-Calls `ALL GL` (Goal Line) und `ALL FIRST`.
 
 Die Tupel-Aufzählung ist **offen** (kein geschlossenes Enum): Das Schema führt die gesichteten Werte, neue Tupel nach demselben Muster sind vertragskonform.
 
@@ -120,9 +124,9 @@ Die Tupel-Aufzählung ist **offen** (kein geschlossenes Enum): Das Schema führt
 
 Generelle Normalisierungsregeln für die Defense-Spalten: Großschreibung, Leerzeichen um Bindestriche in numerischen Mustern entfernen. Personennamen in `BLITZ` werden nicht normalisiert (kein kanonisches Vokabular, s. o.).
 
-### Lücken für das Analysten-Gespräch (Agenda-Punkt c)
+### Offene Sichtungs-Fragen (zur Ratifizierung, Agenda-Punkt c)
 
-Die Sichtung hinterlässt konkrete, im Gespräch zu klärende Punkte:
+Die Sichtung hinterlässt konkrete offene Fragen. Sie sind **nicht** durch Erfindung aufgelöst, sondern bleiben als Ratifizierungs-Punkte offen (siehe DEFERRED-ANALYST-Block in §8):
 
 - `DEF FRONT` fehlt im 43-Spalten-Own-Preset komplett — Preset vereinheitlichen (Vertrags-Preset nutzt der Nutzer selbst) und klären, ob die Spalte in eigenen Spielen forward gechartet wird.
 - Zwei disjunkte `DEF FRONT`-Notationen (`LINE n` im Scouting vs. Vierer-Tupel in eigenen Spielen) — eine Notation forward festlegen; Bedeutung der Vierer-Tupel bestätigen.
@@ -135,16 +139,17 @@ Die Sichtung hinterlässt konkrete, im Gespräch zu klärende Punkte:
 
 ## Charting-Protokoll & Gesprächsagenda
 
-Genau drei Punkte gehören ins Analysten-Gespräch — nicht mehr:
+Das Analysten-Gespräch wurde auf unbestimmte Zeit verschoben (User-Entscheid 2026-08-17, Analyst derzeit nicht verfügbar). Die drei Agenda-Punkte sind als **einseitige Arbeitsentscheidungen** festgelegt und gelten ab sofort; die Ratifizierung ist als ein konsolidierter Block unten festgehalten.
 
-**a) `ODK`-Perspektive bei getauschtem Gegner-Film** → `posteam`-Regel + `TEAM1`-Semantik im Dateinamen. Vorschlag: Der Dateiname trägt beide Teams, `TEAM1` ist das Team, aus dessen Perspektive `ODK` gechartet wird. [PENDING-ANALYST]
-*Ergebnis:* ___ (nach Gespräch eintragen)
+**a) `ODK`-Perspektive bei getauschtem Gegner-Film** → *Festgelegt (2026-08-17):* TEAM1 = Charting-Perspektive-Team im Dateinamen; posteam = TEAM1 wenn ODK == 'O', sonst TEAM2 (siehe §3 Dateinamenskonvention und §5 Abgeleitete Felder). Caveat aus `get_games()` bleibt festgehalten: Das Team mit dem ersten Drive wird aktuell als "home_team" angenommen (nur für Scores/Differential relevant).
 
-**b) `RESULT`-Charting:** verpflichtend nicht-leer für jeden Play; Fumble-Semantik (Possession-Wechsel?); Bestätigung des 13-Token-Vokabulars inkl. C-07-Amendment. [PENDING-ANALYST]
-*Ergebnis:* ___ (nach Gespräch eintragen)
+**b) `RESULT`-Charting** → *Festgelegt (2026-08-17):* `RESULT` verpflichtend nicht-leer für jeden Play; 13-Token-Vokabular inkl. C-07-Amendment bestätigt. Fumble-Arbeitssemantik: Fumble = gecharteter Ballverlust-Tag; die Possession-Wechsel-Semantik wird bei der Ratifizierung bestätigt (siehe §4).
 
-**c) Defense-Spalten:** Bestätigung des gesichteten Vokabulars für `DEF FRONT`, `COVERAGE`, `BLITZ` und Klärung der sechs Sichtungs-Befunde (konkrete Bullet-Liste im Abschnitt „Defense-Felder“ → „Lücken für das Analysten-Gespräch“): Preset-Vereinheitlichung, `DEF FRONT`-Notation & Tupel-Bedeutung, Front-Wechsel-Notation, `COVERAGE`-Namensräume & Präfixe, `BLITZ`-Semantik (Name vs. Taktik), Scouting-Fill-Anspruch. [PENDING-ANALYST]
-*Ergebnis:* ___ (nach Gespräch eintragen)
+**c) Defense-Spalten** → *Festgelegt (2026-08-17):* Das gesichtete kanonische Vokabular für `DEF FRONT`, `COVERAGE`, `BLITZ` aus der Sichtung wird as-is übernommen; Flag-Pull-Verursacher bleibt bewusst übersprungen (entschieden). Die sechs Sichtungs-Fragen (siehe §7 „Offene Sichtungs-Fragen“) bleiben offen und gehören zur Ratifizierung.
+
+### Ratifizierungs-Block
+
+> DEFERRED-ANALYST: Gespräch auf unbestimmte Zeit verschoben (User-Entscheid 2026-08-17). Owner: Nutzer. Follow-up-Trigger: sobald der Videoanalyst wieder verfügbar ist, spätestens vor dem nächsten Filmtausch. Zu ratifizieren: (a) TEAM1/posteam-Regel, (b) RESULT-Pflicht + Fumble-Semantik, (c) Defense-Vokabular inkl. der sechs Sichtungs-Fragen.
 
 ## Nicht-Ziele
 
