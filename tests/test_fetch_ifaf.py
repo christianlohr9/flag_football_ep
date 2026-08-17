@@ -179,6 +179,31 @@ def test_events_pagination_merges_three_pages_and_stops_short(tmp_path, monkeypa
     assert events == [{"e": 1}, {"e": 2}, {"e": 3}, {"e": 4}, {"e": 5}]
 
 
+def test_events_pagination_handles_real_events_wrapper_shape(tmp_path, monkeypatch):
+    """Regression test: live verification (2026-08-17) found the real
+    /events response is `{"events": [...], "total": N, "hasMore": bool}`,
+    not a bare list or an `items`-keyed object."""
+    pages = {
+        0: {"events": [{"e": 1}, {"e": 2}], "total": 3, "hasMore": True},
+        2: {"events": [{"e": 3}], "total": 3, "hasMore": False},
+    }
+
+    def handler(url, params, headers):
+        if url.endswith("/unified-plays"):
+            return FakeResponse(200, [{"play": 1}])
+        if url.endswith("/events"):
+            offset = params["offset"]
+            return FakeResponse(200, pages[offset])
+        raise AssertionError(f"unexpected url {url}")
+
+    _install_dispatch(monkeypatch, handler)
+
+    ifaf.fetch_tournament(BASE, "ffwc26-women", tmp_path, game_id="g1", limit=2)
+
+    events = json.loads((tmp_path / "events_g1.json").read_text())
+    assert events == [{"e": 1}, {"e": 2}, {"e": 3}]
+
+
 def test_events_pagination_stops_after_fifty_pages_with_warning(tmp_path, monkeypatch, capsys):
     def handler(url, params, headers):
         if url.endswith("/unified-plays"):

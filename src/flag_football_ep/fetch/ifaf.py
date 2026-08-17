@@ -66,6 +66,26 @@ def _game_id(game: dict) -> str | None:
     return None
 
 
+_EVENTS_PAGE_LIST_KEYS = ("events", "items", "data")
+
+
+def _extract_events_page(page: Any) -> list:
+    """Pull the list of event objects out of one `/events` page response.
+
+    Verified live (2026-08-17) as `{"events": [...], "total": N,
+    "hasMore": bool}`; `items`/`data` are kept as defensive fallbacks in
+    case the endpoint's shape changes.
+    """
+    if isinstance(page, list):
+        return page
+    if isinstance(page, dict):
+        for key in _EVENTS_PAGE_LIST_KEYS:
+            value = page.get(key)
+            if isinstance(value, list):
+                return value
+    return []
+
+
 def _fetch_events(
     base_url: str,
     game_id: str,
@@ -90,7 +110,7 @@ def _fetch_events(
         )
         if page is None:
             return None
-        page_items = page if isinstance(page, list) else page.get("items", [])
+        page_items = _extract_events_page(page)
         merged.extend(page_items)
         if len(page_items) < limit:
             return merged
