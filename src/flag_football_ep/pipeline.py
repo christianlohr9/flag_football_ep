@@ -24,7 +24,12 @@ Artifact writes: `plays.parquet` and `games.parquet` are each written through
 before plays so a games-write failure never touches (or even attempts) the
 plays write -- a prior successful run's `plays.parquet` is left completely
 untouched. The Markdown report is rendered and written last via
-`validation.report`, then a console summary is printed.
+`validation.report`, passing the collected source-level `notices` through as
+`render_report`'s `source_notices` argument so a dropped or degraded source
+is always named in the report; a console summary is printed, then every
+source notice is echoed to the console as well (`typer.echo`, prefixed
+`notice: `) -- `console_summary` alone prints nothing when `game_results` is
+empty (every source dropped), so a zero-game run would otherwise look silent.
 """
 
 from __future__ import annotations
@@ -37,6 +42,7 @@ from pathlib import Path
 from typing import Sequence
 
 import polars as pl
+import typer
 
 from flag_football_ep.canonical import CANONICAL_COLUMNS, CORE_COLUMNS, NULLABLE_EXTRAS, make_game_id
 from flag_football_ep.config import Config
@@ -341,7 +347,9 @@ def run_ingest(
     mismatch across already-conformed frames is a bug, never papered over with
     a diagonal concat mode) -> `run_checks` + `partition_games` -> atomic
     writes of `games.parquet` then `plays.parquet` -> render and write the
-    Markdown report -> return `IngestResult`.
+    Markdown report (source notices passed through as `render_report`'s
+    `source_notices` argument) -> print the per-game console summary, then
+    echo every source notice (`notice: {text}`) -> return `IngestResult`.
 
     `strict` only affects the caller's exit-code decision (`cli.ingest`,
     wired in a later task); it never changes what gets computed here.
@@ -410,9 +418,13 @@ def run_ingest(
     _atomic_write_parquet(games_table, games_path)
     _atomic_write_parquet(accepted.select(list(CANONICAL_COLUMNS)), plays_path)
 
-    markdown = render_report(game_results, game_notices, contract.version, run_id)
+    markdown = render_report(
+        game_results, game_notices, contract.version, run_id, source_notices=notices
+    )
     report_path = write_report(markdown, effective_out_dir, run_id)
     console_summary(game_results)
+    for notice in notices:
+        typer.echo(f"notice: {notice}")
 
     return IngestResult(
         run_id=run_id,

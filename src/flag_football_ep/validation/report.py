@@ -2,14 +2,24 @@
 
 `render_report` is pure string rendering (no I/O) so it is trivially
 testable; `write_report` does the filesystem work. Layout order is fixed:
-H1 + metadata, quarantined games (or an explicit none statement), the
-summary table, missing reference data, then one section per game —
-quarantined games are surfaced first because a human reads this file to
-decide what to fix before the next ingest run.
+H1 + metadata, quarantined games (or an explicit none statement), source
+notices (source-level messages -- an empty/missing source directory, a
+source-level exception -- or an explicit none statement), the summary
+table, missing reference data, skipped files (per-game notice keys with no
+matching `GameResult`, e.g. a Hudl file skipped with `df=None`, or an
+explicit none statement), then one section per game — quarantined games
+and source notices are surfaced first because a human reads this file to
+decide what to fix before the next ingest run, and a vanished source
+outranks a per-game check failure. Both the "Source notices" and "Skipped
+files" sections are always rendered, even when empty, so a reader can
+always tell "no notices" apart from "notices not rendered".
 
 Never render an API key, an absolute home-directory path, or full data
 rows here — only game ids, check names, bounded details and relative
-paths belong in this artifact.
+paths belong in this artifact. Source notices and skipped-file messages
+are echoed verbatim: they are already built from file names, game ids,
+exception class names and configured paths, so no further formatting or
+interpolation is applied here.
 """
 
 from __future__ import annotations
@@ -35,10 +45,14 @@ def render_report(
     notices: dict[str, list[str]],
     contract_version: str,
     run_id: str,
+    source_notices: list[str] | None = None,
 ) -> str:
     """Render the full per-run Markdown validation report."""
     quarantined_games = [g for g in game_results if g.quarantined]
     warned_games = [g for g in game_results if any(r.status == Status.WARN for r in g.results)]
+    source_notices = source_notices or []
+    matched_game_ids = {g.game_id for g in game_results}
+    skipped_files = [(key, msgs) for key, msgs in notices.items() if key not in matched_game_ids]
 
     lines: list[str] = []
     lines.append(f"# Validation Report — {run_id}")
@@ -48,6 +62,7 @@ def render_report(
     lines.append(f"- Games ingested: {len(game_results)}")
     lines.append(f"- Games quarantined: {len(quarantined_games)}")
     lines.append(f"- Games with warnings: {len(warned_games)}")
+    lines.append(f"- Source notices: {len(source_notices)}")
     lines.append("")
 
     lines.append("## Quarantined games")
@@ -58,6 +73,15 @@ def render_report(
             lines.append(f"- **{g.game_id}** ({g.source}): {reasons}")
     else:
         lines.append("No games were quarantined in this run.")
+    lines.append("")
+
+    lines.append("## Source notices")
+    lines.append("")
+    if source_notices:
+        for notice in source_notices:
+            lines.append(f"- {notice}")
+    else:
+        lines.append("None.")
     lines.append("")
 
     lines.append("## Summary")
@@ -94,6 +118,15 @@ def render_report(
     if no_half_boundary_games:
         lines.append(f"- No half boundary recorded: {', '.join(no_half_boundary_games)}")
     if not skipped_score_games and not no_half_boundary_games:
+        lines.append("None.")
+    lines.append("")
+
+    lines.append("## Skipped files")
+    lines.append("")
+    if skipped_files:
+        for key, msgs in skipped_files:
+            lines.append(f"- **{key}**: {'; '.join(msgs)}")
+    else:
         lines.append("None.")
     lines.append("")
 
