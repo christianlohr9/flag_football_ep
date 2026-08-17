@@ -62,7 +62,7 @@ Plans:
   2. The ingest CLI turns a folder of Hudl exports into canonical Parquet and emits a per-game validation report: downs 0–4, `yardline_50` in [0, 50], monotonic drive IDs, gapless play sequences, reconstructed score == final score per match report
   3. Hudl own games and sportapp.fi/IFAF tournament data share one canonical schema; raw files are consolidated under `data/` (no more repo-root CSV sprawl)
 
-**Plans**: 24 plans in 10 waves (18–24 close the gaps found in `01.2-VERIFICATION.md`)
+**Plans**: 25 plans in 11 waves (18–24 close the gaps found in the first `01.2-VERIFICATION.md`; 25 closes the IFAF containment gap found by the re-verification)
 Plans:
 **Wave 1**
 
@@ -117,6 +117,10 @@ Plans:
 **Wave 10** *(blocked on Wave 9)*
 
 - [x] 01.2-24-PLAN.md — Mixed-corpus end-to-end scoring test, notice/containment documentation, full-suite gate
+
+**Wave 11** *(gap closure after re-verification)*
+
+- [ ] 01.2-25-PLAN.md — IFAF per-game ingest containment: null/type-safe play sort key, per-game skip notices, explicit whole-source-drop wording
 
 ### Phase 1.3: Methodical Model Retraining
 
