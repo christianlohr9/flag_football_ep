@@ -68,6 +68,7 @@ GroupKFold by game_id, Strand-1 non-goals (no live tooling, no CV dependency).
 
 ### Blockers/Concerns
 
+- sportapp.fi API key rotation deferred by user (2026-08-17, plan 01.2-03 checkpoint): the exposed key remains valid and compromised (in git history and still literally present in `api_call.ipynb`/`api_fuzzing.ipynb`, deleted later by plan 01.2-17). `ffep fetch-sportapp` must not run until the key is rotated with the provider and `.env` has `SPORTAPP_API_KEY`.
 - Videoanalyst currently unavailable (user decision 2026-08-17): Phase 1.1 contract fixed unilaterally as v1.0 provisional with DEFERRED-ANALYST ratification block; Phase 2.0 dependency on analyst availability still stands.
 - REQ-S1-02 (real time data) may not be deliverable by the analyst; Phase 1.4 WP charts degrade gracefully to synthetic-time with an explicit flag.
 - Phases 2.2–2.4 are hard-gated on the Phase 2.1 pilot outcome (C-09); do not plan them in detail before the gate decision.
