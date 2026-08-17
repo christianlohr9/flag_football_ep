@@ -1,0 +1,115 @@
+{
+  "captured_at": "2026-08-17T11:37:01Z",
+  "polars_version": "1.5.0",
+  "python_version": "3.12.12",
+  "inputs": {
+    "legacy_csv": "data_raw.csv",
+    "legacy_csv_sha256": "1cc10316b52fd2b39ec88eec11579946a9c6246eea26c3371b64bd74e05a29bc",
+    "wc24_csv": "data/wc24_pbp.csv",
+    "wc24_csv_sha256": "6e649ee3fed43760f28c0cbf14b0c99276d7af62e24d9cc41d029ea1c51422e6"
+  },
+  "ep_model_data": {
+    "n_rows": 16634,
+    "columns": [
+      "label",
+      "yardline_50",
+      "yards_to_go",
+      "down0",
+      "down1",
+      "down2",
+      "down3",
+      "down4",
+      "Total_W_Scaled"
+    ],
+    "dtypes": {
+      "label": "Int32",
+      "yardline_50": "Int32",
+      "yards_to_go": "Int32",
+      "down0": "Int32",
+      "down1": "Int32",
+      "down2": "Int32",
+      "down3": "Int32",
+      "down4": "Int32",
+      "Total_W_Scaled": "Float64"
+    },
+    "null_counts": {
+      "label": 190,
+      "yardline_50": 0,
+      "yards_to_go": 0,
+      "down0": 0,
+      "down1": 0,
+      "down2": 0,
+      "down3": 0,
+      "down4": 0,
+      "Total_W_Scaled": 0
+    },
+    "label_distribution": {
+      "0": 9054,
+      "1": 4014,
+      "2": 41,
+      "3": 75,
+      "4": 3260,
+      "null": 190
+    },
+    "total_w_scaled": {
+      "min": 0.0,
+      "max": 0.9999999999999999,
+      "mean": 0.8351798185861611,
+      "n_nan": 0,
+      "n_null": 0
+    }
+  },
+  "wp_model_data": {
+    "n_rows": 3626,
+    "columns": [
+      "label",
+      "receive_2h_ko",
+      "half_seconds_remaining",
+      "game_seconds_remaining",
+      "Diff_Time_Ratio",
+      "score_differential",
+      "down",
+      "yards_to_go",
+      "yardline_50"
+    ],
+    "dtypes": {
+      "label": "Int32",
+      "receive_2h_ko": "Int32",
+      "half_seconds_remaining": "Float64",
+      "game_seconds_remaining": "Float64",
+      "Diff_Time_Ratio": "Float64",
+      "score_differential": "Int32",
+      "down": "Int32",
+      "yards_to_go": "Int32",
+      "yardline_50": "Int32"
+    },
+    "null_counts": {
+      "label": 0,
+      "receive_2h_ko": 0,
+      "half_seconds_remaining": 0,
+      "game_seconds_remaining": 0,
+      "Diff_Time_Ratio": 0,
+      "score_differential": 0,
+      "down": 43,
+      "yards_to_go": 43,
+      "yardline_50": 0
+    },
+    "label_distribution": {
+      "0": 1821,
+      "1": 1805,
+      "null": 0
+    },
+    "half_seconds_remaining": {
+      "min": 21.818181818181074,
+      "max": 1200.0,
+      "mean": 615.057915057915,
+      "n_nan": 0,
+      "n_null": 0
+    }
+  },
+  "excluded_games": {
+    "ep": 37,
+    "wp": 35
+  },
+  "notes": "These frames were produced by unmodified Python/ helpers (helper_add_hudl_mutations.py, helper_add_model_mutations.py) before the src/flag_football_ep package port. They are the ground truth for tests/test_migration_equivalence.py (plan 16)."
+}
