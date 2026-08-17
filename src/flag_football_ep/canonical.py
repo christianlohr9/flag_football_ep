@@ -193,3 +193,157 @@ def conform_to_canonical(df: pl.DataFrame, source: str) -> tuple[pl.DataFrame, C
     df = df.select(list(CANONICAL_COLUMNS))
 
     return df, report
+
+
+def add_scoring_play_team(df: pl.DataFrame, credit_defense: bool) -> pl.DataFrame:
+    """Derive `scoring_play` and `scoring_play_team`.
+
+    The original notebook chained `flag_a | flag_b | ... == 1` inside a single
+    `pl.when`, which Python/polars operator precedence evaluates as
+    `flag_a | flag_b | ... | (flag_f == 1)` — only the *last* flag is actually
+    compared to 1, so `scoring_play` silently mis-fires whenever an earlier
+    flag alone is set. Here every flag is compared to 1 explicitly and the
+    booleans are combined with `|`, so `scoring_play` is correct for every
+    flag, not only the last one.
+    """
+    any_scoring_flag = (
+        (pl.col("touchdown") == 1)
+        | (pl.col("def_touchdown") == 1)
+        | (pl.col("one_point_conv_success") == 1)
+        | (pl.col("two_point_conv_success") == 1)
+        | (pl.col("defensive_two_point_conv") == 1)
+        | (pl.col("safety") == 1)
+    )
+    df = df.with_columns(
+        pl.when(any_scoring_flag)
+        .then(pl.lit(1))
+        .otherwise(pl.lit(0))
+        .cast(pl.Int32)
+        .alias("scoring_play")
+    )
+
+    offense_scoring = (
+        (pl.col("touchdown") == 1)
+        | (pl.col("one_point_conv_success") == 1)
+        | (pl.col("two_point_conv_success") == 1)
+    )
+
+    if credit_defense:
+        defense_scoring = (
+            (pl.col("def_touchdown") == 1)
+            | (pl.col("defensive_two_point_conv") == 1)
+            | (pl.col("safety") == 1)
+        )
+        scoring_team_expr = (
+            pl.when((pl.col("scoring_play") == 1) & offense_scoring)
+            .then(pl.col("posteam"))
+            .when((pl.col("scoring_play") == 1) & defense_scoring)
+            .then(pl.col("defteam"))
+            .otherwise(pl.lit(None))
+        )
+    else:
+        scoring_team_expr = (
+            pl.when((pl.col("scoring_play") == 1) & offense_scoring)
+            .then(pl.col("posteam"))
+            .otherwise(pl.lit(None))
+        )
+
+    df = df.with_columns(scoring_team_expr.alias("scoring_play_team"))
+    return df
+
+
+def add_score_columns(df: pl.DataFrame) -> pl.DataFrame:
+    """Port the home/away points -> cum_sum -> forward_fill -> differential chain.
+
+    Sorted explicitly by (game_id, play_id) before the cumulative window so
+    ordering does not depend on read order. `home_team_points`/
+    `away_team_points` are 0 on play_id 1, the scoring event's point value
+    when that team equals `scoring_play_team`, and null otherwise; the
+    subsequent `cum_sum().over(["game_id", team])` therefore also emits null
+    on non-scoring, non-first rows, and `forward_fill()` carries the last
+    known cumulative score forward across them.
+    """
+    df = df.sort(["game_id", "play_id"])
+
+    points_value = (
+        pl.when(pl.col("touchdown") == 1)
+        .then(pl.lit(6))
+        .when(pl.col("def_touchdown") == 1)
+        .then(pl.lit(6))
+        .when(pl.col("one_point_conv_success") == 1)
+        .then(pl.lit(1))
+        .when(pl.col("two_point_conv_success") == 1)
+        .then(pl.lit(2))
+        .when(pl.col("defensive_two_point_conv") == 1)
+        .then(pl.lit(2))
+        .when(pl.col("safety") == 1)
+        .then(pl.lit(2))
+        .otherwise(pl.lit(None))
+        .cast(pl.Int32)
+    )
+
+    df = df.with_columns(
+        [
+            pl.when(pl.col("play_id") == 1)
+            .then(pl.lit(0))
+            .when(pl.col("home_team") == pl.col("scoring_play_team"))
+            .then(points_value)
+            .otherwise(pl.lit(None))
+            .cast(pl.Int32)
+            .alias("home_team_points"),
+            pl.when(pl.col("play_id") == 1)
+            .then(pl.lit(0))
+            .when(pl.col("away_team") == pl.col("scoring_play_team"))
+            .then(points_value)
+            .otherwise(pl.lit(None))
+            .cast(pl.Int32)
+            .alias("away_team_points"),
+        ]
+    )
+
+    df = df.with_columns(
+        [
+            pl.col("home_team_points")
+            .cum_sum()
+            .over(["game_id", "home_team"])
+            .alias("home_team_score"),
+            pl.col("away_team_points")
+            .cum_sum()
+            .over(["game_id", "away_team"])
+            .alias("away_team_score"),
+        ]
+    )
+
+    df = df.with_columns(
+        [
+            pl.col("home_team_score").forward_fill().alias("home_team_score"),
+            pl.col("away_team_score").forward_fill().alias("away_team_score"),
+        ]
+    )
+
+    df = df.with_columns(
+        [
+            pl.when(pl.col("posteam") == pl.col("home_team"))
+            .then(pl.col("home_team_score"))
+            .when(pl.col("posteam") == pl.col("away_team"))
+            .then(pl.col("away_team_score"))
+            .otherwise(pl.lit(None))
+            .cast(pl.Int32)
+            .alias("posteam_score"),
+            pl.when(pl.col("defteam") == pl.col("home_team"))
+            .then(pl.col("home_team_score"))
+            .when(pl.col("defteam") == pl.col("away_team"))
+            .then(pl.col("away_team_score"))
+            .otherwise(pl.lit(None))
+            .cast(pl.Int32)
+            .alias("defteam_score"),
+        ]
+    )
+
+    df = df.with_columns(
+        (pl.col("posteam_score") - pl.col("defteam_score"))
+        .cast(pl.Int32)
+        .alias("score_differential")
+    )
+
+    return df
