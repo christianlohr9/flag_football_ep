@@ -1,0 +1,5588 @@
+[
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "sequenceNumber": 1,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806250657,
+    "serverTimestamp": "2026-08-15T15:04:10.801Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:04:10.801Z",
+    "updatedAt": "2026-08-15T15:04:10.801Z",
+    "id": "01a005f3-ad31-7487-9a1c-98a3626f980d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "sequenceNumber": 2,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806251117,
+    "serverTimestamp": "2026-08-15T15:04:11.176Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:04:11.177Z",
+    "updatedAt": "2026-08-15T15:04:11.177Z",
+    "id": "01a005f3-aea8-72cc-80a2-5380dab18dc7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "sequenceNumber": 3,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806296265,
+    "serverTimestamp": "2026-08-15T15:04:56.384Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:04:56.385Z",
+    "updatedAt": "2026-08-15T15:04:56.385Z",
+    "id": "01a005f4-5f40-77cf-9def-0141bc318be6"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "sequenceNumber": 4,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806302778,
+    "serverTimestamp": "2026-08-15T15:05:02.883Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:05:02.883Z",
+    "updatedAt": "2026-08-15T15:05:02.883Z",
+    "id": "01a005f4-78a3-701d-a057-76af316b85b6"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "sequenceNumber": 5,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806306684,
+    "serverTimestamp": "2026-08-15T15:05:06.742Z",
+    "payload": {
+      "ballOn": 15
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:05:06.743Z",
+    "updatedAt": "2026-08-15T15:05:06.743Z",
+    "id": "01a005f4-87b6-750c-91c0-a9bde166a50e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 2,
+    "ballOn": 15,
+    "sequenceNumber": 6,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806306830,
+    "serverTimestamp": "2026-08-15T15:05:06.886Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:05:06.887Z",
+    "updatedAt": "2026-08-15T15:05:06.887Z",
+    "id": "01a005f4-8846-73b5-aedd-df5ac6e7382a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 15,
+    "sequenceNumber": 7,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806311428,
+    "serverTimestamp": "2026-08-15T15:05:11.527Z",
+    "payload": {
+      "ballOn": 16
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:05:11.528Z",
+    "updatedAt": "2026-08-15T15:05:11.528Z",
+    "id": "01a005f4-9a67-715b-a666-5f4531ff0197"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 8,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806330112,
+    "serverTimestamp": "2026-08-15T15:05:30.393Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:05:30.393Z",
+    "updatedAt": "2026-08-15T15:05:30.393Z",
+    "id": "01a005f4-e418-768f-8751-a82d94763d40"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 9,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806333022,
+    "serverTimestamp": "2026-08-15T15:05:33.078Z",
+    "payload": {
+      "ballOn": 22
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:05:33.078Z",
+    "updatedAt": "2026-08-15T15:05:33.078Z",
+    "id": "01a005f4-ee95-722d-b6cb-d7bc6d0ae215"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 22,
+    "sequenceNumber": 10,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806337906,
+    "serverTimestamp": "2026-08-15T15:05:38.011Z",
+    "payload": {
+      "ballOn": 23
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:05:38.011Z",
+    "updatedAt": "2026-08-15T15:05:38.011Z",
+    "id": "01a005f5-01db-76db-88ac-a709f5e9d4ad"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 23,
+    "sequenceNumber": 11,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806362935,
+    "serverTimestamp": "2026-08-15T15:06:03.043Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:06:03.044Z",
+    "updatedAt": "2026-08-15T15:06:03.044Z",
+    "id": "01a005f5-63a3-741f-8790-08005507da8d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 23,
+    "sequenceNumber": 12,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806370236,
+    "serverTimestamp": "2026-08-15T15:06:10.383Z",
+    "payload": {
+      "ballOn": 31
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:06:10.384Z",
+    "updatedAt": "2026-08-15T15:06:10.384Z",
+    "id": "01a005f5-804f-73ed-96ba-30a939128683"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 31,
+    "sequenceNumber": 13,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806370456,
+    "serverTimestamp": "2026-08-15T15:06:10.585Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:06:10.586Z",
+    "updatedAt": "2026-08-15T15:06:10.586Z",
+    "id": "01a005f5-8119-734b-b98b-20e6723c4e5d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 31,
+    "sequenceNumber": 14,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806396709,
+    "serverTimestamp": "2026-08-15T15:06:36.837Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:06:36.838Z",
+    "updatedAt": "2026-08-15T15:06:36.838Z",
+    "id": "01a005f5-e7a5-750e-b09b-df85f6d71da9"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 31,
+    "sequenceNumber": 15,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806401437,
+    "serverTimestamp": "2026-08-15T15:06:41.512Z",
+    "payload": {
+      "ballOn": 40
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:06:41.513Z",
+    "updatedAt": "2026-08-15T15:06:41.513Z",
+    "id": "01a005f5-f9e8-70d0-a576-ffe1a9c593b8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 16,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806433478,
+    "serverTimestamp": "2026-08-15T15:07:13.573Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:07:13.574Z",
+    "updatedAt": "2026-08-15T15:07:13.574Z",
+    "id": "01a005f6-7725-75ab-af39-d12d12495dd0"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 17,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806465108,
+    "serverTimestamp": "2026-08-15T15:07:45.363Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:07:45.363Z",
+    "updatedAt": "2026-08-15T15:07:45.363Z",
+    "id": "01a005f6-f353-7596-8464-5019c757c89c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "SCORE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 18,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806507765,
+    "serverTimestamp": "2026-08-15T15:08:27.854Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:08:27.855Z",
+    "updatedAt": "2026-08-15T15:08:27.855Z",
+    "id": "01a005f7-994e-768e-a9ac-0edbcd68bee2"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "TRY_DOWN",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 19,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806514980,
+    "serverTimestamp": "2026-08-15T15:08:35.178Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:08:35.179Z",
+    "updatedAt": "2026-08-15T15:08:35.179Z",
+    "id": "01a005f7-b5ea-721f-907f-b7079dc8df56"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 20,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806540481,
+    "serverTimestamp": "2026-08-15T15:09:00.654Z",
+    "payload": {
+      "teamId": "w-mex"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:09:00.655Z",
+    "updatedAt": "2026-08-15T15:09:00.655Z",
+    "id": "01a005f8-196e-7054-b0e2-34b901741259"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 21,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806542351,
+    "serverTimestamp": "2026-08-15T15:09:02.415Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:09:02.415Z",
+    "updatedAt": "2026-08-15T15:09:02.415Z",
+    "id": "01a005f8-204f-739f-8aaf-e72ff4d1466b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 22,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806542534,
+    "serverTimestamp": "2026-08-15T15:09:02.593Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:09:02.593Z",
+    "updatedAt": "2026-08-15T15:09:02.593Z",
+    "id": "01a005f8-2101-7042-95fb-4f43fe09dcd2"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 23,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806544590,
+    "serverTimestamp": "2026-08-15T15:09:04.644Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:09:04.644Z",
+    "updatedAt": "2026-08-15T15:09:04.644Z",
+    "id": "01a005f8-2904-7439-acfe-5bee9bd1cdef"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 24,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806544716,
+    "serverTimestamp": "2026-08-15T15:09:04.772Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:09:04.772Z",
+    "updatedAt": "2026-08-15T15:09:04.772Z",
+    "id": "01a005f8-2984-74e4-be49-09ceeb335d09"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 25,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806562721,
+    "serverTimestamp": "2026-08-15T15:09:22.869Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:09:22.870Z",
+    "updatedAt": "2026-08-15T15:09:22.870Z",
+    "id": "01a005f8-7035-74e9-bfb0-78d771690900"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 26,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806598706,
+    "serverTimestamp": "2026-08-15T15:09:59.028Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:09:59.028Z",
+    "updatedAt": "2026-08-15T15:09:59.028Z",
+    "id": "01a005f8-fd73-7619-b910-734827bef855"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 27,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806601976,
+    "serverTimestamp": "2026-08-15T15:10:02.137Z",
+    "payload": {
+      "ballOn": 10
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:10:02.137Z",
+    "updatedAt": "2026-08-15T15:10:02.137Z",
+    "id": "01a005f9-0999-75f3-b544-c45242e07352"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 28,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806625082,
+    "serverTimestamp": "2026-08-15T15:10:26.034Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:10:26.035Z",
+    "updatedAt": "2026-08-15T15:10:26.035Z",
+    "id": "01a005f9-66f2-712e-a5aa-e3da36ee46fb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 29,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806629897,
+    "serverTimestamp": "2026-08-15T15:10:29.953Z",
+    "payload": {
+      "ballOn": 16
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:10:29.954Z",
+    "updatedAt": "2026-08-15T15:10:29.954Z",
+    "id": "01a005f9-7641-759d-a5de-8d4f46f6dd53"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 30,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806658572,
+    "serverTimestamp": "2026-08-15T15:10:58.769Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:10:58.770Z",
+    "updatedAt": "2026-08-15T15:10:58.770Z",
+    "id": "01a005f9-e6d1-7523-b9d9-ca0e2a0b27ba"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 31,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806662287,
+    "serverTimestamp": "2026-08-15T15:11:02.431Z",
+    "payload": {
+      "ballOn": 30
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:11:02.432Z",
+    "updatedAt": "2026-08-15T15:11:02.432Z",
+    "id": "01a005f9-f51f-76cf-aab2-2b1e32480036"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 32,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806662481,
+    "serverTimestamp": "2026-08-15T15:11:02.539Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:11:02.539Z",
+    "updatedAt": "2026-08-15T15:11:02.539Z",
+    "id": "01a005f9-f58b-740a-8df0-df5bdb29c656"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 33,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806690660,
+    "serverTimestamp": "2026-08-15T15:11:30.779Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:11:30.780Z",
+    "updatedAt": "2026-08-15T15:11:30.780Z",
+    "id": "01a005fa-63db-7652-aeec-24acba3a5b8c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 34,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806715458,
+    "serverTimestamp": "2026-08-15T15:11:55.549Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:11:55.549Z",
+    "updatedAt": "2026-08-15T15:11:55.549Z",
+    "id": "01a005fa-c49d-71e5-8065-fdf0dcac24c4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 35,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806716668,
+    "serverTimestamp": "2026-08-15T15:11:56.728Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:11:56.728Z",
+    "updatedAt": "2026-08-15T15:11:56.728Z",
+    "id": "01a005fa-c938-753d-8e18-a6eb0ee3d8e1"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 36,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806718742,
+    "serverTimestamp": "2026-08-15T15:11:58.802Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:11:58.803Z",
+    "updatedAt": "2026-08-15T15:11:58.803Z",
+    "id": "01a005fa-d152-7037-85f4-02957ff714a0"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 37,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806744091,
+    "serverTimestamp": "2026-08-15T15:12:24.261Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:12:24.261Z",
+    "updatedAt": "2026-08-15T15:12:24.261Z",
+    "id": "01a005fb-34c5-76ab-98d8-0bd77332908f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 38,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806746047,
+    "serverTimestamp": "2026-08-15T15:12:26.118Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:12:26.118Z",
+    "updatedAt": "2026-08-15T15:12:26.118Z",
+    "id": "01a005fb-3c06-758b-854b-5f17105df1eb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 39,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806752456,
+    "serverTimestamp": "2026-08-15T15:12:32.755Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:12:32.756Z",
+    "updatedAt": "2026-08-15T15:12:32.756Z",
+    "id": "01a005fb-55f3-76a8-acfb-3fc2301ea715"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 40,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806755004,
+    "serverTimestamp": "2026-08-15T15:12:35.063Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:12:35.064Z",
+    "updatedAt": "2026-08-15T15:12:35.064Z",
+    "id": "01a005fb-5ef7-762c-aea6-64dbbf3386d4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 41,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806761548,
+    "serverTimestamp": "2026-08-15T15:12:41.636Z",
+    "payload": {
+      "ballOn": 25
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:12:41.637Z",
+    "updatedAt": "2026-08-15T15:12:41.637Z",
+    "id": "01a005fb-78a4-73fa-b8a7-ce9d424a624f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 25,
+    "sequenceNumber": 42,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806774434,
+    "serverTimestamp": "2026-08-15T15:12:54.532Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:12:54.532Z",
+    "updatedAt": "2026-08-15T15:12:54.532Z",
+    "id": "01a005fb-ab03-757a-b92c-882718029337"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 25,
+    "sequenceNumber": 43,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806775128,
+    "serverTimestamp": "2026-08-15T15:12:55.204Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:12:55.204Z",
+    "updatedAt": "2026-08-15T15:12:55.204Z",
+    "id": "01a005fb-ada4-738e-a107-958a68d53b32"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 25,
+    "sequenceNumber": 44,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806781493,
+    "serverTimestamp": "2026-08-15T15:13:01.629Z",
+    "payload": {
+      "ballOn": 18
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:13:01.629Z",
+    "updatedAt": "2026-08-15T15:13:01.629Z",
+    "id": "01a005fb-c6bd-701b-be1c-c50800fbc6c9"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 18,
+    "sequenceNumber": 45,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806781749,
+    "serverTimestamp": "2026-08-15T15:13:01.816Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:13:01.816Z",
+    "updatedAt": "2026-08-15T15:13:01.816Z",
+    "id": "01a005fb-c778-73cb-863b-56b83b944b3f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 18,
+    "sequenceNumber": 46,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806805345,
+    "serverTimestamp": "2026-08-15T15:13:25.460Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:13:25.460Z",
+    "updatedAt": "2026-08-15T15:13:25.460Z",
+    "id": "01a005fc-23d4-726e-a202-0b35b9cf5d61"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 18,
+    "sequenceNumber": 47,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806843113,
+    "serverTimestamp": "2026-08-15T15:14:03.356Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:14:03.356Z",
+    "updatedAt": "2026-08-15T15:14:03.356Z",
+    "id": "01a005fc-b7dc-725d-bed5-269625440629"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 18,
+    "sequenceNumber": 48,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806846071,
+    "serverTimestamp": "2026-08-15T15:14:06.136Z",
+    "payload": {
+      "ballOn": 22
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:14:06.136Z",
+    "updatedAt": "2026-08-15T15:14:06.136Z",
+    "id": "01a005fc-c2b8-772d-8cd9-cc4898cf4b2e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 22,
+    "sequenceNumber": 49,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806871823,
+    "serverTimestamp": "2026-08-15T15:14:31.918Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:14:31.919Z",
+    "updatedAt": "2026-08-15T15:14:31.919Z",
+    "id": "01a005fd-276e-769e-b2b4-ed65b01ebe1a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 22,
+    "sequenceNumber": 50,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806877047,
+    "serverTimestamp": "2026-08-15T15:14:37.133Z",
+    "payload": {
+      "ballOn": 29
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:14:37.133Z",
+    "updatedAt": "2026-08-15T15:14:37.133Z",
+    "id": "01a005fd-3bcd-722b-a704-d78382277039"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 29,
+    "sequenceNumber": 51,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806877392,
+    "serverTimestamp": "2026-08-15T15:14:37.451Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:14:37.451Z",
+    "updatedAt": "2026-08-15T15:14:37.451Z",
+    "id": "01a005fd-3d0b-72db-9b87-d8c60ee0debf"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 29,
+    "sequenceNumber": 52,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806907709,
+    "serverTimestamp": "2026-08-15T15:15:07.898Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:15:07.899Z",
+    "updatedAt": "2026-08-15T15:15:07.899Z",
+    "id": "01a005fd-b3fa-73a1-9862-25222e1fef5c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 29,
+    "sequenceNumber": 53,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806911200,
+    "serverTimestamp": "2026-08-15T15:15:11.257Z",
+    "payload": {
+      "ballOn": 36
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:15:11.258Z",
+    "updatedAt": "2026-08-15T15:15:11.258Z",
+    "id": "01a005fd-c119-737c-acbc-5928ba2bc4fa"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 36,
+    "sequenceNumber": 54,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806936455,
+    "serverTimestamp": "2026-08-15T15:15:36.647Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:15:36.648Z",
+    "updatedAt": "2026-08-15T15:15:36.648Z",
+    "id": "01a005fe-2447-72bf-bb5c-2ecc42c6d064"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 36,
+    "sequenceNumber": 55,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806940023,
+    "serverTimestamp": "2026-08-15T15:15:40.086Z",
+    "payload": {
+      "ballOn": 43
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:15:40.087Z",
+    "updatedAt": "2026-08-15T15:15:40.087Z",
+    "id": "01a005fe-31b6-744e-bb6f-d22ac4011826"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 43,
+    "sequenceNumber": 56,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806943666,
+    "serverTimestamp": "2026-08-15T15:15:43.863Z",
+    "payload": {
+      "ballOn": 42
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:15:43.863Z",
+    "updatedAt": "2026-08-15T15:15:43.863Z",
+    "id": "01a005fe-4077-74e1-bb32-2bcd580116ef"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "SCORE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 57,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806971496,
+    "serverTimestamp": "2026-08-15T15:16:11.988Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:16:11.988Z",
+    "updatedAt": "2026-08-15T15:16:11.988Z",
+    "id": "01a005fe-ae54-72d6-b15b-10167613e4c8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "TRY_DOWN",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 58,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786806981335,
+    "serverTimestamp": "2026-08-15T15:16:21.433Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:16:21.434Z",
+    "updatedAt": "2026-08-15T15:16:21.434Z",
+    "id": "01a005fe-d339-770f-b0ad-f2cad60a1d6e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "SCORE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 59,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807018372,
+    "serverTimestamp": "2026-08-15T15:16:58.464Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "XP1",
+      "points": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:16:58.465Z",
+    "updatedAt": "2026-08-15T15:16:58.465Z",
+    "id": "01a005ff-63e0-739c-a649-5d8e327c7f16"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 60,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807018523,
+    "serverTimestamp": "2026-08-15T15:16:58.578Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:16:58.579Z",
+    "updatedAt": "2026-08-15T15:16:58.579Z",
+    "id": "01a005ff-6452-75b8-85b6-4642cf5f01b0"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 61,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807020832,
+    "serverTimestamp": "2026-08-15T15:17:00.891Z",
+    "payload": {
+      "teamId": "w-mex"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:17:00.891Z",
+    "updatedAt": "2026-08-15T15:17:00.891Z",
+    "id": "01a005ff-6d5b-717c-bba6-3619acdfe16c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 62,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807022832,
+    "serverTimestamp": "2026-08-15T15:17:02.900Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:17:02.900Z",
+    "updatedAt": "2026-08-15T15:17:02.900Z",
+    "id": "01a005ff-7534-75ec-b7d1-a69413f95d65"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 63,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807024531,
+    "serverTimestamp": "2026-08-15T15:17:04.743Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:17:04.743Z",
+    "updatedAt": "2026-08-15T15:17:04.743Z",
+    "id": "01a005ff-7c67-7683-8e2c-e21f8887af6e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 64,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807024835,
+    "serverTimestamp": "2026-08-15T15:17:04.895Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:17:04.895Z",
+    "updatedAt": "2026-08-15T15:17:04.895Z",
+    "id": "01a005ff-7cff-70dd-b0c9-bd0f9ed7a516"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 65,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807050561,
+    "serverTimestamp": "2026-08-15T15:17:30.673Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:17:30.674Z",
+    "updatedAt": "2026-08-15T15:17:30.674Z",
+    "id": "01a005ff-e1b1-746b-9d7d-f7bd09308c76"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 66,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807054749,
+    "serverTimestamp": "2026-08-15T15:17:34.801Z",
+    "payload": {
+      "ballOn": 13
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:17:34.802Z",
+    "updatedAt": "2026-08-15T15:17:34.802Z",
+    "id": "01a005ff-f1d1-720d-ae69-0d28d1ef8582"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 67,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807078210,
+    "serverTimestamp": "2026-08-15T15:17:58.301Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:17:58.301Z",
+    "updatedAt": "2026-08-15T15:17:58.301Z",
+    "id": "01a00600-4d9c-75ab-ab37-b03537c61447"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 68,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807082587,
+    "serverTimestamp": "2026-08-15T15:18:02.851Z",
+    "payload": {
+      "ballOn": 19
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:18:02.852Z",
+    "updatedAt": "2026-08-15T15:18:02.852Z",
+    "id": "01a00600-5f63-7329-b418-2a8ff681855a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 19,
+    "sequenceNumber": 69,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807111307,
+    "serverTimestamp": "2026-08-15T15:18:31.413Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:18:31.413Z",
+    "updatedAt": "2026-08-15T15:18:31.413Z",
+    "id": "01a00600-cef5-71c8-9fe7-25b044645bc4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 19,
+    "sequenceNumber": 70,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807119815,
+    "serverTimestamp": "2026-08-15T15:18:39.904Z",
+    "payload": {
+      "ballOn": 36
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:18:39.904Z",
+    "updatedAt": "2026-08-15T15:18:39.904Z",
+    "id": "01a00600-f020-76c8-8f13-fea359651793"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 36,
+    "sequenceNumber": 71,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807119974,
+    "serverTimestamp": "2026-08-15T15:18:40.075Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:18:40.076Z",
+    "updatedAt": "2026-08-15T15:18:40.076Z",
+    "id": "01a00600-f0cb-71f1-9f14-c2234d5ef57c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 36,
+    "sequenceNumber": 72,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807123129,
+    "serverTimestamp": "2026-08-15T15:18:43.182Z",
+    "payload": {
+      "ballOn": 37
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:18:43.182Z",
+    "updatedAt": "2026-08-15T15:18:43.182Z",
+    "id": "01a00600-fcee-7327-80a9-27dde4a4b514"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 37,
+    "sequenceNumber": 73,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807150637,
+    "serverTimestamp": "2026-08-15T15:19:10.724Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:19:10.725Z",
+    "updatedAt": "2026-08-15T15:19:10.725Z",
+    "id": "01a00601-6884-7499-8b6b-6c0d07c7cd88"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 37,
+    "sequenceNumber": 74,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807153979,
+    "serverTimestamp": "2026-08-15T15:19:14.028Z",
+    "payload": {
+      "ballOn": 44
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:19:14.029Z",
+    "updatedAt": "2026-08-15T15:19:14.029Z",
+    "id": "01a00601-756c-754d-9216-ee293fd348c5"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 75,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807179901,
+    "serverTimestamp": "2026-08-15T15:19:40.010Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:19:40.011Z",
+    "updatedAt": "2026-08-15T15:19:40.011Z",
+    "id": "01a00601-daea-76c3-be7f-44d9fcf72d62"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 76,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807183538,
+    "serverTimestamp": "2026-08-15T15:19:43.597Z",
+    "payload": {
+      "ballOn": 46
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:19:43.598Z",
+    "updatedAt": "2026-08-15T15:19:43.598Z",
+    "id": "01a00601-e8ed-7694-b8e3-2a9669a54508"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 46,
+    "sequenceNumber": 77,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807216837,
+    "serverTimestamp": "2026-08-15T15:20:17.149Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:20:17.149Z",
+    "updatedAt": "2026-08-15T15:20:17.149Z",
+    "id": "01a00602-6bfc-772c-9615-07384746edf1"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 46,
+    "sequenceNumber": 78,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807223348,
+    "serverTimestamp": "2026-08-15T15:20:23.456Z",
+    "payload": {
+      "ballOn": 39
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:20:23.456Z",
+    "updatedAt": "2026-08-15T15:20:23.456Z",
+    "id": "01a00602-84a0-75cc-ae2c-5f3d3286e451"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 39,
+    "sequenceNumber": 79,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807271899,
+    "serverTimestamp": "2026-08-15T15:21:11.993Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:21:11.994Z",
+    "updatedAt": "2026-08-15T15:21:11.994Z",
+    "id": "01a00603-4239-71e3-b74d-f6a8af9b6bdf"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 39,
+    "sequenceNumber": 80,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807272483,
+    "serverTimestamp": "2026-08-15T15:21:12.536Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:21:12.536Z",
+    "updatedAt": "2026-08-15T15:21:12.536Z",
+    "id": "01a00603-4458-756b-88bf-512bedef4bfa"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 39,
+    "sequenceNumber": 81,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807274441,
+    "serverTimestamp": "2026-08-15T15:21:14.489Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:21:14.490Z",
+    "updatedAt": "2026-08-15T15:21:14.490Z",
+    "id": "01a00603-4bf9-7539-b15b-0e1c5d883a70"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 82,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807274534,
+    "serverTimestamp": "2026-08-15T15:21:14.597Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:21:14.597Z",
+    "updatedAt": "2026-08-15T15:21:14.597Z",
+    "id": "01a00603-4c65-71a8-b250-733fd0e3c938"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 83,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807305671,
+    "serverTimestamp": "2026-08-15T15:21:45.772Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:21:45.773Z",
+    "updatedAt": "2026-08-15T15:21:45.773Z",
+    "id": "01a00603-c62c-7589-99f0-5f553be1b9e1"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 84,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807311143,
+    "serverTimestamp": "2026-08-15T15:21:51.359Z",
+    "payload": {
+      "ballOn": 17
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:21:51.359Z",
+    "updatedAt": "2026-08-15T15:21:51.359Z",
+    "id": "01a00603-dbff-72c6-97d6-eb70441dd25d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 85,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807332095,
+    "serverTimestamp": "2026-08-15T15:22:12.174Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:22:12.175Z",
+    "updatedAt": "2026-08-15T15:22:12.175Z",
+    "id": "01a00604-2d4e-723f-8dc1-058ef742d04b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 86,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807334139,
+    "serverTimestamp": "2026-08-15T15:22:14.200Z",
+    "payload": {
+      "ballOn": 24
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:22:14.200Z",
+    "updatedAt": "2026-08-15T15:22:14.200Z",
+    "id": "01a00604-3537-731d-aa56-004223fbcf8d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 24,
+    "sequenceNumber": 87,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807371491,
+    "serverTimestamp": "2026-08-15T15:22:51.655Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:22:51.655Z",
+    "updatedAt": "2026-08-15T15:22:51.655Z",
+    "id": "01a00604-c787-7369-acab-38cb909dc742"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 24,
+    "sequenceNumber": 88,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807376263,
+    "serverTimestamp": "2026-08-15T15:22:56.325Z",
+    "payload": {
+      "accumulatedTimeMs": 1079622
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:22:56.325Z",
+    "updatedAt": "2026-08-15T15:22:56.325Z",
+    "id": "01a00604-d9c5-71c8-b66e-a07705d383d8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 24,
+    "sequenceNumber": 89,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807381657,
+    "serverTimestamp": "2026-08-15T15:23:01.804Z",
+    "payload": {
+      "ballOn": 31
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:23:01.805Z",
+    "updatedAt": "2026-08-15T15:23:01.805Z",
+    "id": "01a00604-ef2c-7038-9417-f186f5c35a51"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 31,
+    "sequenceNumber": 90,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807381866,
+    "serverTimestamp": "2026-08-15T15:23:01.915Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:23:01.915Z",
+    "updatedAt": "2026-08-15T15:23:01.915Z",
+    "id": "01a00604-ef9b-7238-b023-4d16b9641c95"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 31,
+    "sequenceNumber": 91,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807384718,
+    "serverTimestamp": "2026-08-15T15:23:04.773Z",
+    "payload": {
+      "ballOn": 32
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:23:04.773Z",
+    "updatedAt": "2026-08-15T15:23:04.773Z",
+    "id": "01a00604-fac5-714b-a4cd-f1ffc4d0a607"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 92,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807413789,
+    "serverTimestamp": "2026-08-15T15:23:33.893Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:23:33.893Z",
+    "updatedAt": "2026-08-15T15:23:33.893Z",
+    "id": "01a00605-6c85-70e8-9fb0-108aebd004d7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 93,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807420967,
+    "serverTimestamp": "2026-08-15T15:23:41.122Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:23:41.123Z",
+    "updatedAt": "2026-08-15T15:23:41.123Z",
+    "id": "01a00605-88c2-710d-b940-246587dca1fd"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 94,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807426708,
+    "serverTimestamp": "2026-08-15T15:23:46.882Z",
+    "payload": {
+      "ballOn": 41
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:23:46.882Z",
+    "updatedAt": "2026-08-15T15:23:46.882Z",
+    "id": "01a00605-9f42-779e-a1ba-2568f92e19ac"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 41,
+    "sequenceNumber": 95,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807429548,
+    "serverTimestamp": "2026-08-15T15:23:49.602Z",
+    "payload": {
+      "ballOn": 42
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:23:49.603Z",
+    "updatedAt": "2026-08-15T15:23:49.603Z",
+    "id": "01a00605-a9e2-777d-a17f-02d62e40f1f1"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 96,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807451599,
+    "serverTimestamp": "2026-08-15T15:24:11.687Z",
+    "payload": {
+      "accumulatedTimeMs": 1117101
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:24:11.688Z",
+    "updatedAt": "2026-08-15T15:24:11.688Z",
+    "id": "01a00606-0027-769b-ac42-fb0d41b67104"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 97,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807453686,
+    "serverTimestamp": "2026-08-15T15:24:13.737Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:24:13.738Z",
+    "updatedAt": "2026-08-15T15:24:13.738Z",
+    "id": "01a00606-0829-76cb-91de-54614b9f1cf8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 98,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807481978,
+    "serverTimestamp": "2026-08-15T15:24:42.069Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:24:42.070Z",
+    "updatedAt": "2026-08-15T15:24:42.070Z",
+    "id": "01a00606-76d5-779e-a319-4fbdf1678f03"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 99,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807487820,
+    "serverTimestamp": "2026-08-15T15:24:47.967Z",
+    "payload": {
+      "accumulatedTimeMs": 1122665
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:24:47.967Z",
+    "updatedAt": "2026-08-15T15:24:47.967Z",
+    "id": "01a00606-8ddf-722c-b31b-9e1d1a0b2aa8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 100,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807492173,
+    "serverTimestamp": "2026-08-15T15:24:52.386Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:24:52.387Z",
+    "updatedAt": "2026-08-15T15:24:52.387Z",
+    "id": "01a00606-9f22-7584-9fc2-4c5d9331a264"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 101,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807508850,
+    "serverTimestamp": "2026-08-15T15:25:08.940Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:08.941Z",
+    "updatedAt": "2026-08-15T15:25:08.941Z",
+    "id": "01a00606-dfcc-740c-8176-2f9cfe1ba14c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 102,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807510883,
+    "serverTimestamp": "2026-08-15T15:25:10.938Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:10.938Z",
+    "updatedAt": "2026-08-15T15:25:10.938Z",
+    "id": "01a00606-e79a-73bd-a766-c894bca7799f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 103,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807512224,
+    "serverTimestamp": "2026-08-15T15:25:12.311Z",
+    "payload": {
+      "ballOn": 46
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:12.311Z",
+    "updatedAt": "2026-08-15T15:25:12.311Z",
+    "id": "01a00606-ecf6-72ac-9089-b0cc798af4bf"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 46,
+    "sequenceNumber": 104,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807536696,
+    "serverTimestamp": "2026-08-15T15:25:36.807Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:36.807Z",
+    "updatedAt": "2026-08-15T15:25:36.807Z",
+    "id": "01a00607-4ca7-7314-b024-00799a0b9767"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 46,
+    "sequenceNumber": 105,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807543924,
+    "serverTimestamp": "2026-08-15T15:25:44.129Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:44.129Z",
+    "updatedAt": "2026-08-15T15:25:44.129Z",
+    "id": "01a00607-6940-71ae-9889-7a3dd3db1d45"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 46,
+    "sequenceNumber": 106,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807548216,
+    "serverTimestamp": "2026-08-15T15:25:48.472Z",
+    "payload": {
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:48.472Z",
+    "updatedAt": "2026-08-15T15:25:48.472Z",
+    "id": "01a00607-7a37-71ce-8ae6-534d0c3763c7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 107,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807550136,
+    "serverTimestamp": "2026-08-15T15:25:50.289Z",
+    "payload": {
+      "accumulatedTimeMs": 1135775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:50.290Z",
+    "updatedAt": "2026-08-15T15:25:50.290Z",
+    "id": "01a00607-8151-7412-86a4-415ae5000f38"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 108,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807555231,
+    "serverTimestamp": "2026-08-15T15:25:55.303Z",
+    "payload": {
+      "previousMs": 1135775,
+      "newMs": 1134775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:55.303Z",
+    "updatedAt": "2026-08-15T15:25:55.303Z",
+    "id": "01a00607-94e7-7644-b083-871910f6ab78"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 109,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807555444,
+    "serverTimestamp": "2026-08-15T15:25:55.654Z",
+    "payload": {
+      "previousMs": 1134775,
+      "newMs": 1133775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:55.655Z",
+    "updatedAt": "2026-08-15T15:25:55.655Z",
+    "id": "01a00607-9646-767e-854d-9d7d3e457623"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 110,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807555856,
+    "serverTimestamp": "2026-08-15T15:25:55.912Z",
+    "payload": {
+      "previousMs": 1133775,
+      "newMs": 1132775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:55.912Z",
+    "updatedAt": "2026-08-15T15:25:55.912Z",
+    "id": "01a00607-9748-7514-b61c-fe748e34b29b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 111,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807556071,
+    "serverTimestamp": "2026-08-15T15:25:56.116Z",
+    "payload": {
+      "previousMs": 1132775,
+      "newMs": 1131775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:56.117Z",
+    "updatedAt": "2026-08-15T15:25:56.117Z",
+    "id": "01a00607-9814-76fa-9201-9edfde19a627"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 112,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807556364,
+    "serverTimestamp": "2026-08-15T15:25:56.421Z",
+    "payload": {
+      "previousMs": 1131775,
+      "newMs": 1130775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:56.422Z",
+    "updatedAt": "2026-08-15T15:25:56.422Z",
+    "id": "01a00607-9945-725d-9f24-709b2873ba7d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 113,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807556620,
+    "serverTimestamp": "2026-08-15T15:25:56.683Z",
+    "payload": {
+      "previousMs": 1130775,
+      "newMs": 1129775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:56.683Z",
+    "updatedAt": "2026-08-15T15:25:56.683Z",
+    "id": "01a00607-9a4a-748a-8b63-bafef2abb3be"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 114,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807557002,
+    "serverTimestamp": "2026-08-15T15:25:57.050Z",
+    "payload": {
+      "previousMs": 1129775,
+      "newMs": 1128775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:57.051Z",
+    "updatedAt": "2026-08-15T15:25:57.051Z",
+    "id": "01a00607-9bba-7703-b532-4c315148d6fb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 115,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807557514,
+    "serverTimestamp": "2026-08-15T15:25:57.656Z",
+    "payload": {
+      "previousMs": 1128775,
+      "newMs": 1127775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:25:57.657Z",
+    "updatedAt": "2026-08-15T15:25:57.657Z",
+    "id": "01a00607-9e18-774a-af7e-8b9d57fba1c0"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 116,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807564321,
+    "serverTimestamp": "2026-08-15T15:26:04.744Z",
+    "payload": {
+      "previousMs": 1127775,
+      "newMs": 1128775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:26:04.745Z",
+    "updatedAt": "2026-08-15T15:26:04.745Z",
+    "id": "01a00607-b9c8-77f7-b79a-e07e9be48771"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "TIMEOUT",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 117,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807569827,
+    "serverTimestamp": "2026-08-15T15:26:10.244Z",
+    "payload": {
+      "teamId": "w-mex",
+      "reason": "TIMEOUT",
+      "accumulatedTimeMs": 1128775
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:26:10.244Z",
+    "updatedAt": "2026-08-15T15:26:10.244Z",
+    "id": "01a00607-cf44-721a-bf8d-a021eaed7d3c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 118,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807592756,
+    "serverTimestamp": "2026-08-15T15:26:32.850Z",
+    "payload": {
+      "ballOn": 44
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:26:32.850Z",
+    "updatedAt": "2026-08-15T15:26:32.850Z",
+    "id": "01a00608-2792-7541-8d5c-9e00f091a482"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 119,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807603243,
+    "serverTimestamp": "2026-08-15T15:26:43.332Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:26:43.333Z",
+    "updatedAt": "2026-08-15T15:26:43.333Z",
+    "id": "01a00608-5084-750f-96cc-043e6f4fecfd"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 120,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807610980,
+    "serverTimestamp": "2026-08-15T15:26:51.072Z",
+    "payload": {
+      "accumulatedTimeMs": 1136345
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:26:51.072Z",
+    "updatedAt": "2026-08-15T15:26:51.072Z",
+    "id": "01a00608-6ec0-74d9-9d63-196df850b339"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 121,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807614580,
+    "serverTimestamp": "2026-08-15T15:26:54.633Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:26:54.634Z",
+    "updatedAt": "2026-08-15T15:26:54.634Z",
+    "id": "01a00608-7ca9-7217-81b9-be7fdda6bdfc"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 122,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807623405,
+    "serverTimestamp": "2026-08-15T15:27:03.504Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:27:03.505Z",
+    "updatedAt": "2026-08-15T15:27:03.505Z",
+    "id": "01a00608-9f50-76bc-9c7d-56bbd232830e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 123,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807629299,
+    "serverTimestamp": "2026-08-15T15:27:09.549Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:27:09.551Z",
+    "updatedAt": "2026-08-15T15:27:09.551Z",
+    "id": "01a00608-b6ed-7269-a05d-ad23b2c7a6df"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 124,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807650201,
+    "serverTimestamp": "2026-08-15T15:27:30.291Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:27:30.292Z",
+    "updatedAt": "2026-08-15T15:27:30.292Z",
+    "id": "01a00609-07f3-745c-81b5-1ce90d0f7b8e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 125,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807655203,
+    "serverTimestamp": "2026-08-15T15:27:35.252Z",
+    "payload": {
+      "accumulatedTimeMs": 1141153
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:27:35.253Z",
+    "updatedAt": "2026-08-15T15:27:35.253Z",
+    "id": "01a00609-1b54-777f-b7b8-a96ee6a45ddb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 126,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807658145,
+    "serverTimestamp": "2026-08-15T15:27:38.233Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:27:38.233Z",
+    "updatedAt": "2026-08-15T15:27:38.233Z",
+    "id": "01a00609-26f9-70bf-b008-6aaeee65e271"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 127,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807690390,
+    "serverTimestamp": "2026-08-15T15:28:10.578Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:28:10.578Z",
+    "updatedAt": "2026-08-15T15:28:10.578Z",
+    "id": "01a00609-a552-73fa-9ee7-5921565571bd"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 128,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807694749,
+    "serverTimestamp": "2026-08-15T15:28:14.871Z",
+    "payload": {
+      "accumulatedTimeMs": 1145242
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:28:14.871Z",
+    "updatedAt": "2026-08-15T15:28:14.871Z",
+    "id": "01a00609-b617-75fe-a47a-725ed6fd6008"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 129,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807699069,
+    "serverTimestamp": "2026-08-15T15:28:19.158Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:28:19.158Z",
+    "updatedAt": "2026-08-15T15:28:19.158Z",
+    "id": "01a00609-c6d6-7683-a0e2-94fcf8f851bd"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 130,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807723530,
+    "serverTimestamp": "2026-08-15T15:28:43.630Z",
+    "payload": {
+      "teamId": "w-mex"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:28:43.630Z",
+    "updatedAt": "2026-08-15T15:28:43.630Z",
+    "id": "01a0060a-266e-729b-ba0c-1a6a14b20fa5"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 131,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807724147,
+    "serverTimestamp": "2026-08-15T15:28:44.212Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:28:44.213Z",
+    "updatedAt": "2026-08-15T15:28:44.213Z",
+    "id": "01a0060a-28b4-71b7-a23e-840fbb4afdd8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 132,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807725609,
+    "serverTimestamp": "2026-08-15T15:28:45.695Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:28:45.696Z",
+    "updatedAt": "2026-08-15T15:28:45.696Z",
+    "id": "01a0060a-2e7f-728e-990d-3aac73533be6"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 133,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807725740,
+    "serverTimestamp": "2026-08-15T15:28:45.788Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:28:45.788Z",
+    "updatedAt": "2026-08-15T15:28:45.788Z",
+    "id": "01a0060a-2edc-72a7-81a8-4c7c56da6f66"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 134,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807731348,
+    "serverTimestamp": "2026-08-15T15:28:51.503Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:28:51.504Z",
+    "updatedAt": "2026-08-15T15:28:51.504Z",
+    "id": "01a0060a-452f-724f-9ccd-cd0c04e267c7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 135,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807744610,
+    "serverTimestamp": "2026-08-15T15:29:04.701Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:29:04.702Z",
+    "updatedAt": "2026-08-15T15:29:04.702Z",
+    "id": "01a0060a-78bd-704b-9fd6-ed9f17c72cb8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 136,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807752189,
+    "serverTimestamp": "2026-08-15T15:29:12.273Z",
+    "payload": {
+      "accumulatedTimeMs": 1152572
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:29:12.274Z",
+    "updatedAt": "2026-08-15T15:29:12.274Z",
+    "id": "01a0060a-9651-722c-b209-248a187d77c5"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 137,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807752911,
+    "serverTimestamp": "2026-08-15T15:29:12.978Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:29:12.979Z",
+    "updatedAt": "2026-08-15T15:29:12.979Z",
+    "id": "01a0060a-9912-701d-a20f-34de16e0562b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 138,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807755660,
+    "serverTimestamp": "2026-08-15T15:29:15.710Z",
+    "payload": {
+      "accumulatedTimeMs": 1155121
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:29:15.710Z",
+    "updatedAt": "2026-08-15T15:29:15.710Z",
+    "id": "01a0060a-a3be-76f3-b4fd-db585362516b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 139,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807765958,
+    "serverTimestamp": "2026-08-15T15:29:26.102Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:29:26.102Z",
+    "updatedAt": "2026-08-15T15:29:26.102Z",
+    "id": "01a0060a-cc56-76e8-8c96-692c83c89843"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "TIMEOUT",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 140,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807768972,
+    "serverTimestamp": "2026-08-15T15:29:29.023Z",
+    "payload": {
+      "teamId": "w-mex",
+      "reason": "TIMEOUT",
+      "accumulatedTimeMs": 1155121
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:29:29.023Z",
+    "updatedAt": "2026-08-15T15:29:29.023Z",
+    "id": "01a0060a-d7bf-7138-a1f8-097671e9895e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 141,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807804609,
+    "serverTimestamp": "2026-08-15T15:30:04.976Z",
+    "payload": {
+      "ballOn": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:30:04.977Z",
+    "updatedAt": "2026-08-15T15:30:04.977Z",
+    "id": "01a0060b-6430-739d-a7c4-206f44f58c5a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 3,
+    "sequenceNumber": 142,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807807435,
+    "serverTimestamp": "2026-08-15T15:30:07.490Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:30:07.491Z",
+    "updatedAt": "2026-08-15T15:30:07.491Z",
+    "id": "01a0060b-6e02-743c-8e79-4d13f9296d95"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 3,
+    "sequenceNumber": 143,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807812186,
+    "serverTimestamp": "2026-08-15T15:30:12.268Z",
+    "payload": {
+      "accumulatedTimeMs": 1159701
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:30:12.269Z",
+    "updatedAt": "2026-08-15T15:30:12.269Z",
+    "id": "01a0060b-80ac-724a-9a16-0c0b825b843a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 3,
+    "sequenceNumber": 144,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807822285,
+    "serverTimestamp": "2026-08-15T15:30:22.393Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:30:22.393Z",
+    "updatedAt": "2026-08-15T15:30:22.393Z",
+    "id": "01a0060b-a839-7319-a3ea-a9ddfd7f5135"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 3,
+    "sequenceNumber": 145,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807847591,
+    "serverTimestamp": "2026-08-15T15:30:47.824Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:30:47.825Z",
+    "updatedAt": "2026-08-15T15:30:47.825Z",
+    "id": "01a0060c-0b90-71fd-925a-b2c5315f8cff"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 3,
+    "sequenceNumber": 146,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807851767,
+    "serverTimestamp": "2026-08-15T15:30:51.820Z",
+    "payload": {
+      "accumulatedTimeMs": 1163519
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:30:51.820Z",
+    "updatedAt": "2026-08-15T15:30:51.820Z",
+    "id": "01a0060c-1b2b-72ee-813a-2b3a6fa309e4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 3,
+    "sequenceNumber": 147,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807854724,
+    "serverTimestamp": "2026-08-15T15:30:54.806Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:30:54.807Z",
+    "updatedAt": "2026-08-15T15:30:54.807Z",
+    "id": "01a0060c-26d6-75eb-9aa3-bcd191bd5e5a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 3,
+    "sequenceNumber": 148,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807862840,
+    "serverTimestamp": "2026-08-15T15:31:02.974Z",
+    "payload": {
+      "ballOn": 13
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:31:02.974Z",
+    "updatedAt": "2026-08-15T15:31:02.974Z",
+    "id": "01a0060c-46be-7599-b471-d05eecdfb7c2"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 149,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807878832,
+    "serverTimestamp": "2026-08-15T15:31:18.914Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:31:18.915Z",
+    "updatedAt": "2026-08-15T15:31:18.915Z",
+    "id": "01a0060c-8502-745b-bf07-9abfe9669149"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 150,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807891419,
+    "serverTimestamp": "2026-08-15T15:31:31.517Z",
+    "payload": {
+      "accumulatedTimeMs": 1175874
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:31:31.518Z",
+    "updatedAt": "2026-08-15T15:31:31.518Z",
+    "id": "01a0060c-b63d-74da-8c68-e0b52937dc5d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 151,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807895386,
+    "serverTimestamp": "2026-08-15T15:31:35.486Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:31:35.494Z",
+    "updatedAt": "2026-08-15T15:31:35.494Z",
+    "id": "01a0060c-c5be-73fb-a7ef-65f007c06a06"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 152,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807901355,
+    "serverTimestamp": "2026-08-15T15:31:41.452Z",
+    "payload": {
+      "ballOn": 26
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:31:41.453Z",
+    "updatedAt": "2026-08-15T15:31:41.453Z",
+    "id": "01a0060c-dd0c-743d-a1be-d331f7978c51"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 153,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807901520,
+    "serverTimestamp": "2026-08-15T15:31:41.573Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:31:41.573Z",
+    "updatedAt": "2026-08-15T15:31:41.573Z",
+    "id": "01a0060c-dd85-72ef-92ac-f95cc35391eb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 154,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807907395,
+    "serverTimestamp": "2026-08-15T15:31:47.570Z",
+    "payload": {
+      "previousMs": 1175874,
+      "newMs": 1174874
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:31:47.570Z",
+    "updatedAt": "2026-08-15T15:31:47.570Z",
+    "id": "01a0060c-f4f2-758f-bdc2-349d8fa22496"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 155,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807918038,
+    "serverTimestamp": "2026-08-15T15:31:58.152Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:31:58.160Z",
+    "updatedAt": "2026-08-15T15:31:58.160Z",
+    "id": "01a0060d-1e48-72a7-b7b8-16d769f0067a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 156,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807924308,
+    "serverTimestamp": "2026-08-15T15:32:04.392Z",
+    "payload": {
+      "accumulatedTimeMs": 1180988
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:32:04.392Z",
+    "updatedAt": "2026-08-15T15:32:04.392Z",
+    "id": "01a0060d-36a8-7759-90f3-a7831018e0bf"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 157,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786807941565,
+    "serverTimestamp": "2026-08-15T15:32:21.644Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:32:21.644Z",
+    "updatedAt": "2026-08-15T15:32:21.644Z",
+    "id": "01a0060d-7a0c-70a8-800b-58437ae86db2"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 158,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808086697,
+    "serverTimestamp": "2026-08-15T15:34:46.842Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:34:46.842Z",
+    "updatedAt": "2026-08-15T15:34:46.842Z",
+    "id": "01a0060f-b13a-71ec-bb12-72068badd68d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 159,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808092380,
+    "serverTimestamp": "2026-08-15T15:34:52.470Z",
+    "payload": {
+      "accumulatedTimeMs": 1186312
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:34:52.471Z",
+    "updatedAt": "2026-08-15T15:34:52.471Z",
+    "id": "01a0060f-c736-7682-8802-aac4868eda37"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 160,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808094496,
+    "serverTimestamp": "2026-08-15T15:34:54.547Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:34:54.547Z",
+    "updatedAt": "2026-08-15T15:34:54.547Z",
+    "id": "01a0060f-cf53-75c1-a8e8-6ae7dc95dd61"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 161,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808121087,
+    "serverTimestamp": "2026-08-15T15:35:21.175Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:35:21.175Z",
+    "updatedAt": "2026-08-15T15:35:21.175Z",
+    "id": "01a00610-3757-76bb-8c69-ac90bf6636b8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 162,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808124826,
+    "serverTimestamp": "2026-08-15T15:35:24.882Z",
+    "payload": {
+      "accumulatedTimeMs": 1189893
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:35:24.882Z",
+    "updatedAt": "2026-08-15T15:35:24.882Z",
+    "id": "01a00610-45d2-77ef-ac6e-403764ecdb41"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 163,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808129362,
+    "serverTimestamp": "2026-08-15T15:35:29.454Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:35:29.454Z",
+    "updatedAt": "2026-08-15T15:35:29.454Z",
+    "id": "01a00610-57ae-7578-b3a5-ef5235b61136"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 164,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808131923,
+    "serverTimestamp": "2026-08-15T15:35:31.969Z",
+    "payload": {
+      "ballOn": 30
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:35:31.969Z",
+    "updatedAt": "2026-08-15T15:35:31.969Z",
+    "id": "01a00610-6181-70dc-8ac3-4f824c277c35"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 165,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808157058,
+    "serverTimestamp": "2026-08-15T15:35:57.144Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:35:57.145Z",
+    "updatedAt": "2026-08-15T15:35:57.145Z",
+    "id": "01a00610-c3d8-743c-bc9d-84d641d49d07"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 166,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808172107,
+    "serverTimestamp": "2026-08-15T15:36:12.289Z",
+    "payload": {
+      "accumulatedTimeMs": 1204769
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:36:12.301Z",
+    "updatedAt": "2026-08-15T15:36:12.301Z",
+    "id": "01a00610-ff01-74b8-92f1-9f9319e32b74"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 167,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808181642,
+    "serverTimestamp": "2026-08-15T15:36:21.737Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:36:21.738Z",
+    "updatedAt": "2026-08-15T15:36:21.738Z",
+    "id": "01a00611-23e9-7739-bcca-186e1f1e33ba"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 168,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808194787,
+    "serverTimestamp": "2026-08-15T15:36:34.876Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:36:34.877Z",
+    "updatedAt": "2026-08-15T15:36:34.877Z",
+    "id": "01a00611-573c-7044-a00d-f6317e7dd8c5"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 169,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808198889,
+    "serverTimestamp": "2026-08-15T15:36:39.020Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:36:39.021Z",
+    "updatedAt": "2026-08-15T15:36:39.021Z",
+    "id": "01a00611-676c-74c4-a31d-f7be6c447e43"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "STATUS_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 170,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808271605,
+    "serverTimestamp": "2026-08-15T15:37:51.693Z",
+    "payload": {
+      "status": "HALF_TIME"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:37:51.693Z",
+    "updatedAt": "2026-08-15T15:37:51.693Z",
+    "id": "01a00612-834d-7620-847a-b626390f1698"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "STATUS_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 171,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808271866,
+    "serverTimestamp": "2026-08-15T15:37:51.916Z",
+    "payload": {
+      "status": "IN_PROGRESS"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:37:51.916Z",
+    "updatedAt": "2026-08-15T15:37:51.916Z",
+    "id": "01a00612-842c-73db-93d6-5ff3d14bef70"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 172,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808379796,
+    "serverTimestamp": "2026-08-15T15:39:41.356Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:39:41.358Z",
+    "updatedAt": "2026-08-15T15:39:41.358Z",
+    "id": "01a00614-2fac-7469-9ec7-51c0bbd5cb6d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 173,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808381671,
+    "serverTimestamp": "2026-08-15T15:39:42.435Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:39:42.436Z",
+    "updatedAt": "2026-08-15T15:39:42.436Z",
+    "id": "01a00614-33e3-7069-8588-f5ca0e9a873d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 174,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808405764,
+    "serverTimestamp": "2026-08-15T15:40:05.947Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:40:05.948Z",
+    "updatedAt": "2026-08-15T15:40:05.948Z",
+    "id": "01a00614-8fbb-7175-b1b8-92c2e4336803"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 175,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808406152,
+    "serverTimestamp": "2026-08-15T15:40:06.444Z",
+    "payload": {
+      "accumulatedTimeMs": -233672
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:40:06.445Z",
+    "updatedAt": "2026-08-15T15:40:06.445Z",
+    "id": "01a00614-91ac-71c8-b51a-b7a612443f7f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 176,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808412922,
+    "serverTimestamp": "2026-08-15T15:40:13.012Z",
+    "payload": {
+      "previousMs": -233672,
+      "newMs": 0
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:40:13.013Z",
+    "updatedAt": "2026-08-15T15:40:13.013Z",
+    "id": "01a00614-ab54-71bc-9fa9-39404e32e09a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 177,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808418840,
+    "serverTimestamp": "2026-08-15T15:40:18.943Z",
+    "payload": {
+      "ballOn": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:40:18.944Z",
+    "updatedAt": "2026-08-15T15:40:18.944Z",
+    "id": "01a00614-c27f-71c5-8638-33439a25dde8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 2,
+    "sequenceNumber": 178,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808422275,
+    "serverTimestamp": "2026-08-15T15:40:22.360Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:40:22.360Z",
+    "updatedAt": "2026-08-15T15:40:22.360Z",
+    "id": "01a00614-cfd7-750b-8bae-843be1fadc80"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 2,
+    "sequenceNumber": 179,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808427906,
+    "serverTimestamp": "2026-08-15T15:40:27.982Z",
+    "payload": {
+      "accumulatedTimeMs": 5340
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:40:27.983Z",
+    "updatedAt": "2026-08-15T15:40:27.983Z",
+    "id": "01a00614-e5ce-7775-83f4-5e15f7b4d179"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 2,
+    "sequenceNumber": 180,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808428622,
+    "serverTimestamp": "2026-08-15T15:40:28.675Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:40:28.676Z",
+    "updatedAt": "2026-08-15T15:40:28.676Z",
+    "id": "01a00614-e883-743d-a21a-873becaea4ed"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 2,
+    "sequenceNumber": 181,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808430623,
+    "serverTimestamp": "2026-08-15T15:40:30.745Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:40:30.745Z",
+    "updatedAt": "2026-08-15T15:40:30.745Z",
+    "id": "01a00614-f099-7011-9f1a-18fd594fc04c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 2,
+    "sequenceNumber": 182,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808437182,
+    "serverTimestamp": "2026-08-15T15:40:37.305Z",
+    "payload": {
+      "ballOn": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:40:37.307Z",
+    "updatedAt": "2026-08-15T15:40:37.307Z",
+    "id": "01a00615-0a39-73be-a51c-e1a5dc2c89fb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 6,
+    "sequenceNumber": 183,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808461915,
+    "serverTimestamp": "2026-08-15T15:41:02.004Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:41:02.004Z",
+    "updatedAt": "2026-08-15T15:41:02.004Z",
+    "id": "01a00615-6ab4-7485-9daa-c835dff56481"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 6,
+    "sequenceNumber": 184,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808467346,
+    "serverTimestamp": "2026-08-15T15:41:07.477Z",
+    "payload": {
+      "ballOn": 13
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:41:07.477Z",
+    "updatedAt": "2026-08-15T15:41:07.477Z",
+    "id": "01a00615-8015-703d-b333-7b2fa7b8509c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 185,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808497965,
+    "serverTimestamp": "2026-08-15T15:41:38.089Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:41:38.090Z",
+    "updatedAt": "2026-08-15T15:41:38.090Z",
+    "id": "01a00615-f7a9-7208-927c-c204e58239f7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 186,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808521059,
+    "serverTimestamp": "2026-08-15T15:42:01.160Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:42:01.161Z",
+    "updatedAt": "2026-08-15T15:42:01.161Z",
+    "id": "01a00616-51c8-7763-bda5-db3dffc0f0b4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 187,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808523811,
+    "serverTimestamp": "2026-08-15T15:42:03.882Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:42:03.883Z",
+    "updatedAt": "2026-08-15T15:42:03.883Z",
+    "id": "01a00616-5c6a-73cb-9f63-7843e7a79ad7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 188,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808532832,
+    "serverTimestamp": "2026-08-15T15:42:13.012Z",
+    "payload": {
+      "ballOn": 32
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:42:13.013Z",
+    "updatedAt": "2026-08-15T15:42:13.013Z",
+    "id": "01a00616-8014-776c-84af-e25be87bb103"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 189,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808533084,
+    "serverTimestamp": "2026-08-15T15:42:13.244Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:42:13.245Z",
+    "updatedAt": "2026-08-15T15:42:13.245Z",
+    "id": "01a00616-80fc-757e-bf07-1ddfb4405673"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 190,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808550474,
+    "serverTimestamp": "2026-08-15T15:42:30.637Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:42:30.638Z",
+    "updatedAt": "2026-08-15T15:42:30.638Z",
+    "id": "01a00616-c4ed-77d0-ae7a-35bf00b21438"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 191,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808554053,
+    "serverTimestamp": "2026-08-15T15:42:34.128Z",
+    "payload": {
+      "ballOn": 44
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:42:34.129Z",
+    "updatedAt": "2026-08-15T15:42:34.129Z",
+    "id": "01a00616-d290-756e-adb3-4419ba473ced"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 192,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808588067,
+    "serverTimestamp": "2026-08-15T15:43:08.268Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:43:08.269Z",
+    "updatedAt": "2026-08-15T15:43:08.269Z",
+    "id": "01a00617-57ec-7097-bed5-57cd85d138c4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 193,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808596316,
+    "serverTimestamp": "2026-08-15T15:43:16.516Z",
+    "payload": {
+      "ballOn": 38
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:43:16.517Z",
+    "updatedAt": "2026-08-15T15:43:16.517Z",
+    "id": "01a00617-7824-74ac-8620-1570fffa7f1f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 194,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808633377,
+    "serverTimestamp": "2026-08-15T15:43:53.625Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:43:53.626Z",
+    "updatedAt": "2026-08-15T15:43:53.626Z",
+    "id": "01a00618-0919-763c-af5d-fd104e047bae"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 195,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808634707,
+    "serverTimestamp": "2026-08-15T15:43:54.780Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:43:54.781Z",
+    "updatedAt": "2026-08-15T15:43:54.781Z",
+    "id": "01a00618-0d9c-71cd-91c2-31af6d7c1c49"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 196,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808648139,
+    "serverTimestamp": "2026-08-15T15:44:08.333Z",
+    "payload": {
+      "ballOn": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:44:08.334Z",
+    "updatedAt": "2026-08-15T15:44:08.334Z",
+    "id": "01a00618-428d-7258-a3c9-a4d443929c47"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 6,
+    "sequenceNumber": 197,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808648383,
+    "serverTimestamp": "2026-08-15T15:44:08.457Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:44:08.458Z",
+    "updatedAt": "2026-08-15T15:44:08.458Z",
+    "id": "01a00618-4309-75e7-b817-53ef267a9328"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 6,
+    "sequenceNumber": 198,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808650732,
+    "serverTimestamp": "2026-08-15T15:44:10.808Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:44:10.808Z",
+    "updatedAt": "2026-08-15T15:44:10.808Z",
+    "id": "01a00618-4c38-7609-8be6-d7fce3fd1ba4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 199,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808667247,
+    "serverTimestamp": "2026-08-15T15:44:27.774Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:44:27.775Z",
+    "updatedAt": "2026-08-15T15:44:27.775Z",
+    "id": "01a00618-8e7e-700a-b95d-11bcef667f1a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 200,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808702954,
+    "serverTimestamp": "2026-08-15T15:45:03.058Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:45:03.058Z",
+    "updatedAt": "2026-08-15T15:45:03.058Z",
+    "id": "01a00619-1851-70a8-85a5-9b4524930de3"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 201,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808707040,
+    "serverTimestamp": "2026-08-15T15:45:07.114Z",
+    "payload": {
+      "ballOn": 11
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:45:07.115Z",
+    "updatedAt": "2026-08-15T15:45:07.115Z",
+    "id": "01a00619-282a-77ca-86fb-41b797da419d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 202,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808740850,
+    "serverTimestamp": "2026-08-15T15:45:40.986Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:45:40.986Z",
+    "updatedAt": "2026-08-15T15:45:40.986Z",
+    "id": "01a00619-ac7a-75b9-aa2c-f90b018c6bf4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 203,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808746444,
+    "serverTimestamp": "2026-08-15T15:45:46.653Z",
+    "payload": {
+      "ballOn": 19
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:45:46.654Z",
+    "updatedAt": "2026-08-15T15:45:46.654Z",
+    "id": "01a00619-c29d-736f-beb1-c2756ba05df3"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 19,
+    "sequenceNumber": 204,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808780870,
+    "serverTimestamp": "2026-08-15T15:46:21.004Z",
+    "payload": {
+      "teamId": "w-mex"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:46:21.004Z",
+    "updatedAt": "2026-08-15T15:46:21.004Z",
+    "id": "01a0061a-48cc-70a7-87d8-971956d4ffd5"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 19,
+    "sequenceNumber": 205,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808781381,
+    "serverTimestamp": "2026-08-15T15:46:21.493Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:46:21.493Z",
+    "updatedAt": "2026-08-15T15:46:21.493Z",
+    "id": "01a0061a-4ab5-75cc-97be-948203ef624a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 19,
+    "sequenceNumber": 206,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808784732,
+    "serverTimestamp": "2026-08-15T15:46:24.836Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:46:24.836Z",
+    "updatedAt": "2026-08-15T15:46:24.836Z",
+    "id": "01a0061a-57c4-7709-9a5f-44934e31be52"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 207,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808801805,
+    "serverTimestamp": "2026-08-15T15:46:41.969Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:46:41.969Z",
+    "updatedAt": "2026-08-15T15:46:41.969Z",
+    "id": "01a0061a-9ab1-74fd-8a41-7acf88251ab9"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 208,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808807261,
+    "serverTimestamp": "2026-08-15T15:46:47.368Z",
+    "payload": {
+      "ballOn": 18
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:46:47.369Z",
+    "updatedAt": "2026-08-15T15:46:47.369Z",
+    "id": "01a0061a-afc8-7039-9143-04018625240d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 18,
+    "sequenceNumber": 209,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808812608,
+    "serverTimestamp": "2026-08-15T15:46:52.709Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:46:52.709Z",
+    "updatedAt": "2026-08-15T15:46:52.709Z",
+    "id": "01a0061a-c4a5-760b-bbe2-87fc5dfeced3"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 210,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808836891,
+    "serverTimestamp": "2026-08-15T15:47:17.074Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:47:17.074Z",
+    "updatedAt": "2026-08-15T15:47:17.074Z",
+    "id": "01a0061b-23d2-71ef-a6ff-79419f38d6dc"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 211,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808838223,
+    "serverTimestamp": "2026-08-15T15:47:18.302Z",
+    "payload": {
+      "ballOn": 11
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:47:18.303Z",
+    "updatedAt": "2026-08-15T15:47:18.303Z",
+    "id": "01a0061b-289e-7782-9507-134e276087cb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 212,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808871253,
+    "serverTimestamp": "2026-08-15T15:47:51.365Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:47:51.367Z",
+    "updatedAt": "2026-08-15T15:47:51.367Z",
+    "id": "01a0061b-a9c5-72fd-9897-43b1641907e7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 213,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808916592,
+    "serverTimestamp": "2026-08-15T15:48:36.790Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:48:36.791Z",
+    "updatedAt": "2026-08-15T15:48:36.791Z",
+    "id": "01a0061c-5b36-7008-a12c-baaef8e8fbfe"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 214,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808916972,
+    "serverTimestamp": "2026-08-15T15:48:37.046Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:48:37.046Z",
+    "updatedAt": "2026-08-15T15:48:37.046Z",
+    "id": "01a0061c-5c36-77e9-ac2d-6daf50dc371c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 215,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808920093,
+    "serverTimestamp": "2026-08-15T15:48:40.457Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:48:40.458Z",
+    "updatedAt": "2026-08-15T15:48:40.458Z",
+    "id": "01a0061c-6989-70ec-aa8c-893cb91b1fdb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 216,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808958716,
+    "serverTimestamp": "2026-08-15T15:49:18.828Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:49:18.829Z",
+    "updatedAt": "2026-08-15T15:49:18.829Z",
+    "id": "01a0061c-ff6c-704b-8aaf-d7447c679a31"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 217,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808962467,
+    "serverTimestamp": "2026-08-15T15:49:22.547Z",
+    "payload": {
+      "ballOn": 14
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:49:22.549Z",
+    "updatedAt": "2026-08-15T15:49:22.549Z",
+    "id": "01a0061d-0df3-7233-bba7-4e5e71350289"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 14,
+    "sequenceNumber": 218,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786808996060,
+    "serverTimestamp": "2026-08-15T15:49:56.174Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:49:56.175Z",
+    "updatedAt": "2026-08-15T15:49:56.175Z",
+    "id": "01a0061d-914e-7348-9edb-01ce6e7cdb7b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 14,
+    "sequenceNumber": 219,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809001040,
+    "serverTimestamp": "2026-08-15T15:50:01.168Z",
+    "payload": {
+      "ballOn": 20
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:50:01.168Z",
+    "updatedAt": "2026-08-15T15:50:01.168Z",
+    "id": "01a0061d-a4d0-71df-9726-55fbd19ae2be"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 20,
+    "sequenceNumber": 220,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809035806,
+    "serverTimestamp": "2026-08-15T15:50:35.993Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:50:35.993Z",
+    "updatedAt": "2026-08-15T15:50:35.993Z",
+    "id": "01a0061e-2cd9-732e-931a-1eb9e25ae309"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 20,
+    "sequenceNumber": 221,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809038403,
+    "serverTimestamp": "2026-08-15T15:50:38.501Z",
+    "payload": {
+      "ballOn": 24
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:50:38.504Z",
+    "updatedAt": "2026-08-15T15:50:38.504Z",
+    "id": "01a0061e-36a4-701b-9788-6f2439283649"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 24,
+    "sequenceNumber": 222,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809073122,
+    "serverTimestamp": "2026-08-15T15:51:13.627Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:51:13.628Z",
+    "updatedAt": "2026-08-15T15:51:13.628Z",
+    "id": "01a0061e-bfdb-74b6-9c34-f5b00fd22dfb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 24,
+    "sequenceNumber": 223,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809081831,
+    "serverTimestamp": "2026-08-15T15:51:22.229Z",
+    "payload": {
+      "ballOn": 32
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:51:22.229Z",
+    "updatedAt": "2026-08-15T15:51:22.229Z",
+    "id": "01a0061e-e175-7312-92aa-023534340989"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 224,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809082268,
+    "serverTimestamp": "2026-08-15T15:51:22.630Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:51:22.631Z",
+    "updatedAt": "2026-08-15T15:51:22.631Z",
+    "id": "01a0061e-e306-77ad-a754-982c6f42e0df"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 225,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809106483,
+    "serverTimestamp": "2026-08-15T15:51:46.675Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:51:46.675Z",
+    "updatedAt": "2026-08-15T15:51:46.675Z",
+    "id": "01a0061f-40f3-724f-b8a2-39e867aff28a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 226,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809114059,
+    "serverTimestamp": "2026-08-15T15:51:54.173Z",
+    "payload": {
+      "ballOn": 40
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:51:54.173Z",
+    "updatedAt": "2026-08-15T15:51:54.173Z",
+    "id": "01a0061f-5e3d-70e4-a2c6-17c5b479f590"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 227,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809147413,
+    "serverTimestamp": "2026-08-15T15:52:27.521Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:52:27.522Z",
+    "updatedAt": "2026-08-15T15:52:27.522Z",
+    "id": "01a0061f-e081-76fe-9bae-dbb4358b8e03"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 228,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809152281,
+    "serverTimestamp": "2026-08-15T15:52:32.357Z",
+    "payload": {
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:52:32.358Z",
+    "updatedAt": "2026-08-15T15:52:32.358Z",
+    "id": "01a0061f-f365-72f1-abe2-f3faf4550019"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "SCORE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 229,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809189710,
+    "serverTimestamp": "2026-08-15T15:53:09.933Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:53:09.934Z",
+    "updatedAt": "2026-08-15T15:53:09.934Z",
+    "id": "01a00620-862d-71ec-a42e-17bd246c1791"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "TRY_DOWN",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 230,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809198381,
+    "serverTimestamp": "2026-08-15T15:53:18.512Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:53:18.514Z",
+    "updatedAt": "2026-08-15T15:53:18.514Z",
+    "id": "01a00620-a7af-740a-a493-8f40dbb5e3ea"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "SCORE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 231,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809234556,
+    "serverTimestamp": "2026-08-15T15:53:54.885Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "XP1",
+      "points": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:53:54.885Z",
+    "updatedAt": "2026-08-15T15:53:54.885Z",
+    "id": "01a00621-35c5-75ee-8240-c730df5c7bd5"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 232,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809235045,
+    "serverTimestamp": "2026-08-15T15:53:55.156Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:53:55.157Z",
+    "updatedAt": "2026-08-15T15:53:55.157Z",
+    "id": "01a00621-36d4-736c-8f95-89c3d85b4f77"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 233,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809238641,
+    "serverTimestamp": "2026-08-15T15:53:58.719Z",
+    "payload": {
+      "teamId": "w-mex"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:53:58.720Z",
+    "updatedAt": "2026-08-15T15:53:58.720Z",
+    "id": "01a00621-44bf-71cc-bfb0-83a1976db667"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 234,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809240078,
+    "serverTimestamp": "2026-08-15T15:54:00.288Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:54:00.288Z",
+    "updatedAt": "2026-08-15T15:54:00.288Z",
+    "id": "01a00621-4adf-7795-9f38-5a906063b18f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 235,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809240337,
+    "serverTimestamp": "2026-08-15T15:54:00.411Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:54:00.422Z",
+    "updatedAt": "2026-08-15T15:54:00.422Z",
+    "id": "01a00621-4b5b-711f-895c-44abaea76108"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 236,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809240403,
+    "serverTimestamp": "2026-08-15T15:54:00.480Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:54:00.480Z",
+    "updatedAt": "2026-08-15T15:54:00.480Z",
+    "id": "01a00621-4ba0-712a-aa5d-db72bf3cb1a6"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 237,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809275060,
+    "serverTimestamp": "2026-08-15T15:54:35.177Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:54:35.178Z",
+    "updatedAt": "2026-08-15T15:54:35.178Z",
+    "id": "01a00621-d329-73f5-82e3-ee54a7593eca"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 238,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809282546,
+    "serverTimestamp": "2026-08-15T15:54:42.756Z",
+    "payload": {
+      "ballOn": 14
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:54:42.757Z",
+    "updatedAt": "2026-08-15T15:54:42.757Z",
+    "id": "01a00621-f0c4-7074-8db7-a4b92daad0cc"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 14,
+    "sequenceNumber": 239,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809299512,
+    "serverTimestamp": "2026-08-15T15:54:59.620Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:54:59.620Z",
+    "updatedAt": "2026-08-15T15:54:59.620Z",
+    "id": "01a00622-32a4-75dd-91ca-e8d34b076bbb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 14,
+    "sequenceNumber": 240,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809314787,
+    "serverTimestamp": "2026-08-15T15:55:15.578Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:55:15.580Z",
+    "updatedAt": "2026-08-15T15:55:15.580Z",
+    "id": "01a00622-70fa-7068-9b43-2e48fc462e80"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 14,
+    "sequenceNumber": 241,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809317704,
+    "serverTimestamp": "2026-08-15T15:55:18.456Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:55:18.458Z",
+    "updatedAt": "2026-08-15T15:55:18.458Z",
+    "id": "01a00622-7c38-77db-8458-5a4522cd30f4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 14,
+    "sequenceNumber": 242,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809320778,
+    "serverTimestamp": "2026-08-15T15:55:21.108Z",
+    "payload": {
+      "ballOn": 31
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:55:21.109Z",
+    "updatedAt": "2026-08-15T15:55:21.109Z",
+    "id": "01a00622-8694-7122-b835-463e700b79ad"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 31,
+    "sequenceNumber": 243,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809321243,
+    "serverTimestamp": "2026-08-15T15:55:21.338Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:55:21.339Z",
+    "updatedAt": "2026-08-15T15:55:21.339Z",
+    "id": "01a00622-877a-74bc-9ece-d0195b4810d8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 31,
+    "sequenceNumber": 244,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809336514,
+    "serverTimestamp": "2026-08-15T15:55:36.815Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:55:36.816Z",
+    "updatedAt": "2026-08-15T15:55:36.816Z",
+    "id": "01a00622-c3ef-778d-bd73-ddf02a2f1947"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 31,
+    "sequenceNumber": 245,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809342628,
+    "serverTimestamp": "2026-08-15T15:55:42.736Z",
+    "payload": {
+      "ballOn": 42
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:55:42.736Z",
+    "updatedAt": "2026-08-15T15:55:42.736Z",
+    "id": "01a00622-db10-708b-94f3-4fdc35bf7cba"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 246,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809359842,
+    "serverTimestamp": "2026-08-15T15:55:59.965Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:55:59.966Z",
+    "updatedAt": "2026-08-15T15:55:59.966Z",
+    "id": "01a00623-1e5d-72c8-a762-b1ba19b7ae57"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 247,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809380125,
+    "serverTimestamp": "2026-08-15T15:56:20.282Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:56:20.283Z",
+    "updatedAt": "2026-08-15T15:56:20.283Z",
+    "id": "01a00623-6dba-761a-86d3-f95e672c563d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 248,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809386130,
+    "serverTimestamp": "2026-08-15T15:56:26.245Z",
+    "payload": {
+      "ballOn": 47
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:56:26.246Z",
+    "updatedAt": "2026-08-15T15:56:26.246Z",
+    "id": "01a00623-8505-76c3-9cd5-f66add120ea9"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "SCORE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 47,
+    "sequenceNumber": 249,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809402137,
+    "serverTimestamp": "2026-08-15T15:56:42.361Z",
+    "payload": {
+      "teamId": "w-mex",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:56:42.362Z",
+    "updatedAt": "2026-08-15T15:56:42.362Z",
+    "id": "01a00623-c3f9-76a7-8a88-6ce24e544048"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "TRY_DOWN",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 47,
+    "sequenceNumber": 250,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809412813,
+    "serverTimestamp": "2026-08-15T15:56:52.952Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:56:52.953Z",
+    "updatedAt": "2026-08-15T15:56:52.953Z",
+    "id": "01a00623-ed58-70a7-af5d-790cb591601c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 251,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809438094,
+    "serverTimestamp": "2026-08-15T15:57:18.205Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:57:18.205Z",
+    "updatedAt": "2026-08-15T15:57:18.205Z",
+    "id": "01a00624-4ffc-711d-92fe-f8a9b69e6abc"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 252,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809438718,
+    "serverTimestamp": "2026-08-15T15:57:18.850Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:57:18.850Z",
+    "updatedAt": "2026-08-15T15:57:18.850Z",
+    "id": "01a00624-5282-762a-bd5b-18d43dc9182a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 253,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809439073,
+    "serverTimestamp": "2026-08-15T15:57:19.212Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:57:19.213Z",
+    "updatedAt": "2026-08-15T15:57:19.213Z",
+    "id": "01a00624-53ec-733e-8b25-9dafa90ed98c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 254,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809439915,
+    "serverTimestamp": "2026-08-15T15:57:20.027Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:57:20.028Z",
+    "updatedAt": "2026-08-15T15:57:20.028Z",
+    "id": "01a00624-571b-726c-8bbb-72308d57248f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 255,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809440067,
+    "serverTimestamp": "2026-08-15T15:57:20.138Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:57:20.139Z",
+    "updatedAt": "2026-08-15T15:57:20.139Z",
+    "id": "01a00624-578a-77e8-979c-eda01f67d858"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 256,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809473975,
+    "serverTimestamp": "2026-08-15T15:57:54.139Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:57:54.144Z",
+    "updatedAt": "2026-08-15T15:57:54.144Z",
+    "id": "01a00624-dc5b-77a8-ab8a-d08432c583fa"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 257,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809478839,
+    "serverTimestamp": "2026-08-15T15:57:58.981Z",
+    "payload": {
+      "ballOn": 10
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:57:58.982Z",
+    "updatedAt": "2026-08-15T15:57:58.982Z",
+    "id": "01a00624-ef45-70a8-b431-c67db57f5ba0"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 258,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809503023,
+    "serverTimestamp": "2026-08-15T15:58:23.200Z",
+    "payload": {
+      "accumulatedTimeMs": 1079493
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:58:23.201Z",
+    "updatedAt": "2026-08-15T15:58:23.201Z",
+    "id": "01a00625-4de0-7298-b4ce-27be234299ba"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 259,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809535572,
+    "serverTimestamp": "2026-08-15T15:58:55.768Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T15:58:55.769Z",
+    "updatedAt": "2026-08-15T15:58:55.769Z",
+    "id": "01a00625-cd18-750e-adec-dc93e35f77cd"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 260,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809543624,
+    "serverTimestamp": "2026-08-15T15:59:03.821Z",
+    "payload": {
+      "accumulatedTimeMs": 1087174
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:59:03.822Z",
+    "updatedAt": "2026-08-15T15:59:03.822Z",
+    "id": "01a00625-ec8d-702a-b425-8e98829bfd09"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 261,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809548339,
+    "serverTimestamp": "2026-08-15T15:59:08.415Z",
+    "payload": {
+      "previousMs": 1087174,
+      "newMs": 1086174
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:59:08.415Z",
+    "updatedAt": "2026-08-15T15:59:08.415Z",
+    "id": "01a00625-fe7f-70df-a9c3-d507594e0413"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 262,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809548964,
+    "serverTimestamp": "2026-08-15T15:59:09.093Z",
+    "payload": {
+      "previousMs": 1086174,
+      "newMs": 1085174
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:59:09.094Z",
+    "updatedAt": "2026-08-15T15:59:09.094Z",
+    "id": "01a00626-0125-70dd-a3b2-f9f89d880721"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 263,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809549655,
+    "serverTimestamp": "2026-08-15T15:59:09.743Z",
+    "payload": {
+      "previousMs": 1085174,
+      "newMs": 1084174
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:59:09.744Z",
+    "updatedAt": "2026-08-15T15:59:09.744Z",
+    "id": "01a00626-03af-75f8-b110-ef591e7bd944"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "TIMEOUT",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 264,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809555599,
+    "serverTimestamp": "2026-08-15T15:59:15.712Z",
+    "payload": {
+      "teamId": "w-mex",
+      "reason": "TIMEOUT",
+      "accumulatedTimeMs": 1084174
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:59:15.713Z",
+    "updatedAt": "2026-08-15T15:59:15.713Z",
+    "id": "01a00626-1b00-75ea-9199-5d49ec2407d9"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 265,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809562861,
+    "serverTimestamp": "2026-08-15T15:59:23.259Z",
+    "payload": {
+      "ballOn": 16
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:59:23.260Z",
+    "updatedAt": "2026-08-15T15:59:23.260Z",
+    "id": "01a00626-387b-74fd-9dc9-697929350ac1"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 266,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809565183,
+    "serverTimestamp": "2026-08-15T15:59:25.313Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T15:59:25.313Z",
+    "updatedAt": "2026-08-15T15:59:25.313Z",
+    "id": "01a00626-4080-760d-84b6-3d2b5eade093"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 267,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809601495,
+    "serverTimestamp": "2026-08-15T16:00:01.622Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T16:00:01.622Z",
+    "updatedAt": "2026-08-15T16:00:01.622Z",
+    "id": "01a00626-ce55-72eb-8799-4d5e05ce6644"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 268,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809606376,
+    "serverTimestamp": "2026-08-15T16:00:06.490Z",
+    "payload": {
+      "accumulatedTimeMs": 1088718
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:00:06.491Z",
+    "updatedAt": "2026-08-15T16:00:06.491Z",
+    "id": "01a00626-e15a-70af-8593-4e7fdd6fabc7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "TIMEOUT",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 269,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809618010,
+    "serverTimestamp": "2026-08-15T16:00:18.130Z",
+    "payload": {
+      "teamId": "w-mex",
+      "reason": "TIMEOUT",
+      "accumulatedTimeMs": 1088718
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:00:18.131Z",
+    "updatedAt": "2026-08-15T16:00:18.131Z",
+    "id": "01a00627-0ed2-75be-b080-9a63592f927f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 270,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809624167,
+    "serverTimestamp": "2026-08-15T16:00:24.299Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:00:24.299Z",
+    "updatedAt": "2026-08-15T16:00:24.299Z",
+    "id": "01a00627-26eb-73aa-9531-26d4431755ee"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 16,
+    "sequenceNumber": 271,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809627888,
+    "serverTimestamp": "2026-08-15T16:00:28.018Z",
+    "payload": {
+      "ballOn": 19
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:00:28.019Z",
+    "updatedAt": "2026-08-15T16:00:28.019Z",
+    "id": "01a00627-3572-71cb-b652-042b92b9c8ab"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 19,
+    "sequenceNumber": 272,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809660693,
+    "serverTimestamp": "2026-08-15T16:01:00.811Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T16:01:00.811Z",
+    "updatedAt": "2026-08-15T16:01:00.811Z",
+    "id": "01a00627-b58b-7766-b7e2-9afc19734b48"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 19,
+    "sequenceNumber": 273,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809666906,
+    "serverTimestamp": "2026-08-15T16:01:07.058Z",
+    "payload": {
+      "accumulatedTimeMs": 1094534
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:01:07.058Z",
+    "updatedAt": "2026-08-15T16:01:07.058Z",
+    "id": "01a00627-cdf2-7199-a5e6-9d5c5e1bcea4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 19,
+    "sequenceNumber": 274,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809669097,
+    "serverTimestamp": "2026-08-15T16:01:09.198Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:01:09.209Z",
+    "updatedAt": "2026-08-15T16:01:09.209Z",
+    "id": "01a00627-d64e-74fb-9c14-21db1da43fc4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 19,
+    "sequenceNumber": 275,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809673073,
+    "serverTimestamp": "2026-08-15T16:01:13.330Z",
+    "payload": {
+      "ballOn": 26
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:01:13.330Z",
+    "updatedAt": "2026-08-15T16:01:13.330Z",
+    "id": "01a00627-e672-730c-b18e-b4521e24567c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 276,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809673418,
+    "serverTimestamp": "2026-08-15T16:01:13.499Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:01:13.500Z",
+    "updatedAt": "2026-08-15T16:01:13.500Z",
+    "id": "01a00627-e71b-7156-95b9-0dac8dffe813"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 277,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809703428,
+    "serverTimestamp": "2026-08-15T16:01:43.607Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T16:01:43.608Z",
+    "updatedAt": "2026-08-15T16:01:43.608Z",
+    "id": "01a00628-5cb7-72a5-9410-1928591982e8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 278,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809715428,
+    "serverTimestamp": "2026-08-15T16:01:55.563Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:01:55.563Z",
+    "updatedAt": "2026-08-15T16:01:55.563Z",
+    "id": "01a00628-8b6b-7065-abfd-a91154cdccf1"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 279,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809748879,
+    "serverTimestamp": "2026-08-15T16:02:28.995Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:02:28.996Z",
+    "updatedAt": "2026-08-15T16:02:28.996Z",
+    "id": "01a00629-0e03-7128-bc5f-e3e076d32f3b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 280,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809753902,
+    "serverTimestamp": "2026-08-15T16:02:34.056Z",
+    "payload": {
+      "ballOn": 27
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:02:34.056Z",
+    "updatedAt": "2026-08-15T16:02:34.056Z",
+    "id": "01a00629-21c8-73ed-b30e-2cba9f7ea939"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 27,
+    "sequenceNumber": 281,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809784066,
+    "serverTimestamp": "2026-08-15T16:03:04.184Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:03:04.185Z",
+    "updatedAt": "2026-08-15T16:03:04.185Z",
+    "id": "01a00629-9778-75fe-96b5-b98cc1786471"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 27,
+    "sequenceNumber": 282,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809797010,
+    "serverTimestamp": "2026-08-15T16:03:17.135Z",
+    "payload": {
+      "accumulatedTimeMs": 1187746
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:03:17.135Z",
+    "updatedAt": "2026-08-15T16:03:17.135Z",
+    "id": "01a00629-ca0f-74d0-a06a-5929c416b98b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 27,
+    "sequenceNumber": 283,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809809803,
+    "serverTimestamp": "2026-08-15T16:03:29.935Z",
+    "payload": {
+      "previousMs": 1187746,
+      "newMs": 1199000,
+      "reason": "Clock set by hand (phone)"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:03:29.936Z",
+    "updatedAt": "2026-08-15T16:03:29.936Z",
+    "id": "01a00629-fc0f-7320-8c4d-f8c058ed57d1"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 27,
+    "sequenceNumber": 284,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809811471,
+    "serverTimestamp": "2026-08-15T16:03:31.547Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T16:03:31.547Z",
+    "updatedAt": "2026-08-15T16:03:31.547Z",
+    "id": "01a0062a-025a-77cb-9df2-d3686ea33dfd"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 27,
+    "sequenceNumber": 285,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809815553,
+    "serverTimestamp": "2026-08-15T16:03:35.695Z",
+    "payload": {
+      "accumulatedTimeMs": 1202777
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:03:35.696Z",
+    "updatedAt": "2026-08-15T16:03:35.696Z",
+    "id": "01a0062a-128f-701c-b675-d4d1324d6cf7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "eventType": "STATUS_CHANGE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 27,
+    "sequenceNumber": 286,
+    "recordedByUserId": "venue-console",
+    "recordedByRole": "SYSTEM",
+    "clientTimestamp": 1786809902392,
+    "serverTimestamp": "2026-08-15T16:05:02.557Z",
+    "payload": {
+      "status": "FINAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T16:05:02.557Z",
+    "updatedAt": "2026-08-15T16:05:02.557Z",
+    "id": "01a0062b-65dd-7708-9994-857297418a78"
+  }
+]

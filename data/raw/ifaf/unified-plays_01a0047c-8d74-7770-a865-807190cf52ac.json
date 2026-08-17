@@ -1,0 +1,7517 @@
+[
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "TURNOVER",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f3-ad31-7487-9a1c-98a3626f980d"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.461Z",
+    "updatedAt": "2026-08-15T16:05:03.461Z",
+    "id": "01a0062b-67d2-768f-99cc-6b940ae28121"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 2,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f3-aea8-72cc-80a2-5380dab18dc7",
+        "01a005f4-5f40-77cf-9def-0141bc318be6",
+        "01a005f4-78a3-701d-a057-76af316b85b6",
+        "01a005f4-87b6-750c-91c0-a9bde166a50e",
+        "01a005f4-8846-73b5-aedd-df5ac6e7382a",
+        "01a005f4-9a67-715b-a666-5f4531ff0197",
+        "01a005f4-e418-768f-8751-a82d94763d40",
+        "01a005f4-ee95-722d-b6cb-d7bc6d0ae215",
+        "01a005f5-01db-76db-88ac-a709f5e9d4ad"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.461Z",
+    "updatedAt": "2026-08-15T16:05:03.461Z",
+    "id": "01a0062b-67d2-768f-99cc-6ea4e8388fbd"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "note": "First down",
+        "role": "Statistician",
+        "team": "Canada"
+      },
+      {
+        "id": 2,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "#11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "#11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "#1 Frédérique Morneau",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "#1 Frédérique Morneau",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "#12 Sabrina Gervais",
+        "action": "FLAG_PULL",
+        "note": "at the 15 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #1 Frédérique Morneau",
+      "text": "COMPLETE PASS #11 Sara Parker → #1 Frédérique Morneau",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Frédérique Morneau",
+        "number": "1",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "#11 Sara Parker"
+      },
+      "receiver": {
+        "name": "#1 Frédérique Morneau"
+      },
+      "flagPulledBy": {
+        "name": "#12 Sabrina Gervais"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f4-941b-73b9-b196-bd21325b8320",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.461Z",
+    "updatedAt": "2026-08-15T16:05:03.461Z",
+    "id": "01a0062b-67d2-768f-99cc-714e964cff38"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1184837,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "81 Laura Molimard",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "81 Laura Molimard",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "12 Sabrina Gervais",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #81 Laura Molimard",
+      "text": "COMPLETE PASS #11 Sara Parker → #81 Laura Molimard",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Laura Molimard",
+        "number": "81",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "81 Laura Molimard"
+      },
+      "flagPulledBy": {
+        "name": "12 Sabrina Gervais"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f5-014e-722f-91b0-0f720f2f8653",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.461Z",
+    "updatedAt": "2026-08-15T16:05:03.461Z",
+    "id": "01a0062b-67d2-768f-99cc-75c665baef5a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 5,
+    "context": {
+      "gameClockMs": 1133330,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 23,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #15 Caroline Moquin-Joubert",
+      "text": "COMPLETE PASS #11 Sara Parker → #15 Caroline Moquin-Joubert",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Caroline Moquin-Joubert",
+        "number": "15",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "15 Caroline Moquin-Joubert"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f5-63a3-741f-8790-08005507da8d",
+        "01a005f5-804f-73ed-96ba-30a939128683",
+        "01a005f5-8119-734b-b98b-20e6723c4e5d",
+        "01a005f5-e7a5-750e-b09b-df85f6d71da9",
+        "01a005f5-f9e8-70d0-a576-ffe1a9c593b8",
+        "01a005f6-7725-75ab-af39-d12d12495dd0",
+        "01a005f6-f353-7596-8464-5019c757c89c"
+      ],
+      "playAnalysisId": "01a005f5-8580-7539-a403-235db201a671",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.461Z",
+    "updatedAt": "2026-08-15T16:05:03.461Z",
+    "id": "01a0062b-67d2-768f-99cc-7a9af0813de8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 1125809,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "1 Fredérique Morneau",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Fredérique Morneau",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "note": "At the 10-yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #1 Frédérique Morneau",
+      "text": "COMPLETE PASS #11 Sara Parker → #1 Frédérique Morneau",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Frédérique Morneau",
+        "number": "1",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "1 Fredérique Morneau"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f6-069d-76d8-bc4e-4d8d2c53d6e7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.461Z",
+    "updatedAt": "2026-08-15T16:05:03.461Z",
+    "id": "01a0062b-67d2-768f-99cc-7df80132697d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 1094828,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "81 Laura Molimard",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "81 Laura Molimard",
+        "note": "Broken up by Mexico #1 Yaritza Morales"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#11 Sara Parker",
+      "text": "INCOMPLETE PASS #11 Sara Parker",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f6-7e69-74c3-91a4-421ded67cdcb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.461Z",
+    "updatedAt": "2026-08-15T16:05:03.461Z",
+    "id": "01a0062b-67d3-732a-9ee4-226bfa84f85a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 8,
+    "context": {
+      "gameClockMs": 1062787,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#11 Sara Parker",
+      "text": "INCOMPLETE PASS #11 Sara Parker",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f7-0b9a-76b9-b3a3-e728f0247887",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.461Z",
+    "updatedAt": "2026-08-15T16:05:03.461Z",
+    "id": "01a0062b-67d3-732a-9ee4-25da78a7a7e7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 9,
+    "context": {
+      "gameClockMs": 988500,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#15 Caroline Moquin-Joubert (6 pts)",
+      "text": "TOUCHDOWN #15 Caroline Moquin-Joubert (6 pts)",
+      "from": {
+        "name": "Caroline Moquin-Joubert",
+        "number": "15",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p18/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "15 Caroline Moquin-Joubert"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f7-994e-768e-a9ac-0edbcd68bee2",
+        "01a005f7-b5ea-721f-907f-b7079dc8df56"
+      ],
+      "playAnalysisId": "01a005f7-a317-774d-9cbe-dd93f91a479a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.461Z",
+    "updatedAt": "2026-08-15T16:05:03.461Z",
+    "id": "01a0062b-67d3-732a-9ee4-2aeee560afbf"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 10,
+    "context": {
+      "gameClockMs": 953914,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "4 Monica Rangel",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Monica Rangel",
+        "note": "broken up by Canada number 33 Catherine Gaumont",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#31 Tania Rincon",
+      "text": "INCOMPLETE PASS #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f8-204f-739f-8aaf-e72ff4d1466b",
+        "01a005f8-2101-7042-95fb-4f43fe09dcd2",
+        "01a005f8-2904-7439-acfe-5bee9bd1cdef",
+        "01a005f8-2984-74e4-be49-09ceeb335d09",
+        "01a005f8-7035-74e9-bfb0-78d771690900",
+        "01a005f8-fd73-7619-b910-734827bef855",
+        "01a005f9-0999-75f3-b544-c45242e07352",
+        "01a005f9-66f2-712e-a5aa-e3da36ee46fb",
+        "01a005f9-7641-759d-a5de-8d4f46f6dd53"
+      ],
+      "playAnalysisId": "01a005f8-9b9e-74a1-9bbf-2b92ec45cea1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d3-732a-9ee4-2e769587da2f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 11,
+    "context": {
+      "gameClockMs": 897559,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "21 Ximena Cuate",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "55 Laurence Caron",
+        "action": "FLAG_PULL",
+        "note": "at the 10 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #21 Ximena Cuate",
+      "text": "COMPLETE PASS #33 Diana Flores → #21 Ximena Cuate",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "21 Ximena Cuate"
+      },
+      "flagPulledBy": {
+        "name": "55 Laurence Caron"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f9-1b71-7577-888f-5ca53f94d11e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d3-732a-9ee4-323c5df6affc"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 12,
+    "context": {
+      "gameClockMs": 894289,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "note": "went out of bounds at the 16-yard line",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f9-7f45-7604-99d2-75a76a935107",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d3-732a-9ee4-35ae4279b15e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 837693,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 16,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "note": "Fourth down Mexico",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Andy Martinez",
+        "action": "COMPLETE",
+        "note": "went out of bounds at Canada 20 yard line",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #13 Andy Martinez",
+      "text": "COMPLETE PASS #33 Diana Flores → #13 Andy Martinez",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "13 Andy Martinez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f9-e6d1-7523-b9d9-ca0e2a0b27ba",
+        "01a005f9-f51f-76cf-aab2-2b1e32480036",
+        "01a005f9-f58b-740a-8df0-df5bdb29c656",
+        "01a005fa-63db-7652-aeec-24acba3a5b8c",
+        "01a005fa-c49d-71e5-8065-fdf0dcac24c4",
+        "01a005fa-c938-753d-8e18-a6eb0ee3d8e1",
+        "01a005fa-d152-7037-85f4-02957ff714a0",
+        "01a005fb-34c5-76ab-98d8-0bd77332908f",
+        "01a005fb-3c06-758b-854b-5f17105df1eb",
+        "01a005fb-55f3-76a8-acfb-3fc2301ea715",
+        "01a005fb-5ef7-762c-aea6-64dbbf3386d4",
+        "01a005fb-78a4-73fa-b8a7-ce9d424a624f"
+      ],
+      "playAnalysisId": "01a005fa-0aec-708f-af8b-e727b082fb7c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d4-775c-aaf4-b453f51405ab"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 833784,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Mexico"
+      },
+      {
+        "id": 2,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "33 Diana Flores",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005fa-7b1f-77a3-905a-0978aa74c3b1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d4-775c-aaf4-b836b63f4f77"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 15,
+    "context": {
+      "gameClockMs": 805605,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "HAND_OFF",
+        "note": "Handed over by QB 33 Diana Flores"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "RUSH",
+        "note": "Rushed to the right"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "FLAG_PULL",
+        "role": "Defense",
+        "team": "Canada"
+      },
+      {
+        "id": 6,
+        "player": "Unknown",
+        "action": "PENALTY",
+        "note": "Flag on the play"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "ballCarrier": {
+        "name": "21 Ximena Cuate"
+      },
+      "flagPulledBy": {
+        "name": "Unknown"
+      },
+      "penaltyOn": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005fa-ee04-731b-ac71-4f1794f103ac",
+      "penaltyAnalysisIds": [
+        "01a005fb-4189-73c5-935f-18004ac03656"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d4-775c-aaf4-bfaa172b7b13"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 16,
+    "context": {
+      "gameClockMs": 721831,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 25,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center",
+        "team": "Mexico"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback",
+        "team": "Mexico"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "passDirection": "LEFT",
+        "role": "Quarterback",
+        "team": "Mexico"
+      },
+      {
+        "id": 4,
+        "player": "33 Catherine Gaumont",
+        "action": "INTERCEPTION",
+        "role": "Defense",
+        "team": "Canada"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#33 Diana Flores → #33 Catherine Gaumont",
+      "text": "INTERCEPTION #33 Diana Flores → #33 Catherine Gaumont",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Catherine Gaumont",
+        "number": "33",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p22/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "interceptedBy": {
+        "name": "33 Catherine Gaumont"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005fb-ab03-757a-b92c-882718029337"
+      ],
+      "playAnalysisId": "01a005fb-c288-706f-bc44-ff95e9c45fc8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d4-775c-aaf4-c3f1bab33b92"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 721137,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 25,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "10 Marianne Quirion",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Marianne Quirion",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#11 Sara Parker",
+      "text": "INCOMPLETE PASS #11 Sara Parker",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005fb-ada4-738e-a107-958a68d53b32",
+        "01a005fb-c6bd-701b-be1c-c50800fbc6c9",
+        "01a005fb-c778-73cb-863b-56b83b944b3f",
+        "01a005fc-23d4-726e-a202-0b35b9cf5d61",
+        "01a005fc-b7dc-725d-bed5-269625440629",
+        "01a005fc-c2b8-772d-8cd9-cc4898cf4b2e"
+      ],
+      "playAnalysisId": "01a005fc-3e53-720a-851d-de2ff22f98f7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d4-775c-aaf4-c59927870482"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 18,
+    "context": {
+      "gameClockMs": 653152,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Frédérique Morneau",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "1 Yaritza Morales",
+        "action": "FLAG_PULL",
+        "note": "at the 22 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #1 Frédérique Morneau",
+      "text": "COMPLETE PASS #11 Sara Parker → #1 Frédérique Morneau",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Frédérique Morneau",
+        "number": "1",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "1 Frédérique Morneau"
+      },
+      "flagPulledBy": {
+        "name": "1 Yaritza Morales"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005fc-d974-7330-ab39-58339f436def",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d4-775c-aaf4-c922ec20e3c3"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 19,
+    "context": {
+      "gameClockMs": 624442,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Alexane Fournier",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "1 Yaritza Morales",
+        "action": "FLAG_PULL",
+        "note": "at the Mexico 21 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #18 Alexane Fournier",
+      "text": "COMPLETE PASS #11 Sara Parker → #18 Alexane Fournier",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Alexane Fournier",
+        "number": "18",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "18 Alexane Fournier"
+      },
+      "flagPulledBy": {
+        "name": "1 Yaritza Morales"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005fd-276e-769e-b2b4-ed65b01ebe1a",
+        "01a005fd-3bcd-722b-a704-d78382277039",
+        "01a005fd-3d0b-72db-9b87-d8c60ee0debf",
+        "01a005fd-b3fa-73a1-9862-25222e1fef5c",
+        "01a005fd-c119-737c-acbc-5928ba2bc4fa",
+        "01a005fe-2447-72bf-bb5c-2ecc42c6d064",
+        "01a005fe-31b6-744e-bb6f-d22ac4011826",
+        "01a005fe-4077-74e1-bb32-2bcd580116ef"
+      ],
+      "playAnalysisId": "01a005fd-5527-7741-bdb3-8927cadf0daa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d5-760f-aaa3-56b470d5460a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 618873,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Canada"
+      },
+      {
+        "id": 2,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "11 Sara Parker",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "note": "went out of bounds at the Mexico 14",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#11 Sara Parker",
+      "text": "INCOMPLETE PASS #11 Sara Parker",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005fd-cb71-76f5-bce7-2c5c957a0adc",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d5-760f-aaa3-592d8340a711"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 21,
+    "context": {
+      "gameClockMs": 556242,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "COMPLETE",
+        "note": "to the Mexico 7 yard line",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #15 Caroline Moquin-Joubert",
+      "text": "COMPLETE PASS #11 Sara Parker → #15 Caroline Moquin-Joubert",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Caroline Moquin-Joubert",
+        "number": "15",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "15 Caroline Moquin-Joubert"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005fe-50df-76bd-877b-7d50ae3085c2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d5-760f-aaa3-5d8ab9701c3d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 22,
+    "context": {
+      "gameClockMs": 524769,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 42,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Sara Parker",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "18 Alexane Fournier",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "18 Alexane Fournier",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#15 Caroline Moquin-Joubert (6 pts)",
+      "text": "TOUCHDOWN #15 Caroline Moquin-Joubert (6 pts)",
+      "from": {
+        "name": "Caroline Moquin-Joubert",
+        "number": "15",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p18/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "18 Alexane Fournier"
+      },
+      "receiver": {
+        "name": "15 Caroline Moquin-Joubert"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005fe-ae54-72d6-b15b-10167613e4c8",
+        "01a005fe-d339-770f-b0ad-f2cad60a1d6e"
+      ],
+      "playAnalysisId": "01a005fe-bbbf-719c-8377-b36aadefa584",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.462Z",
+    "updatedAt": "2026-08-15T16:05:03.462Z",
+    "id": "01a0062b-67d5-760f-aaa3-6098776739e8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 23,
+    "context": {
+      "gameClockMs": 477893,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Alexane Fournier",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "18 Alexane Fournier",
+        "action": "TOUCHDOWN",
+        "note": "Successful one-point conversion try."
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#18 Alexane Fournier (1 pt)",
+      "text": "TRY #18 Alexane Fournier (1 pt)",
+      "from": {
+        "name": "Alexane Fournier",
+        "number": "18",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p3/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "18 Alexane Fournier"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ff-63e0-739c-a649-5d8e327c7f16",
+        "01a005ff-6452-75b8-85b6-4642cf5f01b0"
+      ],
+      "playAnalysisId": "01a005ff-74db-7187-8061-f19c04ce57c9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.471Z",
+    "updatedAt": "2026-08-15T16:05:03.471Z",
+    "id": "01a0062b-67d5-760f-aaa3-653d7868aeba"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 24,
+    "context": {
+      "gameClockMs": 473433,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "33 Catherine Gaumont",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      },
+      "flagPulledBy": {
+        "name": "33 Catherine Gaumont"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ff-7534-75ec-b7d1-a69413f95d65",
+        "01a005ff-7c67-7683-8e2c-e21f8887af6e",
+        "01a005ff-7cff-70dd-b0c9-bd0f9ed7a516",
+        "01a005ff-e1b1-746b-9d7d-f7bd09308c76",
+        "01a005ff-f1d1-720d-ae69-0d28d1ef8582",
+        "01a00600-4d9c-75ab-ab37-b03537c61447",
+        "01a00600-5f63-7329-b418-2a8ff681855a"
+      ],
+      "playAnalysisId": "01a00600-0408-732a-b8a0-869d896991ce",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.471Z",
+    "updatedAt": "2026-08-15T16:05:03.471Z",
+    "id": "01a0062b-67d5-760f-aaa3-6b8f0b710054"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 25,
+    "context": {
+      "gameClockMs": 441516,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "55 Laurence Caron",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      },
+      "flagPulledBy": {
+        "name": "55 Laurence Caron"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00600-6e49-73cf-a610-942138dcf23c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.471Z",
+    "updatedAt": "2026-08-15T16:05:03.471Z",
+    "id": "01a0062b-67d5-760f-aaa3-6c1431c8da28"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 26,
+    "context": {
+      "gameClockMs": 384958,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 19,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "4 Monica Rangel",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "55 Laurence Caron",
+        "action": "FLAG_PULL",
+        "note": "at Canada 13 yard line",
+        "role": "Defense",
+        "team": "Canada"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "flagPulledBy": {
+        "name": "55 Laurence Caron"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00600-cef5-71c8-9fe7-25b044645bc4",
+        "01a00600-f020-76c8-8f13-fea359651793",
+        "01a00600-f0cb-71f1-9f14-c2234d5ef57c",
+        "01a00600-fcee-7327-80a9-27dde4a4b514",
+        "01a00601-6884-7499-8b6b-6c0d07c7cd88",
+        "01a00601-756c-754d-9216-ee293fd348c5",
+        "01a00601-daea-76c3-be7f-44d9fcf72d62",
+        "01a00601-e8ed-7694-b8e3-2a9669a54508",
+        "01a00602-6bfc-772c-9615-07384746edf1",
+        "01a00602-84a0-75cc-ae2c-5f3d3286e451"
+      ],
+      "playAnalysisId": "01a00600-e965-7786-852a-8beb7ddaa32b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.472Z",
+    "updatedAt": "2026-08-15T16:05:03.472Z",
+    "id": "01a0062b-67d5-760f-aaa3-711549b30f1a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 27,
+    "context": {
+      "gameClockMs": 373136,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "note": "at the 6 yard line out of bounds",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00601-7e6e-7125-b936-31299acee650",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.472Z",
+    "updatedAt": "2026-08-15T16:05:03.472Z",
+    "id": "01a0062b-67d5-760f-aaa3-755ebfdaa41f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 28,
+    "context": {
+      "gameClockMs": 342286,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "12 Sabrina Gervais",
+        "action": "FLAG_PULL",
+        "note": "at the 5 yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "flagPulledBy": {
+        "name": "12 Sabrina Gervais"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00601-eb18-7011-8268-be4be49ab9bf",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.472Z",
+    "updatedAt": "2026-08-15T16:05:03.472Z",
+    "id": "01a0062b-67d5-760f-aaa3-79e6fc0e6482"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 29,
+    "context": {
+      "gameClockMs": 279428,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "17 Léa Duval",
+        "action": "SACK",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "SACK",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "SACK",
+      "label": "SACK",
+      "detail": "by #17 Léa Duval",
+      "text": "SACK by #17 Léa Duval",
+      "from": {
+        "name": "Léa Duval",
+        "number": "17",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p8/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00602-8d8b-735a-a9e5-6503dc1aa62f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.472Z",
+    "updatedAt": "2026-08-15T16:05:03.472Z",
+    "id": "01a0062b-67d5-760f-aaa3-7f0dff80532f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 30,
+    "context": {
+      "gameClockMs": 224366,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 39,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "21 Ximena Cuate",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "PASS",
+        "intendedReceiver": "2 Victoria Chavez Lopez",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "2 Victoria Chavez Lopez",
+        "passDirection": "LEFT",
+        "role": "Quarterback",
+        "team": "Mexico"
+      },
+      {
+        "id": 5,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Canada"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#21 Ximena Cuate",
+      "text": "INCOMPLETE PASS #21 Ximena Cuate",
+      "from": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "21 Ximena Cuate"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00603-4239-71e3-b74d-f6a8af9b6bdf"
+      ],
+      "playAnalysisId": "01a00603-5942-707d-a860-060835c039cb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d5-760f-aaa3-83fbba620ebc"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 31,
+    "context": {
+      "gameClockMs": 223782,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 39,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Alexane Fournier",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #18 Alexane Fournier",
+      "text": "COMPLETE PASS #11 Sara Parker → #18 Alexane Fournier",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Alexane Fournier",
+        "number": "18",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "18 Alexane Fournier"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00603-4458-756b-88bf-512bedef4bfa",
+        "01a00603-4bf9-7539-b15b-0e1c5d883a70",
+        "01a00603-4c65-71a8-b250-733fd0e3c938",
+        "01a00603-c62c-7589-99f0-5f553be1b9e1",
+        "01a00603-dbff-72c6-97d6-eb70441dd25d",
+        "01a00604-2d4e-723f-8dc1-058ef742d04b",
+        "01a00604-3537-731d-aa56-004223fbcf8d"
+      ],
+      "playAnalysisId": "01a00603-e43e-73b3-8f56-423e112c88be",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d5-760f-aaa3-8784ea30d367"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 32,
+    "context": {
+      "gameClockMs": 185122,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Frédérique Morneau",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #1 Frédérique Morneau",
+      "text": "COMPLETE PASS #11 Sara Parker → #1 Frédérique Morneau",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Frédérique Morneau",
+        "number": "1",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "1 Frédérique Morneau"
+      },
+      "flagPulledBy": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00604-4dc5-72be-ad0f-92e8f63465e5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d5-760f-aaa3-88821fa6bfcb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 33,
+    "context": {
+      "gameClockMs": 124774,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 24,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Alexane Fournier",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "12",
+        "action": "FLAG_PULL",
+        "note": "by Mexico",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #18 Alexane Fournier",
+      "text": "COMPLETE PASS #11 Sara Parker → #18 Alexane Fournier",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Alexane Fournier",
+        "number": "18",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "18 Alexane Fournier"
+      },
+      "flagPulledBy": {
+        "number": "12"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00604-c787-7369-acab-38cb909dc742",
+        "01a00604-d9c5-71c8-b66e-a07705d383d8",
+        "01a00604-ef2c-7038-9417-f186f5c35a51",
+        "01a00604-ef9b-7238-b023-4d16b9641c95",
+        "01a00604-fac5-714b-a4cd-f1ffc4d0a607",
+        "01a00605-6c85-70e8-9fb0-108aebd004d7",
+        "01a00605-88c2-710d-b940-246587dca1fd",
+        "01a00605-9f42-779e-a1ba-2568f92e19ac",
+        "01a00605-a9e2-777d-a17f-02d62e40f1f1",
+        "01a00606-0027-769b-ac42-fb0d41b67104",
+        "01a00606-0829-76cb-91de-54614b9f1cf8",
+        "01a00606-76d5-779e-a319-4fbdf1678f03",
+        "01a00606-8ddf-722c-b31b-9e1d1a0b2aa8",
+        "01a00606-9f22-7584-9fc2-4c5d9331a264"
+      ],
+      "playAnalysisId": "01a00604-ebd0-774d-8609-d8aeaf026520",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d5-760f-aaa3-8e19a13fe0ee"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 34,
+    "context": {
+      "gameClockMs": 120378,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Frédérique Morneau",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #1 Frédérique Morneau",
+      "text": "COMPLETE PASS #11 Sara Parker → #1 Frédérique Morneau",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Frédérique Morneau",
+        "number": "1",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "1 Frédérique Morneau"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00605-afba-77dd-a8eb-520b0ece8bf1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d5-760f-aaa3-92e26168a19d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 35,
+    "context": {
+      "gameClockMs": 104619,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#11 Sara Parker",
+      "text": "INCOMPLETE PASS #11 Sara Parker",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00606-1f00-73ad-bcd5-5b9d6d778b70",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d5-760f-aaa3-97be094e63b4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 36,
+    "context": {
+      "gameClockMs": 77335,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 42,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#11 Sara Parker",
+      "text": "INCOMPLETE PASS #11 Sara Parker",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00606-dfcc-740c-8176-2f9cfe1ba14c",
+        "01a00606-e79a-73bd-a766-c894bca7799f",
+        "01a00606-ecf6-72ac-9089-b0cc798af4bf",
+        "01a00607-4ca7-7314-b024-00799a0b9767",
+        "01a00607-6940-71ae-9889-7a3dd3db1d45",
+        "01a00607-7a37-71ce-8ae6-534d0c3763c7",
+        "01a00607-8151-7412-86a4-415ae5000f38",
+        "01a00607-94e7-7644-b083-871910f6ab78",
+        "01a00607-9646-767e-854d-9d7d3e457623",
+        "01a00607-9748-7514-b61c-fe748e34b29b",
+        "01a00607-9814-76fa-9201-9edfde19a627",
+        "01a00607-9945-725d-9f24-709b2873ba7d",
+        "01a00607-9a4a-748a-8b63-bafef2abb3be",
+        "01a00607-9bba-7703-b532-4c315148d6fb",
+        "01a00607-9e18-774a-af7e-8b9d57fba1c0",
+        "01a00607-b9c8-77f7-b79a-e07e9be48771",
+        "01a00607-cf44-721a-bf8d-a021eaed7d3c",
+        "01a00608-2792-7541-8d5c-9e00f091a482",
+        "01a00608-5084-750f-96cc-043e6f4fecfd",
+        "01a00608-6ec0-74d9-9d63-196df850b339",
+        "01a00608-7ca9-7217-81b9-be7fdda6bdfc",
+        "01a00608-9f50-76bc-9c7d-56bbd232830e",
+        "01a00608-b6ed-7269-a05d-ad23b2c7a6df",
+        "01a00609-07f3-745c-81b5-1ce90d0f7b8e",
+        "01a00609-1b54-777f-b7b8-a96ee6a45ddb",
+        "01a00609-26f9-70bf-b008-6aaeee65e271",
+        "01a00609-a552-73fa-9ee7-5921565571bd",
+        "01a00609-b617-75fe-a47a-725ed6fd6008",
+        "01a00609-c6d6-7683-a0e2-94fcf8f851bd"
+      ],
+      "playAnalysisId": "01a00606-b93f-7069-84ad-11f2aca99eb6",
+      "penaltyAnalysisIds": [
+        "01a00607-1207-7333-9e0b-e2e1ff038082"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d6-7346-ba8e-03cd7472393e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 37,
+    "context": {
+      "gameClockMs": 77335,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Sara Parker",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "18 Alexane Fournier",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "18 Alexane Fournier",
+        "action": "RUSH",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "23 Haniel Reza Martinez",
+        "action": "FLAG_PULL",
+        "note": "At the 6 yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 2,
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#18 Alexane Fournier",
+      "text": "RUN #18 Alexane Fournier",
+      "from": {
+        "name": "Alexane Fournier",
+        "number": "18",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "18 Alexane Fournier"
+      },
+      "ballCarrier": {
+        "name": "18 Alexane Fournier"
+      },
+      "flagPulledBy": {
+        "name": "23 Haniel Reza Martinez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00607-9f18-7404-a529-ab2afe464053",
+      "penaltyAnalysisIds": [
+        "01a00608-8e66-70ca-be6e-f6917080bd1b",
+        "01a00608-ccdc-71cd-8cc8-066cc96e9588"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d6-7346-ba8e-0561e0126b47"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 38,
+    "context": {
+      "gameClockMs": 63655,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#11 Sara Parker",
+      "text": "INCOMPLETE PASS #11 Sara Parker",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00609-3a39-70c4-bee2-f1d524133a8c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d6-7346-ba8e-0bc0d9280932"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 39,
+    "context": {
+      "gameClockMs": 54758,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 44,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Alexane Fournier",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "PENALTY",
+        "note": "Flag on the play"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "18 Alexane Fournier"
+      },
+      "penaltyOn": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0060a-266e-729b-ba0c-1a6a14b20fa5"
+      ],
+      "playAnalysisId": "01a00609-e04b-71dd-bf60-e03047127712",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-232943e35627"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 40,
+    "context": {
+      "gameClockMs": 54758,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 44,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Mexico"
+      },
+      {
+        "id": 2,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "21 Ximena Cuate",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "21 Ximena Cuate",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "55 Laurence Caron",
+        "action": "FLAG_PULL",
+        "note": "at the 3-yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #21 Ximena Cuate",
+      "text": "COMPLETE PASS #33 Diana Flores → #21 Ximena Cuate",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "21 Ximena Cuate"
+      },
+      "flagPulledBy": {
+        "name": "55 Laurence Caron"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0060a-28b4-71b7-a23e-840fbb4afdd8",
+        "01a0060a-2e7f-728e-990d-3aac73533be6",
+        "01a0060a-2edc-72a7-81a8-4c7c56da6f66",
+        "01a0060a-452f-724f-9ccd-cd0c04e267c7",
+        "01a0060a-78bd-704b-9fd6-ed9f17c72cb8",
+        "01a0060a-9651-722c-b209-248a187d77c5",
+        "01a0060a-9912-701d-a20f-34de16e0562b",
+        "01a0060a-a3be-76f3-b4fd-db585362516b",
+        "01a0060a-cc56-76e8-8c96-692c83c89843",
+        "01a0060a-d7bf-7138-a1f8-097671e9895e",
+        "01a0060b-6430-739d-a7c4-206f44f58c5a",
+        "01a0060b-6e02-743c-8e79-4d13f9296d95",
+        "01a0060b-80ac-724a-9a16-0c0b825b843a",
+        "01a0060b-a839-7319-a3ea-a9ddfd7f5135",
+        "01a0060c-0b90-71fd-925a-b2c5315f8cff",
+        "01a0060c-1b2b-72ee-813a-2b3a6fa309e4",
+        "01a0060c-26d6-75eb-9aa3-bcd191bd5e5a",
+        "01a0060c-46be-7599-b471-d05eecdfb7c2",
+        "01a0060c-8502-745b-bf07-9abfe9669149",
+        "01a0060c-b63d-74da-8c68-e0b52937dc5d"
+      ],
+      "playAnalysisId": "01a0060a-cf2f-76c9-885f-4a44c1faad77",
+      "penaltyAnalysisIds": [
+        "01a0060a-52ff-704c-a6e8-4260e52cc4ee"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-257e7ff0762a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 41,
+    "context": {
+      "gameClockMs": 44879,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "TIMEOUT_CALL",
+        "role": "Statistician"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0060a-f5d2-768f-a797-c37cdf334180",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-2b2d4295dc9d"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 42,
+    "context": {
+      "gameClockMs": 44879,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "INCOMPLETE_PASS",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0060b-983c-725b-9b96-34b823412d1e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-2c03de5d87fd"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 43,
+    "context": {
+      "gameClockMs": 40299,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "21 Ximena Cuate",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "note": "went out of bounds at the 13 yard line",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#21 Ximena Cuate",
+      "text": "INCOMPLETE PASS #21 Ximena Cuate",
+      "from": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "21 Ximena Cuate"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0060c-4a06-7520-a4fe-14078a3b22b4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-31153022c4d5"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 44,
+    "context": {
+      "gameClockMs": 24126,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "LATERAL",
+        "note": "Backwards pass from QB"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "passDirection": "LEFT",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "13 Andy Martinez",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "33 Catherine Gaumont",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      },
+      {
+        "id": 7,
+        "player": "13 Andy Martinez",
+        "action": "TOUCHDOWN",
+        "team": "Mexico"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Andy Martinez (6 pts)",
+      "text": "TOUCHDOWN #13 Andy Martinez (6 pts)",
+      "from": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "13 Andy Martinez"
+      },
+      "flagPulledBy": {
+        "name": "33 Catherine Gaumont"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0060c-c5be-73fb-a7ef-65f007c06a06",
+        "01a0060c-dd0c-743d-a1be-d331f7978c51",
+        "01a0060c-dd85-72ef-92ac-f95cc35391eb",
+        "01a0060c-f4f2-758f-bdc2-349d8fa22496",
+        "01a0060d-1e48-72a7-b7b8-16d769f0067a",
+        "01a0060d-36a8-7759-90f3-a7831018e0bf",
+        "01a0060d-7a0c-70a8-800b-58437ae86db2",
+        "01a0060f-b13a-71ec-bb12-72068badd68d",
+        "01a0060f-c736-7682-8802-aac4868eda37",
+        "01a0060f-cf53-75c1-a8e8-6ae7dc95dd61",
+        "01a00610-3757-76bb-8c69-ac90bf6636b8",
+        "01a00610-45d2-77ef-ac6e-403764ecdb41",
+        "01a00610-57ae-7578-b3a5-ef5235b61136",
+        "01a00610-6181-70dc-8ac3-4f824c277c35",
+        "01a00610-c3d8-743c-bc9d-84d641d49d07",
+        "01a00610-ff01-74b8-92f1-9f9319e32b74",
+        "01a00611-23e9-7739-bcca-186e1f1e33ba"
+      ],
+      "playAnalysisId": "01a0060c-e6da-7489-a917-22dc98371b86",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-341138f549e7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 45,
+    "context": {
+      "gameClockMs": 25126,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Diana Flores",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "13 Andy Martinez",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "13 Andy Martinez",
+        "action": "PASS",
+        "intendedReceiver": "4 Monica Rangel",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Andy Martinez",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Monica Rangel",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#13 Andy Martinez",
+      "text": "INCOMPLETE PASS #13 Andy Martinez",
+      "from": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "13 Andy Martinez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0060d-59c5-70e5-8827-1008a6805bbc",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-3a4873f59e62"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 46,
+    "context": {
+      "gameClockMs": 13688,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "INCOMPLETE_PASS",
+        "note": "broken up by Canada 33",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0060f-e978-712f-a2e8-02e0446a6ae7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-3f1b668e07e8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 47,
+    "context": {
+      "gameClockMs": 10107,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "note": "Out of bounds at the 20 yard line",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00610-6f55-7388-9619-59114e80435e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-4272dd3a88e8"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 48,
+    "context": {
+      "gameClockMs": 0,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "PASS",
+        "intendedReceiver": "2 Victoria Chavez Lopez",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "21 Ximena Cuate",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "2 Victoria Chavez Lopez",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "Unknown",
+        "action": "PENALTY",
+        "note": "on green",
+        "team": "Canada"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "penaltyOn": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00611-1eb4-765a-b747-ee1a952c81f9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.473Z",
+    "updatedAt": "2026-08-15T16:05:03.473Z",
+    "id": "01a0062b-67d7-77b8-afd7-47baad74253f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 49,
+    "context": {
+      "gameClockMs": 0,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 30,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Mexico"
+      }
+    ],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00611-573c-7044-a00d-f6317e7dd8c5",
+        "01a00611-676c-74c4-a31d-f7be6c447e43",
+        "01a00612-834d-7620-847a-b626390f1698",
+        "01a00612-842c-73db-93d6-5ff3d14bef70",
+        "01a00614-2fac-7469-9ec7-51c0bbd5cb6d",
+        "01a00614-33e3-7069-8588-f5ca0e9a873d",
+        "01a00614-8fbb-7175-b1b8-92c2e4336803",
+        "01a00614-91ac-71c8-b51a-b7a612443f7f",
+        "01a00614-ab54-71bc-9fa9-39404e32e09a",
+        "01a00614-c27f-71c5-8638-33439a25dde8",
+        "01a00614-cfd7-750b-8bae-843be1fadc80",
+        "01a00614-e5ce-7775-83f4-5e15f7b4d179",
+        "01a00614-e883-743d-a21a-873becaea4ed",
+        "01a00614-f099-7011-9f1a-18fd594fc04c",
+        "01a00615-0a39-73be-a51c-e1a5dc2c89fb",
+        "01a00615-6ab4-7485-9daa-c835dff56481",
+        "01a00615-8015-703d-b333-7b2fa7b8509c",
+        "01a00615-f7a9-7208-927c-c204e58239f7"
+      ],
+      "playAnalysisId": "01a00611-618f-707d-b595-50a7198abfb3",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d8-74b1-ac29-dbece6ff7662"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 50,
+    "context": {
+      "gameClockMs": 0,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "2 Victoria Chavez Lopez",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "2 Victoria Chavez Lopez",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00612-02b6-70ca-bdf3-a83701cece6e",
+      "penaltyAnalysisIds": [
+        "01a00614-c7d8-700f-8e02-92717842bb87"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d8-74b1-ac29-df434438087b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 51,
+    "context": {
+      "gameClockMs": 1192659,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Diana Flores",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "13 Andy Martinez",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "13 Andy Martinez",
+        "action": "PASS",
+        "intendedReceiver": "21 Ximena Cuate",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Andy Martinez",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "21 Ximena Cuate",
+        "note": "went out of bounds at the 6 yard line",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#13 Andy Martinez",
+      "text": "INCOMPLETE PASS #13 Andy Martinez",
+      "from": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "13 Andy Martinez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00615-14b1-760a-a5be-b11ebeb16e7f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d8-74b1-ac29-e2013730fe04"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 52,
+    "context": {
+      "gameClockMs": 1186100,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "21 Ximena Cuate",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "21 Ximena Cuate",
+        "action": "RUSH",
+        "note": "on the right",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "33 Catherine Gaumont",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #21 Ximena Cuate",
+      "text": "COMPLETE PASS #33 Diana Flores → #21 Ximena Cuate",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "ballCarrier": {
+        "name": "21 Ximena Cuate"
+      },
+      "receiver": {
+        "name": "21 Ximena Cuate"
+      },
+      "flagPulledBy": {
+        "name": "33 Catherine Gaumont"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00615-8c1c-734b-8992-c227402fed2c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d8-74b1-ac29-e5d35274713e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 53,
+    "context": {
+      "gameClockMs": 1155936,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "21 Ximena Cuate",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "PASS",
+        "intendedReceiver": "33 Diana Flores",
+        "note": "backward pass",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 7,
+        "player": "1 Yaritza Morales",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 8,
+        "player": "23",
+        "action": "PENALTY",
+        "note": "flag on the play",
+        "team": "Canada"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "21 Ximena Cuate"
+      },
+      "receiver": {
+        "name": "33 Diana Flores"
+      },
+      "penaltyOn": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00616-29bb-7790-a361-b66474ee1d81",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d8-74b1-ac29-e9aea4a27109"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 54,
+    "context": {
+      "gameClockMs": 1102223,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "43",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "43",
+        "action": "PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Yaritza Morales",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#43 → #1 Yaritza Morales",
+      "text": "COMPLETE PASS #43 → #1 Yaritza Morales",
+      "from": {
+        "number": "43"
+      },
+      "to": {
+        "name": "Yaritza Morales",
+        "number": "1",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "43"
+      },
+      "receiver": {
+        "name": "1 Yaritza Morales"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00616-51c8-7763-bda5-db3dffc0f0b4",
+        "01a00616-5c6a-73cb-9f63-7843e7a79ad7",
+        "01a00616-8014-776c-84af-e25be87bb103",
+        "01a00616-80fc-757e-bf07-1ddfb4405673",
+        "01a00616-c4ed-77d0-ae7a-35bf00b21438",
+        "01a00616-d290-756e-adb3-4419ba473ced",
+        "01a00617-57ec-7097-bed5-57cd85d138c4",
+        "01a00617-7824-74ac-8620-1570fffa7f1f"
+      ],
+      "playAnalysisId": "01a00616-db20-70db-8041-df030fb56865",
+      "penaltyAnalysisIds": [
+        "01a00616-8fb4-7553-a7a6-3703e31204e5"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d8-74b1-ac29-ec6f89af5f75"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 55,
+    "context": {
+      "gameClockMs": 1069229,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "13 Andy Martinez",
+        "action": "PASS",
+        "intendedReceiver": "21 Ximena Cuate",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "55 Laurence Caron",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#13 Andy Martinez → #21 Ximena Cuate",
+      "text": "COMPLETE PASS #13 Andy Martinez → #21 Ximena Cuate",
+      "from": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      },
+      "to": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "13 Andy Martinez"
+      },
+      "receiver": {
+        "name": "21 Ximena Cuate"
+      },
+      "flagPulledBy": {
+        "name": "55 Laurence Caron"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00617-8bb3-718a-a45c-d119b110e58e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d8-74b1-ac29-f284e7ae11d0"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 56,
+    "context": {
+      "gameClockMs": 989905,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 38,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Catherine Gaumont",
+        "action": "INTERCEPTION",
+        "note": "at the Canada five yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#33 Diana Flores → #33 Catherine Gaumont",
+      "text": "INTERCEPTION #33 Diana Flores → #33 Catherine Gaumont",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Catherine Gaumont",
+        "number": "33",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p22/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "interceptedBy": {
+        "name": "33 Catherine Gaumont"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00618-0919-763c-af5d-fd104e047bae"
+      ],
+      "playAnalysisId": "01a00618-3452-779a-acf7-2ae549dc5aab",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d8-74b1-ac29-f62b0de93e4f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 57,
+    "context": {
+      "gameClockMs": 988575,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 38,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#11 Sara Parker",
+      "text": "INCOMPLETE PASS #11 Sara Parker",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00618-0d9c-71cd-91c2-31af6d7c1c49",
+        "01a00618-428d-7258-a3c9-a4d443929c47",
+        "01a00618-4309-75e7-b817-53ef267a9328",
+        "01a00618-4c38-7609-8be6-d7fce3fd1ba4",
+        "01a00618-8e7e-700a-b95d-11bcef667f1a",
+        "01a00619-1851-70a8-85a5-9b4524930de3",
+        "01a00619-282a-77ca-86fb-41b797da419d",
+        "01a00619-ac7a-75b9-aa2c-f90b018c6bf4",
+        "01a00619-c29d-736f-beb1-c2756ba05df3"
+      ],
+      "playAnalysisId": "01a00618-a64e-75c3-89db-2ac274c5e2c0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d8-74b1-ac29-fae85ed2b171"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 58,
+    "context": {
+      "gameClockMs": 956035,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Frédérique Morneau",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "FLAG_PULL",
+        "note": "Out of bounds at the 11 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #1 Frédérique Morneau",
+      "text": "COMPLETE PASS #11 Sara Parker → #1 Frédérique Morneau",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Frédérique Morneau",
+        "number": "1",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "1 Frédérique Morneau"
+      },
+      "flagPulledBy": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00619-481d-7617-8dfd-9db2cf248a0f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d9-730f-8854-ab910b5c302b"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 59,
+    "context": {
+      "gameClockMs": 882432,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "81 Laura Molimard",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Victoria Chavez Lopez",
+        "action": "PENALTY",
+        "note": "Foul",
+        "team": "Mexico"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "penaltyOn": {
+        "name": "2 Victoria Chavez Lopez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00619-cf76-764f-ab09-6fc539a2f325",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d9-730f-8854-ac1c96e48bdf"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 60,
+    "context": {
+      "gameClockMs": 842412,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 19,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "81 Laura Molimard",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "10 Marianne Quirion",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Marianne Quirion",
+        "note": "out of bounds",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#11 Sara Parker",
+      "text": "INCOMPLETE PASS #11 Sara Parker",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0061a-48cc-70a7-87d8-971956d4ffd5"
+      ],
+      "playAnalysisId": "01a0061a-4f69-7630-9098-c54997858846",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d9-730f-8854-b3032cc4daf9"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 61,
+    "context": {
+      "gameClockMs": 841901,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 19,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "21 Ximena Cuate",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "30",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "30",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#31 Tania Rincon",
+      "text": "INCOMPLETE PASS #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0061a-4ab5-75cc-97be-948203ef624a",
+        "01a0061a-57c4-7709-9a5f-44934e31be52",
+        "01a0061a-9ab1-74fd-8a41-7acf88251ab9",
+        "01a0061a-afc8-7039-9143-04018625240d",
+        "01a0061a-c4a5-760b-bbe2-87fc5dfeced3",
+        "01a0061b-23d2-71ef-a6ff-79419f38d6dc",
+        "01a0061b-289e-7782-9507-134e276087cb",
+        "01a0061b-a9c5-72fd-9897-43b1641907e7"
+      ],
+      "playAnalysisId": "01a0061a-b227-70cb-96b3-fcf182ba36f6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d9-730f-8854-b586180dfdc0"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 62,
+    "context": {
+      "gameClockMs": 810674,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "21 Ximena Cuate",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "LATERAL",
+        "note": "Backward pass from QB 31"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "RUSH"
+      },
+      {
+        "id": 5,
+        "player": "33 Catherine Gaumont",
+        "action": "FLAG_PULL",
+        "role": "Defense",
+        "team": "Canada"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#21 Ximena Cuate",
+      "text": "RUN #21 Ximena Cuate",
+      "from": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "ballCarrier": {
+        "name": "21 Ximena Cuate"
+      },
+      "flagPulledBy": {
+        "name": "33 Catherine Gaumont"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0061b-3dbc-775e-bf02-08591ca7ca78",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d9-730f-8854-b9bc48f707e4"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 63,
+    "context": {
+      "gameClockMs": 785059,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "21 Ximena Cuate",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "LATERAL",
+        "role": "Center"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "LATERAL",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "31 Tania Rincon",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "note": "Broken up by #12 Sabrina Gervais Canada.",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#31 Tania Rincon",
+      "text": "INCOMPLETE PASS #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0061b-b7b7-71f0-8cb7-d4073388d55a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67d9-730f-8854-bdc0c7de055a"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 64,
+    "context": {
+      "gameClockMs": 706690,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 11,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "21 Ximena Cuate",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "LATERAL",
+        "note": "Backward pass from #31 Tania Rincon"
+      },
+      {
+        "id": 4,
+        "player": "21 Ximena Cuate",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "21 Ximena Cuate",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "note": "Broken up by #12 Sabrina Gervais Canada",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#21 Ximena Cuate",
+      "text": "INCOMPLETE PASS #21 Ximena Cuate",
+      "from": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0061c-5b36-7008-a12c-baaef8e8fbfe"
+      ],
+      "playAnalysisId": "01a0061c-6c04-778c-84b5-e72e404e2d29",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67da-717e-8a2a-571910aa28f7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 65,
+    "context": {
+      "gameClockMs": 706310,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 11,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "TURNOVER",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0061c-5c36-77e9-ac2d-6daf50dc371c",
+        "01a0061c-6989-70ec-aa8c-893cb91b1fdb",
+        "01a0061c-ff6c-704b-8aaf-d7447c679a31",
+        "01a0061d-0df3-7233-bba7-4e5e71350289",
+        "01a0061d-914e-7348-9edb-01ce6e7cdb7b",
+        "01a0061d-a4d0-71df-9726-55fbd19ae2be",
+        "01a0061e-2cd9-732e-931a-1eb9e25ae309",
+        "01a0061e-36a4-701b-9788-6f2439283649"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67da-717e-8a2a-5a33f92002e7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 66,
+    "context": {
+      "gameClockMs": 664566,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "12 Victoria Chavez Lopez",
+        "action": "FLAG_PULL",
+        "note": "at the 14 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #15 Caroline Moquin-Joubert",
+      "text": "COMPLETE PASS #11 Sara Parker → #15 Caroline Moquin-Joubert",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Caroline Moquin-Joubert",
+        "number": "15",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "15 Caroline Moquin-Joubert"
+      },
+      "flagPulledBy": {
+        "name": "12 Victoria Chavez Lopez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0061d-22af-7513-ae47-3f7ee6ce0676",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.474Z",
+    "updatedAt": "2026-08-15T16:05:03.474Z",
+    "id": "01a0062b-67da-717e-8a2a-5c55e53394c5"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 67,
+    "context": {
+      "gameClockMs": 660815,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Frédérique Morneau",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "2 Victoria Chavez Lopez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #1 Frédérique Morneau",
+      "text": "COMPLETE PASS #11 Sara Parker → #1 Frédérique Morneau",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Frédérique Morneau",
+        "number": "1",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "1 Frédérique Morneau"
+      },
+      "flagPulledBy": {
+        "name": "2 Victoria Chavez Lopez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0061d-b042-726b-8623-840d1e57938e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.475Z",
+    "updatedAt": "2026-08-15T16:05:03.475Z",
+    "id": "01a0062b-67da-717e-8a2a-6088d7b721d9"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 68,
+    "context": {
+      "gameClockMs": 622242,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Sara Parker",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "18 Alexane Fournier",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "18 Alexane Fournier",
+        "action": "PASS",
+        "intendedReceiver": "10 Marianne Quirion",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Alexane Fournier",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Marianne Quirion",
+        "note": "Ball fumbled at the 24 yard line",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#18 Alexane Fournier",
+      "text": "INCOMPLETE PASS #18 Alexane Fournier",
+      "from": {
+        "name": "Alexane Fournier",
+        "number": "18",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "18 Alexane Fournier"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0061e-4cbf-74f8-8852-dd62049d57b4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.475Z",
+    "updatedAt": "2026-08-15T16:05:03.475Z",
+    "id": "01a0062b-67da-717e-8a2a-6783095417ad"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 69,
+    "context": {
+      "gameClockMs": 550160,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 24,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Sara Parker",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "Unknown",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 4,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": " → #15 Caroline Moquin-Joubert",
+      "text": "COMPLETE PASS  → #15 Caroline Moquin-Joubert",
+      "to": {
+        "name": "Caroline Moquin-Joubert",
+        "number": "15",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "Unknown"
+      },
+      "receiver": {
+        "name": "15 Caroline Moquin-Joubert"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0061e-bfdb-74b6-9c34-f5b00fd22dfb",
+        "01a0061e-e175-7312-92aa-023534340989",
+        "01a0061e-e306-77ad-a754-982c6f42e0df",
+        "01a0061f-40f3-724f-b8a2-39e867aff28a",
+        "01a0061f-5e3d-70e4-a2c6-17c5b479f590",
+        "01a0061f-e081-76fe-9bae-dbb4358b8e03",
+        "01a0061f-f365-72f1-abe2-f3faf4550019"
+      ],
+      "playAnalysisId": "01a0061f-1475-72ad-8f56-3c2f408e1d3a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67da-717e-8a2a-6bc373959372"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 70,
+    "context": {
+      "gameClockMs": 541014,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "15 Caroline Moquin-Joubert",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "27 Allison Salazar",
+        "action": "FLAG_PULL",
+        "note": "at the 10-yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #15 Caroline Moquin-Joubert",
+      "text": "COMPLETE PASS #11 Sara Parker → #15 Caroline Moquin-Joubert",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Caroline Moquin-Joubert",
+        "number": "15",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "15 Caroline Moquin-Joubert"
+      },
+      "flagPulledBy": {
+        "name": "27 Allison Salazar"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0061f-7927-707f-b9e4-cc0502df54e9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67da-717e-8a2a-6d7012f289c9"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 71,
+    "context": {
+      "gameClockMs": 475869,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Alexane Fournier",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #18 Alexane Fournier",
+      "text": "COMPLETE PASS #11 Sara Parker → #18 Alexane Fournier",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Alexane Fournier",
+        "number": "18",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "18 Alexane Fournier"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00620-0641-709c-927a-b88ce55a4160",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67da-717e-8a2a-717c53e61fe9"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 72,
+    "context": {
+      "gameClockMs": 433572,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Alexane Fournier",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "18 Alexane Fournier",
+        "action": "TOUCHDOWN"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#18 Alexane Fournier (6 pts)",
+      "text": "TOUCHDOWN #18 Alexane Fournier (6 pts)",
+      "from": {
+        "name": "Alexane Fournier",
+        "number": "18",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p3/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "18 Alexane Fournier"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00620-862d-71ec-a42e-17bd246c1791",
+        "01a00620-a7af-740a-a493-8f40dbb5e3ea"
+      ],
+      "playAnalysisId": "01a00620-9014-7702-bc0b-9fe50ffb6cc3",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67da-717e-8a2a-745623056e12"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 73,
+    "context": {
+      "gameClockMs": 388726,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 0,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "10 Marianne Quirion",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Marianne Quirion",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "10 Marianne Quirion",
+        "action": "TOUCHDOWN",
+        "note": "Conversion good",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#10 Marianne Quirion (1 pt)",
+      "text": "TRY #10 Marianne Quirion (1 pt)",
+      "from": {
+        "name": "Marianne Quirion",
+        "number": "10",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p4/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "10 Marianne Quirion"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00621-35c5-75ee-8240-c730df5c7bd5",
+        "01a00621-36d4-736c-8f95-89c3d85b4f77"
+      ],
+      "playAnalysisId": "01a00621-3d9e-72dd-90e4-05d27c837c80",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67da-717e-8a2a-782dc14bd9ff"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 74,
+    "context": {
+      "gameClockMs": 382879,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "21 Ximena Cuate",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Yaritza Morales",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "4 Rosalie Landry",
+        "action": "FLAG_PULL",
+        "note": "at the 14 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#21 Ximena Cuate → #1 Yaritza Morales",
+      "text": "COMPLETE PASS #21 Ximena Cuate → #1 Yaritza Morales",
+      "from": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      },
+      "to": {
+        "name": "Yaritza Morales",
+        "number": "1",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "21 Ximena Cuate"
+      },
+      "receiver": {
+        "name": "1 Yaritza Morales"
+      },
+      "flagPulledBy": {
+        "name": "4 Rosalie Landry"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00621-4ba0-712a-aa5d-db72bf3cb1a6",
+        "01a00621-d329-73f5-82e3-ee54a7593eca",
+        "01a00621-f0c4-7074-8db7-a4b92daad0cc",
+        "01a00622-32a4-75dd-91ca-e8d34b076bbb"
+      ],
+      "playAnalysisId": "01a00622-0cef-744f-8d53-742048baf3f9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67da-717e-8a2a-7f62465b18f6"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 75,
+    "context": {
+      "gameClockMs": 308495,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 14,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "21 Ximena Cuate",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "FLAG_PULL",
+        "note": "Flag pulled on 3 Silvia Contreras at the 21 yard line",
+        "role": "Defense"
+      },
+      {
+        "id": 6,
+        "player": "Unknown",
+        "action": "PENALTY",
+        "note": "Penalty called after the play."
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "21 Ximena Cuate"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      },
+      "flagPulledBy": {
+        "name": "Unknown"
+      },
+      "penaltyOn": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00622-70fa-7068-9b43-2e48fc462e80",
+        "01a00622-7c38-77db-8458-5a4522cd30f4",
+        "01a00622-8694-7122-b835-463e700b79ad",
+        "01a00622-877a-74bc-9ece-d0195b4810d8",
+        "01a00622-c3ef-778d-bd73-ddf02a2f1947",
+        "01a00622-db10-708b-94f3-4fdc35bf7cba",
+        "01a00623-1e5d-72c8-a762-b1ba19b7ae57",
+        "01a00623-6dba-761a-86d3-f95e672c563d",
+        "01a00623-8505-76c3-9cd5-f66add120ea9"
+      ],
+      "playAnalysisId": "01a00622-6176-728c-b178-c2b056b6e198",
+      "penaltyAnalysisIds": [
+        "01a00622-a65a-7040-81d4-e14f077d7675"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-65f76d805aaa"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 76,
+    "context": {
+      "gameClockMs": 302039,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "21 Ximena Cuate",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Ximena Cuate",
+        "action": "PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Yaritza Morales",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "FLAG_PULL",
+        "note": "7 yard flag",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#21 Ximena Cuate → #1 Yaritza Morales",
+      "text": "COMPLETE PASS #21 Ximena Cuate → #1 Yaritza Morales",
+      "from": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      },
+      "to": {
+        "name": "Yaritza Morales",
+        "number": "1",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "21 Ximena Cuate"
+      },
+      "receiver": {
+        "name": "1 Yaritza Morales"
+      },
+      "flagPulledBy": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00622-efa9-7707-a434-bce9d2530960",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-6a8c258ee018"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 77,
+    "context": {
+      "gameClockMs": 280654,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Diana Flores",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "3 Silvia Contreras",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "3 Silvia Contreras",
+        "action": "PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "role": "Quarterback"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 Silvia Contreras",
+      "text": "INCOMPLETE PASS #3 Silvia Contreras",
+      "from": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "3 Silvia Contreras"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00623-3615-708f-8b23-0092cd9f10e8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-6eb8db02ad11"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 78,
+    "context": {
+      "gameClockMs": 243157,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "3",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "33 Catherine Gaumont",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      },
+      "flagPulledBy": {
+        "name": "33 Catherine Gaumont"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00623-8879-778e-ad82-9cf49b46b8c0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-73cb2c741c7c"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 79,
+    "context": {
+      "gameClockMs": 221145,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 47,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "3 Silvia Contreras",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#3 Silvia Contreras (6 pts)",
+      "text": "TOUCHDOWN #3 Silvia Contreras (6 pts)",
+      "from": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00623-c3f9-76a7-8a88-6ce24e544048",
+        "01a00623-ed58-70a7-af5d-790cb591601c"
+      ],
+      "playAnalysisId": "01a00623-ce84-759d-af70-233562605a82",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-764b585de9d7"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 80,
+    "context": {
+      "gameClockMs": 184564,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00624-5282-762a-bd5b-18d43dc9182a",
+        "01a00624-53ec-733e-8b25-9dafa90ed98c",
+        "01a00624-571b-726c-8bbb-72308d57248f",
+        "01a00624-578a-77e8-979c-eda01f67d858",
+        "01a00624-dc5b-77a8-ab8a-d08432c583fa",
+        "01a00624-ef45-70a8-b431-c67db57f5ba0",
+        "01a00625-4de0-7298-b4ce-27be234299ba",
+        "01a00625-cd18-750e-adec-dc93e35f77cd",
+        "01a00625-ec8d-702a-b425-8e98829bfd09",
+        "01a00625-fe7f-70df-a9c3-d507594e0413",
+        "01a00626-0125-70dd-a3b2-f9f89d880721",
+        "01a00626-03af-75f8-b110-ef591e7bd944",
+        "01a00626-1b00-75ea-9199-5d49ec2407d9",
+        "01a00626-387b-74fd-9dc9-697929350ac1",
+        "01a00626-4080-760d-84b6-3d2b5eade093",
+        "01a00626-ce55-72eb-8799-4d5e05ce6644",
+        "01a00626-e15a-70af-8593-4e7fdd6fabc7",
+        "01a00627-0ed2-75be-b080-9a63592f927f",
+        "01a00627-26eb-73aa-9531-26d4431755ee",
+        "01a00627-3572-71cb-b652-042b92b9c8ab",
+        "01a00627-b58b-7766-b7e2-9afc19734b48",
+        "01a00627-cdf2-7199-a5e6-9d5c5e1bcea4"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-78d813dd842e"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 81,
+    "context": {
+      "gameClockMs": 149307,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "note": "First down Canada",
+        "role": "Statistician",
+        "team": "Canada"
+      },
+      {
+        "id": 2,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "1 Frédérique Morneau",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "1 Frédérique Morneau",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "2 Victoria Chavez Lopez",
+        "action": "FLAG_PULL",
+        "note": "at the 10 yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #1 Frédérique Morneau",
+      "text": "COMPLETE PASS #11 Sara Parker → #1 Frédérique Morneau",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Frédérique Morneau",
+        "number": "1",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "1 Frédérique Morneau"
+      },
+      "flagPulledBy": {
+        "name": "2 Victoria Chavez Lopez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00624-fb6a-74e1-a07f-0e9642a271fb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-7c28b28433eb"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 82,
+    "context": {
+      "gameClockMs": 120507,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "1 Frédérique Morneau",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "1 Frédérique Morneau",
+        "action": "PASS",
+        "intendedReceiver": "18 Alexane Fournier",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Alexane Fournier",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "note": "at the 16 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#1 Frédérique Morneau → #18 Alexane Fournier",
+      "text": "COMPLETE PASS #1 Frédérique Morneau → #18 Alexane Fournier",
+      "from": {
+        "name": "Frédérique Morneau",
+        "number": "1",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p7/thumb.png"
+      },
+      "to": {
+        "name": "Alexane Fournier",
+        "number": "18",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "1 Frédérique Morneau"
+      },
+      "receiver": {
+        "name": "18 Alexane Fournier"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00626-145f-77ec-992c-8e7580463629",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-80a24ed9b08f"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 83,
+    "context": {
+      "gameClockMs": 115826,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "TIMEOUT_CALL",
+        "team": "Mexico"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00626-2ea7-7271-801c-6cbc4bb39004",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-84222462bdde"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 84,
+    "context": {
+      "gameClockMs": 115826,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "1 Frédérique Morneau",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "2 Victoria Chavez Lopez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "1 Frédérique Morneau"
+      },
+      "flagPulledBy": {
+        "name": "2 Victoria Chavez Lopez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00627-029f-769a-980e-a66ef045eb15",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-8a5c35338250"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 85,
+    "context": {
+      "gameClockMs": 111282,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "TIMEOUT_CALL",
+        "role": "Statistician",
+        "team": "Mexico"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00627-1f78-71e9-af4f-e82f5b13c114",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.476Z",
+    "updatedAt": "2026-08-15T16:05:03.476Z",
+    "id": "01a0062b-67db-71c5-9953-8f4ef6796eea"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 86,
+    "context": {
+      "gameClockMs": 105466,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 19,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Sara Parker",
+        "action": "PASS",
+        "intendedReceiver": "81 Laura Molimard",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "81 Laura Molimard",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Statistician",
+        "action": "MIDDLE_LINE",
+        "role": "Statistician",
+        "team": "Canada"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#11 Sara Parker → #81 Laura Molimard",
+      "text": "COMPLETE PASS #11 Sara Parker → #81 Laura Molimard",
+      "from": {
+        "name": "Sara Parker",
+        "number": "11",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p1/thumb.png"
+      },
+      "to": {
+        "name": "Laura Molimard",
+        "number": "81",
+        "teamId": "w-can",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-can-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "receiver": {
+        "name": "81 Laura Molimard"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00627-d64e-74fb-9c14-21db1da43fc4",
+        "01a00627-e672-730c-b18e-b4521e24567c",
+        "01a00627-e71b-7156-95b9-0dac8dffe813",
+        "01a00628-5cb7-72a5-9410-1928591982e8",
+        "01a00628-8b6b-7065-abfd-a91154cdccf1",
+        "01a00629-0e03-7128-bc5f-e3e076d32f3b",
+        "01a00629-21c8-73ed-b30e-2cba9f7ea939",
+        "01a00629-9778-75fe-96b5-b98cc1786471",
+        "01a00629-ca0f-74d0-a06a-5929c416b98b",
+        "01a00629-fc0f-7320-8c4d-f8c058ed57d1",
+        "01a0062a-025a-77cb-9df2-d3686ea33dfd",
+        "01a0062a-128f-701c-b675-d4d1324d6cf7",
+        "01a0062b-65dd-7708-9994-857297418a78"
+      ],
+      "playAnalysisId": "01a00628-10f9-728f-bb72-e3afe2894cdb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.477Z",
+    "updatedAt": "2026-08-15T16:05:03.477Z",
+    "id": "01a0062b-67db-71c5-9953-92de183b5eec"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 87,
+    "context": {
+      "gameClockMs": 105466,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "23 Haniel Reza Martinez",
+        "action": "FLAG_PULL",
+        "note": "at the 24 yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "flagPulledBy": {
+        "name": "23 Haniel Reza Martinez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00628-a591-7328-87a9-38197e724e92",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.477Z",
+    "updatedAt": "2026-08-15T16:05:03.477Z",
+    "id": "01a0062b-67db-71c5-9953-946e5003e0fe"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 88,
+    "context": {
+      "gameClockMs": 93466,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "note": "Second down Canada",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "1 Frédérique Morneau",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "note": "At the 24 yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00629-3335-72a8-9fec-877ece32e58c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.477Z",
+    "updatedAt": "2026-08-15T16:05:03.477Z",
+    "id": "01a0062b-67db-71c5-9953-9998f6728f26"
+  },
+  {
+    "gameId": "01a0047c-8d74-7770-a865-807190cf52ac",
+    "playNumber": 89,
+    "context": {
+      "gameClockMs": 54992,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 27,
+      "possessionTeamId": "w-can",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "18 Alexane Fournier",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "11 Sara Parker",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Caroline Moquin-Joubert",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "29",
+        "action": "FLAG_PULL",
+        "note": "Mexico defense",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "11 Sara Parker"
+      },
+      "flagPulledBy": {
+        "number": "29"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00629-bd6d-754a-9ccf-6927a6a42be6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T16:05:03.477Z",
+    "updatedAt": "2026-08-15T16:05:03.477Z",
+    "id": "01a0062b-67dc-742d-b47e-b2591b372132"
+  }
+]

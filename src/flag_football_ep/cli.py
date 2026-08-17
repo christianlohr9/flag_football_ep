@@ -82,7 +82,7 @@ def fetch_sportapp(
             f"environment variable {cfg.sources.sportapp.api_key_env} is not set"
         )
 
-    out_dir = cfg.paths.raw / "sportapp"
+    out_dir = cfg.paths.raw_sportapp
 
     from flag_football_ep.fetch.sportapp import fetch_games
 
@@ -114,7 +114,7 @@ def fetch_ifaf(
     api_key_env = getattr(cfg.sources.ifaf, "api_key_env", None)
     api_key = os.environ.get(api_key_env) if api_key_env else None
 
-    out_dir = cfg.paths.raw / "ifaf"
+    out_dir = cfg.paths.raw_ifaf
 
     from flag_football_ep.fetch.ifaf import fetch_tournament
 

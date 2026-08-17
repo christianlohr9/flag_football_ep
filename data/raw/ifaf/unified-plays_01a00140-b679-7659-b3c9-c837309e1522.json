@@ -1,0 +1,7582 @@
+[
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "TURNOVER",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00514-e717-74d8-b4ce-3cb4721d7b94"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.915Z",
+    "updatedAt": "2026-08-15T12:04:17.915Z",
+    "id": "01a0054e-fc45-70c1-a0b0-45f2415e1aad"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 2,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00514-f517-75fd-8a46-6725565774f3",
+        "01a00515-cd70-750a-977c-fb6747475c8a",
+        "01a00516-074e-73f7-9aa3-f46123801d6c",
+        "01a00516-07e5-7037-8f76-cf313ed8a9be",
+        "01a00516-095f-762c-ac17-26ae1bcdba55",
+        "01a00516-8980-7333-9331-b67c4f4211d5",
+        "01a00516-aea1-76dd-88be-0901bec3801b",
+        "01a00517-11da-729a-8932-6a2a7c18a1ca"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.916Z",
+    "updatedAt": "2026-08-15T12:04:17.916Z",
+    "id": "01a0054e-fc46-71b9-8886-10ae4b66293a"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Australia"
+      },
+      {
+        "id": 2,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "10 Mengxin Xiao",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #4 Elizabeth Lomu-Stewart",
+      "text": "COMPLETE PASS #2 Tessa Davis → #4 Elizabeth Lomu-Stewart",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Elizabeth Lomu-Stewart",
+        "number": "4",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "4 Elizabeth Lomu-Stewart"
+      },
+      "flagPulledBy": {
+        "name": "10 Mengxin Xiao"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00516-04df-732e-8942-d513c9eaab77",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.916Z",
+    "updatedAt": "2026-08-15T12:04:17.916Z",
+    "id": "01a0054e-fc46-71b9-8886-158c3ba365c9"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1151520,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2",
+        "action": "PASS",
+        "intendedReceiver": "15",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "17",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #15 Kyana Belo",
+      "text": "COMPLETE PASS #2 Tessa Davis → #15 Kyana Belo",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p2/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "2"
+      },
+      "receiver": {
+        "number": "15"
+      },
+      "flagPulledBy": {
+        "number": "17"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00516-acf2-700d-9294-2545f1420527",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.916Z",
+    "updatedAt": "2026-08-15T12:04:17.916Z",
+    "id": "01a0054e-fc46-71b9-8886-18c6ae2f2a5e"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 5,
+    "context": {
+      "gameClockMs": 1116554,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00517-4cfc-73ad-b22b-c96290bbca52",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.917Z",
+    "updatedAt": "2026-08-15T12:04:17.917Z",
+    "id": "01a0054e-fc46-71b9-8886-1f904b4faa52"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 1068883,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "8 Wenze Lin",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      },
+      {
+        "id": 4,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "FLAG_PULL",
+        "note": "on the eight yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": " → #8 Wenze Lin",
+      "text": "INTERCEPTION  → #8 Wenze Lin",
+      "to": {
+        "name": "Wenze Lin",
+        "number": "8",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p2/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "interceptedBy": {
+        "name": "8 Wenze Lin"
+      },
+      "flagPulledBy": {
+        "name": "4 Elizabeth Lomu-Stewart"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00517-cc41-704a-8e20-f29ae789d737"
+      ],
+      "playAnalysisId": "01a00517-e969-7055-84ed-80d06f016ff4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.963Z",
+    "updatedAt": "2026-08-15T12:04:17.963Z",
+    "id": "01a0054e-fc46-71b9-8886-21936d7f4df0"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 1067475,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "3 Zixuan Gao",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "8 Wenze Lin",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "9 Yanran Wu",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 5,
+        "player": "7 Zoe Cass",
+        "action": "FLAG_PULL",
+        "note": "on the 3 yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "3 Zixuan Gao"
+      },
+      "flagPulledBy": {
+        "name": "7 Zoe Cass"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00517-d161-7658-8214-05d747299010",
+        "01a00517-f91f-731f-9e00-8f2284adf9e7",
+        "01a00517-f9ac-754a-ac52-7e66517b5245",
+        "01a00517-fc71-7106-81ff-5cf42e44096c",
+        "01a00518-5065-76e6-9d6e-f604e386d954",
+        "01a00518-7969-740c-8d34-11c22d8dd243",
+        "01a00518-7e11-7339-8344-1a2fd90a3eb9",
+        "01a00518-8248-73a3-b739-b2add89964a8",
+        "01a00518-ed52-763f-bb64-66e32a5d6fdf"
+      ],
+      "playAnalysisId": "01a00518-6dba-702d-9f62-63656e722e06",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.964Z",
+    "updatedAt": "2026-08-15T12:04:17.964Z",
+    "id": "01a0054e-fc46-71b9-8886-2400dcd5a072"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 8,
+    "context": {
+      "gameClockMs": 1022193,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "16 Xin Wang",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "16 Xin Wang",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "16 Xin Wang",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#16 Xin Wang (6 pts)",
+      "text": "TOUCHDOWN #16 Xin Wang (6 pts)",
+      "from": {
+        "name": "Xin Wang",
+        "number": "16",
+        "teamId": "w-chn"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "16 Xin Wang"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00518-e652-7575-878a-18a6313b4d40",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.964Z",
+    "updatedAt": "2026-08-15T12:04:17.964Z",
+    "id": "01a0054e-fc46-71b9-8886-2b4a52ad278e"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 9,
+    "context": {
+      "gameClockMs": 971371,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Yanran Wu",
+        "action": "COMPLETE",
+        "note": "Extra point",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "XP1",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #9 Yanran Wu",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #9 Yanran Wu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Yanran Wu",
+        "number": "9",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "9 Yanran Wu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00519-4940-77ee-9e5b-963892e5e234",
+        "01a00519-49ce-76d8-b298-77784b792427"
+      ],
+      "playAnalysisId": "01a00519-5898-72b8-a4e5-eedb79d1ae28",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc46-71b9-8886-2cdb86bdd3e6"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 10,
+    "context": {
+      "gameClockMs": 968579,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "note": "no intended receiver",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00519-53ab-71d9-ae86-b60a697b6bbc",
+        "01a00519-6306-7119-a034-e0e6112b210c",
+        "01a00519-6386-728c-ade4-d43a0bdd1773",
+        "01a00519-9d9d-7111-910a-192922a2cc5f",
+        "01a0051a-182b-7089-9113-d7bb48f62d0e",
+        "01a0051a-b13c-75cd-ba73-e4c1f6bb04ad",
+        "01a0051a-c2bf-73ed-b9d4-932c1616df24"
+      ],
+      "playAnalysisId": "01a00519-c41c-77a9-a828-77b94d3f348a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc46-71b9-8886-332e931beac6"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 11,
+    "context": {
+      "gameClockMs": 949704,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "note": "pass through the middle",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0051a-3620-74ab-b8d3-d0a3de2c3f3c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc46-71b9-8886-36e02861502c"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 12,
+    "context": {
+      "gameClockMs": 918323,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "8 Wenze Lin",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #4 Elizabeth Lomu-Stewart",
+      "text": "COMPLETE PASS #2 Tessa Davis → #4 Elizabeth Lomu-Stewart",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Elizabeth Lomu-Stewart",
+        "number": "4",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "4 Elizabeth Lomu-Stewart"
+      },
+      "flagPulledBy": {
+        "name": "8 Wenze Lin"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0051a-b22d-727e-9755-332da7b40747",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc46-71b9-8886-397da38445d1"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 849435,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "10 Mengxin Xiao",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #4 Elizabeth Lomu-Stewart",
+      "text": "COMPLETE PASS #2 Tessa Davis → #4 Elizabeth Lomu-Stewart",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Elizabeth Lomu-Stewart",
+        "number": "4",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "4 Elizabeth Lomu-Stewart"
+      },
+      "flagPulledBy": {
+        "name": "10 Mengxin Xiao"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0051b-2549-718d-82d4-96fe948857e8"
+      ],
+      "playAnalysisId": "01a0051b-43a4-7637-9556-2eacf53365c0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc46-71b9-8886-3e4c79a6a694"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 848012,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "China"
+      },
+      {
+        "id": 2,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0051b-2a9f-7404-b703-51dec476d697",
+        "01a0051b-3995-77ae-89f5-6a5939ce6d39",
+        "01a0051b-a456-728a-bb71-0864b38c3bff",
+        "01a0051c-24fe-77d6-96c4-63c654076b3b",
+        "01a0051c-5509-7059-8a61-6339b763c571",
+        "01a0051c-b8eb-7001-a56c-8db68df1eaaf",
+        "01a0051c-da82-754b-b87a-ef82d8e7be3f"
+      ],
+      "playAnalysisId": "01a0051b-bd2a-72c6-a595-2ef6ee1b5690",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc46-71b9-8886-43623782acb9"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 15,
+    "context": {
+      "gameClockMs": 816911,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "16 Xin Wang",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "16 Xin Wang",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #16 Xin Wang",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #16 Xin Wang",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Xin Wang",
+        "number": "16",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "16 Xin Wang"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0051c-4397-703e-8dc7-915ee26feef4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc47-70df-9fed-28992e50e35d"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 16,
+    "context": {
+      "gameClockMs": 771676,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "3 Zixuan Gao",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "8 Wenze Lin",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "LATERAL"
+      },
+      {
+        "id": 5,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "passDirection": "RIGHT",
+        "role": "Quarterback",
+        "team": "China"
+      },
+      {
+        "id": 6,
+        "player": "3 Zixuan Gao",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 7,
+        "player": "7 Zoe Cass",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #3 Zixuan Gao",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #3 Zixuan Gao",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Zixuan Gao",
+        "number": "3",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "3 Zixuan Gao"
+      },
+      "receiver": {
+        "name": "3 Zixuan Gao"
+      },
+      "flagPulledBy": {
+        "name": "7 Zoe Cass"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0051c-d349-74ca-ad17-0cbc86eab052",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc47-70df-9fed-2f43d3e70aec"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 715141,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 21,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Red",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Red",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Red",
+        "action": "PASS",
+        "intendedReceiver": "8 Red",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Red",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "8 Red",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Olivia White",
+      "text": "INCOMPLETE PASS #5 Olivia White",
+      "from": {
+        "name": "Olivia White",
+        "number": "5",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Red"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0051d-31df-720d-9989-e7b1c8512116"
+      ],
+      "playAnalysisId": "01a0051d-4785-761d-83e5-a6a448d6ce8e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc47-70df-9fed-31163a441cfe"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 18,
+    "context": {
+      "gameClockMs": 714362,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 21,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0051d-34ba-7619-8837-33f3881e270c",
+        "01a0051d-3bde-702b-8879-05b08c219741",
+        "01a0051d-91b1-73fa-8664-2588bc17c8d4",
+        "01a0051e-1d15-745b-8d0d-1577c1cd46e0",
+        "01a0051e-4b84-766c-9f40-ffe04b63c2ad",
+        "01a0051e-835f-752a-86a6-601bcce54f48",
+        "01a0051f-08ac-742e-9a8f-28b5aabc9196"
+      ],
+      "playAnalysisId": "01a0051d-ad8a-71f4-b59e-91bcd3dd8d0f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc47-70df-9fed-370d5da711eb"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 19,
+    "context": {
+      "gameClockMs": 654931,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Ella Calleja",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Zhijia Zeng",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #13 Ella Calleja",
+      "text": "COMPLETE PASS #2 Tessa Davis → #13 Ella Calleja",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Ella Calleja",
+        "number": "13",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p4/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "13 Ella Calleja"
+      },
+      "flagPulledBy": {
+        "name": "23 Zhijia Zeng"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0051e-436f-755d-89e8-de6689d99048",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc47-70df-9fed-3a372fd36ba8"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 643051,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0051e-b354-756a-9bd8-2130c95041da",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc47-70df-9fed-3e0bd8650306"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 21,
+    "context": {
+      "gameClockMs": 568233,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 19,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Ella Calleja",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "17 Xiaoxia Zhao",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #13 Ella Calleja",
+      "text": "COMPLETE PASS #2 Tessa Davis → #13 Ella Calleja",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Ella Calleja",
+        "number": "13",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p4/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "13 Ella Calleja"
+      },
+      "flagPulledBy": {
+        "name": "17 Xiaoxia Zhao"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0051f-6fc1-7601-ba9f-31487f9e1c52"
+      ],
+      "playAnalysisId": "01a0051f-1d78-75a1-b882-14edc853bede",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.965Z",
+    "updatedAt": "2026-08-15T12:04:17.965Z",
+    "id": "01a0054e-fc48-765b-b634-a200eb1d6575"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 22,
+    "context": {
+      "gameClockMs": 566821,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 19,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "team": "China"
+      },
+      {
+        "id": 2,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "3 Zixuan Gao",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "7 Zoe Cass",
+        "action": "FLAG_PULL",
+        "note": "on the 14-yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #3 Zixuan Gao",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #3 Zixuan Gao",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Zixuan Gao",
+        "number": "3",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "3 Zixuan Gao"
+      },
+      "flagPulledBy": {
+        "name": "7 Zoe Cass"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0051f-750e-75a0-95cd-9c3506be7f8c",
+        "01a0051f-8017-7308-810d-2ceeb9deae12",
+        "01a0051f-83cf-74fa-b2a6-2d40fdeaadc6",
+        "01a0051f-fda6-7651-a5f2-8fb466ea5509",
+        "01a00520-227e-723c-b005-c5e4ef65a033",
+        "01a00520-634d-7228-b482-88a78641f058",
+        "01a00520-b259-76eb-8aba-a39bb11fd8e3"
+      ],
+      "playAnalysisId": "01a00520-1ebf-7169-88aa-6e0978345007",
+      "penaltyAnalysisIds": [
+        "01a0051f-9ae7-7478-a710-041c03d4c50d"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.966Z",
+    "updatedAt": "2026-08-15T12:04:17.966Z",
+    "id": "01a0054e-fc48-765b-b634-a5c5e2e284c8"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 23,
+    "context": {
+      "gameClockMs": 505873,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Yanran Wu",
+        "action": "COMPLETE",
+        "note": "in the middle",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #9 Yanran Wu",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #9 Yanran Wu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Yanran Wu",
+        "number": "9",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "9 Yanran Wu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00520-82be-740c-a7ea-fbde9921d2b6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc48-765b-b634-ab1bc170b9f9"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 24,
+    "context": {
+      "gameClockMs": 484389,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 14,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "4 Siying Zeng",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00520-b702-77fd-b808-cd74916b4a31",
+        "01a00520-e3b4-71a8-ae6c-601a1f9eff3b",
+        "01a00520-e437-7189-b931-db3b9a4ce8f4",
+        "01a00521-5e3a-7258-9d0b-02b61cf0a100",
+        "01a00521-9882-735a-81be-e6b6d0aece5e",
+        "01a00522-0ece-700f-92c4-9066f3b5ab9d",
+        "01a00522-3b5a-75c9-b608-d62d644a01b4",
+        "01a00522-cbd9-7377-962f-f646b889f504"
+      ],
+      "playAnalysisId": "01a00521-2362-768b-9473-041fa6bec3f5",
+      "penaltyAnalysisIds": [
+        "01a00520-db1c-7528-b2a6-9ccfd5cc33b5"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc48-765b-b634-acf1d9de7f45"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 25,
+    "context": {
+      "gameClockMs": 426717,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "note": "incomplete",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00521-b96d-772d-b1de-272ccd33fe9d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc48-765b-b634-b1a66f9e4fc2"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 26,
+    "context": {
+      "gameClockMs": 396496,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Zixuan Gao",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #3 Zixuan Gao",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #3 Zixuan Gao",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Zixuan Gao",
+        "number": "3",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "3 Zixuan Gao"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00522-392b-7339-96f7-2b4e771b20f7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc48-765b-b634-b47999249f6f"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 27,
+    "context": {
+      "gameClockMs": 385056,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "4 Siying Zeng",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Siying Zeng",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "4 Siying Zeng",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#4 Siying Zeng (6 pts)",
+      "text": "TOUCHDOWN #4 Siying Zeng (6 pts)",
+      "from": {
+        "name": "Siying Zeng",
+        "number": "4",
+        "teamId": "w-chn"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "4 Siying Zeng"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00522-c031-7348-8774-66b63dc7cfbc",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc48-765b-b634-b98baee4ae3d"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 28,
+    "context": {
+      "gameClockMs": 322441,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "8 Wenze Lin",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "8 Wenze Lin",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "8 Wenze Lin",
+        "action": "TOUCHDOWN"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#8 Wenze Lin (1 pt)",
+      "text": "TRY #8 Wenze Lin (1 pt)",
+      "from": {
+        "name": "Wenze Lin",
+        "number": "8",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p2/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "8 Wenze Lin"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00523-2fda-77e1-8033-b722e058f1a6",
+        "01a00523-304f-74aa-858e-f1d02238ad00"
+      ],
+      "playAnalysisId": "01a00523-57bf-7508-bb2f-21c8728b7377",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc48-765b-b634-bef14ade7d6f"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 29,
+    "context": {
+      "gameClockMs": 319796,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #33 Abbie Leyshon",
+      "text": "COMPLETE PASS #2 Tessa Davis → #33 Abbie Leyshon",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00523-39f8-70a4-b415-dd80c06c6f48",
+        "01a00523-4a9d-746f-972a-68a823aa4dfd",
+        "01a00523-4b1a-74da-af9d-d8477e6b7737",
+        "01a00523-9ce3-703e-a5e3-029f3e3f7d50",
+        "01a00523-c633-746f-a7ae-00b79131ae2e",
+        "01a00524-1479-70af-8da4-61c2287a5bde",
+        "01a00524-1fc7-740c-a7ea-5149a48e44cc"
+      ],
+      "playAnalysisId": "01a00523-c32c-71ce-8de9-53dd3e146bbe",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc48-765b-b634-c29f7aafc795"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 30,
+    "context": {
+      "gameClockMs": 235647,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 11,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "8 Wenze Lin",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #33 Abbie Leyshon",
+      "text": "COMPLETE PASS #2 Tessa Davis → #33 Abbie Leyshon",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      },
+      "flagPulledBy": {
+        "name": "8 Wenze Lin"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00524-82e8-71f5-9a87-ac0e9fbe0ed7",
+        "01a00524-85b2-77ef-8433-69f2c100823c",
+        "01a00524-b482-767a-8af1-a3c29426ceea",
+        "01a00524-d9b8-7286-a8ba-bace0acbce41",
+        "01a00524-ea9d-777d-afa9-8c6e56331593",
+        "01a00525-0df6-71ee-968a-aae7a096cd1a",
+        "01a00525-5835-717d-8061-eccf8950f3b4",
+        "01a00525-dfb1-762a-98dc-a094ad4e3137",
+        "01a00526-4e9b-7196-a58b-595ae2c84ef0",
+        "01a00526-5ace-74fb-9b8c-e124c7fc1009",
+        "01a00526-5d45-747f-99b5-ca4006c85592",
+        "01a00526-9c9d-7309-8588-06e4accf2b5c",
+        "01a00526-b26f-7708-8228-77d33d31ca90"
+      ],
+      "playAnalysisId": "01a00524-370e-70dc-83b7-7a4f5dc01cc4",
+      "penaltyAnalysisIds": [
+        "01a00524-93d4-762e-ae06-2b614bf54948"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc48-765b-b634-c429ea89dd2d"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 31,
+    "context": {
+      "gameClockMs": 209041,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "note": "First down",
+        "role": "Statistician",
+        "team": "Australia"
+      },
+      {
+        "id": 2,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "22 Jingyi Wu",
+        "action": "SACK",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "SACK",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "SACK",
+      "label": "SACK",
+      "detail": "by #22 Jingyi Wu",
+      "text": "SACK by #22 Jingyi Wu",
+      "from": {
+        "name": "Jingyi Wu",
+        "number": "22",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00525-126f-77ac-952c-b25817fd9fdc",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc48-765b-b634-c9095c8698cb"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 32,
+    "context": {
+      "gameClockMs": 200054,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "GAME_SETUP",
+        "note": "Second down Australia on the 22 yard line",
+        "role": "Statistician",
+        "team": "Australia"
+      },
+      {
+        "id": 2,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback",
+        "team": "Australia"
+      },
+      {
+        "id": 5,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "role": "Quarterback",
+        "team": "Australia"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00525-7a78-725b-bab8-2e354c08106f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc49-700b-945d-915dbdbb8dc4"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 33,
+    "context": {
+      "gameClockMs": 115326,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "22 Jingyi Wu",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "flagPulledBy": {
+        "name": "22 Jingyi Wu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00526-bcf3-7410-998c-d6ff49c6b6bf"
+      ],
+      "playAnalysisId": "01a00526-de80-730e-a358-372b0f7e1bfe",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc49-700b-945d-95968547f149"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 34,
+    "context": {
+      "gameClockMs": 115326,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "16 Xin Wang",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "16 Xin Wang",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "7 Zoe Cass",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #16 Xin Wang",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #16 Xin Wang",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Xin Wang",
+        "number": "16",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "16 Xin Wang"
+      },
+      "flagPulledBy": {
+        "name": "7 Zoe Cass"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00526-bf6b-7129-b325-862921360172",
+        "01a00526-ca4e-778e-b43a-bda660706199",
+        "01a00526-dd69-7447-ac77-35209ab6f9ff",
+        "01a00526-df9d-71a9-9eb5-ad6585693ed5",
+        "01a00527-2686-73cf-9159-c81557f21b55",
+        "01a00527-547a-75ec-ae36-875722c65c9a",
+        "01a00527-5f27-756b-a976-c5214b406d91",
+        "01a00527-b7c8-7678-89dc-1960a6a93fdb",
+        "01a00527-c577-7219-bb2e-c85271bc90d4",
+        "01a00528-23d7-76d0-ae38-95eca968a036",
+        "01a00528-25c6-7529-891c-2b733902de9c",
+        "01a00528-2fe2-7757-8cc6-703591484db0",
+        "01a00528-5a89-7380-9d51-7ba9c09bb1f5",
+        "01a00528-7769-736a-a2b5-fc1b6df432bb",
+        "01a00528-d990-755e-9378-be3609c10aad",
+        "01a00528-eba8-714f-8bd2-8d32e3cd327b",
+        "01a00529-0d00-74fe-b6e3-40a549c5b5ba",
+        "01a00529-0d85-73c9-b53e-d532e26dae81",
+        "01a00529-0e53-70e0-8e68-f751f7536c70",
+        "01a00529-101a-710a-9580-c3811ebeba7f",
+        "01a00529-111f-7282-aea1-6ccb79d9f99d",
+        "01a00529-12ef-73bd-9197-ea38b5701ae5",
+        "01a00529-1451-75b9-b7c4-4781d7d3e5f4",
+        "01a00529-1674-74cd-9478-72b8220a8e33",
+        "01a00529-1867-70be-904a-0543acb058bf",
+        "01a00529-1adc-7049-ae39-8d007983d6d9",
+        "01a00529-ee15-763f-a2dd-7b8bc33227e9",
+        "01a0052a-0525-71d8-8fd0-5969f38fd91a"
+      ],
+      "playAnalysisId": "01a00527-5800-7619-93cd-126f5dc609e7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc49-700b-945d-99b4909bcb38"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 35,
+    "context": {
+      "gameClockMs": 76355,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "note": "incomplete pass"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00527-d7e5-742b-a392-86d786c9c7e5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc49-700b-945d-9c392e1000fd"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 36,
+    "context": {
+      "gameClockMs": 76355,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "note": "Third down China. On the 14 yard line.",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Yanran Wu",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "16 Emma Vandervelde",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #9 Yanran Wu",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #9 Yanran Wu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Yanran Wu",
+        "number": "9",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "9 Yanran Wu"
+      },
+      "flagPulledBy": {
+        "name": "16 Emma Vandervelde"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00528-618a-740c-8697-0c31788c8020",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc49-700b-945d-a220407d48cd"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 37,
+    "context": {
+      "gameClockMs": 45132,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Yanran Wu",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #9 Yanran Wu",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #9 Yanran Wu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Yanran Wu",
+        "number": "9",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "9 Yanran Wu"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0052a-0f1c-714c-89f2-10a6355cf0b3",
+        "01a0052a-3117-75e4-b307-7f4e3d621f91",
+        "01a0052a-31ad-7389-8bc1-5fed5112dab2",
+        "01a0052a-3388-711a-b09d-fda8e93f5c46",
+        "01a0052a-3426-777a-9854-ceea5b1f2cc1",
+        "01a0052a-6773-75ed-9f62-de22df6ff806",
+        "01a0052a-9c9a-7379-bd24-4a8a246c3c55",
+        "01a0052a-abef-712b-b703-3b73dd242f98",
+        "01a0052b-1337-7344-a758-295cf6b5ba1a",
+        "01a0052b-1f01-75ea-9143-db9d40f9bee7",
+        "01a0052b-6206-71cb-bdc9-e4300f69c0a3"
+      ],
+      "playAnalysisId": "01a0052a-2ea4-7249-b5cc-677ccbbb1682",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.967Z",
+    "updatedAt": "2026-08-15T12:04:17.967Z",
+    "id": "01a0054e-fc49-700b-945d-a4d687fba3be"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 38,
+    "context": {
+      "gameClockMs": 45132,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "8 Wenze Lin",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "3 Zixuan Gao",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "LATERAL"
+      },
+      {
+        "id": 5,
+        "player": "5 Xinyu Niu",
+        "action": "RUSH"
+      },
+      {
+        "id": 6,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#5 Xinyu Niu",
+      "text": "RUN #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "8 Wenze Lin"
+      },
+      "ballCarrier": {
+        "name": "5 Xinyu Niu"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0052a-b6e2-707c-86e4-3a5576ad1273",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc49-700b-945d-a90bb2d78ed2"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 39,
+    "context": {
+      "gameClockMs": 1373,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Yanran Wu",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Yanran Wu",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#9 Yanran Wu (6 pts)",
+      "text": "TOUCHDOWN #9 Yanran Wu (6 pts)",
+      "from": {
+        "name": "Yanran Wu",
+        "number": "9",
+        "teamId": "w-chn"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "9 Yanran Wu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0052b-4238-7238-800e-6b4efbe5ba42",
+      "penaltyAnalysisIds": [
+        "01a0052b-cb1c-7549-9231-2b3b47839b8c"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc49-700b-945d-acb4b4b1925a"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 40,
+    "context": {
+      "gameClockMs": 0,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 44,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "16 Xin Wang",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "16 Xin Wang",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "16 Xin Wang",
+        "action": "TOUCHDOWN",
+        "team": "China"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#16 Xin Wang (6 pts)",
+      "text": "TOUCHDOWN #16 Xin Wang (6 pts)",
+      "from": {
+        "name": "Xin Wang",
+        "number": "16",
+        "teamId": "w-chn"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "16 Xin Wang"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0052c-6037-75a2-9676-ae9216a08ecb",
+        "01a0052c-7479-73ae-9e9c-977de9640689",
+        "01a0052e-3020-712e-8369-801b8c7999ab",
+        "01a0052e-309d-7043-9ded-083ee760c0f4",
+        "01a0052e-3f11-7369-ac40-8bcd0e3d9d1b"
+      ],
+      "playAnalysisId": "01a0052c-6ea8-7328-8933-a9ef4aa94504",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc49-700b-945d-b3d88553f69f"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 41,
+    "context": {
+      "gameClockMs": 0,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "8 Wenze Lin",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "8 Wenze Lin",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0052c-f80a-7685-ae92-f830e988a186",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc49-700b-945d-b4958292d9a0"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 42,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "team": "China"
+      },
+      {
+        "id": 2,
+        "player": "Statistician",
+        "action": "MIDDLE_LINE",
+        "team": "China"
+      },
+      {
+        "id": 3,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "16 Xin Wang",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "16 Xin Wang",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 7,
+        "player": "7 Zoe Cass",
+        "action": "FLAG_PULL",
+        "note": "on the 11 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #16 Xin Wang",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #16 Xin Wang",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Xin Wang",
+        "number": "16",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "16 Xin Wang"
+      },
+      "flagPulledBy": {
+        "name": "7 Zoe Cass"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0052f-97cc-710a-ad6a-45b0f432ee57",
+        "01a0052f-983d-706a-82a1-70b8032e2649",
+        "01a0052f-c0c7-7713-bb82-7d4a5065c242",
+        "01a0052f-c159-73b1-866f-7f4496d5b556",
+        "01a00530-0191-74d9-97a0-2152ca6431e2",
+        "01a00530-19d9-7784-a102-c9b52274186c",
+        "01a00530-30bb-7768-b743-dead502c5f38",
+        "01a00530-33a7-7519-804e-b596e36d436f"
+      ],
+      "playAnalysisId": "01a00530-3cce-703c-8ea5-e9cda7a9eca5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc49-700b-945d-baf26db90d3e"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 43,
+    "context": {
+      "gameClockMs": 1157393,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 11,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Yanran Wu",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Yanran Wu",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#9 Yanran Wu (6 pts)",
+      "text": "TOUCHDOWN #9 Yanran Wu (6 pts)",
+      "from": {
+        "name": "Yanran Wu",
+        "number": "9",
+        "teamId": "w-chn"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "9 Yanran Wu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00530-a7f8-756a-bb81-5d82f7d2c42d",
+        "01a00530-ba02-724e-b5fb-c7524cb510d1"
+      ],
+      "playAnalysisId": "01a00530-a3d4-75a3-b17e-3ba2578a310b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc49-700b-945d-bfb0e951c014"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 44,
+    "context": {
+      "gameClockMs": 1120359,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "17 Xiaoxia Zhao",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #15 Kyana Belo",
+      "text": "COMPLETE PASS #2 Tessa Davis → #15 Kyana Belo",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p2/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "15 Kyana Gordon Belo"
+      },
+      "flagPulledBy": {
+        "name": "17 Xiaoxia Zhao"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00531-3872-74a5-b997-8fc16d0ac247",
+        "01a00531-38ea-7399-8a37-5d6c178bd887",
+        "01a00531-40f4-747c-ae53-df7a3839f224",
+        "01a00531-ab96-746b-ad13-2676cee5704c",
+        "01a00532-0466-761b-8303-3c2e53dbddd8",
+        "01a00532-2d22-761e-b647-dc867db36a43",
+        "01a00532-5e2e-7022-8bea-097842c5cd72"
+      ],
+      "playAnalysisId": "01a00531-bd2f-7190-a7d4-0abde7f48868",
+      "penaltyAnalysisIds": [
+        "01a00532-14dd-77d4-adc7-ef799299267d"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc49-700b-945d-c2b342e356e5"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 45,
+    "context": {
+      "gameClockMs": 1057785,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00532-706b-70d6-967c-835ec2cd845f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba54-dc741e81020b"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 46,
+    "context": {
+      "gameClockMs": 1006867,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 21,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Ella Calleja",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "17 Xiaoxia Zhao",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #13 Ella Calleja",
+      "text": "COMPLETE PASS #2 Tessa Davis → #13 Ella Calleja",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Ella Calleja",
+        "number": "13",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p4/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "13 Ella Calleja"
+      },
+      "flagPulledBy": {
+        "name": "17 Xiaoxia Zhao"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00532-f404-705d-9dd7-e555f6d683b7",
+        "01a00533-0f66-70b5-8465-2969b07ecfe9",
+        "01a00533-0ff8-7529-a0b9-ee7dcc53c066",
+        "01a00533-6104-7355-9083-d814e0a1883f",
+        "01a00533-7f29-7118-8a8f-19f8c0b93807",
+        "01a00533-eb3d-734c-87c8-c44b6d050964"
+      ],
+      "playAnalysisId": "01a00533-0698-745c-936b-21e8ef02d390",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba54-e170905df1d8"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 47,
+    "context": {
+      "gameClockMs": 999649,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Ella Calleja",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "8 Wenze Lin",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #13 Ella Calleja",
+      "text": "COMPLETE PASS #2 Tessa Davis → #13 Ella Calleja",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Ella Calleja",
+        "number": "13",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p4/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "13 Ella Calleja"
+      },
+      "flagPulledBy": {
+        "name": "8 Wenze Lin"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00533-7f99-70bd-a341-7665a624219e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba54-e503376efb53"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 48,
+    "context": {
+      "gameClockMs": 943572,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00534-0aef-7046-ba27-202fa041f5f5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba54-ea6f25d8d86f"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 49,
+    "context": {
+      "gameClockMs": 900914,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "15 Kyana Gordon Belo",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#15 Kyana Belo (6 pts)",
+      "text": "TOUCHDOWN #15 Kyana Belo (6 pts)",
+      "from": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p2/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "15 Kyana Gordon Belo"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00534-91e9-723e-ba1b-3922fd882311",
+        "01a00534-9b5d-7493-a075-059cbee099bb"
+      ],
+      "playAnalysisId": "01a00534-8efc-71fe-ba5f-18c04dc1833e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba54-ef697dc1faa5"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 50,
+    "context": {
+      "gameClockMs": 859549,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00535-3343-74eb-a5fc-768f932e5906",
+        "01a00535-3420-75ba-acd4-76661f85b66d",
+        "01a00535-3ea5-705b-9d51-1e6caf868db9",
+        "01a00535-3f1d-764e-9092-a4cc8fd8ab07",
+        "01a00535-c6bc-77b9-965c-1bcec293ec14",
+        "01a00536-b26b-7398-9551-cbd3785627ad",
+        "01a00537-251c-70d2-8c13-c20b70a5703b",
+        "01a00537-4214-701f-9420-cbfd2f129e8c"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba54-f3e4ee409bec"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 51,
+    "context": {
+      "gameClockMs": 856506,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "China"
+      },
+      {
+        "id": 2,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Siying Zeng",
+        "action": "LATERAL"
+      },
+      {
+        "id": 5,
+        "player": "4 Siying Zeng",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "4 Siying Zeng",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "9 Yanran Wu"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#4 Siying Zeng",
+      "text": "INCOMPLETE PASS #4 Siying Zeng",
+      "from": {
+        "name": "Siying Zeng",
+        "number": "4",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00535-dd02-7109-8673-b5647acf6acb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba54-f427854afcf5"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 52,
+    "context": {
+      "gameClockMs": 821839,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "16 Xin Wang",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "16 Xin Wang",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #16 Xin Wang",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #16 Xin Wang",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Xin Wang",
+        "number": "16",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "16 Xin Wang"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00536-994e-71ad-aaf4-0b7235104b08",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba54-fbf6b3ac9633"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 53,
+    "context": {
+      "gameClockMs": 761509,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Yanran Wu",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #9 Yanran Wu",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #9 Yanran Wu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Yanran Wu",
+        "number": "9",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "9 Yanran Wu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00537-2686-702f-9401-bd20ed81383d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba54-fe7e7e9eeaf8"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 54,
+    "context": {
+      "gameClockMs": 701870,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 12,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Siying Zeng",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "4 Siying Zeng",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "8 Wenze Lin",
+        "action": "LATERAL",
+        "note": "received lateral from 4 Siying Zeng"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "LATERAL",
+        "note": "received lateral from 8 Wenze Lin"
+      },
+      {
+        "id": 5,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "4 Siying Zeng",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "4 Siying Zeng",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 7,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #4 Siying Zeng",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #4 Siying Zeng",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Siying Zeng",
+        "number": "4",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "4 Siying Zeng"
+      },
+      "receiver": {
+        "name": "4 Siying Zeng"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00537-9b64-71b9-85d4-a5e8da2c2023",
+        "01a00537-c73f-771f-afa2-c45db091ef11",
+        "01a00537-c7ab-748b-8479-d172c9fb6dff",
+        "01a00538-4c60-704e-a036-8aa927a2183d",
+        "01a00538-c258-75bc-ba47-b3cb9505c850"
+      ],
+      "playAnalysisId": "01a00537-bf9f-71ba-ba9b-29b8ecc89686",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.968Z",
+    "updatedAt": "2026-08-15T12:04:17.968Z",
+    "id": "01a0054e-fc4a-7127-ba55-0012e40cc162"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 55,
+    "context": {
+      "gameClockMs": 690474,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "GAME_SETUP",
+        "note": "First down on the 7 yard line",
+        "role": "Statistician",
+        "team": "China"
+      },
+      {
+        "id": 2,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "8 Wenze Lin",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "8 Wenze Lin",
+        "action": "PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "3 Zixuan Gao",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "note": "on the 1 yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#8 Wenze Lin → #3 Zixuan Gao",
+      "text": "COMPLETE PASS #8 Wenze Lin → #3 Zixuan Gao",
+      "from": {
+        "name": "Wenze Lin",
+        "number": "8",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p2/thumb.png"
+      },
+      "to": {
+        "name": "Zixuan Gao",
+        "number": "3",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "8 Wenze Lin"
+      },
+      "receiver": {
+        "name": "3 Zixuan Gao"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00538-67a4-7320-9ab6-5b48558f2b73",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833e-edb9a3b1b9d0"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 56,
+    "context": {
+      "gameClockMs": 656736,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "role": "Quarterback"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00538-de54-738c-881e-2b9580193434",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833e-f026888f1841"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 57,
+    "context": {
+      "gameClockMs": 573121,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center",
+        "team": "China"
+      },
+      {
+        "id": 2,
+        "player": "Unknown",
+        "action": "QB_SET",
+        "role": "Quarterback",
+        "team": "China"
+      },
+      {
+        "id": 3,
+        "player": "Unknown",
+        "action": "PASS",
+        "intendedReceiver": "5 Xinyu Niu",
+        "note": "Quarterback not specified in audio, inferred based on subsequent pass. Pass described as 'Lobs to number five Red', 'Quick pass to the right side'.",
+        "passDirection": "RIGHT",
+        "role": "Quarterback",
+        "team": "China"
+      },
+      {
+        "id": 4,
+        "player": "8 Wenze Lin",
+        "action": "COMPLETE",
+        "note": "Pass initially intended for #5, but completed by #8.",
+        "role": "Wide receiver",
+        "team": "China"
+      },
+      {
+        "id": 5,
+        "player": "8 Wenze Lin",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver",
+        "team": "China"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#8 Wenze Lin (6 pts)",
+      "text": "TOUCHDOWN #8 Wenze Lin (6 pts)",
+      "from": {
+        "name": "Wenze Lin",
+        "number": "8",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p2/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "Unknown"
+      },
+      "receiver": {
+        "name": "8 Wenze Lin"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00539-9249-7095-8722-ab89149d7709",
+        "01a00539-af48-738d-a9a7-cbcc3596c97b",
+        "01a00539-c861-70c6-b400-654f9e8ed5d4"
+      ],
+      "playAnalysisId": "01a00539-9666-7447-9550-4a966ebfe879",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833e-f588a0cf6683"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 58,
+    "context": {
+      "gameClockMs": 533095,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "4 Siying Zeng",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Siying Zeng",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "4 Siying Zeng",
+        "action": "TOUCHDOWN",
+        "note": "2 point try is good",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#4 Siying Zeng (2 pts)",
+      "text": "TRY #4 Siying Zeng (2 pts)",
+      "from": {
+        "name": "Siying Zeng",
+        "number": "4",
+        "teamId": "w-chn"
+      },
+      "points": 2
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "4 Siying Zeng"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0053a-2eaf-725b-b928-e80eed8a883f",
+        "01a0053a-2fc4-7448-9dee-43392989bc49"
+      ],
+      "playAnalysisId": "01a0053a-4d8e-7357-9d6c-1ac606419daf",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833e-f9c78661ce1c"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 59,
+    "context": {
+      "gameClockMs": 508851,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 6,
+        "away": 22
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0053a-8d24-758a-9bc9-5a215e803578",
+        "01a0053a-9727-7010-8e9e-41ee79da6c83",
+        "01a0053a-97af-754d-a89b-edbeeb5c186f",
+        "01a0053a-b878-77fa-b852-7c012b12aa7b",
+        "01a0053a-b8e9-7578-b338-5098ef559daf",
+        "01a0053b-10b8-746c-a80c-1540a2a0fa26",
+        "01a0053b-285a-741f-aa77-05d6c7a493b6",
+        "01a0053b-70d6-7294-811e-576233d466aa"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833e-fc724f0a9ba1"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 60,
+    "context": {
+      "gameClockMs": 469181,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 6,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "27 Georgia Cottle",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "27 Georgia Cottle",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #27 Georgia Cottle",
+      "text": "COMPLETE PASS #2 Tessa Davis → #27 Georgia Cottle",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      },
+      "to": {
+        "name": "Georgia Cottle",
+        "number": "27",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p17/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "27 Georgia Cottle"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0053b-3f4e-716a-a3b3-0a233945a465",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833f-000646a5b534"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 61,
+    "context": {
+      "gameClockMs": 420842,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 6,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2",
+        "action": "PASS",
+        "intendedReceiver": "27",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "27",
+        "note": "incompleted pass",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "2"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0053b-e520-70ac-a365-f7f6a3200d01"
+      ],
+      "playAnalysisId": "01a0053b-9889-716d-90d1-093385cc32af",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833f-0769c35a0cbb"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 62,
+    "context": {
+      "gameClockMs": 420186,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 6,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "note": "deep pass through the middle",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "note": "incomplete pass",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0053b-e77f-73aa-bf5c-bcccc5104f02",
+        "01a0053b-f429-759d-8e91-991ac98ebded",
+        "01a0053c-996e-75fd-a97a-fec59084da18",
+        "01a0053c-b816-72ef-bd1d-6eefd254d2ac",
+        "01a0053c-ccc4-71ef-bcf5-f862964ff221",
+        "01a0053c-cee7-7709-88af-d60d9dfe655f",
+        "01a0053d-47f9-7399-805b-cc8c1dac9c83"
+      ],
+      "playAnalysisId": "01a0053c-112d-7319-9464-59b544abc21d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833f-0bb579e4000e"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 63,
+    "context": {
+      "gameClockMs": 416944,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "note": "First down China on the 5 yard line.",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "9 Yanran Wu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "9 Yanran Wu",
+        "action": "PASS",
+        "intendedReceiver": "8 Wenze Lin",
+        "note": "backward pass",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "8 Wenze Lin",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "8 Wenze Lin",
+        "action": "PASS",
+        "intendedReceiver": "9 Yanran Wu",
+        "note": "forward pass",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "9 Yanran Wu",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 7,
+        "player": "16 Emma Vandervelde",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#9 Yanran Wu → #8 Wenze Lin",
+      "text": "COMPLETE PASS #9 Yanran Wu → #8 Wenze Lin",
+      "from": {
+        "name": "Yanran Wu",
+        "number": "9",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Wenze Lin",
+        "number": "8",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p2/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "9 Yanran Wu"
+      },
+      "receiver": {
+        "name": "8 Wenze Lin"
+      },
+      "flagPulledBy": {
+        "name": "16 Emma Vandervelde"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0053c-c896-768e-b15f-723e18f57c41",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833f-0eb06462353a"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 64,
+    "context": {
+      "gameClockMs": 311072,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 12,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "note": "center number 16",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "99 Yurong Han",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "99 Yurong Han",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0053d-91fb-756c-9134-26e08771268a",
+        "01a0053d-a0d0-775e-b6ad-9d3227421873",
+        "01a0053d-d16d-741b-a4cd-ff81163d4a46",
+        "01a0053e-17cb-719a-80a2-187701dd3d29"
+      ],
+      "playAnalysisId": "01a0053d-640f-73a7-8bc8-5d4ab581e4ed",
+      "penaltyAnalysisIds": [
+        "01a0053d-c8f8-7216-b790-4ea882d5d2c8"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833f-13268496ce5f"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 65,
+    "context": {
+      "gameClockMs": 294840,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "8 Wenze Lin",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "8 Wenze Lin",
+        "action": "PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "8 Wenze Lin",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "3 Zixuan Gao",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#8 Wenze Lin",
+      "text": "INCOMPLETE PASS #8 Wenze Lin",
+      "from": {
+        "name": "Wenze Lin",
+        "number": "8",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p2/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0053e-33a3-777c-aed5-6ed4d8ab7acf",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.969Z",
+    "updatedAt": "2026-08-15T12:04:17.969Z",
+    "id": "01a0054e-fc4b-7569-833f-15d0d98eb4b0"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 66,
+    "context": {
+      "gameClockMs": 233702,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "8 Wenze Lin",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "8 Wenze Lin",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "8 Wenze Lin",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#8 Wenze Lin (6 pts)",
+      "text": "TOUCHDOWN #8 Wenze Lin (6 pts)",
+      "from": {
+        "name": "Wenze Lin",
+        "number": "8",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p2/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "8 Wenze Lin"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0053e-c022-7679-aaf3-54d303bdffca",
+        "01a0053e-d111-74cd-88cd-722c5ab75ede",
+        "01a0053f-39c8-72ac-b652-d16e939c32a5"
+      ],
+      "playAnalysisId": "01a0053e-c2f6-766d-b7d3-941db0bd5fab",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-19eed48320c8"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 67,
+    "context": {
+      "gameClockMs": 171245,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 28
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "16 Xin Wang",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "8 Wenze Lin",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "8 Wenze Lin",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "8 Wenze Lin",
+        "action": "PASS",
+        "intendedReceiver": "5 Xinyu Niu",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "5 Xinyu Niu",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 7,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 8,
+        "player": "16 Emma Vandervelde",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      },
+      {
+        "id": 9,
+        "player": "16 Emma Vandervelde",
+        "action": "TOUCHDOWN",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#5 Xinyu Niu → #16 Emma Vandervelde",
+      "text": "INTERCEPTION #5 Xinyu Niu → #16 Emma Vandervelde",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Emma Vandervelde",
+        "number": "16",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "8 Wenze Lin"
+      },
+      "interceptedBy": {
+        "name": "16 Emma Vandervelde"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0053f-b41d-70fa-a9e7-68d7ec878620",
+        "01a0053f-f2df-76ac-97cb-7cff8474fadd"
+      ],
+      "playAnalysisId": "01a0053f-bf94-737f-ba85-5931330e8503",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-1f5ddc329e8c"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 68,
+    "context": {
+      "gameClockMs": 145633,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 28
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP2",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00540-1828-7334-922b-9ad6cc94f978",
+        "01a00540-189e-7708-927c-bf62951c0243"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-212f4b2b1590"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 69,
+    "context": {
+      "gameClockMs": 122335,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 30
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP2",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00540-7331-70f8-8c91-8978606a8946"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-252367bfbc63"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 70,
+    "context": {
+      "gameClockMs": 119893,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 32
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP2",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00540-7c8b-709f-8b85-acb10c5fbb70"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-28f6e465e76a"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 71,
+    "context": {
+      "gameClockMs": 119599,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "15 Kyana Gordon Belo",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Kyana Gordon Belo",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "note": "on the 14 yard line",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "XP2",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#15 Kyana Belo → #33 Abbie Leyshon",
+      "text": "COMPLETE PASS #15 Kyana Belo → #33 Abbie Leyshon",
+      "from": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p2/thumb.png"
+      },
+      "to": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "15 Kyana Gordon Belo"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00540-7da7-722f-b750-b00e2d0c141e"
+      ],
+      "playAnalysisId": "01a00540-c806-72d9-a4d9-300c63094bd9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-2ef4856de0b6"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 72,
+    "context": {
+      "gameClockMs": 119070,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 36
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP2",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00540-7fc1-76ce-bdfa-654ca9c80028"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-325a7e8c9c89"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 73,
+    "context": {
+      "gameClockMs": 110960,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 38
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP2",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00540-9fa5-71dd-b7b5-db4ef193b10e",
+        "01a00540-a834-7780-b1f7-23f6c59cc0e2",
+        "01a00540-c054-7569-be1e-9ab44f2eb5e1",
+        "01a00540-c0b9-72c7-8bfe-07e16f603ff7",
+        "01a00540-c238-75a8-94a8-013d4b948782",
+        "01a00540-c39a-76b5-9a3f-67975bbe628f",
+        "01a00540-c4d1-778b-b87b-b8d15e3b54c7",
+        "01a00540-c5be-73ef-95b9-c610f9bfdfe8",
+        "01a00540-c948-7038-b573-c127656cf759",
+        "01a00540-d0bf-71eb-ab53-7333ec8de525"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-369d62e61b53"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 74,
+    "context": {
+      "gameClockMs": 116999,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00540-edde-707a-93cd-c721d7315a02"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-3b156f5165bc"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 75,
+    "context": {
+      "gameClockMs": 116999,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "15 Kyana Gordon Belo",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Kyana Gordon Belo",
+        "action": "PASS",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "27 Georgia Cottle",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#15 Kyana Belo",
+      "text": "INCOMPLETE PASS #15 Kyana Belo",
+      "from": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p2/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "15 Kyana Gordon Belo"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00540-f030-758d-935b-134329e707d3",
+        "01a00541-51ea-71c8-a301-ce1ecfa272bc",
+        "01a00541-5c33-749e-99ba-5d4f65b0cbe2",
+        "01a00541-8414-72fa-9d62-cd3f9454b38f",
+        "01a00541-8720-753c-8430-056011f3ac64",
+        "01a00541-a375-76ef-9015-ec1f9f83ddb0",
+        "01a00541-a3ba-775e-a574-7fbdd96abfb4",
+        "01a00541-a499-771d-bc91-a2bc16ddb173",
+        "01a00541-a528-71ab-b6df-d430f1565651",
+        "01a00541-a6f2-77ed-ba47-7f4558b6b2a2",
+        "01a00541-a835-7606-9b31-73bf50312cc7"
+      ],
+      "playAnalysisId": "01a00541-9a07-755b-9c41-86a1d501311d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.970Z",
+    "updatedAt": "2026-08-15T12:04:17.970Z",
+    "id": "01a0054e-fc4b-7569-833f-3d7d62e794b3"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 76,
+    "context": {
+      "gameClockMs": 111999,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "TURNOVER",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00542-1a26-70ef-b9f2-09511d886480",
+        "01a00542-1e17-724d-b777-6588ececac95",
+        "01a00542-2c4b-7525-8aad-1d13bb53bc68"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4b-7569-833f-43fd79fa15d8"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 77,
+    "context": {
+      "gameClockMs": 108660,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "15 Kyana Gordon Belo",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Kyana Gordon Belo",
+        "action": "PASS",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "23 Zhijia Zeng",
+        "action": "INTERCEPTION",
+        "note": "on the 10 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#15 Kyana Belo → #23 Zhijia Zeng",
+      "text": "INTERCEPTION #15 Kyana Belo → #23 Zhijia Zeng",
+      "from": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p2/thumb.png"
+      },
+      "to": {
+        "name": "Zhijia Zeng",
+        "number": "23",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "15 Kyana Gordon Belo"
+      },
+      "interceptedBy": {
+        "name": "23 Zhijia Zeng"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00542-33f5-733d-bd23-b90127acd0fa"
+      ],
+      "playAnalysisId": "01a00542-4597-76eb-9a18-7a32cc93dd75",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4b-7569-833f-45d4afbbfa98"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 78,
+    "context": {
+      "gameClockMs": 108660,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "TURNOVER",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00542-3597-74c7-a555-e0a278ee1ffc"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4b-7569-833f-48072eb0ac11"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 79,
+    "context": {
+      "gameClockMs": 108660,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "GAME_SETUP",
+        "note": "First down on the 10 yard line",
+        "team": "China"
+      },
+      {
+        "id": 2,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "17 Xiaoxia Zhao",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "17 Xiaoxia Zhao",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "16 Emma Vandervelde",
+        "action": "FLAG_PULL",
+        "note": "on the 17-yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #17 Xiaoxia Zhao",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #17 Xiaoxia Zhao",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Xiaoxia Zhao",
+        "number": "17",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "17 Xiaoxia Zhao"
+      },
+      "flagPulledBy": {
+        "name": "16 Emma Vandervelde"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00542-375c-75af-8895-d1968327dc42",
+        "01a00542-5581-75f5-849b-f34ff58fd206",
+        "01a00542-6ca7-777f-bf56-2866412d1ece",
+        "01a00542-6d9c-752a-8285-3266d231d1d2",
+        "01a00542-6fcc-7290-8cd8-e3c38bfc56f9",
+        "01a00542-deb8-7328-8495-fc71d178f8c2",
+        "01a00542-f12f-743e-9d18-54f4d403c956",
+        "01a00543-0d38-735f-be1d-408344153a64",
+        "01a00543-88c8-7358-b358-4cd903fa1aaa",
+        "01a00543-b6ef-736d-9338-8f0280dbde4d",
+        "01a00543-cf70-757d-becd-7d2c1b9b09b7"
+      ],
+      "playAnalysisId": "01a00543-104c-737e-ae2b-3afcf55b34a4",
+      "penaltyAnalysisIds": [
+        "01a00543-de30-7698-aabb-c46502cb05a8"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4b-7569-833f-4c2f3dd2b514"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 80,
+    "context": {
+      "gameClockMs": 62414,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 17,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10 Mengxin Xiao",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "23 Zhijia Zeng",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "17 Xiaoxia Zhao",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "LATERAL"
+      },
+      {
+        "id": 5,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "10 Mengxin Xiao",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Mengxin Xiao",
+        "note": "Deflection by 5 Olivia White",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "23 Zhijia Zeng"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00543-d34e-761d-8907-c2ba29b2de5f",
+        "01a00544-44a7-76ba-bddc-b563c0807bd1",
+        "01a00544-44c8-72d3-ad1f-2f3d87881c18",
+        "01a00544-4e12-734f-98b2-29cab608555d",
+        "01a00544-5615-7179-91d9-fb2f38a85e52",
+        "01a00544-693c-734c-a207-293d0b11ec6c",
+        "01a00544-b914-75fb-ad44-0babe2a1b730",
+        "01a00544-d43b-7068-82af-78e781a1d65c",
+        "01a00544-fae2-76d6-ba36-e902ffebc2bc",
+        "01a00544-fb61-7014-abe9-e751ec276b8f",
+        "01a00544-fdba-7631-b6fd-41d5ed5a6ca2",
+        "01a00545-7975-7343-89d3-b0ce858362b2",
+        "01a00545-93f7-76dd-a46f-2bfa5638d3ab",
+        "01a00545-9b3d-764a-b5a4-4c9fb29cb07d",
+        "01a00545-aca7-713e-8ea7-39e9020a3f9a",
+        "01a00545-e2af-75ec-a6f5-e538625dfc64",
+        "01a00546-4270-74d5-842b-378e75afcd7b",
+        "01a00546-e16d-737c-9551-c91ccaf3fa3b",
+        "01a00546-ef62-733d-bbc2-b69bd5d22e65",
+        "01a00547-09fc-716e-a718-955746752e53",
+        "01a00547-4cae-761f-b2ee-5d88d08d4401",
+        "01a00547-4ed7-71de-bdde-8eab90e1f9fa",
+        "01a00547-76ef-72ea-9649-03fe38e66739"
+      ],
+      "playAnalysisId": "01a00543-a2ac-758d-84f6-3d8ec077ae52",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4b-7569-833f-520cb47c87c5"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 81,
+    "context": {
+      "gameClockMs": 59938,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10 Mengxin Xiao",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "23 Zhijia Zeng",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "23 Zhijia Zeng",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #23 Zhijia Zeng",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #23 Zhijia Zeng",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Zhijia Zeng",
+        "number": "23",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "23 Zhijia Zeng"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00544-7c0c-723f-8014-160d65d46544",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-d7b83a647af0"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 82,
+    "context": {
+      "gameClockMs": 51507,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10 Mengxin Xiao",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "23 Zhijia Zeng",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "23 Zhijia Zeng",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Zhijia Zeng",
+        "action": "FLAG_PULL",
+        "note": "Stepped out of bounds",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #23 Zhijia Zeng",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #23 Zhijia Zeng",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Zhijia Zeng",
+        "number": "23",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "23 Zhijia Zeng"
+      },
+      "flagPulledBy": {
+        "name": "23 Zhijia Zeng"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00544-f53d-700b-8540-215357b1f442",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-d98781363665"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 83,
+    "context": {
+      "gameClockMs": 51507,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10 Mengxin Xiao",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "22 Jingyi Wu",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "22 Jingyi Wu",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#5 Xinyu Niu → #22 Jingyi Wu",
+      "text": "COMPLETE PASS #5 Xinyu Niu → #22 Jingyi Wu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      },
+      "to": {
+        "name": "Jingyi Wu",
+        "number": "22",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "22 Jingyi Wu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00545-b11d-730b-b28e-353e89d5f803",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-dfc856a996b9"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 84,
+    "context": {
+      "gameClockMs": 42592,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10 Mengxin Xiao",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "23 Zhijia Zeng",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00547-13bb-716a-a61f-a10aae7297c1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-e026efc85164"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 85,
+    "context": {
+      "gameClockMs": 40592,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10 Mengxin Xiao",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "99 Yurong Han",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "99 Yurong Han",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "99 Yurong Han",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 2,
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#99 Yurong Han (6 pts)",
+      "text": "TOUCHDOWN #99 Yurong Han (6 pts)",
+      "from": {
+        "name": "Yurong Han",
+        "number": "99",
+        "teamId": "w-chn"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "99 Yurong Han"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00547-8290-708a-981f-45a4cbcb743c",
+        "01a00547-afb9-708d-8ec0-cccea0109c61",
+        "01a00547-c650-766c-b24f-bde9f00b8348",
+        "01a00547-ce7f-7456-b6ed-774aa2531e8f",
+        "01a00548-3d56-7489-b968-e6c532614677",
+        "01a00548-aed7-74b9-bd89-4fa9c4ab5523",
+        "01a00548-bf42-72ab-9cb3-6b87c1d6da18",
+        "01a00548-e44e-7471-83a7-4926c5167247",
+        "01a00549-4cc4-7079-a63d-6211846113b8",
+        "01a00549-623a-7248-9ea8-49c7f090d81e"
+      ],
+      "playAnalysisId": "01a00547-eebd-7386-93ad-843ad15a8dff",
+      "penaltyAnalysisIds": [
+        "01a00547-942b-706a-814c-528a3a8c4e8d",
+        "01a00548-86b7-749e-9624-849771a31140"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-e6a547e5ef44"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 86,
+    "context": {
+      "gameClockMs": 34994,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10 Mengxin Xiao",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "intendedReceiver": "10 Mengxin Xiao",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Xinyu Niu",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Mengxin Xiao"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#5 Xinyu Niu",
+      "text": "INCOMPLETE PASS #5 Xinyu Niu",
+      "from": {
+        "name": "Xinyu Niu",
+        "number": "5",
+        "teamId": "w-chn"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00548-d844-7437-a069-a70032619829",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-ea6105806239"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 87,
+    "context": {
+      "gameClockMs": 25836,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-chn",
+      "score": {
+        "home": 6,
+        "away": 40
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10 Mengxin Xiao",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "5 Xinyu Niu",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Xinyu Niu",
+        "action": "PASS",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "23 Zhijia Zeng",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Zhijia Zeng",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#23 Zhijia Zeng (6 pts)",
+      "text": "TOUCHDOWN #23 Zhijia Zeng (6 pts)",
+      "from": {
+        "name": "Zhijia Zeng",
+        "number": "23",
+        "teamId": "w-chn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-chn-p6/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "5 Xinyu Niu"
+      },
+      "receiver": {
+        "name": "23 Zhijia Zeng"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00549-8320-71ce-8456-09986b07817b",
+        "01a00549-9b54-746a-94d5-f05c291979e0",
+        "01a00549-bb64-738d-994a-3ae6c084d5e4",
+        "01a00549-bdb2-75bf-bedd-6e31b99b0de3",
+        "01a0054a-2f20-776f-ad38-ac357d3aef63",
+        "01a0054a-4dfb-77f4-99d0-0047a4a98b9d"
+      ],
+      "playAnalysisId": "01a00549-80ac-76a5-876d-8db806ea9b25",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-ecf0707c5d13"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 88,
+    "context": {
+      "gameClockMs": 27836,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 6,
+        "away": 46
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP1",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0054a-5cc2-7169-a442-e622e2d8432d",
+        "01a0054a-5d3f-7779-8ef7-1a214ef786b0"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-f3e4d9aba70c"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 89,
+    "context": {
+      "gameClockMs": 27836,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 7,
+        "away": 46
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP1",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "sources": {
+      "gameEventIds": [
+        "01a0054a-614b-76bb-910f-84abd4f83db3",
+        "01a0054a-a6a9-7738-ba12-e00ee5671d7d"
+      ],
+      "penaltyAnalysisIds": [
+        "01a0054a-6d1b-77fc-87ce-d93e6eb5c074"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-f6660024a3d4"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 90,
+    "context": {
+      "gameClockMs": 21832,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 8,
+        "away": 46
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Australia"
+      },
+      {
+        "id": 2,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "15 Kyana Gordon Belo",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "PASS",
+        "intendedReceiver": "27 Georgia Cottle",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "27 Georgia Cottle",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#15 Kyana Belo → #27 Georgia Cottle",
+      "text": "COMPLETE PASS #15 Kyana Belo → #27 Georgia Cottle",
+      "from": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p2/thumb.png"
+      },
+      "to": {
+        "name": "Georgia Cottle",
+        "number": "27",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p17/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "15 Kyana Gordon Belo"
+      },
+      "receiver": {
+        "name": "27 Georgia Cottle"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0054a-be24-756c-aab3-0f2a15422a32",
+        "01a0054a-c419-7116-9d6b-f788daa1481b",
+        "01a0054a-c493-77f8-b897-a6a216c52df3",
+        "01a0054a-d7fd-71ba-9de8-0b33e3a219aa",
+        "01a0054a-dd62-765d-b2e8-c2c076313c8e",
+        "01a0054a-fe81-762d-9de0-48d696b4b0df",
+        "01a0054b-13dc-7672-a404-10f612d86c8f",
+        "01a0054b-162c-70ca-a285-6c03a3401659",
+        "01a0054b-18ba-7732-9fef-03ae49b10626",
+        "01a0054b-22c9-77a6-b1bd-a236fdff23d1",
+        "01a0054b-53a4-7726-a8b4-cdd0a4a7d90b",
+        "01a0054e-4b36-7370-b496-3060ac5c0a58",
+        "01a0054e-fb92-72fa-87a7-d2a26e93af62"
+      ],
+      "playAnalysisId": "01a0054a-e90f-771f-894a-de2ee8b45b4a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-f9d1709d56fd"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 91,
+    "context": {
+      "gameClockMs": 5665,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 8,
+        "away": 46
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "15 Kyana Gordon Belo",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Kyana Gordon Belo",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#15 Kyana Belo",
+      "text": "INCOMPLETE PASS #15 Kyana Belo",
+      "from": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p2/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "15 Kyana Gordon Belo"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0054b-2332-72df-a4f4-baef480f5e18",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.971Z",
+    "updatedAt": "2026-08-15T12:04:17.971Z",
+    "id": "01a0054e-fc4c-70cb-aace-fd21cdd3d6f3"
+  },
+  {
+    "gameId": "01a00140-b679-7659-b3c9-c837309e1522",
+    "playNumber": 92,
+    "context": {
+      "gameClockMs": 2665,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 8,
+        "away": 46
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "15 Kyana Gordon Belo",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Kyana Gordon Belo",
+        "action": "PASS",
+        "intendedReceiver": "27 Georgia Cottle",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "27 Georgia Cottle",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#15 Kyana Belo",
+      "text": "INCOMPLETE PASS #15 Kyana Belo",
+      "from": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aus-p2/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "15 Kyana Gordon Belo"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0054b-8a69-7253-b673-c4d5a096281a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T12:04:17.972Z",
+    "updatedAt": "2026-08-15T12:04:17.972Z",
+    "id": "01a0054e-fc7f-779e-8867-60674fc22c29"
+  }
+]

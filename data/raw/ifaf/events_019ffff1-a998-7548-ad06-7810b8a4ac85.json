@@ -1,0 +1,5122 @@
+[
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "sequenceNumber": 1,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778162352,
+    "serverTimestamp": "2026-08-15T07:16:02.524Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:16:02.525Z",
+    "updatedAt": "2026-08-15T07:16:02.525Z",
+    "id": "01a00447-155c-70f6-b550-80bb1a0a274d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "sequenceNumber": 2,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778163474,
+    "serverTimestamp": "2026-08-15T07:16:03.523Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:16:03.524Z",
+    "updatedAt": "2026-08-15T07:16:03.524Z",
+    "id": "01a00447-1943-7160-99be-d72d5a6d59d1"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "sequenceNumber": 3,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778191663,
+    "serverTimestamp": "2026-08-15T07:16:31.740Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:16:31.741Z",
+    "updatedAt": "2026-08-15T07:16:31.741Z",
+    "id": "01a00447-877c-76ee-b0d4-f961161823e7"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "sequenceNumber": 4,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778201638,
+    "serverTimestamp": "2026-08-15T07:16:41.721Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:16:41.722Z",
+    "updatedAt": "2026-08-15T07:16:41.722Z",
+    "id": "01a00447-ae79-743d-943c-4cee6741d9a3"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "sequenceNumber": 5,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778232079,
+    "serverTimestamp": "2026-08-15T07:17:12.170Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:17:12.171Z",
+    "updatedAt": "2026-08-15T07:17:12.171Z",
+    "id": "01a00448-256a-7021-8a07-3f2b77ed98ef"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "sequenceNumber": 6,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778240242,
+    "serverTimestamp": "2026-08-15T07:17:20.323Z",
+    "payload": {
+      "ballOn": 13
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:17:20.323Z",
+    "updatedAt": "2026-08-15T07:17:20.323Z",
+    "id": "01a00448-4543-7318-8cd7-586e51992a73"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 3,
+    "ballOn": 13,
+    "sequenceNumber": 7,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778240382,
+    "serverTimestamp": "2026-08-15T07:17:20.430Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:17:20.431Z",
+    "updatedAt": "2026-08-15T07:17:20.431Z",
+    "id": "01a00448-45ae-7034-bb7e-c1ef458a3182"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 8,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778259841,
+    "serverTimestamp": "2026-08-15T07:17:39.923Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:17:39.924Z",
+    "updatedAt": "2026-08-15T07:17:39.924Z",
+    "id": "01a00448-91d3-743b-a5dc-f761c842ad79"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 13,
+    "sequenceNumber": 9,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778264367,
+    "serverTimestamp": "2026-08-15T07:17:44.415Z",
+    "payload": {
+      "ballOn": 18
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:17:44.416Z",
+    "updatedAt": "2026-08-15T07:17:44.416Z",
+    "id": "01a00448-a35f-76e5-a19d-3f94c7efb3c7"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 18,
+    "sequenceNumber": 10,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778295026,
+    "serverTimestamp": "2026-08-15T07:18:15.107Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:18:15.107Z",
+    "updatedAt": "2026-08-15T07:18:15.107Z",
+    "id": "01a00449-1b43-7128-943c-97beaaa14f6d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 18,
+    "sequenceNumber": 11,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778305140,
+    "serverTimestamp": "2026-08-15T07:18:25.233Z",
+    "payload": {
+      "ballOn": 26
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:18:25.234Z",
+    "updatedAt": "2026-08-15T07:18:25.234Z",
+    "id": "01a00449-42d1-7069-afba-2faeb0ea05af"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 12,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778305284,
+    "serverTimestamp": "2026-08-15T07:18:25.340Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:18:25.341Z",
+    "updatedAt": "2026-08-15T07:18:25.341Z",
+    "id": "01a00449-433c-77fc-aee7-e4825a4e8468"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 13,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778335293,
+    "serverTimestamp": "2026-08-15T07:18:55.381Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:18:55.382Z",
+    "updatedAt": "2026-08-15T07:18:55.382Z",
+    "id": "01a00449-b895-75b2-b2c6-7df5316071ab"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TRY_DOWN",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 26,
+    "sequenceNumber": 14,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778342300,
+    "serverTimestamp": "2026-08-15T07:19:02.400Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:19:02.401Z",
+    "updatedAt": "2026-08-15T07:19:02.401Z",
+    "id": "01a00449-d400-756e-a81b-dffb4dcd5018"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 15,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778370558,
+    "serverTimestamp": "2026-08-15T07:19:30.643Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "XP1",
+      "points": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:19:30.643Z",
+    "updatedAt": "2026-08-15T07:19:30.643Z",
+    "id": "01a0044a-4253-7194-acf4-171720b53760"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 16,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778370692,
+    "serverTimestamp": "2026-08-15T07:19:30.739Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:19:30.740Z",
+    "updatedAt": "2026-08-15T07:19:30.740Z",
+    "id": "01a0044a-42b3-72a0-b1d5-9626a6a26026"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 17,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778372729,
+    "serverTimestamp": "2026-08-15T07:19:32.789Z",
+    "payload": {
+      "teamId": "w-aut"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:19:32.789Z",
+    "updatedAt": "2026-08-15T07:19:32.789Z",
+    "id": "01a0044a-4ab5-7483-a65f-7cd9cd782f94"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 18,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778373609,
+    "serverTimestamp": "2026-08-15T07:19:33.663Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:19:33.664Z",
+    "updatedAt": "2026-08-15T07:19:33.664Z",
+    "id": "01a0044a-4e1f-70eb-9e4f-94a74980a994"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 19,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778383854,
+    "serverTimestamp": "2026-08-15T07:19:43.940Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:19:43.941Z",
+    "updatedAt": "2026-08-15T07:19:43.941Z",
+    "id": "01a0044a-7644-7581-80dc-61eda735e445"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 20,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778383973,
+    "serverTimestamp": "2026-08-15T07:19:44.021Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:19:44.022Z",
+    "updatedAt": "2026-08-15T07:19:44.022Z",
+    "id": "01a0044a-7695-730f-829e-9a3fd11ad0bb"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 21,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778404538,
+    "serverTimestamp": "2026-08-15T07:20:04.622Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:20:04.623Z",
+    "updatedAt": "2026-08-15T07:20:04.623Z",
+    "id": "01a0044a-c70e-778b-b966-147b81f31ae0"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 22,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778445119,
+    "serverTimestamp": "2026-08-15T07:20:45.202Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:20:45.202Z",
+    "updatedAt": "2026-08-15T07:20:45.202Z",
+    "id": "01a0044b-6592-7245-ba7e-4682b7f136ea"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 23,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778483832,
+    "serverTimestamp": "2026-08-15T07:21:23.914Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:21:23.914Z",
+    "updatedAt": "2026-08-15T07:21:23.914Z",
+    "id": "01a0044b-fcca-7265-b3ca-db96e78f0be0"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 24,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778525524,
+    "serverTimestamp": "2026-08-15T07:22:05.611Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:22:05.611Z",
+    "updatedAt": "2026-08-15T07:22:05.611Z",
+    "id": "01a0044c-9fab-77ac-bf80-8c35e023e427"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 25,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778526461,
+    "serverTimestamp": "2026-08-15T07:22:06.514Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:22:06.515Z",
+    "updatedAt": "2026-08-15T07:22:06.515Z",
+    "id": "01a0044c-a332-7168-8472-59d260129270"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 26,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778558592,
+    "serverTimestamp": "2026-08-15T07:22:38.761Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:22:38.762Z",
+    "updatedAt": "2026-08-15T07:22:38.762Z",
+    "id": "01a0044d-2129-73bd-8354-4441f318f31f"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 27,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778584841,
+    "serverTimestamp": "2026-08-15T07:23:04.940Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:23:04.941Z",
+    "updatedAt": "2026-08-15T07:23:04.941Z",
+    "id": "01a0044d-876c-7058-938f-82aae2c161ba"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 28,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778618629,
+    "serverTimestamp": "2026-08-15T07:23:38.720Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:23:38.721Z",
+    "updatedAt": "2026-08-15T07:23:38.721Z",
+    "id": "01a0044e-0b60-722b-bc98-79b09fce30ea"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 29,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778624329,
+    "serverTimestamp": "2026-08-15T07:23:44.418Z",
+    "payload": {
+      "ballOn": 17
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:23:44.419Z",
+    "updatedAt": "2026-08-15T07:23:44.419Z",
+    "id": "01a0044e-21a2-7742-83b0-7966047561ae"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 30,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778656480,
+    "serverTimestamp": "2026-08-15T07:24:16.561Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:24:16.561Z",
+    "updatedAt": "2026-08-15T07:24:16.561Z",
+    "id": "01a0044e-9f30-71f6-8ba2-4a38d14d4663"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 31,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778664065,
+    "serverTimestamp": "2026-08-15T07:24:24.156Z",
+    "payload": {
+      "ballOn": 40
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:24:24.156Z",
+    "updatedAt": "2026-08-15T07:24:24.156Z",
+    "id": "01a0044e-bcdb-7598-8add-b1fdc73aa525"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 32,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778664204,
+    "serverTimestamp": "2026-08-15T07:24:24.254Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:24:24.255Z",
+    "updatedAt": "2026-08-15T07:24:24.255Z",
+    "id": "01a0044e-bd3e-7646-a0b0-f047f10af068"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 33,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778694244,
+    "serverTimestamp": "2026-08-15T07:24:54.344Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:24:54.345Z",
+    "updatedAt": "2026-08-15T07:24:54.345Z",
+    "id": "01a0044f-32c8-736f-af72-36be7189cd41"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 34,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778731722,
+    "serverTimestamp": "2026-08-15T07:25:31.813Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:25:31.814Z",
+    "updatedAt": "2026-08-15T07:25:31.814Z",
+    "id": "01a0044f-c525-7441-953c-0fc0bf71a4dc"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 35,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778738619,
+    "serverTimestamp": "2026-08-15T07:25:38.713Z",
+    "payload": {
+      "ballOn": 48
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:25:38.713Z",
+    "updatedAt": "2026-08-15T07:25:38.713Z",
+    "id": "01a0044f-e018-731c-9503-6d05c8ee622d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 48,
+    "sequenceNumber": 36,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778769722,
+    "serverTimestamp": "2026-08-15T07:26:09.815Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:26:09.815Z",
+    "updatedAt": "2026-08-15T07:26:09.815Z",
+    "id": "01a00450-5997-7278-aba0-3b704004fad9"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TRY_DOWN",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 48,
+    "sequenceNumber": 37,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778774906,
+    "serverTimestamp": "2026-08-15T07:26:14.998Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:26:14.998Z",
+    "updatedAt": "2026-08-15T07:26:14.998Z",
+    "id": "01a00450-6dd6-75ff-ac53-969b6bc3e646"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 38,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778807960,
+    "serverTimestamp": "2026-08-15T07:26:48.039Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "XP1",
+      "points": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:26:48.040Z",
+    "updatedAt": "2026-08-15T07:26:48.040Z",
+    "id": "01a00450-eee7-731b-a38e-abc7d8a534a8"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 39,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778808088,
+    "serverTimestamp": "2026-08-15T07:26:48.138Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:26:48.138Z",
+    "updatedAt": "2026-08-15T07:26:48.138Z",
+    "id": "01a00450-ef49-729b-aa68-043a23042536"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 40,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778809714,
+    "serverTimestamp": "2026-08-15T07:26:49.765Z",
+    "payload": {
+      "teamId": "w-aut"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:26:49.766Z",
+    "updatedAt": "2026-08-15T07:26:49.766Z",
+    "id": "01a00450-f5a5-73b9-97cd-fc2a5ad7f0ed"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 41,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778810500,
+    "serverTimestamp": "2026-08-15T07:26:50.554Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:26:50.554Z",
+    "updatedAt": "2026-08-15T07:26:50.554Z",
+    "id": "01a00450-f8ba-72f1-8f84-13e1917605df"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 42,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778813914,
+    "serverTimestamp": "2026-08-15T07:26:54.001Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:26:54.002Z",
+    "updatedAt": "2026-08-15T07:26:54.002Z",
+    "id": "01a00451-0631-71b0-81fa-237ae0d64d9d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 43,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778814028,
+    "serverTimestamp": "2026-08-15T07:26:54.080Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:26:54.080Z",
+    "updatedAt": "2026-08-15T07:26:54.080Z",
+    "id": "01a00451-0680-775b-8e98-5301d785d43a"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 44,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778837550,
+    "serverTimestamp": "2026-08-15T07:27:17.827Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:27:17.827Z",
+    "updatedAt": "2026-08-15T07:27:17.827Z",
+    "id": "01a00451-6342-76c4-9fbf-438420ee8ccc"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 45,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778876219,
+    "serverTimestamp": "2026-08-15T07:27:56.299Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:27:56.300Z",
+    "updatedAt": "2026-08-15T07:27:56.300Z",
+    "id": "01a00451-f98b-75fa-bf26-5caa2d846b20"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 46,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778906291,
+    "serverTimestamp": "2026-08-15T07:28:26.378Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:28:26.379Z",
+    "updatedAt": "2026-08-15T07:28:26.379Z",
+    "id": "01a00452-6f0a-75f9-9b35-917d0172b027"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 47,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778907058,
+    "serverTimestamp": "2026-08-15T07:28:27.113Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:28:27.114Z",
+    "updatedAt": "2026-08-15T07:28:27.114Z",
+    "id": "01a00452-71e9-70a0-a300-8be7c92e9c9f"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 48,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778909864,
+    "serverTimestamp": "2026-08-15T07:28:29.920Z",
+    "payload": {
+      "ballOn": 10
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:28:29.920Z",
+    "updatedAt": "2026-08-15T07:28:29.920Z",
+    "id": "01a00452-7cdf-765f-8178-6837a61aca41"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 49,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778936339,
+    "serverTimestamp": "2026-08-15T07:28:56.420Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:28:56.421Z",
+    "updatedAt": "2026-08-15T07:28:56.421Z",
+    "id": "01a00452-e464-73e5-b010-100cd2a5fc8f"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 50,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778942571,
+    "serverTimestamp": "2026-08-15T07:29:02.668Z",
+    "payload": {
+      "ballOn": 24
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:29:02.669Z",
+    "updatedAt": "2026-08-15T07:29:02.669Z",
+    "id": "01a00452-fccc-748d-9ce8-b82ac0e5566f"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 24,
+    "sequenceNumber": 51,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778965753,
+    "serverTimestamp": "2026-08-15T07:29:25.852Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:29:25.853Z",
+    "updatedAt": "2026-08-15T07:29:25.853Z",
+    "id": "01a00453-575c-70eb-b063-24cd30dff9a4"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 24,
+    "sequenceNumber": 52,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778966434,
+    "serverTimestamp": "2026-08-15T07:29:26.492Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:29:26.493Z",
+    "updatedAt": "2026-08-15T07:29:26.493Z",
+    "id": "01a00453-59dc-7229-9ce3-fd40693f5437"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 24,
+    "sequenceNumber": 53,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786778968092,
+    "serverTimestamp": "2026-08-15T07:29:28.149Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:29:28.149Z",
+    "updatedAt": "2026-08-15T07:29:28.149Z",
+    "id": "01a00453-6055-700e-9d91-df3054495487"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 54,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779006616,
+    "serverTimestamp": "2026-08-15T07:30:06.702Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:30:06.702Z",
+    "updatedAt": "2026-08-15T07:30:06.702Z",
+    "id": "01a00453-f6ee-721a-b021-2ee44a6cf54c"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 55,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779010769,
+    "serverTimestamp": "2026-08-15T07:30:10.829Z",
+    "payload": {
+      "ballOn": 14
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:30:10.830Z",
+    "updatedAt": "2026-08-15T07:30:10.830Z",
+    "id": "01a00454-070d-70f5-998e-8e8deadd60e6"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 14,
+    "sequenceNumber": 56,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779047461,
+    "serverTimestamp": "2026-08-15T07:30:47.550Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:30:47.550Z",
+    "updatedAt": "2026-08-15T07:30:47.550Z",
+    "id": "01a00454-967e-74bf-8167-454e01135047"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TRY_DOWN",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 14,
+    "sequenceNumber": 57,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779053194,
+    "serverTimestamp": "2026-08-15T07:30:53.277Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:30:53.278Z",
+    "updatedAt": "2026-08-15T07:30:53.278Z",
+    "id": "01a00454-acdd-7707-88fa-57bf91810123"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 58,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779085446,
+    "serverTimestamp": "2026-08-15T07:31:25.535Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:31:25.536Z",
+    "updatedAt": "2026-08-15T07:31:25.536Z",
+    "id": "01a00455-2adf-724a-bf2a-7524e312a784"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 59,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779109242,
+    "serverTimestamp": "2026-08-15T07:31:49.331Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:31:49.332Z",
+    "updatedAt": "2026-08-15T07:31:49.332Z",
+    "id": "01a00455-87d3-71ca-97e5-2b25919a37aa"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 60,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779117105,
+    "serverTimestamp": "2026-08-15T07:31:57.192Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "XP1",
+      "points": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:31:57.192Z",
+    "updatedAt": "2026-08-15T07:31:57.192Z",
+    "id": "01a00455-a688-77e5-8892-655ac0947bc2"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 61,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779117230,
+    "serverTimestamp": "2026-08-15T07:31:57.289Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:31:57.290Z",
+    "updatedAt": "2026-08-15T07:31:57.290Z",
+    "id": "01a00455-a6e9-7669-9cf9-02cc7941c664"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 62,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779119092,
+    "serverTimestamp": "2026-08-15T07:31:59.150Z",
+    "payload": {
+      "teamId": "w-aut"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:31:59.150Z",
+    "updatedAt": "2026-08-15T07:31:59.150Z",
+    "id": "01a00455-ae2e-7449-9113-bfaecf78fa42"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 63,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779119720,
+    "serverTimestamp": "2026-08-15T07:31:59.781Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:31:59.782Z",
+    "updatedAt": "2026-08-15T07:31:59.782Z",
+    "id": "01a00455-b0a5-73cd-a021-1458d9b99c90"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 64,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779122475,
+    "serverTimestamp": "2026-08-15T07:32:02.556Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:32:02.556Z",
+    "updatedAt": "2026-08-15T07:32:02.556Z",
+    "id": "01a00455-bb7c-746a-80f5-ed860e6fbb3c"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 65,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779146505,
+    "serverTimestamp": "2026-08-15T07:32:26.608Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:32:26.609Z",
+    "updatedAt": "2026-08-15T07:32:26.609Z",
+    "id": "01a00456-1970-708e-96b7-f7254d6d24d2"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 66,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779152494,
+    "serverTimestamp": "2026-08-15T07:32:32.591Z",
+    "payload": {
+      "ballOn": 10
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:32:32.591Z",
+    "updatedAt": "2026-08-15T07:32:32.591Z",
+    "id": "01a00456-30cf-723c-9373-2fe77941bebe"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 67,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779183835,
+    "serverTimestamp": "2026-08-15T07:33:03.919Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:33:03.920Z",
+    "updatedAt": "2026-08-15T07:33:03.920Z",
+    "id": "01a00456-ab2f-74ff-9c5e-deb22e76c59f"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 68,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779188799,
+    "serverTimestamp": "2026-08-15T07:33:08.864Z",
+    "payload": {
+      "ballOn": 24
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:33:08.865Z",
+    "updatedAt": "2026-08-15T07:33:08.865Z",
+    "id": "01a00456-be80-77fa-bd6b-3e01ac08e5d2"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 24,
+    "sequenceNumber": 69,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779192549,
+    "serverTimestamp": "2026-08-15T07:33:12.704Z",
+    "payload": {
+      "ballOn": 23
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:33:12.706Z",
+    "updatedAt": "2026-08-15T07:33:12.706Z",
+    "id": "01a00456-cd7f-7364-a031-dc6f7a220c2a"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 23,
+    "sequenceNumber": 70,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779218963,
+    "serverTimestamp": "2026-08-15T07:33:39.051Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:33:39.051Z",
+    "updatedAt": "2026-08-15T07:33:39.051Z",
+    "id": "01a00457-346b-73ee-9389-822d560bd7a4"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 23,
+    "sequenceNumber": 71,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779260593,
+    "serverTimestamp": "2026-08-15T07:34:20.678Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:34:20.678Z",
+    "updatedAt": "2026-08-15T07:34:20.678Z",
+    "id": "01a00457-d706-721c-b2c5-0bb142b12751"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 23,
+    "sequenceNumber": 72,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779261427,
+    "serverTimestamp": "2026-08-15T07:34:21.489Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:34:21.489Z",
+    "updatedAt": "2026-08-15T07:34:21.489Z",
+    "id": "01a00457-da31-7252-8bda-f0347542d215"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 23,
+    "sequenceNumber": 73,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779263022,
+    "serverTimestamp": "2026-08-15T07:34:23.081Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:34:23.082Z",
+    "updatedAt": "2026-08-15T07:34:23.082Z",
+    "id": "01a00457-e069-745c-8132-a7857f260eb5"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 74,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779271042,
+    "serverTimestamp": "2026-08-15T07:34:31.130Z",
+    "payload": {
+      "accumulatedTimeMs": 1079055
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:34:31.130Z",
+    "updatedAt": "2026-08-15T07:34:31.130Z",
+    "id": "01a00457-ffda-76de-a20d-59b42aefe46e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 75,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779308041,
+    "serverTimestamp": "2026-08-15T07:35:08.128Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:35:08.129Z",
+    "updatedAt": "2026-08-15T07:35:08.129Z",
+    "id": "01a00458-9060-751b-b142-e419a0b10c3d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 76,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779314610,
+    "serverTimestamp": "2026-08-15T07:35:14.699Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:35:14.699Z",
+    "updatedAt": "2026-08-15T07:35:14.699Z",
+    "id": "01a00458-aa0a-7069-805d-503d1dd3883d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 77,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779319005,
+    "serverTimestamp": "2026-08-15T07:35:19.070Z",
+    "payload": {
+      "ballOn": 10
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:35:19.070Z",
+    "updatedAt": "2026-08-15T07:35:19.070Z",
+    "id": "01a00458-bb1e-74cd-b3b5-4c572793d5bd"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 78,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779348853,
+    "serverTimestamp": "2026-08-15T07:35:48.944Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:35:48.945Z",
+    "updatedAt": "2026-08-15T07:35:48.945Z",
+    "id": "01a00459-2fd0-71cc-a943-3b3132641861"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 10,
+    "sequenceNumber": 79,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779356973,
+    "serverTimestamp": "2026-08-15T07:35:57.067Z",
+    "payload": {
+      "ballOn": 17
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:35:57.067Z",
+    "updatedAt": "2026-08-15T07:35:57.067Z",
+    "id": "01a00459-4f8b-770b-83ad-4f06d28a8726"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 80,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779386603,
+    "serverTimestamp": "2026-08-15T07:36:26.692Z",
+    "payload": {
+      "accumulatedTimeMs": 1157405
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:36:26.692Z",
+    "updatedAt": "2026-08-15T07:36:26.692Z",
+    "id": "01a00459-c344-76f6-894d-4a29e4c36de9"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 81,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779391391,
+    "serverTimestamp": "2026-08-15T07:36:31.449Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:36:31.450Z",
+    "updatedAt": "2026-08-15T07:36:31.450Z",
+    "id": "01a00459-d5d9-7509-8433-31d6b77dcfee"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TIMEOUT",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 82,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779395338,
+    "serverTimestamp": "2026-08-15T07:36:35.433Z",
+    "payload": {
+      "teamId": "w-aut",
+      "reason": "TIMEOUT",
+      "accumulatedTimeMs": 1157405
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:36:35.434Z",
+    "updatedAt": "2026-08-15T07:36:35.434Z",
+    "id": "01a00459-e569-70ef-9fd7-ffad1983ce94"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 83,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779485887,
+    "serverTimestamp": "2026-08-15T07:38:06.090Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:38:06.092Z",
+    "updatedAt": "2026-08-15T07:38:06.092Z",
+    "id": "01a0045b-478a-74c3-b0ea-b4b636ec313f"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 84,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779491653,
+    "serverTimestamp": "2026-08-15T07:38:11.740Z",
+    "payload": {
+      "accumulatedTimeMs": 1162710
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:38:11.740Z",
+    "updatedAt": "2026-08-15T07:38:11.740Z",
+    "id": "01a0045b-5d9c-729b-ae1a-fb8b4ae5560e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 85,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779497215,
+    "serverTimestamp": "2026-08-15T07:38:17.298Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:38:17.299Z",
+    "updatedAt": "2026-08-15T07:38:17.299Z",
+    "id": "01a0045b-7352-77d9-8992-47d104249fac"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 86,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779503416,
+    "serverTimestamp": "2026-08-15T07:38:23.496Z",
+    "payload": {
+      "accumulatedTimeMs": 1168766
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:38:23.497Z",
+    "updatedAt": "2026-08-15T07:38:23.497Z",
+    "id": "01a0045b-8b88-712a-9519-5d65f1e8f003"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 87,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779510683,
+    "serverTimestamp": "2026-08-15T07:38:30.766Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:38:30.766Z",
+    "updatedAt": "2026-08-15T07:38:30.766Z",
+    "id": "01a0045b-a7ee-73cd-9c26-8723f1abbf38"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TRY_DOWN",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 17,
+    "sequenceNumber": 88,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779513519,
+    "serverTimestamp": "2026-08-15T07:38:33.573Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:38:33.574Z",
+    "updatedAt": "2026-08-15T07:38:33.574Z",
+    "id": "01a0045b-b2e5-74ab-9fcc-53a932214759"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 89,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779555579,
+    "serverTimestamp": "2026-08-15T07:39:15.664Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:39:15.664Z",
+    "updatedAt": "2026-08-15T07:39:15.664Z",
+    "id": "01a0045c-5750-7409-8932-1ff3505233ce"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 90,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779555710,
+    "serverTimestamp": "2026-08-15T07:39:15.758Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:39:15.758Z",
+    "updatedAt": "2026-08-15T07:39:15.758Z",
+    "id": "01a0045c-57ae-7609-b2cf-abfd7ac47f9e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 91,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779556093,
+    "serverTimestamp": "2026-08-15T07:39:16.141Z",
+    "payload": {
+      "teamId": "w-aut"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:39:16.141Z",
+    "updatedAt": "2026-08-15T07:39:16.141Z",
+    "id": "01a0045c-592d-7672-a073-ab5d7e4d4e95"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 92,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779565730,
+    "serverTimestamp": "2026-08-15T07:39:25.812Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:39:25.812Z",
+    "updatedAt": "2026-08-15T07:39:25.812Z",
+    "id": "01a0045c-7ef4-76ec-af03-0dc8c1573914"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 93,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779567900,
+    "serverTimestamp": "2026-08-15T07:39:27.955Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:39:27.955Z",
+    "updatedAt": "2026-08-15T07:39:27.955Z",
+    "id": "01a0045c-8753-754a-bc92-b31c371c4d75"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 94,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779577439,
+    "serverTimestamp": "2026-08-15T07:39:37.520Z",
+    "payload": {
+      "accumulatedTimeMs": 1178093
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:39:37.520Z",
+    "updatedAt": "2026-08-15T07:39:37.520Z",
+    "id": "01a0045c-acb0-747d-a134-1003bbf7dd8e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 95,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779590596,
+    "serverTimestamp": "2026-08-15T07:39:50.686Z",
+    "payload": {
+      "ballOn": 42
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:39:50.686Z",
+    "updatedAt": "2026-08-15T07:39:50.686Z",
+    "id": "01a0045c-e01e-779a-9c9a-8aa747981181"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 96,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779590738,
+    "serverTimestamp": "2026-08-15T07:39:50.787Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:39:50.787Z",
+    "updatedAt": "2026-08-15T07:39:50.787Z",
+    "id": "01a0045c-e082-75c2-b485-64ef3fdeb79b"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 97,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779616633,
+    "serverTimestamp": "2026-08-15T07:40:16.743Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:40:16.743Z",
+    "updatedAt": "2026-08-15T07:40:16.743Z",
+    "id": "01a0045d-45e7-75fd-be34-39d91b98159e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 98,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779624087,
+    "serverTimestamp": "2026-08-15T07:40:24.247Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:40:24.247Z",
+    "updatedAt": "2026-08-15T07:40:24.247Z",
+    "id": "01a0045d-6337-7628-be16-2eaabdbd9e66"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 99,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779624689,
+    "serverTimestamp": "2026-08-15T07:40:24.784Z",
+    "payload": {
+      "accumulatedTimeMs": 1185901
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:40:24.784Z",
+    "updatedAt": "2026-08-15T07:40:24.784Z",
+    "id": "01a0045d-6550-75db-9dba-7c01f5618407"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TIMEOUT",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 100,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779629928,
+    "serverTimestamp": "2026-08-15T07:40:30.017Z",
+    "payload": {
+      "teamId": "w-aut",
+      "reason": "TIMEOUT",
+      "accumulatedTimeMs": 1185901
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:40:30.017Z",
+    "updatedAt": "2026-08-15T07:40:30.017Z",
+    "id": "01a0045d-79c1-74c1-88c6-4b21d59fb293"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 101,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779637426,
+    "serverTimestamp": "2026-08-15T07:40:37.513Z",
+    "payload": {
+      "previousMs": 1185901,
+      "newMs": 1186901
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:40:37.513Z",
+    "updatedAt": "2026-08-15T07:40:37.513Z",
+    "id": "01a0045d-9709-7248-9f4e-1721794a6e41"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 102,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779638120,
+    "serverTimestamp": "2026-08-15T07:40:38.174Z",
+    "payload": {
+      "previousMs": 1186901,
+      "newMs": 1187901
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:40:38.175Z",
+    "updatedAt": "2026-08-15T07:40:38.175Z",
+    "id": "01a0045d-999e-75fb-a8a7-e024ec2e8b86"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 103,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779639273,
+    "serverTimestamp": "2026-08-15T07:40:39.327Z",
+    "payload": {
+      "previousMs": 1187901,
+      "newMs": 1186901
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:40:39.327Z",
+    "updatedAt": "2026-08-15T07:40:39.327Z",
+    "id": "01a0045d-9e1f-738e-b32e-dbabb54ede6d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 104,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779694994,
+    "serverTimestamp": "2026-08-15T07:41:35.097Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:35.097Z",
+    "updatedAt": "2026-08-15T07:41:35.097Z",
+    "id": "01a0045e-77f9-720b-ae02-b47b3bb22d0e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 105,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779704634,
+    "serverTimestamp": "2026-08-15T07:41:44.723Z",
+    "payload": {
+      "previousMs": 1196230,
+      "newMs": 1195230
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:44.724Z",
+    "updatedAt": "2026-08-15T07:41:44.724Z",
+    "id": "01a0045e-9d93-7588-8454-3dc755ca2a8a"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 106,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779704961,
+    "serverTimestamp": "2026-08-15T07:41:45.089Z",
+    "payload": {
+      "previousMs": 1195435,
+      "newMs": 1194435
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:45.090Z",
+    "updatedAt": "2026-08-15T07:41:45.090Z",
+    "id": "01a0045e-9f00-71da-afff-40b5bd46a683"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 107,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779705707,
+    "serverTimestamp": "2026-08-15T07:41:45.757Z",
+    "payload": {
+      "previousMs": 1194767,
+      "newMs": 1193767
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:45.757Z",
+    "updatedAt": "2026-08-15T07:41:45.757Z",
+    "id": "01a0045e-a19d-710b-ab08-8e6452b301b5"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 108,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779705232,
+    "serverTimestamp": "2026-08-15T07:41:45.906Z",
+    "payload": {
+      "previousMs": 1194516,
+      "newMs": 1193516
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:45.906Z",
+    "updatedAt": "2026-08-15T07:41:45.906Z",
+    "id": "01a0045e-a232-7149-bb5d-e18bc56c335b"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 109,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779706111,
+    "serverTimestamp": "2026-08-15T07:41:46.482Z",
+    "payload": {
+      "previousMs": 1193545,
+      "newMs": 1192545
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:46.482Z",
+    "updatedAt": "2026-08-15T07:41:46.482Z",
+    "id": "01a0045e-a472-72fc-882d-287ef8ac4009"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 110,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779707362,
+    "serverTimestamp": "2026-08-15T07:41:47.706Z",
+    "payload": {
+      "previousMs": 1193204,
+      "newMs": 1192204
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:47.706Z",
+    "updatedAt": "2026-08-15T07:41:47.706Z",
+    "id": "01a0045e-a93a-7052-a6ec-e2def4729af8"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 111,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779709049,
+    "serverTimestamp": "2026-08-15T07:41:49.101Z",
+    "payload": {
+      "previousMs": 1193485,
+      "newMs": 1192485
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:49.101Z",
+    "updatedAt": "2026-08-15T07:41:49.101Z",
+    "id": "01a0045e-aead-720c-b246-2f82ce0968cb"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 112,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779712905,
+    "serverTimestamp": "2026-08-15T07:41:53.016Z",
+    "payload": {
+      "accumulatedTimeMs": 1196138
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:53.016Z",
+    "updatedAt": "2026-08-15T07:41:53.016Z",
+    "id": "01a0045e-bdf8-7449-a331-45e207ed67b7"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 113,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779714469,
+    "serverTimestamp": "2026-08-15T07:41:54.521Z",
+    "payload": {
+      "previousMs": 1196138,
+      "newMs": 1195138
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:54.522Z",
+    "updatedAt": "2026-08-15T07:41:54.522Z",
+    "id": "01a0045e-c3d9-733d-b2d8-0b656dadab67"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 114,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779715034,
+    "serverTimestamp": "2026-08-15T07:41:55.089Z",
+    "payload": {
+      "previousMs": 1195138,
+      "newMs": 1194138
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:55.089Z",
+    "updatedAt": "2026-08-15T07:41:55.089Z",
+    "id": "01a0045e-c611-7297-b002-e2c475fef6e9"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 115,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779715413,
+    "serverTimestamp": "2026-08-15T07:41:55.464Z",
+    "payload": {
+      "previousMs": 1194138,
+      "newMs": 1193138
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:55.464Z",
+    "updatedAt": "2026-08-15T07:41:55.464Z",
+    "id": "01a0045e-c788-753d-b0ee-6ca9e2e7f76e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 116,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779715933,
+    "serverTimestamp": "2026-08-15T07:41:55.983Z",
+    "payload": {
+      "previousMs": 1193138,
+      "newMs": 1192138
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:55.983Z",
+    "updatedAt": "2026-08-15T07:41:55.983Z",
+    "id": "01a0045e-c98f-722b-8272-ae1b67922309"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 117,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779716564,
+    "serverTimestamp": "2026-08-15T07:41:56.616Z",
+    "payload": {
+      "previousMs": 1192138,
+      "newMs": 1191138
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:41:56.616Z",
+    "updatedAt": "2026-08-15T07:41:56.616Z",
+    "id": "01a0045e-cc08-71cf-bb69-e33ff9e5aa59"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 118,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779720187,
+    "serverTimestamp": "2026-08-15T07:42:00.276Z",
+    "payload": {
+      "previousMs": 1191138,
+      "newMs": 1192138
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:42:00.276Z",
+    "updatedAt": "2026-08-15T07:42:00.276Z",
+    "id": "01a0045e-da54-75ca-be61-b4fa1d6b5658"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 119,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779720866,
+    "serverTimestamp": "2026-08-15T07:42:00.921Z",
+    "payload": {
+      "previousMs": 1192138,
+      "newMs": 1193138
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:42:00.921Z",
+    "updatedAt": "2026-08-15T07:42:00.921Z",
+    "id": "01a0045e-dcd9-7079-b091-b34b955edb42"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 120,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779721299,
+    "serverTimestamp": "2026-08-15T07:42:01.388Z",
+    "payload": {
+      "previousMs": 1193138,
+      "newMs": 1194138
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:42:01.389Z",
+    "updatedAt": "2026-08-15T07:42:01.389Z",
+    "id": "01a0045e-deac-776d-9bc3-46098f7c2445"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 121,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779723932,
+    "serverTimestamp": "2026-08-15T07:42:04.097Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:42:04.110Z",
+    "updatedAt": "2026-08-15T07:42:04.110Z",
+    "id": "01a0045e-e940-7169-b838-8081bb9f9f35"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 122,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779765521,
+    "serverTimestamp": "2026-08-15T07:42:45.598Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:42:45.599Z",
+    "updatedAt": "2026-08-15T07:42:45.599Z",
+    "id": "01a0045f-8b5e-71eb-8ddd-17436c0c1d12"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 123,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779770349,
+    "serverTimestamp": "2026-08-15T07:42:50.403Z",
+    "payload": {
+      "accumulatedTimeMs": 1198667
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:42:50.404Z",
+    "updatedAt": "2026-08-15T07:42:50.404Z",
+    "id": "01a0045f-9e23-770a-9145-bc1a6ac47b0d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 124,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779781265,
+    "serverTimestamp": "2026-08-15T07:43:01.347Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:43:01.348Z",
+    "updatedAt": "2026-08-15T07:43:01.348Z",
+    "id": "01a0045f-c8e3-7419-bb22-b142bd4ae7be"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 125,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779808515,
+    "serverTimestamp": "2026-08-15T07:43:28.597Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:43:28.599Z",
+    "updatedAt": "2026-08-15T07:43:28.599Z",
+    "id": "01a00460-3355-7456-a990-db66f2514530"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "STATUS_CHANGE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 126,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779834238,
+    "serverTimestamp": "2026-08-15T07:43:54.330Z",
+    "payload": {
+      "status": "HALF_TIME"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:43:54.331Z",
+    "updatedAt": "2026-08-15T07:43:54.331Z",
+    "id": "01a00460-97da-7090-becf-5bc917e55f89"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "STATUS_CHANGE",
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 127,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779834373,
+    "serverTimestamp": "2026-08-15T07:43:54.425Z",
+    "payload": {
+      "status": "IN_PROGRESS"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:43:54.425Z",
+    "updatedAt": "2026-08-15T07:43:54.425Z",
+    "id": "01a00460-9839-74c3-b56d-6b99ad6808a5"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 128,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779837226,
+    "serverTimestamp": "2026-08-15T07:43:57.305Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:43:57.306Z",
+    "updatedAt": "2026-08-15T07:43:57.306Z",
+    "id": "01a00460-a379-7658-8841-5e7facc0c0ab"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 129,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779973933,
+    "serverTimestamp": "2026-08-15T07:46:14.021Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T07:46:14.022Z",
+    "updatedAt": "2026-08-15T07:46:14.022Z",
+    "id": "01a00462-b984-7520-854f-aa8676c5791f"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 130,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779979662,
+    "serverTimestamp": "2026-08-15T07:46:19.766Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:46:19.766Z",
+    "updatedAt": "2026-08-15T07:46:19.766Z",
+    "id": "01a00462-cff6-739f-a395-9a28d50546f2"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 42,
+    "sequenceNumber": 131,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779987787,
+    "serverTimestamp": "2026-08-15T07:46:27.901Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:46:27.902Z",
+    "updatedAt": "2026-08-15T07:46:27.902Z",
+    "id": "01a00462-efbd-7186-b6bd-bea77480dde3"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 132,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779987968,
+    "serverTimestamp": "2026-08-15T07:46:28.024Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:46:28.024Z",
+    "updatedAt": "2026-08-15T07:46:28.024Z",
+    "id": "01a00462-f038-753a-9ef1-a157973c8b25"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 133,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786779989408,
+    "serverTimestamp": "2026-08-15T07:46:29.465Z",
+    "payload": {
+      "ballOn": 9
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:46:29.466Z",
+    "updatedAt": "2026-08-15T07:46:29.466Z",
+    "id": "01a00462-f5d9-74f5-b83f-d24020a03ead"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 9,
+    "sequenceNumber": 134,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780004530,
+    "serverTimestamp": "2026-08-15T07:46:44.626Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:46:44.626Z",
+    "updatedAt": "2026-08-15T07:46:44.626Z",
+    "id": "01a00463-3112-73e7-bb83-5033e7a42acd"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 9,
+    "sequenceNumber": 135,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780010358,
+    "serverTimestamp": "2026-08-15T07:46:50.494Z",
+    "payload": {
+      "ballOn": 22
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:46:50.495Z",
+    "updatedAt": "2026-08-15T07:46:50.495Z",
+    "id": "01a00463-47fe-7267-af32-43d75af6d45e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 22,
+    "sequenceNumber": 136,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780038758,
+    "serverTimestamp": "2026-08-15T07:47:18.848Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:47:18.849Z",
+    "updatedAt": "2026-08-15T07:47:18.849Z",
+    "id": "01a00463-b6c0-7029-b0e0-ef515c328526"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 22,
+    "sequenceNumber": 137,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780079652,
+    "serverTimestamp": "2026-08-15T07:47:59.733Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:47:59.734Z",
+    "updatedAt": "2026-08-15T07:47:59.734Z",
+    "id": "01a00464-5675-77d9-9d73-5a9e77f94f0c"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 22,
+    "sequenceNumber": 138,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780084068,
+    "serverTimestamp": "2026-08-15T07:48:04.147Z",
+    "payload": {
+      "ballOn": 30
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:48:04.147Z",
+    "updatedAt": "2026-08-15T07:48:04.147Z",
+    "id": "01a00464-67b3-7759-a56f-012dc50e9a7d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 139,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780084236,
+    "serverTimestamp": "2026-08-15T07:48:04.289Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:48:04.289Z",
+    "updatedAt": "2026-08-15T07:48:04.289Z",
+    "id": "01a00464-6841-72cd-9576-2613967595ca"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 140,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780106802,
+    "serverTimestamp": "2026-08-15T07:48:26.890Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:48:26.890Z",
+    "updatedAt": "2026-08-15T07:48:26.890Z",
+    "id": "01a00464-c089-7069-93a3-79a5e31cc7b2"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 30,
+    "sequenceNumber": 141,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780112516,
+    "serverTimestamp": "2026-08-15T07:48:32.600Z",
+    "payload": {
+      "ballOn": 36
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:48:32.601Z",
+    "updatedAt": "2026-08-15T07:48:32.601Z",
+    "id": "01a00464-d6d8-7607-bf17-056992ad7824"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 36,
+    "sequenceNumber": 142,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780140566,
+    "serverTimestamp": "2026-08-15T07:49:00.651Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:49:00.651Z",
+    "updatedAt": "2026-08-15T07:49:00.651Z",
+    "id": "01a00465-446b-7635-8e16-be277b3e2593"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 36,
+    "sequenceNumber": 143,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780145704,
+    "serverTimestamp": "2026-08-15T07:49:05.793Z",
+    "payload": {
+      "ballOn": 46
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:49:05.794Z",
+    "updatedAt": "2026-08-15T07:49:05.794Z",
+    "id": "01a00465-5881-7799-ba72-f9ed3c1c1a6b"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 46,
+    "sequenceNumber": 144,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780179147,
+    "serverTimestamp": "2026-08-15T07:49:39.230Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:49:39.231Z",
+    "updatedAt": "2026-08-15T07:49:39.231Z",
+    "id": "01a00465-db1e-768b-9486-a548aff0fada"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 46,
+    "sequenceNumber": 145,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780225409,
+    "serverTimestamp": "2026-08-15T07:50:25.524Z",
+    "payload": {
+      "teamId": "w-aut",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:50:25.525Z",
+    "updatedAt": "2026-08-15T07:50:25.525Z",
+    "id": "01a00466-8ff4-7019-b872-d4006e02fbfd"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TRY_DOWN",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 46,
+    "sequenceNumber": 146,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780234292,
+    "serverTimestamp": "2026-08-15T07:50:34.375Z",
+    "payload": {
+      "tryPoints": 2,
+      "ballOn": 40
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:50:34.375Z",
+    "updatedAt": "2026-08-15T07:50:34.375Z",
+    "id": "01a00466-b287-7317-ba40-629e81ad934d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 147,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780268492,
+    "serverTimestamp": "2026-08-15T07:51:08.579Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:51:08.579Z",
+    "updatedAt": "2026-08-15T07:51:08.579Z",
+    "id": "01a00467-3822-73e3-a59d-01ed26e14c8c"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 148,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780269088,
+    "serverTimestamp": "2026-08-15T07:51:09.144Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:51:09.144Z",
+    "updatedAt": "2026-08-15T07:51:09.144Z",
+    "id": "01a00467-3a57-726d-9db2-da1ac00dd28a"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 149,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780269178,
+    "serverTimestamp": "2026-08-15T07:51:09.319Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:51:09.319Z",
+    "updatedAt": "2026-08-15T07:51:09.319Z",
+    "id": "01a00467-3b07-774f-b339-2c62afa7523a"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 150,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780271339,
+    "serverTimestamp": "2026-08-15T07:51:11.393Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:51:11.394Z",
+    "updatedAt": "2026-08-15T07:51:11.394Z",
+    "id": "01a00467-4321-750f-a319-dfbe539c7230"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 151,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780271438,
+    "serverTimestamp": "2026-08-15T07:51:11.528Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:51:11.528Z",
+    "updatedAt": "2026-08-15T07:51:11.528Z",
+    "id": "01a00467-43a8-7117-9ea2-4c7d54e523ba"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 152,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780306835,
+    "serverTimestamp": "2026-08-15T07:51:46.937Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:51:46.938Z",
+    "updatedAt": "2026-08-15T07:51:46.938Z",
+    "id": "01a00467-cdf9-7451-a868-34dbc0ddd0ae"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 153,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780316340,
+    "serverTimestamp": "2026-08-15T07:51:56.440Z",
+    "payload": {
+      "ballOn": 21
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:51:56.440Z",
+    "updatedAt": "2026-08-15T07:51:56.440Z",
+    "id": "01a00467-f318-7189-9852-d3c2a31de694"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 21,
+    "sequenceNumber": 154,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780351799,
+    "serverTimestamp": "2026-08-15T07:52:31.879Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:52:31.880Z",
+    "updatedAt": "2026-08-15T07:52:31.880Z",
+    "id": "01a00468-7d87-7454-b417-4f6fc7376660"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 21,
+    "sequenceNumber": 155,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780359266,
+    "serverTimestamp": "2026-08-15T07:52:39.361Z",
+    "payload": {
+      "ballOn": 49
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:52:39.361Z",
+    "updatedAt": "2026-08-15T07:52:39.361Z",
+    "id": "01a00468-9ac0-70c8-bbf0-70c5b68a2975"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 49,
+    "sequenceNumber": 156,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780359411,
+    "serverTimestamp": "2026-08-15T07:52:39.462Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:52:39.462Z",
+    "updatedAt": "2026-08-15T07:52:39.462Z",
+    "id": "01a00468-9b25-75be-b375-f42440cb8bd4"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 49,
+    "sequenceNumber": 157,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780398289,
+    "serverTimestamp": "2026-08-15T07:53:18.381Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:53:18.382Z",
+    "updatedAt": "2026-08-15T07:53:18.382Z",
+    "id": "01a00469-332d-745b-8cc7-5c035d42fac7"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 49,
+    "sequenceNumber": 158,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780406157,
+    "serverTimestamp": "2026-08-15T07:53:26.272Z",
+    "payload": {
+      "ballOn": 48
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:53:26.273Z",
+    "updatedAt": "2026-08-15T07:53:26.273Z",
+    "id": "01a00469-5200-7048-94e1-73ea0cedf78d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 48,
+    "sequenceNumber": 159,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780439730,
+    "serverTimestamp": "2026-08-15T07:53:59.815Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:53:59.816Z",
+    "updatedAt": "2026-08-15T07:53:59.816Z",
+    "id": "01a00469-d507-741d-82c9-307ba35780bc"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 48,
+    "sequenceNumber": 160,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780483320,
+    "serverTimestamp": "2026-08-15T07:54:43.408Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:54:43.408Z",
+    "updatedAt": "2026-08-15T07:54:43.408Z",
+    "id": "01a0046a-7f4f-713b-b322-81b0d57e2b98"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 48,
+    "sequenceNumber": 161,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780526507,
+    "serverTimestamp": "2026-08-15T07:55:26.595Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:55:26.596Z",
+    "updatedAt": "2026-08-15T07:55:26.596Z",
+    "id": "01a0046b-2803-7210-8e2d-d001e2b6760f"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TRY_DOWN",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 48,
+    "sequenceNumber": 162,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780534365,
+    "serverTimestamp": "2026-08-15T07:55:34.449Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:55:34.449Z",
+    "updatedAt": "2026-08-15T07:55:34.449Z",
+    "id": "01a0046b-46b1-74bb-aa6b-2f937507624c"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 163,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780570362,
+    "serverTimestamp": "2026-08-15T07:56:10.453Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:56:10.453Z",
+    "updatedAt": "2026-08-15T07:56:10.453Z",
+    "id": "01a0046b-d355-760f-a2f1-b94b247ea42c"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 164,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780583145,
+    "serverTimestamp": "2026-08-15T07:56:23.335Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:56:23.335Z",
+    "updatedAt": "2026-08-15T07:56:23.335Z",
+    "id": "01a0046c-05a7-77ee-9930-347615bb1d5e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 165,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780593642,
+    "serverTimestamp": "2026-08-15T07:56:33.731Z",
+    "payload": {
+      "ballOn": 47
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:56:33.731Z",
+    "updatedAt": "2026-08-15T07:56:33.731Z",
+    "id": "01a0046c-2e42-703d-b575-ca4c21869def"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 47,
+    "sequenceNumber": 166,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780614464,
+    "serverTimestamp": "2026-08-15T07:56:54.552Z",
+    "payload": {
+      "teamId": "w-aut"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:56:54.553Z",
+    "updatedAt": "2026-08-15T07:56:54.553Z",
+    "id": "01a0046c-7f98-71ec-bfda-bbcfba9c32f6"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 47,
+    "sequenceNumber": 167,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780615073,
+    "serverTimestamp": "2026-08-15T07:56:55.128Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:56:55.129Z",
+    "updatedAt": "2026-08-15T07:56:55.129Z",
+    "id": "01a0046c-81d8-768b-8d15-678dca4e8e2e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 47,
+    "sequenceNumber": 168,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780615161,
+    "serverTimestamp": "2026-08-15T07:56:55.216Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:56:55.217Z",
+    "updatedAt": "2026-08-15T07:56:55.217Z",
+    "id": "01a0046c-8230-775f-8014-d47519def3df"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 47,
+    "sequenceNumber": 169,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780619475,
+    "serverTimestamp": "2026-08-15T07:56:59.529Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:56:59.530Z",
+    "updatedAt": "2026-08-15T07:56:59.530Z",
+    "id": "01a0046c-9309-7302-879f-03388c9e4557"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 170,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780619555,
+    "serverTimestamp": "2026-08-15T07:56:59.670Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:56:59.671Z",
+    "updatedAt": "2026-08-15T07:56:59.671Z",
+    "id": "01a0046c-9396-77af-9694-0b73c13aea07"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 171,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780648693,
+    "serverTimestamp": "2026-08-15T07:57:28.779Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:57:28.779Z",
+    "updatedAt": "2026-08-15T07:57:28.779Z",
+    "id": "01a0046d-054b-73ff-8df3-1f424108a197"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 172,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780651971,
+    "serverTimestamp": "2026-08-15T07:57:32.031Z",
+    "payload": {
+      "ballOn": 12
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:57:32.031Z",
+    "updatedAt": "2026-08-15T07:57:32.031Z",
+    "id": "01a0046d-11ff-72dd-b0d3-3712c3ca8347"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 12,
+    "sequenceNumber": 173,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780653329,
+    "serverTimestamp": "2026-08-15T07:57:33.423Z",
+    "payload": {
+      "ballOn": 11
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:57:33.424Z",
+    "updatedAt": "2026-08-15T07:57:33.424Z",
+    "id": "01a0046d-176f-728f-9f39-b4ce434b3208"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 174,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780677789,
+    "serverTimestamp": "2026-08-15T07:57:57.875Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:57:57.875Z",
+    "updatedAt": "2026-08-15T07:57:57.875Z",
+    "id": "01a0046d-76f3-703b-8128-c1fb6b472e60"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 175,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780683002,
+    "serverTimestamp": "2026-08-15T07:58:03.144Z",
+    "payload": {
+      "ballOn": 22
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:58:03.144Z",
+    "updatedAt": "2026-08-15T07:58:03.144Z",
+    "id": "01a0046d-8b88-7253-8335-7a691c582dc5"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 22,
+    "sequenceNumber": 176,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780707921,
+    "serverTimestamp": "2026-08-15T07:58:28.023Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:58:28.023Z",
+    "updatedAt": "2026-08-15T07:58:28.023Z",
+    "id": "01a0046d-ecb7-757d-94d0-ce19d41e3a64"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 22,
+    "sequenceNumber": 177,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780715784,
+    "serverTimestamp": "2026-08-15T07:58:35.873Z",
+    "payload": {
+      "ballOn": 32
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:58:35.874Z",
+    "updatedAt": "2026-08-15T07:58:35.874Z",
+    "id": "01a0046e-0b61-71c4-9a48-10713471cc6e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 178,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780715931,
+    "serverTimestamp": "2026-08-15T07:58:35.990Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:58:35.991Z",
+    "updatedAt": "2026-08-15T07:58:35.991Z",
+    "id": "01a0046e-0bd6-70cd-90cd-39269099d083"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 32,
+    "sequenceNumber": 179,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780721086,
+    "serverTimestamp": "2026-08-15T07:58:41.186Z",
+    "payload": {
+      "ballOn": 33
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:58:41.186Z",
+    "updatedAt": "2026-08-15T07:58:41.186Z",
+    "id": "01a0046e-2022-7039-ac1d-df75b2e3d9a4"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 33,
+    "sequenceNumber": 180,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780754799,
+    "serverTimestamp": "2026-08-15T07:59:14.938Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:59:14.938Z",
+    "updatedAt": "2026-08-15T07:59:14.938Z",
+    "id": "01a0046e-a3fa-7509-af71-eb6410e1aefa"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 33,
+    "sequenceNumber": 181,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780779448,
+    "serverTimestamp": "2026-08-15T07:59:39.531Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T07:59:39.531Z",
+    "updatedAt": "2026-08-15T07:59:39.531Z",
+    "id": "01a0046f-040b-72ac-849c-e13fe02825f8"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 33,
+    "sequenceNumber": 182,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780821813,
+    "serverTimestamp": "2026-08-15T08:00:21.905Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:00:21.905Z",
+    "updatedAt": "2026-08-15T08:00:21.905Z",
+    "id": "01a0046f-a990-7788-afc2-a5d880acadf5"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 33,
+    "sequenceNumber": 183,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780864543,
+    "serverTimestamp": "2026-08-15T08:01:04.701Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:01:04.701Z",
+    "updatedAt": "2026-08-15T08:01:04.701Z",
+    "id": "01a00470-50bd-771a-938a-9ac474cfb6a6"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 33,
+    "sequenceNumber": 184,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780865188,
+    "serverTimestamp": "2026-08-15T08:01:05.248Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:01:05.248Z",
+    "updatedAt": "2026-08-15T08:01:05.248Z",
+    "id": "01a00470-52e0-745b-b40e-348681ab3d90"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 33,
+    "sequenceNumber": 185,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780867307,
+    "serverTimestamp": "2026-08-15T08:01:07.364Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:01:07.365Z",
+    "updatedAt": "2026-08-15T08:01:07.365Z",
+    "id": "01a00470-5b24-77b6-a82d-e873e0e0c43a"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 186,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780867395,
+    "serverTimestamp": "2026-08-15T08:01:07.522Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:01:07.523Z",
+    "updatedAt": "2026-08-15T08:01:07.523Z",
+    "id": "01a00470-5bc2-74ce-b80f-340b9b622384"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 187,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780904101,
+    "serverTimestamp": "2026-08-15T08:01:44.191Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:01:44.192Z",
+    "updatedAt": "2026-08-15T08:01:44.192Z",
+    "id": "01a00470-eaff-7248-ac90-b832acbfa1fc"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 188,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780909820,
+    "serverTimestamp": "2026-08-15T08:01:49.967Z",
+    "payload": {
+      "ballOn": 11
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:01:49.968Z",
+    "updatedAt": "2026-08-15T08:01:49.968Z",
+    "id": "01a00471-018f-75cd-8832-c1d909de2b7e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 189,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780933381,
+    "serverTimestamp": "2026-08-15T08:02:13.487Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:02:13.487Z",
+    "updatedAt": "2026-08-15T08:02:13.487Z",
+    "id": "01a00471-5d6f-71cd-ad99-0c44c7dc2ab1"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 190,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780980714,
+    "serverTimestamp": "2026-08-15T08:03:00.850Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:03:00.851Z",
+    "updatedAt": "2026-08-15T08:03:00.851Z",
+    "id": "01a00472-1672-702f-8494-a737439b7374"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 191,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786780983646,
+    "serverTimestamp": "2026-08-15T08:03:03.693Z",
+    "payload": {
+      "ballOn": 20
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:03:03.693Z",
+    "updatedAt": "2026-08-15T08:03:03.693Z",
+    "id": "01a00472-218d-716e-a166-475d324d8dec"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 20,
+    "sequenceNumber": 192,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781022075,
+    "serverTimestamp": "2026-08-15T08:03:42.157Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:03:42.159Z",
+    "updatedAt": "2026-08-15T08:03:42.159Z",
+    "id": "01a00472-b7cd-703a-adf4-817298346971"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 20,
+    "sequenceNumber": 193,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781028021,
+    "serverTimestamp": "2026-08-15T08:03:48.102Z",
+    "payload": {
+      "ballOn": 34
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:03:48.103Z",
+    "updatedAt": "2026-08-15T08:03:48.103Z",
+    "id": "01a00472-cf06-7403-a003-561dafabcc75"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 34,
+    "sequenceNumber": 194,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781028147,
+    "serverTimestamp": "2026-08-15T08:03:48.249Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "GOAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:03:48.250Z",
+    "updatedAt": "2026-08-15T08:03:48.250Z",
+    "id": "01a00472-cf99-75eb-8139-98a04c4725ac"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 34,
+    "sequenceNumber": 195,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781055122,
+    "serverTimestamp": "2026-08-15T08:04:15.252Z",
+    "payload": {
+      "accumulatedTimeMs": 1080890
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:04:15.252Z",
+    "updatedAt": "2026-08-15T08:04:15.252Z",
+    "id": "01a00473-3914-7079-b264-87162624b146"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 34,
+    "sequenceNumber": 196,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781057187,
+    "serverTimestamp": "2026-08-15T08:04:17.230Z",
+    "payload": {
+      "previousMs": 1080890,
+      "newMs": 1079890
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:04:17.231Z",
+    "updatedAt": "2026-08-15T08:04:17.231Z",
+    "id": "01a00473-40ce-70a8-b141-26560d6fee6f"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 34,
+    "sequenceNumber": 197,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781082897,
+    "serverTimestamp": "2026-08-15T08:04:42.973Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T08:04:42.974Z",
+    "updatedAt": "2026-08-15T08:04:42.974Z",
+    "id": "01a00473-a55d-701a-a936-d191911eb3be"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 34,
+    "sequenceNumber": 198,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781089284,
+    "serverTimestamp": "2026-08-15T08:04:49.379Z",
+    "payload": {
+      "accumulatedTimeMs": 1085957
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:04:49.380Z",
+    "updatedAt": "2026-08-15T08:04:49.380Z",
+    "id": "01a00473-be63-713e-9b89-43dd74d53149"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 34,
+    "sequenceNumber": 199,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781094434,
+    "serverTimestamp": "2026-08-15T08:04:54.508Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:04:54.509Z",
+    "updatedAt": "2026-08-15T08:04:54.509Z",
+    "id": "01a00473-d26c-74ff-b34e-b35176d1e3e7"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 34,
+    "sequenceNumber": 200,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781097435,
+    "serverTimestamp": "2026-08-15T08:04:57.484Z",
+    "payload": {
+      "previousMs": 1085957,
+      "newMs": 1084957
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:04:57.485Z",
+    "updatedAt": "2026-08-15T08:04:57.485Z",
+    "id": "01a00473-de0c-710e-8d2a-ba6a439d4732"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 34,
+    "sequenceNumber": 201,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781103564,
+    "serverTimestamp": "2026-08-15T08:05:03.647Z",
+    "payload": {
+      "ballOn": 38
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:05:03.648Z",
+    "updatedAt": "2026-08-15T08:05:03.648Z",
+    "id": "01a00473-f61f-759b-b4fb-25714342f431"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TIMEOUT",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 202,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781114335,
+    "serverTimestamp": "2026-08-15T08:05:14.415Z",
+    "payload": {
+      "teamId": "w-aut",
+      "reason": "TIMEOUT",
+      "accumulatedTimeMs": 1084957
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:05:14.415Z",
+    "updatedAt": "2026-08-15T08:05:14.415Z",
+    "id": "01a00474-202e-736a-85ac-d4f7b21363b7"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 203,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781161445,
+    "serverTimestamp": "2026-08-15T08:06:01.524Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T08:06:01.524Z",
+    "updatedAt": "2026-08-15T08:06:01.524Z",
+    "id": "01a00474-d834-7406-9d16-62210cb7e3d3"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 204,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781169097,
+    "serverTimestamp": "2026-08-15T08:06:09.180Z",
+    "payload": {
+      "accumulatedTimeMs": 1092284
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:06:09.181Z",
+    "updatedAt": "2026-08-15T08:06:09.181Z",
+    "id": "01a00474-f61c-750d-833b-5dd3786a0ed4"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 205,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781173599,
+    "serverTimestamp": "2026-08-15T08:06:13.652Z",
+    "payload": {
+      "previousMs": 1092284,
+      "newMs": 1091284
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:06:13.652Z",
+    "updatedAt": "2026-08-15T08:06:13.652Z",
+    "id": "01a00475-0794-767a-bf99-3b3508a42759"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 206,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781174226,
+    "serverTimestamp": "2026-08-15T08:06:14.302Z",
+    "payload": {
+      "previousMs": 1091284,
+      "newMs": 1090284
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:06:14.303Z",
+    "updatedAt": "2026-08-15T08:06:14.303Z",
+    "id": "01a00475-0a1e-76ca-b0fa-f4449d171587"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 207,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781175828,
+    "serverTimestamp": "2026-08-15T08:06:15.876Z",
+    "payload": {
+      "down": 3
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:06:15.876Z",
+    "updatedAt": "2026-08-15T08:06:15.876Z",
+    "id": "01a00475-1044-771d-9254-5b2e28bebdd5"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 38,
+    "sequenceNumber": 208,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781181591,
+    "serverTimestamp": "2026-08-15T08:06:21.674Z",
+    "payload": {
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:06:21.674Z",
+    "updatedAt": "2026-08-15T08:06:21.674Z",
+    "id": "01a00475-26e9-77db-934c-73107cbf1d52"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TIMEOUT",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 209,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781190831,
+    "serverTimestamp": "2026-08-15T08:06:30.913Z",
+    "payload": {
+      "teamId": "w-aut",
+      "reason": "TIMEOUT",
+      "accumulatedTimeMs": 1090284
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:06:30.913Z",
+    "updatedAt": "2026-08-15T08:06:30.913Z",
+    "id": "01a00475-4b01-7621-8655-91e9576ebd1e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 210,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781243925,
+    "serverTimestamp": "2026-08-15T08:07:24.000Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T08:07:24.000Z",
+    "updatedAt": "2026-08-15T08:07:24.000Z",
+    "id": "01a00476-1a60-70bd-8002-bb5fdb771db9"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 3,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 211,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781251159,
+    "serverTimestamp": "2026-08-15T08:07:31.241Z",
+    "payload": {
+      "down": 4
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:07:31.241Z",
+    "updatedAt": "2026-08-15T08:07:31.241Z",
+    "id": "01a00476-36a9-7714-a795-bd2b569af036"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 212,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781259819,
+    "serverTimestamp": "2026-08-15T08:07:39.925Z",
+    "payload": {
+      "ballOn": 44
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:07:39.926Z",
+    "updatedAt": "2026-08-15T08:07:39.926Z",
+    "id": "01a00476-5895-70f5-a13c-a28baf13a087"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 213,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781277408,
+    "serverTimestamp": "2026-08-15T08:07:57.485Z",
+    "payload": {
+      "accumulatedTimeMs": 1123470
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:07:57.486Z",
+    "updatedAt": "2026-08-15T08:07:57.486Z",
+    "id": "01a00476-9d2d-7182-b436-b02c4eb3eb6d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 214,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781278686,
+    "serverTimestamp": "2026-08-15T08:07:58.813Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T08:07:58.814Z",
+    "updatedAt": "2026-08-15T08:07:58.814Z",
+    "id": "01a00476-a25d-7215-b766-5bb28dadd02c"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 215,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781292099,
+    "serverTimestamp": "2026-08-15T08:08:12.184Z",
+    "payload": {
+      "accumulatedTimeMs": 1136577
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:08:12.184Z",
+    "updatedAt": "2026-08-15T08:08:12.184Z",
+    "id": "01a00476-d697-73b9-9b64-b794fbec6268"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 216,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781297986,
+    "serverTimestamp": "2026-08-15T08:08:18.063Z",
+    "payload": {
+      "previousMs": 1136577,
+      "newMs": 1137577
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:08:18.064Z",
+    "updatedAt": "2026-08-15T08:08:18.064Z",
+    "id": "01a00476-ed8f-7679-8590-5063582116f2"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TRY_DOWN",
+    "half": 2,
+    "down": 4,
+    "yardsToGo": 10,
+    "ballOn": 44,
+    "sequenceNumber": 217,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781305344,
+    "serverTimestamp": "2026-08-15T08:08:25.500Z",
+    "payload": {
+      "tryPoints": 1,
+      "ballOn": 45
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:08:25.501Z",
+    "updatedAt": "2026-08-15T08:08:25.501Z",
+    "id": "01a00477-0a9c-7294-a00c-d96f3c480438"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 218,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781307204,
+    "serverTimestamp": "2026-08-15T08:08:27.250Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:08:27.250Z",
+    "updatedAt": "2026-08-15T08:08:27.250Z",
+    "id": "01a00477-1172-74cb-a07b-d30ab560d741"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 219,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781337920,
+    "serverTimestamp": "2026-08-15T08:08:57.998Z",
+    "payload": {
+      "teamId": "w-can",
+      "scoreType": "XP1",
+      "points": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:08:57.998Z",
+    "updatedAt": "2026-08-15T08:08:57.998Z",
+    "id": "01a00477-898e-7542-b518-5bb82598c4ff"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 220,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781338061,
+    "serverTimestamp": "2026-08-15T08:08:58.104Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:08:58.104Z",
+    "updatedAt": "2026-08-15T08:08:58.104Z",
+    "id": "01a00477-89f8-7632-8970-748550313cfc"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 221,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781345917,
+    "serverTimestamp": "2026-08-15T08:09:06.040Z",
+    "payload": {
+      "teamId": "w-aut"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:09:06.041Z",
+    "updatedAt": "2026-08-15T08:09:06.041Z",
+    "id": "01a00477-a8f8-7780-8733-e4be40206444"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 222,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781346798,
+    "serverTimestamp": "2026-08-15T08:09:06.999Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:09:07.000Z",
+    "updatedAt": "2026-08-15T08:09:07.000Z",
+    "id": "01a00477-acb7-7388-9e02-af9298c1a138"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 45,
+    "sequenceNumber": 223,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781348401,
+    "serverTimestamp": "2026-08-15T08:09:08.447Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:09:08.447Z",
+    "updatedAt": "2026-08-15T08:09:08.447Z",
+    "id": "01a00477-b25f-730a-8c8f-64e9260634ea"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DISTANCE_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 224,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781348496,
+    "serverTimestamp": "2026-08-15T08:09:08.543Z",
+    "payload": {
+      "yardsToGo": 10,
+      "marker": "MIDDLE"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:09:08.543Z",
+    "updatedAt": "2026-08-15T08:09:08.543Z",
+    "id": "01a00477-b2bf-73a8-a17b-ebcffb7ac06c"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 225,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781366638,
+    "serverTimestamp": "2026-08-15T08:09:26.856Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T08:09:26.856Z",
+    "updatedAt": "2026-08-15T08:09:26.856Z",
+    "id": "01a00477-fa48-73eb-88ba-a35868f715b1"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 226,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781376360,
+    "serverTimestamp": "2026-08-15T08:09:36.468Z",
+    "payload": {
+      "down": 2
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:09:36.468Z",
+    "updatedAt": "2026-08-15T08:09:36.468Z",
+    "id": "01a00478-1fd4-77cc-80dd-f6e0fd4a8e56"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 227,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781378059,
+    "serverTimestamp": "2026-08-15T08:09:38.114Z",
+    "payload": {
+      "ballOn": 11
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:09:38.114Z",
+    "updatedAt": "2026-08-15T08:09:38.114Z",
+    "id": "01a00478-2642-74aa-84f4-455848179eca"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 228,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781398532,
+    "serverTimestamp": "2026-08-15T08:09:58.621Z",
+    "payload": {
+      "accumulatedTimeMs": 1169013
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:09:58.624Z",
+    "updatedAt": "2026-08-15T08:09:58.624Z",
+    "id": "01a00478-765d-7180-841e-a6748f2d4445"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 229,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781403477,
+    "serverTimestamp": "2026-08-15T08:10:03.528Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": true
+      },
+      "reason": "Flag on the field"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:03.529Z",
+    "updatedAt": "2026-08-15T08:10:03.529Z",
+    "id": "01a00478-8988-7290-951b-c7feb0d7d08e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 230,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781409298,
+    "serverTimestamp": "2026-08-15T08:10:09.385Z",
+    "payload": {
+      "previousMs": 1169013,
+      "newMs": 1168013
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:09.385Z",
+    "updatedAt": "2026-08-15T08:10:09.385Z",
+    "id": "01a00478-a069-720a-9a4a-83375535be41"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 231,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781410277,
+    "serverTimestamp": "2026-08-15T08:10:10.331Z",
+    "payload": {
+      "previousMs": 1168013,
+      "newMs": 1167013
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:10.331Z",
+    "updatedAt": "2026-08-15T08:10:10.331Z",
+    "id": "01a00478-a41b-70b3-a09d-a18831da099b"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 232,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781410958,
+    "serverTimestamp": "2026-08-15T08:10:11.125Z",
+    "payload": {
+      "previousMs": 1167013,
+      "newMs": 1166013
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:11.126Z",
+    "updatedAt": "2026-08-15T08:10:11.126Z",
+    "id": "01a00478-a735-771c-af1d-4fef9f15f01d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 233,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781411975,
+    "serverTimestamp": "2026-08-15T08:10:12.083Z",
+    "payload": {
+      "previousMs": 1166013,
+      "newMs": 1165013
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:12.083Z",
+    "updatedAt": "2026-08-15T08:10:12.083Z",
+    "id": "01a00478-aaf3-70e9-a556-aae97b258af7"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 234,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781412805,
+    "serverTimestamp": "2026-08-15T08:10:12.849Z",
+    "payload": {
+      "previousMs": 1165013,
+      "newMs": 1164013
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:12.849Z",
+    "updatedAt": "2026-08-15T08:10:12.849Z",
+    "id": "01a00478-adf1-744b-a648-093884bda558"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 2,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 235,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781425278,
+    "serverTimestamp": "2026-08-15T08:10:25.355Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:25.355Z",
+    "updatedAt": "2026-08-15T08:10:25.355Z",
+    "id": "01a00478-decb-777a-9ccb-4453f2822560"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 236,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781427885,
+    "serverTimestamp": "2026-08-15T08:10:28.022Z",
+    "payload": {
+      "edits": {
+        "penaltyFlag": false
+      },
+      "reason": "Flag cleared"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:28.022Z",
+    "updatedAt": "2026-08-15T08:10:28.022Z",
+    "id": "01a00478-e936-752f-a80c-1fe83697cb83"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 11,
+    "sequenceNumber": 237,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781432755,
+    "serverTimestamp": "2026-08-15T08:10:32.847Z",
+    "payload": {
+      "ballOn": 21
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:32.848Z",
+    "updatedAt": "2026-08-15T08:10:32.848Z",
+    "id": "01a00478-fc0f-721b-b881-5ffbcf498b54"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 21,
+    "sequenceNumber": 238,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781454577,
+    "serverTimestamp": "2026-08-15T08:10:54.661Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T08:10:54.661Z",
+    "updatedAt": "2026-08-15T08:10:54.661Z",
+    "id": "01a00479-5145-738c-b5b2-96f0a6f67baa"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 21,
+    "sequenceNumber": 239,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781461387,
+    "serverTimestamp": "2026-08-15T08:11:01.467Z",
+    "payload": {
+      "accumulatedTimeMs": 1170580
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:11:01.468Z",
+    "updatedAt": "2026-08-15T08:11:01.468Z",
+    "id": "01a00479-6bdb-7258-b7ed-3443a878751d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "SCORE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 21,
+    "sequenceNumber": 240,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781470991,
+    "serverTimestamp": "2026-08-15T08:11:11.068Z",
+    "payload": {
+      "teamId": "w-aut",
+      "scoreType": "TD",
+      "points": 6
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:11:11.069Z",
+    "updatedAt": "2026-08-15T08:11:11.069Z",
+    "id": "01a00479-915c-73d8-9e72-ca692af5fd73"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "TRY_DOWN",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 21,
+    "sequenceNumber": 241,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781481284,
+    "serverTimestamp": "2026-08-15T08:11:21.358Z",
+    "payload": {
+      "tryPoints": 2,
+      "ballOn": 40
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:11:21.358Z",
+    "updatedAt": "2026-08-15T08:11:21.358Z",
+    "id": "01a00479-b98e-76ae-93fa-242e425d4aed"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "POSSESSION_CHANGE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 242,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781516365,
+    "serverTimestamp": "2026-08-15T08:11:56.442Z",
+    "payload": {
+      "teamId": "w-can"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:11:56.442Z",
+    "updatedAt": "2026-08-15T08:11:56.442Z",
+    "id": "01a0047a-4299-70f7-9610-668c583d52b1"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "DOWN_UPDATE",
+    "half": 2,
+    "down": 0,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 243,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781517615,
+    "serverTimestamp": "2026-08-15T08:11:57.662Z",
+    "payload": {
+      "down": 1
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:11:57.662Z",
+    "updatedAt": "2026-08-15T08:11:57.662Z",
+    "id": "01a0047a-475e-708c-ab10-e9f2e2bd1a0d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "MANUAL_EDIT",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 244,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781517714,
+    "serverTimestamp": "2026-08-15T08:11:57.758Z",
+    "payload": {
+      "edits": {
+        "tryDownPending": false,
+        "tryPointValue": null,
+        "currentContext.tryType": null
+      },
+      "reason": "Try over"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:11:57.758Z",
+    "updatedAt": "2026-08-15T08:11:57.758Z",
+    "id": "01a0047a-47be-778a-bae1-fe30257f59e6"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "LOS_UPDATE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 40,
+    "sequenceNumber": 245,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781520188,
+    "serverTimestamp": "2026-08-15T08:12:00.233Z",
+    "payload": {
+      "ballOn": 5
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:00.233Z",
+    "updatedAt": "2026-08-15T08:12:00.233Z",
+    "id": "01a0047a-5169-76df-bb9b-b06b7be84b77"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 246,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781523380,
+    "serverTimestamp": "2026-08-15T08:12:03.463Z",
+    "payload": {
+      "previousMs": 1170580,
+      "newMs": 1171580
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:03.464Z",
+    "updatedAt": "2026-08-15T08:12:03.464Z",
+    "id": "01a0047a-5e07-73a9-8ce3-f9672563a090"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 247,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781550033,
+    "serverTimestamp": "2026-08-15T08:12:30.113Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:30.113Z",
+    "updatedAt": "2026-08-15T08:12:30.113Z",
+    "id": "01a0047a-c621-73ea-9a17-d585a7171662"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_STOP",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 248,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781569562,
+    "serverTimestamp": "2026-08-15T08:12:50.103Z",
+    "payload": {
+      "accumulatedTimeMs": 1190949
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:50.104Z",
+    "updatedAt": "2026-08-15T08:12:50.104Z",
+    "id": "01a0047b-1437-766f-a852-c2ba8b5944eb"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 249,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781571300,
+    "serverTimestamp": "2026-08-15T08:12:51.349Z",
+    "payload": {
+      "previousMs": 1190949,
+      "newMs": 1191949
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:51.349Z",
+    "updatedAt": "2026-08-15T08:12:51.349Z",
+    "id": "01a0047b-1915-73e0-aee9-70628eb1aae1"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 250,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781571506,
+    "serverTimestamp": "2026-08-15T08:12:51.552Z",
+    "payload": {
+      "previousMs": 1191949,
+      "newMs": 1192949
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:51.553Z",
+    "updatedAt": "2026-08-15T08:12:51.553Z",
+    "id": "01a0047b-19e0-715c-bc23-cf5410c34215"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 251,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781571846,
+    "serverTimestamp": "2026-08-15T08:12:51.896Z",
+    "payload": {
+      "previousMs": 1192949,
+      "newMs": 1193949
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:51.897Z",
+    "updatedAt": "2026-08-15T08:12:51.897Z",
+    "id": "01a0047b-1b38-77de-969c-ad141fded8f7"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 252,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781572057,
+    "serverTimestamp": "2026-08-15T08:12:52.116Z",
+    "payload": {
+      "previousMs": 1193949,
+      "newMs": 1194949
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:52.117Z",
+    "updatedAt": "2026-08-15T08:12:52.117Z",
+    "id": "01a0047b-1c14-7449-ad1a-50a6675be263"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 253,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781572464,
+    "serverTimestamp": "2026-08-15T08:12:52.516Z",
+    "payload": {
+      "previousMs": 1194949,
+      "newMs": 1195949
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:52.517Z",
+    "updatedAt": "2026-08-15T08:12:52.517Z",
+    "id": "01a0047b-1da4-718a-9ae3-0b71ec1e413b"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 254,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781573145,
+    "serverTimestamp": "2026-08-15T08:12:53.198Z",
+    "payload": {
+      "previousMs": 1195949,
+      "newMs": 1196949
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:53.199Z",
+    "updatedAt": "2026-08-15T08:12:53.199Z",
+    "id": "01a0047b-204e-74e2-bce1-a6aa7b03898e"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 255,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781573495,
+    "serverTimestamp": "2026-08-15T08:12:53.540Z",
+    "payload": {
+      "previousMs": 1196949,
+      "newMs": 1197949
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:53.541Z",
+    "updatedAt": "2026-08-15T08:12:53.541Z",
+    "id": "01a0047b-21a4-7750-b0ff-63ca113ff917"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_ADJUST",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 256,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781575397,
+    "serverTimestamp": "2026-08-15T08:12:55.505Z",
+    "payload": {
+      "previousMs": 1197949,
+      "newMs": 1198949
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:55.505Z",
+    "updatedAt": "2026-08-15T08:12:55.505Z",
+    "id": "01a0047b-2951-734d-b9cb-b9467d77c606"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "CLOCK_START",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 257,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781576129,
+    "serverTimestamp": "2026-08-15T08:12:56.174Z",
+    "reverted": false,
+    "createdAt": "2026-08-15T08:12:56.175Z",
+    "updatedAt": "2026-08-15T08:12:56.175Z",
+    "id": "01a0047b-2bee-75eb-a959-4aae8c69231d"
+  },
+  {
+    "gameId": "019ffff1-a998-7548-ad06-7810b8a4ac85",
+    "eventType": "STATUS_CHANGE",
+    "half": 2,
+    "down": 1,
+    "yardsToGo": 10,
+    "ballOn": 5,
+    "sequenceNumber": 258,
+    "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+    "recordedByRole": "FAN",
+    "clientTimestamp": 1786781588442,
+    "serverTimestamp": "2026-08-15T08:13:08.527Z",
+    "payload": {
+      "status": "FINAL"
+    },
+    "reverted": false,
+    "createdAt": "2026-08-15T08:13:08.527Z",
+    "updatedAt": "2026-08-15T08:13:08.527Z",
+    "id": "01a0047b-5c2f-7173-9576-8d6b3122d40d"
+  }
+]
