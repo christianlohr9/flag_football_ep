@@ -34,6 +34,7 @@ from flag_football_ep.config import (
     TrainSettings,
 )
 from flag_football_ep.pipeline import IngestResult, run_ingest
+from flag_football_ep.validation.checks import Status
 
 FIXTURE_SPORTAPP_DIR = Path(__file__).parent / "fixtures" / "sportapp"
 _CLI_RUNNER = CliRunner()
@@ -124,6 +125,39 @@ def _write_hudl_gapped_game(hudl_dir: Path) -> None:
          "PLAY TYPE": "Rush", "RESULT": "Rush", "GN/LS": "5"},
     ]
     _write_hudl_csv(hudl_dir / _HUDL_GAPPED_FILENAME, rows)
+
+
+_HUDL_WRONG_DELIMITER_FILENAME = "2026-06-16_GER-vs-AUT_EM.csv"
+_HUDL_MALFORMED_DN_FILENAME = "2026-06-17_GER-vs-AUT_EM.csv"
+
+
+def _write_hudl_wrong_delimiter_file(hudl_dir: Path) -> str:
+    """A filename matching the accepted pattern but comma-delimited content --
+    `read_export` raises `WrongDelimiterError` (single-column parse). Returns
+    the file's stem (its would-be game_id, if it had ingested).
+    """
+    path = hudl_dir / _HUDL_WRONG_DELIMITER_FILENAME
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [",".join(_HUDL_COLUMNS)]
+    lines.append(",".join(["1", "O", "1", "10", "25", "Rush", "Rush", "5"]))
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8-sig")
+    return path.stem
+
+
+def _write_hudl_malformed_dn_game(hudl_dir: Path) -> None:
+    """A 3-play game whose second row has a non-numeric DN cell -- `derive_identity_columns`
+    casts it to a null `down` (strict=False), so `downs_range` FAILs on the null
+    rather than raising and dropping the source.
+    """
+    rows = [
+        {"PLAY #": "1", "ODK": "O", "DN": "1", "DIST": "10", "YARD LN": "25",
+         "PLAY TYPE": "Rush", "RESULT": "Rush", "GN/LS": "5"},
+        {"PLAY #": "2", "ODK": "O", "DN": "N/A", "DIST": "5", "YARD LN": "20",
+         "PLAY TYPE": "Rush", "RESULT": "Rush", "GN/LS": "5"},
+        {"PLAY #": "3", "ODK": "O", "DN": "0", "DIST": "0", "YARD LN": "5",
+         "PLAY TYPE": "PAT", "RESULT": "Good", "GN/LS": "0"},
+    ]
+    _write_hudl_csv(hudl_dir / _HUDL_MALFORMED_DN_FILENAME, rows)
 
 
 # --- Legacy fixture (deliberate check failure, warn-only) -----------------
@@ -579,3 +613,77 @@ def test_cli_ingest_strict_exits_0_without_quarantine(hudl_clean_only_toml: Path
     )
 
     assert result.exit_code == 0, result.output
+
+
+# --- End-to-end: a broken export is contained AND visible (CR-02 / WR-01) ---
+
+
+def test_run_ingest_wrong_delimiter_file_does_not_drop_source_and_is_named_in_report(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    config = _make_config(tmp_path, repo_root)
+    _write_hudl_clean_game(config.paths.raw_hudl)
+    broken_stem = _write_hudl_wrong_delimiter_file(config.paths.raw_hudl)
+    _write_reference_csvs(config.reference.half_boundaries.parent)
+
+    result = run_ingest(config, ["hudl"])
+
+    plays = pl.read_parquet(result.plays_path)
+    clean_id = _HUDL_CLEAN_FILENAME.removesuffix(".csv")
+    assert plays.height == 3
+    assert set(plays["game_id"].to_list()) == {clean_id}
+
+    report_text = Path(result.report_path).read_text(encoding="utf-8")
+    skipped_section = report_text[report_text.index("## Skipped files") :]
+    assert broken_stem in skipped_section
+    assert "WrongDelimiterError" in skipped_section
+
+
+def test_run_ingest_missing_source_report_shows_source_notices_section(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    config = _make_config(tmp_path, repo_root)
+    _write_hudl_clean_game(config.paths.raw_hudl)
+    _write_reference_csvs(config.reference.half_boundaries.parent)
+    # raw_ifaf/raw_legacy are never created.
+
+    result = run_ingest(config, ["hudl", "legacy", "sportapp", "ifaf"])
+
+    assert any("legacy" in n and "skipping" in n for n in result.notices)
+    assert any("ifaf" in n and "skipping" in n for n in result.notices)
+
+    report_text = Path(result.report_path).read_text(encoding="utf-8")
+    source_section = report_text[
+        report_text.index("## Source notices") : report_text.index("## Summary")
+    ]
+    assert "## Source notices" in report_text
+    assert any("legacy" in line and "skipping" in line for line in source_section.splitlines())
+    assert any("ifaf" in line and "skipping" in line for line in source_section.splitlines())
+
+
+def test_cli_ingest_missing_ifaf_source_prints_notice_and_exits_0(hudl_clean_only_toml: Path) -> None:
+    result = _CLI_RUNNER.invoke(
+        app, ["ingest", "--config", str(hudl_clean_only_toml), "--source", "hudl", "--source", "ifaf"]
+    )
+
+    assert result.exit_code == 0, result.output
+    assert any(
+        line.startswith("notice: ") and "ifaf" in line for line in result.output.splitlines()
+    )
+
+
+def test_run_ingest_malformed_dn_cell_game_reaches_game_results_with_downs_range_fail(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    config = _make_config(tmp_path, repo_root)
+    _write_hudl_malformed_dn_game(config.paths.raw_hudl)
+    _write_reference_csvs(config.reference.half_boundaries.parent)
+
+    result = run_ingest(config, ["hudl"])
+
+    game_id = _HUDL_MALFORMED_DN_FILENAME.removesuffix(".csv")
+    by_id = {g.game_id: g for g in result.game_results}
+    assert game_id in by_id
+
+    downs_result = next(r for r in by_id[game_id].results if r.check == "downs_range")
+    assert downs_result.status == Status.FAIL
