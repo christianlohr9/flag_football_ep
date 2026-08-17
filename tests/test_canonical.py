@@ -252,6 +252,59 @@ class TestAddScoreColumns:
         assert out_credit["away_team_score"].to_list() == [0, 2]
         assert out_credit["defteam_score"].to_list() == [0, 2]
 
+    def test_play_1_home_touchdown_is_credited_not_zeroed(self):
+        df = _score_chain_frame(
+            [
+                {"game_id": "g1", "play_id": 1, "home_team": "H", "away_team": "A",
+                 "posteam": "H", "defteam": "A", "scoring_play_team": "H", "touchdown": 1},
+            ]
+        )
+        out = add_score_columns(df)
+        assert out["home_team_points"].to_list() == [6]
+        assert out["home_team_score"].to_list() == [6]
+        assert out["away_team_points"].to_list() == [0]
+        assert out["away_team_score"].to_list() == [0]
+
+    def test_play_1_away_score_is_credited_and_home_stays_zero(self):
+        df = _score_chain_frame(
+            [
+                {"game_id": "g1", "play_id": 1, "home_team": "H", "away_team": "A",
+                 "posteam": "A", "defteam": "H", "scoring_play_team": "A",
+                 "two_point_conv_success": 1},
+            ]
+        )
+        out = add_score_columns(df)
+        assert out["away_team_points"].to_list() == [2]
+        assert out["away_team_score"].to_list() == [2]
+        assert out["home_team_points"].to_list() == [0]
+        assert out["home_team_score"].to_list() == [0]
+
+    def test_play_1_with_null_scoring_play_team_still_seeds_both_teams_zero(self):
+        df = _score_chain_frame(
+            [
+                {"game_id": "g1", "play_id": 1, "home_team": "H", "away_team": "A",
+                 "posteam": "H", "defteam": "A", "scoring_play_team": None},
+            ]
+        )
+        out = add_score_columns(df)
+        assert out["home_team_points"].to_list() == [0]
+        assert out["away_team_points"].to_list() == [0]
+        assert out["home_team_score"].to_list() == [0]
+        assert out["away_team_score"].to_list() == [0]
+
+    def test_play_1_defensive_safety_credits_defending_team_when_credit_defense_true(self):
+        df = _score_chain_frame(
+            [
+                {"game_id": "g1", "play_id": 1, "home_team": "H", "away_team": "A",
+                 "posteam": "H", "defteam": "A", "scoring_play_team": None, "safety": 1},
+            ]
+        )
+        credited = add_scoring_play_team(df.drop("scoring_play_team"), credit_defense=True)
+        out = add_score_columns(credited)
+        assert out["away_team_points"].to_list() == [2]
+        assert out["away_team_score"].to_list() == [2]
+        assert out["defteam_score"].to_list() == [2]
+
     def test_two_games_do_not_leak_cumulative_totals(self):
         df = _score_chain_frame(
             [
