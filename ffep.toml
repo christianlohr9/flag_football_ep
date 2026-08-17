@@ -1,0 +1,41 @@
+# Checked-in configuration for the flag-football-ep pipeline.
+#
+# Paths and settings live here; secrets (API keys) are never written to this
+# file — they resolve at runtime from the environment or a git-ignored .env
+# (see .env.example and src/flag_football_ep/config.py:secret()).
+
+[paths]
+data_root = "data"
+raw_hudl = "data/raw/hudl"
+raw_sportapp = "data/raw/sportapp"
+raw_ifaf = "data/raw/ifaf"
+raw_legacy = "data/raw/legacy"
+processed = "data/processed"
+reference = "data/reference"
+models = "models"
+mlruns = "mlruns"
+contract = "docs/data-contract.schema.json"
+
+[reference]
+half_boundaries = "data/reference/half_boundaries.csv"
+final_scores = "data/reference/final_scores.csv"
+team_mapping = "data/reference/team_mapping.csv"
+sportapp_games = "data/reference/sportapp_games.csv"
+
+[sources.sportapp]
+base_url = "https://main-api-1.sportapp.fi/api/v1/public"
+api_key_env = "SPORTAPP_API_KEY"
+
+[sources.ifaf]
+base_url = "https://us.cpx.studio/v1"
+tournament = "ffwc26-women"
+api_key_env = "CPX_API_KEY"
+
+[train]
+# Exclusion origin: models/ep_model.ipynb cell 3 filtered `game_id != 37`,
+# models/wp_model.ipynb cell 3 filtered `game_id != 35`. Canonical string
+# game ids for the legacy data_raw.csv corpus are `legacy-<game_id>`.
+ep_experiment = "ep_model"
+wp_experiment = "wp_model"
+exclude_games_ep = ["legacy-37"]
+exclude_games_wp = ["legacy-35"]
