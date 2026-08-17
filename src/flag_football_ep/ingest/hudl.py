@@ -25,11 +25,18 @@ from pathlib import Path
 
 import polars as pl
 
-from flag_football_ep.canonical import ConformReport
+from flag_football_ep.canonical import (
+    ConformReport,
+    add_score_columns,
+    add_scoring_play_team,
+    conform_to_canonical,
+)
+from flag_football_ep.reference import map_teams
 from flag_football_ep.validation.schema import (
     Contract,
     DomainViolation,
     HeaderReport,
+    MissingCoreColumnsError,
     check_column_domains,
     validate_header,
 )
@@ -43,8 +50,41 @@ __all__ = [
     "read_export",
     "parse_result_tokens",
     "derive_outcome_columns",
+    "derive_posteam_defteam",
+    "derive_identity_columns",
+    "derive_drive_id",
+    "derive_half",
+    "derive_extras",
+    "derive_yards_gained_first_down",
     "ingest_file",
+    "ingest_dir",
 ]
+
+# Rich charting columns mapped onto the canonical extras (canonical.NULLABLE_EXTRAS)
+# when the source column is present. QB/THROWN BY/RECEIVED BY/TARGET/TACKLE/
+# TARGET ROUTE/YAC are not in the contract's core/optional list -- they are
+# "unknown" per the contract's unknown_rule (ignored with a log notice, not a
+# violation) but still carry real charting value, so ingest renames them onto
+# extras when present rather than dropping them.
+_CHARTING_RENAME = {
+    "OFF FORM": "off_form",
+    "OFF PLAY": "off_play",
+    "OFF STR": "off_str",
+    "PLAY DIR": "play_dir",
+    "GAP": "gap",
+    "PASS ZONE": "pass_zone",
+    "TARGET ROUTE": "target_route",
+    "HASH": "hash_mark",
+    "DEF FRONT": "def_front",
+    "COVERAGE": "coverage",
+    "BLITZ": "blitz",
+    "QB": "qb",
+    "THROWN BY": "thrown_by",
+    "RECEIVED BY": "received_by",
+    "TARGET": "target",
+    "TACKLE": "tackle",
+    "YAC": "yac",
+}
 
 
 class FilenameError(Exception):
@@ -307,31 +347,307 @@ def derive_outcome_columns(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
     return df, messages
 
 
+def derive_extras(df: pl.DataFrame, meta: GameMeta) -> pl.DataFrame:
+    """Stamp constant per-game columns and rename rich charting columns onto
+    their canonical extras (canonical.NULLABLE_EXTRAS) when present.
+    """
+    df = df.with_columns(
+        pl.lit("hudl").alias("source"),
+        pl.lit(meta.competition).alias("competition"),
+        pl.lit(meta.season).cast(pl.Int32).alias("season"),
+        pl.lit(meta.game_id).alias("game_id"),
+        pl.lit(meta.game_date).alias("game_date"),
+        pl.col("RESULT").alias("result_raw"),
+    )
+
+    present = {src: dst for src, dst in _CHARTING_RENAME.items() if src in df.columns}
+    if present:
+        df = df.rename(present)
+
+    return df
+
+
+def derive_posteam_defteam(df: pl.DataFrame, meta: GameMeta) -> pl.DataFrame:
+    """posteam = TEAM1 when ODK == 'O', else TEAM2 (docs/data-contract.schema.json
+    file_format.filename_semantics); defteam is the complement. ODK 'K' rows
+    follow the same else-branch (posteam = TEAM2) and get `play_type` "kickoff"
+    (applied by the caller once outcome derivation has set a baseline play_type).
+
+    home_team = TEAM1, away_team = TEAM2 (filename order). This replaces the
+    legacy helper's "team with the first drive is home" heuristic, which
+    stays only in the legacy path (`ingest/legacy.py`) where TEAM1/TEAM2
+    aren't available from a filename. Home/away here only affects score
+    bookkeeping -- `data/reference/final_scores.csv` also carries home/away
+    team codes, so a convention mismatch is caught there, not silently.
+    """
+    df = df.with_columns(
+        pl.when(pl.col("ODK") == "O").then(pl.lit(meta.team1)).otherwise(pl.lit(meta.team2)).alias("posteam"),
+        pl.lit(meta.team1).alias("home_team"),
+        pl.lit(meta.team2).alias("away_team"),
+    )
+    df = df.with_columns(
+        pl.when(pl.col("posteam") == pl.lit(meta.team1))
+        .then(pl.lit(meta.team2))
+        .otherwise(pl.lit(meta.team1))
+        .alias("defteam"),
+    )
+    return df
+
+
+def derive_identity_columns(df: pl.DataFrame) -> pl.DataFrame:
+    """Cast core numeric columns, derive yardline_50 and its simplified bins,
+    and the within-game next-play shifts (yardline_50_after, posteam_after).
+
+    Ported from `Python/helper_add_hudl_mutations.py` lines 28-47 verbatim
+    except the yardline_50 rule, which now follows the contract exactly
+    (`-x if x < 0 else 50 - x`) instead of relying on a pre-computed column.
+    Requires `game_id` (derive_extras) and `posteam` (derive_posteam_defteam)
+    to already be present.
+    """
+    df = df.with_columns(
+        pl.col("DN").cast(pl.Int32).alias("down"),
+        pl.col("DIST").cast(pl.Int32).alias("yards_to_go"),
+        pl.col("YARD LN").cast(pl.Int32).alias("yardline"),
+        pl.col("PLAY #").cast(pl.Int32).alias("play_id"),
+    )
+    df = df.with_columns(
+        pl.when(pl.col("yardline") < 0)
+        .then(-pl.col("yardline"))
+        .otherwise(50 - pl.col("yardline"))
+        .alias("yardline_50")
+    )
+    df = df.with_columns(
+        pl.when(pl.col("yardline_50") < 25).then(pl.lit(0)).otherwise(pl.lit(1)).alias(
+            "yardline_50_simple"
+        ),
+        pl.when(pl.col("yards_to_go") <= 5).then(pl.lit(1))
+        .when((pl.col("yards_to_go") > 5) & (pl.col("yards_to_go") <= 10)).then(pl.lit(2))
+        .when((pl.col("yards_to_go") > 10) & (pl.col("yards_to_go") <= 15)).then(pl.lit(3))
+        .when((pl.col("yards_to_go") > 15) & (pl.col("yards_to_go") <= 20)).then(pl.lit(4))
+        .when(pl.col("yards_to_go") > 20).then(pl.lit(5))
+        .otherwise(pl.lit(0))
+        .alias("yards_to_go_simple"),
+    )
+    df = df.sort(["game_id", "play_id"])
+    df = df.with_columns(
+        pl.col("yardline_50").shift(-1).over("game_id").alias("yardline_50_after"),
+        pl.col("posteam").shift(-1).over("game_id").alias("posteam_after"),
+    )
+    return df
+
+
+def derive_drive_id(df: pl.DataFrame) -> pl.DataFrame:
+    """drive_id starts at 1 and increments on an ODK O/D possession flip, or
+    after a drive-closing RESULT (tok_td, tok_def_td, tok_safety,
+    tok_interception, tok_fumble) even without an ODK flip.
+
+    Requires `parse_result_tokens` to have already run. Sorts by
+    (game_id, play_id) before the cumulative window.
+    """
+    df = df.sort(["game_id", "play_id"])
+
+    closing = (
+        pl.col("tok_td")
+        | pl.col("tok_def_td")
+        | pl.col("tok_safety")
+        | pl.col("tok_interception")
+        | pl.col("tok_fumble")
+    )
+    df = df.with_columns(
+        (pl.col("ODK") != pl.col("ODK").shift(1)).over("game_id").fill_null(False).alias(
+            "_odk_flip"
+        ),
+        closing.shift(1).over("game_id").fill_null(False).alias("_closed_prev"),
+    )
+    df = df.with_columns((pl.col("_odk_flip") | pl.col("_closed_prev")).alias("_drive_boundary"))
+    df = df.with_columns(
+        (pl.col("_drive_boundary").cum_sum().over("game_id") + 1).cast(pl.Int32).alias("drive_id")
+    )
+    # Defensive: force the first play of every game to drive_id 1 (already
+    # guaranteed by the null-filled flip/closing flags above, but explicit
+    # per the contract's derivation rule).
+    df = df.with_columns(
+        pl.when(pl.col("play_id") == pl.col("play_id").min().over("game_id"))
+        .then(pl.lit(1).cast(pl.Int32))
+        .otherwise(pl.col("drive_id"))
+        .alias("drive_id")
+    )
+    df = df.drop(["_odk_flip", "_closed_prev", "_drive_boundary"])
+    return df
+
+
+def derive_half(
+    df: pl.DataFrame, meta: GameMeta, half_boundaries: pl.DataFrame
+) -> tuple[pl.DataFrame, list[str]]:
+    """half = 1 if play_id < half2_first_play else 2, keyed on the export
+    filename (data/half_boundaries.csv style: `filename,half2_first_play`).
+
+    A game with no matching row gets a null `half` and the notice
+    "no half boundary" instead of raising.
+    """
+    messages: list[str] = []
+
+    boundary_row = half_boundaries.filter(pl.col("filename") == meta.filename)
+    if boundary_row.height == 0:
+        df = df.with_columns(pl.lit(None, dtype=pl.Int32).alias("half"))
+        messages.append(f"no half boundary for {meta.filename!r}: half set to null")
+        return df, messages
+
+    boundary = boundary_row["half2_first_play"][0]
+    df = df.with_columns(
+        pl.when(pl.col("play_id") < boundary)
+        .then(pl.lit(1))
+        .otherwise(pl.lit(2))
+        .cast(pl.Int32)
+        .alias("half")
+    )
+    return df, messages
+
+
+def derive_yards_gained_first_down(df: pl.DataFrame) -> pl.DataFrame:
+    """Port yards_gained/first_down verbatim from
+    `Python/helper_add_hudl_mutations.py` lines 167-179.
+    """
+    df = df.with_columns(
+        yards_gained=(
+            pl.when(down=0).then(pl.lit(0))
+            .when(down=4, complete_pass=0).then(pl.lit(0))
+            .when(down=4, safety=1).then(pl.lit(0))
+            .otherwise(pl.col("yardline_50_after") - pl.col("yardline_50"))
+        )
+    )
+    df = df.with_columns(
+        pl.when((pl.col("yardline_50") < 25) & (pl.col("yards_gained") > pl.col("yards_to_go")))
+        .then(pl.lit(1))
+        .otherwise(pl.lit(0))
+        .alias("first_down")
+    )
+    return df
+
+
 def ingest_file(
     path: Path,
     contract: Contract,
     half_boundaries: pl.DataFrame | None = None,
     team_mapping: pl.DataFrame | None = None,
 ) -> tuple[pl.DataFrame, IngestNotices]:
-    """Parse, validate and (eventually) conform one Hudl export to canonical.
+    """Parse, validate and conform one Hudl export to the canonical schema.
 
-    Task 1 scope: parse_filename -> read_export -> validate_header ->
-    check_column_domains. Structural problems (bad filename, missing core
-    column) raise; data-quality findings (domain violations, unknown
-    columns) are only ever recorded in the returned `IngestNotices`. Tasks 2
-    and 3 extend this function with RESULT-token parsing, the outcome/
-    identity/scoring derivations and the final `conform_to_canonical` call.
+    Order of operations: parse_filename -> read_export -> validate_header ->
+    check_column_domains -> constant/extras columns -> posteam/defteam ->
+    team mapping -> identity casts + yardline_50 -> RESULT tokens -> outcome
+    derivation -> ODK 'K' kickoff override -> drive_id -> half -> scoring
+    chain -> yards_gained/first_down -> conform_to_canonical. Structural
+    problems (bad filename, missing core column, unmapped team) raise;
+    everything else is only ever recorded in the returned `IngestNotices`.
+
+    `no_good`, `incomplete_pass` and `fumble` are computed but have no
+    canonical column (core or extra) -- `conform_to_canonical` drops them as
+    unknown columns; see `ConformReport.dropped_unknown` and the plan
+    SUMMARY for the schema-owner follow-up.
     """
     meta = parse_filename(path)
     df = read_export(path)
     df, header_report = validate_header(df, contract)
     domain_violations = check_column_domains(df, contract)
 
+    messages: list[str] = []
+
+    df = derive_extras(df, meta)
+    df = derive_posteam_defteam(df, meta)
+
+    if team_mapping is not None:
+        df = map_teams(df, team_mapping, "hudl", ["posteam", "defteam", "home_team", "away_team"])
+
+    df = derive_identity_columns(df)
+
+    df = parse_result_tokens(df)
+    df, outcome_messages = derive_outcome_columns(df)
+    messages.extend(outcome_messages)
+
+    # ODK == 'K' overrides play_type to "kickoff" regardless of RESULT tokens.
+    df = df.with_columns(
+        pl.when(pl.col("ODK") == "K").then(pl.lit("kickoff")).otherwise(pl.col("play_type")).alias(
+            "play_type"
+        )
+    )
+
+    df = derive_drive_id(df)
+
+    if half_boundaries is not None:
+        df, half_messages = derive_half(df, meta, half_boundaries)
+        messages.extend(half_messages)
+    else:
+        df = df.with_columns(pl.lit(None, dtype=pl.Int32).alias("half"))
+        messages.append("no half_boundaries provided: half set to null")
+
+    df = add_scoring_play_team(df, credit_defense=True)
+    df = add_score_columns(df)
+
+    df = derive_yards_gained_first_down(df)
+
+    df, conform_report = conform_to_canonical(df, "hudl")
+
     notices = IngestNotices(
         game_id=meta.game_id,
         header=header_report,
         domain=domain_violations,
-        conform=ConformReport(),
-        messages=[],
+        conform=conform_report,
+        messages=messages,
     )
     return df, notices
+
+
+def ingest_dir(
+    directory: Path,
+    contract: Contract,
+    half_boundaries: pl.DataFrame | None = None,
+    team_mapping: pl.DataFrame | None = None,
+) -> list[tuple[GameMeta, pl.DataFrame | None, IngestNotices]]:
+    """Ingest every `*.csv` in `directory` (sorted), one game per entry.
+
+    Catches per-file structural errors (bad filename, missing core columns)
+    and reports them via `messages` with `df=None` rather than aborting the
+    whole directory -- one broken export must not block the rest.
+    """
+    results: list[tuple[GameMeta, pl.DataFrame | None, IngestNotices]] = []
+
+    for path in sorted(directory.glob("*.csv")):
+        try:
+            meta = parse_filename(path)
+        except FilenameError as exc:
+            placeholder_meta = GameMeta(
+                game_id=path.stem,
+                filename=path.name,
+                season=0,
+                game_date=None,
+                team1="",
+                team2="",
+                competition="",
+            )
+            notices = IngestNotices(
+                game_id=path.stem,
+                header=HeaderReport([], [], []),
+                domain=[],
+                conform=ConformReport(),
+                messages=[f"skipped {path.name!r}: {exc}"],
+            )
+            results.append((placeholder_meta, None, notices))
+            continue
+
+        try:
+            df, notices = ingest_file(path, contract, half_boundaries, team_mapping)
+        except MissingCoreColumnsError as exc:
+            notices = IngestNotices(
+                game_id=meta.game_id,
+                header=HeaderReport([], [], []),
+                domain=[],
+                conform=ConformReport(),
+                messages=[f"skipped {path.name!r}: {exc}"],
+            )
+            results.append((meta, None, notices))
+            continue
+
+        results.append((meta, df, notices))
+
+    return results
