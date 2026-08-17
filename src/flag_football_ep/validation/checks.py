@@ -192,7 +192,16 @@ def monotonic_drive_ids(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
 
 
 def gapless_play_ids(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
-    """PASS when `play_id` is exactly 1..N with no duplicates."""
+    """PASS when `play_id` is exactly 1..N with no duplicates.
+
+    A null `play_id` (newly possible now that `hudl.derive_identity_columns` and
+    `sportapp.clean_yardage` cast non-strictly) is filtered out of the
+    missing/duplicate computation -- `sorted(...)` over a mix of `None` and `int`
+    raises `TypeError` in Python 3 -- and reported separately as its own FAIL detail
+    part, in the style `downs_range` already uses for null `down` values. A game
+    whose non-null play_ids are otherwise contiguous but contains nulls still FAILs
+    on the null count; it never raises and never silently PASSes.
+    """
     df = plays.sort(["game_id", "play_id"])
     agg = df.group_by("game_id", maintain_order=True).agg(
         max_id=pl.col("play_id").max(),
@@ -204,10 +213,12 @@ def gapless_play_ids(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
         game_id = row["game_id"]
         ids = row["all_ids"]
         max_id = row["max_id"]
+        n_null = sum(1 for pid in ids if pid is None)
+        non_null_ids = [pid for pid in ids if pid is not None]
         expected = set(range(1, max_id + 1)) if max_id is not None else set()
-        actual = set(ids)
+        actual = set(non_null_ids)
         missing = sorted(expected - actual)
-        counts = Counter(ids)
+        counts = Counter(non_null_ids)
         duplicated = sorted(pid for pid, c in counts.items() if c > 1)
 
         parts = []
@@ -219,6 +230,9 @@ def gapless_play_ids(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
             dup_count = sum(c - 1 for pid, c in counts.items() if c > 1)
             parts.append(f"duplicated play_id(s) {_bounded(duplicated)} ({dup_count} duplicate row(s))")
             n_offending += dup_count
+        if n_null:
+            parts.append(f"null play_id ({n_null} row(s))")
+            n_offending += n_null
 
         if not parts:
             results.append(_pass(game_id, "gapless_play_ids"))

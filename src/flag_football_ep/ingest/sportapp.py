@@ -458,6 +458,12 @@ def clean_yardage(df: pl.DataFrame) -> pl.DataFrame:
     must run *before* `map_teams` -- it compares the still-raw
     `start_yard_line_team_half_id`/`end_yard_line_team_half_id` against `home_team`/
     `away_team`, which only matches while those are still raw sportapp team ids.
+
+    The "G" (goal-to-go) sentinel and the empty-string/null cases for
+    `yards_to_go`/`yards_to_go_after` are already resolved by the preceding `when`
+    chain before the cast below runs; the final `cast(pl.Int32, strict=False)` covers
+    everything else the API can put in that field (e.g. an unexpected non-numeric
+    `target`/`nextTarget` value), turning it into a null instead of raising.
     """
     df = (
         df.with_columns(
@@ -502,8 +508,8 @@ def clean_yardage(df: pl.DataFrame) -> pl.DataFrame:
             .otherwise(pl.col("yards_to_go_after")),
         )
         .with_columns(
-            pl.col("yards_to_go").cast(pl.Int32),
-            pl.col("yards_to_go_after").cast(pl.Int32),
+            pl.col("yards_to_go").cast(pl.Int32, strict=False),
+            pl.col("yards_to_go_after").cast(pl.Int32, strict=False),
         )
         .with_columns(
             yards_to_go=pl.when(pl.col("yards_to_go") == 999)
@@ -598,9 +604,16 @@ def ingest_snapshots(
     `CANONICAL_COLUMNS` with `source == "sportapp"`; when a snapshot file is missing or
     its payload has no drives array, `canonical_frame` is an empty (0-row)
     canonical-schema frame and `notices` names the reason -- the game is skipped, not
-    the whole run (T-1.2-03). An unmapped team label raises `UnmappedTeamError`
-    (T-1.2-15) rather than being folded into a notice, since it signals a reference-data
-    gap that needs a human fix, not a per-game data anomaly.
+    the whole run (T-1.2-03). The per-game mutation chain (`_extract_players_from_summary`
+    through `conform_to_canonical`) is also wrapped: a `pl.exceptions.PolarsError`
+    raised anywhere in that chain (e.g. a strict-cast/schema error surfaced despite
+    `clean_yardage`'s own non-strict casts) is caught, recorded as a notice naming the
+    exception class, and skips only that game, the same containment already applied to
+    a missing snapshot file or a missing drives array. An unmapped team label raises
+    `UnmappedTeamError` (T-1.2-15) rather than being folded into a notice -- it is not a
+    `PolarsError`, so the chain's narrow catch does not touch it; it signals a
+    reference-data gap that needs a human fix, not a per-game data anomaly (see
+    `test_ingest_snapshots_unmapped_team_raises`).
     """
     raw_dir = Path(raw_dir)
 
@@ -636,20 +649,31 @@ def ingest_snapshots(
             results.append((game_id, _empty_canonical_frame(), notices))
             continue
 
-        df = _extract_players_from_summary(df)
-        df = clean_play_ids(df)
-        df = add_event_columns(df)
-        df = correct_posteam(df)
-        # clean_yardage compares start/end yard-line team-half ids (still raw sportapp
-        # ids) against home_team/away_team -- map_teams must run after, not before, or
-        # that comparison silently never matches once home_team/away_team are canonical
-        # codes.
-        df = clean_yardage(df)
-        df = map_teams(df, team_mapping, "sportapp", list(_TEAM_MAPPING_COLUMNS))
-        df = add_scoring_play_team(df, credit_defense=True)
-        df = add_team_points_chain(df)
-        df = _finalize_canonical_columns(df, game_id)
-        df, _report = conform_to_canonical(df, source="sportapp")
+        # UnmappedTeamError (raised by map_teams below) is deliberately NOT caught
+        # here: it is a plain Exception, not a pl.exceptions.PolarsError, so this
+        # narrow catch already excludes it -- an unmapped team must keep aborting
+        # loudly per CONTEXT.md's team-identity decision (T-1.2-15); see
+        # test_ingest_snapshots_unmapped_team_raises, which is unaffected by this
+        # containment and must keep passing unchanged.
+        try:
+            df = _extract_players_from_summary(df)
+            df = clean_play_ids(df)
+            df = add_event_columns(df)
+            df = correct_posteam(df)
+            # clean_yardage compares start/end yard-line team-half ids (still raw
+            # sportapp ids) against home_team/away_team -- map_teams must run after,
+            # not before, or that comparison silently never matches once
+            # home_team/away_team are canonical codes.
+            df = clean_yardage(df)
+            df = map_teams(df, team_mapping, "sportapp", list(_TEAM_MAPPING_COLUMNS))
+            df = add_scoring_play_team(df, credit_defense=True)
+            df = add_team_points_chain(df)
+            df = _finalize_canonical_columns(df, game_id)
+            df, _report = conform_to_canonical(df, source="sportapp")
+        except pl.exceptions.PolarsError as exc:
+            notices.append(f"game {game_id}: {type(exc).__name__}: {exc}")
+            results.append((game_id, _empty_canonical_frame(), notices))
+            continue
 
         results.append((game_id, df, notices))
 

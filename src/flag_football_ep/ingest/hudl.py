@@ -27,6 +27,7 @@ import polars as pl
 
 from flag_football_ep.canonical import (
     ConformReport,
+    MissingCanonicalColumns,
     add_score_columns,
     add_scoring_play_team,
     conform_to_canonical,
@@ -403,12 +404,20 @@ def derive_identity_columns(df: pl.DataFrame) -> pl.DataFrame:
     (`-x if x < 0 else 50 - x`) instead of relying on a pre-computed column.
     Requires `game_id` (derive_extras) and `posteam` (derive_posteam_defteam)
     to already be present.
+
+    All four casts are `strict=False`: a non-numeric DN/DIST/YARD LN/PLAY #
+    cell becomes a null in the derived column instead of raising, matching
+    the module docstring's "everything data-quality related is collected
+    into `IngestNotices`, never raised" contract -- `check_column_domains`
+    already documents and reports exactly these cells as notice-worthy, so a
+    strict cast here would crash on a finding this module promises to
+    downgrade to a notice.
     """
     df = df.with_columns(
-        pl.col("DN").cast(pl.Int32).alias("down"),
-        pl.col("DIST").cast(pl.Int32).alias("yards_to_go"),
-        pl.col("YARD LN").cast(pl.Int32).alias("yardline"),
-        pl.col("PLAY #").cast(pl.Int32).alias("play_id"),
+        pl.col("DN").cast(pl.Int32, strict=False).alias("down"),
+        pl.col("DIST").cast(pl.Int32, strict=False).alias("yards_to_go"),
+        pl.col("YARD LN").cast(pl.Int32, strict=False).alias("yardline"),
+        pl.col("PLAY #").cast(pl.Int32, strict=False).alias("play_id"),
     )
     df = df.with_columns(
         pl.when(pl.col("yardline") < 0)
@@ -606,9 +615,13 @@ def ingest_dir(
 ) -> list[tuple[GameMeta, pl.DataFrame | None, IngestNotices]]:
     """Ingest every `*.csv` in `directory` (sorted), one game per entry.
 
-    Catches per-file structural errors (bad filename, missing core columns)
-    and reports them via `messages` with `df=None` rather than aborting the
-    whole directory -- one broken export must not block the rest.
+    Catches per-file structural errors -- bad filename (`FilenameError`),
+    missing core columns (`MissingCoreColumnsError`), wrong delimiter
+    (`WrongDelimiterError`), a canonical-conform failure
+    (`MissingCanonicalColumns`), or any other polars error surfaced by the
+    derivation chain (`pl.exceptions.PolarsError`) -- and reports them via
+    `messages` with `df=None` rather than aborting the whole directory; one
+    broken export must not block the rest.
     """
     results: list[tuple[GameMeta, pl.DataFrame | None, IngestNotices]] = []
 
@@ -637,13 +650,25 @@ def ingest_dir(
 
         try:
             df, notices = ingest_file(path, contract, half_boundaries, team_mapping)
-        except MissingCoreColumnsError as exc:
+        # UnmappedTeamError is deliberately NOT caught here: CONTEXT.md's team-identity
+        # decision (T-1.2-15) requires an unmapped team to abort loudly, not degrade
+        # into a per-file notice -- it signals a reference-data gap needing a human
+        # fix, not a per-file data-quality issue. PolarsError is included as defense
+        # in depth for any remaining strict cast or schema error surfaced by the
+        # derivation chain; UnmappedTeamError is a plain Exception, not a PolarsError,
+        # so this catch never touches it.
+        except (
+            MissingCoreColumnsError,
+            WrongDelimiterError,
+            MissingCanonicalColumns,
+            pl.exceptions.PolarsError,
+        ) as exc:
             notices = IngestNotices(
                 game_id=meta.game_id,
                 header=HeaderReport([], [], []),
                 domain=[],
                 conform=ConformReport(),
-                messages=[f"skipped {path.name!r}: {exc}"],
+                messages=[f"skipped {path.name!r}: {type(exc).__name__}: {exc}"],
             )
             results.append((meta, None, notices))
             continue

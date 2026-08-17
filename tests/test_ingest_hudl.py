@@ -9,7 +9,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from flag_football_ep.canonical import CANONICAL_COLUMNS
+from flag_football_ep.canonical import CANONICAL_COLUMNS, MissingCanonicalColumns
 from flag_football_ep.ingest.hudl import (
     FilenameError,
     WrongDelimiterError,
@@ -393,3 +393,86 @@ def test_ingest_dir_reports_bad_filename_and_returns_good_one(
     assert len(good) == 1
     assert len(bad) == 1
     assert any("skipped" in m for m in bad[0][2].messages)
+
+
+# --- Task 1 (plan 20): non-strict identity casts and complete per-file containment ----
+
+
+def test_non_numeric_dn_cell_ingests_with_null_down_and_domain_notice(
+    tmp_path: Path, contract, make_hudl_csv
+) -> None:
+    rows = [_play_row(1, "O", **{"DN": "not-a-number"})]
+    path = make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", rows)
+
+    df, notices = ingest_file(path, contract)
+
+    assert df["down"][0] is None
+    dn_violations = [v for v in notices.domain if v.column == "DN"]
+    assert len(dn_violations) == 1
+
+
+def test_ingest_dir_comma_delimited_file_does_not_block_sibling_valid_export(
+    tmp_path: Path, contract, make_hudl_csv
+) -> None:
+    good_rows = [_play_row(1, "O")]
+    make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", good_rows)
+    comma_path = tmp_path / "2027_GER-vs-SLO.csv"
+    comma_path.write_text("PLAY #,ODK,DN\n1,O,1\n", encoding="utf-8")
+
+    results = ingest_dir(tmp_path, contract)
+
+    assert len(results) == 2
+    good = [r for r in results if r[1] is not None]
+    bad = [r for r in results if r[1] is None]
+    assert len(good) == 1
+    assert good[0][1].height == 1
+    assert len(bad) == 1
+    assert any("WrongDelimiterError" in m for m in bad[0][2].messages)
+
+
+def test_ingest_dir_missing_canonical_columns_skips_that_file_only(
+    tmp_path: Path, contract, make_hudl_csv, monkeypatch
+) -> None:
+    # Constructing a real MissingCanonicalColumns case from raw CSV would require
+    # deleting a core column, which validate_header already turns into
+    # MissingCoreColumnsError before conform_to_canonical ever runs -- monkeypatching
+    # conform_to_canonical directly is the only way to exercise this specific except
+    # branch in isolation.
+    good_rows = [_play_row(1, "O")]
+    make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", good_rows)
+    make_hudl_csv(tmp_path, "2026-06-15_GER-vs-SLO_EM.csv", good_rows)
+
+    import flag_football_ep.ingest.hudl as hudl_mod
+
+    real_conform = hudl_mod.conform_to_canonical
+
+    def _flaky_conform(df, source):
+        if df["game_id"][0] == "2026-06-15_GER-vs-SLO_EM":
+            raise MissingCanonicalColumns("simulated missing core column")
+        return real_conform(df, source)
+
+    monkeypatch.setattr(hudl_mod, "conform_to_canonical", _flaky_conform)
+
+    results = ingest_dir(tmp_path, contract)
+
+    by_game_id = {meta.game_id: (df, notices) for meta, df, notices in results}
+    assert by_game_id["2026-06-15_GER-vs-SLO_EM"][0] is None
+    assert any(
+        "MissingCanonicalColumns" in m
+        for m in by_game_id["2026-06-15_GER-vs-SLO_EM"][1].messages
+    )
+    assert by_game_id["2026-06-14_GER-vs-AUT_EM"][0] is not None
+    assert by_game_id["2026-06-14_GER-vs-AUT_EM"][0].height == 1
+
+
+def test_ingest_dir_still_propagates_unmapped_team_error(
+    tmp_path: Path, contract, make_hudl_csv
+) -> None:
+    rows = [_play_row(1, "O")]
+    make_hudl_csv(tmp_path, "2026-06-14_XXX-vs-AUT_EM.csv", rows)
+    mapping = pl.DataFrame(
+        {"source": ["hudl"], "source_team": ["AUT"], "canonical_team": ["AUT"]}
+    )
+
+    with pytest.raises(UnmappedTeamError):
+        ingest_dir(tmp_path, contract, team_mapping=mapping)
