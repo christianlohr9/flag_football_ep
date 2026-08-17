@@ -270,3 +270,43 @@ class TestAddScoreColumns:
         assert g2["home_team_score"].to_list() == [0, 0]
         g1 = out.filter(pl.col("game_id") == "g1")
         assert g1["home_team_score"].to_list() == [0, 6]
+
+
+class TestCanonicalPlaysFactory:
+    def test_default_frame_passes_conform_with_empty_report(self):
+        from flag_football_ep.testing import canonical_plays
+
+        df = canonical_plays()
+        out, report = conform_to_canonical(df, "hudl")
+        assert out.columns == list(CANONICAL_COLUMNS)
+        assert report.missing_core == []
+        assert report.materialized_extras == []
+        assert report.cast_failures == {}
+
+    def test_overrides_scalar_applies_to_every_row(self):
+        from flag_football_ep.testing import canonical_plays
+
+        df = canonical_plays(overrides={"down": 7})
+        assert df["down"].to_list() == [7] * df.height
+
+    def test_overrides_unknown_column_raises(self):
+        from flag_football_ep.testing import canonical_plays
+
+        with pytest.raises(ValueError):
+            canonical_plays(overrides={"not_a_column": 1})
+
+    def test_n_games_and_plays_per_game_produce_expected_height_and_contiguous_play_ids(self):
+        from flag_football_ep.testing import canonical_plays
+
+        df = canonical_plays(n_games=2, plays_per_game=6)
+        assert df.height == 12
+        for game_id in df["game_id"].unique().to_list():
+            play_ids = df.filter(pl.col("game_id") == game_id)["play_id"].to_list()
+            assert play_ids == list(range(1, 7))
+
+    def test_canonical_plays_with_scores_imports_and_runs(self):
+        from flag_football_ep.testing import canonical_plays_with_scores
+
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=4)
+        assert "score_differential" in df.columns
+        assert df.height == 4
