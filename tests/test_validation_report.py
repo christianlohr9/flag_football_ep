@@ -138,6 +138,74 @@ class TestRenderReport:
         section = report[report.index("## Missing reference data") : report.index("### g1")]
         assert "g1" in section
 
+    def test_source_notices_section_renders_supplied_notice(self):
+        games = [_passing_game("g1")]
+        report = render_report(
+            games,
+            notices={},
+            contract_version="1.1",
+            run_id="run1",
+            source_notices=["hudl: source directory /x is empty or missing, skipping"],
+        )
+        assert "## Source notices" in report
+        assert "- hudl: source directory /x is empty or missing, skipping" in report.splitlines()
+
+    def test_source_notices_section_renders_none_when_absent(self):
+        games = [_passing_game("g1")]
+        report = render_report(games, notices={}, contract_version="1.1", run_id="run1")
+        section = report[report.index("## Source notices") : report.index("## Summary")]
+        assert "None." in section
+
+    def test_four_positional_args_still_work_without_source_notices(self):
+        games = [_passing_game("g1")]
+        report = render_report(games, {}, "1.1", "run1")
+        section = report[report.index("## Source notices") : report.index("## Summary")]
+        assert "None." in section
+
+    def test_metadata_block_gains_source_notices_count(self):
+        games = [_passing_game("g1")]
+        report = render_report(
+            games,
+            notices={},
+            contract_version="1.1",
+            run_id="run1",
+            source_notices=["hudl: boom", "ifaf: boom2"],
+        )
+        assert "Source notices: 2" in report
+
+    def test_skipped_files_section_lists_notice_key_with_no_matching_game(self):
+        games = [_passing_game("g1")]
+        notices = {"g1": ["materialized optional column off_form"], "2026-06-15_GER-vs-AUT_EM": ["skipped 'x.csv': WrongDelimiterError: bad delimiter"]}
+        report = render_report(games, notices=notices, contract_version="1.1", run_id="run1")
+        section = report[report.index("## Skipped files") : report.index("### g1")]
+        assert "2026-06-15_GER-vs-AUT_EM" in section
+        assert "WrongDelimiterError" in section
+        assert "g1" not in section
+
+    def test_skipped_files_section_renders_none_when_all_notices_match_games(self):
+        games = [_passing_game("g1")]
+        notices = {"g1": ["materialized optional column off_form"]}
+        report = render_report(games, notices=notices, contract_version="1.1", run_id="run1")
+        section = report[report.index("## Skipped files") : report.index("### g1")]
+        assert "None." in section
+
+    def test_section_order_quarantine_source_summary_missing_skipped(self):
+        games = [_quarantined_game("g2")]
+        notices = {"orphan-game": ["skipped 'orphan.csv': FilenameError: bad name"]}
+        report = render_report(
+            games,
+            notices=notices,
+            contract_version="1.1",
+            run_id="run1",
+            source_notices=["hudl: boom"],
+        )
+        idx_quarantine = report.index("## Quarantined games")
+        idx_source = report.index("## Source notices")
+        idx_summary = report.index("## Summary")
+        idx_missing = report.index("## Missing reference data")
+        idx_skipped = report.index("## Skipped files")
+        assert idx_quarantine < idx_source < idx_summary < idx_missing < idx_skipped
+
 
 class TestWriteReport:
     def test_writes_timestamped_and_latest_files_with_identical_content(self, tmp_path: Path):
