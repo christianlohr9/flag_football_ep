@@ -19,6 +19,30 @@ from __future__ import annotations
 
 import polars as pl
 
+# Hard-coded PAT success-rate assumptions from the notebook (1-pt try from the 5 yard line,
+# 2-pt try from the 10). REQ-S1-10 (phase 1.3) replaces these with empirical break-even
+# estimates computed from the data; until then this is the single place to change them.
+PAT_BASELINE_ONE_POINT = 0.5
+PAT_BASELINE_TWO_POINT = 0.92
+
+# Order matters: it is the order the EP model's predict() output columns must land in.
+EP_PROBABILITY_COLUMNS = (
+    "Touchdown_Prob",
+    "Opp_Touchdown_Prob",
+    "Safety_Prob",
+    "Opp_Safety_Prob",
+    "No_Score_Prob",
+)
+WP_PROBABILITY_COLUMN = "wp"
+
+
+class MissingFeatureColumns(ValueError):
+    """Raised when a required EP/WP probability column is missing from the input frame.
+
+    The notebook let this surface as an opaque polars ColumnNotFound; this names every
+    missing column instead.
+    """
+
 
 def _mark_half_end(df: pl.DataFrame) -> pl.DataFrame:
     """Add `index` (if absent), `half_end` and `game_end`.
@@ -194,3 +218,255 @@ def prepare_wp_data(df: pl.DataFrame) -> pl.DataFrame:
         )
     )
     return output
+
+
+def add_ep_variables(df: pl.DataFrame) -> pl.DataFrame:
+    """Port of `helper_add_ep_wp.add_ep_variables`.
+
+    Requires the five EP probability columns (`EP_PROBABILITY_COLUMNS`) already present --
+    typically the model's `.predict()` output hstacked onto the `prepare_ep_data` frame.
+    Computes `ExpPts`, `ep`, `epa` and the home/away cumulative EPA totals. Pure: returns a
+    new frame, does not mutate `df`.
+    """
+    missing = [c for c in EP_PROBABILITY_COLUMNS if c not in df.columns]
+    if missing:
+        raise MissingFeatureColumns(
+            f"add_ep_variables: missing required probability column(s): {', '.join(missing)}"
+        )
+
+    df = (
+        df.with_columns(
+            ExpPts=(
+                (0 * pl.col("No_Score_Prob"))
+                + (2 * pl.col("Safety_Prob"))
+                + (6 * pl.col("Touchdown_Prob"))
+                + (-2 * pl.col("Opp_Safety_Prob"))
+                + (-6 * pl.col("Opp_Touchdown_Prob"))
+            )
+        )
+        .with_columns(
+            ep=pl.col("ExpPts"),
+            tmp_posteam=pl.col("posteam"),
+        )
+        .with_columns(
+            ep=pl.col("ep").backward_fill(),
+            tmp_posteam=pl.col("tmp_posteam").backward_fill(),
+        )
+        # Non-scoring plays: home-perspective forward difference in ep.
+        .with_columns(
+            home_ep=pl.when(pl.col("tmp_posteam") == pl.col("home_team"))
+            .then(pl.col("ep"))
+            .otherwise(-pl.col("ep"))
+        )
+        .with_columns(home_ep_after=pl.col("home_ep").shift(-1))
+        .with_columns(
+            home_epa=pl.when(pl.col("interception") == 1)
+            .then(-(pl.col("home_ep_after") - pl.col("home_ep")))
+            .otherwise(pl.col("home_ep_after") - pl.col("home_ep"))
+        )
+        .with_columns(
+            epa=pl.when(pl.col("tmp_posteam") == pl.col("home_team"))
+            .then(pl.col("home_epa"))
+            .otherwise(-pl.col("home_epa"))
+        )
+        # Touchdown: real 6 points, not ep_after.
+        .with_columns(
+            epa=pl.when(
+                (pl.col("scoring_play_team").is_not_null()) & (pl.col("touchdown") == 1)
+            )
+            .then(
+                pl.when(pl.col("scoring_play_team") == pl.col("posteam"))
+                .then(6 - pl.col("ep"))
+                .otherwise(-6 - pl.col("ep"))
+            )
+            .otherwise(pl.col("epa"))
+        )
+        # Offense extra-point. PAT_BASELINE_ONE_POINT is the notebook's hard-coded
+        # assumption (try from the 5); REQ-S1-10 (phase 1.3) replaces it with an empirical
+        # break-even estimate.
+        .with_columns(
+            epa=pl.when(pl.col("one_point_conv_success") == 1)
+            .then(1 - pl.lit(PAT_BASELINE_ONE_POINT))
+            .otherwise(pl.col("epa"))
+        )
+        # Offense two-point conversion. PAT_BASELINE_TWO_POINT is the notebook's hard-coded
+        # assumption (try from the 10); REQ-S1-10 (phase 1.3) replaces it.
+        .with_columns(
+            epa=pl.when(pl.col("two_point_conv_success") == 1)
+            .then(2 - pl.lit(PAT_BASELINE_TWO_POINT))
+            .otherwise(pl.col("epa"))
+        )
+        # Failed PAT (1 point; assumption: yards_to_go <= 5 is a 1-pt try).
+        .with_columns(
+            epa=pl.when(
+                (pl.col("down") == 0)
+                & (pl.col("yards_to_go") <= 5)
+                & (pl.col("one_point_conv_success") == 0)
+            )
+            .then(0 - pl.lit(PAT_BASELINE_ONE_POINT))
+            .otherwise(pl.col("epa"))
+        )
+        # Failed PAT (2 points; assumption: yards_to_go > 5 is a 2-pt try).
+        .with_columns(
+            epa=pl.when(
+                (pl.col("down") == 0)
+                & (pl.col("yards_to_go") > 5)
+                & (pl.col("two_point_conv_success") == 0)
+            )
+            .then(0 - pl.lit(PAT_BASELINE_TWO_POINT))
+            .otherwise(pl.col("epa"))
+        )
+        # Opponent scores defensive two-point conversion.
+        .with_columns(
+            epa=pl.when(pl.col("defensive_two_point_conv") == 1)
+            .then(-2 - pl.col("ep"))
+            .otherwise(pl.col("epa"))
+        )
+        # Safety.
+        .with_columns(
+            epa=pl.when(
+                (pl.col("scoring_play_team").is_not_null())
+                & (pl.col("scoring_play_team") == pl.col("posteam"))
+                & (pl.col("safety") == 1)
+            )
+            .then(2 - pl.col("ep"))
+            .when(
+                (pl.col("scoring_play_team").is_not_null())
+                & (pl.col("scoring_play_team") == pl.col("defteam"))
+                & (pl.col("safety") == 1)
+            )
+            .then(-2 - pl.col("ep"))
+            .otherwise(pl.col("epa"))
+        )
+        # End-of-half play with no scoring: epa is just 0 minus starting ep.
+        .with_columns(
+            epa=pl.when(
+                (pl.col("half_end") == 1)
+                & (pl.col("scoring_play") == 0)
+                & (pl.col("play_type").is_not_null())
+            )
+            .then(0 - pl.col("ep"))
+            .otherwise(pl.col("epa"))
+        )
+        # Half-end epa/ep are undefined for the first half (game-end handled next).
+        .with_columns(
+            epa=pl.when((pl.col("half_end") == 1) & (pl.col("half") == 1))
+            .then(pl.lit(None))
+            .otherwise(pl.col("epa"))
+        )
+        .with_columns(
+            epa=pl.when(pl.col("game_end") == 1).then(pl.lit(None)).otherwise(pl.col("epa"))
+        )
+        .with_columns(
+            ep=pl.when((pl.col("half_end") == 1) & (pl.col("half") == 1))
+            .then(pl.lit(None))
+            .otherwise(pl.col("ep"))
+        )
+        .with_columns(
+            ep=pl.when(pl.col("game_end") == 1).then(pl.lit(None)).otherwise(pl.col("ep"))
+        )
+        .with_columns(
+            home_team_epa=pl.when(pl.col("home_team") == pl.col("posteam"))
+            .then(pl.col("epa"))
+            .otherwise(-pl.col("epa")),
+            away_team_epa=pl.when(pl.col("away_team") == pl.col("posteam"))
+            .then(pl.col("epa"))
+            .otherwise(-pl.col("epa")),
+        )
+        .with_columns(
+            home_team_epa=pl.when(pl.col("home_team_epa").is_null())
+            .then(pl.lit(0))
+            .otherwise(pl.col("home_team_epa")),
+            away_team_epa=pl.when(pl.col("away_team_epa").is_null())
+            .then(pl.lit(0))
+            .otherwise(pl.col("away_team_epa")),
+        )
+        .with_columns(
+            total_home_epa=pl.col("home_team_epa").cum_sum().over("game_id"),
+            total_away_epa=pl.col("away_team_epa").cum_sum().over("game_id"),
+        )
+    )
+    return df
+
+
+def add_wp_variables(df: pl.DataFrame) -> pl.DataFrame:
+    """Port of `helper_add_ep_wp.add_wp_variables`.
+
+    Requires `WP_PROBABILITY_COLUMN` ("wp") already present -- typically the model's
+    `.predict()` output. Computes `home_wp`, `away_wp`, `def_wp`, `wpa`,
+    `home_wp_post`/`away_wp_post` and the home/away cumulative WP/WPA totals. Pure: returns
+    a new frame, does not mutate `df`.
+    """
+    if WP_PROBABILITY_COLUMN not in df.columns:
+        raise MissingFeatureColumns(
+            f"add_wp_variables: missing required probability column: {WP_PROBABILITY_COLUMN!r}"
+        )
+
+    df = (
+        df.with_columns(tmp_posteam=pl.col("posteam"))
+        .with_columns(
+            wp=pl.col("wp").backward_fill(),
+            tmp_posteam=pl.col("tmp_posteam").backward_fill(),
+        )
+        .with_columns(
+            home_wp=pl.when(pl.col("tmp_posteam") == pl.col("home_team"))
+            .then(pl.col("wp"))
+            .otherwise(1 - pl.col("wp"))
+        )
+        .with_columns(
+            final_value=pl.when(pl.col("home_team_score") > pl.col("away_team_score"))
+            .then(pl.lit(1))
+            .when(pl.col("away_team_score") > pl.col("home_team_score"))
+            .then(pl.lit(0))
+            .when(pl.col("home_team_score") == pl.col("away_team_score"))
+            .then(pl.lit(0.5))
+        )
+        .with_columns(
+            home_wp=pl.when(pl.col("game_end") == 1)
+            .then(pl.col("final_value"))
+            .otherwise(pl.col("home_wp"))
+        )
+        .with_columns(away_wp=1 - pl.col("home_wp"))
+        .with_columns(def_wp=1 - pl.col("wp"))
+        .with_columns(home_wp_after=pl.col("home_wp").shift(-1))
+        .with_columns(home_wpa=pl.col("home_wp_after") - pl.col("home_wp"))
+        .with_columns(
+            wpa=pl.when(pl.col("tmp_posteam") == pl.col("home_team"))
+            .then(pl.col("home_wpa"))
+            .otherwise(-pl.col("home_wpa"))
+        )
+        .with_columns(
+            wpa=pl.when(pl.col("game_end") == 1).then(pl.lit(None)).otherwise(pl.col("wpa"))
+        )
+        .with_columns(
+            home_wp_post=pl.when(pl.col("posteam") == pl.col("home_team"))
+            .then(pl.col("home_wp") + pl.col("wpa"))
+            .otherwise(pl.col("home_wp") - pl.col("wpa")),
+            away_wp_post=pl.when(pl.col("posteam") == pl.col("away_team"))
+            .then(pl.col("away_wp") + pl.col("wpa"))
+            .otherwise(pl.col("away_wp") - pl.col("wpa")),
+        )
+        .with_columns(
+            home_team_wpa=pl.when(pl.col("posteam") == pl.col("home_team"))
+            .then(pl.col("wpa"))
+            .otherwise(-pl.col("wpa")),
+            away_team_wpa=pl.when(pl.col("posteam") == pl.col("away_team"))
+            .then(pl.col("wpa"))
+            .otherwise(-pl.col("wpa")),
+        )
+        .with_columns(
+            home_team_wpa=pl.when(pl.col("home_team_wpa").is_null())
+            .then(pl.lit(0))
+            .otherwise(pl.col("home_team_wpa")),
+            away_team_wpa=pl.when(pl.col("away_team_wpa").is_null())
+            .then(pl.lit(0))
+            .otherwise(pl.col("away_team_wpa")),
+        )
+        .with_columns(
+            total_home_wp=pl.col("home_wp_post").cum_sum().over("game_id"),
+            total_away_wp=pl.col("away_wp_post").cum_sum().over("game_id"),
+            total_home_wpa=pl.col("home_team_wpa").cum_sum().over("game_id"),
+            total_away_wpa=pl.col("away_team_wpa").cum_sum().over("game_id"),
+        )
+    )
+    return df

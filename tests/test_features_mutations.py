@@ -11,7 +11,67 @@ import polars as pl
 import pytest
 
 from flag_football_ep.testing import canonical_plays_with_scores
-from flag_football_ep.features.mutations import prepare_ep_data, prepare_wp_data
+from flag_football_ep.features.mutations import (
+    EP_PROBABILITY_COLUMNS,
+    PAT_BASELINE_ONE_POINT,
+    PAT_BASELINE_TWO_POINT,
+    MissingFeatureColumns,
+    add_ep_variables,
+    add_wp_variables,
+    prepare_ep_data,
+    prepare_wp_data,
+)
+
+_EP_PROBS = {
+    "Touchdown_Prob": 0.2,
+    "Opp_Touchdown_Prob": 0.2,
+    "Safety_Prob": 0.2,
+    "Opp_Safety_Prob": 0.2,
+    "No_Score_Prob": 0.2,
+}
+
+
+def _with_ep_probs(df: pl.DataFrame, **overrides: float) -> pl.DataFrame:
+    probs = {**_EP_PROBS, **overrides}
+    return df.with_columns([pl.lit(value).alias(name) for name, value in probs.items()])
+
+
+_MINIMAL_EP_ROW_DEFAULTS = {
+    "game_id": "G1",
+    "half": 1,
+    "half_end": 0,
+    "game_end": 0,
+    "posteam": "HOME",
+    "defteam": "AWAY",
+    "home_team": "HOME",
+    "away_team": "AWAY",
+    "interception": 0,
+    "touchdown": 0,
+    "one_point_conv_success": 0,
+    "two_point_conv_success": 0,
+    "defensive_two_point_conv": 0,
+    "safety": 0,
+    "scoring_play_team": None,
+    "scoring_play": 0,
+    "play_type": "pass",
+    "down": 1,
+    "yards_to_go": 10,
+    **_EP_PROBS,
+}
+
+
+def _minimal_ep_frame(rows: list[dict]) -> pl.DataFrame:
+    """A hand-built frame with exactly the columns `add_ep_variables` needs.
+
+    Used where the epa formula needs to be isolated from the rest of the
+    `prepare_ep_data`/`add_scoring_play_team` machinery (e.g. proving the interception
+    sign flip against an otherwise-identical row, or forcing `scoring_play_team` to differ
+    from `posteam` on a touchdown row).
+    """
+    full_rows = [{**_MINIMAL_EP_ROW_DEFAULTS, **row} for row in rows]
+    columns = list(_MINIMAL_EP_ROW_DEFAULTS)
+    data = {col: [row[col] for row in full_rows] for col in columns}
+    return pl.DataFrame(data)
 
 
 class TestPrepareEpDataIndex:
@@ -259,3 +319,165 @@ class TestPrepareWpData:
             ][0]
             assert half1_first == 1200
             assert half2_first == 1200
+
+
+class TestAddEpVariables:
+    def test_exp_pts_matches_hand_computed_weighted_sum(self):
+        df = _with_ep_probs(
+            _minimal_ep_frame([{}]),
+            Touchdown_Prob=0.5,
+            Opp_Touchdown_Prob=0.1,
+            Safety_Prob=0.1,
+            Opp_Safety_Prob=0.1,
+            No_Score_Prob=0.2,
+        )
+
+        out = add_ep_variables(df)
+
+        expected = 0 * 0.2 + 2 * 0.1 + 6 * 0.5 + (-2 * 0.1) + (-6 * 0.1)
+        assert out["ExpPts"].item() == pytest.approx(expected)
+
+    def test_interception_flips_epa_sign_vs_identical_non_interception_row(self):
+        row0 = {"posteam": "HOME"}
+        row1 = {
+            "posteam": "HOME",
+            "half_end": 1,
+            "Touchdown_Prob": 0.0,
+            "No_Score_Prob": 1.0,
+            "Opp_Touchdown_Prob": 0.0,
+            "Safety_Prob": 0.0,
+            "Opp_Safety_Prob": 0.0,
+        }
+        row0_probs = {
+            "Touchdown_Prob": 1.0,
+            "No_Score_Prob": 0.0,
+            "Opp_Touchdown_Prob": 0.0,
+            "Safety_Prob": 0.0,
+            "Opp_Safety_Prob": 0.0,
+        }
+
+        non_intercept = _minimal_ep_frame(
+            [{**row0, **row0_probs, "interception": 0}, row1]
+        )
+        intercept = _minimal_ep_frame([{**row0, **row0_probs, "interception": 1}, row1])
+
+        epa_non_intercept = add_ep_variables(non_intercept)["epa"][0]
+        epa_intercept = add_ep_variables(intercept)["epa"][0]
+
+        assert epa_non_intercept != 0
+        assert epa_intercept == pytest.approx(-epa_non_intercept)
+
+    def test_touchdown_epa_when_scoring_team_is_posteam(self):
+        df = _minimal_ep_frame(
+            [
+                {
+                    "touchdown": 1,
+                    "scoring_play_team": "HOME",
+                    "posteam": "HOME",
+                    "Touchdown_Prob": 1.0,
+                    "No_Score_Prob": 0.0,
+                }
+            ]
+        )
+
+        out = add_ep_variables(df)
+
+        assert out["epa"].item() == pytest.approx(6 - out["ep"].item())
+
+    def test_touchdown_epa_when_scoring_team_is_not_posteam(self):
+        df = _minimal_ep_frame(
+            [
+                {
+                    "touchdown": 1,
+                    "scoring_play_team": "AWAY",
+                    "posteam": "HOME",
+                    "Touchdown_Prob": 1.0,
+                    "No_Score_Prob": 0.0,
+                }
+            ]
+        )
+
+        out = add_ep_variables(df)
+
+        assert out["epa"].item() == pytest.approx(-6 - out["ep"].item())
+
+    def test_pat_baselines_preserved(self):
+        assert PAT_BASELINE_ONE_POINT == 0.5
+        assert PAT_BASELINE_TWO_POINT == 0.92
+
+    def test_missing_probability_column_raises_named(self):
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=8)
+        df = prepare_ep_data(df)
+        df = _with_ep_probs(df)
+        df = df.drop("Safety_Prob")
+
+        with pytest.raises(MissingFeatureColumns) as excinfo:
+            add_ep_variables(df)
+
+        assert "Safety_Prob" in str(excinfo.value)
+
+    def test_add_ep_variables_does_not_mutate_input(self):
+        df = _with_ep_probs(_minimal_ep_frame([{}]))
+        original_columns = list(df.columns)
+
+        add_ep_variables(df)
+
+        assert df.columns == original_columns
+        assert "ExpPts" not in df.columns
+
+
+class TestAddWpVariables:
+    def test_home_wp_plus_away_wp_equals_one_every_row(self):
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=8)
+        df = prepare_ep_data(df)
+        df = df.with_columns(wp=pl.lit(0.5))
+
+        out = add_wp_variables(df)
+
+        totals = (out["home_wp"] + out["away_wp"]).to_list()
+        assert totals == pytest.approx([1.0] * out.height)
+
+    def test_def_wp_is_one_minus_wp(self):
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=8)
+        df = prepare_ep_data(df)
+        df = df.with_columns(wp=pl.lit(0.3))
+
+        out = add_wp_variables(df)
+
+        assert out["def_wp"].to_list() == pytest.approx([0.7] * out.height)
+
+    def test_game_end_final_value_home_win(self):
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=8,
+            overrides={"touchdown": [0, 0, 0, 0, 0, 0, 0, 1]},
+        )
+        df = prepare_ep_data(df)
+        df = df.with_columns(wp=pl.lit(0.5))
+
+        out = add_wp_variables(df)
+
+        game_end_row = out.filter(pl.col("game_end") == 1)
+        # play_id 8 has posteam=AWAY (even play_idx); the AWAY-scored touchdown makes
+        # away_team_score > home_team_score, so home should be the loser (final_value 0).
+        assert game_end_row["final_value"].item() == 0
+        assert game_end_row["home_wp"].item() == 0
+
+    def test_missing_wp_column_raises_named(self):
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=8)
+        df = prepare_ep_data(df)
+
+        with pytest.raises(MissingFeatureColumns) as excinfo:
+            add_wp_variables(df)
+
+        assert "wp" in str(excinfo.value)
+
+    def test_add_wp_variables_does_not_mutate_input(self):
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=8)
+        df = prepare_ep_data(df).with_columns(wp=pl.lit(0.5))
+        original_columns = list(df.columns)
+
+        add_wp_variables(df)
+
+        assert df.columns == original_columns
+        assert "home_wp" not in df.columns
