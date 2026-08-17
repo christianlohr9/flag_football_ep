@@ -66,8 +66,8 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 01.2-01-PLAN.md — Package foundation: dependencies, `ffep` entry point, Typer app with all subcommands, pytest scaffolding
-- [ ] 01.2-02-PLAN.md — Freeze the notebook's EP/WP training frames as regression fixtures before any porting
+- [x] 01.2-01-PLAN.md — Package foundation: dependencies, `ffep` entry point, Typer app with all subcommands, pytest scaffolding
+- [x] 01.2-02-PLAN.md — Freeze the notebook's EP/WP training frames as regression fixtures before any porting
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -221,7 +221,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 0/17 | Planned | - |
+| 1.2 Repo to Pipeline | 2/17 | In Progress|  |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |

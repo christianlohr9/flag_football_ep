@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-08-17T11:23:37.622Z"
-last_activity: 2026-08-17 -- Phase 01.2 planning complete
+last_updated: "2026-08-17T11:28:23.707Z"
+last_activity: 2026-08-17 -- Phase 01.2 execution started
 progress:
   total_phases: 10
   completed_phases: 1
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-02)
 
 **Core value:** Before the next camp/tournament: auto-generated tendency report per group opponent from raw exports in < 10 minutes, plus an explicit CV pilot go/no-go decision.
-**Current focus:** Phase 1.2 — repo to pipeline
+**Current focus:** Phase 01.2 — repo-to-pipeline
 
 ## Current Position
 
-Phase: 1.2
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-17 -- Phase 01.2 planning complete
+Phase: 01.2 (repo-to-pipeline) — EXECUTING
+Plan: 1 of 17
+Status: Executing Phase 01.2
+Last activity: 2026-08-17 -- Phase 01.2 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
