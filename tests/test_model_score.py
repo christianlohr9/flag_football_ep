@@ -289,3 +289,113 @@ def test_score_module_never_imports_pandas() -> None:
 
     source = pathlib.Path("src/flag_football_ep/model/score.py").read_text(encoding="utf-8")
     assert "import pandas" not in source
+
+
+# --- CR-01 regression: _score_probabilities must preserve input row order ------------------
+#
+# These tests deliberately do NOT assert that a null-adjacent row's epa on the mixed frame
+# equals its epa on a fully-complete frame -- that equality does not hold even with the fix.
+# On the fully-complete frame the preceding row's home_ep_after is the null row's OWN
+# prediction; on the mixed (fixed) frame it is the backward-filled value from the following
+# play. Test 2/3 below (EP/WP backfill) are the correct, discriminating form of "the null
+# row's neighbours are computed against the right play": they assert the null row itself
+# inherits the NEXT play's ep/wp via backward_fill, which is only possible if
+# _score_probabilities kept it in chronological position instead of relocating it to the
+# frame's tail. Test 4 is the correct form of "unaffected rows are unchanged".
+
+
+def test_score_probabilities_returns_rows_in_row_id_order(tmp_path: Path) -> None:
+    from flag_football_ep.model.score import (
+        _ROW_ID_COLUMN,
+        _prepare_ep_features,
+        _score_probabilities,
+    )
+    from flag_football_ep.model.hyperparams import EP_FEATURES
+
+    config, ep_run_id, _wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+    target_game_id = plays["game_id"].unique().sort()[0]
+    plays = plays.with_columns(
+        pl.when((pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3))
+        .then(pl.lit(None))
+        .otherwise(pl.col("yardline_50"))
+        .alias("yardline_50")
+    )
+    plays = plays.with_row_index(name=_ROW_ID_COLUMN, offset=0)
+    ep_prepared = _prepare_ep_features(plays)
+    ep_model = load_model(ep_run_id, config)
+
+    scored = _score_probabilities(ep_prepared, ep_model, EP_FEATURES, EP_PROB_LABELS)
+
+    row_ids = scored[_ROW_ID_COLUMN]
+    assert row_ids.to_list() == row_ids.sort().to_list()
+
+
+def _scored_with_null_yardline_50(tmp_path: Path) -> tuple[pl.DataFrame, pl.DataFrame, object]:
+    """Score the untouched corpus (`baseline`) and the same corpus with `yardline_50` nulled
+    on play 3 of the first game id (`scored`). Reused by Tests 2-4."""
+    config, ep_run_id, wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+    target_game_id = plays["game_id"].unique().sort()[0]
+
+    baseline = score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    nulled_plays = plays.with_columns(
+        pl.when((pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3))
+        .then(pl.lit(None))
+        .otherwise(pl.col("yardline_50"))
+        .alias("yardline_50")
+    )
+    scored = score_plays(nulled_plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    return baseline, scored, target_game_id
+
+
+def test_score_plays_backfills_ep_on_null_feature_row_from_next_play(tmp_path: Path) -> None:
+    _baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
+
+    null_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3)
+    )
+    next_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 4)
+    )
+    assert null_row.height == 1
+    assert next_row.height == 1
+
+    null_ep = null_row["ep"][0]
+    next_exp_pts = next_row["ExpPts"][0]
+    assert null_ep is not None
+    assert null_ep == pytest.approx(next_exp_pts, abs=1e-9)
+
+
+def test_score_plays_backfills_wp_on_null_feature_row_from_next_play(tmp_path: Path) -> None:
+    _baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
+
+    null_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3)
+    )
+    next_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 4)
+    )
+    assert null_row.height == 1
+    assert next_row.height == 1
+
+    null_wp = null_row["wp"][0]
+    next_wp = next_row["wp"][0]
+    assert null_wp is not None
+    assert null_wp == pytest.approx(next_wp, abs=1e-9)
+
+
+def test_score_plays_unaffected_games_match_fully_complete_scoring(tmp_path: Path) -> None:
+    baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
+
+    baseline_other = baseline.filter(pl.col("game_id") != target_game_id).sort(
+        ["game_id", "play_id"]
+    )
+    scored_other = scored.filter(pl.col("game_id") != target_game_id).sort(
+        ["game_id", "play_id"]
+    )
+
+    assert baseline_other["epa"].eq_missing(scored_other["epa"]).all()
+    assert baseline_other["wpa"].eq_missing(scored_other["wpa"]).all()
