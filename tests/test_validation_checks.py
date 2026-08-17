@@ -139,6 +139,29 @@ class TestGaplessPlayIds:
         assert result.status == Status.FAIL
         assert "3" in result.detail
 
+    def test_fail_on_single_null_play_id_names_null_count_and_does_not_raise(self):
+        df = canonical_plays(n_games=1, plays_per_game=4, overrides={"play_id": [1, 2, None, 4]})
+        results = gapless_play_ids(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert "null play_id" in result.detail
+        assert "1" in result.detail
+
+    def test_fail_on_duplicated_nulls_alongside_duplicated_ints_does_not_raise_typeerror(self):
+        df = canonical_plays(n_games=1, plays_per_game=4, overrides={"play_id": [1, None, None, 2]})
+        results = gapless_play_ids(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert "null play_id" in result.detail
+
+    def test_fail_on_all_null_play_id_game(self):
+        df = canonical_plays(n_games=1, plays_per_game=3, overrides={"play_id": [None, None, None]})
+        results = gapless_play_ids(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert "null play_id" in result.detail
+        assert "3" in result.detail
+
 
 class TestScoreReconstruction:
     def test_pass_when_last_row_matches_reference(self):
