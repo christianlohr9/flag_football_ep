@@ -45,7 +45,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01.1-02-PLAN.md — Sight real defense-column values from sample exports; fix COVERAGE/DEF FRONT/BLITZ vocabulary
+- [x] 01.1-02-PLAN.md — Sight real defense-column values from sample exports; fix COVERAGE/DEF FRONT/BLITZ vocabulary
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -182,7 +182,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1.1 Data Contract | 1/3 | In Progress|  |
+| 1.1 Data Contract | 2/3 | In Progress|  |
 | 1.2 Repo to Pipeline | 0/TBD | Not started | - |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
