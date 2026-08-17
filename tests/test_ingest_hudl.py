@@ -12,8 +12,10 @@ import pytest
 from flag_football_ep.ingest.hudl import (
     FilenameError,
     WrongDelimiterError,
+    derive_outcome_columns,
     ingest_file,
     parse_filename,
+    parse_result_tokens,
     read_export,
 )
 from flag_football_ep.validation.schema import MissingCoreColumnsError, load_contract
@@ -175,3 +177,85 @@ def test_ingest_file_domain_violation_recorded_not_raised(
 def test_ingest_file_real_samples_do_not_raise(hudl_sample_paths, contract) -> None:
     for path in hudl_sample_paths:
         ingest_file(path, contract)
+
+
+# --- RESULT grammar and outcome derivation (Task 2 scope) -----------------------------------------------------------
+
+
+def _result_frame(result: str, down: int = 1, yardline_50: int = 25) -> pl.DataFrame:
+    return pl.DataFrame(
+        {"RESULT": [result], "down": [down], "yardline_50": [yardline_50]},
+        schema={"RESULT": pl.Utf8, "down": pl.Int32, "yardline_50": pl.Int32},
+    )
+
+
+def _outcome_row(result: str, down: int = 1, yardline_50: int = 25) -> dict:
+    df = parse_result_tokens(_result_frame(result, down=down, yardline_50=yardline_50))
+    df, _messages = derive_outcome_columns(df)
+    return df.row(0, named=True)
+
+
+@pytest.mark.parametrize(
+    "result,expected",
+    [
+        ("Complete", {"complete_pass": 1, "incomplete_pass": 0, "play_type": "pass"}),
+        ("Incomplete", {"complete_pass": 0, "incomplete_pass": 1, "play_type": "pass"}),
+        ("Complete, TD", {"complete_pass": 1, "touchdown": 1}),
+        ("Rush, TD", {"play_type": "run", "touchdown": 1, "complete_pass": 0}),
+        ("Def TD", {"touchdown": 0, "def_touchdown": 1}),
+        ("No Good", {"no_good": 1}),
+        ("Good", {"one_point_conv_success": 0, "two_point_conv_success": 0}),
+        ("Penalty", {"play_type": "no_play", "penalty": 1}),
+        ("Complete, Penalty", {"penalty": 1, "complete_pass": 1}),
+        ("KNEEL", {"play_type": "qb_kneel"}),
+        ("Sack", {"sack": 1, "play_type": "pass"}),
+        ("Interception", {"interception": 1}),
+        ("Fumble", {"fumble": 1}),
+        ("", {"play_type": None}),
+    ],
+)
+def test_result_grammar_table(result: str, expected: dict) -> None:
+    row = _outcome_row(result)
+    for key, value in expected.items():
+        assert row[key] == value, f"{result!r}: {key} expected {value}, got {row[key]}"
+
+
+def test_incomplete_leaves_complete_pass_zero() -> None:
+    assert _outcome_row("Incomplete")["complete_pass"] == 0
+
+
+def test_def_td_leaves_touchdown_zero() -> None:
+    assert _outcome_row("Def TD")["touchdown"] == 0
+
+
+def test_unknown_token_recorded_not_raised() -> None:
+    df = parse_result_tokens(_result_frame("Blorp"))
+    df, messages = derive_outcome_columns(df)
+    assert any("Blorp" in m for m in messages)
+
+
+def test_empty_result_non_pat_yields_null_play_type_and_notice() -> None:
+    df = parse_result_tokens(_result_frame("", down=2))
+    df, messages = derive_outcome_columns(df)
+    assert df["play_type"][0] is None
+    assert any("empty RESULT" in m for m in messages)
+
+
+def test_empty_result_pat_yields_extra_point() -> None:
+    assert _outcome_row("", down=0)["play_type"] == "extra_point"
+
+
+def test_one_point_conv_success_requires_good_down0_yardline45() -> None:
+    row = _outcome_row("Good", down=0, yardline_50=45)
+    assert row["one_point_conv_success"] == 1
+    assert row["two_point_conv_success"] == 0
+
+
+def test_two_point_conv_success_requires_good_down0_yardline40() -> None:
+    row = _outcome_row("Good", down=0, yardline_50=40)
+    assert row["two_point_conv_success"] == 1
+    assert row["one_point_conv_success"] == 0
+
+
+def test_defensive_two_point_conv_requires_def_td_down0() -> None:
+    assert _outcome_row("Def TD", down=0)["defensive_two_point_conv"] == 1
