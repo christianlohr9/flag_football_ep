@@ -143,13 +143,28 @@ def _score_probabilities(
 
     Rows missing any feature are scored with null probabilities instead of being dropped,
     so the returned frame's row count always equals `df`'s (T-1.2-18). Raises
-    `MissingScoreColumns` naming any `features` entry absent from `df` entirely.
+    `MissingScoreColumns` naming any `features` entry absent from `df` entirely, or naming
+    `_score_row_id` when that column itself is absent.
+
+    The returned frame is always in `_ROW_ID_COLUMN` order, because `add_ep_variables`/
+    `add_wp_variables` derive `home_ep_after`/`home_wp_after` via `shift(-1)` and fill
+    `ep`/`wp`/`tmp_posteam` via `backward_fill()` -- computing those on a frame where
+    null-feature rows have been relocated to the tail silently corrupts every row adjacent
+    to one (CR-01).
     """
     missing = [c for c in features if c not in df.columns]
     if missing:
         raise MissingScoreColumns(
             f"score_plays: input frame is missing required feature column(s): "
             f"{', '.join(missing)}"
+        )
+
+    if _ROW_ID_COLUMN not in df.columns:
+        raise MissingScoreColumns(
+            f"score_plays: input frame is missing {_ROW_ID_COLUMN!r} -- the caller must add "
+            "the row index (score_plays does this via with_row_index before calling "
+            "_score_probabilities) so this function can restore input row order before "
+            "splitting into complete/incomplete subframes."
         )
 
     null_mask = pl.any_horizontal([pl.col(f).is_null() for f in features])
@@ -172,7 +187,7 @@ def _score_probabilities(
         [pl.lit(None).cast(pl.Float64).alias(label) for label in prob_labels]
     )
 
-    return pl.concat([complete, incomplete], how="vertical")
+    return pl.concat([complete, incomplete], how="vertical").sort(_ROW_ID_COLUMN)
 
 
 def score_plays(
@@ -208,9 +223,13 @@ def score_plays(
             f"score_plays: input frame is missing a required column: {exc}"
         ) from exc
 
+    # add_ep_variables requires chronological order (shift(-1)/backward_fill()) --
+    # _score_probabilities guarantees ep_scored is sorted on _ROW_ID_COLUMN (CR-01).
     ep_scored = _score_probabilities(ep_prepared, ep_model, EP_FEATURES, EP_PROB_LABELS)
     ep_result = add_ep_variables(ep_scored)
 
+    # add_wp_variables requires chronological order (shift(-1)/backward_fill()) --
+    # _score_probabilities guarantees wp_scored is sorted on _ROW_ID_COLUMN (CR-01).
     wp_scored = _score_probabilities(
         wp_prepared, wp_model, WP_FEATURES, [WP_PROBABILITY_COLUMN]
     )
