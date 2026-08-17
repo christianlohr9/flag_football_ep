@@ -1,5 +1,28 @@
 # Hudl sample exports contain player names (PII) — never commit (T-1.1-03)
 data/samples/
 
+# secrets never committed (T-1.2-01)
+.env
+
+# new-format Hudl exports carry player names and BLITZ person names, same
+# PII policy as data/samples/ above (T-1.2-02)
+# NOTE: ignore contents (data/raw/hudl/*), not the directory itself — git
+# cannot re-include a file inside a wholesale-excluded directory.
+data/raw/hudl/*
+!data/raw/hudl/.gitkeep
+
+# regenerable pipeline output, rebuilt atomically per ingest
+data/processed/*
+!data/processed/.gitkeep
+
+# local MLflow tracking store
+mlruns/
+
+# data/raw/legacy/, data/raw/sportapp/, data/raw/ifaf/ and data/reference/
+# are intentionally NOT ignored: the legacy CSV is the bulk of the training
+# corpus, the raw JSON snapshots make fetch reproducible offline, and the
+# maintained reference CSVs are what make the pipeline reproducible.
+
 __pycache__/
 *.pyc
+.venv/
