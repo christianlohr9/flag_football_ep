@@ -64,10 +64,11 @@ GroupKFold by game_id, Strand-1 non-goals (no live tooling, no CV dependency).
 ### Pending Todos
 
 - `2026-08-17-tap-ifaf-wm-api-as-data-source.md` — IFAF/cpx.studio WM-API (Play-by-play der WM 2026) als zusätzliche Datenquelle für EP-Kalibrierung/Benchmarking erschließen; keine Defense-Felder, daher nicht Teil des Data Contracts.
+- `2026-08-17-ratify-data-contract-with-videoanalyst.md` — Data Contract v1.0 (einseitig festgelegt, DEFERRED-ANALYST) mit dem Videoanalysten ratifizieren, sobald er verfügbar ist; spätestens vor dem nächsten Filmtausch.
 
 ### Blockers/Concerns
 
-- Phase 1.1 and 2.0 both depend on Videoanalyst availability (external person) — schedule the conversation early; it unblocks both strands.
+- Videoanalyst currently unavailable (user decision 2026-08-17): Phase 1.1 contract fixed unilaterally as v1.0 provisional with DEFERRED-ANALYST ratification block; Phase 2.0 dependency on analyst availability still stands.
 - REQ-S1-02 (real time data) may not be deliverable by the analyst; Phase 1.4 WP charts degrade gracefully to synthetic-time with an explicit flag.
 - Phases 2.2–2.4 are hard-gated on the Phase 2.1 pilot outcome (C-09); do not plan them in detail before the gate decision.
 
