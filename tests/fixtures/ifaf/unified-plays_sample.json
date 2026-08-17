@@ -1,0 +1,571 @@
+[
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-usa-p16"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Player 1 → #7 Player 2",
+      "text": "COMPLETE PASS #29 Player 1 → #7 Player 2",
+      "from": {
+        "name": "Player 1",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://example.invalid/redacted.png"
+      },
+      "to": {
+        "name": "Player 2",
+        "number": "7",
+        "teamId": "w-usa",
+        "photoUrl": "https://example.invalid/redacted.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0048b-cc59-72cd-a7c3-73534bf647e4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c2-7319-ae4a-5912e201303a"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1159088,
+      "half": 1,
+      "down": 3,
+      "ballOn": 24,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13"
+      },
+      {
+        "action": "INTERCEPTION",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "23",
+        "playerId": "w-usa-p9"
+      }
+    ],
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#29 Player 1 → #82 Player 3",
+      "text": "INTERCEPTION #29 Player 1 → #82 Player 3",
+      "from": {
+        "name": "Player 1",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://example.invalid/redacted.png"
+      },
+      "to": {
+        "name": "Player 3",
+        "number": "82",
+        "teamId": "w-ger",
+        "photoUrl": "https://example.invalid/redacted.png"
+      }
+    },
+    "players": {
+      "interceptedBy": {
+        "number": "82"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0048c-d9e9-72ad-a2d3-ca80eda6e8bb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c4-7319-9a0c-de9c78213a63"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1097745,
+      "half": 1,
+      "down": 1,
+      "ballOn": 36,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "PASS_INTERFERENCE"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "f1435bab-a36e-48ee-b974-976f548d9fed",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c4-7319-9a0c-e185cf4673ec"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 976719,
+      "half": 1,
+      "down": 1,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-ger-p4",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#14 Player 4 (6 pts)",
+      "text": "TOUCHDOWN #14 Player 4 (6 pts)",
+      "from": {
+        "name": "Player 4",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://example.invalid/redacted.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0048f-971c-742c-b48c-5098f421a78d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c5-7768-850a-c4da5cf5d0ab"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 928242,
+      "half": 1,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "TRY",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00490-4c44-740b-bf97-83f118302398",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-c960f71b4926"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 707723,
+      "half": 1,
+      "down": 1,
+      "ballOn": 10,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p16"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p16"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Player 5",
+      "text": "INCOMPLETE PASS #30 Player 5",
+      "from": {
+        "name": "Player 5",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://example.invalid/redacted.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00493-a1ea-7585-a6f4-8e2357c4bcd9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-e15e4da8b1d5"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 669722,
+      "half": 1,
+      "down": 2,
+      "ballOn": 10,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Player 5 → #14 Player 4",
+      "text": "COMPLETE PASS #30 Player 5 → #14 Player 4",
+      "from": {
+        "name": "Player 5",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://example.invalid/redacted.png"
+      },
+      "to": {
+        "name": "Player 4",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://example.invalid/redacted.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00494-13f9-72bf-8c9b-9a3f9955c21a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-e5a211be0978"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 587228,
+      "half": 1,
+      "down": 1,
+      "ballOn": 26,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "SACK",
+        "player": "0",
+        "playerId": "w-usa-p14"
+      }
+    ],
+    "outcome": {
+      "type": "SACK",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "SACK",
+      "label": "SACK",
+      "detail": "by #0 Player 6",
+      "text": "SACK by #0 Player 6",
+      "from": {
+        "name": "Player 6",
+        "number": "0",
+        "teamId": "w-usa",
+        "photoUrl": "https://example.invalid/redacted.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00495-e171-76bb-aaaa-cad4fa9a30fa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c6-7279-a00f-56e619eb81ec"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 411324,
+      "half": 1,
+      "down": 4,
+      "ballOn": 49,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "PASS_INTERFERENCE"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00498-2320-74c8-aadd-94e555c4bb6e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c7-7134-8d49-d5ae5edfa24e"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 89,
+    "context": {
+      "gameClockMs": 6733,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 35,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "29",
+        "playerId": "w-usa-p13"
+      }
+    ],
+    "outcome": {
+      "type": "RUN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#29 Player 1",
+      "text": "RUN #29 Player 1",
+      "from": {
+        "name": "Player 1",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://example.invalid/redacted.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "29"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ca-734d-70dc-a70f-6bb5e6fecea5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.352Z",
+    "updatedAt": "2026-08-16T12:15:21.352Z",
+    "id": "01a00a7f-78ca-73b9-820a-6bcf0a7eaa73"
+  }
+]
