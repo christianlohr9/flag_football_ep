@@ -71,6 +71,7 @@ def _with_ep_probs(df: pl.DataFrame, **overrides: float) -> pl.DataFrame:
 
 _MINIMAL_EP_ROW_DEFAULTS = {
     "game_id": "G1",
+    "play_id": 1,
     "half": 1,
     "half_end": 0,
     "game_end": 0,
@@ -103,6 +104,34 @@ def _minimal_ep_frame(rows: list[dict]) -> pl.DataFrame:
     """
     full_rows = [{**_MINIMAL_EP_ROW_DEFAULTS, **row} for row in rows]
     columns = list(_MINIMAL_EP_ROW_DEFAULTS)
+    data = {col: [row[col] for row in full_rows] for col in columns}
+    return pl.DataFrame(data)
+
+
+_MINIMAL_WP_ROW_DEFAULTS = {
+    "game_id": "G1",
+    "play_id": 1,
+    "posteam": "HOME",
+    "defteam": "AWAY",
+    "home_team": "HOME",
+    "away_team": "AWAY",
+    "home_team_score": 0,
+    "away_team_score": 0,
+    "game_end": 0,
+    "wp": 0.5,
+}
+
+
+def _minimal_wp_frame(rows: list[dict]) -> pl.DataFrame:
+    """A hand-built frame with exactly the columns `add_wp_variables` needs.
+
+    Mirrors `_minimal_ep_frame`: used to isolate `add_wp_variables` from
+    `prepare_ep_data`/`add_scoring_play_team` machinery, e.g. to build a two-game frame with
+    an explicit `game_end=0` boundary row so the game_end null-out branch does not mask a
+    cross-game-leakage assertion.
+    """
+    full_rows = [{**_MINIMAL_WP_ROW_DEFAULTS, **row} for row in rows]
+    columns = list(_MINIMAL_WP_ROW_DEFAULTS)
     data = {col: [row[col] for row in full_rows] for col in columns}
     return pl.DataFrame(data)
 
@@ -459,6 +488,66 @@ class TestAddEpVariables:
         assert "ExpPts" not in df.columns
 
 
+def _two_game_ep_leak_frame() -> pl.DataFrame:
+    """Game A (G1) has 2 plays; game A's last play has null EP probability columns.
+    Game B (G2) has 1 play with non-null, distinct probability columns and a different
+    home_team/away_team so a leaked tmp_posteam is observable.
+
+    `half_end`/`game_end` are left at the `_MINIMAL_EP_ROW_DEFAULTS` default (0) on every
+    row, including game A's last play -- WR-04's `ep`/`epa` null-out-at-game_end branches
+    are orthogonal to the backward_fill/shift(-1) scoping under test here, and leaving
+    game_end=0 keeps them from masking whether the leak actually happened.
+    """
+    null_probs = {name: None for name in EP_PROBABILITY_COLUMNS}
+    rows = [
+        {  # game A, play 1: ordinary row with a real ep value to fill from within-game.
+            "game_id": "G1",
+            "play_id": 1,
+            "posteam": "HOME",
+            "home_team": "HOME",
+            "away_team": "AWAY",
+            **{**_EP_PROBS, "Touchdown_Prob": 1.0, "No_Score_Prob": 0.0},
+        },
+        {  # game A, play 2 (last play of game A): no probabilities -> ep starts null.
+            "game_id": "G1",
+            "play_id": 2,
+            "posteam": "HOME",
+            "home_team": "HOME",
+            "away_team": "AWAY",
+            **null_probs,
+        },
+        {  # game B, play 1: distinct team codes and a real, non-null ep value.
+            "game_id": "G2",
+            "play_id": 1,
+            "posteam": "HOME2",
+            "home_team": "HOME2",
+            "away_team": "AWAY2",
+            **{**_EP_PROBS, "Touchdown_Prob": 1.0, "No_Score_Prob": 0.0},
+        },
+    ]
+    return _minimal_ep_frame(rows)
+
+
+class TestAddEpVariablesCrossGameLeakage:
+    def test_ep_does_not_leak_across_game_boundary(self):
+        df = _two_game_ep_leak_frame()
+
+        out = add_ep_variables(df)
+
+        boundary_row = out.filter((pl.col("game_id") == "G1") & (pl.col("play_id") == 2))
+        # Nothing later in game A to backward-fill from -> stays null, not game B's ExpPts.
+        assert boundary_row["ep"].item() is None
+
+    def test_home_ep_after_is_null_not_next_games_first_play(self):
+        df = _two_game_ep_leak_frame()
+
+        out = add_ep_variables(df)
+
+        boundary_row = out.filter((pl.col("game_id") == "G1") & (pl.col("play_id") == 2))
+        # shift(-1) has no next row within game A -> null, not game B's first-play home_ep.
+        assert boundary_row["home_ep_after"].item() is None
+
+
 class TestAddWpVariables:
     def test_home_wp_plus_away_wp_equals_one_every_row(self):
         df = canonical_plays_with_scores(n_games=1, plays_per_game=8)
@@ -514,6 +603,65 @@ class TestAddWpVariables:
 
         assert df.columns == original_columns
         assert "home_wp" not in df.columns
+
+
+def _two_game_wp_leak_frame() -> pl.DataFrame:
+    """Game A (G1) has 2 plays; game A's last play has a null `wp`. Game B (G2) has 1 play
+    with a non-null, distinct `wp` and a different home_team/away_team so a leaked
+    tmp_posteam is observable.
+
+    `game_end` is left at the `_MINIMAL_WP_ROW_DEFAULTS` default (0) on every row, including
+    game A's last play, for the same reason as `_two_game_ep_leak_frame`: the game_end
+    null-out-at-game_end branch for `wpa`/`home_wp` is orthogonal to the backward_fill/
+    shift(-1) scoping under test and would otherwise mask whether the leak happened.
+    """
+    rows = [
+        {  # game A, play 1: ordinary row with a real wp to fill from within-game.
+            "game_id": "G1",
+            "play_id": 1,
+            "posteam": "HOME",
+            "home_team": "HOME",
+            "away_team": "AWAY",
+            "wp": 0.4,
+        },
+        {  # game A, play 2 (last play of game A): null wp.
+            "game_id": "G1",
+            "play_id": 2,
+            "posteam": "HOME",
+            "home_team": "HOME",
+            "away_team": "AWAY",
+            "wp": None,
+        },
+        {  # game B, play 1: distinct team codes and a real, non-null wp.
+            "game_id": "G2",
+            "play_id": 1,
+            "posteam": "HOME2",
+            "home_team": "HOME2",
+            "away_team": "AWAY2",
+            "wp": 0.9,
+        },
+    ]
+    return _minimal_wp_frame(rows)
+
+
+class TestAddWpVariablesCrossGameLeakage:
+    def test_wp_does_not_leak_across_game_boundary(self):
+        df = _two_game_wp_leak_frame()
+
+        out = add_wp_variables(df)
+
+        boundary_row = out.filter((pl.col("game_id") == "G1") & (pl.col("play_id") == 2))
+        # Nothing later in game A to backward-fill from -> stays null, not game B's wp.
+        assert boundary_row["wp"].item() is None
+
+    def test_home_wp_after_is_null_not_next_games_first_play(self):
+        df = _two_game_wp_leak_frame()
+
+        out = add_wp_variables(df)
+
+        boundary_row = out.filter((pl.col("game_id") == "G1") & (pl.col("play_id") == 2))
+        # shift(-1) has no next row within game A -> null, not game B's first-play home_wp.
+        assert boundary_row["home_wp_after"].item() is None
 
 
 class TestMakeEpModelMutations:
