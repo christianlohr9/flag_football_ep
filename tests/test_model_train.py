@@ -10,6 +10,7 @@ model quality -- the corpus is synthetic and small on purpose so the suite stays
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import mlflow
@@ -375,3 +376,104 @@ def test_train_ep_and_train_wp_are_independent_runs(tmp_path: Path) -> None:
     assert len(wp_runs) == 1
     assert ep_runs[0].info.run_id == ep_run_id
     assert wp_runs[0].info.run_id == wp_run_id
+
+
+# --- Task 3: optional hyperopt tuning and dated artifact export --------------------------
+
+_TUNE_CORPUS_GAMES = 6
+_TUNE_CORPUS_PLAYS_PER_GAME = 12
+
+
+def _tune_corpus() -> pl.DataFrame:
+    """A smaller corpus than the task 1/2 fixtures -- tuning fits several trials, so this
+    stays small enough that `max_evals=2` runs fast without network access.
+    """
+    return _ep_training_corpus(
+        n_games=_TUNE_CORPUS_GAMES, plays_per_game=_TUNE_CORPUS_PLAYS_PER_GAME
+    )
+
+
+def test_train_ep_tune_false_never_calls_fmin(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _tune_corpus()
+
+    def _fail_if_called(*args, **kwargs):
+        raise AssertionError("fmin must not be called when tune=False")
+
+    monkeypatch.setattr("flag_football_ep.model.train.fmin", _fail_if_called)
+
+    run_id = train_ep(plays, config, tune=False)
+
+    assert run_id
+
+
+def test_train_ep_tune_true_max_evals_2_logs_best_params(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _tune_corpus()
+
+    run_id = train_ep(plays, config, tune=True, max_evals=2)
+
+    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    client = mlflow.tracking.MlflowClient()
+    run = client.get_run(run_id)
+    params = run.data.params
+
+    best_keys = [k for k in params if k.startswith("best_")]
+    assert best_keys, "expected best_-prefixed params from the hyperopt search"
+    assert any("eta" in k for k in best_keys)
+
+
+def test_train_ep_tune_true_logs_stepped_trial_losses(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _tune_corpus()
+
+    run_id = train_ep(plays, config, tune=True, max_evals=2)
+
+    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    client = mlflow.tracking.MlflowClient()
+    history = client.get_metric_history(run_id, "tune_logloss")
+
+    assert len(history) == 2
+    assert {m.step for m in history} == {0, 1}
+
+
+def test_train_ep_records_tuned_and_max_evals_params(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _tune_corpus()
+
+    run_id_fixed = train_ep(plays, config, tune=False)
+    run_id_tuned = train_ep(plays, config, tune=True, max_evals=2)
+
+    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    client = mlflow.tracking.MlflowClient()
+
+    fixed_params = client.get_run(run_id_fixed).data.params
+    tuned_params = client.get_run(run_id_tuned).data.params
+
+    assert fixed_params["tuned"] == "False"
+    assert fixed_params["max_evals"] == "100"
+    assert tuned_params["tuned"] == "True"
+    assert tuned_params["max_evals"] == "2"
+
+
+def test_train_ep_export_pkl_writes_dated_hash_named_file(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _tune_corpus()
+
+    train_ep(plays, config, export_pkl=True)
+
+    files = list(config.paths.models.glob("*.pkl"))
+    assert len(files) == 1
+    assert re.match(r"^ep_model_\d{8}_[0-9a-f]{8}\.pkl$", files[0].name)
+
+
+def test_train_ep_export_pkl_raises_on_second_call_same_day(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _tune_corpus()
+
+    train_ep(plays, config, export_pkl=True)
+
+    with pytest.raises(FileExistsError):
+        train_ep(plays, config, export_pkl=True)
