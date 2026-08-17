@@ -111,8 +111,8 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8)*
 
-- [ ] 01.2-22-PLAN.md — CR-02/WR-01 (reporting): source notices and skipped files in the report, console and CLI
-- [ ] 01.2-23-PLAN.md — WR-03/WR-11: IFAF defensive 2-pt conversions to the defense, one cross-source `play_type` vocabulary
+- [x] 01.2-22-PLAN.md — CR-02/WR-01 (reporting): source notices and skipped files in the report, console and CLI
+- [x] 01.2-23-PLAN.md — WR-03/WR-11: IFAF defensive 2-pt conversions to the defense, one cross-source `play_type` vocabulary
 
 **Wave 10** *(blocked on Wave 9)*
 
@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 21/24 | In Progress|  |
+| 1.2 Repo to Pipeline | 23/24 | In Progress|  |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
