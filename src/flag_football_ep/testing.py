@@ -2,7 +2,7 @@
 
 Ships inside the package (not `tests/conftest.py`) so any test file can
 `from flag_football_ep.testing import canonical_plays` with no conftest edits
-or sys.path tricks. Frames are derived from `CORE_COLUMNS`/`NULLABLE_EXTRAS`
+or import-path hacks. Frames are derived from `CORE_COLUMNS`/`NULLABLE_EXTRAS`
 so the factory cannot drift from the canonical schema it builds against.
 """
 

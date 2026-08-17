@@ -110,8 +110,45 @@ def sha256_of_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+# The commit before this phase deleted Python/ (plan 01.2-17, task 2). Regenerate the
+# fixtures by checking out that commit into a throwaway worktree and re-running this
+# script from there -- see the message _require_python_dir() prints below.
+PRE_MIGRATION_COMMIT = "3726d89"
+
+
+def _require_python_dir() -> None:
+    """Fail fast with regeneration instructions when Python/ is absent.
+
+    Python/ was deleted in plan 01.2-17 once its logic was fully ported into
+    src/flag_football_ep (features/mutations.py, model/score.py). This script's whole
+    point is to reproduce the *unmodified* Python/ helpers' output, so it cannot run
+    against the package port -- it must run against the pre-migration tree instead.
+    """
+    if Path("Python").is_dir():
+        return
+    print(
+        "Python/ is absent -- this script cannot run against the current tree.\n"
+        "\n"
+        "It exists only to regenerate tests/fixtures/baseline_{ep,wp}_model_data.parquet "
+        "and baseline_manifest.json from the ORIGINAL, unmodified Python/ helpers -- the "
+        "ground truth tests/test_migration_equivalence.py compares the ported package "
+        f"against. Python/ was deleted at (or after) commit {PRE_MIGRATION_COMMIT} "
+        "(plan 01.2-17, task 2).\n"
+        "\n"
+        "To regenerate the fixtures:\n"
+        f"  git worktree add /tmp/ffep-pre-migration {PRE_MIGRATION_COMMIT}\n"
+        "  cd /tmp/ffep-pre-migration\n"
+        "  uv run python scripts/capture_notebook_baseline.py\n"
+        "  cp tests/fixtures/baseline_*.{parquet,json} <this-worktree>/tests/fixtures/\n"
+        "  git worktree remove /tmp/ffep-pre-migration\n",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+
 def import_helpers():
     """Import the exact, unmodified Python/ helper functions being frozen."""
+    _require_python_dir()
     sys.path.insert(0, "Python")
     from helper_add_hudl_mutations import (  # noqa: E402
         make_hudl_mutations,
