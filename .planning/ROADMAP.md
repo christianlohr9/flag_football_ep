@@ -104,10 +104,10 @@ Plans:
 
 **Wave 8** *(gap closure — four independent fixes, no shared files)*
 
-- [ ] 01.2-18-PLAN.md — CR-01: restore chronological row order before EP/WP variable derivation in `score_plays`
-- [ ] 01.2-19-PLAN.md — WR-04: scope the EP/WP `backward_fill`/`shift(-1)` operations to `game_id`
-- [ ] 01.2-20-PLAN.md — CR-02 (containment): non-strict ingest casts, complete per-file/per-game error handling, null-safe `gapless_play_ids`
-- [ ] 01.2-21-PLAN.md — WR-02: credit a score that happens on a game's first play
+- [x] 01.2-18-PLAN.md — CR-01: restore chronological row order before EP/WP variable derivation in `score_plays`
+- [x] 01.2-19-PLAN.md — WR-04: scope the EP/WP `backward_fill`/`shift(-1)` operations to `game_id`
+- [x] 01.2-20-PLAN.md — CR-02 (containment): non-strict ingest casts, complete per-file/per-game error handling, null-safe `gapless_play_ids`
+- [x] 01.2-21-PLAN.md — WR-02: credit a score that happens on a game's first play
 
 **Wave 9** *(blocked on Wave 8)*
 
@@ -237,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 17/24 | Gap closure (plans 18–24 pending) | - |
+| 1.2 Repo to Pipeline | 21/24 | In Progress|  |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
