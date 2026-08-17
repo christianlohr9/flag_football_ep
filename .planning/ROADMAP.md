@@ -62,7 +62,45 @@ Plans:
   2. The ingest CLI turns a folder of Hudl exports into canonical Parquet and emits a per-game validation report: downs 0–4, `yardline_50` in [0, 50], monotonic drive IDs, gapless play sequences, reconstructed score == final score per match report
   3. Hudl own games and sportapp.fi/IFAF tournament data share one canonical schema; raw files are consolidated under `data/` (no more repo-root CSV sprawl)
 
-**Plans**: TBD
+**Plans**: 17 plans in 7 waves
+Plans:
+**Wave 1**
+
+- [ ] 01.2-01-PLAN.md — Package foundation: dependencies, `ffep` entry point, Typer app with all subcommands, pytest scaffolding
+- [ ] 01.2-02-PLAN.md — Freeze the notebook's EP/WP training frames as regression fixtures before any porting
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 01.2-03-PLAN.md — Config layer, `data/` layout, `.env` secrets, removal of the committed API key
+- [ ] 01.2-04-PLAN.md — Canonical plays schema, conform, shared scoring chain, test-frame factory
+- [ ] 01.2-05-PLAN.md — Contract loader with version tolerance, reference-data loaders and CSVs, operator seeding
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 01.2-06-PLAN.md — Six per-game validation checks, quarantine partition, Markdown report
+- [ ] 01.2-07-PLAN.md — Fetch layer: sportapp.fi and cpx.studio snapshot download with redaction and timeouts
+- [ ] 01.2-08-PLAN.md — Feature engineering port: EP/WP prep, EP/WP variables, model mutations
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 01.2-09-PLAN.md — Hudl ingest: filename, contract header, exact-token RESULT grammar, contract derivations
+- [ ] 01.2-10-PLAN.md — Legacy `data_raw.csv` ingest with frozen notebook semantics, warn-only validation
+- [ ] 01.2-11-PLAN.md — sportapp.fi snapshot ingest and the WC24 corpus disposition
+- [ ] 01.2-12-PLAN.md — IFAF/cpx.studio field mapping and snapshot ingest
+- [ ] 01.2-13-PLAN.md — EP/WP training with MLflow tracking, optional hyperopt, dated artifact export
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 01.2-14-PLAN.md — `ffep ingest`: source orchestration, atomic canonical Parquet, validation report
+- [ ] 01.2-15-PLAN.md — `ffep score`: MLflow run resolution, EPA/WPA scoring
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 01.2-16-PLAN.md — `ffep run` chaining, migration-equivalence test, full-suite gate and timing baseline
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 01.2-17-PLAN.md — Repo cleanup, `Python/` removal, thin demo notebooks, pipeline documentation
 
 ### Phase 1.3: Methodical Model Retraining
 
@@ -183,7 +221,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 0/TBD | Not started | - |
+| 1.2 Repo to Pipeline | 0/17 | Planned | - |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
