@@ -15,9 +15,9 @@ IDs preserve the intel slugs from `.planning/intel/requirements.md` (shown in pa
 
 ### Strand 1 — Pipeline (Phase 1.2)
 
-- [ ] **REQ-S1-04** (package-refactor): Notebook logic moved into `src/flag_football_ep` (Hudl ingest, sportapp.fi ingest, feature mutations, training, scoring); pipeline runs from the package, not notebooks.
-- [ ] **REQ-S1-05** (ingest-cli): Ingest CLI: folder of Hudl exports in → canonical Parquet out, with a per-game validation report (downs 0–4, `yardline_50` in [0, 50], monotonic drive IDs, gapless play sequences, score reconstruction == final score per match report).
-- [ ] **REQ-S1-06** (source-merge): Hudl own games + sportapp.fi/IFAF tournament data merged into one canonical schema; `data_raw.csv`/`games_plays.csv` sprawl consolidated into `data/`.
+- [x] **REQ-S1-04** (package-refactor): Notebook logic moved into `src/flag_football_ep` (Hudl ingest, sportapp.fi ingest, feature mutations, training, scoring); pipeline runs from the package, not notebooks.
+- [x] **REQ-S1-05** (ingest-cli): Ingest CLI: folder of Hudl exports in → canonical Parquet out, with a per-game validation report (downs 0–4, `yardline_50` in [0, 50], monotonic drive IDs, gapless play sequences, score reconstruction == final score per match report).
+- [x] **REQ-S1-06** (source-merge): Hudl own games + sportapp.fi/IFAF tournament data merged into one canonical schema; `data_raw.csv`/`games_plays.csv` sprawl consolidated into `data/`.
 
 ### Strand 1 — Model Retraining (Phase 1.3)
 
@@ -66,9 +66,9 @@ Mapped to a deferred roadmap phase; not part of the v1 gate.
 | REQ-S1-01 | Phase 1.1 | Complete |
 | REQ-S1-02 | Phase 1.1 | Complete |
 | REQ-S1-03 | Phase 1.1 | Pending (optional) |
-| REQ-S1-04 | Phase 1.2 | Pending |
-| REQ-S1-05 | Phase 1.2 | Pending |
-| REQ-S1-06 | Phase 1.2 | Pending |
+| REQ-S1-04 | Phase 1.2 | Complete |
+| REQ-S1-05 | Phase 1.2 | Complete |
+| REQ-S1-06 | Phase 1.2 | Complete |
 | REQ-S1-07 | Phase 1.3 | Pending |
 | REQ-S1-08 | Phase 1.3 | Pending |
 | REQ-S1-09 | Phase 1.3 | Pending |
