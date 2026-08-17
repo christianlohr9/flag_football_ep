@@ -30,6 +30,7 @@ untouched. The Markdown report is rendered and written last via
 from __future__ import annotations
 
 import os
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -49,7 +50,7 @@ from flag_football_ep.validation.checks import GameResult, partition_games, run_
 from flag_football_ep.validation.report import console_summary, render_report, write_report
 from flag_football_ep.validation.schema import Contract, load_contract
 
-__all__ = ["IngestResult", "run_ingest"]
+__all__ = ["IngestResult", "run_ingest", "RunAllResult", "run_all", "EmptyIngestResultError"]
 
 # Fixed dispatch order (per <interfaces> in the plan): hudl, legacy, sportapp, ifaf.
 _KNOWN_SOURCES: tuple[str, ...] = ("hudl", "legacy", "sportapp", "ifaf")
@@ -423,4 +424,88 @@ def run_ingest(
         n_quarantined=n_quarantined,
         game_results=game_results,
         notices=notices,
+    )
+
+
+class EmptyIngestResultError(RuntimeError):
+    """Raised by `run_all` when ingest produced zero accepted plays.
+
+    Training on an empty frame would fail deep inside `make_ep_model_mutations`/
+    `make_wp_model_mutations` (a `DegenerateWeightRange` with a much less actionable
+    message, or a bare polars error) -- this is the mitigation for T-1.2-18: fail fast,
+    at the ingest boundary, with a message that names the report to check.
+    """
+
+
+@dataclass
+class RunAllResult:
+    """The outcome of one `run_all` call: every stage's artifact reference plus timings."""
+
+    ingest: IngestResult
+    ep_run: str
+    wp_run: str
+    scored_path: Path
+    durations: dict[str, float] = field(default_factory=dict)
+
+
+def run_all(config: Config, tune: bool = False) -> RunAllResult:
+    """Chain ingest -> EP training -> WP training -> scoring, timing each stage.
+
+    Rehearses the phase-1.4 ten-minute end-to-end goal: `durations` records a wall-clock
+    float (seconds) per stage under the keys "ingest", "train_ep", "train_wp", "score", so
+    later phases can measure against the target without re-instrumenting.
+
+    Reads the freshly written `plays.parquet` back from disk for the training/scoring
+    stages rather than passing `run_ingest`'s in-memory frame -- so `ffep run` exercises
+    exactly the same on-disk path a separate `ffep train`/`ffep score` invocation would.
+
+    Network fetch is intentionally not this function's job: the snapshot-first design
+    means ingest reads whatever is already on disk, and the CLI's `--skip-fetch` handling
+    (calling `fetch_games`/`fetch_tournament` before this function, or not at all) lives in
+    `cli.run` so this module never needs live network credentials to be importable or
+    testable.
+
+    Raises `EmptyIngestResultError` when ingest produced zero accepted plays, instead of
+    training on an empty frame.
+    """
+    # Imported lazily: `model.train`/`model.score` pull in mlflow/xgboost/hyperopt, which
+    # `run_ingest`-only callers (e.g. `cli.ingest`) should never have to pay for just by
+    # importing this module.
+    from flag_football_ep.model.score import score_plays
+    from flag_football_ep.model.train import train_ep, train_wp
+
+    durations: dict[str, float] = {}
+
+    start = time.perf_counter()
+    ingest_result = run_ingest(config, list(_KNOWN_SOURCES))
+    durations["ingest"] = time.perf_counter() - start
+
+    if ingest_result.n_plays == 0:
+        raise EmptyIngestResultError(
+            "run_all: ingest produced zero accepted plays; aborting before training -- "
+            f"see {ingest_result.report_path} for per-game details"
+        )
+
+    plays = pl.read_parquet(ingest_result.plays_path)
+
+    start = time.perf_counter()
+    ep_run = train_ep(plays, config, tune=tune)
+    durations["train_ep"] = time.perf_counter() - start
+
+    start = time.perf_counter()
+    wp_run = train_wp(plays, config, tune=tune)
+    durations["train_wp"] = time.perf_counter() - start
+
+    start = time.perf_counter()
+    scored = score_plays(plays, config, ep_run, wp_run)
+    scored_path = config.paths.processed / "plays_scored.parquet"
+    scored.write_parquet(scored_path)
+    durations["score"] = time.perf_counter() - start
+
+    return RunAllResult(
+        ingest=ingest_result,
+        ep_run=ep_run,
+        wp_run=wp_run,
+        scored_path=scored_path,
+        durations=durations,
     )
