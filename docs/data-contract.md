@@ -1,6 +1,8 @@
 # Datenvertrag — Hudl-Export Flag Football Nationalteam
 
-Version 1.0. Maschinenlesbares Gegenstück: `data-contract.schema.json` (wird vom Phase-1.2-Ingest-Validator direkt konsumiert — Spec und Validierung können nicht auseinanderlaufen). Die Sichtung echter Export-Werte für die Defense-Spalten ist erfolgt (2026-08-17, drei Sample-Exporte).
+Version 1.1. Maschinenlesbares Gegenstück: `data-contract.schema.json` (wird vom Phase-1.2-Ingest-Validator direkt konsumiert — Spec und Validierung können nicht auseinanderlaufen). Die Sichtung echter Export-Werte ist erfolgt (2026-08-17, sieben Sample-Exporte).
+
+**Änderungshistorie:** v1.0 (2026-08-17): einseitig festgelegt, 19-Spalten-Preset-Modell. v1.1 (2026-08-17): Amendment auf das **Kern+Optional-Modell** — die Sichtung von sieben Real-Exporten (12/13/26/33/39/43/45 Spalten, alle Header verschieden) belegt, dass Hudl kein festes Preset liefert; der Vertrag validiert forward einen Pflicht-Kern plus optionale Kanonik-Spalten statt eines fixen Spaltensatzes.
 
 **Status: v1.0 einseitig festgelegt am 2026-08-17 — Analysten-Ratifizierung ausstehend (siehe DEFERRED-ANALYST-Block in §8 „Charting-Protokoll & Gesprächsagenda").** Das Analysten-Gespräch ist auf unbestimmte Zeit verschoben; alle Vertragsinhalte gelten ab sofort als einseitige Arbeitsentscheidungen des Nutzers.
 
@@ -8,15 +10,23 @@ Version 1.0. Maschinenlesbares Gegenstück: `data-contract.schema.json` (wird vo
 
 Dieser Vertrag definiert das Format, in dem ab sofort jedes Spiel als Hudl-Export in die Pipeline kommt. Er gilt **forward-only**: Die 47 Bestandsspiele (3.701 Plays) in `data_raw.csv` sind grandfathered — kein Re-Export, kein Re-Charting. Konsequenz für Phase 1.2: zwei Ingest-Pfade (Legacy-Format aus `data_raw.csv` + neues Vertragsformat).
 
-Das Export-Preset gehört und pflegt der Nutzer selbst (eigener Hudl-Zugang, exportiert alles selbst). Das Gespräch mit dem Videoanalysten behandelt ausschließlich das **Charting** (was pro Play getaggt wird und mit welchem Vokabular) — niemals Export-Mechanik.
+Die Exporte kommen aus Hudl so, wie sie kommen — der Nutzer hat keinen Einfluss auf ein festes Spalten-Preset (Sichtung 2026-08-17: sieben Real-Exporte, sieben verschiedene Header). Das Gespräch mit dem Videoanalysten behandelt ausschließlich das **Charting** (was pro Play getaggt wird und mit welchem Vokabular) — niemals Export-Mechanik.
 
-## Export-Baseline — 19 Spalten, ein File pro Spiel
+## Spaltenmodell — Kern + Optional, ein File pro Spiel
 
-Das reale Export-Preset liefert genau diese 19 Spalten:
+**Es gibt kein festes Export-Preset.** Empirischer Befund (2026-08-17, sieben Real-Exporte: AUS vs. UA 26 Spalten, GB vs. CAN 12, GER vs. PAN 39, GER vs. PUE 33, GER vs. SLO 43, MEX vs. GER 45, SLO vs. ITA 13): kein Export gleicht dem anderen, keiner entspricht einem fixen Baseline-Satz. Der Vertrag definiert deshalb ein **kanonisches Spaltenuniversum** (19 Spalten) mit zwei Klassen:
 
-`PLAY #`, `ODK`, `DN`, `DIST`, `HASH`, `YARD LN`, `PLAY TYPE`, `RESULT`, `GN/LS`, `OFF FORM`, `OFF PLAY`, `OFF STR`, `PLAY DIR`, `GAP`, `PASS ZONE`, `DEF FRONT`, `COVERAGE`, `BLITZ`, `QTR`
+**Kern-Spalten (Pflicht — in allen sieben Real-Exporten vorhanden, Ingest bricht bei Fehlen hart ab):**
 
-Ein Export-File pro Spiel. CSV-Dialekt der Exporte: Semikolon-Delimiter (`;`) mit `utf-8-sig`-Encoding (UTF-8 mit BOM) — der deutsche Excel-Dialekt, verifiziert an `data_raw.csv`. **Achtung:** Excels CSV-Ausgabe hängt von den OS-Locale-Einstellungen ab; ändern sich die, parst der Ingest Müll (einspaltige Ergebnisse, kaputte Umlaute). Delimiter und Encoding sind deshalb Vertragsbestandteil, kein Detail.
+`PLAY #`, `ODK`, `DN`, `DIST`, `YARD LN`, `PLAY TYPE`, `RESULT`, `GN/LS`
+
+**Optionale Kanonik-Spalten (validiert, falls vorhanden; fehlen sie, entstehen Null-Spalten):**
+
+`HASH`, `OFF FORM`, `OFF PLAY`, `OFF STR`, `PLAY DIR`, `GAP`, `PASS ZONE`, `DEF FRONT`, `COVERAGE`, `BLITZ`, `QTR`
+
+**Unbekannte Spalten** (z. B. `TARGET ROUTE`, `MOTION`, `SERIES`, `BF ACTION`, `TACKLE`, Kommentar-Spalten aus den reichen Presets) ignoriert der Ingest mit Log-Hinweis — sie sind vertragsneutral, nicht vertragswidrig. Header-Matching gegen die Kanonik erfolgt nach exakter Namensgleichheit.
+
+Ein Export-File pro Spiel. CSV-Dialekt der Exporte: Semikolon-Delimiter (`;`) mit `utf-8-sig`-Encoding (UTF-8 mit BOM) — der deutsche Excel-Dialekt, verifiziert an `data_raw.csv` und allen sieben Samples. **Achtung:** Excels CSV-Ausgabe hängt von den OS-Locale-Einstellungen ab; ändern sich die, parst der Ingest Müll (einspaltige Ergebnisse, kaputte Umlaute). Delimiter und Encoding sind deshalb Vertragsbestandteil, kein Detail.
 
 Bewusste Dialekt-Dualität: Handgepflegte Repo-CSVs (`data/half_boundaries.csv`, `team_roster.csv`) verwenden schlichtes Komma + UTF-8 ohne BOM; **nur** Hudl-Exporte verwenden `;` + BOM. Phase 1.2 darf den Export-Dialekt nicht auf die handgepflegten Dateien anwenden.
 
@@ -29,6 +39,7 @@ Beispiel: `2026-06-14_GER-vs-AUT_EM-QUALI.csv`
 - ISO-Datum zuerst → Dateien sortieren chronologisch im Ingest-Ordner.
 - `_` trennt Felder, `-` verbindet Tokens innerhalb eines Feldes → eindeutiger Split auf `_`.
 - Teamcodes: 3-Buchstaben-IFAF-Codes in Großbuchstaben (`GER`, `AUT`, …).
+- **Jahres-Fallback:** Ist das exakte Datum nicht rekonstruierbar, ist die reduzierte Form `JJJJ_{TEAM1}-vs-{TEAM2}[_{COMP}][_n].csv` zulässig (`_n` = laufende Nummer bei Kollisionen). Hintergrund: Die Export-Metadaten enthalten **kein Jahr** (verifiziert 2026-08-17 — das einzige Datumsfeld ist ein Turnier-Label wie `FF - European Championship, Paris - 23.-28.09.` ohne Jahresangabe); das Jahr muss über den Dateinamen getragen werden.
 - **Perspektiv-Regel (einseitig festgelegt am 2026-08-17):** TEAM1 = Charting-Perspektive-Team im Dateinamen; posteam = TEAM1 wenn ODK == 'O', sonst TEAM2. Analysten-Ratifizierung ausstehend (siehe DEFERRED-ANALYST-Block in §8).
 
 Aus dem Dateinamen leitet der Ingest `game_id` und Metadaten (Datum, Teams, Wettbewerb) ab.
@@ -77,38 +88,43 @@ Regel: `half = 1 if PLAY # < half2_first_play else 2`.
 
 ## Defense-Felder (REQ-S1-03)
 
-`DEF FRONT`, `COVERAGE` und `BLITZ` existieren im Export und sind teilweise gefüllt. Das kanonische Vokabular unten ist — wie in der Phase entschieden: Daten zuerst, Schema danach — aus echten Distinct-Werten von drei Sample-Exporten abgeleitet (Sichtung 2026-08-17): zwei eigene Spiele (GER beteiligt: GER vs. SLO, MEX vs. GER; reiches Preset mit 43 bzw. 45 Spalten) und ein Scouting-Export (Gegner-Film GB vs. CAN; 12-Spalten-Preset). Es wurde bewusst **kein** Lehrbuch-Schema (Cover 0/1/2/3, man/zone) übergestülpt — der Vertrag fixiert die tatsächlich verwendete Terminologie. Die Samples liegen unter `data/samples/`, enthalten Spielerinnen-Namen (PII) und sind deshalb per `.gitignore` dauerhaft von der Versionskontrolle ausgeschlossen.
+`DEF FRONT`, `COVERAGE` und `BLITZ` existieren in einem Teil der Exporte und sind teilweise gefüllt. Das kanonische Vokabular unten ist — wie in der Phase entschieden: Daten zuerst, Schema danach — aus echten Distinct-Werten von sieben Sample-Exporten abgeleitet (Sichtung 2026-08-17, in zwei Tranchen: zunächst GB vs. CAN, GER vs. SLO, MEX vs. GER; dann AUS vs. UA, GER vs. PAN, GER vs. PUE, SLO vs. ITA). Es wurde bewusst **kein** Lehrbuch-Schema (Cover 0/1/2/3, man/zone) übergestülpt — der Vertrag fixiert die tatsächlich verwendete Terminologie. Die Samples liegen unter `data/samples/`, enthalten Spielerinnen-Namen (PII) und sind deshalb per `.gitignore` dauerhaft von der Versionskontrolle ausgeschlossen.
 
 ### Preset-Asymmetrie & Fill-Rates (Sichtung 2026-08-17)
 
-Die drei Defense-Spalten sind nicht in jedem Preset vorhanden und werden je nach Film-Typ sehr unterschiedlich konsequent gefüllt:
+Die drei Defense-Spalten sind nicht in jedem Export vorhanden und werden sehr unterschiedlich konsequent gefüllt:
 
-| Sample | Typ | Preset | `DEF FRONT` | `COVERAGE` | `BLITZ` |
+| Sample | Typ | Spalten | `DEF FRONT` | `COVERAGE` | `BLITZ` |
 |---|---|---|---|---|---|
-| GER vs. SLO | eigenes Spiel | 43 Spalten | **Spalte fehlt** | 76/81 (94 %) | 36/81 (44 %) |
-| MEX vs. GER | eigenes Spiel | 45 Spalten | 88/94 (94 %) | 69/94 (73 %) | 89/94 (95 %) |
-| GB vs. CAN | Scouting (Gegner-Film) | 12 Spalten | 12/86 (14 %) | 15/86 (17 %) | 8/86 (9 %) |
+| GER vs. SLO | eigenes Spiel | 43 | **Spalte fehlt** | 76/81 (94 %) | 36/81 (44 %) |
+| MEX vs. GER | eigenes Spiel | 45 | 88/94 (94 %) | 69/94 (73 %) | 89/94 (95 %) |
+| GER vs. PAN | eigenes Spiel | 39 | 32/61 (52 %) | 34/61 (56 %) | 32/61 (52 %) |
+| GER vs. PUE | eigenes Spiel | 33 | 22/66 (33 %) | 22/66 (33 %) | 23/66 (35 %) |
+| GB vs. CAN | Scouting (Gegner-Film) | 12 | 12/86 (14 %) | 15/86 (17 %) | 8/86 (9 %) |
+| AUS vs. UA | Scouting (Gegner-Film) | 26 | **Spalte fehlt** | **Spalte fehlt** | **Spalte fehlt** |
+| SLO vs. ITA | Scouting (Gegner-Film) | 13 | **Spalte fehlt** | **Spalte fehlt** | **Spalte fehlt** |
 
 Befunde:
 
-1. **Eigene Spiele sind deutlich reicher gefüllt als Scouting-Filme** (73–95 % vs. 9–17 % Fill-Rate) — bestätigt die Vermutung des Nutzers.
-2. **Die Preset-Landschaft ist instabil:** Keines der drei Samples entspricht dem 19-Spalten-Baseline-Preset dieses Vertrags; selbst die beiden eigenen Spiele unterscheiden sich (43 vs. 45 Spalten). Konsequenz forward: Der Nutzer legt das 19-Spalten-Vertrags-Preset als eigenes Hudl-Export-Preset an und verwendet es für alle künftigen Exporte.
-3. **`DEF FRONT`-Verfügbarkeit ist asymmetrisch — und nicht "own = mehr":** Das 12-Spalten-Scouting-Preset enthält `DEF FRONT`, das 43-Spalten-Own-Preset dagegen gar nicht (das 45-Spalten-Own-Preset wieder schon). `COVERAGE` und `BLITZ` sind in allen drei Presets vorhanden.
+1. **Eigene Spiele sind deutlich reicher gefüllt als Scouting-Filme** (33–95 % vs. 0–17 % Fill-Rate; einzelne Spalten in eigenen Spielen bis hinunter zu 33 %) — bestätigt die Vermutung des Nutzers in der Tendenz, mit erheblicher Streuung auch innerhalb der eigenen Spiele.
+2. **Die Preset-Landschaft ist instabil:** Sieben Exporte, sieben verschiedene Header (12/13/26/33/39/43/45 Spalten) — ein festes Export-Preset ist nicht erreichbar. Konsequenz forward: das **Kern+Optional-Spaltenmodell** dieses Vertrags (siehe §2, Amendment v1.1); die Defense-Spalten sind optional und werden validiert, wo vorhanden.
+3. **`DEF FRONT`-Verfügbarkeit ist asymmetrisch — und nicht "own = mehr":** Das 12-Spalten-Scouting-Preset enthält `DEF FRONT`, das 43-Spalten-Own-Preset dagegen gar nicht. Zwei Scouting-Exporte (AUS vs. UA, SLO vs. ITA) führen gar keine Defense-Spalten.
 
 ### Kanonisches Vokabular
 
 Das gesichtete kanonische Vokabular für `DEF FRONT`, `COVERAGE` und `BLITZ` wird **einseitig festgelegt** (2026-08-17) und gilt ab sofort as-is; die Analysten-Ratifizierung ist ausstehend (siehe DEFERRED-ANALYST-Block in §8).
 
-**`DEF FRONT`** — zwei disjunkte Teil-Vokabulare je nach Film-Typ:
+**`DEF FRONT`** — drei Teil-Vokabulare, deren Grenze **nicht** entlang own/scouting verläuft (Korrektur v1.1: GER vs. PAN und GER vs. PUE sind eigene Spiele mit LINE-Notation; die Tupel-Notation trat bisher nur in den beiden EM-Paris-Filmen GER vs. SLO / MEX vs. GER auf — vermutlich trennt Turnier/Saison oder Charter, zu klären bei der Ratifizierung):
 
-- Scouting-Notation: `LINE 5`, `LINE 7` — plus eine einmalige Übergangsnotation `LINE 5 --> 7` (Front-Wechsel innerhalb eines Plays/Abschnitts; Semantik bei der Ratifizierung zu klären).
-- Own-Game-Notation: numerische Vierer-Tupel (Muster `^\d+(-\d+){3}$`), gesichtet: `5-5-7-6`, `5-6-6-5`, `5-6-6-6`, `5-6-7-6`, `5-7-7-5`, `6-6-6-5`, `6-6-6-6`, `6-7-7-6`, `7-7-7-7`, `7-7-13-7`, `7-8-8-7`, `8-8-8-8`, `10-10-13-10` — mutmaßlich eine Tiefen-/Ausrichtungs-Staffelung der Front in Yards (Bedeutung bei der Ratifizierung bestätigen) — plus die Sammel-Calls `ALL GL` (Goal Line) und `ALL FIRST`.
+- LINE-Notation: `LINE 5`, `LINE 7` — plus eine einmalige Übergangsnotation `LINE 5 --> 7` (Front-Wechsel innerhalb eines Plays/Abschnitts; Semantik bei der Ratifizierung zu klären).
+- Tupel-Notation: numerische Vierer-Tupel (Muster `^\d+(-\d+){3}$`), gesichtet: `5-5-7-6`, `5-6-6-5`, `5-6-6-6`, `5-6-7-6`, `5-7-7-5`, `6-6-6-5`, `6-6-6-6`, `6-7-7-6`, `7-7-7-7`, `7-7-13-7`, `7-8-8-7`, `8-8-8-8`, `10-10-13-10` — mutmaßlich eine Tiefen-/Ausrichtungs-Staffelung der Front in Yards (Bedeutung bei der Ratifizierung bestätigen) — plus die Sammel-Calls `ALL GL` (Goal Line) und `ALL FIRST`.
+- Struktur-Calls (neu in Tranche 2 gesichtet): `S Dia`, `BOX 4/7`, `LINE 5 POST BOX 4/7` — Bedeutung unbekannt, bei der Ratifizierung zu klären.
 
-Die Tupel-Aufzählung ist **offen** (kein geschlossenes Enum): Das Schema führt die gesichteten Werte, neue Tupel nach demselben Muster sind vertragskonform.
+Die Aufzählung ist **offen** (kein geschlossenes Enum): Das Schema führt die gesichteten Werte; neue Tupel nach demselben Muster und weitere Team-Calls sind vertragskonform.
 
 **`COVERAGE`** — drei gemischte Namensräume:
 
-- Team-Call-Farben/-Namen: `WHITE`, `BLACK`, `BLUE`, `GRAY`, `YELLOW`, `MONEY`, `POOR`
+- Team-Call-Farben/-Namen: `WHITE`, `BLACK`, `BLUE`, `GRAY`, `YELLOW`, `MONEY`, `POOR` — plus die präfigierte Variante `O WHITE` (neu in Tranche 2; Bedeutung des Präfixes `O` bei der Ratifizierung zu klären)
 - Numerische Zonen-Shells: `0-4`, `1-2`, `1-3`, `3-1`, `F 1-2-1`, `SC 1-2-1`
 - Lehrbuch-Begriff: `QUARTERS` (1× im Scouting-Film)
 
@@ -121,6 +137,7 @@ Die Tupel-Aufzählung ist **offen** (kein geschlossenes Enum): Das Schema führt
 | `Line 5 --> 7` | `LINE 5 --> 7` | Großschreibung vereinheitlichen (`LINE`) |
 | `F 1 -2-1` | `F 1-2-1` | Leerzeichen um Bindestriche entfernen |
 | `SC 1 - 2 -1` | `SC 1-2-1` | Leerzeichen um Bindestriche entfernen |
+| `YELLOE` | `YELLOW` | Tippfehler-Korrektur (3× gesichtet in GER vs. PAN) |
 
 Generelle Normalisierungsregeln für die Defense-Spalten: Großschreibung, Leerzeichen um Bindestriche in numerischen Mustern entfernen. Personennamen in `BLITZ` werden nicht normalisiert (kein kanonisches Vokabular, s. o.).
 
@@ -128,12 +145,12 @@ Generelle Normalisierungsregeln für die Defense-Spalten: Großschreibung, Leerz
 
 Die Sichtung hinterlässt konkrete offene Fragen. Sie sind **nicht** durch Erfindung aufgelöst, sondern bleiben als Ratifizierungs-Punkte offen (siehe DEFERRED-ANALYST-Block in §8):
 
-- `DEF FRONT` fehlt im 43-Spalten-Own-Preset komplett — Preset vereinheitlichen (Vertrags-Preset nutzt der Nutzer selbst) und klären, ob die Spalte in eigenen Spielen forward gechartet wird.
-- Zwei disjunkte `DEF FRONT`-Notationen (`LINE n` im Scouting vs. Vierer-Tupel in eigenen Spielen) — eine Notation forward festlegen; Bedeutung der Vierer-Tupel bestätigen.
-- Übergangsnotation `LINE 5 --> 7` (1×): Sollen Front-Wechsel innerhalb eines Plays gechartet werden, und in welcher Form?
-- `COVERAGE` mischt Farb-Calls, numerische Shells und den Lehrbuch-Begriff `QUARTERS`: Sind Farb-Calls und Shells zwei Dimensionen desselben Calls oder Synonyme? Was bedeuten die Präfixe `F` und `SC`? Verhältnis von `1-2` zu `F 1-2-1`?
-- `BLITZ`-Semantik forward entscheiden: (i) Name-Charting beibehalten (dann bleibt `BLITZ` eine PII-Spalte und braucht eine einheitliche Namensform — Vor- oder Nachname) oder (ii) auf ein taktisches Vokabular umstellen (z. B. Rush-Anzahl oder ja/nein), Blitzerin ggf. separat charten.
-- Scouting-Filme sind kaum gefüllt (9–17 %): Anspruch an Scouting-Charting forward definieren (bewusst dünn lassen vs. nachziehen).
+- Defense-Spalten fehlen in mehreren Exporten komplett (43-Spalten-Own-Export ohne `DEF FRONT`; AUS vs. UA und SLO vs. ITA ganz ohne Defense-Spalten) — klären, ob und welche Defense-Spalten forward verlässlich gechartet werden.
+- Drei `DEF FRONT`-Notationsfamilien (`LINE n`, Vierer-Tupel, Struktur-Calls wie `S Dia`/`BOX 4/7`), deren Grenze **nicht** entlang own/scouting verläuft (v1.1-Korrektur; vermutlich Turnier/Saison oder Charter) — eine Notation forward festlegen; Bedeutung der Vierer-Tupel und der Struktur-Calls bestätigen.
+- Übergangsnotationen (`LINE 5 --> 7`, `LINE 5 POST BOX 4/7`): Sollen Front-Wechsel innerhalb eines Plays gechartet werden, und in welcher Form?
+- `COVERAGE` mischt Farb-Calls, numerische Shells und den Lehrbuch-Begriff `QUARTERS`: Sind Farb-Calls und Shells zwei Dimensionen desselben Calls oder Synonyme? Was bedeuten die Präfixe `F`, `SC` und `O` (`O WHITE`)? Verhältnis von `1-2` zu `F 1-2-1`?
+- `BLITZ`-Semantik forward entscheiden: (i) Name-Charting beibehalten (dann bleibt `BLITZ` eine PII-Spalte und braucht eine einheitliche Namensform — Vor- oder Nachname) oder (ii) auf ein taktisches Vokabular umstellen (z. B. Rush-Anzahl oder ja/nein), Blitzerin ggf. separat charten. Befund in allen fünf Exporten mit `BLITZ`-Spalte bestätigt: ausschließlich Personennamen.
+- Scouting-Filme sind kaum gefüllt (0–17 %): Anspruch an Scouting-Charting forward definieren (bewusst dünn lassen vs. nachziehen).
 
 **Flag-Pull-Verursacher: bewusst übersprungen.** Diese Entscheidung ist Teil des Charting-Protokolls: Das Feld wird in dieser Phase absichtlich nicht eingeführt. Revisit später, falls Defense-Scouting auf Spielerinnen-Ebene Priorität bekommt.
 
