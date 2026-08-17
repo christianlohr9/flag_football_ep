@@ -259,9 +259,11 @@ def add_ep_variables(df: pl.DataFrame) -> pl.DataFrame:
             ep=pl.col("ExpPts"),
             tmp_posteam=pl.col("posteam"),
         )
+        # Scoped by game_id so a game's trailing null ep/tmp_posteam rows do not inherit the
+        # next game's values (a multi-game frame concatenates games back-to-back).
         .with_columns(
-            ep=pl.col("ep").backward_fill(),
-            tmp_posteam=pl.col("tmp_posteam").backward_fill(),
+            ep=pl.col("ep").backward_fill().over("game_id"),
+            tmp_posteam=pl.col("tmp_posteam").backward_fill().over("game_id"),
         )
         # Non-scoring plays: home-perspective forward difference in ep.
         .with_columns(
@@ -269,7 +271,8 @@ def add_ep_variables(df: pl.DataFrame) -> pl.DataFrame:
             .then(pl.col("ep"))
             .otherwise(-pl.col("ep"))
         )
-        .with_columns(home_ep_after=pl.col("home_ep").shift(-1))
+        # Scoped by game_id so shift(-1) never reads the next game's first play.
+        .with_columns(home_ep_after=pl.col("home_ep").shift(-1).over("game_id"))
         .with_columns(
             home_epa=pl.when(pl.col("interception") == 1)
             .then(-(pl.col("home_ep_after") - pl.col("home_ep")))
@@ -415,9 +418,11 @@ def add_wp_variables(df: pl.DataFrame) -> pl.DataFrame:
 
     df = (
         df.with_columns(tmp_posteam=pl.col("posteam"))
+        # Scoped by game_id so a game's trailing null wp/tmp_posteam rows do not inherit the
+        # next game's values (a multi-game frame concatenates games back-to-back).
         .with_columns(
-            wp=pl.col("wp").backward_fill(),
-            tmp_posteam=pl.col("tmp_posteam").backward_fill(),
+            wp=pl.col("wp").backward_fill().over("game_id"),
+            tmp_posteam=pl.col("tmp_posteam").backward_fill().over("game_id"),
         )
         .with_columns(
             home_wp=pl.when(pl.col("tmp_posteam") == pl.col("home_team"))
@@ -439,7 +444,8 @@ def add_wp_variables(df: pl.DataFrame) -> pl.DataFrame:
         )
         .with_columns(away_wp=1 - pl.col("home_wp"))
         .with_columns(def_wp=1 - pl.col("wp"))
-        .with_columns(home_wp_after=pl.col("home_wp").shift(-1))
+        # Scoped by game_id so shift(-1) never reads the next game's first play.
+        .with_columns(home_wp_after=pl.col("home_wp").shift(-1).over("game_id"))
         .with_columns(home_wpa=pl.col("home_wp_after") - pl.col("home_wp"))
         .with_columns(
             wpa=pl.when(pl.col("tmp_posteam") == pl.col("home_team"))
