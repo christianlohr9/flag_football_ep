@@ -337,8 +337,13 @@ def add_event_columns(df: pl.DataFrame) -> pl.DataFrame:
     df = (
         df.with_columns(
             down=pl.when(pl.col("down_desc").str.contains("PAT")).then(pl.lit(0)).otherwise(pl.col("down")),
+            # WR-11: the raw sportapp play_result value stays "rush" (the predicate
+            # below), but the canonical play_type emitted for it is "run", matching
+            # canonical.PLAY_TYPE_VOCABULARY -- every other source calls this "run",
+            # and a per-source synonym here silently drops sportapp from any
+            # downstream play_type == "run" filter.
             play_type=pl.when(pl.col("play_result") == "rush")
-            .then(pl.lit("rush"))
+            .then(pl.lit("run"))
             .when(pl.col("play_result").is_in(["complete", "incomplete", "sack", "intercepted", "good", "miss"]))
             .then(pl.lit("pass"))
             .when(pl.col("play_result").is_in(["timeout"]))
@@ -724,6 +729,12 @@ def read_mutated_sportapp_snapshot(path: Path) -> pl.DataFrame:
     (never computed by the original pipeline, but required core columns -- same additions
     as the fresh-ingest path, for the same reason).
 
+    WR-11: this pre-port CSV predates `canonical.PLAY_TYPE_VOCABULARY` and carries its
+    own pre-computed `play_type` column with the raw sportapp value `rush` where the
+    canonical vocabulary says `run`; that value is normalized here the same way the
+    fresh-ingest path's `add_event_columns` normalizes it, leaving every other value
+    (including null) untouched.
+
     Stamps `source="legacy-sportapp"` -- not `"sportapp"` -- so the validation/ingest
     pipeline can treat these rows warn-only (like `data_raw.csv`'s `"legacy"` source):
     they ran through pre-port mutation code that predates every fix and derivation this
@@ -753,6 +764,9 @@ def read_mutated_sportapp_snapshot(path: Path) -> pl.DataFrame:
         tackle=pl.col("tackle_player"),
         sack=pl.when(pl.col("play_result") == "sack").then(pl.lit(1)).otherwise(pl.lit(0)),
         yardline_50_simple=pl.when(pl.col("yardline_50") < 25).then(pl.lit(0)).otherwise(pl.lit(1)),
+        play_type=pl.when(pl.col("play_type") == "rush")
+        .then(pl.lit("run"))
+        .otherwise(pl.col("play_type")),
     )
 
     df, _report = conform_to_canonical(df, source="legacy-sportapp")
