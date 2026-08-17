@@ -134,6 +134,35 @@ section, a per-game pass/fail/skip/warn table (one row per game, one column per 
 "Missing reference data" section per game. `notebooks/pipeline_demo.ipynb` reads and displays
 the quarantine section as a live example.
 
+**Report sections beyond quarantine.** Two more sections are always rendered, even when
+there is nothing to report, so a reader can tell "no notices" apart from "notices not
+rendered": `## Source notices` covers source-level messages -- a whole source directory
+missing, an exception raised during a source's dispatch, a grandfathered snapshot fallback
+used -- and prints `None.` when empty. `## Skipped files` covers a file that produced zero
+rows at all -- a bad filename, a wrong delimiter, a missing core column -- naming the file
+and the reason, including the raised exception's class name. Both sections land in the same
+Markdown report next to the per-game sections, are echoed to the console during the run
+(`notice: {text}`), and show up in `ffep ingest`/`ffep run`'s stdout.
+
+**Per-file containment.** One bad export never removes the rest of its source. A non-numeric
+charted cell in `DN`, `DIST`, `YARD LN` or `PLAY #` is cast to a null with `strict=False`
+rather than raising, so the game still ingests: the bad cell becomes a null
+`down`/`yards_to_go`/`yardline_50`/`play_id` plus a domain notice, and the game then fails
+the relevant per-game check (`downs_range` for a null `down`, `gapless_play_ids` for a null
+`play_id`) exactly like any other bad value -- it never disappears from the report as if the
+whole source were missing.
+
+**The one deliberate exception.** An unmapped team code still aborts the whole source
+loudly instead of degrading into a per-file notice: it signals a gap in the reference data
+(`data/reference/team_mapping.csv`), not a per-export data-quality issue, and the operator
+must add the mapping there before the source can ingest at all.
+
+**Cross-source `play_type`.** Every source converges on one canonical `play_type`
+vocabulary -- `run`, `pass`, `no_play`, `qb_kneel`, `extra_point`, `kickoff`, or null for an
+unparsed play -- so a downstream filter can rely on the column without knowing which source
+a row came from. Each source's own wording (e.g. sportapp.fi's raw "rush") stays in
+`result_raw`, never in `play_type`.
+
 **Real-run baseline:** the phase 01.2-17 run above quarantined 10 games, all IFAF, all
 `downs_range` failures from null `down` values on penalty/PAT plays -- a real property of
 that feed, confirmed not a validation bug. 6 games (5 `legacy-sportapp`, 1 `legacy`) carried
