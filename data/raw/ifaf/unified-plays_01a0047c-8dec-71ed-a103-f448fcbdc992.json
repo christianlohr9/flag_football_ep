@@ -1,0 +1,7103 @@
+[
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "65 Katrin Mansbart",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "65 Katrin Mansbart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "44 Cristina Gómez Pérez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #65 Katrin Mansbart",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #65 Katrin Mansbart",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Katrin Mansbart",
+        "number": "65",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p20/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "65 Katrin Mansbart"
+      },
+      "flagPulledBy": {
+        "name": "44 Cristina Gómez Pérez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0059e-5652-700c-89c8-c8a1e73e4794"
+      ],
+      "playAnalysisId": "01a0059e-8796-7628-9f50-fe457061ce57",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.757Z",
+    "updatedAt": "2026-08-15T14:32:19.757Z",
+    "id": "01a005d6-838c-75ad-85b1-ff1067adb2af"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 2,
+    "context": {
+      "gameClockMs": 1182441,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10",
+        "action": "PASS",
+        "intendedReceiver": "16",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "16",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #16 Karoline Kugler",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #16 Karoline Kugler",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Karoline Kugler",
+        "number": "16",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "10"
+      },
+      "receiver": {
+        "number": "16"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0059e-9af5-77f8-b68b-694b31e001e9",
+        "01a0059e-9c36-71b4-afa8-fd08c245b81e",
+        "01a0059e-b494-71a9-ac64-ad86d82e3fc7",
+        "01a0059e-b526-723b-9159-a52229886177",
+        "01a0059e-d337-7758-aec8-f914ecedfe49",
+        "01a0059e-ee3a-723b-b934-dd9bc410be1b",
+        "01a0059e-ffe5-7179-a1ce-a5963d48fbf2"
+      ],
+      "playAnalysisId": "01a0059f-066c-72b7-ab5a-c4ac84eacd7e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.757Z",
+    "updatedAt": "2026-08-15T14:32:19.757Z",
+    "id": "01a005d6-838c-75ad-85b2-029aa0052fbf"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1122938,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 19,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "4 Magdalena Helm",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Magdalena Helm",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "2 Alma Rodríguez Requena",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #4 Magdalena Helm",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #4 Magdalena Helm",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Magdalena Helm",
+        "number": "4",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "4 Magdalena Helm"
+      },
+      "flagPulledBy": {
+        "name": "2 Alma Rodríguez Requena"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0059f-8369-77d8-9bb5-203eee382b58",
+        "01a0059f-9a6b-74ee-b5e5-0523ebb6b4fc",
+        "01a0059f-9aed-734b-993f-c81b08d11e99",
+        "01a0059f-a171-702e-99ce-d927ef2125db"
+      ],
+      "playAnalysisId": "01a0059f-98d7-76b9-986b-05e9a7283b2b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.757Z",
+    "updatedAt": "2026-08-15T14:32:19.757Z",
+    "id": "01a005d6-838c-75ad-85b2-074d7f728cc6"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1081435,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "16 Karoline Kugler",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "16 Karoline Kugler",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "16 Karoline Kugler",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#16 Karoline Kugler (6 pts)",
+      "text": "TOUCHDOWN #16 Karoline Kugler (6 pts)",
+      "from": {
+        "name": "Karoline Kugler",
+        "number": "16",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p13/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "16 Karoline Kugler"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005a0-2575-714a-8fa5-ce33bcf3dc33"
+      ],
+      "playAnalysisId": "01a005a0-41a9-77dc-994e-e88749fc4816",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.757Z",
+    "updatedAt": "2026-08-15T14:32:19.757Z",
+    "id": "01a005d6-838d-7325-a31d-aefefef0bb45"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 5,
+    "context": {
+      "gameClockMs": 1040512,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "16 Karoline Kugler",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "16 Karoline Kugler",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "16 Karoline Kugler",
+        "action": "TOUCHDOWN",
+        "note": "Two point try is good",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#16 Karoline Kugler (2 pts)",
+      "text": "TRY #16 Karoline Kugler (2 pts)",
+      "from": {
+        "name": "Karoline Kugler",
+        "number": "16",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p13/thumb.png"
+      },
+      "points": 2
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "16 Karoline Kugler"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005a0-c5b0-75a8-a863-008e67ecbe34"
+      ],
+      "playAnalysisId": "01a005a0-ea09-722d-b3d9-2190b567ba5b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.757Z",
+    "updatedAt": "2026-08-15T14:32:19.757Z",
+    "id": "01a005d6-838d-7325-a31d-b0c491f71515"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 1036017,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Sara Villagrasa Clemente",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Mónica Barceló",
+      "text": "INCOMPLETE PASS #10 Mónica Barceló",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005a0-d6af-704b-9896-b1c8a257f989",
+        "01a005a0-ef43-74ce-a3f4-22cd5afcea79",
+        "01a005a0-efc5-760e-a120-8545f1f4e4ec",
+        "01a005a1-3b4a-74a5-bb9f-941812770546",
+        "01a005a1-43ba-733d-997b-22f1b32d6d32",
+        "01a005a1-a149-759b-8708-10af69861d48",
+        "01a005a1-acc4-707a-b63a-848f5d0929bf",
+        "01a005a1-ba90-768d-8633-b6d2f3c6639e",
+        "01a005a1-f27d-711b-b3b3-25bcff8333ce"
+      ],
+      "playAnalysisId": "01a005a1-60f8-75ac-991f-29b0bf5b7497",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.757Z",
+    "updatedAt": "2026-08-15T14:32:19.757Z",
+    "id": "01a005d6-838d-7325-a31d-b499261f9c4f"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 1008116,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "13 Sara Villagrasa Clemente",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Sara Villagrasa Clemente",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Mónica Barceló",
+      "text": "INCOMPLETE PASS #10 Mónica Barceló",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005a1-c6f0-70cc-a2eb-7751f4b1d172",
+      "penaltyAnalysisIds": [
+        "01a005a2-09d3-75af-b87d-d0317899c0c4"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.757Z",
+    "updatedAt": "2026-08-15T14:32:19.757Z",
+    "id": "01a005d6-838d-7325-a31d-b875daf8a931"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 8,
+    "context": {
+      "gameClockMs": 962206,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "9 Tabea Luna Fiegl",
+        "action": "HAND_OFF",
+        "role": "Rusher"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "flagPulledBy": {
+        "name": "9 Olga Sotillo Val"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005a1-f6fb-7768-b521-f66f63b68131",
+        "01a005a2-06eb-72b9-83bf-d19f83f59364",
+        "01a005a2-87b8-7579-8099-c12088604681",
+        "01a005a2-886a-743f-895f-877904154f33",
+        "01a005a2-b320-7679-bbe1-8c2585090d40",
+        "01a005a2-c812-72cc-8b0d-da2d0b5d3685",
+        "01a005a3-4b53-726c-8ec7-1a01d6caee66"
+      ],
+      "playAnalysisId": "01a005a2-d440-7318-99f9-da0445d9069a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.757Z",
+    "updatedAt": "2026-08-15T14:32:19.757Z",
+    "id": "01a005d6-838d-7325-a31d-bf10cebfa68a"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 9,
+    "context": {
+      "gameClockMs": 958218,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "4 Mar Hernández Vitorique",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Mar Hernández Vitorique",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "22 Sophie Lisa Einfalt",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #4 Mar Vitorique",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #4 Mar Vitorique",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Mar Vitorique",
+        "number": "4",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "4 Mar Hernández Vitorique"
+      },
+      "flagPulledBy": {
+        "name": "22 Sophie Lisa Einfalt"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005a2-6af7-754c-b7d8-8c5bc4016a6e",
+      "penaltyAnalysisIds": [
+        "01a005a3-c392-7610-9f14-71630de9bb8a"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.757Z",
+    "updatedAt": "2026-08-15T14:32:19.757Z",
+    "id": "01a005d6-838d-7325-a31d-c2bf66f7d0d9"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 10,
+    "context": {
+      "gameClockMs": 865004,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 36,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Olga Sotillo Val",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#9 Olga Val (6 pts)",
+      "text": "TOUCHDOWN #9 Olga Val (6 pts)",
+      "from": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "9 Olga Sotillo Val"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005a3-72e9-73a0-905e-e61e77b2ff97",
+        "01a005a3-ab30-72eb-8af2-6890c7e9c994",
+        "01a005a3-b0fe-7038-baf7-4fbc8e43ce8b"
+      ],
+      "playAnalysisId": "01a005a3-6ac0-76bc-9edc-5cf4259ad7db",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838d-7325-a31d-c4a66c9b2bf6"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 11,
+    "context": {
+      "gameClockMs": 821609,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "65 Katrin Mansbart",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "65 Katrin Mansbart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "44 Cristina Gómez Pérez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #65 Katrin Mansbart",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #65 Katrin Mansbart",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Katrin Mansbart",
+        "number": "65",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p20/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "65 Katrin Mansbart"
+      },
+      "flagPulledBy": {
+        "name": "44 Cristina Gómez Pérez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005a4-1c39-76df-afc5-44e6c7927ee4",
+        "01a005a4-1cb7-7437-a93c-9edae582653a",
+        "01a005a4-3178-71ca-933f-c7a5d6346b3d",
+        "01a005a4-31fa-765d-bfa9-a34b1dc8c3dd",
+        "01a005a4-9936-7661-ad2a-6d3aeb0e1a85",
+        "01a005a4-ab76-77db-b232-96928e090773",
+        "01a005a5-10bb-717e-94cf-99cb06759e13",
+        "01a005a5-24e5-765d-9bf4-f3c1f4d2558a"
+      ],
+      "playAnalysisId": "01a005a4-bdce-750e-9fa4-99edaaf249c3",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838d-7325-a31d-c8de458d0acd"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 12,
+    "context": {
+      "gameClockMs": 784938,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "1 Franziska Tabitha Sottner",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Franziska Tabitha Sottner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "26 Laia Girona Oriol",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #1 Franziska Sottner",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #1 Franziska Sottner",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Franziska Sottner",
+        "number": "1",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "1 Franziska Tabitha Sottner"
+      },
+      "flagPulledBy": {
+        "name": "26 Laia Girona Oriol"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005a5-343f-713b-b269-22edc44aa1e1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838d-7325-a31d-cf727aed43d3"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 718808,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 19,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "13 Anna Valenta",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Anna Valenta",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Laura Hernández Sánchez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #13 Anna Valenta",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #13 Anna Valenta",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Anna Valenta",
+        "number": "13",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "13 Anna Valenta"
+      },
+      "flagPulledBy": {
+        "name": "23 Laura Hernández Sánchez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005a5-ae00-77d9-b416-56ff5c55b24a",
+        "01a005a5-c18b-7199-9786-7fdef882b6dd",
+        "01a005a5-c223-73a5-be43-dec5fb10435e",
+        "01a005a6-36e4-74db-af90-f6ae980499f4",
+        "01a005a6-4c69-77ed-a830-2a5bea938fb5",
+        "01a005a6-55fb-754b-98f9-e506810d2626",
+        "01a005a6-daae-726d-afc2-158af4442234"
+      ],
+      "playAnalysisId": "01a005a5-ca6c-7762-a6a8-3a71a98ff510",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838d-7325-a31d-d276cb7c85fb"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 713638,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "note": "First down on the 15 yard line",
+        "role": "Statistician",
+        "team": "Austria"
+      },
+      {
+        "id": 2,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "1 Franziska Tabitha Sottner",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "1 Franziska Tabitha Sottner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "26 Laia Girona Oriol",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #1 Franziska Sottner",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #1 Franziska Sottner",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Franziska Sottner",
+        "number": "1",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "1 Franziska Tabitha Sottner"
+      },
+      "flagPulledBy": {
+        "name": "26 Laia Girona Oriol"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005a6-5a9f-73a2-9b08-c9becf990aef",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-5c8896372fb4"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 15,
+    "context": {
+      "gameClockMs": 641825,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Saskia Stribrny",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "65 Katrin Mansbart",
+        "note": "Incomplete",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Saskia Stribrny",
+      "text": "INCOMPLETE PASS #10 Saskia Stribrny",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005a6-f41c-740d-8b59-550d23eb8fa0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-635826497109"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 16,
+    "context": {
+      "gameClockMs": 598655,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "65 Katrin Mansbart",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "65 Katrin Mansbart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "65 Katrin Mansbart",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#65 Katrin Mansbart (6 pts)",
+      "text": "TOUCHDOWN #65 Katrin Mansbart (6 pts)",
+      "from": {
+        "name": "Katrin Mansbart",
+        "number": "65",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p20/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "65 Katrin Mansbart"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005a7-8352-740f-9a8b-46f78634ae3d",
+        "01a005a7-e479-77a8-a2b6-deeae7e505cf"
+      ],
+      "playAnalysisId": "01a005a7-74ca-7649-91f5-7f8fa74eb5d7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-66f8ddf04b70"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 561374,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Spain"
+      },
+      {
+        "id": 2,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "4 Mar Hernández Vitorique",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "4 Mar Hernández Vitorique",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "17 Sophie Spitzer",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #4 Mar Vitorique",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #4 Mar Vitorique",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Mar Vitorique",
+        "number": "4",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "4 Mar Hernández Vitorique"
+      },
+      "flagPulledBy": {
+        "name": "17 Sophie Spitzer"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005a8-14b8-7708-b6cc-647b1bb96da6",
+        "01a005a8-1524-7196-9ffb-962d858d9bd5",
+        "01a005a8-2350-775e-8e3c-ddfdf0e1c6f0",
+        "01a005a8-23c9-776c-94b1-ba538bea1b40",
+        "01a005a8-c4c5-72ba-a588-9ded725d3145",
+        "01a005a8-d008-7456-89cd-fcba2c8c9ffb",
+        "01a005a8-da94-74aa-b618-e4810e41952e",
+        "01a005a9-4b6d-7579-94d7-1ed98a1abccb",
+        "01a005a9-5a9e-737b-9bf5-e7cfea5ad1d6",
+        "01a005a9-c14f-718f-acb7-803612df53fc",
+        "01a005a9-d318-74b1-98dc-23e727ad302e"
+      ],
+      "playAnalysisId": "01a005a8-d0a2-719f-8464-219fa83c288e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-6bff0ee2e03e"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 18,
+    "context": {
+      "gameClockMs": 510777,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "29 Monica Giuffrida",
+        "action": "SACK",
+        "role": "Defense",
+        "team": "Austria"
+      }
+    ],
+    "outcome": {
+      "type": "SACK",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "SACK",
+      "label": "SACK",
+      "detail": "by #29 Monica Giuffrida",
+      "text": "SACK by #29 Monica Giuffrida",
+      "from": {
+        "name": "Monica Giuffrida",
+        "number": "29",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005a9-6203-727e-a332-c53e09fac3aa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-6dbd422efe60"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 19,
+    "context": {
+      "gameClockMs": 477963,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "13 Sara Villagrasa Clemente",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Sara Villagrasa Clemente",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #13 Sara Clemente",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #13 Sara Clemente",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Sara Clemente",
+        "number": "13",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p17/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "13 Sara Villagrasa Clemente"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005a9-dce9-7359-9135-3408cd5bebe9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-71f1a69ab69b"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 407248,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "note": "Quick pass",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "17 Sophie Spitzer",
+        "action": "FLAG_PULL",
+        "note": "on the 8 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #9 Olga Val",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #9 Olga Val",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "9 Olga Sotillo Val"
+      },
+      "flagPulledBy": {
+        "name": "17 Sophie Spitzer"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005aa-6f55-7711-8919-1fe5b4bcb692",
+        "01a005aa-8cd5-75db-94b4-e813cf3bc0e2",
+        "01a005aa-8d64-7779-9690-780606209e18",
+        "01a005aa-fcb8-700c-8756-cbde8403d559",
+        "01a005ab-0ed9-73cf-af4a-adcaf6ed9af2"
+      ],
+      "playAnalysisId": "01a005aa-9030-7231-89e7-35224f40ff4c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-774728698f7a"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 21,
+    "context": {
+      "gameClockMs": 399413,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "83 Violeta Alexandra Wiksten Oliver",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #83 Violeta Oliver",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #83 Violeta Oliver",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Violeta Oliver",
+        "number": "83",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "83 Violeta Alexandra Wiksten Oliver"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005ab-1fcf-73c9-808f-0fe2885d14b7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-7871cdab4c89"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 22,
+    "context": {
+      "gameClockMs": 340096,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 6,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 White",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 White",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 White",
+        "action": "PASS",
+        "intendedReceiver": "83 White",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "83 White",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "83 White",
+        "action": "TOUCHDOWN"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#83 Violeta Oliver (6 pts)",
+      "text": "TOUCHDOWN #83 Violeta Oliver (6 pts)",
+      "from": {
+        "name": "Violeta Oliver",
+        "number": "83",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p18/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 White"
+      },
+      "receiver": {
+        "name": "83 White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ab-7554-7041-805a-6c9c7cdf6c4a",
+        "01a005ab-a05e-709f-a3ad-5e10f0f0ce86"
+      ],
+      "playAnalysisId": "01a005ab-9715-739e-b45e-e4a7b218fc23",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-7fcbe8521289"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 23,
+    "context": {
+      "gameClockMs": 296281,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 12,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Olga Sotillo Val",
+        "action": "TOUCHDOWN",
+        "note": "Two-point conversion successful",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#9 Olga Val (2 pts)",
+      "text": "TRY #9 Olga Val (2 pts)",
+      "from": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      },
+      "points": 2
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "9 Olga Sotillo Val"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ac-2075-777e-8465-a730469ff9ca",
+        "01a005ac-20fc-734f-85b3-4f205fd59b61"
+      ],
+      "playAnalysisId": "01a005ac-4630-73fd-9d6b-d9d95ef65aae",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.758Z",
+    "updatedAt": "2026-08-15T14:32:19.758Z",
+    "id": "01a005d6-838e-7079-b344-82e6030901a5"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 24,
+    "context": {
+      "gameClockMs": 290146,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 14
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ac-3838-753e-a79a-3cbec2ecf91d",
+        "01a005ac-47c0-7113-b414-8fe1c293fb51",
+        "01a005ac-485b-718c-aa0b-572adf4a5d64",
+        "01a005ac-ba48-772d-98ef-96c57b5b77d6",
+        "01a005ac-cb07-715e-a026-c49f7919e35f",
+        "01a005ad-3bb9-71ab-94c6-968078b77f9a",
+        "01a005ad-4981-76ed-835d-012aabf11b99"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.759Z",
+    "updatedAt": "2026-08-15T14:32:19.759Z",
+    "id": "01a005d6-838e-7079-b344-856da28a7383"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 25,
+    "context": {
+      "gameClockMs": 252571,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "13 Anna Valenta",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Anna Valenta",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "44 Cristina Gómez Pérez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #13 Anna Valenta",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #13 Anna Valenta",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Anna Valenta",
+        "number": "13",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "13 Anna Valenta"
+      },
+      "flagPulledBy": {
+        "name": "44 Cristina Gómez Pérez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005ad-5791-7726-8125-21fab076f90e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.759Z",
+    "updatedAt": "2026-08-15T14:32:19.759Z",
+    "id": "01a005d6-838e-7079-b344-8aa1cfe03d0b"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 26,
+    "context": {
+      "gameClockMs": 191304,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 23,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "65 Katrin Mansbart",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "65 Katrin Mansbart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "2 Alma Rodríguez Requena",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #65 Katrin Mansbart",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #65 Katrin Mansbart",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Katrin Mansbart",
+        "number": "65",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p20/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "65 Katrin Mansbart"
+      },
+      "flagPulledBy": {
+        "name": "2 Alma Rodríguez Requena"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ad-baa4-73eb-b43c-2d43582086b5",
+        "01a005ad-d726-70bd-87ff-44440fbccf55",
+        "01a005ad-d7c7-741b-9190-682838a82ce3",
+        "01a005ae-3764-702e-8348-84be16a82b46",
+        "01a005ae-5242-710b-9e2a-7cbbcf993c33"
+      ],
+      "playAnalysisId": "01a005ad-dbd9-77fc-9bf4-f5545bf35dc1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.759Z",
+    "updatedAt": "2026-08-15T14:32:19.759Z",
+    "id": "01a005d6-838f-76b7-a79c-96aa6cea4769"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 27,
+    "context": {
+      "gameClockMs": 148613,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 39,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Austria"
+      },
+      {
+        "id": 2,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback",
+        "team": "Austria"
+      },
+      {
+        "id": 5,
+        "player": "1 Franziska Tabitha Sottner",
+        "action": "COMPLETE",
+        "role": "Wide receiver",
+        "team": "Austria"
+      },
+      {
+        "id": 6,
+        "player": "23 Laura Hernández Sánchez",
+        "action": "FLAG_PULL",
+        "role": "Defense",
+        "team": "Spain"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #1 Franziska Sottner",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #1 Franziska Sottner",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Franziska Sottner",
+        "number": "1",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "1 Franziska Tabitha Sottner"
+      },
+      "flagPulledBy": {
+        "name": "23 Laura Hernández Sánchez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ae-611c-725b-8d4d-6134ea195c9a"
+      ],
+      "playAnalysisId": "01a005ae-5a9b-71d8-9f1a-94d8afc9f08a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.759Z",
+    "updatedAt": "2026-08-15T14:32:19.759Z",
+    "id": "01a005d6-838f-76b7-a79c-9b4a087c4227"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 28,
+    "context": {
+      "gameClockMs": 146806,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 39,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "1 Franziska Tabitha Sottner",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Saskia Stribrny",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "1 Franziska Tabitha Sottner",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Saskia Stribrny",
+      "text": "INCOMPLETE PASS #10 Saskia Stribrny",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ae-6858-722f-8f8d-7aae97a94011",
+        "01a005ae-bf65-771d-a964-848ddf6748b8",
+        "01a005ae-dba3-70bb-8d81-2f105d16cf98",
+        "01a005af-2bd4-768d-9c82-e11d4ef6bf23",
+        "01a005af-53e7-77ae-ae9a-d05e4e8f7bd7",
+        "01a005af-63cc-7007-8525-ca41570a49c2"
+      ],
+      "playAnalysisId": "01a005ae-eb44-704b-b77f-64a9e3bfaa2e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.759Z",
+    "updatedAt": "2026-08-15T14:32:19.759Z",
+    "id": "01a005d6-838f-76b7-a79c-9dcb34c601be"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 29,
+    "context": {
+      "gameClockMs": 116175,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 39,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "13 Anna Valenta",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Anna Valenta",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "13 Anna Valenta",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Anna Valenta (6 pts)",
+      "text": "TOUCHDOWN #13 Anna Valenta (6 pts)",
+      "from": {
+        "name": "Anna Valenta",
+        "number": "13",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p10/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "13 Anna Valenta"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005af-76a3-7049-abde-33815209658d",
+        "01a005af-8828-75be-b817-a3bc5af83715"
+      ],
+      "playAnalysisId": "01a005af-8c7b-761e-842c-301d0fefd88c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.759Z",
+    "updatedAt": "2026-08-15T14:32:19.759Z",
+    "id": "01a005d6-838f-76b7-a79c-a010eeda47ad"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 30,
+    "context": {
+      "gameClockMs": 116175,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "21 Elisabeth Claudia Schmidt",
+        "action": "SACK",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "SACK",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "SACK",
+      "label": "SACK",
+      "detail": "by #21 Elisabeth Schmidt",
+      "text": "SACK by #21 Elisabeth Schmidt",
+      "from": {
+        "name": "Elisabeth Schmidt",
+        "number": "21",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005b0-0739-75d1-a92f-bd8a2389207a",
+        "01a005b0-07ac-719c-a345-6a5368525612",
+        "01a005b0-18eb-7618-9070-631a41087465",
+        "01a005b0-1973-711c-a146-cfd88d1859e2",
+        "01a005b0-526a-7366-bd80-b43a314dd3fc",
+        "01a005b0-5e51-738b-9456-3bf5c832d27b",
+        "01a005b0-8a33-760e-be70-bfe3625ab4d4",
+        "01a005b0-943f-7608-9fe4-0bd314ce706c",
+        "01a005b0-f4da-765f-b772-bbe4e564c1e7",
+        "01a005b1-03b3-7566-bb58-cecb777aadcf",
+        "01a005b1-79fe-7573-9b2c-502775d04917",
+        "01a005b1-c087-7602-baef-4696c64d5a05",
+        "01a005b1-d337-754c-a35a-7fb1d0fec135",
+        "01a005b1-d84e-74bf-9d99-cbfc952f2fda",
+        "01a005b1-e1af-719f-a69a-b91a5359f595",
+        "01a005b1-f247-70ac-97fd-8784883a3dbd",
+        "01a005b1-f795-70cc-a61c-01204f4ced79",
+        "01a005b2-4a27-73bb-97f2-058fab1c903f",
+        "01a005b2-5c01-7487-b661-4954f8e14cf6",
+        "01a005b2-7a7b-75e4-9e0e-10f15154391f",
+        "01a005b2-9055-7537-9405-cee9a46a0e57",
+        "01a005b2-a4bc-71bb-a93a-e8c0e6aeb30e"
+      ],
+      "playAnalysisId": "01a005b0-8568-7189-ad7a-4ea9e07d4c7f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.759Z",
+    "updatedAt": "2026-08-15T14:32:19.759Z",
+    "id": "01a005d6-838f-76b7-a79c-a7688224fc8e"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 31,
+    "context": {
+      "gameClockMs": 101204,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "9",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "9",
+        "action": "PASS",
+        "intendedReceiver": "13",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#9 Olga Val → #13 Sara Clemente",
+      "text": "COMPLETE PASS #9 Olga Val → #13 Sara Clemente",
+      "from": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      },
+      "to": {
+        "name": "Sara Clemente",
+        "number": "13",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p17/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "9"
+      },
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "9"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b1-00f4-74be-8673-427404d1c953",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-aab5499802f5"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 32,
+    "context": {
+      "gameClockMs": 72687,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "4 Mar Hernández Vitorique",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Mar Hernández Vitorique",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "17 Sophie Spitzer",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #4 Mar Vitorique",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #4 Mar Vitorique",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Mar Vitorique",
+        "number": "4",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "4 Mar Hernández Vitorique"
+      },
+      "flagPulledBy": {
+        "name": "17 Sophie Spitzer"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b1-818c-75ba-a99f-4356eff5dd36",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-ac3ee2270854"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 33,
+    "context": {
+      "gameClockMs": 42604,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "TIMEOUT_CALL",
+        "role": "Statistician",
+        "team": "Austria"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b1-d88f-72c8-8563-c0bf6be623d1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-b1c0838537dc"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 34,
+    "context": {
+      "gameClockMs": 47000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10",
+        "action": "PASS",
+        "intendedReceiver": "13",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Mónica Barceló",
+      "text": "INCOMPLETE PASS #10 Mónica Barceló",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "10"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b2-b38f-719c-9334-0e91333c59cd",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-b50d51afbd10"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 35,
+    "context": {
+      "gameClockMs": 42163,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 17,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "10 Saskia Stribrny",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "13 Anna Valenta",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "13 Anna Valenta",
+        "action": "RUSH",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "44 Cristina Gómez Pérez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#13 Anna Valenta",
+      "text": "RUN #13 Anna Valenta",
+      "from": {
+        "name": "Anna Valenta",
+        "number": "13",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "13 Anna Valenta"
+      },
+      "ballCarrier": {
+        "name": "13 Anna Valenta"
+      },
+      "flagPulledBy": {
+        "name": "44 Cristina Gómez Pérez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005b2-b0f7-73cb-9bd3-2654f738d6e4"
+      ],
+      "playAnalysisId": "01a005b3-8ea8-74a2-b343-4a4b538ff439",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-b85216b1d86e"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 36,
+    "context": {
+      "gameClockMs": 42163,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 17,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "65 Katrin Mansbart",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "65 Katrin Mansbart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "26 Laia Girona Oriol",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #65 Katrin Mansbart",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #65 Katrin Mansbart",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Katrin Mansbart",
+        "number": "65",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p20/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "65 Katrin Mansbart"
+      },
+      "flagPulledBy": {
+        "name": "26 Laia Girona Oriol"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005b2-b1a7-7203-af59-db6386d74ac3",
+        "01a005b2-c06e-72da-9faf-a9f95f699f63",
+        "01a005b3-322c-75fc-baec-db47d4e1de61",
+        "01a005b3-4fe4-745e-bf45-004b4f6cb2dd",
+        "01a005b3-6707-7297-9565-dd4ed5005250",
+        "01a005b3-73dd-75eb-83ed-96d2428d34b2",
+        "01a005b3-8234-7578-a97d-db8fb7020bca",
+        "01a005b3-9459-769c-a487-613cbf8e4ad4",
+        "01a005b3-f875-7215-b94d-2e6f7e292221",
+        "01a005b4-08ac-7772-8c9c-62638d610cc4"
+      ],
+      "playAnalysisId": "01a005b3-5f6c-7508-950f-8fb5dfa58efd",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-bf7e7a719b8a"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 37,
+    "context": {
+      "gameClockMs": 21696,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "4 Mar Hernández Vitorique",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Mar Hernández Vitorique",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "FLAG_PULL",
+        "note": "flag pulled from #26 Laia Girona Oriol",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #4 Mar Vitorique",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #4 Mar Vitorique",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Mar Vitorique",
+        "number": "4",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "4 Mar Hernández Vitorique"
+      },
+      "flagPulledBy": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005b4-1410-759d-83ae-ae02966b5fc7",
+        "01a005b4-2851-718f-9bac-319428e51ec2",
+        "01a005b4-28d2-755f-9239-452836ec5b72",
+        "01a005b4-98cc-7327-85d9-7e96059fc860",
+        "01a005b4-b363-703a-8132-410ed95c3518",
+        "01a005b4-bff3-7029-a202-011777ea655b",
+        "01a005b4-d89d-7529-8f69-8e39bd0d4865",
+        "01a005b5-005b-7095-a245-97499b5dc9d9",
+        "01a005b5-0786-732e-8418-185b71799918",
+        "01a005b5-e19f-7301-9905-87ed85360dc3",
+        "01a005b5-e5a9-716b-ab60-ab421d97e392",
+        "01a005b5-f4e9-713f-ae8b-8470f0d24472",
+        "01a005b6-05e3-7028-a46d-fb04e1512bc5",
+        "01a005b6-1431-74de-8b72-7e6b9eebb60f",
+        "01a005b6-7d40-75dd-b1a0-c2376a4ce458",
+        "01a005b6-8db6-76ff-bd11-10a671761f6f",
+        "01a005b6-b299-77ec-975b-ff44686db9c1"
+      ],
+      "playAnalysisId": "01a005b4-1ac9-73e1-be3d-b40bfbc4dd06",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-c2e54a1076e1"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 38,
+    "context": {
+      "gameClockMs": 21696,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown Center",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "64",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "64",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "26 Laia Girona Oriol",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #64",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #64",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "number": "64"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "number": "64"
+      },
+      "flagPulledBy": {
+        "name": "26 Laia Girona Oriol"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b4-c379-760b-a1fd-891f25035e60",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-c59537467edc"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 39,
+    "context": {
+      "gameClockMs": 15094,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "TIMEOUT_CALL",
+        "role": "Statistician",
+        "team": "Austria"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b5-0907-7257-9aa4-0709e83de202",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-c9c685e8b334"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 40,
+    "context": {
+      "gameClockMs": 15094,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "16 Karoline Kugler",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Saskia Stribrny",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "16 Karoline Kugler",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Saskia Stribrny",
+      "text": "INCOMPLETE PASS #10 Saskia Stribrny",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b6-2143-76b8-9ea5-475186fc76d2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-cceb4ee37003"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 41,
+    "context": {
+      "gameClockMs": 6980,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005b6-db58-73be-b8e1-339508a060ef"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-d279e835d6c5"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 42,
+    "context": {
+      "gameClockMs": 6980,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 14,
+        "away": 20
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP2",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005b7-5f50-7149-83c3-ee76b6bfb56e",
+        "01a005b7-6043-77ad-a4b5-d5dcbec919a3",
+        "01a005b7-8062-759c-be0c-f69313019880"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-d551346b40a8"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 43,
+    "context": {
+      "gameClockMs": 7000,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "sources": {
+      "gameEventIds": [
+        "01a005b7-95d5-7315-b203-9ac554aaa5b1",
+        "01a005b7-a0c2-711c-84a0-0cfb6ab04a66",
+        "01a005b7-a179-752b-aea7-8582e22fadd3",
+        "01a005b7-f0c5-758b-a93c-9fe09f42cb09",
+        "01a005b7-f6dd-73ce-ad23-941890fd9fb3",
+        "01a005b8-0f18-771c-ac46-9914a63b4a76",
+        "01a005b8-31b8-7401-8caf-e5ee56febfb7",
+        "01a005b8-787d-70bb-8f70-4e2a80d073e5",
+        "01a005b8-8b7b-7311-ad68-3555d1742fa8",
+        "01a005b8-9e49-743e-8505-30f045adfabf",
+        "01a005b8-be00-700f-9c8d-9b3e4fdb172d",
+        "01a005b8-ce36-748a-af5c-68ba35cdeb73",
+        "01a005b8-dff0-713e-83fb-f65fccc31652",
+        "01a005b9-ba2f-75bd-a68b-17d0a81ef253",
+        "01a005b9-f88d-728a-a133-ce8e6d31dcd5",
+        "01a005b9-f955-77d9-8c75-8d4adb220f64"
+      ],
+      "penaltyAnalysisIds": [
+        "01a005b8-4f74-72ac-8737-bec9d76abcc5"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-d8ae0a962521"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 44,
+    "context": {
+      "gameClockMs": 7000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b8-9ab6-763d-9e02-c561c4c497e8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-ddc058eb8ccd"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 45,
+    "context": {
+      "gameClockMs": 3000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "TIMEOUT_CALL",
+        "role": "Statistician",
+        "team": "Spain"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b8-d60b-7779-9e41-c0a4760a7354",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-e3f139fa54ed"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 46,
+    "context": {
+      "gameClockMs": 3000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Mar Hernández Vitorique",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "13 Sara Villagrasa Clemente",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Sara Villagrasa Clemente",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Tabea Luna Fiegl",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #13 Sara Clemente",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #13 Sara Clemente",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Sara Clemente",
+        "number": "13",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p17/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "13 Sara Villagrasa Clemente"
+      },
+      "flagPulledBy": {
+        "name": "9 Tabea Luna Fiegl"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005b9-e2f9-731e-82f0-4443967d469b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.760Z",
+    "updatedAt": "2026-08-15T14:32:19.760Z",
+    "id": "01a005d6-838f-76b7-a79c-e74760053702"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 47,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "GAME_SETUP",
+        "note": "End of half"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005ba-470a-76e8-b8d8-a2fc3723e921",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.761Z",
+    "updatedAt": "2026-08-15T14:32:19.761Z",
+    "id": "01a005d6-838f-76b7-a79c-e9946c36d734"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 48,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "13 Sara Villagrasa Clemente",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Sara Villagrasa Clemente",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "17 Sophie Spitzer",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #13 Sara Clemente",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #13 Sara Clemente",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Sara Clemente",
+        "number": "13",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p17/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "13 Sara Villagrasa Clemente"
+      },
+      "flagPulledBy": {
+        "name": "17 Sophie Spitzer"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005bb-5f3b-74e5-b862-444f99ea4f39",
+        "01a005bb-69da-70ea-b7b7-56d78b108dfe",
+        "01a005bb-f4bc-77c7-b9fa-6a7f44b37d19",
+        "01a005bc-0d8e-7229-af31-cd8ac0f52fdb",
+        "01a005bc-22a8-7439-9303-717c27352179",
+        "01a005bc-9102-77f9-843d-fa2eeaa65545",
+        "01a005bc-a9a9-75ba-b3fa-26dd129856b0",
+        "01a005bd-0dcb-74ab-b987-afd3723216fe"
+      ],
+      "playAnalysisId": "01a005bc-26f7-70dd-8d6c-d7086889cc77",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.761Z",
+    "updatedAt": "2026-08-15T14:32:19.761Z",
+    "id": "01a005d6-838f-76b7-a79c-ef6b2f1ddb31"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 49,
+    "context": {
+      "gameClockMs": 1188239,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "83 Violeta Alexandra Wiksten Oliver",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Tabea Luna Fiegl",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #83 Violeta Oliver",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #83 Violeta Oliver",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Violeta Oliver",
+        "number": "83",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "83 Violeta Alexandra Wiksten Oliver"
+      },
+      "flagPulledBy": {
+        "name": "9 Tabea Luna Fiegl"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005bc-b284-74ae-af43-2a96f9564569",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.761Z",
+    "updatedAt": "2026-08-15T14:32:19.761Z",
+    "id": "01a005d6-8390-7248-8025-b0ddbb3d1218"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 50,
+    "context": {
+      "gameClockMs": 1128054,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Mónica Barceló",
+      "text": "INCOMPLETE PASS #10 Mónica Barceló",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005bd-2a25-77fe-a9aa-a030b2e25567",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.761Z",
+    "updatedAt": "2026-08-15T14:32:19.761Z",
+    "id": "01a005d6-8390-7248-8025-b58d4b93819a"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 51,
+    "context": {
+      "gameClockMs": 1094710,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 24,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "83 Violeta Alexandra Wiksten Oliver",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "3 Bianca Peham",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #83 Violeta Oliver",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #83 Violeta Oliver",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Violeta Oliver",
+        "number": "83",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "83 Violeta Alexandra Wiksten Oliver"
+      },
+      "flagPulledBy": {
+        "name": "3 Bianca Peham"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005bd-9004-74fe-93e9-28380e5e472a",
+        "01a005bd-a09a-770a-bcf7-497ec49cf596",
+        "01a005bd-a13b-714d-96cb-245938e5b326",
+        "01a005be-1834-7253-ad5e-0145fa33482f",
+        "01a005be-bc82-77f8-b0f4-4d339af703ab",
+        "01a005be-c575-704e-90a1-5838c971ff30",
+        "01a005bf-4684-75e7-90a9-9ad71edef575",
+        "01a005bf-51b8-741c-a22d-f828f1522997"
+      ],
+      "playAnalysisId": "01a005bd-b250-765b-b252-57b4d1ec2433",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.761Z",
+    "updatedAt": "2026-08-15T14:32:19.761Z",
+    "id": "01a005d6-8390-7248-8025-bb2ec2f8bf9d"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 52,
+    "context": {
+      "gameClockMs": 1090246,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "team": "Spain"
+      },
+      {
+        "id": 2,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Mónica Barceló",
+      "text": "INCOMPLETE PASS #10 Mónica Barceló",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005be-39c7-777c-acf5-41e340b4614e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.761Z",
+    "updatedAt": "2026-08-15T14:32:19.761Z",
+    "id": "01a005d6-8390-7248-8025-be65e9929182"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 53,
+    "context": {
+      "gameClockMs": 1059839,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "22 Sophie Lisa Einfalt",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #9 Olga Val",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #9 Olga Val",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "9 Olga Sotillo Val"
+      },
+      "flagPulledBy": {
+        "name": "22 Sophie Lisa Einfalt"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005be-e66d-737e-b157-65e4bf87c763",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.761Z",
+    "updatedAt": "2026-08-15T14:32:19.761Z",
+    "id": "01a005d6-8390-7248-8025-c183bd7912a3"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 54,
+    "context": {
+      "gameClockMs": 1015448,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "83 Violeta Alexandra Wiksten Oliver",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "3 Bianca Peham",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #83 Violeta Oliver",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #83 Violeta Oliver",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Violeta Oliver",
+        "number": "83",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "83 Violeta Alexandra Wiksten Oliver"
+      },
+      "flagPulledBy": {
+        "name": "3 Bianca Peham"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005bf-700c-734f-a159-3c88e759fe87",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.761Z",
+    "updatedAt": "2026-08-15T14:32:19.761Z",
+    "id": "01a005d6-8390-7248-8025-c4ec0ba86734"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 55,
+    "context": {
+      "gameClockMs": 941236,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 47,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 14,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Olga Sotillo Val",
+        "action": "TOUCHDOWN",
+        "note": "Team attribution for touchdown (Austria) seems incorrect based on preceding play events; assumed Spain #9 scored."
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#9 Olga Val (6 pts)",
+      "text": "TOUCHDOWN #9 Olga Val (6 pts)",
+      "from": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "9 Olga Sotillo Val"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005bf-e7ee-70cc-b098-f30eafbc1070",
+        "01a005c0-09ef-70a4-a496-7a712cdaf369"
+      ],
+      "playAnalysisId": "01a005bf-ef0f-71d0-9af8-48102dd13a68",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.761Z",
+    "updatedAt": "2026-08-15T14:32:19.761Z",
+    "id": "01a005d6-8390-7248-8025-c845be28aeb4"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 56,
+    "context": {
+      "gameClockMs": 904495,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 20,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "GAME_SETUP",
+        "note": "First down on the five yard line",
+        "team": "Austria"
+      },
+      {
+        "id": 2,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "1 Franziska Tabitha Sottner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "2 Alma Rodríguez Requena",
+        "action": "FLAG_PULL",
+        "note": "on the 14 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #1 Franziska Sottner",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #1 Franziska Sottner",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Franziska Sottner",
+        "number": "1",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "1 Franziska Tabitha Sottner"
+      },
+      "flagPulledBy": {
+        "name": "2 Alma Rodríguez Requena"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c0-76dd-74bc-9940-713635149797",
+        "01a005c0-77dd-77ff-801a-11a0aa36f567",
+        "01a005c0-83b8-74cd-b3d0-dfb43b50798e",
+        "01a005c0-8432-7028-b8d7-5e682e2ec414",
+        "01a005c0-f576-74fb-9c85-6b6131c45491",
+        "01a005c1-0a69-72ad-9079-aca96bc734a1",
+        "01a005c1-75e4-72c1-835c-0ad572478043"
+      ],
+      "playAnalysisId": "01a005c1-1a0c-7654-8d29-55a0e654e237",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8390-7248-8025-ced6a120bccf"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 57,
+    "context": {
+      "gameClockMs": 822334,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 14,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 20,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "1 Franziska Tabitha Sottner",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Franziska Tabitha Sottner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Laura Hernández Sánchez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #1 Franziska Sottner",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #1 Franziska Sottner",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Franziska Sottner",
+        "number": "1",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "1 Franziska Tabitha Sottner"
+      },
+      "flagPulledBy": {
+        "name": "23 Laura Hernández Sánchez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c1-b7fe-7136-8f7d-e53f6ffb646f",
+        "01a005c1-c452-736a-973e-fb35eed8806f",
+        "01a005c1-e120-77ae-ac1f-d3411b08fb8c",
+        "01a005c1-e19b-738e-96a4-4f2dedbb57bc"
+      ],
+      "playAnalysisId": "01a005c1-86d7-7203-b8c2-11d9d8deb3a3",
+      "penaltyAnalysisIds": [
+        "01a005c1-e9da-745f-bef9-b97abb39cce2"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-8aad7929dffd"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 58,
+    "context": {
+      "gameClockMs": 773798,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 31,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 20,
+        "away": 22
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "4 Magdalena Helm",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Magdalena Helm",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "4 Magdalena Helm",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#4 Magdalena Helm (6 pts)",
+      "text": "TOUCHDOWN #4 Magdalena Helm (6 pts)",
+      "from": {
+        "name": "Magdalena Helm",
+        "number": "4",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p3/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "4 Magdalena Helm"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c2-75ad-739e-a314-906bad5cd7eb",
+        "01a005c2-8d26-7078-8082-0b57a327f7fd",
+        "01a005c3-10bb-7073-992c-7939aa1a01f5",
+        "01a005c3-760e-73b9-827a-d02f438e1c5a",
+        "01a005c3-e24f-777a-a4f9-b0a0e7d1ff68"
+      ],
+      "playAnalysisId": "01a005c2-7a6c-7678-a299-583e19e61e29",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-8c68943c8d57"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 59,
+    "context": {
+      "gameClockMs": 767781,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 20,
+        "away": 28
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "65 Katrin Mansbart",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Saskia Stribrny",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "65 Katrin Mansbart",
+        "note": "deep pass to the left side",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Saskia Stribrny",
+      "text": "INCOMPLETE PASS #10 Saskia Stribrny",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005c3-29b4-777a-9bc6-a85c966d5939",
+      "penaltyAnalysisIds": [
+        "01a005c3-94b4-7473-8736-b5856a6bfe6a"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-90d671e9bc68"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 60,
+    "context": {
+      "gameClockMs": 679479,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 47,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 20,
+        "away": 28
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "1 Franziska Tabitha Sottner",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Franziska Tabitha Sottner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TD",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #1 Franziska Sottner",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #1 Franziska Sottner",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Franziska Sottner",
+        "number": "1",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "1 Franziska Tabitha Sottner"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c3-e5d2-747d-b3ea-47bcef56561c"
+      ],
+      "playAnalysisId": "01a005c3-f896-7648-9ca2-fb2f5fdd2681",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-94c84a43e722"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 61,
+    "context": {
+      "gameClockMs": 662999,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 47,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 20,
+        "away": 34
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP1",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c4-2660-75ef-a468-a2dc2923f6d7",
+        "01a005c4-26e1-76dc-b80a-7889e0cff9a5"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-9b513165509d"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 62,
+    "context": {
+      "gameClockMs": 644678,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 47,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 20,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Mónica Barceló",
+      "text": "INCOMPLETE PASS #10 Mónica Barceló",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c4-6db8-77d6-b3d3-34bbb90de5eb",
+        "01a005c4-7a80-7136-97b1-7431c75f5d8a",
+        "01a005c4-7adf-72f4-95da-902a1d24fd7b",
+        "01a005c4-9497-74d5-8189-9bd551c8f681",
+        "01a005c4-a2a4-705d-b76e-c5b867d59e76",
+        "01a005c4-aaff-7669-a268-3d90c4af0167",
+        "01a005c5-43ce-7742-ba37-19d284d3c6a0"
+      ],
+      "playAnalysisId": "01a005c4-c0d5-7273-a552-16fbe133d557",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-9d758aa05aa7"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 63,
+    "context": {
+      "gameClockMs": 629049,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 20,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "13 Sara Villagrasa Clemente",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Sara Villagrasa Clemente",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Mónica Barceló",
+      "text": "INCOMPLETE PASS #10 Mónica Barceló",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005c5-4d1f-70ae-af68-035fbd471367",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-a03842be2625"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 64,
+    "context": {
+      "gameClockMs": 557648,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 20,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "22 Sophie Lisa Einfalt",
+        "action": "FLAG_PULL",
+        "note": "on the 22 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #9 Olga Val",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #9 Olga Val",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "9 Olga Sotillo Val"
+      },
+      "flagPulledBy": {
+        "name": "22 Sophie Lisa Einfalt"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c5-c201-75e8-a0d3-b35482dbde16",
+        "01a005c5-dad7-77fe-899f-764f033aa335",
+        "01a005c5-db52-77bb-a7a7-a89ba3fd48e6",
+        "01a005c5-eb0c-7447-b396-83423ad33b93",
+        "01a005c6-5ccc-7129-92b0-ff7d8e97cbad",
+        "01a005c6-75d9-77c3-9f91-2e6c6048a28f",
+        "01a005c6-7666-7624-b92e-b33e53814b53",
+        "01a005c6-983d-730f-aabe-17df0c00f4e7",
+        "01a005c6-cafc-7425-ab37-7a8cb22b8045",
+        "01a005c6-d88a-758f-8d01-5f20d9a3b72d",
+        "01a005c6-d904-737f-a4b6-7561bddb8741",
+        "01a005c7-53cc-71bd-b305-c8e9e0692c2f",
+        "01a005c7-6999-7008-ab60-228959c0814e",
+        "01a005c7-75e6-72ee-ba73-e4ada3312129"
+      ],
+      "playAnalysisId": "01a005c5-dfec-73ec-86ab-9f6dd69d6e28",
+      "penaltyAnalysisIds": [
+        "01a005c6-7875-743b-9989-6c0dde284674"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-a6f4ebaffc95"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 65,
+    "context": {
+      "gameClockMs": 502772,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 20,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center",
+        "team": "Spain"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback",
+        "team": "Spain"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "83 Violeta Alexandra Wiksten Oliver",
+        "passDirection": "RIGHT",
+        "role": "Quarterback",
+        "team": "Spain"
+      },
+      {
+        "id": 4,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "COMPLETE",
+        "role": "Wide receiver",
+        "team": "Spain"
+      },
+      {
+        "id": 5,
+        "player": "17 Sophie Spitzer",
+        "action": "FLAG_PULL",
+        "note": "On the 18-yard line.",
+        "role": "Defense",
+        "team": "Austria"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #83 Violeta Oliver",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #83 Violeta Oliver",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Violeta Oliver",
+        "number": "83",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p18/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "83 Violeta Alexandra Wiksten Oliver"
+      },
+      "flagPulledBy": {
+        "name": "17 Sophie Spitzer"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005c7-045f-74b5-b448-f500f1dcba69",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-aabcc8e5ba0e"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 66,
+    "context": {
+      "gameClockMs": 449175,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 20,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #9 Olga Val",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #9 Olga Val",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "9 Olga Sotillo Val"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005c7-8310-7638-bc6b-8989c26871fb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-aec664eacbe3"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 67,
+    "context": {
+      "gameClockMs": 429551,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 42,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 20,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "INCOMPLETE_PASS",
+        "note": "no intended receiver",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Mónica Barceló",
+      "text": "INCOMPLETE PASS #10 Mónica Barceló",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c7-b64e-7449-a029-40347f3ad816",
+        "01a005c7-bbef-759f-9b77-19cd9e1d7ba2",
+        "01a005c7-bf0c-71fa-ae2e-e9a36f1a9ecf",
+        "01a005c7-f8e7-72ae-b254-8924f441078a"
+      ],
+      "playAnalysisId": "01a005c8-1816-77ba-a043-3ad46d4b7275",
+      "penaltyAnalysisIds": [
+        "01a005c7-d487-72fc-b692-4d45fbe889bb"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-b023bf0f04f6"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 68,
+    "context": {
+      "gameClockMs": 372079,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 20,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Olga Sotillo Val",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#9 Olga Val (6 pts)",
+      "text": "TOUCHDOWN #9 Olga Val (6 pts)",
+      "from": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "9 Olga Sotillo Val"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c8-96d5-77fb-b58a-59e316505e6d",
+        "01a005c8-c3dd-722b-9ba1-c2f5d7b4e238"
+      ],
+      "playAnalysisId": "01a005c8-a390-7212-b463-4792e5315927",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-b5b3f9f6a29e"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 69,
+    "context": {
+      "gameClockMs": 331283,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 26,
+        "away": 35
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005c9-35f2-750a-8313-1d9232977e3c",
+        "01a005c9-3679-7749-a7e6-97f5eaeaa804",
+        "01a005c9-40d4-772a-ad64-2b0db378769f",
+        "01a005c9-4147-74fc-8470-c1ec80b212fd",
+        "01a005c9-d581-76d2-9081-aa44ed08c19b",
+        "01a005ca-1dbe-748e-b97d-dc16a9dd662e",
+        "01a005ca-537f-7329-b4c8-6e7e5af70db4",
+        "01a005ca-7aae-72aa-b4f1-a46b05430341",
+        "01a005ca-7b58-7232-b659-af95abb6a2e9",
+        "01a005ca-7bf3-7133-b511-8d30f360b159",
+        "01a005ca-7df4-71b8-8513-492c80c551f3",
+        "01a005ca-9139-7499-ab67-16bb6ed9bf32",
+        "01a005ca-b8cb-7069-af07-ca713d12f83a",
+        "01a005ca-bcb5-74eb-8b0d-27c58451f2c3",
+        "01a005ca-dbd9-77ef-a8cc-e6063ee2514a",
+        "01a005cb-40df-721f-9679-ce766417367c",
+        "01a005cb-596b-723b-adb2-40cd9705587e",
+        "01a005cb-e3b2-70ea-9fe5-f37841bae4eb",
+        "01a005cc-1db9-7412-9aec-d6f0d65313b1",
+        "01a005cc-f0ba-75af-9103-97500e9d7ca4"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-bada350de6b8"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 70,
+    "context": {
+      "gameClockMs": 290512,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 26,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "16 Karoline Kugler",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Saskia Stribrny",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "16 Karoline Kugler",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Saskia Stribrny",
+      "text": "INCOMPLETE PASS #10 Saskia Stribrny",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005c9-f3ae-704e-8e7f-212eaa7963ce",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.762Z",
+    "updatedAt": "2026-08-15T14:32:19.762Z",
+    "id": "01a005d6-8391-72fc-8852-be56d73248fb"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 71,
+    "context": {
+      "gameClockMs": 276257,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 26,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "13 Anna Valenta",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Anna Valenta",
+        "action": "COMPLETE",
+        "note": "steps out of bounds on the 15 yard line",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #13 Anna Valenta",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #13 Anna Valenta",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Anna Valenta",
+        "number": "13",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "13 Anna Valenta"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005ca-de92-742d-9cab-4d58d51f0cdf",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.763Z",
+    "updatedAt": "2026-08-15T14:32:19.763Z",
+    "id": "01a005d6-8391-72fc-8852-c28c2600e1c6"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 72,
+    "context": {
+      "gameClockMs": 231105,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 26,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "16 Karoline Kugler",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "16 Karoline Kugler",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Laura Hernández Sánchez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Saskia Stribrny → #16 Karoline Kugler",
+      "text": "COMPLETE PASS #10 Saskia Stribrny → #16 Karoline Kugler",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "to": {
+        "name": "Karoline Kugler",
+        "number": "16",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "16 Karoline Kugler"
+      },
+      "flagPulledBy": {
+        "name": "23 Laura Hernández Sánchez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005cb-6a3a-73ac-ae16-866d555ebb86",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.763Z",
+    "updatedAt": "2026-08-15T14:32:19.763Z",
+    "id": "01a005d6-8391-72fc-8852-c62e44899a86"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 73,
+    "context": {
+      "gameClockMs": 179248,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 19,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 26,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "Unknown Player",
+        "action": "PASS",
+        "intendedReceiver": "10 Saskia Stribrny",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "1 Franziska Tabitha Sottner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 4,
+        "player": "9 Tabea Luna Fiegl",
+        "action": "FLAG_PULL",
+        "note": "on the 4 yard line",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": " → #1 Franziska Sottner",
+      "text": "COMPLETE PASS  → #1 Franziska Sottner",
+      "to": {
+        "name": "Franziska Sottner",
+        "number": "1",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "Unknown Player"
+      },
+      "receiver": {
+        "name": "1 Franziska Tabitha Sottner"
+      },
+      "flagPulledBy": {
+        "name": "9 Tabea Luna Fiegl"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005cd-1a9d-77db-98d4-44726999b7f0",
+        "01a005cd-3a6d-733e-be8d-d1fd20de30a6",
+        "01a005cd-3ae7-70f5-b269-0f0a5753f42e",
+        "01a005cd-c5c6-732b-a40f-d7889086018d",
+        "01a005cd-d2ec-74f8-a6d6-96878c4b34cc",
+        "01a005cd-d52a-739c-a07b-df16af4ffea1",
+        "01a005ce-0328-738b-a381-ca7c256ae0a0",
+        "01a005ce-84e6-77da-ade1-f449c193d0b0",
+        "01a005ce-9764-72af-8bce-86072bd1e037"
+      ],
+      "playAnalysisId": "01a005cd-3f65-71ea-8e85-a385378357f8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.763Z",
+    "updatedAt": "2026-08-15T14:32:19.763Z",
+    "id": "01a005d6-8391-72fc-8852-c87436826089"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 74,
+    "context": {
+      "gameClockMs": 170891,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 26,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "note": "Takes a knee",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005cd-c7af-774c-801e-626133804939",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.763Z",
+    "updatedAt": "2026-08-15T14:32:19.763Z",
+    "id": "01a005d6-8391-72fc-8852-cfc1c6e013e1"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 75,
+    "context": {
+      "gameClockMs": 115443,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 44,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 26,
+        "away": 35
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "PASS",
+        "intendedReceiver": "65 Katrin Mansbart",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "65 Katrin Mansbart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "65 Katrin Mansbart",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#65 Katrin Mansbart (6 pts)",
+      "text": "TOUCHDOWN #65 Katrin Mansbart (6 pts)",
+      "from": {
+        "name": "Katrin Mansbart",
+        "number": "65",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p20/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "65 Katrin Mansbart"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ce-c039-7074-b7bd-779648a2713a",
+        "01a005ce-da4f-73ef-90c3-029a1b71cf95"
+      ],
+      "playAnalysisId": "01a005ce-b3a4-755d-926e-e26dd07bba44",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.763Z",
+    "updatedAt": "2026-08-15T14:32:19.763Z",
+    "id": "01a005d6-8391-72fc-8852-d2062c966687"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 76,
+    "context": {
+      "gameClockMs": 115443,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 26,
+        "away": 41
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "13 Anna Valenta",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "13 Anna Valenta",
+        "action": "PASS",
+        "intendedReceiver": "10 Saskia Stribrny",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "10 Saskia Stribrny",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "10 Saskia Stribrny",
+        "action": "TOUCHDOWN",
+        "note": "One point try is good",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#10 Saskia Stribrny (1 pt)",
+      "text": "TRY #10 Saskia Stribrny (1 pt)",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "receiver": {
+        "name": "10 Saskia Stribrny"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005cf-47e7-74bd-934e-d37510c7c964",
+        "01a005cf-4877-746a-9dd0-b3083ee56610"
+      ],
+      "playAnalysisId": "01a005cf-6116-71bd-adcd-304ec0ef3379",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.764Z",
+    "updatedAt": "2026-08-15T14:32:19.764Z",
+    "id": "01a005d6-8391-72fc-8852-d689452300f0"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 77,
+    "context": {
+      "gameClockMs": 115443,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 26,
+        "away": 42
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "13 Sara Villagrasa Clemente",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Sara Villagrasa Clemente",
+        "action": "COMPLETE",
+        "note": "steps out of bounds on the 12 yard line",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #13 Sara Clemente",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #13 Sara Clemente",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Sara Clemente",
+        "number": "13",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p17/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "13 Sara Villagrasa Clemente"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005cf-4f13-766a-8bcd-3e4e22efe597",
+        "01a005cf-55bd-761c-be27-e8753bda1360",
+        "01a005cf-5813-768a-9a8b-2334aa734c73",
+        "01a005cf-9d78-71f9-a5ae-3d94ba351645",
+        "01a005cf-afed-7462-abb6-b9f85ec00f18",
+        "01a005cf-b707-75d9-af61-6909f3cfa2b1",
+        "01a005cf-c871-7049-ae04-f59922c6e22d",
+        "01a005d0-10bb-7495-8f2b-b5722b6a4c4f",
+        "01a005d0-2be3-72f0-983c-06989f67db3f",
+        "01a005d0-37ea-7232-b4ae-caea5637ded4",
+        "01a005d0-9933-7068-b7f1-575b7316bdea"
+      ],
+      "playAnalysisId": "01a005cf-d896-717f-a723-9d7e4f92f8f4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.764Z",
+    "updatedAt": "2026-08-15T14:32:19.764Z",
+    "id": "01a005d6-8391-72fc-8852-da33e25d9590"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 78,
+    "context": {
+      "gameClockMs": 111055,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 26,
+        "away": 42
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "9 Olga Sotillo Val",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Olga Sotillo Val",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Tabea Luna Fiegl",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #9 Olga Val",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #9 Olga Val",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Olga Val",
+        "number": "9",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "9 Olga Sotillo Val"
+      },
+      "flagPulledBy": {
+        "name": "9 Tabea Luna Fiegl"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005d0-4217-70fa-a8fa-0a92de3b5a21",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.764Z",
+    "updatedAt": "2026-08-15T14:32:19.764Z",
+    "id": "01a005d6-8391-72fc-8852-dc1553ce56d8"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 79,
+    "context": {
+      "gameClockMs": 76313,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 21,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 26,
+        "away": 42
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "4 Mar Hernández Vitorique",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Mar Hernández Vitorique",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#10 Mónica Barceló → #4 Mar Vitorique",
+      "text": "COMPLETE PASS #10 Mónica Barceló → #4 Mar Vitorique",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      },
+      "to": {
+        "name": "Mar Vitorique",
+        "number": "4",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      },
+      "receiver": {
+        "name": "4 Mar Hernández Vitorique"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005d0-9f47-70e9-83c0-129f9f89da48",
+        "01a005d0-c355-77bb-9d9b-9916751fac2b",
+        "01a005d0-c3df-77bd-bbce-c45c003216bd",
+        "01a005d1-0e0d-77ec-a014-4961ad47f9a2",
+        "01a005d1-1dfe-708e-8a3e-7e9fc800ea6a",
+        "01a005d1-2341-706f-b62b-bf2c0b6bd4ab",
+        "01a005d1-2b60-75df-a3b1-912020fdf6ea"
+      ],
+      "playAnalysisId": "01a005d0-c2cd-70c4-8e5d-45c1bc1756dd",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.764Z",
+    "updatedAt": "2026-08-15T14:32:19.764Z",
+    "id": "01a005d6-8391-72fc-8852-e0b95f697a64"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 80,
+    "context": {
+      "gameClockMs": 72467,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 36,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 26,
+        "away": 42
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "PASS",
+        "intendedReceiver": "4 Mar Hernández Vitorique",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Mar Hernández Vitorique",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#10 Mónica Barceló",
+      "text": "INCOMPLETE PASS #10 Mónica Barceló",
+      "from": {
+        "name": "Mónica Barceló",
+        "number": "10",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005d1-5f17-76db-8528-05a5310c8518",
+        "01a005d1-87f2-738c-8e76-4211b0032348",
+        "01a005d1-8953-725f-8324-1171b9108ba6",
+        "01a005d1-beaf-76d4-ada4-f35e3d87c318",
+        "01a005d1-e37d-765a-ad2b-77c778e5468c",
+        "01a005d1-ef9a-736a-bbfb-5b716a225e3a",
+        "01a005d2-0f2c-7231-b342-80249bb15d4c",
+        "01a005d2-4332-741f-8fd0-bfcf0cf75312",
+        "01a005d2-4cdd-70ad-b224-5c31abfa1d2c"
+      ],
+      "playAnalysisId": "01a005d1-451e-70bd-8bb5-3c1e9240c4b5",
+      "penaltyAnalysisIds": [
+        "01a005d1-874d-7498-a828-cdb1fd6170ab"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.764Z",
+    "updatedAt": "2026-08-15T14:32:19.764Z",
+    "id": "01a005d6-8391-72fc-8852-e467ad9bf0b7"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 81,
+    "context": {
+      "gameClockMs": 63366,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 26,
+        "away": 42
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83 Violeta Alexandra Wiksten Oliver",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Mónica Rafecas Barceló",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "4 Mar Hernández Vitorique",
+        "action": "HAND_OFF",
+        "note": "stepped out of bounds on the three yard line"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Mónica Rafecas Barceló"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005d2-01d8-72f2-b9ce-1172cdf59f41",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.764Z",
+    "updatedAt": "2026-08-15T14:32:19.764Z",
+    "id": "01a005d6-8391-72fc-8852-eadadb614721"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 82,
+    "context": {
+      "gameClockMs": 61053,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 47,
+      "possessionTeamId": "w-esp",
+      "score": {
+        "home": 26,
+        "away": 42
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "83",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10",
+        "action": "PASS",
+        "intendedReceiver": "83",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "83",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "83",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#83 Violeta Oliver (6 pts)",
+      "text": "TOUCHDOWN #83 Violeta Oliver (6 pts)",
+      "from": {
+        "name": "Violeta Oliver",
+        "number": "83",
+        "teamId": "w-esp",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-esp-p18/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "number": "10"
+      },
+      "receiver": {
+        "number": "83"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005d2-6de3-742d-bea6-33ab683aaf64",
+        "01a005d2-8b7c-74d9-a350-2ec97338280c",
+        "01a005d2-efc6-77e1-9228-333c9e2d5285",
+        "01a005d3-5e3e-775f-a5ec-3d1f4e9753cc",
+        "01a005d3-743c-717b-acad-aee96a5c0058"
+      ],
+      "playAnalysisId": "01a005d2-796a-758e-afeb-c745cbe5e163",
+      "penaltyAnalysisIds": [
+        "01a005d3-0fcc-735e-840e-1fd3b191af80"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.764Z",
+    "updatedAt": "2026-08-15T14:32:19.764Z",
+    "id": "01a005d6-8391-72fc-8852-efdca3aa5f39"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 83,
+    "context": {
+      "gameClockMs": 55701,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 35,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 32,
+        "away": 42
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "note": "First down on 5-yard line",
+        "team": "Austria"
+      },
+      {
+        "id": 2,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "10 Saskia Stribrny",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Saskia Stribrny",
+        "action": "RUSH",
+        "note": "Takes a knee",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#10 Saskia Stribrny",
+      "text": "RUN #10 Saskia Stribrny",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "ballCarrier": {
+        "name": "10 Saskia Stribrny"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005d3-8569-70ac-a4ed-6c63794154f2",
+        "01a005d3-8795-74d5-821e-5dbf256a5890",
+        "01a005d3-8c8f-7067-8897-68705682769c",
+        "01a005d3-8d1e-761c-98d5-b8e9ed0794c5",
+        "01a005d3-da4f-7058-bfda-dcfca0035cbb",
+        "01a005d3-daf7-74c4-a113-811aac135b8c",
+        "01a005d3-dbff-75da-9a84-6955d36bccf3",
+        "01a005d3-dcb9-70bb-9400-42936890157d",
+        "01a005d3-ddce-7401-9484-16bc74815c97",
+        "01a005d3-de67-77fa-98d4-6f766c5ce4ba",
+        "01a005d3-df5d-702f-bf80-2f8f9f1e89d6",
+        "01a005d3-dffd-751e-8668-e0864b2378ba",
+        "01a005d3-e262-720d-ae47-36bb1e3f8099",
+        "01a005d3-e45b-766e-81a5-6f29b50dfaaa",
+        "01a005d4-044e-717c-9e3d-aac49c259f92",
+        "01a005d4-137f-7111-b087-0079df372ae5",
+        "01a005d4-14fc-72c8-b7fb-0ff19285e4c3",
+        "01a005d4-2b59-75fa-aacc-8f755ef954fa",
+        "01a005d4-2cf9-75e7-9bf1-96b1b47c3aa4",
+        "01a005d4-bc48-727d-b624-83f5e5dacd87",
+        "01a005d4-ce88-70f8-81e5-28cec202e692",
+        "01a005d4-e0af-710d-8787-3a631de59883",
+        "01a005d4-e44e-7672-94d4-975ecc1fd7f1",
+        "01a005d4-fb73-7407-a8ef-41c4b3a95031",
+        "01a005d6-82c5-77ab-a651-5bc07d59ae80"
+      ],
+      "playAnalysisId": "01a005d4-258e-759e-bb10-e5b6a2a0bc45",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.764Z",
+    "updatedAt": "2026-08-15T14:32:19.764Z",
+    "id": "01a005d6-8392-7448-aa35-e3ccbe02298b"
+  },
+  {
+    "gameId": "01a0047c-8dec-71ed-a103-f448fcbdc992",
+    "playNumber": 84,
+    "context": {
+      "gameClockMs": 55991,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 4,
+      "possessionTeamId": "w-aut",
+      "score": {
+        "home": 32,
+        "away": 42
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "65 Katrin Mansbart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Saskia Stribrny",
+        "action": "RUSH",
+        "note": "takes a knee",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#10 Saskia Stribrny",
+      "text": "RUN #10 Saskia Stribrny",
+      "from": {
+        "name": "Saskia Stribrny",
+        "number": "10",
+        "teamId": "w-aut",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-aut-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Saskia Stribrny"
+      },
+      "ballCarrier": {
+        "name": "10 Saskia Stribrny"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005d4-c254-7345-8e14-98a8c95bc5a4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T14:32:19.764Z",
+    "updatedAt": "2026-08-15T14:32:19.764Z",
+    "id": "01a005d6-8392-7448-aa35-e650ad806ec6"
+  }
+]

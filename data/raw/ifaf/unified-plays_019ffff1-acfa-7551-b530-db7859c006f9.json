@@ -1,0 +1,7973 @@
+[
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "TURNOVER",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00101-d708-775e-8368-cf915976f98c"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.014Z",
+    "updatedAt": "2026-08-15T05:53:43.014Z",
+    "id": "01a003fb-b589-730b-8d49-48fd1b26b523"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 2,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00101-db51-7611-88da-4cddee496aeb",
+        "01a00103-2a92-731a-9f2a-7053c82e9fc9",
+        "01a00103-51a2-77ce-9b20-bd5c3463f632",
+        "01a00103-5217-70bd-8f97-9e1a86ddf7f0",
+        "01a00103-609d-756b-b948-db8caa16ea91",
+        "01a00103-a5cf-707e-8a5e-78d3aea95db6",
+        "01a00103-e1f4-776d-85e6-931024dc8f3a"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-4cf5b3b59f6e"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "13 Ella Calleja",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "flagPulledBy": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00103-63ac-767a-8985-d477264de521",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-53268fb7501d"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1168453,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Karin Bernik",
+        "action": "FLAG_PULL",
+        "note": "on the 24 yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #33 Abbie Leyshon",
+      "text": "COMPLETE PASS #2 Tessa Davis → #33 Abbie Leyshon",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      },
+      "flagPulledBy": {
+        "name": "9 Karin Bernik"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00103-bc2e-7209-8207-fe8a685179e5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-56744020fa16"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 5,
+    "context": {
+      "gameClockMs": 1121206,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Green",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Green",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Green",
+        "action": "PASS",
+        "intendedReceiver": "0 Green",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "0 Green",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "0 Green",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver",
+        "team": "Australia"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#0 Amelie Prosser-Shaw (6 pts)",
+      "text": "TOUCHDOWN #0 Amelie Prosser-Shaw (6 pts)",
+      "from": {
+        "name": "Amelie Prosser-Shaw",
+        "number": "0",
+        "teamId": "w-aus"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Green"
+      },
+      "receiver": {
+        "name": "0 Green"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00104-5e59-71a8-8487-aa28fb525d3c",
+        "01a00104-7ee7-72bf-a38e-019655eb5521"
+      ],
+      "playAnalysisId": "01a00104-55d9-701d-afad-e987161aee55",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-59b2c74769b8"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 1092878,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 6,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Ella Calleja",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "13 Ella Calleja",
+        "action": "TOUCHDOWN",
+        "note": "Successful 1-point try",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#13 Ella Calleja (1 pt)",
+      "text": "TRY #13 Ella Calleja (1 pt)",
+      "from": {
+        "name": "Ella Calleja",
+        "number": "13",
+        "teamId": "w-aus"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "13 Ella Calleja"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00104-ccf6-709a-a0a4-619424839eb6",
+        "01a00104-cd6d-771d-b004-85cbb8faefc4"
+      ],
+      "playAnalysisId": "01a00104-e4cc-76c9-9cba-68bf92defc69",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-5ddc08fb9f69"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 1087502,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Slovenia"
+      },
+      {
+        "id": 2,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "10 Lana Protega",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #10 Lana Protega",
+      "text": "COMPLETE PASS #32 Karin Lah → #10 Lana Protega",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Lana Protega",
+        "number": "10",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "10 Lana Protega"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00104-e1f6-7561-bdd1-a6f713d4b5ed",
+        "01a00105-0f31-758e-8005-d538a470698c",
+        "01a00105-63fe-7591-bbb4-6d147346f0d3",
+        "01a00105-7e98-74ef-9abe-5450dd226bd5",
+        "01a00105-c584-7221-9ce6-952acb95127f",
+        "01a00105-cb77-766b-a128-a1198bd413b5",
+        "01a00106-6c3f-7678-aa24-d057385d81f4",
+        "01a00106-94e3-73fa-9c3b-afbff400180b"
+      ],
+      "playAnalysisId": "01a00105-7955-7032-a722-099028dba499",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-617893fae673"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 8,
+    "context": {
+      "gameClockMs": 1047503,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00105-dcfb-71b7-aba7-0b5bdd196a2a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-678059f6ced2"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 9,
+    "context": {
+      "gameClockMs": 1027811,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "87 Astrid Kuhelj",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "87 Astrid Kuhelj",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #87 Astrid Kuhelj",
+      "text": "COMPLETE PASS #32 Karin Lah → #87 Astrid Kuhelj",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Astrid Kuhelj",
+        "number": "87",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "87 Astrid Kuhelj"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00106-4df7-748c-bbe3-222e65bfdeb5",
+      "penaltyAnalysisIds": [
+        "01a00106-82d4-71de-b9f4-619aeacfaad8"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-6bf5dd688f2a"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 10,
+    "context": {
+      "gameClockMs": 951306,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Blue",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Blue",
+        "action": "PASS",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      },
+      {
+        "id": 5,
+        "player": "32 Blue",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#32 Karin Lah → #7 Zoe Cass",
+      "text": "INTERCEPTION #32 Karin Lah → #7 Zoe Cass",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Zoe Cass",
+        "number": "7",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Blue"
+      },
+      "interceptedBy": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "name": "32 Blue"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00106-f5ff-77cf-b906-56f6ab47d778"
+      ],
+      "playAnalysisId": "01a00107-180d-769e-98dc-f380e03ca818",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-6cb57218849e"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 11,
+    "context": {
+      "gameClockMs": 949806,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00106-fbb7-72ef-beb1-8ee11f9a0eff",
+        "01a00107-177f-764a-bfce-0f84ff4c8d19",
+        "01a00107-1836-7718-8c82-b36ae6e0f234",
+        "01a00107-18ac-7540-89ec-24a5443c3c70",
+        "01a00107-1908-705a-91cd-e9e1f0d51bf9",
+        "01a00107-3c4d-76cd-be13-ed65be49f454",
+        "01a00107-4233-721b-8b2a-a8d820e10a9c"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-70594ad0f0bc"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 12,
+    "context": {
+      "gameClockMs": 912624,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 44,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "TOUCHDOWN"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#4 Elizabeth Lomu-Stewart (6 pts)",
+      "text": "TOUCHDOWN #4 Elizabeth Lomu-Stewart (6 pts)",
+      "from": {
+        "name": "Elizabeth Lomu-Stewart",
+        "number": "4",
+        "teamId": "w-aus"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "4 Elizabeth Lomu-Stewart"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00107-8d16-74ec-8752-dd9322636863",
+        "01a00107-ad5c-765b-ae96-c6ba8218a02e"
+      ],
+      "playAnalysisId": "01a00107-a93d-777f-b63f-b3027c5d50f8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-74ad6233d488"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 871300,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP1",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00108-2e8d-773a-8c28-21f270059bf9",
+        "01a00108-2ef6-72fe-8780-a0490a76011f"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b589-730b-8d49-78c07afe4267"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 868149,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 14,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#4 Elizabeth Lomu-Stewart (6 pts)",
+      "text": "TOUCHDOWN #4 Elizabeth Lomu-Stewart (6 pts)",
+      "from": {
+        "name": "Elizabeth Lomu-Stewart",
+        "number": "4",
+        "teamId": "w-aus"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "4 Elizabeth Lomu-Stewart"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00108-3ab9-7496-8ce9-964e825c55c5",
+        "01a00108-5014-71b9-a50d-12569472dae0",
+        "01a00108-5072-72e3-beac-42fae4b1b930"
+      ],
+      "playAnalysisId": "01a00108-51e0-725a-ae5a-5ad77bf962e2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b58a-76bc-902f-fabf620d8f44"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 15,
+    "context": {
+      "gameClockMs": 835279,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 14,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36 Živa Kramžar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Olivia White",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      },
+      {
+        "id": 5,
+        "player": "32 Karin Lah",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#32 Karin Lah → #5 Olivia White",
+      "text": "INTERCEPTION #32 Karin Lah → #5 Olivia White",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Olivia White",
+        "number": "5",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "interceptedBy": {
+        "name": "5 Olivia White"
+      },
+      "flagPulledBy": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00108-bb45-72ac-a080-f1aa69cd16b7"
+      ],
+      "playAnalysisId": "01a00108-c9b4-73eb-997a-28427a93306c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b58a-76bc-902f-fd5a857805ec"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 16,
+    "context": {
+      "gameClockMs": 831970,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 14,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis Green",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis Green",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis Green",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "note": "Deflection by 9 Karin Bernik",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis Green"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00108-c809-721b-ab19-cbd1cfbb6244",
+        "01a00108-e20b-755f-9c6c-3552749b2ce0",
+        "01a00108-e275-74f2-a49b-8f99f226deb6",
+        "01a00108-e4d4-77b9-9255-8531cf916007",
+        "01a00109-3da9-72e7-bf37-a49b5d8be86d",
+        "01a00109-4df1-7419-8142-4b78297d4d48",
+        "01a0010a-4d9c-732f-9398-f427ff7751e2"
+      ],
+      "playAnalysisId": "01a00109-6c5f-7647-92fb-e381bf300bba",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.015Z",
+    "updatedAt": "2026-08-15T05:53:43.015Z",
+    "id": "01a003fb-b58a-76bc-9030-00ed67c81bb7"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 780129,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 47,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 14,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "33 Abbie Leyshon",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver",
+        "team": "Australia"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#33 Abbie Leyshon (6 pts)",
+      "text": "TOUCHDOWN #33 Abbie Leyshon (6 pts)",
+      "from": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0010a-9332-7211-bfa4-892238e53d38",
+        "01a0010a-a815-712c-9f0f-139f42b6ef1f"
+      ],
+      "playAnalysisId": "01a0010a-a125-75ea-b4d9-837c722b873e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58a-76bc-9030-0730250dc2a6"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 18,
+    "context": {
+      "gameClockMs": 746685,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 20,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP1",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0010b-15d4-76ee-8ae5-5e267935b829",
+        "01a0010b-1631-708b-97b7-020ac824411e"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58a-76bc-9030-0b5f6b12ec48"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 19,
+    "context": {
+      "gameClockMs": 743819,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 21,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Slovenia"
+      },
+      {
+        "id": 2,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "87 Astrid Kuhelj",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "87 Astrid Kuhelj",
+        "action": "PASS",
+        "intendedReceiver": "11 Nika Vreš",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "11 Nika Vreš",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "12 Jasmyn Vera",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#87 Astrid Kuhelj → #11 Nika Vreš",
+      "text": "COMPLETE PASS #87 Astrid Kuhelj → #11 Nika Vreš",
+      "from": {
+        "name": "Astrid Kuhelj",
+        "number": "87",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Nika Vreš",
+        "number": "11",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "87 Astrid Kuhelj"
+      },
+      "receiver": {
+        "name": "11 Nika Vreš"
+      },
+      "flagPulledBy": {
+        "name": "12 Jasmyn Vera"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0010b-20cf-704f-a068-ba866654ff4f",
+        "01a0010b-36a5-7522-a437-f3b5b5f71779",
+        "01a0010b-370b-725b-bc7d-41f75f364466",
+        "01a0010b-8e4f-761f-bfde-fbcc5d5d2d5c",
+        "01a0010b-a52f-714f-9e8b-a0bc28e48c06",
+        "01a0010b-dacd-75cf-959d-e8923998187e"
+      ],
+      "playAnalysisId": "01a0010b-bbf0-761f-8164-68ae474a1676",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58a-76bc-9030-0f1f8dd06405"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 656976,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 12,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 21,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "11 Nika Vreš",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "11 Nika Vreš",
+        "role": "Quarterback"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0010c-742b-730f-a583-1ce9931abe3d"
+      ],
+      "playAnalysisId": "01a0010c-37aa-708a-b06a-d7a9000d1d37",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58a-76bc-9030-121e2b4de7d0"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 21,
+    "context": {
+      "gameClockMs": 656057,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 12,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 21,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "87 Astrid Kuhelj",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Olivia White",
+        "action": "INTERCEPTION",
+        "note": "on the minus 21 yard line",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#32 Karin Lah → #5 Olivia White",
+      "text": "INTERCEPTION #32 Karin Lah → #5 Olivia White",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Olivia White",
+        "number": "5",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "interceptedBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0010c-77a1-7422-b788-e811d0a50f5b",
+        "01a0010c-8d20-7051-87b9-f96d7994961d",
+        "01a0010d-28ca-7149-b4d5-87847bda032d",
+        "01a0010d-293c-726a-974a-2d84e92f996b",
+        "01a0010d-7d86-70af-a22b-0164a3296070",
+        "01a0010d-92bb-703d-827b-f35b6f054041"
+      ],
+      "playAnalysisId": "01a0010c-94ba-76cf-83cb-84515628e780",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58a-76bc-9030-153699ea0c8a"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 22,
+    "context": {
+      "gameClockMs": 650599,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 21,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "32",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2",
+        "action": "PASS",
+        "intendedReceiver": "13",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #13 Ella Calleja",
+      "text": "COMPLETE PASS #2 Tessa Davis → #13 Ella Calleja",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Ella Calleja",
+        "number": "13",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "2"
+      },
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "9"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0010d-291f-75eb-8e06-9cd7f4d23436",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58a-76bc-9030-1909941dacdf"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 23,
+    "context": {
+      "gameClockMs": 610587,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 21,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "32 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "15 Iza Cvetko",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #15 Kyana Belo",
+      "text": "COMPLETE PASS #2 Tessa Davis → #15 Kyana Belo",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "15 Kyana Gordon Belo"
+      },
+      "flagPulledBy": {
+        "name": "15 Iza Cvetko"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0010d-9368-744a-a592-c8ea68947a81",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-95f1a90afca9"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 24,
+    "context": {
+      "gameClockMs": 548973,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 41,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 21,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback",
+        "team": "Australia"
+      },
+      {
+        "id": 4,
+        "player": "27 Georgia Cottle",
+        "action": "COMPLETE",
+        "role": "Wide receiver",
+        "team": "Australia"
+      },
+      {
+        "id": 5,
+        "player": "27 Georgia Cottle",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver",
+        "team": "Australia"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#27 Georgia Cottle (6 pts)",
+      "text": "TOUCHDOWN #27 Georgia Cottle (6 pts)",
+      "from": {
+        "name": "Georgia Cottle",
+        "number": "27",
+        "teamId": "w-aus"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "27 Georgia Cottle"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0010e-1a0a-76b7-9d8a-73fa6d3748f4",
+        "01a0010e-328a-76fc-9a51-a747c41778de"
+      ],
+      "playAnalysisId": "01a0010e-32b3-7748-83c7-a8ec74ecdb3e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-9afdd00de730"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 25,
+    "context": {
+      "gameClockMs": 508185,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0010e-b94f-708c-85df-c8d899d9b52d",
+        "01a0010e-b9aa-75de-b950-ba9998e135d9",
+        "01a0010e-cf58-76d4-99b2-91c41bf8acc3",
+        "01a0010e-cfc4-751c-b139-985e5ae676b1",
+        "01a0010e-fbbf-748b-a9c3-a0df3955b106",
+        "01a0010f-f3b6-76cb-b8e2-03bd33619dc9",
+        "01a00110-1563-704b-9211-4ac537ef682b",
+        "01a00110-2a5e-728a-9277-e81a70512436",
+        "01a00110-6dce-71c8-a8fa-e152627c6be3",
+        "01a00110-8964-73a8-bea2-19dd256f765b",
+        "01a00110-e871-7608-8b16-06bfa800c5b3",
+        "01a00110-f308-77a5-ab3c-17c1aad2ce27"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-9c372ed4729a"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 26,
+    "context": {
+      "gameClockMs": 491490,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Slovenia"
+      },
+      {
+        "id": 2,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "11 Nika Vreš",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "11 Nika Vreš",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "1 Ashleigh Werner",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #11 Nika Vreš",
+      "text": "COMPLETE PASS #32 Karin Lah → #11 Nika Vreš",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Nika Vreš",
+        "number": "11",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "11 Nika Vreš"
+      },
+      "flagPulledBy": {
+        "name": "1 Ashleigh Werner"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00110-382e-717f-9e4a-22a702182b0a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-a331f953b24b"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 27,
+    "context": {
+      "gameClockMs": 460231,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "82 blue",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "82 blue",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "7 Amira Elkanawati",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #82",
+      "text": "COMPLETE PASS #32 Karin Lah → #82",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "number": "82"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "82 blue"
+      },
+      "flagPulledBy": {
+        "name": "7 Amira Elkanawati"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00110-9bc2-73a9-8872-a7103a00c577",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-a6dc35408976"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 28,
+    "context": {
+      "gameClockMs": 428840,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "87 Astrid Kuhelj",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "87 Astrid Kuhelj",
+        "note": "on the right side",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00110-face-70bd-97e7-234936188aa0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-a90d665a2e94"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 29,
+    "context": {
+      "gameClockMs": 404356,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 18,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "77",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "32",
+        "action": "PASS",
+        "intendedReceiver": "77",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "77",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #77 Kaja Koncilija",
+      "text": "COMPLETE PASS #32 Karin Lah → #77 Kaja Koncilija",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Kaja Koncilija",
+        "number": "77",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "77"
+      },
+      "receiver": {
+        "number": "77"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00111-4818-71ee-a74d-4671cb73b051",
+        "01a00111-6022-70ca-8a85-b47aea782eaa",
+        "01a00111-6091-77bb-89b4-c86d243d6d10",
+        "01a00111-f95e-7539-959a-d7d79cc830f3"
+      ],
+      "playAnalysisId": "01a00111-8185-77e6-9c97-f9c4beec050a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-afe11c1029fd"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 30,
+    "context": {
+      "gameClockMs": 359236,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 32,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36 Živa Kramžar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "28 Tia Govejsek",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "28 Tia Govejsek",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "28 Tia Govejsek",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#28 Tia Govejšek (6 pts)",
+      "text": "TOUCHDOWN #28 Tia Govejšek (6 pts)",
+      "from": {
+        "name": "Tia Govejšek",
+        "number": "28",
+        "teamId": "w-slo"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "28 Tia Govejsek"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00112-3ddc-756b-a708-58df21a96878",
+        "01a00112-54ba-772e-a587-8913eaef9227",
+        "01a00112-7575-7744-a319-7acc00394619"
+      ],
+      "playAnalysisId": "01a00112-5bec-725d-95b8-b5bb0091dbd9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-b0fca2f34bb5"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 31,
+    "context": {
+      "gameClockMs": 342087,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32",
+        "action": "PASS",
+        "intendedReceiver": "9",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#9 Karin Bernik (1 pt)",
+      "text": "TRY #9 Karin Bernik (1 pt)",
+      "from": {
+        "name": "Karin Bernik",
+        "number": "9",
+        "teamId": "w-slo"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "number": "32"
+      },
+      "receiver": {
+        "number": "9"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00112-b876-7305-be0d-d9d2269da7d4",
+        "01a00112-b8e9-75be-927e-41df4a13b51e"
+      ],
+      "playAnalysisId": "01a00112-dc23-710c-84fd-2714fd7a4224",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-b6a18a97ea4f"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 32,
+    "context": {
+      "gameClockMs": 336691,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Georgia Cottle",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Kyana Gordon Belo",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "28 Tia Govejšek",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "flagPulledBy": {
+        "name": "28 Tia Govejšek"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00112-cd7c-7519-a02f-6c5175b48fcb",
+        "01a00112-e171-720b-b734-067428bc9d8e",
+        "01a00112-e1e4-7788-9fff-e7c8e831b924",
+        "01a00113-1b6c-739f-9c56-687257cb5af1",
+        "01a00113-32a5-718d-bd31-5638192bdb8e",
+        "01a00113-98f8-72c9-b825-561a0841628b",
+        "01a00113-ab62-7773-94e0-5ee87c680f44"
+      ],
+      "playAnalysisId": "01a00113-3fef-764f-94bc-761b4dc7bec0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-b9afc4576867"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 33,
+    "context": {
+      "gameClockMs": 310810,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Georgia Cottle",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Kyana Gordon Belo",
+        "action": "HAND_OFF",
+        "role": "Rusher",
+        "team": "Australia"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00113-ba51-7517-b5c6-6f3876ef488c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-bcf42671aa01"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 34,
+    "context": {
+      "gameClockMs": 246225,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 24,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Georgia Cottle",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "0 Amelie Prosser-Shaw",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "28 Tia Govejsek",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #0 Amelie Prosser-Shaw",
+      "text": "COMPLETE PASS #2 Tessa Davis → #0 Amelie Prosser-Shaw",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Amelie Prosser-Shaw",
+        "number": "0",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "0 Amelie Prosser-Shaw"
+      },
+      "flagPulledBy": {
+        "name": "28 Tia Govejsek"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00114-2eec-727e-a2d9-22e76782b119",
+        "01a00114-473d-730f-9f00-47814ba9c0da",
+        "01a00114-4798-70fb-a43a-a29e2cd91e4c",
+        "01a00114-f9e2-7713-9679-4ca76641c6fc",
+        "01a00115-0f7e-7167-851e-46a2ed832c8b",
+        "01a00115-9f2a-73f5-992e-8d1ccd81e63e",
+        "01a00115-af7f-74ca-b415-ecb3b238af85",
+        "01a00116-1d40-7069-bd60-43aece08291c",
+        "01a00116-25b3-739a-a74a-c4fe379fe7c3",
+        "01a00116-5e23-7155-b885-3a428cfca001",
+        "01a00116-6c35-76d9-8d9f-e55aa762d210",
+        "01a00116-83c3-7798-a48a-f68ae5c93db4",
+        "01a00117-03ea-7149-b653-f1f878e9f97b",
+        "01a00117-2395-7598-9a49-addffafecd4c"
+      ],
+      "playAnalysisId": "01a00114-5360-718d-95f9-8f173e1eb703",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-c164a031ca76"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 35,
+    "context": {
+      "gameClockMs": 239861,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Georgia Cottle",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00114-ce62-7167-8bc5-875ddf2f0a32",
+      "penaltyAnalysisIds": [
+        "01a00115-1e93-7680-a7f4-bf4b437e1f3d"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-c5ad972a3ae0"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 36,
+    "context": {
+      "gameClockMs": 188732,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Georgia Cottle",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "27 Georgia Cottle",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "27 Georgia Cottle",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "15 Iza Cvetko",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #27 Georgia Cottle",
+      "text": "COMPLETE PASS #2 Tessa Davis → #27 Georgia Cottle",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Georgia Cottle",
+        "number": "27",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "27 Georgia Cottle"
+      },
+      "flagPulledBy": {
+        "name": "15 Iza Cvetko"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00115-c313-774f-aeda-381d6d62034b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.016Z",
+    "updatedAt": "2026-08-15T05:53:43.016Z",
+    "id": "01a003fb-b58b-7679-ab13-c863e3c8403a"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 37,
+    "context": {
+      "gameClockMs": 117349,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Green",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Green",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Green",
+        "action": "PASS",
+        "intendedReceiver": "27 Green",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Green",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "27 Green",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Green"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00116-9105-770c-8725-f6c7a3f336d7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58c-76f8-bd17-527a49cff48b"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 38,
+    "context": {
+      "gameClockMs": 109598,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 31,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Georgia Cottle",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "77 Kaja Koncilija",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#2 Tessa Davis → #77 Kaja Koncilija",
+      "text": "INTERCEPTION #2 Tessa Davis → #77 Kaja Koncilija",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Kaja Koncilija",
+        "number": "77",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "interceptedBy": {
+        "name": "77 Kaja Koncilija"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00117-56d2-77bb-ac4e-b231ce8d193b"
+      ],
+      "playAnalysisId": "01a00117-6b85-707d-ac68-92189cc7e8a2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58c-76f8-bd17-57a465760c37"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 39,
+    "context": {
+      "gameClockMs": 109598,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 31,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36 Živa Kramžar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "note": "Intended receiver number 10 Blue"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00117-5898-700f-a9f6-a6b257689543",
+        "01a00117-6b9a-77e7-a8f0-8e32cd3136be",
+        "01a00117-6c19-72f9-827c-03f0adfbe1a6",
+        "01a00117-6f26-701c-9860-44856a9d7ee1",
+        "01a00117-9fc9-73b5-80d4-1f0d4ff83ecc",
+        "01a00117-b066-7489-9914-0a25eb156e96",
+        "01a00117-e97e-7309-a1bd-203518b02146",
+        "01a00118-27aa-72cc-9071-2a2ee20440d7",
+        "01a00118-3b8f-777c-a8c8-af369c5ed555",
+        "01a00118-5e78-704d-b4ec-c0a648d68ac5",
+        "01a00118-a7af-704f-bcfe-8eef98deea6d",
+        "01a00118-b9fa-7773-9704-eaf29be7a545",
+        "01a00118-fa6e-7268-bf73-4a0a0ade354c",
+        "01a00119-4c9d-751f-8e68-64a2d3646c7d",
+        "01a00119-5fbd-74ce-87a4-723de980be37"
+      ],
+      "playAnalysisId": "01a00117-e357-72cf-b814-3188af7c7722",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58c-76f8-bd17-59f1177a5cdd"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 40,
+    "context": {
+      "gameClockMs": 105601,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32",
+        "action": "PASS",
+        "intendedReceiver": "11",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "11"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "32"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00118-5fc3-755b-958a-2ff674804d4c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58c-76f8-bd17-5dcd7d246183"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 41,
+    "context": {
+      "gameClockMs": 96209,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "28 Tia Govejšek",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "28 Tia Govejšek",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00118-e274-73a9-a041-3a5b96820306",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58c-76f8-bd17-6207e3d812b7"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 42,
+    "context": {
+      "gameClockMs": 91412,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Lana Protega"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00119-7e04-754e-a70a-6b03d54ac8cd"
+      ],
+      "playAnalysisId": "01a00119-8710-770b-b108-9e82250f34ee",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58c-76f8-bd17-66778edb863e"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 43,
+    "context": {
+      "gameClockMs": 91412,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00119-81cf-750a-ab0a-6e8f85dde9d7",
+        "01a00119-d28c-7200-b33f-ea1762b845df",
+        "01a00119-e5c2-7799-9331-b56ba2903fef",
+        "01a00119-f83b-75ea-a417-07f79877fa0e",
+        "01a0011a-2ee7-7203-8472-67702fc8afba",
+        "01a0011a-4fc4-73fc-a9dc-958a36dffac9",
+        "01a0011a-61bc-7015-83b8-12d7bbd70b20",
+        "01a0011a-787e-75ac-a052-87e108b74387",
+        "01a0011a-8b7a-763d-9d8e-1aaaf2df5f9b",
+        "01a0011a-d106-76fa-8162-76299aac2345",
+        "01a0011a-e402-7509-bfee-ab9f168ea370",
+        "01a0011a-f0aa-7545-9ecb-6d54daa14baf",
+        "01a0011b-0c63-7585-aca2-a31975c6a95c",
+        "01a0011b-5ae0-70c8-b55f-7360b8a53228",
+        "01a0011b-6ab3-72ec-8bff-06fbf30e2718"
+      ],
+      "playAnalysisId": "01a0011a-11c4-75c8-aa8c-0a349b985134",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58c-76f8-bd17-6a2490c41dd8"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 44,
+    "context": {
+      "gameClockMs": 83956,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Ella Calleja",
+        "action": "COMPLETE",
+        "note": "Stepped out of bounds on the 14 yard line",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #13 Ella Calleja",
+      "text": "COMPLETE PASS #2 Tessa Davis → #13 Ella Calleja",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Ella Calleja",
+        "number": "13",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "13 Ella Calleja"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0011a-8b5b-7491-aa29-5bd111b174e5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58c-76f8-bd17-6f42a722715d"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 45,
+    "context": {
+      "gameClockMs": 79412,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "15 Iza Cvetko",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #33 Abbie Leyshon",
+      "text": "COMPLETE PASS #2 Tessa Davis → #33 Abbie Leyshon",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      },
+      "flagPulledBy": {
+        "name": "15 Iza Cvetko"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0011b-02a7-7120-9baa-0a61838e6815",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58c-76f8-bd17-71261a3e2399"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 46,
+    "context": {
+      "gameClockMs": 75582,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #33 Abbie Leyshon",
+      "text": "COMPLETE PASS #2 Tessa Davis → #33 Abbie Leyshon",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0011b-aa4c-77de-985c-bbdcbd62c9a8",
+        "01a0011b-c1cc-71bb-9672-d2c7876de1ff",
+        "01a0011b-c26d-75ca-b029-5cf239d8019a",
+        "01a0011c-0206-747c-b1d2-37281bf9783b",
+        "01a0011c-1a27-77ff-bbba-31e4b982ec9a",
+        "01a0011c-671e-76d8-95c2-e8cdd0ca33c3",
+        "01a0011c-b49a-72dd-b843-631adcf3c31e",
+        "01a0011c-c2a1-76fb-8b2d-6b9f93a077ef",
+        "01a0011c-cb6e-70c4-b01a-1b9b23a05926",
+        "01a0011d-5645-76ac-a676-b210c7ec509b",
+        "01a0011d-9399-71f4-b5f6-1fed3b229659",
+        "01a0011d-aff4-71fd-8422-c65667f35f26",
+        "01a0011e-0ce8-77ad-bbbe-bdf89d69a9e4",
+        "01a0011e-2aeb-735d-928f-d0a5eecc6442",
+        "01a0011e-39bf-766f-9e9b-c82a9158c507",
+        "01a0011f-1199-703e-a3fc-c348abd85e23",
+        "01a0011f-21e7-7567-a587-5ac884f457d2"
+      ],
+      "playAnalysisId": "01a0011b-a389-70fd-8483-016ec2074188",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58d-731b-9b6e-053819bef21f"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 47,
+    "context": {
+      "gameClockMs": 75582,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0011c-3525-765f-ab10-6201dea19fc0",
+      "penaltyAnalysisIds": [
+        "01a0011c-7073-759a-93ed-673a742aa7d2"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58d-731b-9b6e-0aec9bd61d19"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 48,
+    "context": {
+      "gameClockMs": 66415,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0011c-f5b5-747f-a823-14e377a7d4d7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58d-731b-9b6e-0cdac721681f"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 49,
+    "context": {
+      "gameClockMs": 50708,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "note": "Backward pass",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Ella Calleja",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "13 Ella Calleja",
+        "action": "RUSH",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "77 Kaja Koncilija",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #13 Ella Calleja",
+      "text": "COMPLETE PASS #2 Tessa Davis → #13 Ella Calleja",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Ella Calleja",
+        "number": "13",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "ballCarrier": {
+        "name": "13 Ella Calleja"
+      },
+      "receiver": {
+        "name": "13 Ella Calleja"
+      },
+      "flagPulledBy": {
+        "name": "77 Kaja Koncilija"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0011d-bbaa-708f-b63f-32a01c3b9a49",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.017Z",
+    "updatedAt": "2026-08-15T05:53:43.017Z",
+    "id": "01a003fb-b58d-731b-9b6e-12eb1018a232"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 50,
+    "context": {
+      "gameClockMs": 43469,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Elizabeth Lomu-Stewart",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0011e-3b1a-7128-b9e5-547baa8a2a25",
+      "penaltyAnalysisIds": [
+        "01a0011e-71f7-74cb-b4d7-6200adc58ac2"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.018Z",
+    "updatedAt": "2026-08-15T05:53:43.018Z",
+    "id": "01a003fb-b58d-731b-9b6e-15a01373401b"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 51,
+    "context": {
+      "gameClockMs": 15863,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 27,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "0 Amelie Prosser-Shaw",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "0 Amelie Prosser-Shaw",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#0 Amelie Prosser-Shaw (6 pts)",
+      "text": "TOUCHDOWN #0 Amelie Prosser-Shaw (6 pts)",
+      "from": {
+        "name": "Amelie Prosser-Shaw",
+        "number": "0",
+        "teamId": "w-aus"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "0 Amelie Prosser-Shaw"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0011f-333e-774d-9c19-5225de51aef1",
+        "01a0011f-5a46-7279-b994-1989cb52161d"
+      ],
+      "playAnalysisId": "01a0011f-4584-72fc-8fb7-4b545ed138f7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.018Z",
+    "updatedAt": "2026-08-15T05:53:43.018Z",
+    "id": "01a003fb-b58d-731b-9b6e-1bad407058f7"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 52,
+    "context": {
+      "gameClockMs": 15863,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 33,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "87 Astrid Kuhelj",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "RUSH",
+        "role": "Quarterback",
+        "team": "Slovenia"
+      }
+    ],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#32 Karin Lah",
+      "text": "RUN #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "ballCarrier": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0011f-c1e8-7676-ae74-309f296e7410",
+        "01a0011f-c247-71f5-b4bc-8e5f5ee46bd4",
+        "01a0011f-d5d9-73d9-8b7d-3c73e960c78f",
+        "01a0011f-d66d-7668-8261-7c077ba8153b",
+        "01a00120-394d-772f-b361-7d8a9f62495b",
+        "01a00120-8c48-735a-9b4f-5f56bdeacf56",
+        "01a00120-8cb2-772d-bbdf-4c2eb51cfff5"
+      ],
+      "playAnalysisId": "01a00120-605a-779a-ae7f-a060e3edc045",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.018Z",
+    "updatedAt": "2026-08-15T05:53:43.018Z",
+    "id": "01a003fb-b58d-731b-9b6e-1f3869362524"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 53,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 33,
+        "away": 7
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "TURNOVER",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00120-da13-7358-bbbe-5972e67ff8a0"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.018Z",
+    "updatedAt": "2026-08-15T05:53:43.018Z",
+    "id": "01a003fb-b58d-731b-9b6e-21d9e656bf47"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 54,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 33,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "team": "Slovenia"
+      },
+      {
+        "id": 2,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "10 Lana Protega",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #10 Lana Protega",
+      "text": "COMPLETE PASS #32 Karin Lah → #10 Lana Protega",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Lana Protega",
+        "number": "10",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "10 Lana Protega"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00124-3468-7576-8cff-62e4423e47c6",
+        "01a00124-c077-73ff-94dd-820d8f74ed4f",
+        "01a00124-d9fc-7796-8c71-392bfdca4b86",
+        "01a00124-f304-730c-831d-09f575eb5e8a",
+        "01a00125-4999-7475-b595-6d4b05640776",
+        "01a00125-5425-7634-a75f-ee2e6104a7f5"
+      ],
+      "playAnalysisId": "01a00124-ed75-7698-b38f-91bcd824d5fd",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.018Z",
+    "updatedAt": "2026-08-15T05:53:43.018Z",
+    "id": "01a003fb-b58d-731b-9b6e-255ca0d8c311"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 55,
+    "context": {
+      "gameClockMs": 1164836,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 33,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Lana Protega",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #10 Lana Protega",
+      "text": "COMPLETE PASS #32 Karin Lah → #10 Lana Protega",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Lana Protega",
+        "number": "10",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "10 Lana Protega"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00125-5fc9-7696-b8b6-d8a52ed7199e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.018Z",
+    "updatedAt": "2026-08-15T05:53:43.018Z",
+    "id": "01a003fb-b58e-705e-a77e-aecc119361b7"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 56,
+    "context": {
+      "gameClockMs": 1125922,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 18,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 33,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Olivia White",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      },
+      {
+        "id": 5,
+        "player": "10 Lana Protega",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#32 Karin Lah → #5 Olivia White",
+      "text": "INTERCEPTION #32 Karin Lah → #5 Olivia White",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Olivia White",
+        "number": "5",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "interceptedBy": {
+        "name": "5 Olivia White"
+      },
+      "flagPulledBy": {
+        "name": "10 Lana Protega"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00125-e1a2-736a-93b2-e5089beb545a"
+      ],
+      "playAnalysisId": "01a00125-fc14-70fa-b3d8-8473a67d1541",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.018Z",
+    "updatedAt": "2026-08-15T05:53:43.018Z",
+    "id": "01a003fb-b58e-705e-a77e-b3378e08f729"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 57,
+    "context": {
+      "gameClockMs": 1124147,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 18,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 33,
+        "away": 7
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "sources": {
+      "gameEventIds": [
+        "01a00125-e872-738e-a9e0-f1c25a58ff91",
+        "01a00126-07de-728f-a74b-a66f2f622d5f",
+        "01a00126-6be2-754f-b61e-f1b33e983458",
+        "01a00126-6c5a-774a-b97e-3752c91064a8",
+        "01a00126-ca7f-724c-afb9-18b1619f068e",
+        "01a00126-e886-719c-8de4-8e110d52790f",
+        "01a00127-347f-76a4-a2c2-e3855b2bfc21"
+      ],
+      "penaltyAnalysisIds": [
+        "01a00126-9414-74a6-81e4-489045a83583"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-b5687e72cad4"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 58,
+    "context": {
+      "gameClockMs": 1090367,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 33,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Georgia Cottle",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "15 Kyana Gordon Belo",
+        "action": "RUSH"
+      }
+    ],
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #15 Kyana Belo",
+      "text": "COMPLETE PASS #2 Tessa Davis → #15 Kyana Belo",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "ballCarrier": {
+        "name": "15 Kyana Gordon Belo"
+      },
+      "receiver": {
+        "name": "15 Kyana Gordon Belo"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00126-f807-7538-96d4-612c4174e3da",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-bbca49245582"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 59,
+    "context": {
+      "gameClockMs": 1058624,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 33,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Georgia Cottle",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00127-4d5d-74e9-82d8-d4c03c1819f6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-bec6dee52fcf"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 60,
+    "context": {
+      "gameClockMs": 996888,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 37,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 33,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "27 Georgia Cottle",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "0 Amelie Prosser-Shaw",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "0 Amelie Prosser-Shaw",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#0 Amelie Prosser-Shaw (6 pts)",
+      "text": "TOUCHDOWN #0 Amelie Prosser-Shaw (6 pts)",
+      "from": {
+        "name": "Amelie Prosser-Shaw",
+        "number": "0",
+        "teamId": "w-aus"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "0 Amelie Prosser-Shaw"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00127-d9b1-762f-9c25-6150d1a6e7f1",
+        "01a00127-fc41-70f3-949a-01611da6f8ac"
+      ],
+      "playAnalysisId": "01a00127-f5e2-701d-b12d-b527d9dc0811",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-c1509e53543e"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 61,
+    "context": {
+      "gameClockMs": 951588,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "note": "First down Slovenia",
+        "role": "Statistician",
+        "team": "Slovenia"
+      },
+      {
+        "id": 2,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "7 Amira Elkanawati",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "7 Amira Elkanawati",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "7 Zoe Cass",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #7 Amira Elkanawati",
+      "text": "COMPLETE PASS #32 Karin Lah → #7 Amira Elkanawati",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Amira Elkanawati",
+        "number": "7",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "7 Amira Elkanawati"
+      },
+      "flagPulledBy": {
+        "name": "7 Zoe Cass"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00128-8a7b-7563-9ce2-1f487c98a1cd",
+        "01a00128-8ad6-774d-b3d7-afe0a6d888dd",
+        "01a00128-a198-77d3-9046-06b4e702ab9b",
+        "01a00128-a1f2-7109-b96f-b436ed1f5a44",
+        "01a00129-0180-7630-87b2-a1237da74511",
+        "01a00129-1687-74ca-8e40-786ee282d5cd"
+      ],
+      "playAnalysisId": "01a00129-2246-7514-8bae-7aff78787f57",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-c5518e7add1b"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 62,
+    "context": {
+      "gameClockMs": 893557,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 12,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "10 Lana Protega",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #10 Lana Protega",
+      "text": "COMPLETE PASS #32 Karin Lah → #10 Lana Protega",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Lana Protega",
+        "number": "10",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "10 Lana Protega"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00129-6d56-73b6-8ab4-2d8362baa680",
+        "01a00129-967f-7271-92ad-7093392c531b",
+        "01a00129-96f4-764d-b222-6195ae73c005",
+        "01a00129-fb86-750d-973a-e5e32dc86f4e",
+        "01a0012a-14c0-75f0-8f20-1af12a14a133",
+        "01a0012a-99b7-74d7-85c4-d4ecfd69fcfc",
+        "01a0012a-dd58-7203-93e9-cc5c37cda48b"
+      ],
+      "playAnalysisId": "01a00129-8c44-70bc-86e0-c36cae3e934e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-c81188452db5"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 63,
+    "context": {
+      "gameClockMs": 893557,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Lana Protega",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "LATERAL",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "role": "Quarterback",
+        "team": "Slovenia"
+      },
+      {
+        "id": 6,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense",
+        "team": "Australia"
+      }
+    ],
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Lana Protega"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0012a-1c1c-713e-bd32-e16c02186b49",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-cff1ca04b12b"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 64,
+    "context": {
+      "gameClockMs": 840211,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 34,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 7
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Blue",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Blue",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Blue",
+        "action": "PASS",
+        "intendedReceiver": "77 Blue",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "77 Blue",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "77 Blue",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#77 Kaja Koncilija (6 pts)",
+      "text": "TOUCHDOWN #77 Kaja Koncilija (6 pts)",
+      "from": {
+        "name": "Kaja Koncilija",
+        "number": "77",
+        "teamId": "w-slo"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Blue"
+      },
+      "receiver": {
+        "name": "77 Blue"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0012a-e676-706a-99ae-1bdda4585bac",
+        "01a0012b-79fc-756f-9ade-ae3dc0001084",
+        "01a0012b-9cd7-7448-a1c9-d06c4bf4072a",
+        "01a0012b-a2d0-7113-9120-021cc9a0e141"
+      ],
+      "playAnalysisId": "01a0012a-f4b4-75fe-aeb9-b222bb723a88",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-d0e2a66944c8"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 65,
+    "context": {
+      "gameClockMs": 829384,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 34,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "25 Anja Lebar",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "25 Anja Lebar",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "25 Anja Lebar",
+        "action": "TOUCHDOWN",
+        "note": "Extra point conversion successful",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#25 Anja Lebar (1 pt)",
+      "text": "TRY #25 Anja Lebar (1 pt)",
+      "from": {
+        "name": "Anja Lebar",
+        "number": "25",
+        "teamId": "w-slo"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "25 Anja Lebar"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0012b-ab76-73b8-96a1-b77f237b63ff"
+      ],
+      "playAnalysisId": "01a0012b-c975-7378-bf81-c3df6bac15be",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-d488bf0bb952"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 66,
+    "context": {
+      "gameClockMs": 827626,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 34,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0012b-b250-7577-8cfb-c593a0c7c535",
+        "01a0012b-cf91-717a-aa66-cbf42a6bd5fc",
+        "01a0012b-d000-711e-b293-6d3daa19be45",
+        "01a0012b-e6ec-77b0-8c4f-362bd6a1d8c1",
+        "01a0012c-e88f-75b3-ad67-e6a51d21a582",
+        "01a0012d-3a85-7263-8452-3e4f4650d0b3",
+        "01a0012d-51c2-71ff-a3e0-fb284d4c6fa3",
+        "01a0012d-b9dd-7539-8d22-5be0c3396c3d",
+        "01a0012d-d2a6-71ab-9c6c-b7e516b3da8f",
+        "01a0012e-482c-7249-82e8-bd4321a0a749",
+        "01a0012e-5081-7052-a83e-5675a52f1d5e"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.019Z",
+    "updatedAt": "2026-08-15T05:53:43.019Z",
+    "id": "01a003fb-b58e-705e-a77e-dae8cb1e0d56"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 67,
+    "context": {
+      "gameClockMs": 814491,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Australia"
+      },
+      {
+        "id": 2,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "15 Kyana Gordon Belo",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "27 Blue",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #15 Kyana Belo",
+      "text": "COMPLETE PASS #2 Tessa Davis → #15 Kyana Belo",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "15 Kyana Gordon Belo"
+      },
+      "flagPulledBy": {
+        "name": "27 Blue"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0012d-5935-77e2-9b8a-b0e57ab15499",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.020Z",
+    "updatedAt": "2026-08-15T05:53:43.020Z",
+    "id": "01a003fb-b58e-705e-a77e-dd3d46364a2f"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 68,
+    "context": {
+      "gameClockMs": 787588,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "28 Tia Govejšek",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #33 Abbie Leyshon",
+      "text": "COMPLETE PASS #2 Tessa Davis → #33 Abbie Leyshon",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      },
+      "flagPulledBy": {
+        "name": "28 Tia Govejšek"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0012d-dfa2-703f-80c0-da4943121014",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.020Z",
+    "updatedAt": "2026-08-15T05:53:43.020Z",
+    "id": "01a003fb-b58e-705e-a77e-e1105695504d"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 69,
+    "context": {
+      "gameClockMs": 754581,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0012e-66b4-715c-855c-5f5685312625",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.021Z",
+    "updatedAt": "2026-08-15T05:53:43.021Z",
+    "id": "01a003fb-b58e-705e-a77e-e64cf0d05219"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 70,
+    "context": {
+      "gameClockMs": 688070,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 23,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "11 Nika Vreš",
+        "action": "SACK",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "SACK",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "SACK",
+      "label": "SACK",
+      "detail": "by #11 Nika Vreš",
+      "text": "SACK by #11 Nika Vreš",
+      "from": {
+        "name": "Nika Vreš",
+        "number": "11",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0012e-d667-7078-b7fa-e7923dad4d65"
+      ],
+      "playAnalysisId": "01a0012e-e9ea-7360-b09e-66ff81d87721",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.021Z",
+    "updatedAt": "2026-08-15T05:53:43.021Z",
+    "id": "01a003fb-b58e-705e-a77e-e92384ee9390"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 71,
+    "context": {
+      "gameClockMs": 687479,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 23,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0012e-d898-72f7-b4b1-4d468f22fba3",
+        "01a0012e-eb10-70ff-9bad-d252631dd1d5",
+        "01a0012f-74c0-740c-84aa-b1e687b82718",
+        "01a0012f-896d-726d-84bc-6fabe58eeedf",
+        "01a0012f-ccd6-774d-a269-b4af6a91dc6c",
+        "01a00130-5b56-7477-9234-d4184da33083",
+        "01a00130-7140-73ee-b9d7-660bcac46293"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.021Z",
+    "updatedAt": "2026-08-15T05:53:43.021Z",
+    "id": "01a003fb-b58e-705e-a77e-ecd9611c2d88"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 72,
+    "context": {
+      "gameClockMs": 647537,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36 Živa Kramžar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "28 Tia Govejsek",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "28 Tia Govejsek",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "1 Ashleigh Werner",
+        "action": "FLAG_PULL",
+        "note": "Australia Green",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #28 Tia Govejšek",
+      "text": "COMPLETE PASS #32 Karin Lah → #28 Tia Govejšek",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Tia Govejšek",
+        "number": "28",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "28 Tia Govejsek"
+      },
+      "flagPulledBy": {
+        "name": "1 Ashleigh Werner"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0012f-a2e9-72e0-b47b-f6bd920748be",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.021Z",
+    "updatedAt": "2026-08-15T05:53:43.021Z",
+    "id": "01a003fb-b58e-705e-a77e-f134bdda4b51"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 73,
+    "context": {
+      "gameClockMs": 624987,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36 Živa Kramžar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "28 Tia Govejšek",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "28 Tia Govejšek",
+        "note": "Deep pass through the middle"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0012f-eded-7473-bb1a-3acc0292cfaa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.021Z",
+    "updatedAt": "2026-08-15T05:53:43.021Z",
+    "id": "01a003fb-b58e-705e-a77e-f7d9c60705a1"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 74,
+    "context": {
+      "gameClockMs": 624987,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36 Živa Kramžar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "87 Astrid Kuhelj",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "87 Astrid Kuhelj",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "1 Ashleigh Werner",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #87 Astrid Kuhelj",
+      "text": "COMPLETE PASS #32 Karin Lah → #87 Astrid Kuhelj",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Astrid Kuhelj",
+        "number": "87",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "87 Astrid Kuhelj"
+      },
+      "flagPulledBy": {
+        "name": "1 Ashleigh Werner"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00130-7bee-76dd-8f1f-54812fb32399",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.021Z",
+    "updatedAt": "2026-08-15T05:53:43.021Z",
+    "id": "01a003fb-b58f-74cf-929a-b6024d687eb1"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 75,
+    "context": {
+      "gameClockMs": 542629,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 23,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36 Živa Kramžar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "87 Astrid Kuhelj",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "87 Astrid Kuhelj",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00131-0ecf-7128-bbc1-92b28e0db872",
+        "01a00131-2eb6-71bd-ad8e-919752f687b5",
+        "01a00131-2f20-706c-9ad2-621b692ff868",
+        "01a00131-6217-75cf-a997-49d0f3814273",
+        "01a00131-dc27-77af-88e7-f59094f9b2ca",
+        "01a00131-f3f0-76ff-a6b2-78edc7bc5254",
+        "01a00132-4abe-77db-9d88-0be203ef6a89"
+      ],
+      "playAnalysisId": "01a00130-dadf-72d3-a15c-6cca1071f8ab",
+      "penaltyAnalysisIds": [
+        "01a00131-3e3e-75cc-9168-aff748ecdbb2"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.022Z",
+    "updatedAt": "2026-08-15T05:53:43.022Z",
+    "id": "01a003fb-b590-70e2-980d-6225d65d9066"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 76,
+    "context": {
+      "gameClockMs": 534258,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "team": "Slovenia"
+      },
+      {
+        "id": 2,
+        "player": "36 Živa Kramžar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00131-7cc7-76a0-a18a-870b5537d807",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.022Z",
+    "updatedAt": "2026-08-15T05:53:43.022Z",
+    "id": "01a003fb-b590-70e2-980d-65fce912781b"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 77,
+    "context": {
+      "gameClockMs": 489993,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36 Živa Kramžar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "87 Astrid Kuhelj",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "RUSH"
+      },
+      {
+        "id": 5,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense",
+        "team": "Australia"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#32 Karin Lah",
+      "text": "RUN #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "87 Astrid Kuhelj"
+      },
+      "ballCarrier": {
+        "name": "32 Karin Lah"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00132-016d-77fe-9af1-bf65f88b2498",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b590-70e2-980d-6bfdf8727ecb"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 78,
+    "context": {
+      "gameClockMs": 461707,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "36",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32",
+        "action": "PASS",
+        "intendedReceiver": "10",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "10",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "number": "32"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00132-6202-771e-ad3c-4fede6946076",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b590-70e2-980d-6ffdcc402de7"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 79,
+    "context": {
+      "gameClockMs": 414723,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 39,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "87 Astrid Kuhelj",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "87 Astrid Kuhelj",
+        "action": "PASS",
+        "intendedReceiver": "77 Kaja Koncilija",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "77 Kaja Koncilija",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "77 Kaja Koncilija",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#77 Kaja Koncilija (6 pts)",
+      "text": "TOUCHDOWN #77 Kaja Koncilija (6 pts)",
+      "from": {
+        "name": "Kaja Koncilija",
+        "number": "77",
+        "teamId": "w-slo"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "87 Astrid Kuhelj"
+      },
+      "receiver": {
+        "name": "77 Kaja Koncilija"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00133-0233-7309-ba1d-86fa7e241d18",
+        "01a00133-23c7-7466-8cbc-cd7f4228a82f",
+        "01a00133-6953-7024-880c-5ffa3b7ad82f"
+      ],
+      "playAnalysisId": "01a00133-1ddd-7744-86a0-5ac90325162a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b590-70e2-980d-7385b575d83a"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 80,
+    "context": {
+      "gameClockMs": 388450,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00133-93b9-70c2-83e6-45e8fb2064c8",
+        "01a00133-9467-72d5-8b30-6c159d26ed7a",
+        "01a00133-ab9b-7543-afcb-9a9e63259266",
+        "01a00133-abfb-73ac-ac56-1726f12deee8",
+        "01a00134-b275-7335-a8aa-e6befd838240",
+        "01a00134-de03-75bb-b98a-b96cfe756dd6",
+        "01a00135-50af-71df-8328-f5961271e51f",
+        "01a00135-6173-7258-9267-8af990fcfbfe"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b591-738c-8efb-d3dbffd20ce2"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 81,
+    "context": {
+      "gameClockMs": 388450,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Ella Calleja",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00134-f4eb-76fc-ba8d-935b32209283",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b591-738c-8efb-d5a75e8e8cd0"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 82,
+    "context": {
+      "gameClockMs": 347947,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "87 Astrid Kuhelj",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #33 Abbie Leyshon",
+      "text": "COMPLETE PASS #2 Tessa Davis → #33 Abbie Leyshon",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      },
+      "flagPulledBy": {
+        "name": "87 Astrid Kuhelj"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00135-6dfc-77ad-9120-d7e9f79fe302",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b591-738c-8efb-d8db8698ff29"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 83,
+    "context": {
+      "gameClockMs": 316410,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 14,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "note": "Third down from the minus 14 yard line",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "28 Tia Govejsek",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #15 Kyana Belo",
+      "text": "COMPLETE PASS #2 Tessa Davis → #15 Kyana Belo",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "15 Kyana Gordon Belo"
+      },
+      "flagPulledBy": {
+        "name": "28 Tia Govejsek"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00135-cbff-7786-a14c-9d08f8559974",
+        "01a00135-e38b-7651-beec-5c8edf362ac5",
+        "01a00135-e3f4-7495-b4b6-2ad4b68b8f2e",
+        "01a00136-64aa-729f-b984-be5e562bb9f2",
+        "01a00136-e7d6-754c-bed3-e1c2d8ee7805",
+        "01a00137-0d37-713a-be77-353ca89bfce0",
+        "01a00137-8b8d-7258-9368-bb850378d663",
+        "01a00137-a425-7537-af46-62460393723a"
+      ],
+      "playAnalysisId": "01a00135-f9fd-70d2-87bb-c19bfe8f242f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b591-738c-8efb-dd35c5c56064"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 84,
+    "context": {
+      "gameClockMs": 310206,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "AustraliaN/A"
+      },
+      {
+        "id": 2,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "0 Amelie Prosser-Shaw",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00136-85d3-71c9-8d82-af1ec18f3938",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b591-738c-8efb-e10f294c2c95"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 85,
+    "context": {
+      "gameClockMs": 243741,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "33 Abbie Leyshon",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Abbie Leyshon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "87 Astrid Kuhelj",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #33 Abbie Leyshon",
+      "text": "COMPLETE PASS #2 Tessa Davis → #33 Abbie Leyshon",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Abbie Leyshon",
+        "number": "33",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "33 Abbie Leyshon"
+      },
+      "flagPulledBy": {
+        "name": "87 Astrid Kuhelj"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00137-1117-703c-8d23-c1337974a665",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b591-738c-8efb-e6be39b54f55"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 86,
+    "context": {
+      "gameClockMs": 234168,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Kyana Gordon Belo",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "28 Tia Govejsek",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#2 Tessa Davis → #15 Kyana Belo",
+      "text": "COMPLETE PASS #2 Tessa Davis → #15 Kyana Belo",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      },
+      "to": {
+        "name": "Kyana Belo",
+        "number": "15",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "receiver": {
+        "name": "15 Kyana Gordon Belo"
+      },
+      "flagPulledBy": {
+        "name": "28 Tia Govejsek"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00137-ab8c-74ac-a527-c46a00670675",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b591-738c-8efb-e810dfc44ff5"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 87,
+    "context": {
+      "gameClockMs": 160350,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 49,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "33 Abbie Leyshon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "15 Kyana Gordon Belo",
+        "role": "Quarterback"
+      }
+    ],
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Tessa Davis",
+      "text": "INCOMPLETE PASS #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00138-2d91-7227-9ebf-23c26cb3374e"
+      ],
+      "playAnalysisId": "01a00138-49d7-7459-8293-16d512333e4b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.023Z",
+    "updatedAt": "2026-08-15T05:53:43.023Z",
+    "id": "01a003fb-b591-738c-8efb-eed3af59d790"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 88,
+    "context": {
+      "gameClockMs": 159625,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 49,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00138-302a-74a5-8592-d2b4c546426f",
+        "01a00138-46e3-7049-989c-72ed944646b5",
+        "01a00138-48c6-74e8-b02b-0de9509e198c",
+        "01a00138-df5e-75d1-8b35-ba72922e2809",
+        "01a00139-238c-7368-a990-514ef95cab24",
+        "01a00139-3157-73a6-8f54-f1dc4cd9c6c5",
+        "01a00139-4079-7468-a41b-68a6be43c6f2",
+        "01a00139-535d-70c0-9864-c120c942c597",
+        "01a00139-8cb4-73f8-b322-a074685d2387",
+        "01a00139-e379-7219-8fd9-69a9f43d9954",
+        "01a0013a-24be-768b-935d-2745aabc96ed",
+        "01a0013a-47bd-701f-bd09-cc4f9fe47fc4",
+        "01a0013a-8881-7395-9289-56f6c52044a1"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.024Z",
+    "updatedAt": "2026-08-15T05:53:43.024Z",
+    "id": "01a003fb-b592-723e-93b9-eda1fa40e942"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 89,
+    "context": {
+      "gameClockMs": 153329,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "GAME_SETUP",
+        "team": "Slovenia - Blue Team (Away Team in context and roster given, though not explicitly labelled 'Away Team' in the prompt, team context is clear from players and 'Blue' designation.) (Slovenia, based on 'First down Slovenia'). However, the instruction for 'team' says 'Map to the team name from the roster reference'. So it should be 'Slovenia'. The description of 'Blue Team' is a thought process based on the audio for team identification. The correct mapping is 'Slovenia'. The text I generated for 'team' was: 'Slovenia - Blue Team (Away Team in context and roster given, though not explicitly labelled 'Away Team' in the prompt, team context is clear from players and 'Blue' designation.)'. This is wrong. It should just be "
+      },
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "GAME_SETUP",
+        "team": "Slovenia"
+      },
+      {
+        "id": 2,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "11 Nika Vreš",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "11 Nika Vreš",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "16 Emma Vandervelde",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #11 Nika Vreš",
+      "text": "COMPLETE PASS #32 Karin Lah → #11 Nika Vreš",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Nika Vreš",
+        "number": "11",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "11 Nika Vreš"
+      },
+      "flagPulledBy": {
+        "name": "16 Emma Vandervelde"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00139-06a7-7638-bd02-406db3f82fde",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.024Z",
+    "updatedAt": "2026-08-15T05:53:43.024Z",
+    "id": "01a003fb-b592-723e-93b9-f15776b4a208"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 90,
+    "context": {
+      "gameClockMs": 110537,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "77 Kaja Koncilija",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "77 Kaja Koncilija",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#32 Karin Lah",
+      "text": "INCOMPLETE PASS #32 Karin Lah",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00139-7408-75e7-98c9-39b34af8325f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.024Z",
+    "updatedAt": "2026-08-15T05:53:43.024Z",
+    "id": "01a003fb-b592-723e-93b9-f6bf2d68168d"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 91,
+    "context": {
+      "gameClockMs": 110537,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Blue",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "10 Lana Protega",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "1 Ashleigh Werner",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "10 Lana Protega"
+      },
+      "flagPulledBy": {
+        "name": "1 Ashleigh Werner"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0013a-2c98-73ce-8c35-bf9308ebefe1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.024Z",
+    "updatedAt": "2026-08-15T05:53:43.024Z",
+    "id": "01a003fb-b592-723e-93b9-fa000da02213"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 92,
+    "context": {
+      "gameClockMs": 68537,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 14,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "11 Nika Vreš",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "11 Nika Vreš",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "16 Emma Vandervelde",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #11 Nika Vreš",
+      "text": "COMPLETE PASS #32 Karin Lah → #11 Nika Vreš",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Nika Vreš",
+        "number": "11",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "11 Nika Vreš"
+      },
+      "flagPulledBy": {
+        "name": "16 Emma Vandervelde"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0013a-9356-705c-9a49-d0620bafe47c",
+        "01a0013a-b741-7318-b530-a31e2383609f",
+        "01a0013a-b7b0-728b-8b80-0dbdde4b6342",
+        "01a0013a-ec00-779f-94ce-3056403bac44",
+        "01a0013b-1be1-736e-9285-cfb563123a7e",
+        "01a0013b-315b-71c8-a77a-f68d92339c59",
+        "01a0013b-5eb5-70a5-9c6e-26b7ee9484e9",
+        "01a0013b-7f6b-722f-ad70-6244166e3757",
+        "01a0013b-bbc8-7601-ad12-faea603e0a21",
+        "01a0013b-ea72-77c9-9916-f3dcf3fffbcc",
+        "01a0013c-1429-7259-80bd-c2e43f27c8e3",
+        "01a0013c-96a0-723b-bb87-5f63354ce762",
+        "01a0013c-fd83-716d-9509-722b22cb399c",
+        "01a0013d-14e8-7605-b611-c1060883d784",
+        "01a0013d-49d4-72dd-8cc9-af94ab426fa5",
+        "01a0013d-50ed-73cd-9c6f-663ffad8d39f",
+        "01a0013d-62cf-723d-abfb-2a25795b2028",
+        "01a0013d-cab1-74dc-9f98-aeea5ba47fe3",
+        "01a0013e-a787-7129-bea6-613895bb30dd",
+        "01a0013e-baa2-715d-9982-f9e1cc1317f8"
+      ],
+      "playAnalysisId": "01a0013a-ad1c-7482-9545-243f3a1b85c8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.024Z",
+    "updatedAt": "2026-08-15T05:53:43.024Z",
+    "id": "01a003fb-b592-723e-93b9-fc025800fb16"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 93,
+    "context": {
+      "gameClockMs": 68537,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "note": "First down from the 18 yard line",
+        "role": "Statistician",
+        "team": "Slovenia"
+      },
+      {
+        "id": 2,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "10 Lana Protega",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "10 Lana Protega",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "5 Olivia White",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #10 Lana Protega",
+      "text": "COMPLETE PASS #32 Karin Lah → #10 Lana Protega",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Lana Protega",
+        "number": "10",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "10 Lana Protega"
+      },
+      "flagPulledBy": {
+        "name": "5 Olivia White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0013b-2c1e-75b9-9d06-44c67f134fc2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.024Z",
+    "updatedAt": "2026-08-15T05:53:43.024Z",
+    "id": "01a003fb-b593-719e-90a7-ffdeff274bdb"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 94,
+    "context": {
+      "gameClockMs": 39159,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "25 Anja Lebar",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "25 Anja Lebar",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "16 Emma Vandervelde",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 2,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #25 Anja Lebar",
+      "text": "COMPLETE PASS #32 Karin Lah → #25 Anja Lebar",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Anja Lebar",
+        "number": "25",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "25 Anja Lebar"
+      },
+      "flagPulledBy": {
+        "name": "16 Emma Vandervelde"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0013b-846e-7133-bc79-7cc928fd44ea",
+      "penaltyAnalysisIds": [
+        "01a0013b-dbc4-739e-8b57-c25fce42f476",
+        "01a0013c-04ba-7405-87a0-7b20d9e57341"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.024Z",
+    "updatedAt": "2026-08-15T05:53:43.024Z",
+    "id": "01a003fb-b593-719e-90a8-0252e6a8bcf2"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 95,
+    "context": {
+      "gameClockMs": 15492,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "7 Amira Elkanawati",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Amira Elkanawati",
+        "action": "COMPLETE",
+        "note": "Stepped out of bounds",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#32 Karin Lah → #7 Amira Elkanawati",
+      "text": "COMPLETE PASS #32 Karin Lah → #7 Amira Elkanawati",
+      "from": {
+        "name": "Karin Lah",
+        "number": "32",
+        "teamId": "w-slo"
+      },
+      "to": {
+        "name": "Amira Elkanawati",
+        "number": "7",
+        "teamId": "w-slo"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "7 Amira Elkanawati"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0013d-36f7-76ae-9053-2e6227458201",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.024Z",
+    "updatedAt": "2026-08-15T05:53:43.024Z",
+    "id": "01a003fb-b593-719e-90a8-04291afb8028"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 96,
+    "context": {
+      "gameClockMs": 5105,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-slo",
+      "score": {
+        "home": 39,
+        "away": 20
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "11 Nika Vreš",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "32 Karin Lah",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "32 Karin Lah",
+        "action": "PASS",
+        "intendedReceiver": "28 Tia Govejsek",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "28 Tia Govejsek",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "28 Tia Govejsek",
+        "action": "TOUCHDOWN",
+        "note": "Touchdown Slovenia",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#28 Tia Govejšek (6 pts)",
+      "text": "TOUCHDOWN #28 Tia Govejšek (6 pts)",
+      "from": {
+        "name": "Tia Govejšek",
+        "number": "28",
+        "teamId": "w-slo"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "32 Karin Lah"
+      },
+      "receiver": {
+        "name": "28 Tia Govejsek"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0013e-d04c-759a-82f4-8093b9b45b5d",
+        "01a0013e-ea1a-74e5-956b-663ba472f00a"
+      ],
+      "playAnalysisId": "01a0013e-e260-73d9-9852-8c13c1063062",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.025Z",
+    "updatedAt": "2026-08-15T05:53:43.025Z",
+    "id": "01a003fb-b593-719e-90a8-0940be88da95"
+  },
+  {
+    "gameId": "019ffff1-acfa-7551-b530-db7859c006f9",
+    "playNumber": 97,
+    "context": {
+      "gameClockMs": 5105,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-aus",
+      "score": {
+        "home": 39,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "GAME_SETUP",
+        "note": "First down Australia from the minus five yard line",
+        "role": "Statistician",
+        "team": "Australia"
+      },
+      {
+        "id": 2,
+        "player": "4 Elizabeth Lomu-Stewart",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "2 Tessa Davis",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Tessa Davis",
+        "action": "RUSH",
+        "note": "Takes a knee to end the game",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#2 Tessa Davis",
+      "text": "RUN #2 Tessa Davis",
+      "from": {
+        "name": "Tessa Davis",
+        "number": "2",
+        "teamId": "w-aus"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Tessa Davis"
+      },
+      "ballCarrier": {
+        "name": "2 Tessa Davis"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0013f-8771-7299-9fdc-7f66e7b68172",
+        "01a0013f-87f2-748e-9977-082b60c49ee0",
+        "01a0013f-9aea-757b-8f9b-0b6de4ce58aa",
+        "01a0013f-9bb4-777a-82e7-a025315ad6b9",
+        "01a0013f-e03a-706c-868e-3dbb5897690e",
+        "01a00140-b628-7175-a0ab-66fba990bb21"
+      ],
+      "playAnalysisId": "01a00140-0f69-75aa-b974-c0bdf392cc26",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T05:53:43.025Z",
+    "updatedAt": "2026-08-15T05:53:43.025Z",
+    "id": "01a003fb-b593-719e-90a8-0f71dcc1e2f3"
+  }
+]

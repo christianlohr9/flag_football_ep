@@ -1,0 +1,1766 @@
+{
+  "divisions": [
+    "Women"
+  ],
+  "endDate": "2026-08-16T20:00:00.000+02:00",
+  "fields": [
+    {
+      "code": "Field 1",
+      "lat": 51.149753,
+      "lng": 6.890658,
+      "weather": {
+        "current": {
+          "dt": 1786945503,
+          "tempC": 16.02,
+          "feelsLikeC": 16.03,
+          "windKmh": 7,
+          "windDeg": 260,
+          "conditionCode": 502,
+          "conditionMain": "Rain"
+        },
+        "forecast": [
+          {
+            "dt": 1786946400,
+            "tempC": 16.02,
+            "feelsLikeC": 16.03,
+            "windKmh": 10,
+            "windDeg": 302,
+            "gustKmh": 18,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786957200,
+            "tempC": 16.11,
+            "feelsLikeC": 16.1,
+            "windKmh": 11,
+            "windDeg": 279,
+            "gustKmh": 15,
+            "pop": 1,
+            "conditionCode": 501,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786968000,
+            "tempC": 18.05,
+            "feelsLikeC": 17.97,
+            "windKmh": 9,
+            "windDeg": 265,
+            "gustKmh": 15,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786978800,
+            "tempC": 21.48,
+            "feelsLikeC": 21.35,
+            "windKmh": 13,
+            "windDeg": 334,
+            "gustKmh": 21,
+            "pop": 0.98,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786989600,
+            "tempC": 20.6,
+            "feelsLikeC": 20.26,
+            "windKmh": 6,
+            "windDeg": 301,
+            "gustKmh": 15,
+            "pop": 0.22,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787000400,
+            "tempC": 19.29,
+            "feelsLikeC": 18.87,
+            "windKmh": 7,
+            "windDeg": 355,
+            "gustKmh": 15,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787011200,
+            "tempC": 16.62,
+            "feelsLikeC": 15.98,
+            "windKmh": 3,
+            "windDeg": 15,
+            "gustKmh": 4,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787022000,
+            "tempC": 16.59,
+            "feelsLikeC": 16,
+            "windKmh": 3,
+            "windDeg": 169,
+            "gustKmh": 6,
+            "pop": 0,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787032800,
+            "tempC": 16.48,
+            "feelsLikeC": 16.25,
+            "windKmh": 4,
+            "windDeg": 178,
+            "gustKmh": 9,
+            "pop": 0.62,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787043600,
+            "tempC": 16.69,
+            "feelsLikeC": 16.71,
+            "windKmh": 14,
+            "windDeg": 185,
+            "gustKmh": 25,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787054400,
+            "tempC": 18.17,
+            "feelsLikeC": 18.26,
+            "windKmh": 16,
+            "windDeg": 257,
+            "gustKmh": 37,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787065200,
+            "tempC": 18.43,
+            "feelsLikeC": 18.44,
+            "windKmh": 16,
+            "windDeg": 258,
+            "gustKmh": 35,
+            "pop": 0.25,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787076000,
+            "tempC": 19.05,
+            "feelsLikeC": 19.07,
+            "windKmh": 10,
+            "windDeg": 242,
+            "gustKmh": 24,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787086800,
+            "tempC": 17.63,
+            "feelsLikeC": 17.82,
+            "windKmh": 9,
+            "windDeg": 214,
+            "gustKmh": 23,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787097600,
+            "tempC": 17.58,
+            "feelsLikeC": 17.77,
+            "windKmh": 7,
+            "windDeg": 210,
+            "gustKmh": 17,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787108400,
+            "tempC": 16.93,
+            "feelsLikeC": 17.11,
+            "windKmh": 8,
+            "windDeg": 340,
+            "gustKmh": 23,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787119200,
+            "tempC": 16.64,
+            "feelsLikeC": 16.58,
+            "windKmh": 7,
+            "windDeg": 218,
+            "gustKmh": 18,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787130000,
+            "tempC": 17.13,
+            "feelsLikeC": 16.99,
+            "windKmh": 8,
+            "windDeg": 260,
+            "gustKmh": 25,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787140800,
+            "tempC": 22.84,
+            "feelsLikeC": 22.35,
+            "windKmh": 14,
+            "windDeg": 247,
+            "gustKmh": 24,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787151600,
+            "tempC": 22.33,
+            "feelsLikeC": 21.85,
+            "windKmh": 12,
+            "windDeg": 234,
+            "gustKmh": 22,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787162400,
+            "tempC": 20.74,
+            "feelsLikeC": 20.28,
+            "windKmh": 15,
+            "windDeg": 242,
+            "gustKmh": 30,
+            "pop": 0.2,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787173200,
+            "tempC": 18.27,
+            "feelsLikeC": 17.8,
+            "windKmh": 10,
+            "windDeg": 207,
+            "gustKmh": 31,
+            "pop": 0.25,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787184000,
+            "tempC": 15.97,
+            "feelsLikeC": 15.71,
+            "windKmh": 7,
+            "windDeg": 188,
+            "gustKmh": 22,
+            "pop": 0.93,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787194800,
+            "tempC": 14.99,
+            "feelsLikeC": 14.66,
+            "windKmh": 7,
+            "windDeg": 185,
+            "gustKmh": 24,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787205600,
+            "tempC": 15.61,
+            "feelsLikeC": 15.26,
+            "windKmh": 7,
+            "windDeg": 173,
+            "gustKmh": 17,
+            "pop": 0.2,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787216400,
+            "tempC": 20.1,
+            "feelsLikeC": 19.65,
+            "windKmh": 11,
+            "windDeg": 218,
+            "gustKmh": 22,
+            "pop": 0,
+            "conditionCode": 802,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787227200,
+            "tempC": 24.14,
+            "feelsLikeC": 23.58,
+            "windKmh": 18,
+            "windDeg": 245,
+            "gustKmh": 32,
+            "pop": 0,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787238000,
+            "tempC": 25.47,
+            "feelsLikeC": 24.78,
+            "windKmh": 21,
+            "windDeg": 252,
+            "gustKmh": 31,
+            "pop": 0,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787248800,
+            "tempC": 22.02,
+            "feelsLikeC": 21.4,
+            "windKmh": 15,
+            "windDeg": 293,
+            "gustKmh": 26,
+            "pop": 0,
+            "conditionCode": 802,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787259600,
+            "tempC": 19.69,
+            "feelsLikeC": 19.15,
+            "windKmh": 11,
+            "windDeg": 240,
+            "gustKmh": 33,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787270400,
+            "tempC": 17.41,
+            "feelsLikeC": 16.93,
+            "windKmh": 9,
+            "windDeg": 236,
+            "gustKmh": 25,
+            "pop": 0.2,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787281200,
+            "tempC": 15.86,
+            "feelsLikeC": 15.25,
+            "windKmh": 9,
+            "windDeg": 228,
+            "gustKmh": 32,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787292000,
+            "tempC": 15.79,
+            "feelsLikeC": 15.2,
+            "windKmh": 11,
+            "windDeg": 246,
+            "gustKmh": 29,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787302800,
+            "tempC": 20.1,
+            "feelsLikeC": 19.6,
+            "windKmh": 13,
+            "windDeg": 250,
+            "gustKmh": 19,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787313600,
+            "tempC": 22.93,
+            "feelsLikeC": 22.4,
+            "windKmh": 14,
+            "windDeg": 277,
+            "gustKmh": 21,
+            "pop": 0.78,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787324400,
+            "tempC": 22.59,
+            "feelsLikeC": 22.08,
+            "windKmh": 18,
+            "windDeg": 312,
+            "gustKmh": 22,
+            "pop": 0.23,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787335200,
+            "tempC": 20.11,
+            "feelsLikeC": 19.59,
+            "windKmh": 12,
+            "windDeg": 336,
+            "gustKmh": 17,
+            "pop": 0.02,
+            "conditionCode": 802,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787346000,
+            "tempC": 17.62,
+            "feelsLikeC": 16.9,
+            "windKmh": 10,
+            "windDeg": 335,
+            "gustKmh": 26,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787356800,
+            "tempC": 15.28,
+            "feelsLikeC": 14.61,
+            "windKmh": 8,
+            "windDeg": 338,
+            "gustKmh": 17,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787367600,
+            "tempC": 14.25,
+            "feelsLikeC": 13.66,
+            "windKmh": 5,
+            "windDeg": 305,
+            "gustKmh": 9,
+            "pop": 0,
+            "conditionCode": 801,
+            "conditionMain": "Clouds"
+          }
+        ],
+        "fetchedAt": "2026-08-17T05:45:03.548Z"
+      }
+    },
+    {
+      "code": "Field 2",
+      "lat": 51.149753,
+      "lng": 6.890658,
+      "weather": {
+        "current": {
+          "dt": 1786945503,
+          "tempC": 16.02,
+          "feelsLikeC": 16.03,
+          "windKmh": 7,
+          "windDeg": 260,
+          "conditionCode": 502,
+          "conditionMain": "Rain"
+        },
+        "forecast": [
+          {
+            "dt": 1786946400,
+            "tempC": 16.02,
+            "feelsLikeC": 16.03,
+            "windKmh": 10,
+            "windDeg": 302,
+            "gustKmh": 18,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786957200,
+            "tempC": 16.11,
+            "feelsLikeC": 16.1,
+            "windKmh": 11,
+            "windDeg": 279,
+            "gustKmh": 15,
+            "pop": 1,
+            "conditionCode": 501,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786968000,
+            "tempC": 18.05,
+            "feelsLikeC": 17.97,
+            "windKmh": 9,
+            "windDeg": 265,
+            "gustKmh": 15,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786978800,
+            "tempC": 21.48,
+            "feelsLikeC": 21.35,
+            "windKmh": 13,
+            "windDeg": 334,
+            "gustKmh": 21,
+            "pop": 0.98,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786989600,
+            "tempC": 20.6,
+            "feelsLikeC": 20.26,
+            "windKmh": 6,
+            "windDeg": 301,
+            "gustKmh": 15,
+            "pop": 0.22,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787000400,
+            "tempC": 19.29,
+            "feelsLikeC": 18.87,
+            "windKmh": 7,
+            "windDeg": 355,
+            "gustKmh": 15,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787011200,
+            "tempC": 16.62,
+            "feelsLikeC": 15.98,
+            "windKmh": 3,
+            "windDeg": 15,
+            "gustKmh": 4,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787022000,
+            "tempC": 16.59,
+            "feelsLikeC": 16,
+            "windKmh": 3,
+            "windDeg": 169,
+            "gustKmh": 6,
+            "pop": 0,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787032800,
+            "tempC": 16.48,
+            "feelsLikeC": 16.25,
+            "windKmh": 4,
+            "windDeg": 178,
+            "gustKmh": 9,
+            "pop": 0.62,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787043600,
+            "tempC": 16.69,
+            "feelsLikeC": 16.71,
+            "windKmh": 14,
+            "windDeg": 185,
+            "gustKmh": 25,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787054400,
+            "tempC": 18.17,
+            "feelsLikeC": 18.26,
+            "windKmh": 16,
+            "windDeg": 257,
+            "gustKmh": 37,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787065200,
+            "tempC": 18.43,
+            "feelsLikeC": 18.44,
+            "windKmh": 16,
+            "windDeg": 258,
+            "gustKmh": 35,
+            "pop": 0.25,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787076000,
+            "tempC": 19.05,
+            "feelsLikeC": 19.07,
+            "windKmh": 10,
+            "windDeg": 242,
+            "gustKmh": 24,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787086800,
+            "tempC": 17.63,
+            "feelsLikeC": 17.82,
+            "windKmh": 9,
+            "windDeg": 214,
+            "gustKmh": 23,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787097600,
+            "tempC": 17.58,
+            "feelsLikeC": 17.77,
+            "windKmh": 7,
+            "windDeg": 210,
+            "gustKmh": 17,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787108400,
+            "tempC": 16.93,
+            "feelsLikeC": 17.11,
+            "windKmh": 8,
+            "windDeg": 340,
+            "gustKmh": 23,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787119200,
+            "tempC": 16.64,
+            "feelsLikeC": 16.58,
+            "windKmh": 7,
+            "windDeg": 218,
+            "gustKmh": 18,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787130000,
+            "tempC": 17.13,
+            "feelsLikeC": 16.99,
+            "windKmh": 8,
+            "windDeg": 260,
+            "gustKmh": 25,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787140800,
+            "tempC": 22.84,
+            "feelsLikeC": 22.35,
+            "windKmh": 14,
+            "windDeg": 247,
+            "gustKmh": 24,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787151600,
+            "tempC": 22.33,
+            "feelsLikeC": 21.85,
+            "windKmh": 12,
+            "windDeg": 234,
+            "gustKmh": 22,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787162400,
+            "tempC": 20.74,
+            "feelsLikeC": 20.28,
+            "windKmh": 15,
+            "windDeg": 242,
+            "gustKmh": 30,
+            "pop": 0.2,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787173200,
+            "tempC": 18.27,
+            "feelsLikeC": 17.8,
+            "windKmh": 10,
+            "windDeg": 207,
+            "gustKmh": 31,
+            "pop": 0.25,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787184000,
+            "tempC": 15.97,
+            "feelsLikeC": 15.71,
+            "windKmh": 7,
+            "windDeg": 188,
+            "gustKmh": 22,
+            "pop": 0.93,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787194800,
+            "tempC": 14.99,
+            "feelsLikeC": 14.66,
+            "windKmh": 7,
+            "windDeg": 185,
+            "gustKmh": 24,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787205600,
+            "tempC": 15.61,
+            "feelsLikeC": 15.26,
+            "windKmh": 7,
+            "windDeg": 173,
+            "gustKmh": 17,
+            "pop": 0.2,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787216400,
+            "tempC": 20.1,
+            "feelsLikeC": 19.65,
+            "windKmh": 11,
+            "windDeg": 218,
+            "gustKmh": 22,
+            "pop": 0,
+            "conditionCode": 802,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787227200,
+            "tempC": 24.14,
+            "feelsLikeC": 23.58,
+            "windKmh": 18,
+            "windDeg": 245,
+            "gustKmh": 32,
+            "pop": 0,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787238000,
+            "tempC": 25.47,
+            "feelsLikeC": 24.78,
+            "windKmh": 21,
+            "windDeg": 252,
+            "gustKmh": 31,
+            "pop": 0,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787248800,
+            "tempC": 22.02,
+            "feelsLikeC": 21.4,
+            "windKmh": 15,
+            "windDeg": 293,
+            "gustKmh": 26,
+            "pop": 0,
+            "conditionCode": 802,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787259600,
+            "tempC": 19.69,
+            "feelsLikeC": 19.15,
+            "windKmh": 11,
+            "windDeg": 240,
+            "gustKmh": 33,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787270400,
+            "tempC": 17.41,
+            "feelsLikeC": 16.93,
+            "windKmh": 9,
+            "windDeg": 236,
+            "gustKmh": 25,
+            "pop": 0.2,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787281200,
+            "tempC": 15.86,
+            "feelsLikeC": 15.25,
+            "windKmh": 9,
+            "windDeg": 228,
+            "gustKmh": 32,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787292000,
+            "tempC": 15.79,
+            "feelsLikeC": 15.2,
+            "windKmh": 11,
+            "windDeg": 246,
+            "gustKmh": 29,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787302800,
+            "tempC": 20.1,
+            "feelsLikeC": 19.6,
+            "windKmh": 13,
+            "windDeg": 250,
+            "gustKmh": 19,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787313600,
+            "tempC": 22.93,
+            "feelsLikeC": 22.4,
+            "windKmh": 14,
+            "windDeg": 277,
+            "gustKmh": 21,
+            "pop": 0.78,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787324400,
+            "tempC": 22.59,
+            "feelsLikeC": 22.08,
+            "windKmh": 18,
+            "windDeg": 312,
+            "gustKmh": 22,
+            "pop": 0.23,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787335200,
+            "tempC": 20.11,
+            "feelsLikeC": 19.59,
+            "windKmh": 12,
+            "windDeg": 336,
+            "gustKmh": 17,
+            "pop": 0.02,
+            "conditionCode": 802,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787346000,
+            "tempC": 17.62,
+            "feelsLikeC": 16.9,
+            "windKmh": 10,
+            "windDeg": 335,
+            "gustKmh": 26,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787356800,
+            "tempC": 15.28,
+            "feelsLikeC": 14.61,
+            "windKmh": 8,
+            "windDeg": 338,
+            "gustKmh": 17,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787367600,
+            "tempC": 14.25,
+            "feelsLikeC": 13.66,
+            "windKmh": 5,
+            "windDeg": 305,
+            "gustKmh": 9,
+            "pop": 0,
+            "conditionCode": 801,
+            "conditionMain": "Clouds"
+          }
+        ],
+        "fetchedAt": "2026-08-17T05:45:03.548Z"
+      }
+    },
+    {
+      "code": "Field 3",
+      "lat": 51.149753,
+      "lng": 6.890658,
+      "weather": {
+        "current": {
+          "dt": 1786945503,
+          "tempC": 16.02,
+          "feelsLikeC": 16.03,
+          "windKmh": 7,
+          "windDeg": 260,
+          "conditionCode": 502,
+          "conditionMain": "Rain"
+        },
+        "forecast": [
+          {
+            "dt": 1786946400,
+            "tempC": 16.02,
+            "feelsLikeC": 16.03,
+            "windKmh": 10,
+            "windDeg": 302,
+            "gustKmh": 18,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786957200,
+            "tempC": 16.11,
+            "feelsLikeC": 16.1,
+            "windKmh": 11,
+            "windDeg": 279,
+            "gustKmh": 15,
+            "pop": 1,
+            "conditionCode": 501,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786968000,
+            "tempC": 18.05,
+            "feelsLikeC": 17.97,
+            "windKmh": 9,
+            "windDeg": 265,
+            "gustKmh": 15,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786978800,
+            "tempC": 21.48,
+            "feelsLikeC": 21.35,
+            "windKmh": 13,
+            "windDeg": 334,
+            "gustKmh": 21,
+            "pop": 0.98,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1786989600,
+            "tempC": 20.6,
+            "feelsLikeC": 20.26,
+            "windKmh": 6,
+            "windDeg": 301,
+            "gustKmh": 15,
+            "pop": 0.22,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787000400,
+            "tempC": 19.29,
+            "feelsLikeC": 18.87,
+            "windKmh": 7,
+            "windDeg": 355,
+            "gustKmh": 15,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787011200,
+            "tempC": 16.62,
+            "feelsLikeC": 15.98,
+            "windKmh": 3,
+            "windDeg": 15,
+            "gustKmh": 4,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787022000,
+            "tempC": 16.59,
+            "feelsLikeC": 16,
+            "windKmh": 3,
+            "windDeg": 169,
+            "gustKmh": 6,
+            "pop": 0,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787032800,
+            "tempC": 16.48,
+            "feelsLikeC": 16.25,
+            "windKmh": 4,
+            "windDeg": 178,
+            "gustKmh": 9,
+            "pop": 0.62,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787043600,
+            "tempC": 16.69,
+            "feelsLikeC": 16.71,
+            "windKmh": 14,
+            "windDeg": 185,
+            "gustKmh": 25,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787054400,
+            "tempC": 18.17,
+            "feelsLikeC": 18.26,
+            "windKmh": 16,
+            "windDeg": 257,
+            "gustKmh": 37,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787065200,
+            "tempC": 18.43,
+            "feelsLikeC": 18.44,
+            "windKmh": 16,
+            "windDeg": 258,
+            "gustKmh": 35,
+            "pop": 0.25,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787076000,
+            "tempC": 19.05,
+            "feelsLikeC": 19.07,
+            "windKmh": 10,
+            "windDeg": 242,
+            "gustKmh": 24,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787086800,
+            "tempC": 17.63,
+            "feelsLikeC": 17.82,
+            "windKmh": 9,
+            "windDeg": 214,
+            "gustKmh": 23,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787097600,
+            "tempC": 17.58,
+            "feelsLikeC": 17.77,
+            "windKmh": 7,
+            "windDeg": 210,
+            "gustKmh": 17,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787108400,
+            "tempC": 16.93,
+            "feelsLikeC": 17.11,
+            "windKmh": 8,
+            "windDeg": 340,
+            "gustKmh": 23,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787119200,
+            "tempC": 16.64,
+            "feelsLikeC": 16.58,
+            "windKmh": 7,
+            "windDeg": 218,
+            "gustKmh": 18,
+            "pop": 1,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787130000,
+            "tempC": 17.13,
+            "feelsLikeC": 16.99,
+            "windKmh": 8,
+            "windDeg": 260,
+            "gustKmh": 25,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787140800,
+            "tempC": 22.84,
+            "feelsLikeC": 22.35,
+            "windKmh": 14,
+            "windDeg": 247,
+            "gustKmh": 24,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787151600,
+            "tempC": 22.33,
+            "feelsLikeC": 21.85,
+            "windKmh": 12,
+            "windDeg": 234,
+            "gustKmh": 22,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787162400,
+            "tempC": 20.74,
+            "feelsLikeC": 20.28,
+            "windKmh": 15,
+            "windDeg": 242,
+            "gustKmh": 30,
+            "pop": 0.2,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787173200,
+            "tempC": 18.27,
+            "feelsLikeC": 17.8,
+            "windKmh": 10,
+            "windDeg": 207,
+            "gustKmh": 31,
+            "pop": 0.25,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787184000,
+            "tempC": 15.97,
+            "feelsLikeC": 15.71,
+            "windKmh": 7,
+            "windDeg": 188,
+            "gustKmh": 22,
+            "pop": 0.93,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787194800,
+            "tempC": 14.99,
+            "feelsLikeC": 14.66,
+            "windKmh": 7,
+            "windDeg": 185,
+            "gustKmh": 24,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787205600,
+            "tempC": 15.61,
+            "feelsLikeC": 15.26,
+            "windKmh": 7,
+            "windDeg": 173,
+            "gustKmh": 17,
+            "pop": 0.2,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787216400,
+            "tempC": 20.1,
+            "feelsLikeC": 19.65,
+            "windKmh": 11,
+            "windDeg": 218,
+            "gustKmh": 22,
+            "pop": 0,
+            "conditionCode": 802,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787227200,
+            "tempC": 24.14,
+            "feelsLikeC": 23.58,
+            "windKmh": 18,
+            "windDeg": 245,
+            "gustKmh": 32,
+            "pop": 0,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787238000,
+            "tempC": 25.47,
+            "feelsLikeC": 24.78,
+            "windKmh": 21,
+            "windDeg": 252,
+            "gustKmh": 31,
+            "pop": 0,
+            "conditionCode": 803,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787248800,
+            "tempC": 22.02,
+            "feelsLikeC": 21.4,
+            "windKmh": 15,
+            "windDeg": 293,
+            "gustKmh": 26,
+            "pop": 0,
+            "conditionCode": 802,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787259600,
+            "tempC": 19.69,
+            "feelsLikeC": 19.15,
+            "windKmh": 11,
+            "windDeg": 240,
+            "gustKmh": 33,
+            "pop": 0,
+            "conditionCode": 804,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787270400,
+            "tempC": 17.41,
+            "feelsLikeC": 16.93,
+            "windKmh": 9,
+            "windDeg": 236,
+            "gustKmh": 25,
+            "pop": 0.2,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787281200,
+            "tempC": 15.86,
+            "feelsLikeC": 15.25,
+            "windKmh": 9,
+            "windDeg": 228,
+            "gustKmh": 32,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787292000,
+            "tempC": 15.79,
+            "feelsLikeC": 15.2,
+            "windKmh": 11,
+            "windDeg": 246,
+            "gustKmh": 29,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787302800,
+            "tempC": 20.1,
+            "feelsLikeC": 19.6,
+            "windKmh": 13,
+            "windDeg": 250,
+            "gustKmh": 19,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787313600,
+            "tempC": 22.93,
+            "feelsLikeC": 22.4,
+            "windKmh": 14,
+            "windDeg": 277,
+            "gustKmh": 21,
+            "pop": 0.78,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787324400,
+            "tempC": 22.59,
+            "feelsLikeC": 22.08,
+            "windKmh": 18,
+            "windDeg": 312,
+            "gustKmh": 22,
+            "pop": 0.23,
+            "conditionCode": 500,
+            "conditionMain": "Rain"
+          },
+          {
+            "dt": 1787335200,
+            "tempC": 20.11,
+            "feelsLikeC": 19.59,
+            "windKmh": 12,
+            "windDeg": 336,
+            "gustKmh": 17,
+            "pop": 0.02,
+            "conditionCode": 802,
+            "conditionMain": "Clouds"
+          },
+          {
+            "dt": 1787346000,
+            "tempC": 17.62,
+            "feelsLikeC": 16.9,
+            "windKmh": 10,
+            "windDeg": 335,
+            "gustKmh": 26,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787356800,
+            "tempC": 15.28,
+            "feelsLikeC": 14.61,
+            "windKmh": 8,
+            "windDeg": 338,
+            "gustKmh": 17,
+            "pop": 0,
+            "conditionCode": 800,
+            "conditionMain": "Clear"
+          },
+          {
+            "dt": 1787367600,
+            "tempC": 14.25,
+            "feelsLikeC": 13.66,
+            "windKmh": 5,
+            "windDeg": 305,
+            "gustKmh": 9,
+            "pop": 0,
+            "conditionCode": 801,
+            "conditionMain": "Clouds"
+          }
+        ],
+        "fetchedAt": "2026-08-17T05:45:03.548Z"
+      }
+    }
+  ],
+  "location": "Koblenzerstraße 133, Düsseldorf-Garath, Germany",
+  "name": "IFAF World Flag 2026",
+  "participatingTeamIds": [
+    "w-mex",
+    "w-ita",
+    "w-ger",
+    "w-slo",
+    "w-usa",
+    "w-esp",
+    "w-aus",
+    "w-nga",
+    "w-gbr",
+    "w-aut",
+    "w-fra",
+    "w-chn",
+    "w-can",
+    "w-jpn",
+    "w-pan",
+    "w-bra"
+  ],
+  "shortCode": "FFWC26W",
+  "startDate": "2026-08-13T08:00:00.000+02:00",
+  "status": "SCHEDULED",
+  "structure": {
+    "groups": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "poolTeams": {
+      "A": [
+        "w-mex",
+        "w-ita",
+        "w-ger",
+        "w-slo"
+      ],
+      "B": [
+        "w-usa",
+        "w-esp",
+        "w-aus",
+        "w-nga"
+      ],
+      "C": [
+        "w-gbr",
+        "w-aut",
+        "w-fra",
+        "w-chn"
+      ],
+      "D": [
+        "w-can",
+        "w-jpn",
+        "w-pan",
+        "w-bra"
+      ]
+    },
+    "slotsPerGroup": 4,
+    "roundRobinType": "SINGLE",
+    "seedScheme": "group-rank",
+    "playoffBrackets": [
+      {
+        "id": "championship",
+        "title": "Championship (1–8)",
+        "rounds": [
+          {
+            "name": "QUARTERFINALS",
+            "matches": [
+              {
+                "id": "qf1",
+                "home": "SEED:A1",
+                "away": "SEED:B2",
+                "label": "WQF1 A1 v B2",
+                "date": "2026-08-15T09:15:00.000+02:00",
+                "location": "Field 1"
+              },
+              {
+                "id": "qf2",
+                "home": "SEED:B1",
+                "away": "SEED:A2",
+                "label": "WQF2 B1 v A2",
+                "date": "2026-08-15T10:30:00.000+02:00",
+                "location": "Field 1"
+              },
+              {
+                "id": "qf3",
+                "home": "SEED:C1",
+                "away": "SEED:D2",
+                "label": "WQF3 C1 v D2",
+                "date": "2026-08-15T10:30:00.000+02:00",
+                "location": "Field 2"
+              },
+              {
+                "id": "qf4",
+                "home": "SEED:D1",
+                "away": "SEED:C2",
+                "label": "WQF4 D1 v C2",
+                "date": "2026-08-15T09:15:00.000+02:00",
+                "location": "Field 2"
+              }
+            ]
+          },
+          {
+            "name": "SEMIFINALS",
+            "matches": [
+              {
+                "id": "sf1",
+                "home": "WIN:qf1",
+                "away": "WIN:qf4",
+                "label": "WSF1 WWQF1 v WWQF4",
+                "date": "2026-08-15T16:45:00.000+02:00",
+                "location": "Field 1",
+                "places": [
+                  1,
+                  4
+                ]
+              },
+              {
+                "id": "sf2",
+                "home": "WIN:qf2",
+                "away": "WIN:qf3",
+                "label": "WSF2 WWQF2 v WWQF3",
+                "date": "2026-08-15T16:45:00.000+02:00",
+                "location": "Field 2"
+              }
+            ]
+          },
+          {
+            "name": "5–8 SEMIFINALS",
+            "matches": [
+              {
+                "id": "lsf1",
+                "home": "LOSE:qf1",
+                "away": "LOSE:qf4",
+                "label": "WLSF1 LWQF1 v LWQF4",
+                "date": "2026-08-15T15:30:00.000+02:00",
+                "location": "Field 3"
+              },
+              {
+                "id": "lsf2",
+                "home": "LOSE:qf2",
+                "away": "LOSE:qf3",
+                "label": "WLSF2 LWQF2 v LWQF3",
+                "date": "2026-08-15T16:45:00.000+02:00",
+                "location": "Field 3"
+              }
+            ]
+          },
+          {
+            "name": "FINAL",
+            "matches": [
+              {
+                "id": "pg8",
+                "home": "WIN:sf1",
+                "away": "WIN:sf2",
+                "label": "WPG8 WWSF1 v WWSF2",
+                "date": "2026-08-16T16:30:00.000+02:00",
+                "location": "Field 1",
+                "places": [
+                  1,
+                  2
+                ]
+              }
+            ]
+          },
+          {
+            "name": "3RD PLACE",
+            "matches": [
+              {
+                "id": "pg7",
+                "home": "LOSE:sf1",
+                "away": "LOSE:sf2",
+                "label": "WPG7 LWSF1 v LWSF2",
+                "date": "2026-08-16T13:30:00.000+02:00",
+                "location": "Field 1",
+                "places": [
+                  3,
+                  4
+                ]
+              }
+            ]
+          },
+          {
+            "name": "5TH PLACE",
+            "matches": [
+              {
+                "id": "pg6",
+                "home": "WIN:lsf1",
+                "away": "WIN:lsf2",
+                "label": "WPG6 WWLSF1 v WWLSF2",
+                "date": "2026-08-16T10:30:00.000+02:00",
+                "location": "Field 2",
+                "places": [
+                  5,
+                  6
+                ]
+              }
+            ]
+          },
+          {
+            "name": "7TH PLACE",
+            "matches": [
+              {
+                "id": "pg5",
+                "home": "LOSE:lsf1",
+                "away": "LOSE:lsf2",
+                "label": "WPG5 LWLSF1 v LWLSF2",
+                "date": "2026-08-16T08:00:00.000+02:00",
+                "location": "Field 2",
+                "places": [
+                  7,
+                  8
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "places-9-16",
+        "title": "Places 9–16",
+        "rounds": [
+          {
+            "name": "QUARTERFINALS",
+            "matches": [
+              {
+                "id": "bqf1",
+                "home": "SEED:A3",
+                "away": "SEED:B4",
+                "label": "WBQF1 A3 v B4",
+                "date": "2026-08-14T18:00:00.000+02:00",
+                "location": "Field 2"
+              },
+              {
+                "id": "bqf2",
+                "home": "SEED:B3",
+                "away": "SEED:A4",
+                "label": "WBQF2 B3 v A4",
+                "date": "2026-08-14T18:00:00.000+02:00",
+                "location": "Field 3"
+              },
+              {
+                "id": "bqf3",
+                "home": "SEED:C3",
+                "away": "SEED:D4",
+                "label": "WBQF3 C3 v D4",
+                "date": "2026-08-14T16:45:00.000+02:00",
+                "location": "Field 2"
+              },
+              {
+                "id": "bqf4",
+                "home": "SEED:D3",
+                "away": "SEED:C4",
+                "label": "WBQF4 D3 v C4",
+                "date": "2026-08-14T16:45:00.000+02:00",
+                "location": "Field 3"
+              }
+            ]
+          },
+          {
+            "name": "SEMIFINALS",
+            "matches": [
+              {
+                "id": "bsf1",
+                "home": "WIN:bqf1",
+                "away": "WIN:bqf4",
+                "label": "WBSF1 WWBQF1 v WWBQF4",
+                "date": "2026-08-15T14:15:00.000+02:00",
+                "location": "Field 1"
+              },
+              {
+                "id": "bsf2",
+                "home": "WIN:bqf2",
+                "away": "WIN:bqf3",
+                "label": "WBSF2 WWBQF2 v WWBQF3",
+                "date": "2026-08-15T13:00:00.000+02:00",
+                "location": "Field 3"
+              }
+            ]
+          },
+          {
+            "name": "13–16 SEMIFINALS",
+            "matches": [
+              {
+                "id": "blsf1",
+                "home": "LOSE:bqf1",
+                "away": "LOSE:bqf4",
+                "label": "WBLSF1 LWBQF1 v LWBQF4",
+                "date": "2026-08-15T11:45:00.000+02:00",
+                "location": "Field 3"
+              },
+              {
+                "id": "blsf2",
+                "home": "LOSE:bqf2",
+                "away": "LOSE:bqf3",
+                "label": "WBLSF2 LWBQF2 v LWBQF3",
+                "date": "2026-08-15T10:30:00.000+02:00",
+                "location": "Field 3"
+              }
+            ]
+          },
+          {
+            "name": "9TH PLACE",
+            "matches": [
+              {
+                "id": "bpg4",
+                "home": "WIN:bsf1",
+                "away": "WIN:bsf2",
+                "label": "WBPG4 WWBSF1 v WWBSF2",
+                "date": "2026-08-16T13:00:00.000+02:00",
+                "location": "Field 3",
+                "places": [
+                  9,
+                  10
+                ]
+              }
+            ]
+          },
+          {
+            "name": "11TH PLACE",
+            "matches": [
+              {
+                "id": "bpg3",
+                "home": "LOSE:bsf1",
+                "away": "LOSE:bsf2",
+                "label": "WBPG3 LWBSF1 v LWBSF2",
+                "date": "2026-08-16T10:30:00.000+02:00",
+                "location": "Field 3",
+                "places": [
+                  11,
+                  12
+                ]
+              }
+            ]
+          },
+          {
+            "name": "13TH PLACE",
+            "matches": [
+              {
+                "id": "bpg2",
+                "home": "WIN:blsf1",
+                "away": "WIN:blsf2",
+                "label": "WBPG2 WWBLSF1 v WWBLSF2",
+                "date": "2026-08-15T19:15:00.000+02:00",
+                "location": "Field 3",
+                "places": [
+                  13,
+                  14
+                ]
+              }
+            ]
+          },
+          {
+            "name": "15TH PLACE",
+            "matches": [
+              {
+                "id": "bpg1",
+                "home": "LOSE:blsf1",
+                "away": "LOSE:blsf2",
+                "label": "WBPG1 LWBLSF1 v LWBLSF2",
+                "date": "2026-08-15T18:00:00.000+02:00",
+                "location": "Field 3",
+                "places": [
+                  15,
+                  16
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "withdrawnTeamIds": [
+      "w-nga"
+    ]
+  },
+  "logoUrl": "https://firebasestorage.googleapis.com/v0/b/ifaf-play.firebasestorage.app/o/tournaments%2Fffwc26%2FScreenshot%202026-07-19%20at%2013.15.10.png?alt=media&token=97a64c9f-cabf-4cd2-9aac-100d334b3dbd",
+  "mastheadUrl": "https://firebasestorage.googleapis.com/v0/b/ifaf-play.firebasestorage.app/o/tournaments%2Fffwc26%2Fbg.png?alt=media&token=fa3999bb-961e-4a9d-826d-ff2302de7a51",
+  "isPublic": true,
+  "officialIds": [],
+  "updatedAt": "2026-08-17T05:45:03.906Z",
+  "id": "ffwc26-women"
+}

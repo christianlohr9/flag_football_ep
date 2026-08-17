@@ -1,0 +1,5163 @@
+[
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9f9-e8c8-74c4-a949-cfe5ee2ef80f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.591Z",
+    "updatedAt": "2026-08-15T18:14:31.591Z",
+    "id": "01a006a1-f143-7283-91a7-bf12617183ee"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 2,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "PASS_BREAK_UP",
+        "player": "2",
+        "playerId": "w-mex-p17"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#18 Nora Cermak → (deflected)",
+      "text": "INCOMPLETE PASS #18 Nora Cermak → (deflected)",
+      "from": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9fa-9055-72b8-b323-83320484e190",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.591Z",
+    "updatedAt": "2026-08-15T18:14:31.591Z",
+    "id": "01a006a1-f143-7283-91a7-c03f99920141"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-mex-p8"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9fb-44d7-7450-9b2b-d158d662b08c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.591Z",
+    "updatedAt": "2026-08-15T18:14:31.591Z",
+    "id": "01a006a1-f143-7283-91a7-c69724be5fe6"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9fb-e0e1-712e-b8ec-d42bb7a83028",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.591Z",
+    "updatedAt": "2026-08-15T18:14:31.591Z",
+    "id": "01a006a1-f144-72ef-ba91-73b5b3ec842d"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 5,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 2,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9fc-8431-762a-af68-321f2652d6e0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.591Z",
+    "updatedAt": "2026-08-15T18:14:31.591Z",
+    "id": "01a006a1-f144-72ef-ba91-7700096c19a4"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "ballOn": 44,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#21 Ellen Riess (6 pts)",
+      "text": "TOUCHDOWN #21 Ellen Riess (6 pts)",
+      "from": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9fd-2461-766b-a99e-c76d0e3c8e58",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.591Z",
+    "updatedAt": "2026-08-15T18:14:31.591Z",
+    "id": "01a006a1-f144-72ef-ba91-7a01020bc05e"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "ballOn": 44,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "c9c4fdfe-b7b2-4f79-ab9e-5ac7b78dbc39",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.591Z",
+    "updatedAt": "2026-08-15T18:14:31.591Z",
+    "id": "01a006a1-f144-72ef-ba91-7e666492980d"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 8,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "ballOn": 45,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "TRY",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#14 Carla Törner (2 pts)",
+      "text": "TRY #14 Carla Törner (2 pts)",
+      "from": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      },
+      "points": 2
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9fe-185e-73b3-bd59-e81d05c031fb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-832bd5a49671"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 9,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #13 Andy Martinez",
+      "text": "COMPLETE PASS #33 Diana Flores → #13 Andy Martinez",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9fe-8f9a-74a9-b171-0aedb23529aa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-86973d1820e0"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 10,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 2,
+      "ballOn": 14,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p16"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p16"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9fe-d09d-7289-baf9-878ad75ae42d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-899f5ea30e5c"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 11,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "ballOn": 14,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-mex-p14"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9ff-43fd-746c-96e5-32b88e25a6dd",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-8d7b2dab7709"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 12,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 4,
+      "ballOn": 24,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #31 Tania Rincon",
+      "text": "COMPLETE PASS #33 Diana Flores → #31 Tania Rincon",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "31"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ff9ff-a46e-779b-b014-88c777a4ad7b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-921b557ae979"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 31,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-mex-p14"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa00-3b73-70cf-b5e2-b77543fb2d66",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-96c6ac3aa39b"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "ballOn": 46,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "e3113c8d-4332-4843-a256-5d791be35861",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-9bc9ace211a8"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 15,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 48,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#31 Tania Rincon (6 pts)",
+      "text": "TOUCHDOWN #31 Tania Rincon (6 pts)",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "31"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa00-b9a5-7031-a7fc-80ab7a1a3a6f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-9cd7454703dd"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 16,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "ballOn": 40,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p17"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p17"
+      },
+      {
+        "action": "TRY",
+        "player": "2",
+        "playerId": "w-mex-p17"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa01-67f6-748b-ba3f-69556bf43dfe",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-a14d8e105e75"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-mex-p3"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa02-1829-701c-8680-13d744cba661",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-a6ce5867281d"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 18,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 2,
+      "ballOn": 14,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "2",
+        "playerId": "w-mex-p17"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      },
+      "flagPulledBy": {
+        "number": "2"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa02-a803-74ad-9c1b-ea36aaefa860",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-aaaa06832f77"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 19,
+    "context": {
+      "gameClockMs": 575412,
+      "half": 1,
+      "ballOn": 21,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "b85b7723-681e-435a-af86-4164ea345dc0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-ade3a54368ce"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 575412,
+      "half": 1,
+      "down": 4,
+      "ballOn": 11,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-ger-p4",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-ger-p4",
+        "intendedReceiverId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Kyra Fischer",
+      "text": "INCOMPLETE PASS #7 Kyra Fischer",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa04-7a84-7178-8cde-0c1843c77128",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-b2f3749ea16b"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 21,
+    "context": {
+      "gameClockMs": 562050,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #13 Andy Martinez",
+      "text": "COMPLETE PASS #33 Diana Flores → #13 Andy Martinez",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa04-e47f-701e-b0c6-48f5daa01558",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-b574ac293ab6"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 22,
+    "context": {
+      "gameClockMs": 536402,
+      "half": 1,
+      "down": 2,
+      "ballOn": 11,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-mex-p14"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa05-3bec-718e-9735-40717e5a85dd",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f144-72ef-ba91-ba5b712e27c0"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 23,
+    "context": {
+      "gameClockMs": 513021,
+      "half": 1,
+      "down": 3,
+      "ballOn": 19,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-mex-p14"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa05-bbf9-761f-b811-8f2475770ea4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b97f-fe685a992de2"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 24,
+    "context": {
+      "gameClockMs": 479335,
+      "half": 1,
+      "down": 1,
+      "ballOn": 30,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #13 Andy Martinez",
+      "text": "COMPLETE PASS #33 Diana Flores → #13 Andy Martinez",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa06-311d-765b-8093-939130423599",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-00d2c76fae5e"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 25,
+    "context": {
+      "gameClockMs": 451395,
+      "half": 1,
+      "down": 2,
+      "ballOn": 44,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "PASS_BREAK_UP",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores → (deflected)",
+      "text": "INCOMPLETE PASS #33 Diana Flores → (deflected)",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa06-9259-76c9-9bbb-65e0ba791e56",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-04abd821ba1c"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 26,
+    "context": {
+      "gameClockMs": 423732,
+      "half": 1,
+      "down": 3,
+      "ballOn": 44,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p11"
+      },
+      {
+        "action": "PASS_BREAK_UP",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores → (deflected)",
+      "text": "INCOMPLETE PASS #33 Diana Flores → (deflected)",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa07-2d37-72fa-9cd9-1f749a89cdd9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-09f6a6176609"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 27,
+    "context": {
+      "gameClockMs": 388878,
+      "half": 1,
+      "down": 4,
+      "ballOn": 44,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 6,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#31 Tania Rincon (6 pts)",
+      "text": "TOUCHDOWN #31 Tania Rincon (6 pts)",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "31"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa07-d7de-74f4-ad5f-3949ae24b81b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-0d48b1a779f1"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 28,
+    "context": {
+      "gameClockMs": 349464,
+      "half": 1,
+      "down": 4,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 12,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p3"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "27",
+        "playerId": "w-mex-p3"
+      },
+      {
+        "action": "TRY",
+        "player": "27",
+        "playerId": "w-mex-p3"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#27 Allison Salazar (1 pt)",
+      "text": "TRY #27 Allison Salazar (1 pt)",
+      "from": {
+        "name": "Allison Salazar",
+        "number": "27",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p3/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "receiver": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa08-6667-764a-9acc-e1635ce1c5aa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-10a1b3bfb2bb"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 29,
+    "context": {
+      "gameClockMs": 299917,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#18 Nora Cermak",
+      "text": "INCOMPLETE PASS #18 Nora Cermak",
+      "from": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa08-f4be-77bd-8835-dc94a4639dfa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-158494794be3"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 30,
+    "context": {
+      "gameClockMs": 299917,
+      "half": 1,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa09-663c-773c-b802-7b411a2d0f5d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-183a23c07a39"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 31,
+    "context": {
+      "gameClockMs": 235652,
+      "half": 1,
+      "down": 3,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "18",
+        "playerId": "w-ger-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-mex-p8"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#18 Nora Cermak",
+      "text": "RUN #18 Nora Cermak",
+      "from": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "18"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa0a-2558-775f-815f-b6836152ed79",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-1efadda05cc6"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 32,
+    "context": {
+      "gameClockMs": 194803,
+      "half": 1,
+      "down": 4,
+      "ballOn": 14,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#18 Nora Cermak",
+      "text": "INCOMPLETE PASS #18 Nora Cermak",
+      "from": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa0a-c31c-74ba-b6fc-2688130dbe31",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-2299462931f5"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 33,
+    "context": {
+      "gameClockMs": 138164,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #13 Andy Martinez",
+      "text": "COMPLETE PASS #33 Diana Flores → #13 Andy Martinez",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "1e539fda-70a4-49a6-bbaa-a6c8d5fe317a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-2572b7b6b3cb"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 34,
+    "context": {
+      "gameClockMs": 109629,
+      "half": 1,
+      "down": 2,
+      "ballOn": 12,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa0c-1cd2-77cf-ad71-ffaddb86ed50",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-291c8a228c8d"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 35,
+    "context": {
+      "gameClockMs": 74000,
+      "half": 1,
+      "down": 3,
+      "ballOn": 12,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa0c-77b3-736f-918d-59d94c405abe",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.592Z",
+    "updatedAt": "2026-08-15T18:14:31.592Z",
+    "id": "01a006a1-f145-757a-b980-2f1c4fce68bd"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 36,
+    "context": {
+      "gameClockMs": 69000,
+      "half": 1,
+      "down": 4,
+      "ballOn": 12,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#31 Tania Rincon",
+      "text": "RUN #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "31"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa0d-45f0-7632-b5b9-031f4875b732",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-339a6f4dfb4b"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 37,
+    "context": {
+      "gameClockMs": 55485,
+      "half": 1,
+      "down": 1,
+      "ballOn": 30,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "31",
+        "playerId": "w-mex-p16",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "9",
+        "playerId": "w-ger-p6"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #13 Andy Martinez",
+      "text": "COMPLETE PASS #31 Tania Rincon → #13 Andy Martinez",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "9"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa0e-2cde-7409-935e-8784c6097f64",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-36c05b5d522f"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 38,
+    "context": {
+      "gameClockMs": 44694,
+      "half": 1,
+      "down": 2,
+      "ballOn": 35,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#31 Tania Rincon (6 pts)",
+      "text": "TOUCHDOWN #31 Tania Rincon (6 pts)",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "31"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa0f-2e21-70ed-ab07-06eabba03169",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-381452dd3e0d"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 39,
+    "context": {
+      "gameClockMs": 35168,
+      "half": 1,
+      "down": 2,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "OTHER"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa10-0605-77c0-af55-223869d0039b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-3e6bfa1023ce"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 40,
+    "context": {
+      "gameClockMs": 35168,
+      "half": 1,
+      "down": 2,
+      "ballOn": 40,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p17"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p17"
+      },
+      {
+        "action": "TRY",
+        "player": "2",
+        "playerId": "w-mex-p17"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa10-7dfb-744a-b1bd-7417741461af",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-41ef8723c8b0"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 41,
+    "context": {
+      "gameClockMs": 35168,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-ger-p4",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Kyra Fischer → #21 Ellen Riess",
+      "text": "COMPLETE PASS #7 Kyra Fischer → #21 Ellen Riess",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa11-20b2-729c-a07e-8e6bfc4b6a6c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-46d2d3d572e7"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 42,
+    "context": {
+      "gameClockMs": 19382,
+      "half": 1,
+      "down": 2,
+      "ballOn": 14,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-mex-p10"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa11-e1b3-705b-89b1-20f030d2a560",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-49552eeeb1c9"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 43,
+    "context": {
+      "gameClockMs": 19382,
+      "half": 1,
+      "down": 3,
+      "ballOn": 18,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "23",
+        "playerId": "w-mex-p9"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#7 Kyra Fischer",
+      "text": "RUN #7 Kyra Fischer",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa12-f0a9-73cc-bd52-4442d41a9aa3",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-4f5cdba55934"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 44,
+    "context": {
+      "gameClockMs": 4805,
+      "half": 1,
+      "ballOn": 24,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "OTHER"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "dca6580f-db76-459b-aec7-e042a05c133f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-534adb247445"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 45,
+    "context": {
+      "gameClockMs": 0,
+      "half": 1,
+      "down": 4,
+      "ballOn": 19,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "PASS_BREAK_UP",
+        "player": "2",
+        "playerId": "w-mex-p17"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse → (deflected)",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse → (deflected)",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa13-c9e5-72c9-a107-1f528df8245b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-57da9de0935c"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 46,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-mex-p14"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa16-67b6-7076-82be-172429d3c2e7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-5a0786eb0ac7"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 47,
+    "context": {
+      "gameClockMs": 1184456,
+      "half": 2,
+      "down": 2,
+      "ballOn": 12,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #31 Tania Rincon",
+      "text": "COMPLETE PASS #33 Diana Flores → #31 Tania Rincon",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "31"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa16-c56b-74c9-bffd-022a9ff05eb9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-5cbc5e618043"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 48,
+    "context": {
+      "gameClockMs": 1159859,
+      "half": 2,
+      "down": 3,
+      "ballOn": 24,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "33",
+        "playerId": "w-mex-p7"
+      }
+    ],
+    "outcome": {
+      "type": "RUN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#33 Diana Flores",
+      "text": "RUN #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "33"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa17-2c16-7129-81e9-0cdb12659c46",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-616f11245c4b"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 49,
+    "context": {
+      "gameClockMs": 1132483,
+      "half": 2,
+      "down": 1,
+      "ballOn": 35,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-mex-p14"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa17-b80b-756c-a13d-b2bb87507e96",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.593Z",
+    "updatedAt": "2026-08-15T18:14:31.593Z",
+    "id": "01a006a1-f145-757a-b980-6788aac08c79"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 50,
+    "context": {
+      "gameClockMs": 1076493,
+      "half": 2,
+      "down": 2,
+      "ballOn": 46,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 19,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Andy Martinez (6 pts)",
+      "text": "TOUCHDOWN #13 Andy Martinez (6 pts)",
+      "from": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa18-5a05-7579-b2e6-37f6455a3e24",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-699d5e901554"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 51,
+    "context": {
+      "gameClockMs": 1064816,
+      "half": 2,
+      "down": 2,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 25,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "TRY",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#13 Andy Martinez (1 pt)",
+      "text": "TRY #13 Andy Martinez (1 pt)",
+      "from": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa18-cb93-77fa-a1b4-be06dbe7537f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-6ee40097b45a"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 52,
+    "context": {
+      "gameClockMs": 1025642,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "2",
+        "playerId": "w-mex-p17"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#18 Nora Cermak → #21 Ellen Riess",
+      "text": "COMPLETE PASS #18 Nora Cermak → #21 Ellen Riess",
+      "from": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      },
+      "flagPulledBy": {
+        "number": "2"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa19-7a3e-760e-89ea-18cfb4aac289",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-7198c4d1abb8"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 53,
+    "context": {
+      "gameClockMs": 988603,
+      "half": 2,
+      "down": 2,
+      "ballOn": 8,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1a-189c-7018-90ec-cc0fec3441f4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-75fd2ea1814a"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 54,
+    "context": {
+      "gameClockMs": 949311,
+      "half": 2,
+      "down": 3,
+      "ballOn": 13,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-mex-p3"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1a-b42d-75b8-aa4c-233740bb0dc1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-79cf7ac0dea2"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 55,
+    "context": {
+      "gameClockMs": 906330,
+      "half": 2,
+      "down": 4,
+      "ballOn": 22,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      },
+      {
+        "action": "PASS_BREAK_UP",
+        "player": "99",
+        "playerId": "w-mex-p6"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse → (deflected)",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse → (deflected)",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1b-3dcd-746f-80af-2320390358fc",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-7c3374e7d6cb"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 56,
+    "context": {
+      "gameClockMs": 867498,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #13 Andy Martinez",
+      "text": "COMPLETE PASS #33 Diana Flores → #13 Andy Martinez",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1b-989b-77ea-af19-ea5c2725d435",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-826ed0d1b146"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 57,
+    "context": {
+      "gameClockMs": 831734,
+      "half": 2,
+      "down": 2,
+      "ballOn": 11,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "31",
+        "playerId": "w-mex-p16"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #31 Tania Rincon",
+      "text": "COMPLETE PASS #33 Diana Flores → #31 Tania Rincon",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "31"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1c-04da-77df-87e3-18303f4b76d0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-86dbaeffecac"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 58,
+    "context": {
+      "gameClockMs": 831734,
+      "half": 2,
+      "down": 3,
+      "ballOn": 21,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1d-8b5a-73fc-bae7-4d2b00f88b51",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-8aaa87d41386"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 59,
+    "context": {
+      "gameClockMs": 808973,
+      "half": 2,
+      "down": 4,
+      "ballOn": 21,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #13 Andy Martinez",
+      "text": "COMPLETE PASS #33 Diana Flores → #13 Andy Martinez",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1e-1101-713d-81e4-eeb68869e2a7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-8e4c6d71bc65"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 60,
+    "context": {
+      "gameClockMs": 775328,
+      "half": 2,
+      "down": 1,
+      "ballOn": 32,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7"
+      },
+      {
+        "action": "INTERCEPTION",
+        "player": "9",
+        "playerId": "w-ger-p6"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "21",
+        "playerId": "w-mex-p18"
+      }
+    ],
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#33 Diana Flores → #9 Saskia Macharia",
+      "text": "INTERCEPTION #33 Diana Flores → #9 Saskia Macharia",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Saskia Macharia",
+        "number": "9",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p6/thumb.png"
+      }
+    },
+    "players": {
+      "interceptedBy": {
+        "number": "9"
+      },
+      "flagPulledBy": {
+        "number": "21"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1e-cf5c-7041-b6aa-3ae10bfe362c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f145-757a-b980-9205c17b1a80"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 61,
+    "context": {
+      "gameClockMs": 728243,
+      "half": 2,
+      "down": 1,
+      "ballOn": 16,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#18 Nora Cermak → #14 Carla Törner",
+      "text": "COMPLETE PASS #18 Nora Cermak → #14 Carla Törner",
+      "from": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1f-39f0-706e-80ff-827eb3f1e950",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-d3db6a665c43"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 62,
+    "context": {
+      "gameClockMs": 699848,
+      "half": 2,
+      "down": 2,
+      "ballOn": 24,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p16"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p16"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa1f-beac-7634-97cd-b65f7e991fd7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-d4296c514d80"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 63,
+    "context": {
+      "gameClockMs": 665467,
+      "half": 2,
+      "down": 3,
+      "ballOn": 24,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-mex-p8"
+      },
+      {
+        "action": "INTERCEPTION",
+        "player": "11",
+        "playerId": "w-mex-p8"
+      }
+    ],
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#18 Nora Cermak → #11 Elizabeth Quintana",
+      "text": "INTERCEPTION #18 Nora Cermak → #11 Elizabeth Quintana",
+      "from": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      },
+      "to": {
+        "name": "Elizabeth Quintana",
+        "number": "11",
+        "teamId": "w-mex"
+      }
+    },
+    "players": {
+      "interceptedBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa20-97ab-77be-a040-21be9a8f00a7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-d84d9c37291f"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 64,
+    "context": {
+      "gameClockMs": 595115,
+      "half": 2,
+      "down": 1,
+      "ballOn": 18,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p18"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p18"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa21-0ac1-718d-bd5a-f883f6840a71",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-dec74b1500b0"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 65,
+    "context": {
+      "gameClockMs": 595115,
+      "half": 2,
+      "down": 2,
+      "ballOn": 18,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-mex-p14"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa21-6d99-76bf-a107-9c718c20b0f4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-e1dd9969c753"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 66,
+    "context": {
+      "gameClockMs": 554984,
+      "half": 2,
+      "down": 3,
+      "ballOn": 23,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 26,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p14"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-mex-p14"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "3",
+        "playerId": "w-mex-p14"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#3 Silvia Contreras (6 pts)",
+      "text": "TOUCHDOWN #3 Silvia Contreras (6 pts)",
+      "from": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa21-e03d-74be-b838-b12aebc774c9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-e4ca71af9045"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 67,
+    "context": {
+      "gameClockMs": 531738,
+      "half": 2,
+      "down": 3,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 32,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p18"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-mex-p18"
+      },
+      {
+        "action": "TRY",
+        "player": "21",
+        "playerId": "w-mex-p18"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa22-7354-7429-9d9d-18c71a50222c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-e8f929513e18"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 68,
+    "context": {
+      "gameClockMs": 487617,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 32,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa23-20ee-7616-818d-133af40fe112",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-ee1f334b682b"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 69,
+    "context": {
+      "gameClockMs": 449386,
+      "half": 2,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 32,
+        "away": 8
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa23-7d0d-74b4-b2fc-b92464500ee8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-f388e2a355fb"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 70,
+    "context": {
+      "gameClockMs": 449386,
+      "half": 2,
+      "down": 3,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 32,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "18",
+        "playerId": "w-ger-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-mex-p10"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #18 Nora Cermak",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #18 Nora Cermak",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "18"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "c3a80f97-a05e-4090-a11b-0359c7b729d5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-f79e3adfa4ac"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 71,
+    "context": {
+      "gameClockMs": 422435,
+      "half": 2,
+      "down": 4,
+      "ballOn": 17,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 32,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-mex-p10"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa24-16ee-747d-97c9-cfab2fc73e45",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-fb6ee7f7d585"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 72,
+    "context": {
+      "gameClockMs": 321277,
+      "half": 2,
+      "down": 1,
+      "ballOn": 45,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 32,
+        "away": 8
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#7 Kyra Fischer (6 pts)",
+      "text": "TOUCHDOWN #7 Kyra Fischer (6 pts)",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa25-79e9-709b-bb32-bb74b2440091",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae88-fd0913601d85"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 73,
+    "context": {
+      "gameClockMs": 296318,
+      "half": 2,
+      "down": 1,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 32,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "TRY",
+        "player": "18",
+        "playerId": "w-ger-p9"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa26-28c0-74bd-ba74-7753d2f2e8fa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae89-00ba1ce4b178"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 74,
+    "context": {
+      "gameClockMs": 240853,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 32,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #13 Andy Martinez",
+      "text": "COMPLETE PASS #33 Diana Flores → #13 Andy Martinez",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa26-98d9-7146-bc72-fe467778a66e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae89-07adc72fcd25"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 75,
+    "context": {
+      "gameClockMs": 216322,
+      "half": 2,
+      "down": 2,
+      "ballOn": 11,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 32,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p10"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "1",
+        "playerId": "w-mex-p10"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #1 Yaritza Morales",
+      "text": "COMPLETE PASS #33 Diana Flores → #1 Yaritza Morales",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Yaritza Morales",
+        "number": "1",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p10/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa27-2510-7720-82ff-bad9d1de0e8e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae89-0abd46bdc0d7"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 76,
+    "context": {
+      "gameClockMs": 181011,
+      "half": 2,
+      "down": 3,
+      "ballOn": 20,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 32,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p5"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa27-8b72-77cf-88d0-8adcd11c34f2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae89-0c21e8392e84"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 77,
+    "context": {
+      "gameClockMs": 151417,
+      "half": 2,
+      "down": 4,
+      "ballOn": 20,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 32,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "1",
+        "playerId": "w-mex-p10"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #1 Yaritza Morales",
+      "text": "COMPLETE PASS #33 Diana Flores → #1 Yaritza Morales",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Yaritza Morales",
+        "number": "1",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p10/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "1"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa28-203d-74a8-83df-3a9d675e00d9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.594Z",
+    "updatedAt": "2026-08-15T18:14:31.594Z",
+    "id": "01a006a1-f147-7776-ae89-1105bf8236a6"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 78,
+    "context": {
+      "gameClockMs": 120718,
+      "half": 2,
+      "down": 1,
+      "ballOn": 30,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 32,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "FLAG_PULL",
+        "player": "5",
+        "playerId": "w-ger-p3"
+      },
+      {
+        "action": "RUSH",
+        "player": "21",
+        "playerId": "w-mex-p18"
+      }
+    ],
+    "outcome": {
+      "type": "RUN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#21 Ximena Cuate",
+      "text": "RUN #21 Ximena Cuate",
+      "from": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "21"
+      },
+      "flagPulledBy": {
+        "number": "5"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa28-da0e-777e-80a7-faa3d6131b55",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.595Z",
+    "updatedAt": "2026-08-15T18:14:31.595Z",
+    "id": "01a006a1-f147-7776-ae89-156bbf384ca5"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 79,
+    "context": {
+      "gameClockMs": 103782,
+      "half": 2,
+      "down": 2,
+      "ballOn": 33,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 32,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "21",
+        "playerId": "w-mex-p18"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#21 Ximena Cuate",
+      "text": "RUN #21 Ximena Cuate",
+      "from": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "21"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa29-5541-72fd-a787-c64c75014d13",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.595Z",
+    "updatedAt": "2026-08-15T18:14:31.595Z",
+    "id": "01a006a1-f147-7776-ae89-19973c1070bc"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 80,
+    "context": {
+      "gameClockMs": 44928,
+      "half": 2,
+      "down": 3,
+      "ballOn": 34,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 32,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "21",
+        "playerId": "w-mex-p18",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#21 Ximena Cuate → #13 Andy Martinez",
+      "text": "COMPLETE PASS #21 Ximena Cuate → #13 Andy Martinez",
+      "from": {
+        "name": "Ximena Cuate",
+        "number": "21",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p18/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa2a-cc44-7379-9861-89ee555f783e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.595Z",
+    "updatedAt": "2026-08-15T18:14:31.595Z",
+    "id": "01a006a1-f147-7776-ae89-1fb53aaaa9ee"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 81,
+    "context": {
+      "gameClockMs": 38393,
+      "half": 2,
+      "down": 4,
+      "ballOn": 48,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 32,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "21",
+        "playerId": "w-mex-p18",
+        "intendedReceiverId": "w-mex-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "13",
+        "playerId": "w-mex-p5"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Andy Martinez (6 pts)",
+      "text": "TOUCHDOWN #13 Andy Martinez (6 pts)",
+      "from": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa2b-64c3-729e-ba13-65d44a13c13b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.595Z",
+    "updatedAt": "2026-08-15T18:14:31.595Z",
+    "id": "01a006a1-f147-7776-ae89-23de2f6e2318"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 82,
+    "context": {
+      "gameClockMs": 27875,
+      "half": 2,
+      "down": 4,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 38,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p18"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "33",
+        "playerId": "w-mex-p7",
+        "intendedReceiverId": "w-mex-p18"
+      },
+      {
+        "action": "TRY",
+        "player": "21",
+        "playerId": "w-mex-p18"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa2c-1b55-77ec-8038-4008fcb700c7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.595Z",
+    "updatedAt": "2026-08-15T18:14:31.595Z",
+    "id": "01a006a1-f147-7776-ae89-261017ea54f7"
+  },
+  {
+    "gameId": "ffwc26-wa1",
+    "playNumber": 83,
+    "context": {
+      "gameClockMs": 27875,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 38,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "30",
+        "playerId": "w-ger-p15"
+      }
+    ],
+    "outcome": {
+      "type": "RUN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#30 Saskia Nühse",
+      "text": "RUN #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "30"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffa2c-98ea-737b-9f26-11b83b954df4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-15T18:14:31.595Z",
+    "updatedAt": "2026-08-15T18:14:31.595Z",
+    "id": "01a006a1-f147-7776-ae89-2ae31f3ae1ac"
+  }
+]

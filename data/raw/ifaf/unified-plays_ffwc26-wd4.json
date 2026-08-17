@@ -1,0 +1,5694 @@
+[
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "23",
+        "playerId": "w-pan-p15"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #7 YURIKA OMI",
+      "text": "COMPLETE PASS #3 MIYUNA → #7 YURIKA OMI",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURIKA OMI",
+        "number": "7",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb0f-e2a3-7618-81af-6151b1b81118",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.095Z",
+    "updatedAt": "2026-08-16T07:17:15.095Z",
+    "id": "01a0096e-8c7a-75b3-966b-cab204ae34a4"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 2,
+    "context": {
+      "gameClockMs": 1140931,
+      "half": 1,
+      "down": 2,
+      "ballOn": 11,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "9",
+        "playerId": "w-jpn-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #9 YURI NAKAHATA",
+      "text": "COMPLETE PASS #3 MIYUNA → #9 YURI NAKAHATA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURI NAKAHATA",
+        "number": "9",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "9"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb10-c7a8-700c-b5fe-437b7fc2c796",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.095Z",
+    "updatedAt": "2026-08-16T07:17:15.095Z",
+    "id": "01a0096e-8c7a-75b3-966b-cdc77efe8ca9"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1140931,
+      "half": 1,
+      "down": 3,
+      "ballOn": 17,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "18",
+        "playerId": "w-jpn-p7"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #18 MOE MIYAKE",
+      "text": "COMPLETE PASS #3 MIYUNA → #18 MOE MIYAKE",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "MOE MIYAKE",
+        "number": "18",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p7/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "18"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "21cc28f3-5152-435b-9308-74a5732e0d31",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.095Z",
+    "updatedAt": "2026-08-16T07:17:15.095Z",
+    "id": "01a0096e-8c7a-75b3-966b-d1e31718bf2b"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1108264,
+      "half": 1,
+      "down": 4,
+      "ballOn": 24,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #7 YURIKA OMI",
+      "text": "COMPLETE PASS #3 MIYUNA → #7 YURIKA OMI",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURIKA OMI",
+        "number": "7",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb11-a09d-737f-9740-fae91fd708b2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.095Z",
+    "updatedAt": "2026-08-16T07:17:15.095Z",
+    "id": "01a0096e-8c7b-77b3-b30d-3b532aaab22e"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 5,
+    "context": {
+      "gameClockMs": 1108264,
+      "half": 1,
+      "down": 1,
+      "ballOn": 27,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #7 YURIKA OMI",
+      "text": "COMPLETE PASS #3 MIYUNA → #7 YURIKA OMI",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURIKA OMI",
+        "number": "7",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "4d96d976-0efe-4729-b680-0a0164efe941",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.095Z",
+    "updatedAt": "2026-08-16T07:17:15.095Z",
+    "id": "01a0096e-8c7b-77b3-b30d-3ef675361be6"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 1108264,
+      "half": 1,
+      "down": 2,
+      "ballOn": 34,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb12-5819-77d7-a322-b6bc0e7864e2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.095Z",
+    "updatedAt": "2026-08-16T07:17:15.095Z",
+    "id": "01a0096e-8c7b-77b3-b30d-435e6830cca4"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 989523,
+      "half": 1,
+      "down": 3,
+      "ballOn": 34,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p7"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p7"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb13-0299-779a-90df-a8d0d452938d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.095Z",
+    "updatedAt": "2026-08-16T07:17:15.095Z",
+    "id": "01a0096e-8c7b-77b3-b30d-4651ca9da568"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 8,
+    "context": {
+      "gameClockMs": 955786,
+      "half": 1,
+      "down": 4,
+      "ballOn": 34,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p20"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-jpn-p20"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "13",
+        "playerId": "w-jpn-p20"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 YUI WATANABE (6 pts)",
+      "text": "TOUCHDOWN #13 YUI WATANABE (6 pts)",
+      "from": {
+        "name": "YUI WATANABE",
+        "number": "13",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p20/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb13-b818-737e-8589-377108d0f373",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-4ba491a48f7c"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 9,
+    "context": {
+      "gameClockMs": 934397,
+      "half": 1,
+      "ballOn": 45,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 6,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      },
+      {
+        "action": "TRY",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#7 YURIKA OMI (1 pt)",
+      "text": "TRY #7 YURIKA OMI (1 pt)",
+      "from": {
+        "name": "YURIKA OMI",
+        "number": "7",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p11/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb14-71dd-76be-afda-a23fc0af7770",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-4de08bb2f618"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 10,
+    "context": {
+      "gameClockMs": 880725,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "80",
+        "playerId": "w-pan-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-jpn-p13"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "80"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb14-db0c-732b-a36f-195e31877e9e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-5045c66e3894"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 11,
+    "context": {
+      "gameClockMs": 845289,
+      "half": 1,
+      "down": 2,
+      "ballOn": 13,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "80",
+        "playerId": "w-pan-p8",
+        "intendedReceiverId": "w-pan-p7"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "80",
+        "playerId": "w-pan-p8",
+        "intendedReceiverId": "w-pan-p7"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#80 Clarisse Escobar",
+      "text": "INCOMPLETE PASS #80 Clarisse Escobar",
+      "from": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb15-b77f-7679-b6d8-ec60bbe7b573",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-57c857003001"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 12,
+    "context": {
+      "gameClockMs": 845289,
+      "half": 1,
+      "down": 3,
+      "ballOn": 13,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "8",
+        "playerId": "w-jpn-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #3 Leslie Cid",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #3 Leslie Cid",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "8"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "65f8ab1e-cd25-45ed-88e0-6c416a46d030",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-59e1f2c4a93d"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 795000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 26,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "80",
+        "playerId": "w-pan-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-jpn-p13"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "80"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb17-23b8-77d8-a6bb-62dff804ae1e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-5fe6472bc959"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 783013,
+      "half": 1,
+      "down": 2,
+      "ballOn": 36,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "21",
+        "playerId": "w-jpn-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #13 Carolina Atencio",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #13 Carolina Atencio",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "21"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb17-7c5c-731f-a199-b912077a9780",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-617b62d04f1c"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 15,
+    "context": {
+      "gameClockMs": 753017,
+      "half": 1,
+      "down": 3,
+      "ballOn": 44,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#3 Leslie Cid (6 pts)",
+      "text": "TOUCHDOWN #3 Leslie Cid (6 pts)",
+      "from": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "3"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb18-0acb-741f-b40f-a11312695d76",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-6465ae12f107"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 16,
+    "context": {
+      "gameClockMs": 726441,
+      "half": 1,
+      "ballOn": 45,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-pan-p5",
+        "intendedReceiverId": "w-pan-p10"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-pan-p5",
+        "intendedReceiverId": "w-pan-p10"
+      },
+      {
+        "action": "TRY",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb18-838d-7261-b6b9-21cbb3c2cb0d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-6aa97fb09a36"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 699034,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "18",
+        "playerId": "w-jpn-p7"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #18 MOE MIYAKE",
+      "text": "COMPLETE PASS #3 MIYUNA → #18 MOE MIYAKE",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "MOE MIYAKE",
+        "number": "18",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p7/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "18"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb19-188d-7629-9c09-935b0605b5ab",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-6d8cbaaa99bc"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 18,
+    "context": {
+      "gameClockMs": 680209,
+      "half": 1,
+      "down": 2,
+      "ballOn": 16,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "9",
+        "playerId": "w-jpn-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #9 YURI NAKAHATA",
+      "text": "COMPLETE PASS #3 MIYUNA → #9 YURI NAKAHATA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURI NAKAHATA",
+        "number": "9",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "9"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb19-8a87-73bb-aa63-05cd693c87bb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-7264769c5a50"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 19,
+    "context": {
+      "gameClockMs": 643300,
+      "half": 1,
+      "down": 3,
+      "ballOn": 20,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb1a-0090-777d-b161-d7acae7deb66",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.096Z",
+    "updatedAt": "2026-08-16T07:17:15.096Z",
+    "id": "01a0096e-8c7b-77b3-b30d-762fb7a0edc5"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 609006,
+      "half": 1,
+      "down": 4,
+      "ballOn": 20,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p20"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-jpn-p20"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #13 YUI WATANABE",
+      "text": "COMPLETE PASS #3 MIYUNA → #13 YUI WATANABE",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YUI WATANABE",
+        "number": "13",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p20/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb1a-910f-73cf-aab0-6eb81528901f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-799e52dcdcf4"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 21,
+    "context": {
+      "gameClockMs": 583499,
+      "half": 1,
+      "down": 1,
+      "ballOn": 27,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p20"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-jpn-p20"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "44",
+        "playerId": "w-pan-p1"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #13 YUI WATANABE",
+      "text": "COMPLETE PASS #3 MIYUNA → #13 YUI WATANABE",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YUI WATANABE",
+        "number": "13",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p20/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "44"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb1a-fc08-7079-afc3-b6269e25fb5f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-7fb46cc9d268"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 22,
+    "context": {
+      "gameClockMs": 549772,
+      "half": 1,
+      "down": 2,
+      "ballOn": 35,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "9",
+        "playerId": "w-jpn-p9"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "9",
+        "playerId": "w-jpn-p9"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#9 YURI NAKAHATA (6 pts)",
+      "text": "TOUCHDOWN #9 YURI NAKAHATA (6 pts)",
+      "from": {
+        "name": "YURI NAKAHATA",
+        "number": "9",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p9/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "9"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb1b-610c-700a-b4e9-1668eebc36ee",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-80cea3a2ecc9"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 23,
+    "context": {
+      "gameClockMs": 533095,
+      "half": 1,
+      "ballOn": 45,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      },
+      {
+        "action": "TRY",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb1c-0a8c-7738-ad2c-284197e68674",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-877a7b493c35"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 24,
+    "context": {
+      "gameClockMs": 457806,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb1d-2dee-745e-a0e8-165b6f83e51d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-88fc45573a36"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 25,
+    "context": {
+      "gameClockMs": 387965,
+      "half": 1,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p10"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p10"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb1e-8ee3-75e6-ad92-d7b7749a4f2b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-8c1215bbd0d9"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 26,
+    "context": {
+      "gameClockMs": 340276,
+      "half": 1,
+      "down": 3,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "25",
+        "playerId": "w-jpn-p5"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #3 Leslie Cid",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #3 Leslie Cid",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "25"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb1f-33d6-76b9-9a68-4958e3c686e0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-920b5e9f6319"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 27,
+    "context": {
+      "gameClockMs": 319444,
+      "half": 1,
+      "down": 1,
+      "ballOn": 25,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "80",
+        "playerId": "w-pan-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "25",
+        "playerId": "w-jpn-p5"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "80"
+      },
+      "flagPulledBy": {
+        "number": "25"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb1f-abff-736f-84e8-adf141f2e4d8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-94cf187c5478"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 28,
+    "context": {
+      "gameClockMs": 289519,
+      "half": 1,
+      "down": 2,
+      "ballOn": 34,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "8",
+        "playerId": "w-jpn-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #3 Leslie Cid",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #3 Leslie Cid",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "8"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb20-197b-72cf-a219-0f0b3c5cb2e9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-9b24f8c1788b"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 29,
+    "context": {
+      "gameClockMs": 289519,
+      "half": 1,
+      "down": 2,
+      "ballOn": 42,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb20-6582-714e-bf38-48976f6e453e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-9c233930823c"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 30,
+    "context": {
+      "gameClockMs": 241135,
+      "half": 1,
+      "down": 1,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Carolina Atencio (6 pts)",
+      "text": "TOUCHDOWN #13 Carolina Atencio (6 pts)",
+      "from": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb20-b380-709a-966d-86bb34b346e1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-a37fcdb05d6d"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 31,
+    "context": {
+      "gameClockMs": 221033,
+      "half": 1,
+      "ballOn": 45,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      },
+      {
+        "action": "TRY",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#3 Leslie Cid (1 pt)",
+      "text": "TRY #3 Leslie Cid (1 pt)",
+      "from": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb21-47aa-751f-a5ca-1e0b1f08dcd3",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-a79c5b83168d"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 32,
+    "context": {
+      "gameClockMs": 156793,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #7 YURIKA OMI",
+      "text": "COMPLETE PASS #3 MIYUNA → #7 YURIKA OMI",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURIKA OMI",
+        "number": "7",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb22-4d1d-7376-bc7f-02dec826969e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-aaf5f9cdf28e"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 33,
+    "context": {
+      "gameClockMs": 115321,
+      "half": 1,
+      "down": 2,
+      "ballOn": 11,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "18",
+        "playerId": "w-jpn-p7"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "23",
+        "playerId": "w-pan-p15"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #18 MOE MIYAKE",
+      "text": "COMPLETE PASS #3 MIYUNA → #18 MOE MIYAKE",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "MOE MIYAKE",
+        "number": "18",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p7/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "18"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb22-ff2a-700a-9187-dbae8a2c7f1f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-ac4333aa0336"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 34,
+    "context": {
+      "gameClockMs": 115321,
+      "half": 1,
+      "down": 3,
+      "ballOn": 18,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "9",
+        "playerId": "w-jpn-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "44",
+        "playerId": "w-pan-p1"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #9 YURI NAKAHATA",
+      "text": "COMPLETE PASS #3 MIYUNA → #9 YURI NAKAHATA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURI NAKAHATA",
+        "number": "9",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "9"
+      },
+      "flagPulledBy": {
+        "number": "44"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb23-7159-7738-8da5-b9667a1d3495",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-b3817d7587cf"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 35,
+    "context": {
+      "gameClockMs": 75337,
+      "half": 1,
+      "down": 4,
+      "ballOn": 24,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p20"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-jpn-p20"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #13 YUI WATANABE",
+      "text": "COMPLETE PASS #3 MIYUNA → #13 YUI WATANABE",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YUI WATANABE",
+        "number": "13",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p20/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb24-1013-72bc-8800-68b0ea30c323",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-b60f301c698c"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 36,
+    "context": {
+      "gameClockMs": 67599,
+      "half": 1,
+      "down": 1,
+      "ballOn": 35,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "18",
+        "playerId": "w-jpn-p7"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #18 MOE MIYAKE",
+      "text": "COMPLETE PASS #3 MIYUNA → #18 MOE MIYAKE",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "MOE MIYAKE",
+        "number": "18",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p7/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "18"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb24-a49e-7150-9afa-51c3e863b9d0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-ba4778a399de"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 37,
+    "context": {
+      "gameClockMs": 69599,
+      "half": 1,
+      "down": 2,
+      "ballOn": 40,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "5",
+        "playerId": "w-pan-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#7 YURIKA OMI",
+      "text": "RUN #7 YURIKA OMI",
+      "from": {
+        "name": "YURIKA OMI",
+        "number": "7",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p11/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "5"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb26-0053-762d-96a9-bee969b3d35a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-be214ce954e9"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 38,
+    "context": {
+      "gameClockMs": 61614,
+      "half": 1,
+      "down": 3,
+      "ballOn": 44,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb27-15dd-747b-9e11-2f3f652c0b10",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-c101bf60fac2"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 39,
+    "context": {
+      "gameClockMs": 57125,
+      "half": 1,
+      "down": 4,
+      "ballOn": 44,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb27-a286-77ce-95aa-110eb4398784",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-c6daabd94697"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 40,
+    "context": {
+      "gameClockMs": 41173,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb28-29a2-775a-a1eb-613e2d591701",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-cbc708dd0893"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 41,
+    "context": {
+      "gameClockMs": 41173,
+      "half": 1,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "80",
+        "playerId": "w-pan-p8"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "80"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb28-96a5-7738-ba6d-3ebc30246e04",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-ccc8dbab4db0"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 42,
+    "context": {
+      "gameClockMs": 26954,
+      "half": 1,
+      "down": 3,
+      "ballOn": 13,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "80",
+        "playerId": "w-pan-p8"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "80"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb29-0d6b-72d8-8fc7-7bd0687da868",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.097Z",
+    "updatedAt": "2026-08-16T07:17:15.097Z",
+    "id": "01a0096e-8c7b-77b3-b30d-d23091e3378c"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 43,
+    "context": {
+      "gameClockMs": 26954,
+      "half": 1,
+      "down": 4,
+      "ballOn": 21,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "80",
+        "playerId": "w-pan-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-jpn-p13"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "80"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb29-b8e7-75d8-8095-eabb1b632e19",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-d4499096a226"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 44,
+    "context": {
+      "gameClockMs": 19240,
+      "half": 1,
+      "down": 1,
+      "ballOn": 27,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #13 Carolina Atencio",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #13 Carolina Atencio",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb2a-58a3-72b4-b33a-207005833dab",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-d9b7be6e5b20"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 45,
+    "context": {
+      "gameClockMs": 2752,
+      "half": 1,
+      "down": 2,
+      "ballOn": 39,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb2c-386c-72db-9899-9c175ded2830",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-dfd3976bc877"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 46,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "ballOn": 39,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 13
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Carolina Atencio (6 pts)",
+      "text": "TOUCHDOWN #13 Carolina Atencio (6 pts)",
+      "from": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb2f-63a6-767d-99bd-5a7b7bfa19d4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-e12c8c15ed0d"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 47,
+    "context": {
+      "gameClockMs": 1172350,
+      "half": 1,
+      "ballOn": 45,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "TRY",
+        "player": "80",
+        "playerId": "w-pan-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb30-2400-74be-87b2-ecb64d8ede73",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-e57f8f42263c"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 48,
+    "context": {
+      "gameClockMs": 1010598,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "25",
+        "playerId": "w-jpn-p5"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #13 Carolina Atencio",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #13 Carolina Atencio",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "25"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "5253ed27-99c4-4502-8036-1cc54ef6724c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-ea2bd7a631ff"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 49,
+    "context": {
+      "gameClockMs": 976015,
+      "half": 2,
+      "down": 1,
+      "ballOn": 14,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "6750642d-78ef-4d02-91b7-722afe969189",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-eccfe7b61336"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 50,
+    "context": {
+      "gameClockMs": 1144496,
+      "half": 2,
+      "down": 1,
+      "ballOn": 22,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-pan-p5",
+        "intendedReceiverId": "w-pan-p7"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-pan-p5",
+        "intendedReceiverId": "w-pan-p7"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 Leslie Cid",
+      "text": "INCOMPLETE PASS #3 Leslie Cid",
+      "from": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "650d9e1f-5c2c-4585-932c-efb3dcd9df08",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-f0ea1cfa1784"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 51,
+    "context": {
+      "gameClockMs": 1144496,
+      "half": 2,
+      "down": 2,
+      "ballOn": 19,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "80",
+        "playerId": "w-pan-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "8",
+        "playerId": "w-jpn-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "80"
+      },
+      "flagPulledBy": {
+        "number": "8"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb30-9e93-7306-bcf4-121260217806",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-f68f6b071199"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 52,
+    "context": {
+      "gameClockMs": 1107239,
+      "half": 2,
+      "down": 1,
+      "ballOn": 27,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-jpn-p13"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #3 Leslie Cid",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #3 Leslie Cid",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "6bf28bdc-05f6-429a-8851-e28e2b65ae69",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-fb6e75469816"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 53,
+    "context": {
+      "gameClockMs": 1069452,
+      "half": 2,
+      "down": 2,
+      "ballOn": 36,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p15"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "23",
+        "playerId": "w-pan-p15"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "8",
+        "playerId": "w-jpn-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #23 Ana Vincensini",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #23 Ana Vincensini",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Ana Vincensini",
+        "number": "23",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p15/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "23"
+      },
+      "flagPulledBy": {
+        "number": "8"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb31-8f57-7554-bc1e-6f7148a20e39",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30d-fde197aa600e"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 54,
+    "context": {
+      "gameClockMs": 1040727,
+      "half": 2,
+      "down": 3,
+      "ballOn": 40,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p15"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "23",
+        "playerId": "w-pan-p15"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "8",
+        "playerId": "w-jpn-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #23 Ana Vincensini",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #23 Ana Vincensini",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Ana Vincensini",
+        "number": "23",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p15/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "23"
+      },
+      "flagPulledBy": {
+        "number": "8"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb32-0fe2-70dc-a095-a6fc59b34f63",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30e-013da7edd246"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 55,
+    "context": {
+      "gameClockMs": 1010598,
+      "half": 2,
+      "down": 4,
+      "ballOn": 47,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p15"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "23",
+        "playerId": "w-pan-p15"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "23",
+        "playerId": "w-pan-p15"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#23 Ana Vincensini (6 pts)",
+      "text": "TOUCHDOWN #23 Ana Vincensini (6 pts)",
+      "from": {
+        "name": "Ana Vincensini",
+        "number": "23",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p15/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb32-8bca-759c-b7e2-4ed2a856e8b2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30e-04625b94a533"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 56,
+    "context": {
+      "gameClockMs": 970833,
+      "half": 2,
+      "ballOn": 40,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "SACK",
+        "player": "17",
+        "playerId": "w-jpn-p10"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "17",
+        "playerId": "w-jpn-p10"
+      },
+      {
+        "action": "TRY",
+        "player": "7",
+        "playerId": "w-pan-p7"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "players": {
+      "flagPulledBy": {
+        "number": "17"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb33-4c7d-768a-9a6f-601cfe21da11",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30e-0b019c1ac834"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 57,
+    "context": {
+      "gameClockMs": 932073,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "9",
+        "playerId": "w-jpn-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "23",
+        "playerId": "w-pan-p15"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #9 YURI NAKAHATA",
+      "text": "COMPLETE PASS #3 MIYUNA → #9 YURI NAKAHATA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURI NAKAHATA",
+        "number": "9",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "9"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb33-e463-71ae-9f83-e15980feefd3",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30e-0e03aa7cee02"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 58,
+    "context": {
+      "gameClockMs": 882932,
+      "half": 2,
+      "down": 2,
+      "ballOn": 17,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p7"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p7"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb34-7401-73d9-b344-d7ee7acfb0ba",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30e-109e2524d0ed"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 59,
+    "context": {
+      "gameClockMs": 842347,
+      "half": 2,
+      "down": 3,
+      "ballOn": 17,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb35-02fa-74f0-b513-f7217401392a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7b-77b3-b30e-175937c96b58"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 60,
+    "context": {
+      "gameClockMs": 818179,
+      "half": 2,
+      "down": 4,
+      "ballOn": 17,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p20"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p20"
+      },
+      {
+        "action": "PASS_BREAK_UP",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA → (deflected)",
+      "text": "INCOMPLETE PASS #3 MIYUNA → (deflected)",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb35-a66d-7530-b6f4-29a9d1eda3c2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7c-7709-b534-619694a60954"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 61,
+    "context": {
+      "gameClockMs": 779021,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-pan-p5",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-pan-p5",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "PASS_BREAK_UP",
+        "player": "25",
+        "playerId": "w-jpn-p5"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 Leslie Cid → (deflected)",
+      "text": "INCOMPLETE PASS #3 Leslie Cid → (deflected)",
+      "from": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb36-ef04-756a-bbee-9c018af82b9c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7c-7709-b534-657cfc3168c1"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 62,
+    "context": {
+      "gameClockMs": 767428,
+      "half": 2,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "PASS_BREAK_UP",
+        "player": "25",
+        "playerId": "w-jpn-p5"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro → (deflected)",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro → (deflected)",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb37-ac40-7762-b1f7-f204a114bf9d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7c-7709-b534-6bb98afda569"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 63,
+    "context": {
+      "gameClockMs": 717549,
+      "half": 2,
+      "down": 3,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "OTHER"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb38-29b0-742a-93a7-7b55c858eed0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7c-7709-b534-6dc600d48fa3"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 64,
+    "context": {
+      "gameClockMs": 717549,
+      "half": 2,
+      "down": 3,
+      "ballOn": 2,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-jpn-p13"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #3 Leslie Cid",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #3 Leslie Cid",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb38-b866-7589-a316-04ea83476c6a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7c-7709-b534-72b0f0d4d024"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 65,
+    "context": {
+      "gameClockMs": 717549,
+      "half": 2,
+      "down": 3,
+      "ballOn": 22,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "OTHER"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "6763731e-6240-4109-a138-598f7df15660",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.098Z",
+    "updatedAt": "2026-08-16T07:17:15.098Z",
+    "id": "01a0096e-8c7c-7709-b534-750f8e859b6c"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 66,
+    "context": {
+      "gameClockMs": 608952,
+      "half": 2,
+      "down": 1,
+      "ballOn": 27,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p10"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "33",
+        "playerId": "w-pan-p10"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "8",
+        "playerId": "w-jpn-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #33 Maria Galeano",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #33 Maria Galeano",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Maria Galeano",
+        "number": "33",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p10/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "33"
+      },
+      "flagPulledBy": {
+        "number": "8"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb39-71ea-7500-8ade-5b8c1e5c7b7f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.099Z",
+    "updatedAt": "2026-08-16T07:17:15.099Z",
+    "id": "01a0096e-8c7c-7709-b534-780dc50d1390"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 67,
+    "context": {
+      "gameClockMs": 608465,
+      "half": 2,
+      "down": 2,
+      "ballOn": 36,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p5"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-jpn-p13"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #3 Leslie Cid",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #3 Leslie Cid",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "b2e8505c-d56a-40db-8c6b-11d6eb5ef624",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.099Z",
+    "updatedAt": "2026-08-16T07:17:15.099Z",
+    "id": "01a0096e-8c7c-7709-b534-7f0705ade543"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 68,
+    "context": {
+      "gameClockMs": 564644,
+      "half": 2,
+      "down": 3,
+      "ballOn": 49,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 25
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Carolina Atencio (6 pts)",
+      "text": "TOUCHDOWN #13 Carolina Atencio (6 pts)",
+      "from": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb3a-f10d-7333-ba3e-2d298ec1b2a8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.099Z",
+    "updatedAt": "2026-08-16T07:17:15.099Z",
+    "id": "01a0096e-8c7c-7709-b534-832a0f2cb528"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 69,
+    "context": {
+      "gameClockMs": 516689,
+      "half": 2,
+      "down": 3,
+      "ballOn": 45,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p6"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-pan-p7",
+        "intendedReceiverId": "w-pan-p6"
+      },
+      {
+        "action": "TRY",
+        "player": "6",
+        "playerId": "w-pan-p6"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb3b-54ab-762f-b641-d918473c4f3a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.099Z",
+    "updatedAt": "2026-08-16T07:17:15.099Z",
+    "id": "01a0096e-8c7c-7709-b534-84bc2e526ac9"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 70,
+    "context": {
+      "gameClockMs": 473537,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p10"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p10"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb3c-7e2a-77c9-b241-67270a13f3ab",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.099Z",
+    "updatedAt": "2026-08-16T07:17:15.099Z",
+    "id": "01a0096e-8c7c-7709-b534-8a338f5d26b8"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 71,
+    "context": {
+      "gameClockMs": 454061,
+      "half": 2,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "13",
+        "playerId": "w-jpn-p20"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "23",
+        "playerId": "w-pan-p15"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#13 YUI WATANABE",
+      "text": "RUN #13 YUI WATANABE",
+      "from": {
+        "name": "YUI WATANABE",
+        "number": "13",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p20/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb3d-191c-724b-8682-ab71d121cf88",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.099Z",
+    "updatedAt": "2026-08-16T07:17:15.099Z",
+    "id": "01a0096e-8c7c-7709-b534-8e3710dfc4e5"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 72,
+    "context": {
+      "gameClockMs": 420124,
+      "half": 2,
+      "down": 3,
+      "ballOn": 4,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #7 YURIKA OMI",
+      "text": "COMPLETE PASS #3 MIYUNA → #7 YURIKA OMI",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURIKA OMI",
+        "number": "7",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb3d-ab4a-7643-8463-6606812b0337",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.099Z",
+    "updatedAt": "2026-08-16T07:17:15.099Z",
+    "id": "01a0096e-8c7c-7709-b534-923f51b673c3"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 73,
+    "context": {
+      "gameClockMs": 384252,
+      "half": 2,
+      "down": 4,
+      "ballOn": 14,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-jpn-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "50",
+        "playerId": "w-pan-p2"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #7 YURIKA OMI",
+      "text": "COMPLETE PASS #3 MIYUNA → #7 YURIKA OMI",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURIKA OMI",
+        "number": "7",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "50"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb3e-2d3c-745c-a8d8-f8b4a11e17d1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.099Z",
+    "updatedAt": "2026-08-16T07:17:15.099Z",
+    "id": "01a0096e-8c7c-7709-b534-95d5c712ed13"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 74,
+    "context": {
+      "gameClockMs": 384252,
+      "half": 2,
+      "down": 4,
+      "ballOn": 24,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "ccc5a3f9-3bdd-443a-a126-88ba6f591b69",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-9897d2cad9fc"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 75,
+    "context": {
+      "gameClockMs": 325909,
+      "half": 2,
+      "down": 1,
+      "ballOn": 34,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "83b241a4-05d3-479f-b6ab-d78b8662ab71",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-9f997e2e2e74"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 76,
+    "context": {
+      "gameClockMs": 325909,
+      "half": 2,
+      "down": 2,
+      "ballOn": 24,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb3f-7c8e-77ed-a2d7-5ce2884df209",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-a0ec87a6bf73"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 77,
+    "context": {
+      "gameClockMs": 325909,
+      "half": 2,
+      "down": 3,
+      "ballOn": 24,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "9",
+        "playerId": "w-jpn-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "5",
+        "playerId": "w-pan-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #9 YURI NAKAHATA",
+      "text": "COMPLETE PASS #3 MIYUNA → #9 YURI NAKAHATA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURI NAKAHATA",
+        "number": "9",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "9"
+      },
+      "flagPulledBy": {
+        "number": "5"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb40-264c-7494-81c1-da4933fbdf83",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-a589dc7e1201"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 78,
+    "context": {
+      "gameClockMs": 325909,
+      "half": 2,
+      "down": 4,
+      "ballOn": 33,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "OTHER"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb40-c435-761b-bb69-7813627e904d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-ab2aa6075a67"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 79,
+    "context": {
+      "gameClockMs": 325909,
+      "half": 2,
+      "down": 4,
+      "ballOn": 28,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-jpn-p11",
+        "intendedReceiverId": "w-jpn-p19"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-jpn-p11",
+        "intendedReceiverId": "w-jpn-p19"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 YURIKA OMI",
+      "text": "INCOMPLETE PASS #7 YURIKA OMI",
+      "from": {
+        "name": "YURIKA OMI",
+        "number": "7",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p11/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb41-3e1a-709c-ae24-6a1e0a616216",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-af18c4ead938"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 80,
+    "context": {
+      "gameClockMs": 325909,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "7",
+        "playerId": "w-pan-p7"
+      }
+    ],
+    "outcome": {
+      "type": "RUN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#7 Orlanda Castro",
+      "text": "RUN #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb41-dabc-740a-beef-b70574a2f1cc",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-b05742a90f4f"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 81,
+    "context": {
+      "gameClockMs": 325909,
+      "half": 2,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "3",
+        "playerId": "w-pan-p5"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "25",
+        "playerId": "w-jpn-p5"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#3 Leslie Cid",
+      "text": "RUN #3 Leslie Cid",
+      "from": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "3"
+      },
+      "flagPulledBy": {
+        "number": "25"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb42-1935-7099-bf45-1c9dde7bda23",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-b47cfe8ccdf2"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 82,
+    "context": {
+      "gameClockMs": 110782,
+      "half": 2,
+      "down": 3,
+      "ballOn": 13,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "7",
+        "playerId": "w-pan-p7"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "1",
+        "playerId": "w-jpn-p13"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#7 Orlanda Castro",
+      "text": "RUN #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "1"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb42-bd39-7615-828e-d05f95aab970",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-bb927d567194"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 83,
+    "context": {
+      "gameClockMs": 94015,
+      "half": 2,
+      "down": 4,
+      "ballOn": 17,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 31
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "6",
+        "playerId": "w-pan-p6",
+        "intendedReceiverId": "w-pan-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "13",
+        "playerId": "w-pan-p9"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Carolina Atencio (6 pts)",
+      "text": "TOUCHDOWN #13 Carolina Atencio (6 pts)",
+      "from": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb44-70e9-751d-89d8-35b191100d98",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-bf334933d80a"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 84,
+    "context": {
+      "gameClockMs": 86014,
+      "half": 2,
+      "ballOn": 40,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 37
+      }
+    },
+    "sequence": [
+      {
+        "action": "SACK",
+        "player": "25",
+        "playerId": "w-jpn-p5"
+      },
+      {
+        "action": "TRY",
+        "player": "6",
+        "playerId": "w-pan-p6"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb45-317a-72c6-b760-ff166beb779e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-c0f378e47866"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 85,
+    "context": {
+      "gameClockMs": 85014,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 37
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p20"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p20"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA",
+      "text": "INCOMPLETE PASS #3 MIYUNA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb45-c10f-757e-aeb9-7c494ec4992b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-c7812daea5f5"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 86,
+    "context": {
+      "gameClockMs": 81037,
+      "half": 2,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 37
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p20"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "13",
+        "playerId": "w-jpn-p20"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "14",
+        "playerId": "w-pan-p13"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #13 YUI WATANABE",
+      "text": "COMPLETE PASS #3 MIYUNA → #13 YUI WATANABE",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YUI WATANABE",
+        "number": "13",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p20/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "13"
+      },
+      "flagPulledBy": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb46-5730-76e8-88f3-7a6ea29bc320",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-c890a04222ec"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 87,
+    "context": {
+      "gameClockMs": 75037,
+      "half": 2,
+      "down": 2,
+      "ballOn": 14,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 37
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "FLAG_GUARDING"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "31405204-d367-4b40-a56b-dd559bc6c848",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-ccbf5a148feb"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 88,
+    "context": {
+      "gameClockMs": 75037,
+      "half": 2,
+      "down": 3,
+      "ballOn": 9,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 37
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "9",
+        "playerId": "w-jpn-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "5",
+        "playerId": "w-pan-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 MIYUNA → #9 YURI NAKAHATA",
+      "text": "COMPLETE PASS #3 MIYUNA → #9 YURI NAKAHATA",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      },
+      "to": {
+        "name": "YURI NAKAHATA",
+        "number": "9",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "9"
+      },
+      "flagPulledBy": {
+        "number": "5"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb46-f109-714f-9579-3b79ef994091",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-d0abaff2668b"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 89,
+    "context": {
+      "gameClockMs": 52489,
+      "half": 2,
+      "down": 4,
+      "ballOn": 17,
+      "possessionTeamId": "w-jpn",
+      "score": {
+        "home": 13,
+        "away": 37
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "3",
+        "playerId": "w-jpn-p19",
+        "intendedReceiverId": "w-jpn-p11"
+      },
+      {
+        "action": "PASS_BREAK_UP",
+        "player": "5",
+        "playerId": "w-pan-p14"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 MIYUNA → (deflected)",
+      "text": "INCOMPLETE PASS #3 MIYUNA → (deflected)",
+      "from": {
+        "name": "MIYUNA",
+        "number": "3",
+        "teamId": "w-jpn",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-jpn-p19/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb47-5836-72bd-9deb-52adc01bd842",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-d4e93b5432f1"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 90,
+    "context": {
+      "gameClockMs": 44063,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 37
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "6",
+        "playerId": "w-pan-p6"
+      }
+    ],
+    "outcome": {
+      "type": "RUN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#6 Angelina Janon",
+      "text": "RUN #6 Angelina Janon",
+      "from": {
+        "name": "Angelina Janon",
+        "number": "6",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p6/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "6"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb47-8277-7014-9ae0-37a3b789805d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-d803ab7a525b"
+  },
+  {
+    "gameId": "ffwc26-wd4",
+    "playNumber": 91,
+    "context": {
+      "gameClockMs": 37063,
+      "half": 2,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 13,
+        "away": 37
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "6",
+        "playerId": "w-pan-p6"
+      }
+    ],
+    "outcome": {
+      "type": "RUN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#6 Angelina Janon",
+      "text": "RUN #6 Angelina Janon",
+      "from": {
+        "name": "Angelina Janon",
+        "number": "6",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p6/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "6"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "019ffb48-2364-7668-ad2e-50adb841a9af",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T07:17:15.100Z",
+    "updatedAt": "2026-08-16T07:17:15.100Z",
+    "id": "01a0096e-8c7c-7709-b534-df7486a64b19"
+  }
+]
