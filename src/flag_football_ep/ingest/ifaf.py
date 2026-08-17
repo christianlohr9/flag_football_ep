@@ -24,12 +24,17 @@ from typing import Any, Sequence
 import polars as pl
 
 from flag_football_ep.canonical import (
+    CANONICAL_COLUMNS,
+    CORE_COLUMNS,
+    NULLABLE_EXTRAS,
     add_score_columns,
     add_scoring_play_team,
     conform_to_canonical,
     make_game_id,
 )
 from flag_football_ep.reference import map_teams
+
+_ALL_CANONICAL_DTYPES: dict[str, pl.DataType] = {**CORE_COLUMNS, **NULLABLE_EXTRAS}
 
 _PLAYS_LIST_KEYS = ("plays", "data", "items")
 
@@ -150,6 +155,11 @@ class IngestNotices:
     messages: list[str] = field(default_factory=list)
 
 
+def _empty_canonical_frame() -> pl.DataFrame:
+    """A zero-row frame already conforming to `CANONICAL_COLUMNS`, for skipped games."""
+    return pl.DataFrame(schema=dict(_ALL_CANONICAL_DTYPES)).select(list(CANONICAL_COLUMNS))
+
+
 def _extract_plays_list(payload: Any) -> list | None:
     if isinstance(payload, list):
         return payload
@@ -202,8 +212,22 @@ def load_snapshot(
     return plays, tournament_payload
 
 
-def _play_sort_key(index: int, play: dict) -> tuple:
-    return (play.get("playNumber", index), index)
+def _play_sort_key(index: int, play: Any) -> tuple[int, int, int]:
+    """Sort key for one payload entry, resilient to malformed input.
+
+    A play carrying a usable integer `playNumber` (a real `int`, not a `bool` --
+    `bool` is an `int` subclass in Python) sorts first, in `playNumber` order.
+    Everything else -- a missing key, a null `playNumber`, a non-int value, or a
+    non-dict entry altogether -- sorts after all of those, in stable payload
+    order. This deliberately replaces the previous `play.get("playNumber",
+    index)` fallback, which mixed index values into the same ordering space as
+    real play numbers and raised `TypeError` the moment a real `playNumber` (an
+    `int`) was compared against a fallback `None`.
+    """
+    number = play.get("playNumber") if isinstance(play, dict) else None
+    if isinstance(number, int) and not isinstance(number, bool):
+        return (0, number, index)
+    return (1, 0, index)
 
 
 def _other_team(posteam: str | None, home: str | None, away: str | None) -> str | None:
@@ -219,9 +243,12 @@ def _other_team(posteam: str | None, home: str | None, away: str | None) -> str 
 def flatten_unified_plays(payload: list, game_meta: dict, game_id: str) -> pl.DataFrame:
     """Turn one game's `unified-plays` array into one canonical-shaped row per play.
 
-    `play_id` is assigned 1..N by sorting on the payload's own `playNumber` (falling
-    back to array position when absent), not by trusting `playNumber` verbatim —
-    gaps exist in the real data. `drive_id` increments by 1 whenever
+    `play_id` is assigned 1..N by sorting on the payload's own `playNumber`, not by
+    trusting it verbatim — gaps exist in the real data. Plays carrying a usable
+    integer `playNumber` sort first, in `playNumber` order; everything else (an
+    absent key, a null `playNumber`, a non-int value, or a non-dict entry) sorts
+    after all of those, in stable payload order (see `_play_sort_key`). `drive_id`
+    increments by 1 whenever
     `context.possessionTeamId` differs from the previous play's, starting at 1.
     `yards_to_go` is always left null (see the module docstring). `posteam`/
     `defteam`/`home_team`/`away_team` carry raw cpx.studio team labels here;
@@ -448,7 +475,13 @@ def ingest_snapshots(
     payload is unparseable is recorded as a skipped, zero-row, still-canonical-
     shaped result with a notice — it never aborts the remaining games. A snapshot
     with a real but empty play array (a forfeit) is not a skip; it is a genuine
-    zero-row game.
+    zero-row game. Any failure in the per-game chain from `flatten_unified_plays`
+    through `conform_to_canonical` -- not just an unparseable payload -- likewise
+    skips exactly that game with a notice naming the exception class, and never
+    the whole run (T-1.2-44 / T-1.2-45). An unmapped team label still raises
+    `UnmappedTeamError` (T-1.2-15) rather than being folded into a notice, since
+    it signals a reference-data gap that needs a human fix, not a per-game data
+    anomaly.
     """
     raw_dir = Path(raw_dir)
     games_meta = _load_games_meta(raw_dir)
@@ -474,82 +507,101 @@ def ingest_snapshots(
             notices.skip_reason = str(exc)
             notices.messages.append(str(exc))
 
-        game_entry = games_meta.get(gid, {})
-        tournament_entry = tournaments_meta.get(game_entry.get("tournamentId"), {})
-        game_meta = _build_game_meta(game_entry, tournament_entry)
+        # Everything from here through `conform_to_canonical` runs per game, inside
+        # one try/except: any TypeError/AttributeError/ValueError/KeyError/
+        # PolarsError raised anywhere in this chain (e.g. a malformed `playNumber`
+        # reaching `flatten_unified_plays`'s `sorted(...)` call, or a schema/cast
+        # error surfaced despite `conform_to_canonical`'s own non-strict casts) is
+        # caught, recorded as a notice naming the exception class, and skips only
+        # this game -- the same containment `sportapp.ingest_snapshots` applies
+        # (T-1.2-44 / T-1.2-45). UnmappedTeamError (raised by map_teams below) is
+        # deliberately NOT caught here: it is a plain Exception, not one of the
+        # types in this tuple, so the catch already excludes it -- an unmapped team
+        # must keep aborting loudly per CONTEXT.md's team-identity decision
+        # (T-1.2-15); see test_ingest_snapshots_unmapped_team_raises.
+        try:
+            game_entry = games_meta.get(gid, {})
+            tournament_entry = tournaments_meta.get(game_entry.get("tournamentId"), {})
+            game_meta = _build_game_meta(game_entry, tournament_entry)
 
-        df = flatten_unified_plays(payload, game_meta, gid)
+            df = flatten_unified_plays(payload, game_meta, gid)
 
-        notices.missing_context_keys = {
-            "down": int(df["_missing_down"].sum()) if df.height else 0,
-            "ballOn": int(df["_missing_ballon"].sum()) if df.height else 0,
-            "possessionTeamId": int(df["_missing_possession"].sum()) if df.height else 0,
-        }
-        notices.missing_context_keys = {
-            k: v for k, v in notices.missing_context_keys.items() if v
-        }
+            notices.missing_context_keys = {
+                "down": int(df["_missing_down"].sum()) if df.height else 0,
+                "ballOn": int(df["_missing_ballon"].sum()) if df.height else 0,
+                "possessionTeamId": int(df["_missing_possession"].sum()) if df.height else 0,
+            }
+            notices.missing_context_keys = {
+                k: v for k, v in notices.missing_context_keys.items() if v
+            }
 
-        df = map_teams(df, team_mapping, "ifaf", ["posteam", "defteam", "home_team", "away_team"])
-        df = derive_outcome_columns(df)
+            df = map_teams(df, team_mapping, "ifaf", ["posteam", "defteam", "home_team", "away_team"])
+            df = derive_outcome_columns(df)
 
-        if df.height:
-            unmapped = (
-                df.filter(pl.col("_unmapped_outcome") == 1)
-                .group_by("result_raw")
-                .agg(pl.len().alias("count"))
-            )
-            if unmapped.height:
-                notices.unmapped_outcomes = dict(
-                    zip(unmapped["result_raw"].to_list(), unmapped["count"].to_list())
+            if df.height:
+                unmapped = (
+                    df.filter(pl.col("_unmapped_outcome") == 1)
+                    .group_by("result_raw")
+                    .agg(pl.len().alias("count"))
                 )
-                notices.messages.append(
-                    f"{unmapped.height} unmapped outcome value(s): {notices.unmapped_outcomes}"
-                )
+                if unmapped.height:
+                    notices.unmapped_outcomes = dict(
+                        zip(unmapped["result_raw"].to_list(), unmapped["count"].to_list())
+                    )
+                    notices.messages.append(
+                        f"{unmapped.height} unmapped outcome value(s): {notices.unmapped_outcomes}"
+                    )
 
-        df = add_scoring_play_team(df, credit_defense=True)
-        df = add_score_columns(df)
+            df = add_scoring_play_team(df, credit_defense=True)
+            df = add_score_columns(df)
 
-        if df.height:
-            # context.score is the score entering this play (pre-play), while
-            # home_team_score/away_team_score already include this row's own
-            # scoring event (add_score_columns credits the scoring row itself).
-            # Compare context.score against the *previous* row's reconstructed
-            # score within the same game, not the current row's, or every play
-            # following any score would show a spurious one-play-lag mismatch.
-            expected = df.with_columns(
-                [
-                    pl.col("home_team_score")
-                    .shift(1)
-                    .over("game_id")
-                    .fill_null(0)
-                    .alias("_expected_home_score"),
-                    pl.col("away_team_score")
-                    .shift(1)
-                    .over("game_id")
-                    .fill_null(0)
-                    .alias("_expected_away_score"),
-                ]
-            )
-            mismatches = expected.filter(
-                (
-                    pl.col("_context_score_home").is_not_null()
-                    & (pl.col("_context_score_home") != pl.col("_expected_home_score"))
+            if df.height:
+                # context.score is the score entering this play (pre-play), while
+                # home_team_score/away_team_score already include this row's own
+                # scoring event (add_score_columns credits the scoring row itself).
+                # Compare context.score against the *previous* row's reconstructed
+                # score within the same game, not the current row's, or every play
+                # following any score would show a spurious one-play-lag mismatch.
+                expected = df.with_columns(
+                    [
+                        pl.col("home_team_score")
+                        .shift(1)
+                        .over("game_id")
+                        .fill_null(0)
+                        .alias("_expected_home_score"),
+                        pl.col("away_team_score")
+                        .shift(1)
+                        .over("game_id")
+                        .fill_null(0)
+                        .alias("_expected_away_score"),
+                    ]
                 )
-                | (
-                    pl.col("_context_score_away").is_not_null()
-                    & (pl.col("_context_score_away") != pl.col("_expected_away_score"))
+                mismatches = expected.filter(
+                    (
+                        pl.col("_context_score_home").is_not_null()
+                        & (pl.col("_context_score_home") != pl.col("_expected_home_score"))
+                    )
+                    | (
+                        pl.col("_context_score_away").is_not_null()
+                        & (pl.col("_context_score_away") != pl.col("_expected_away_score"))
+                    )
                 )
-            )
-            notices.score_mismatches = mismatches.height
-            if mismatches.height:
-                notices.messages.append(
-                    f"{mismatches.height} play(s) where the reconstructed score "
-                    "diverges from context.score"
-                )
+                notices.score_mismatches = mismatches.height
+                if mismatches.height:
+                    notices.messages.append(
+                        f"{mismatches.height} play(s) where the reconstructed score "
+                        "diverges from context.score"
+                    )
 
-        df, conform_report = conform_to_canonical(df, "ifaf")
-        if conform_report.cast_failures:
-            notices.messages.append(f"cast failures: {conform_report.cast_failures}")
+            df, conform_report = conform_to_canonical(df, "ifaf")
+            if conform_report.cast_failures:
+                notices.messages.append(f"cast failures: {conform_report.cast_failures}")
+        except (TypeError, AttributeError, ValueError, KeyError, pl.exceptions.PolarsError) as exc:
+            notices.skipped = True
+            notices.skip_reason = f"{type(exc).__name__}: {exc}"
+            notices.messages.append(f"game {gid}: {type(exc).__name__}: {exc}")
+            results.append((gid, _empty_canonical_frame(), notices))
+            continue
 
         results.append((gid, df, notices))
 
