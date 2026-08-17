@@ -15,18 +15,25 @@ for both EP and WP -- it does not reimplement `ExpPts`/`ep`/`epa`/`wp`/`wpa` der
 Row count is preserved: a play missing an EP or WP feature is scored with null
 probabilities rather than dropped (T-1.2-18), so the output always lines up 1:1 with the
 input `plays` frame.
+
+Sets `MLFLOW_ALLOW_FILE_STORE=true` at import time, independently of `model.train` (plan
+01.2-13) -- `ffep score` can be invoked without ever importing the training module, and
+mlflow>=3.15's local `file:` tracking store raises unless this is set.
 """
 
 from __future__ import annotations
 
+import os
 import re
 from collections.abc import Sequence
 
-import mlflow
-import mlflow.xgboost
-import numpy as np
-import polars as pl
-from mlflow.exceptions import MlflowException
+os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
+
+import mlflow  # noqa: E402
+import mlflow.xgboost  # noqa: E402
+import numpy as np  # noqa: E402
+import polars as pl  # noqa: E402
+from mlflow.exceptions import MlflowException  # noqa: E402
 
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
