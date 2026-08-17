@@ -67,8 +67,9 @@ OUTCOME_MAP: dict[str, str | None] = {
 _SCORING_OUTCOME_TYPES = {"TOUCHDOWN", "TD", "TRY", "XP1", "XP2"}
 _POINTS_TO_FLAG: dict[int, str] = {
     6: "touchdown",  # def_touchdown instead when outcome.turnover is True
-    2: "two_point_conv_success",
-    1: "one_point_conv_success",
+    2: "two_point_conv_success",  # defensive_two_point_conv instead when outcome.turnover is True
+    1: "one_point_conv_success",  # a 1-point conversion cannot be returned by the
+    # defense in this vocabulary, so this case is not split on turnover
 }
 
 _UNCONDITIONAL_FLAG_NAMES = (
@@ -81,6 +82,7 @@ _UNCONDITIONAL_FLAG_NAMES = (
     "sack",
     "one_point_conv_success",
     "two_point_conv_success",
+    "defensive_two_point_conv",
 )
 
 # Working frame schema: every canonical CORE column this module can populate
@@ -309,9 +311,13 @@ def derive_outcome_columns(df: pl.DataFrame) -> pl.DataFrame:
     scoring-shaped type, matching zero actual scoreboard movement — see
     `_SCORING_OUTCOME_TYPES`'s docstring). A points value of 6 sets `touchdown`
     (or `def_touchdown` instead when `_outcome_turnover` is true — a defensive
-    touchdown), 2 sets `two_point_conv_success`, 1 sets `one_point_conv_success`,
-    and any other/missing value sets no flag, leaving `result_raw` as the only
-    record of the attempt. `penalty` is copied directly from the payload's own
+    touchdown), 2 sets `two_point_conv_success` (or `defensive_two_point_conv`
+    instead when `_outcome_turnover` is true — a 2-point attempt returned by the
+    defense, mirroring the 6-point split), 1 sets `one_point_conv_success`
+    unconditionally (a 1-point conversion cannot be returned by the defense in
+    this vocabulary), and any other/missing value sets no flag, leaving
+    `result_raw` as the only record of the attempt. `penalty` is copied directly
+    from the payload's own
     top-level `penalty` boolean, not inferred from `outcome.type`. A `result_raw`
     value that is non-null and not a key of `OUTCOME_MAP` sets `_unmapped_outcome`
     instead of any flag; `ingest_snapshots` folds that marker into `IngestNotices`.
@@ -339,6 +345,13 @@ def derive_outcome_columns(df: pl.DataFrame) -> pl.DataFrame:
                     flag_exprs["def_touchdown"] = (
                         flag_exprs["def_touchdown"] | (pts_matches & turnover)
                     )
+                elif target_flag == "two_point_conv_success":
+                    flag_exprs["two_point_conv_success"] = (
+                        flag_exprs["two_point_conv_success"] | (pts_matches & (~turnover))
+                    )
+                    flag_exprs["defensive_two_point_conv"] = (
+                        flag_exprs["defensive_two_point_conv"] | (pts_matches & turnover)
+                    )
                 else:
                     flag_exprs[target_flag] = flag_exprs[target_flag] | pts_matches
             continue
@@ -352,7 +365,6 @@ def derive_outcome_columns(df: pl.DataFrame) -> pl.DataFrame:
     known_types = list(OUTCOME_MAP.keys())
     df = df.with_columns(
         [
-            pl.lit(0).cast(pl.Int32).alias("defensive_two_point_conv"),
             pl.col("_penalty").cast(pl.Int32).alias("penalty"),
             (result_raw.is_not_null() & (~result_raw.is_in(known_types)))
             .cast(pl.Int32)

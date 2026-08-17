@@ -198,6 +198,15 @@ def test_ingest_snapshots_output_equals_canonical_columns():
     assert df.columns == list(CANONICAL_COLUMNS)
 
 
+def test_ingest_snapshots_rush_play_emits_canonical_run_not_rush():
+    """WR-11: sportapp's own "rush" outcome literal must not leak into the
+    canonical play_type column -- it must be normalized to "run" like every
+    other source."""
+    df = _ingest_test001()
+    assert "run" in df["play_type"].to_list()
+    assert "rush" not in df["play_type"].to_list()
+
+
 def test_canonical_merge_schema():
     """REQ-S1-06 test-map name: sportapp rows share the canonical column set."""
     from flag_football_ep.testing import canonical_plays
@@ -450,6 +459,22 @@ def test_read_mutated_sportapp_snapshot_team_columns_stay_utf8_not_int(tmp_path)
     df = read_mutated_sportapp_snapshot(path)
     for name in ("posteam", "defteam", "home_team", "away_team"):
         assert df.schema[name] == pl.Utf8
+
+
+def test_read_mutated_sportapp_snapshot_normalizes_rush_play_type_to_run(tmp_path):
+    """WR-11: the grandfathered WC24 CSV's pre-computed play_type column carries
+    the raw sportapp "rush" value -- it must be normalized to the canonical "run"
+    the same way the fresh-ingest path is, while other values pass through
+    unchanged."""
+    path = _write_wc24_fixture(
+        tmp_path / "wc24_fixture.csv",
+        [
+            _wc24_fixture_row(index="1", play_type="rush"),
+            _wc24_fixture_row(index="2", play_type="pass"),
+        ],
+    )
+    df = read_mutated_sportapp_snapshot(path)
+    assert df["play_type"].to_list() == ["run", "pass"]
 
 
 def test_read_mutated_sportapp_snapshot_derives_sack_and_yardline_50_simple(tmp_path):

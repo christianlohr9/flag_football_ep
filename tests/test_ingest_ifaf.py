@@ -15,7 +15,11 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from flag_football_ep.canonical import CANONICAL_COLUMNS
+from flag_football_ep.canonical import (
+    CANONICAL_COLUMNS,
+    add_score_columns,
+    add_scoring_play_team,
+)
 from flag_football_ep.ingest.ifaf import (
     OUTCOME_MAP,
     UnparseablePayload,
@@ -24,6 +28,7 @@ from flag_football_ep.ingest.ifaf import (
     ingest_snapshots,
     load_snapshot,
 )
+from flag_football_ep.reference import map_teams
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "ifaf" / "unified-plays_sample.json"
 
@@ -322,6 +327,57 @@ def test_derive_outcome_columns_try_is_variable_conversion_not_fixed_to_one_poin
     row = df.row(0, named=True)
     assert row["two_point_conv_success"] == 1
     assert row["one_point_conv_success"] == 0
+
+
+def test_derive_outcome_columns_two_point_turnover_sets_defensive_flag():
+    """WR-03: a 2-point attempt returned by the defense (outcome.turnover == true)
+    must set defensive_two_point_conv, not two_point_conv_success -- mirroring the
+    existing touchdown/def_touchdown split at pointsScored == 6."""
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "XP2", "turnover": True, "pointsScored": 2}},
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    df = derive_outcome_columns(df)
+    row = df.row(0, named=True)
+    assert row["defensive_two_point_conv"] == 1
+    assert row["two_point_conv_success"] == 0
+
+
+def test_derive_outcome_columns_two_point_no_turnover_sets_offensive_flag():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "XP2", "turnover": False, "pointsScored": 2}},
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    df = derive_outcome_columns(df)
+    row = df.row(0, named=True)
+    assert row["two_point_conv_success"] == 1
+    assert row["defensive_two_point_conv"] == 0
+
+
+def test_defensive_two_point_conv_credited_to_defense_in_score_chain():
+    """WR-03: after add_scoring_play_team(credit_defense=True) + add_score_columns,
+    a defensive 2-point conversion's points land on defteam's cumulative score, not
+    posteam's -- the score chain must not corrupt for a whole IFAF game because of
+    this misrouting."""
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "XP2", "turnover": True, "pointsScored": 2}},
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    df = map_teams(df, _team_mapping(), "ifaf", ["posteam", "defteam", "home_team", "away_team"])
+    df = derive_outcome_columns(df)
+    df = add_scoring_play_team(df, credit_defense=True)
+    df = add_score_columns(df)
+    row = df.row(0, named=True)
+    assert row["scoring_play_team"] == row["defteam"]
+    if row["defteam"] == row["home_team"]:
+        assert row["home_team_score"] == 2
+        assert row["away_team_score"] == 0
+    else:
+        assert row["away_team_score"] == 2
+        assert row["home_team_score"] == 0
 
 
 def test_derive_outcome_columns_unmapped_value_leaves_flags_zero():

@@ -113,6 +113,19 @@ NON_NULL_COLUMNS: tuple[str, ...] = (
     "yardline_50",
 )
 
+# The cross-source value set for the canonical `play_type` column (null is also
+# allowed, for an unknown/unparsed play). This is the single definition every
+# ingest module converges on — hudl, legacy, sportapp (both the fresh-ingest and
+# grandfathered WC24 paths) must each emit only members of this set, never a
+# per-source synonym (WR-11: sportapp's raw "rush" is not "run"). The raw,
+# source-specific vocabulary belongs in `result_raw`, not here. A source that
+# needs a new play type must extend this set deliberately — see
+# tests/test_cross_source_vocabulary.py, which fails on any emitted value
+# outside it.
+PLAY_TYPE_VOCABULARY: frozenset[str] = frozenset(
+    {"run", "pass", "no_play", "qb_kneel", "extra_point", "kickoff"}
+)
+
 # Parquet column order: core columns first, then nullable extras.
 CANONICAL_COLUMNS: tuple[str, ...] = tuple(CORE_COLUMNS) + tuple(NULLABLE_EXTRAS)
 
