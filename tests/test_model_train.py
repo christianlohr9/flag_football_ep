@@ -133,8 +133,15 @@ def test_train_ep_run_directory_has_params_metric_and_model_artifact(tmp_path: P
 
     run_dirs = _run_dirs(config.paths.mlruns)
     assert run_dirs, "expected at least one MLflow run directory under mlruns"
-    artifact_dirs = [d for d in run_dirs if (d / "artifacts" / "model").exists()]
-    assert artifact_dirs, "expected a model artifact directory under some run's artifacts/"
+
+    # MLflow >=3.x logs the model as a first-class "Logged Model" (mlflow.xgboost.log_model
+    # with `name=`) rather than a plain artifacts/model/ path under the run directory --
+    # resolve it through the run's model outputs instead of assuming that layout.
+    assert run.outputs.model_outputs, "expected a logged model output on the run"
+    model_id = run.outputs.model_outputs[0].model_id
+    logged_model = client.get_logged_model(model_id)
+    artifact_dir = Path(logged_model.artifact_location.removeprefix("file://"))
+    assert artifact_dir.exists() and any(artifact_dir.iterdir())
 
 
 def test_train_ep_logs_every_hyperparam_plus_provenance_params(tmp_path: Path) -> None:
