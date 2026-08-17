@@ -9,15 +9,18 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from flag_football_ep.canonical import CANONICAL_COLUMNS
 from flag_football_ep.ingest.hudl import (
     FilenameError,
     WrongDelimiterError,
     derive_outcome_columns,
+    ingest_dir,
     ingest_file,
     parse_filename,
     parse_result_tokens,
     read_export,
 )
+from flag_football_ep.reference import UnmappedTeamError
 from flag_football_ep.validation.schema import MissingCoreColumnsError, load_contract
 
 
@@ -259,3 +262,134 @@ def test_two_point_conv_success_requires_good_down0_yardline40() -> None:
 
 def test_defensive_two_point_conv_requires_def_td_down0() -> None:
     assert _outcome_row("Def TD", down=0)["defensive_two_point_conv"] == 1
+
+
+# --- identity, sequence and score derivation to a conformed canonical frame (Task 3 scope) --------------------------
+
+
+def _play_row(play_num: int, odk: str, result: str = "Rush", **overrides: str) -> dict:
+    row = {
+        "PLAY #": str(play_num),
+        "ODK": odk,
+        "DN": "1",
+        "DIST": "10",
+        "YARD LN": "25",
+        "PLAY TYPE": "Rush",
+        "RESULT": result,
+        "GN/LS": "5",
+    }
+    row.update(overrides)
+    return row
+
+
+def test_posteam_team1_rule(tmp_path: Path, contract, make_hudl_csv) -> None:
+    rows = [_play_row(1, "O"), _play_row(2, "D")]
+    path = make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", rows)
+
+    df, _notices = ingest_file(path, contract)
+
+    assert df["posteam"].to_list() == ["GER", "AUT"]
+    assert df["defteam"].to_list() == ["AUT", "GER"]
+    assert df["home_team"].to_list() == ["GER", "GER"]
+    assert df["away_team"].to_list() == ["AUT", "AUT"]
+
+
+def test_odk_k_rows_get_kickoff_play_type(tmp_path: Path, contract, make_hudl_csv) -> None:
+    rows = [_play_row(1, "K", result="")]
+    path = make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", rows)
+
+    df, _notices = ingest_file(path, contract)
+
+    assert df["play_type"][0] == "kickoff"
+    assert df["posteam"][0] == "AUT"
+
+
+def test_unmapped_team_raises(tmp_path: Path, contract, make_hudl_csv) -> None:
+    rows = [_play_row(1, "O")]
+    path = make_hudl_csv(tmp_path, "2026-06-14_XXX-vs-AUT_EM.csv", rows)
+    mapping = pl.DataFrame(
+        {"source": ["hudl"], "source_team": ["AUT"], "canonical_team": ["AUT"]}
+    )
+
+    with pytest.raises(UnmappedTeamError):
+        ingest_file(path, contract, team_mapping=mapping)
+
+
+def test_drive_id_from_odk_flips(tmp_path: Path, contract, make_hudl_csv) -> None:
+    rows = [
+        _play_row(1, "O"),
+        _play_row(2, "O"),
+        _play_row(3, "D"),
+        _play_row(4, "O"),
+    ]
+    path = make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", rows)
+
+    df, _notices = ingest_file(path, contract)
+
+    assert df["drive_id"].to_list() == [1, 1, 2, 3]
+
+
+def test_drive_closing_result_increments_drive_id_without_odk_flip(
+    tmp_path: Path, contract, make_hudl_csv
+) -> None:
+    rows = [_play_row(1, "O", result="Rush, TD"), _play_row(2, "O")]
+    path = make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", rows)
+
+    df, _notices = ingest_file(path, contract)
+
+    assert df["drive_id"].to_list() == [1, 2]
+
+
+def test_half_boundary_missing_yields_null_and_notice(
+    tmp_path: Path, contract, make_hudl_csv
+) -> None:
+    rows = [_play_row(1, "O")]
+    path = make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", rows)
+    half_boundaries = pl.DataFrame(
+        {"filename": [], "half2_first_play": []},
+        schema={"filename": pl.Utf8, "half2_first_play": pl.Int32},
+    )
+
+    df, notices = ingest_file(path, contract, half_boundaries=half_boundaries)
+
+    assert df["half"][0] is None
+    assert any("no half boundary" in m for m in notices.messages)
+
+
+def test_ingest_file_output_columns_equal_canonical(
+    tmp_path: Path, contract, make_hudl_csv
+) -> None:
+    rows = [_play_row(1, "O")]
+    path = make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", rows)
+
+    df, _notices = ingest_file(path, contract)
+
+    assert tuple(df.columns) == CANONICAL_COLUMNS
+
+
+def test_defensive_safety_credits_defense_in_scoring_play_team(
+    tmp_path: Path, contract, make_hudl_csv
+) -> None:
+    rows = [_play_row(1, "O", result="Sack, Safety", **{"YARD LN": "-45", "GN/LS": "-5"})]
+    path = make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", rows)
+
+    df, _notices = ingest_file(path, contract)
+
+    assert df["scoring_play_team"][0] == "AUT"
+
+
+def test_ingest_dir_reports_bad_filename_and_returns_good_one(
+    tmp_path: Path, contract, make_hudl_csv
+) -> None:
+    good_rows = [_play_row(1, "O")]
+    make_hudl_csv(tmp_path, "2026-06-14_GER-vs-AUT_EM.csv", good_rows)
+    make_hudl_csv(tmp_path, "not-a-valid-name.csv", good_rows)
+
+    results = ingest_dir(tmp_path, contract)
+
+    assert len(results) == 2
+    good = [r for r in results if r[1] is not None]
+    bad = [r for r in results if r[1] is None]
+    assert len(good) == 1
+    assert len(bad) == 1
+    assert any("skipped" in m for m in bad[0][2].messages)
