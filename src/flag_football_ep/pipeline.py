@@ -305,7 +305,17 @@ def _ingest_sportapp(
 def _ingest_ifaf(
     ifaf_dir: Path, team_mapping: pl.DataFrame
 ) -> tuple[list[pl.DataFrame], list[str], dict[str, list[str]]]:
-    """Dispatch the IFAF/cpx.studio source."""
+    """Dispatch the IFAF/cpx.studio source.
+
+    Per-game failure containment now lives inside `ifaf.ingest_snapshots`
+    (a malformed play, or any other failure in one game's flatten-through-
+    conform chain, skips only that game and arrives here as `notices.skipped`,
+    surfaced below via the existing `ifaf/{canonical_id}: skipped - ...` source
+    notice). The `except Exception` below is therefore a last-resort net for a
+    genuine whole-source problem -- `_load_games_meta`/`_load_tournaments_meta`/
+    directory access failing outright -- not for an individual game's data
+    anomaly, and its notice says so explicitly.
+    """
     frames: list[pl.DataFrame] = []
     source_notices: list[str] = []
     game_notices: dict[str, list[str]] = {}
@@ -317,7 +327,10 @@ def _ingest_ifaf(
     try:
         results = ingest_ifaf_snapshots(ifaf_dir, team_mapping)
     except Exception as exc:  # noqa: BLE001
-        source_notices.append(f"ifaf: {type(exc).__name__}: {exc}")
+        source_notices.append(
+            f"ifaf: source-level failure, all ifaf games dropped from this run: "
+            f"{type(exc).__name__}: {exc}"
+        )
         return frames, source_notices, game_notices
 
     for gid, df, notices in results:

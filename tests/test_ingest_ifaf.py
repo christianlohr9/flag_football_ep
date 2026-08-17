@@ -23,12 +23,13 @@ from flag_football_ep.canonical import (
 from flag_football_ep.ingest.ifaf import (
     OUTCOME_MAP,
     UnparseablePayload,
+    _play_sort_key,
     derive_outcome_columns,
     flatten_unified_plays,
     ingest_snapshots,
     load_snapshot,
 )
-from flag_football_ep.reference import map_teams
+from flag_football_ep.reference import UnmappedTeamError, map_teams
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "ifaf" / "unified-plays_sample.json"
 
@@ -507,6 +508,78 @@ def test_ingest_snapshots_score_cross_check_matches_reconstruction(tmp_path):
     # as an attribute, since add_scoring_play_team's home/away resolution depends on
     # game_meta's home/away assignment lining up with which team is "w-usa" here.
     assert isinstance(notices.score_mismatches, int)
+
+
+# ---------------------------------------------------------------------------
+# _play_sort_key / per-game containment regression (01.2-VERIFICATION.md Truth 5,
+# 01.2-REVIEW.md WR-01)
+# ---------------------------------------------------------------------------
+
+
+def test_play_sort_key_null_and_non_int_playnumber_do_not_raise():
+    plays = [
+        (0, {"playNumber": 3}),
+        (1, {"playNumber": None}),
+        (2, {}),
+        (3, "not-a-play"),
+        (4, {"playNumber": 1}),
+    ]
+    ordered = sorted(plays, key=lambda pair: _play_sort_key(pair[0], pair[1]))
+    # Real int playNumbers sort first, in playNumber order; everything unusable
+    # (null, absent, non-dict) sorts after, in stable original-index order.
+    assert [index for index, _ in ordered] == [4, 0, 1, 2, 3]
+
+
+def test_ingest_snapshots_null_playnumber_play_no_longer_raises_others_unaffected(tmp_path):
+    good_payload = _load_fixture_payload()
+    bad_payload = [
+        {"playNumber": None, "context": {"half": 1, "possessionTeamId": "w-usa"}},
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"}},
+    ]
+    raw_dir = _write_snapshot_dir(tmp_path, {"good": good_payload, "bad": bad_payload})
+
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    by_game = {gid: (df, notices) for gid, df, notices in results}
+
+    bad_df, bad_notices = by_game["bad"]
+    assert bad_notices.skipped is False
+    assert bad_df.height == len(bad_payload)
+
+    good_df, good_notices = by_game["good"]
+    assert good_df.height == len(good_payload)
+    assert good_notices.skipped is False
+
+
+def test_ingest_snapshots_non_dict_play_entry_contained_skip_notice(tmp_path):
+    good_payload = _load_fixture_payload()
+    bad_payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"}},
+        "not-a-play-object",
+    ]
+    raw_dir = _write_snapshot_dir(tmp_path, {"good": good_payload, "bad": bad_payload})
+
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    by_game = {gid: (df, notices) for gid, df, notices in results}
+
+    bad_df, bad_notices = by_game["bad"]
+    assert bad_notices.skipped is True
+    assert "AttributeError" in bad_notices.skip_reason
+    assert bad_df.height == 0
+    assert bad_df.columns == list(CANONICAL_COLUMNS)
+
+    good_df, good_notices = by_game["good"]
+    assert good_df.height == len(good_payload)
+    assert good_notices.skipped is False
+
+
+def test_ingest_snapshots_unmapped_team_raises(tmp_path):
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "unmapped-team-id"}},
+    ]
+    raw_dir = _write_snapshot_dir(tmp_path, {"g1": payload})
+
+    with pytest.raises(UnmappedTeamError):
+        ingest_snapshots(raw_dir, _team_mapping())
 
 
 # ---------------------------------------------------------------------------

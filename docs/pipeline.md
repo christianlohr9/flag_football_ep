@@ -150,7 +150,12 @@ rather than raising, so the game still ingests: the bad cell becomes a null
 `down`/`yards_to_go`/`yardline_50`/`play_id` plus a domain notice, and the game then fails
 the relevant per-game check (`downs_range` for a null `down`, `gapless_play_ids` for a null
 `play_id`) exactly like any other bad value -- it never disappears from the report as if the
-whole source were missing.
+whole source were missing. The two JSON sources (sportapp.fi and IFAF) apply the same
+guarantee at the per-game level: a snapshot whose payload is unparseable, or whose
+per-game mutation chain raises anywhere along it -- including a malformed `playNumber` in
+an IFAF payload, which is now sorted last instead of raising -- skips exactly that game and
+adds a `Source notices` line naming the game and the exception class, leaving every other
+game of that source untouched.
 
 **The one deliberate exception.** An unmapped team code still aborts the whole source
 loudly instead of degrading into a per-file notice: it signals a gap in the reference data
