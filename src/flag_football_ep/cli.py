@@ -42,7 +42,14 @@ def ingest(
 
     from flag_football_ep.pipeline import run_ingest
 
-    run_ingest(cfg, source, out, strict)
+    result = run_ingest(cfg, source, out, strict)
+
+    typer.echo(f"plays:  {result.plays_path} ({result.n_plays} rows)")
+    typer.echo(f"games:  {result.games_path} ({result.n_games} games, {result.n_quarantined} quarantined)")
+    typer.echo(f"report: {result.report_path}")
+
+    if strict and result.n_quarantined > 0:
+        raise typer.Exit(code=1)
 
 
 @app.command(name="fetch-sportapp")

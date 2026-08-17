@@ -19,9 +19,11 @@ from pathlib import Path
 
 import polars as pl
 import pytest
+from typer.testing import CliRunner
 
 from flag_football_ep import pipeline
 from flag_football_ep.canonical import CANONICAL_COLUMNS
+from flag_football_ep.cli import app
 from flag_football_ep.config import (
     Config,
     IfafSource,
@@ -34,6 +36,7 @@ from flag_football_ep.config import (
 from flag_football_ep.pipeline import IngestResult, run_ingest
 
 FIXTURE_SPORTAPP_DIR = Path(__file__).parent / "fixtures" / "sportapp"
+_CLI_RUNNER = CliRunner()
 
 _HUDL_COLUMNS = ["PLAY #", "ODK", "DN", "DIST", "YARD LN", "PLAY TYPE", "RESULT", "GN/LS"]
 _LEGACY_COLUMNS = [
@@ -241,6 +244,76 @@ def hudl_only_tree(tmp_path: Path, repo_root: Path) -> Config:
     return config
 
 
+@pytest.fixture
+def hudl_clean_only_tree(tmp_path: Path, repo_root: Path) -> Config:
+    """Only the clean Hudl game -- no quarantine anywhere in this tree."""
+    config = _make_config(tmp_path, repo_root)
+    _write_hudl_clean_game(config.paths.raw_hudl)
+    _write_reference_csvs(config.reference.half_boundaries.parent)
+    return config
+
+
+def _write_toml_config(root: Path, repo_root: Path) -> Path:
+    """Write an `ffep.toml` at `root` pointing at the same tree `_make_config` would."""
+    data_root = root / "data"
+    toml_text = f"""
+[paths]
+data_root = "{data_root}"
+raw_hudl = "{data_root / "raw" / "hudl"}"
+raw_sportapp = "{data_root / "raw" / "sportapp"}"
+raw_ifaf = "{data_root / "raw" / "ifaf"}"
+raw_legacy = "{data_root / "raw" / "legacy"}"
+processed = "{data_root / "processed"}"
+reference = "{data_root / "reference"}"
+models = "{root / "models"}"
+mlruns = "{root / "mlruns"}"
+contract = "{repo_root / "docs" / "data-contract.schema.json"}"
+
+[reference]
+half_boundaries = "{data_root / "reference" / "half_boundaries.csv"}"
+final_scores = "{data_root / "reference" / "final_scores.csv"}"
+team_mapping = "{data_root / "reference" / "team_mapping.csv"}"
+sportapp_games = "{data_root / "reference" / "sportapp_games.csv"}"
+
+[sources.sportapp]
+base_url = "https://example.invalid"
+api_key_env = "SPORTAPP_API_KEY"
+
+[sources.ifaf]
+base_url = "https://example.invalid"
+tournament = "test"
+api_key_env = "CPX_API_KEY"
+
+[train]
+ep_experiment = "ep_model"
+wp_experiment = "wp_model"
+exclude_games_ep = []
+exclude_games_wp = []
+"""
+    config_path = root / "ffep.toml"
+    config_path.write_text(toml_text, encoding="utf-8")
+    return config_path
+
+
+@pytest.fixture
+def hudl_clean_only_toml(tmp_path: Path, repo_root: Path) -> Path:
+    """Same tree as `hudl_clean_only_tree`, but as a TOML config for CLI tests."""
+    config = _make_config(tmp_path, repo_root)
+    _write_hudl_clean_game(config.paths.raw_hudl)
+    _write_reference_csvs(config.reference.half_boundaries.parent)
+    return _write_toml_config(tmp_path, repo_root)
+
+
+@pytest.fixture
+def hudl_both_games_toml(tmp_path: Path, repo_root: Path) -> Path:
+    """Clean + gapped Hudl games, as a TOML config -- the gapped game quarantines."""
+    config = _make_config(tmp_path, repo_root)
+    _write_hudl_clean_game(config.paths.raw_hudl)
+    _write_hudl_gapped_game(config.paths.raw_hudl)
+    _write_reference_csvs(config.reference.half_boundaries.parent)
+    return _write_toml_config(tmp_path, repo_root)
+
+
 # --- run_ingest orchestration -----------------------------------------------
 
 
@@ -371,3 +444,138 @@ def test_pipeline_module_never_uses_diagonal_concat() -> None:
     source = Path(pipeline.__file__).read_text(encoding="utf-8")
     assert 'how="diagonal"' not in source
     assert "how='diagonal'" not in source
+
+
+# --- atomic Parquet outputs and games metadata table ------------------------
+
+
+def test_run_ingest_plays_parquet_columns_equal_canonical_no_quarantined_rows(
+    full_tree: Config,
+) -> None:
+    run_ingest(full_tree, ["hudl"])
+
+    plays = pl.read_parquet(full_tree.paths.processed / "plays.parquet")
+
+    assert list(plays.columns) == list(CANONICAL_COLUMNS)
+    gapped_id = _HUDL_GAPPED_FILENAME.removesuffix(".csv")
+    assert gapped_id not in plays["game_id"].to_list()
+    clean_id = _HUDL_CLEAN_FILENAME.removesuffix(".csv")
+    assert set(plays["game_id"].to_list()) == {clean_id}
+
+
+def test_run_ingest_games_parquet_one_row_per_game_all_eleven_columns(full_tree: Config) -> None:
+    run_ingest(full_tree, ["hudl", "legacy"])
+
+    games = pl.read_parquet(full_tree.paths.processed / "games.parquet")
+
+    expected_columns = [
+        "game_id", "source", "competition", "season", "home_team", "away_team",
+        "n_plays", "n_drives", "status", "quarantine_reasons", "ingested_at",
+    ]
+    assert list(games.columns) == expected_columns
+    # 2 hudl games (clean + gapped) + 1 legacy game.
+    assert games.height == 3
+
+    by_id = {row["game_id"]: row for row in games.to_dicts()}
+    gapped_id = _HUDL_GAPPED_FILENAME.removesuffix(".csv")
+    clean_id = _HUDL_CLEAN_FILENAME.removesuffix(".csv")
+    assert by_id[gapped_id]["status"] == "quarantined"
+    assert by_id[gapped_id]["quarantine_reasons"] is not None
+    assert by_id[clean_id]["status"] == "accepted"
+    assert by_id[clean_id]["quarantine_reasons"] is None
+    assert by_id["legacy-10"]["status"] == "accepted-with-warnings"
+    assert by_id["legacy-10"]["n_plays"] == 2
+
+
+def test_run_ingest_validation_report_latest_matches_timestamped(full_tree: Config) -> None:
+    result = run_ingest(full_tree, ["hudl"])
+
+    latest_path = full_tree.paths.processed / "validation-report-latest.md"
+    assert latest_path.read_text(encoding="utf-8") == result.report_path.read_text(encoding="utf-8")
+
+
+def test_run_ingest_report_written_even_when_nothing_quarantined(
+    hudl_clean_only_tree: Config,
+) -> None:
+    result = run_ingest(hudl_clean_only_tree, ["hudl"])
+
+    assert result.report_path.exists()
+    content = result.report_path.read_text(encoding="utf-8")
+    assert "No games were quarantined in this run." in content
+
+
+def test_run_ingest_out_dir_overrides_processed_directory(
+    full_tree: Config, tmp_path: Path
+) -> None:
+    override_dir = tmp_path / "custom-out"
+
+    result = run_ingest(full_tree, ["hudl"], out_dir=override_dir)
+
+    assert result.plays_path == override_dir / "plays.parquet"
+    assert result.games_path == override_dir / "games.parquet"
+    assert result.plays_path.exists()
+    assert result.games_path.exists()
+    assert result.report_path.exists()
+    assert not (full_tree.paths.processed / "plays.parquet").exists()
+
+
+def test_run_ingest_atomic_write_failure_leaves_previous_plays_parquet_untouched(
+    full_tree: Config, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run_ingest(full_tree, ["hudl"])
+    processed_dir = full_tree.paths.processed
+    plays_path = processed_dir / "plays.parquet"
+    before = plays_path.read_bytes()
+
+    real_write_parquet = pl.DataFrame.write_parquet
+
+    def failing_write_parquet(self, path, *args, **kwargs):
+        if Path(path).name.startswith("games"):
+            raise RuntimeError("simulated games write failure")
+        return real_write_parquet(self, path, *args, **kwargs)
+
+    monkeypatch.setattr(pl.DataFrame, "write_parquet", failing_write_parquet)
+
+    with pytest.raises(RuntimeError, match="simulated games write failure"):
+        run_ingest(full_tree, ["hudl"])
+
+    assert plays_path.read_bytes() == before
+    assert list(processed_dir.glob("*.tmp")) == []
+
+
+def test_pipeline_module_uses_os_replace() -> None:
+    source = Path(pipeline.__file__).read_text(encoding="utf-8")
+    assert source.count("os.replace") >= 1
+
+
+# --- CLI integration ---------------------------------------------------------
+
+
+def test_cli_ingest_hudl_produces_the_three_artifacts(hudl_clean_only_toml: Path) -> None:
+    result = _CLI_RUNNER.invoke(app, ["ingest", "--config", str(hudl_clean_only_toml), "--source", "hudl"])
+
+    assert result.exit_code == 0, result.output
+
+    processed_dir = hudl_clean_only_toml.parent / "data" / "processed"
+    assert (processed_dir / "plays.parquet").exists()
+    assert (processed_dir / "games.parquet").exists()
+    assert (processed_dir / "validation-report-latest.md").exists()
+
+    plays = pl.read_parquet(processed_dir / "plays.parquet")
+    assert plays.height == 3
+
+
+def test_cli_ingest_strict_exits_1_with_quarantined_game(hudl_both_games_toml: Path) -> None:
+    result = _CLI_RUNNER.invoke(
+        app, ["ingest", "--config", str(hudl_both_games_toml), "--source", "hudl", "--strict"]
+    )
+
+    assert result.exit_code == 1
+
+
+def test_cli_ingest_strict_exits_0_without_quarantine(hudl_clean_only_toml: Path) -> None:
+    result = _CLI_RUNNER.invoke(
+        app, ["ingest", "--config", str(hudl_clean_only_toml), "--source", "hudl", "--strict"]
+    )
+
+    assert result.exit_code == 0, result.output

@@ -19,12 +19,17 @@ read via `ingest.sportapp.read_mutated_sportapp_snapshot`, stamped
 whenever "sportapp" is requested; today only the grandfathered branch has data
 on disk (the sportapp.fi API key rotation is deferred per STATE.md).
 
-Artifact writes (the atomic Parquet pair plus the Markdown report) are added by
-a later task of this same plan.
+Artifact writes: `plays.parquet` and `games.parquet` are each written through
+`_atomic_write_parquet` (a `.tmp` sibling, then `os.replace`), games written
+before plays so a games-write failure never touches (or even attempts) the
+plays write -- a prior successful run's `plays.parquet` is left completely
+untouched. The Markdown report is rendered and written last via
+`validation.report`, then a console summary is printed.
 """
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -41,6 +46,7 @@ from flag_football_ep.ingest.sportapp import read_mutated_sportapp_snapshot
 from flag_football_ep.ingest.sportapp import ingest_snapshots as ingest_sportapp_snapshots
 from flag_football_ep.reference import load_final_scores, load_half_boundaries, load_team_mapping
 from flag_football_ep.validation.checks import GameResult, partition_games, run_checks
+from flag_football_ep.validation.report import console_summary, render_report, write_report
 from flag_football_ep.validation.schema import Contract, load_contract
 
 __all__ = ["IngestResult", "run_ingest"]
@@ -81,6 +87,99 @@ class IngestResult:
 def _empty_canonical_frame() -> pl.DataFrame:
     """A zero-row frame already conforming to `CANONICAL_COLUMNS`."""
     return pl.DataFrame(schema=dict(_ALL_CANONICAL_DTYPES)).select(list(CANONICAL_COLUMNS))
+
+
+_GAMES_SCHEMA: dict[str, pl.DataType] = {
+    "game_id": pl.Utf8,
+    "source": pl.Utf8,
+    "competition": pl.Utf8,
+    "season": pl.Int32,
+    "home_team": pl.Utf8,
+    "away_team": pl.Utf8,
+    "n_plays": pl.Int64,
+    "n_drives": pl.Int64,
+    "status": pl.Utf8,
+    "quarantine_reasons": pl.Utf8,
+    "ingested_at": pl.Utf8,
+}
+
+
+def _atomic_write_parquet(df: pl.DataFrame, path: Path) -> None:
+    """Write `df` to `path` atomically: a `.tmp` sibling, then `os.replace`.
+
+    Cleans up the `.tmp` file in a `finally` regardless of outcome, so a mid-
+    write exception (from `write_parquet` or `os.replace` itself) leaves the
+    previous `path` content intact and no stray `.tmp` file behind. The
+    canonical dataset every downstream stage trusts must never exist in a
+    half-written state.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    try:
+        df.write_parquet(tmp_path)
+        os.replace(tmp_path, path)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def _build_games_table(
+    combined: pl.DataFrame, game_results: list[GameResult], run_id: str
+) -> pl.DataFrame:
+    """One row per game_id seen in `combined` (accepted and quarantined alike).
+
+    `status` is "quarantined" (blocking FAIL, non-warn-only source),
+    "accepted-with-warnings" (every FAIL downgraded to WARN, warn-only
+    source) or "accepted" (no FAIL at all). `quarantine_reasons` is the
+    joined FAIL detail strings recorded by `partition_games` regardless of
+    whether they were downgraded, or null when there are none.
+    """
+    if combined.height == 0:
+        return pl.DataFrame(schema=_GAMES_SCHEMA)
+
+    agg = combined.group_by("game_id", maintain_order=True).agg(
+        source=pl.col("source").first(),
+        competition=pl.col("competition").first(),
+        season=pl.col("season").first(),
+        home_team=pl.col("home_team").first(),
+        away_team=pl.col("away_team").first(),
+        n_plays=pl.len(),
+        n_drives=pl.col("drive_id").n_unique(),
+    )
+
+    result_by_game = {g.game_id: g for g in game_results}
+    rows: list[dict] = []
+    for row in agg.to_dicts():
+        game_id = row["game_id"]
+        g = result_by_game.get(game_id)
+        if g is None:
+            status, reasons = "accepted", None
+        elif g.quarantined:
+            status = "quarantined"
+            reasons = "; ".join(g.reasons) if g.reasons else None
+        elif g.reasons:
+            status = "accepted-with-warnings"
+            reasons = "; ".join(g.reasons)
+        else:
+            status, reasons = "accepted", None
+
+        rows.append(
+            {
+                "game_id": game_id,
+                "source": row["source"],
+                "competition": row["competition"],
+                "season": row["season"],
+                "home_team": row["home_team"],
+                "away_team": row["away_team"],
+                "n_plays": row["n_plays"],
+                "n_drives": row["n_drives"],
+                "status": status,
+                "quarantine_reasons": reasons,
+                "ingested_at": run_id,
+            }
+        )
+
+    return pl.DataFrame(rows, schema=_GAMES_SCHEMA)
 
 
 def _ingest_hudl(
@@ -239,8 +338,9 @@ def run_ingest(
     dispatch each requested source in fixed order (hudl, legacy, sportapp,
     ifaf), each inside its own try/except -> strict vertical concat (a schema
     mismatch across already-conformed frames is a bug, never papered over with
-    a diagonal concat mode) -> `run_checks` + `partition_games` -> return
-    `IngestResult`.
+    a diagonal concat mode) -> `run_checks` + `partition_games` -> atomic
+    writes of `games.parquet` then `plays.parquet` -> render and write the
+    Markdown report -> return `IngestResult`.
 
     `strict` only affects the caller's exit-code decision (`cli.ingest`,
     wired in a later task); it never changes what gets computed here.
@@ -300,7 +400,18 @@ def run_ingest(
     effective_out_dir = out_dir if out_dir is not None else config.paths.processed
     plays_path = effective_out_dir / "plays.parquet"
     games_path = effective_out_dir / "games.parquet"
-    report_path = effective_out_dir / f"validation-report-{run_id}.md"
+
+    games_table = _build_games_table(combined, game_results, run_id)
+
+    # Games written before plays: if the games write fails (or is
+    # monkeypatched to fail), execution never reaches the plays write, so a
+    # prior successful run's plays.parquet is left completely untouched.
+    _atomic_write_parquet(games_table, games_path)
+    _atomic_write_parquet(accepted.select(list(CANONICAL_COLUMNS)), plays_path)
+
+    markdown = render_report(game_results, game_notices, contract.version, run_id)
+    report_path = write_report(markdown, effective_out_dir, run_id)
+    console_summary(game_results)
 
     return IngestResult(
         run_id=run_id,
