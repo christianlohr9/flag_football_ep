@@ -14,7 +14,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from flag_football_ep.canonical import CANONICAL_COLUMNS
+from flag_football_ep.canonical import CANONICAL_COLUMNS, make_game_id
 from flag_football_ep.ingest.sportapp import (
     MissingDrivesArray,
     _extract_players_from_summary,
@@ -25,6 +25,7 @@ from flag_football_ep.ingest.sportapp import (
     flatten_plays,
     ingest_snapshots,
     load_snapshot,
+    read_mutated_sportapp_snapshot,
 )
 from flag_football_ep.reference import UnmappedTeamError
 
@@ -291,3 +292,135 @@ def test_ingest_snapshots_no_import_requests():
     import flag_football_ep.ingest.sportapp as mod
 
     assert "requests" not in dir(mod)
+
+
+# --- read_mutated_sportapp_snapshot (WC24 grandfather path, plan 11 task 1) ----
+
+# A minimal fixture mirroring data/raw/legacy/wc24_pbp.csv's real 65-column header,
+# with team-identity columns holding numeric-looking sportapp.fi ids (the exact
+# situation the schema_overrides in read_mutated_sportapp_snapshot guards against --
+# without it, polars infers these as integers, not the canonical Utf8).
+_WC24_FIXTURE_HEADER = (
+    "index,season,competition_id,competition_name,competition_league,gender,game_id,"
+    "game_type,game_group_id,game_group,half,summary,action_title,down,down_desc,"
+    "down_after,down_after_desc,yards_to_go,yards_to_go_after,possession_time,"
+    "home_team,away_team,home_score,away_score,stream_url,passer,receiver,rusher,"
+    "tackle_player,interception_player,sack_player,play_result,penalty,safety,"
+    "drive_id,play_id,half_end,play_type,complete_pass,interception,touchdown,"
+    "point_after,point_after_success,def_touchdown,one_point_conv_success,"
+    "two_point_conv_success,defensive_two_point_conv,scoring_play,posteam,defteam,"
+    "posteam_after,defteam_after,yardline_50,yardline_50_after,yards_gained,"
+    "yards_to_go_simple,first_down,scoring_play_team,home_team_points,"
+    "away_team_points,home_team_score,away_team_score,posteam_score,defteam_score,"
+    "score_differential"
+)
+
+
+def _wc24_fixture_row(**overrides) -> str:
+    base = {
+        "index": "1", "season": "2024", "competition_id": "2", "competition_name": "FlagWC",
+        "competition_league": "World cup", "gender": "2", "game_id": "956",
+        "game_type": "Group stage", "game_group_id": "47", "game_group": "Group B",
+        "half": "1", "summary": "", "action_title": "Rush", "down": "1", "down_desc": "1st",
+        "down_after": "2", "down_after_desc": "2nd", "yards_to_go": "10",
+        "yards_to_go_after": "10", "possession_time": "", "home_team": "13", "away_team": "11",
+        "home_score": "6", "away_score": "45", "stream_url": "", "passer": "", "receiver": "",
+        "rusher": "", "tackle_player": "", "interception_player": "", "sack_player": "",
+        "play_result": "rush", "penalty": "0", "safety": "0", "drive_id": "1", "play_id": "1",
+        "half_end": "0", "play_type": "rush", "complete_pass": "0", "interception": "0",
+        "touchdown": "0", "point_after": "0", "point_after_success": "0", "def_touchdown": "0",
+        "one_point_conv_success": "0", "two_point_conv_success": "0",
+        "defensive_two_point_conv": "0", "scoring_play": "0", "posteam": "11", "defteam": "13",
+        "posteam_after": "11", "defteam_after": "13", "yardline_50": "5",
+        "yardline_50_after": "5", "yards_gained": "0", "yards_to_go_simple": "2",
+        "first_down": "0", "scoring_play_team": "", "home_team_points": "0",
+        "away_team_points": "0", "home_team_score": "0", "away_team_score": "0",
+        "posteam_score": "0", "defteam_score": "0", "score_differential": "0",
+    }
+    base.update(overrides)
+    return ",".join(base[col] for col in _WC24_FIXTURE_HEADER.split(","))
+
+
+def _write_wc24_fixture(path: Path, rows: list[str]) -> Path:
+    path.write_text(_WC24_FIXTURE_HEADER + "\n" + "\n".join(rows) + "\n")
+    return path
+
+
+def test_read_mutated_sportapp_snapshot_conforms_to_canonical_columns(tmp_path):
+    path = _write_wc24_fixture(tmp_path / "wc24_fixture.csv", [_wc24_fixture_row()])
+    df = read_mutated_sportapp_snapshot(path)
+    assert df.columns == list(CANONICAL_COLUMNS)
+
+
+def test_read_mutated_sportapp_snapshot_source_is_legacy_sportapp(tmp_path):
+    path = _write_wc24_fixture(tmp_path / "wc24_fixture.csv", [_wc24_fixture_row()])
+    df = read_mutated_sportapp_snapshot(path)
+    assert set(df["source"].to_list()) == {"legacy-sportapp"}
+
+
+def test_read_mutated_sportapp_snapshot_game_id_matches_make_game_id(tmp_path):
+    path = _write_wc24_fixture(tmp_path / "wc24_fixture.csv", [_wc24_fixture_row(game_id="956")])
+    df = read_mutated_sportapp_snapshot(path)
+    assert df["game_id"][0] == make_game_id("legacy-sportapp", "956")
+    assert df["source_game_id"][0] == "956"
+
+
+def test_read_mutated_sportapp_snapshot_team_columns_stay_utf8_not_int(tmp_path):
+    path = _write_wc24_fixture(tmp_path / "wc24_fixture.csv", [_wc24_fixture_row()])
+    df = read_mutated_sportapp_snapshot(path)
+    for name in ("posteam", "defteam", "home_team", "away_team"):
+        assert df.schema[name] == pl.Utf8
+
+
+def test_read_mutated_sportapp_snapshot_derives_sack_and_yardline_50_simple(tmp_path):
+    path = _write_wc24_fixture(
+        tmp_path / "wc24_fixture.csv",
+        [
+            _wc24_fixture_row(index="1", play_result="sack", yardline_50="10"),
+            _wc24_fixture_row(index="2", play_result="rush", yardline_50="30"),
+        ],
+    )
+    df = read_mutated_sportapp_snapshot(path)
+    assert df["sack"].to_list() == [1, 0]
+    assert df["yardline_50_simple"].to_list() == [0, 1]
+
+
+class TestWc24LegacyFile:
+    """Against the real grandfathered file (data/raw/legacy/wc24_pbp.csv), if present."""
+
+    @pytest.fixture(scope="class")
+    def wc24_path(self, repo_root: Path) -> Path:
+        path = repo_root / "data" / "raw" / "legacy" / "wc24_pbp.csv"
+        if not path.exists():
+            pytest.skip("data/raw/legacy/wc24_pbp.csv not present")
+        return path
+
+    def test_row_count_matches_the_verified_corpus_size(self, wc24_path):
+        df = read_mutated_sportapp_snapshot(wc24_path)
+        # The plan's "14,546" included the header row; the verified data-row count
+        # (csv.DictReader / polars height, both checked) is 14,545 -- see the plan 11
+        # SUMMARY's "WC24 disposition" section.
+        assert df.height == 14545
+
+    def test_conforms_to_canonical_columns(self, wc24_path):
+        df = read_mutated_sportapp_snapshot(wc24_path)
+        assert df.columns == list(CANONICAL_COLUMNS)
+
+    def test_source_is_legacy_sportapp(self, wc24_path):
+        df = read_mutated_sportapp_snapshot(wc24_path)
+        assert set(df["source"].to_list()) == {"legacy-sportapp"}
+
+
+def test_no_ingest_module_references_the_old_wc24_root_path(repo_root: Path):
+    """T-1.2-27 gate: the old `data/wc24_pbp.csv` path must not appear anywhere under
+    `src/` outside a `raw/legacy` mention -- it was `git mv`-ed and is a comparison/
+    grandfather fixture only, never an ingest input by its old root-level path.
+    """
+    src_dir = repo_root / "src"
+    offending: list[str] = []
+    for path in src_dir.rglob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        for line in text.splitlines():
+            if "wc24_pbp.csv" in line and "raw/legacy" not in line:
+                offending.append(f"{path}: {line.strip()}")
+    assert offending == [], f"old wc24_pbp.csv root path referenced outside raw/legacy: {offending}"

@@ -74,7 +74,9 @@ def fetch_sportapp(
             if line.strip()
         ]
     else:
-        ids = list(cfg.reference.sportapp_games)
+        from flag_football_ep.reference import load_sportapp_games
+
+        ids = load_sportapp_games(cfg.reference.sportapp_games)["source_game_id"].to_list()
 
     api_key = os.environ.get(cfg.sources.sportapp.api_key_env)
     if not api_key:

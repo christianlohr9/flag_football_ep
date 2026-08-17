@@ -654,3 +654,82 @@ def ingest_snapshots(
         results.append((game_id, df, notices))
 
     return results
+
+
+# --- Grandfathered WC24 2024 CSV (plan 11 task 1 decision: re-derive-with-fallback) -----
+#
+# `data/raw/legacy/wc24_pbp.csv` (14,545 rows) is NOT raw sportapp.fi JSON -- RESEARCH
+# verified it is the fully-mutated output of the pre-port `Python/fetch_sportappfi_api.py`
+# pipeline for the WC24 2024 tournament (it already carries `complete_pass`, `drive_id`,
+# `home_team_score`, etc.). The plan 11 task 1 checkpoint recorded a
+# `re-derive-with-fallback` decision: attempt a live re-fetch through
+# `ingest_snapshots`/`fetch/sportapp.py` when `SPORTAPP_API_KEY` resolves, otherwise
+# grandfather this file exactly like `data_raw.csv`'s "legacy" source -- warn-only, never
+# re-validated at source. Today `SPORTAPP_API_KEY` does not resolve (no `.env`, key
+# rotation deferred per STATE.md's recorded blocker) and this branch is the one actually
+# exercised; see the plan 11 SUMMARY for the numbers and rationale.
+_MUTATED_SPORTAPP_SCHEMA_OVERRIDES: dict[str, pl.DataType] = {
+    "posteam": pl.Utf8,
+    "posteam_after": pl.Utf8,
+    "defteam": pl.Utf8,
+    "defteam_after": pl.Utf8,
+    "home_team": pl.Utf8,
+    "away_team": pl.Utf8,
+    "scoring_play_team": pl.Utf8,
+    "penalty": pl.Int32,
+}
+
+
+def read_mutated_sportapp_snapshot(path: Path) -> pl.DataFrame:
+    """Read the grandfathered, already-mutated WC24 CSV into the canonical schema.
+
+    Forces the team-identity columns to Utf8 (otherwise polars infers them as integers,
+    since sportapp.fi team ids look numeric, breaking canonical's Utf8 contract and any
+    string equality downstream) and `penalty` to Int32 (matches the canonical dtype; the
+    original notebook's CSV round-trip can leave it Int64). Every other Int64 column is
+    then cast down to Int32 to match `canonical.CORE_COLUMNS`.
+
+    Column names already match the canonical vocabulary almost 1:1 (this file predates
+    the canonical schema, but the schema was named to match it -- see
+    `Python/fetch_sportappfi_api.py`); this only renames/derives the handful that don't:
+    `game_id` -> `source_game_id` (+ a new composite `game_id`), `competition_name` ->
+    `competition`, `play_result` -> `result_raw`, `summary` -> `description`, `passer` ->
+    `qb`, `receiver` -> `received_by`, `rusher` -> `target`, `tackle_player` -> `tackle`
+    (mirroring `_finalize_canonical_columns`'s fresh-ingest mapping so both sportapp paths
+    populate the same extras the same way), plus deriving `sack` and `yardline_50_simple`
+    (never computed by the original pipeline, but required core columns -- same additions
+    as the fresh-ingest path, for the same reason).
+
+    Stamps `source="legacy-sportapp"` -- not `"sportapp"` -- so the validation/ingest
+    pipeline can treat these rows warn-only (like `data_raw.csv`'s `"legacy"` source):
+    they ran through pre-port mutation code that predates every fix and derivation this
+    module makes, and cannot be re-validated at source.
+    """
+    path = Path(path)
+    df = pl.read_csv(path, schema_overrides=_MUTATED_SPORTAPP_SCHEMA_OVERRIDES)
+
+    int64_columns = [name for name, dtype in df.schema.items() if dtype == pl.Int64]
+    if int64_columns:
+        df = df.with_columns([pl.col(name).cast(pl.Int32) for name in int64_columns])
+
+    df = df.rename({"game_id": "source_game_id"})
+    df = df.with_columns(
+        pl.col("source_game_id").cast(pl.Utf8),
+        source=pl.lit("legacy-sportapp"),
+        # Mirrors `canonical.make_game_id`'s non-"hudl" branch (`f"{source}-{key}"`)
+        # without a per-row Python call over 14k+ rows.
+        game_id=pl.concat_str([pl.lit("legacy-sportapp-"), pl.col("source_game_id")]),
+        competition=pl.col("competition_name").cast(pl.Utf8),
+        result_raw=pl.col("play_result"),
+        yardline=pl.col("yardline_50"),
+        description=pl.col("summary"),
+        qb=pl.col("passer"),
+        received_by=pl.col("receiver"),
+        target=pl.col("rusher"),
+        tackle=pl.col("tackle_player"),
+        sack=pl.when(pl.col("play_result") == "sack").then(pl.lit(1)).otherwise(pl.lit(0)),
+        yardline_50_simple=pl.when(pl.col("yardline_50") < 25).then(pl.lit(0)).otherwise(pl.lit(1)),
+    )
+
+    df, _report = conform_to_canonical(df, source="legacy-sportapp")
+    return df
