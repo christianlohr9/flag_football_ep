@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-08-17T11:36:08Z",
+  "captured_at": "2026-08-17T11:37:01Z",
   "polars_version": "1.5.0",
   "python_version": "3.12.12",
   "inputs": {
@@ -44,12 +44,12 @@
       "Total_W_Scaled": 0
     },
     "label_distribution": {
-      "1": 4014,
-      "null": 190,
-      "3": 75,
-      "2": 41,
       "0": 9054,
-      "4": 3260
+      "1": 4014,
+      "2": 41,
+      "3": 75,
+      "4": 3260,
+      "null": 190
     },
     "total_w_scaled": {
       "min": 0.0,
@@ -95,8 +95,8 @@
       "yardline_50": 0
     },
     "label_distribution": {
-      "1": 1805,
       "0": 1821,
+      "1": 1805,
       "null": 0
     },
     "half_seconds_remaining": {

@@ -193,13 +193,21 @@ def column_float_stats(df: pl.DataFrame, col: str) -> dict:
 
 
 def label_distribution(df: pl.DataFrame, col: str = "label") -> dict:
+    """Value counts keyed by string label, "null" bucket included.
+
+    value_counts() row order is not guaranteed stable across runs, so the
+    dict is rebuilt in sorted key order (numeric labels ascending, "null"
+    last) to keep re-runs producing an identical manifest apart from
+    captured_at.
+    """
     counts = df[col].value_counts()
-    dist: dict[str, int] = {}
+    raw: dict[str, int] = {}
     for row in counts.iter_rows(named=True):
         key = row[col]
-        dist["null" if key is None else str(key)] = int(row["count"])
-    dist.setdefault("null", 0)
-    return dist
+        raw["null" if key is None else str(key)] = int(row["count"])
+    raw.setdefault("null", 0)
+    sorted_keys = sorted(raw, key=lambda k: (k == "null", int(k) if k != "null" else 0))
+    return {k: raw[k] for k in sorted_keys}
 
 
 def frame_manifest_section(df: pl.DataFrame, weight_col: str, manifest_key: str) -> dict:
