@@ -96,7 +96,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5)*
 
-- [ ] 01.2-16-PLAN.md — `ffep run` chaining, migration-equivalence test, full-suite gate and timing baseline
+- [x] 01.2-16-PLAN.md — `ffep run` chaining, migration-equivalence test, full-suite gate and timing baseline
 
 **Wave 7** *(blocked on Wave 6)*
 
@@ -221,7 +221,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
-| 1.2 Repo to Pipeline | 15/17 | In Progress|  |
+| 1.2 Repo to Pipeline | 16/17 | In Progress|  |
 | 1.3 Model Retraining | 0/TBD | Not started | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
