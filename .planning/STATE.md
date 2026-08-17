@@ -63,7 +63,7 @@ GroupKFold by game_id, Strand-1 non-goals (no live tooling, no CV dependency).
 
 ### Pending Todos
 
-None yet.
+- `2026-08-17-tap-ifaf-wm-api-as-data-source.md` — IFAF/cpx.studio WM-API (Play-by-play der WM 2026) als zusätzliche Datenquelle für EP-Kalibrierung/Benchmarking erschließen; keine Defense-Felder, daher nicht Teil des Data Contracts.
 
 ### Blockers/Concerns
 
