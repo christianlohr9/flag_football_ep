@@ -112,22 +112,27 @@
       "name": "DEF FRONT",
       "dtype": "str",
       "required": false,
-      "values": ["PENDING-SIGHTING"],
-      "note": "canonical vocabulary fixed only after sighting real distinct values from sample exports (Plan 02)"
+      "values": ["LINE 5", "LINE 7", "LINE 5 --> 7", "ALL GL", "ALL FIRST", "5-5-7-6", "5-6-6-5", "5-6-6-6", "5-6-7-6", "5-7-7-5", "6-6-6-5", "6-6-6-6", "6-7-7-6", "7-7-7-7", "7-7-13-7", "7-8-8-7", "8-8-8-8", "10-10-13-10"],
+      "values_open": true,
+      "normalization": "uppercase ('Line 5 --> 7' -> 'LINE 5 --> 7')",
+      "note": "sighted 2026-08-17 from 3 sample exports. Two disjoint sub-vocabularies: scouting notation 'LINE n' (incl. one transition value 'LINE 5 --> 7') vs own-game numeric tuples matching ^\\d+(-\\d+){3}$ plus 'ALL GL'/'ALL FIRST'. Tuple enumeration is open, not closed; column entirely absent in the 43-column own-game preset. Notation unification is agenda item (c) — PENDING-ANALYST"
     },
     {
       "name": "COVERAGE",
       "dtype": "str",
       "required": false,
-      "values": ["PENDING-SIGHTING"],
-      "note": "canonical vocabulary fixed only after sighting real distinct values from sample exports (Plan 02)"
+      "values": ["WHITE", "BLACK", "BLUE", "GRAY", "YELLOW", "MONEY", "POOR", "QUARTERS", "0-4", "1-2", "1-3", "3-1", "F 1-2-1", "SC 1-2-1"],
+      "values_open": true,
+      "normalization": "collapse whitespace around hyphens in numeric shells ('F 1 -2-1' -> 'F 1-2-1', 'SC 1 - 2 -1' -> 'SC 1-2-1'); uppercase",
+      "note": "sighted 2026-08-17: three mixed name spaces — team call colors, numeric zone shells, textbook term 'QUARTERS' (1x in scouting film). Relationship of color calls vs shells and meaning of 'F'/'SC' prefixes is agenda item (c) — PENDING-ANALYST"
     },
     {
       "name": "BLITZ",
       "dtype": "str",
       "required": false,
-      "values": ["PENDING-SIGHTING"],
-      "note": "canonical vocabulary fixed only after sighting real distinct values from sample exports (Plan 02)"
+      "values": ["<BLITZERIN-NAME>"],
+      "values_open": true,
+      "note": "sighted 2026-08-17: observed values are exclusively person names (blitzer identified by first or last name), not tactical terms — names are PII and deliberately not enumerated here. '<BLITZERIN-NAME>' is a semantic placeholder, not a literal value. Forward decision (keep name-based charting = PII column like RECEIVED BY, or switch to a tactical vocabulary) is agenda item (c) — PENDING-ANALYST"
     },
     {
       "name": "QTR",
