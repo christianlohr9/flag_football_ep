@@ -14,7 +14,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import mlflow
-import numpy as np
 import polars as pl
 import pytest
 
