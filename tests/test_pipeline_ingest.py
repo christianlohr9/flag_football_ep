@@ -360,6 +360,40 @@ def test_run_ingest_all_sources_n_plays_equals_sum_of_accepted_rows(full_tree: C
     assert result.n_plays == 3 + 2 + 6 + 3
 
 
+def test_run_ingest_ifaf_malformed_play_does_not_drop_the_source(full_tree: Config) -> None:
+    """Regression guard for 01.2-VERIFICATION.md Truth 5 (partial) and
+    01.2-REVIEW.md WR-01: one malformed IFAF game (a null `playNumber`) must
+    not remove the other IFAF games from the run.
+    """
+    ifaf_dir = full_tree.paths.raw_ifaf
+    malformed_plays = [
+        {
+            "gameId": "TESTG2", "playNumber": None,
+            "context": {"gameClockMs": 100000, "half": 1, "down": 1, "ballOn": 20,
+                        "possessionTeamId": "w-ger", "score": {"home": 0, "away": 0}},
+            "outcome": {"type": "COMPLETE_PASS", "pointsScored": None, "turnover": False},
+            "description": {"text": "malformed playNumber"},
+            "penalty": False,
+        },
+    ]
+    (ifaf_dir / "unified-plays_TESTG2.json").write_text(
+        json.dumps(malformed_plays), encoding="utf-8"
+    )
+    games_meta = [
+        {"id": "TESTG1", "tournamentId": "test", "homeTeam": {"id": "w-ger"}, "awayTeam": {"id": "w-usa"}},
+        {"id": "TESTG2", "tournamentId": "test", "homeTeam": {"id": "w-ger"}, "awayTeam": {"id": "w-usa"}},
+    ]
+    (ifaf_dir / "games.json").write_text(json.dumps(games_meta), encoding="utf-8")
+
+    result = run_ingest(full_tree, ["ifaf"])
+
+    assert "ifaf-TESTG1" in {g.game_id for g in result.game_results}
+    by_id = {g.game_id: g for g in result.game_results}
+    assert by_id["ifaf-TESTG1"].quarantined is False
+    assert result.n_plays >= 3
+    assert not any("source-level failure" in n for n in result.notices)
+
+
 def test_run_ingest_missing_source_directory_skipped_with_notice(tmp_path: Path, repo_root: Path) -> None:
     config = _make_config(tmp_path, repo_root)
     _write_hudl_clean_game(config.paths.raw_hudl)
