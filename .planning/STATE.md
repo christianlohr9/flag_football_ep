@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-last_updated: "2026-08-03T06:26:25.278Z"
+status: ready_to_plan
+last_updated: 2026-08-17T07:51:18.986Z
 last_activity: 2026-08-03 -- Phase 01.1 execution started
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 3
-  completed_plans: 0
+  completed_plans: 3
   percent: 0
+stopped_at: Phase 01.1 complete (3/3) — ready to discuss Phase 1.2
 ---
 
 # Project State
@@ -20,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-02)
 
 **Core value:** Before the next camp/tournament: auto-generated tendency report per group opponent from raw exports in < 10 minutes, plus an explicit CV pilot go/no-go decision.
-**Current focus:** Phase 01.1 — data-contract-with-the-videoanalyst
+**Current focus:** Phase 1.2 — repo to pipeline
 
 ## Current Position
 
-Phase: 01.1 (data-contract-with-the-videoanalyst) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 01.1
-Last activity: 2026-08-03 -- Phase 01.1 execution started
+Phase: 1.2
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-17
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -35,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 3
 - Average duration: -
 - Total execution time: -
 
@@ -43,7 +44,7 @@ Progress: [░░░░░░░░░░] 0%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01.1 | 3 | - | - |
 
 **Recent Trend:**
 
