@@ -15,13 +15,13 @@ Before the next national-team camp/tournament, the HC has an auto-generated tend
 - [x] Data contract: core-plus-optional column model (v1.1), fixed `RESULT` vocabulary, derivation of manual fields — analyst ratification deferred (DEFERRED-ANALYST, tracked todo) (REQ-S1-01) — Validated in Phase 1.1: Data Contract
 - [x] Real time data: unavailability explicitly recorded — exports carry no time info; synthetic time stays per C-08, Phase 1.4 WP charts flagged (REQ-S1-02) — Validated in Phase 1.1: Data Contract
 - [x] Defense charting fields: sighted vocabulary for `DEF FRONT`/`COVERAGE` adopted from 7 real exports, `BLITZ` documented as person-name column, flag-pull causer explicitly skipped (REQ-S1-03) — Validated in Phase 1.1: Data Contract
+- [x] Notebook logic migrated into the `src/flag_football_ep` package (REQ-S1-04) — Validated in Phase 1.2: Repo to Pipeline
+- [x] Ingest CLI: Hudl export folder → canonical Parquet + per-game validation report (REQ-S1-05) — Validated in Phase 1.2: Repo to Pipeline
+- [x] Hudl + sportapp.fi/IFAF sources merged into one schema; raw files under `data/` (REQ-S1-06) — Validated in Phase 1.2: Repo to Pipeline
 
 ### Active
 
 **Strand 1 — Hudl export, EP/WP retraining, scouting products**
-- [ ] Notebook logic migrated into the `src/flag_football_ep` package (REQ-S1-04)
-- [ ] Ingest CLI: Hudl export folder → canonical Parquet + per-game validation report (REQ-S1-05)
-- [ ] Hudl + sportapp.fi/IFAF sources merged into one schema; raw files under `data/` (REQ-S1-06)
 - [ ] GroupKFold over `game_id` replaces play-level train_test_split (REQ-S1-07)
 - [ ] Calibration report: reliability curves per class, log-loss vs naive baseline (REQ-S1-08)
 - [ ] Feature candidates re-tested on grouped CV (REQ-S1-09)
@@ -88,4 +88,4 @@ All eight decisions below are **locked** (synthesized from docs/plan-1-analytics
 </decisions>
 
 ---
-*Last updated: 2026-08-17 after Phase 1.1 completion (data contract v1.1 core-plus-optional, unilaterally fixed, analyst ratification deferred)*
+*Last updated: 2026-08-18 after Phase 1.2 completion (notebook logic migrated to `src/flag_football_ep`, `ffep` CLI with validated four-source ingest into canonical Parquet, per-game validation report)*
