@@ -62,3 +62,23 @@ def test_hudl_and_sportapp_emitted_play_types_are_a_subset_of_the_vocabulary(
     assert emitted, "expected at least one non-null play_type from the fixtures"
     assert emitted <= PLAY_TYPE_VOCABULARY
     assert "rush" not in emitted
+
+
+def test_ifaf_emitted_play_types_are_a_subset_of_the_vocabulary():
+    # REVIEW WR-04: IFAF used to emit null play_type for every row, so this
+    # contract test was blind to the source. The committed sample payload must
+    # now yield at least one non-null canonical play_type.
+    import json
+
+    from flag_football_ep.ingest.ifaf import derive_outcome_columns, flatten_unified_plays
+
+    payload = json.loads(
+        (Path(__file__).parent / "fixtures" / "ifaf" / "unified-plays_sample.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    game_meta = {"home_team": "w-usa", "away_team": "w-ger"}
+    df = derive_outcome_columns(flatten_unified_plays(payload, game_meta, "g1"))
+    ifaf_play_types = set(df["play_type"].drop_nulls().unique().to_list())
+    assert ifaf_play_types, "expected at least one non-null play_type from the IFAF sample"
+    assert ifaf_play_types <= PLAY_TYPE_VOCABULARY

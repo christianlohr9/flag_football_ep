@@ -60,6 +60,24 @@ OUTCOME_MAP: dict[str, str | None] = {
     "SAFETY": "safety",
 }
 
+# Canonical `play_type` for the outcome types where the play form is unambiguous
+# (REVIEW WR-04: parsed IFAF plays must not sit at null, or every downstream
+# `play_type == "run"` / `== "pass"` filter silently excludes the whole corpus).
+# Values must stay inside `canonical.PLAY_TYPE_VOCABULARY`. Deliberately absent:
+# TOUCHDOWN/TD (could be a run or a pass — the type string carries no play form),
+# FLAG_PULL, TURNOVER, MIDDLE_LINE, SAFETY (events, not play forms) — those stay
+# null, with `result_raw` as the record.
+_PLAY_TYPE_FROM_OUTCOME: dict[str, str] = {
+    "RUN": "run",
+    "COMPLETE_PASS": "pass",
+    "INCOMPLETE_PASS": "pass",
+    "SACK": "pass",
+    "INTERCEPTION": "pass",
+    "XP1": "extra_point",
+    "XP2": "extra_point",
+    "TRY": "extra_point",
+}
+
 # Live-data finding (docs/ifaf-field-mapping.md): `outcome.type` alone is not a
 # reliable scoring signal for these five types. "TOUCHDOWN" plays are sometimes
 # actually 1- or 2-point conversions (description.kind == "TRY" on those rows,
@@ -356,6 +374,9 @@ def derive_outcome_columns(df: pl.DataFrame) -> pl.DataFrame:
     top-level `penalty` boolean, not inferred from `outcome.type`. A `result_raw`
     value that is non-null and not a key of `OUTCOME_MAP` sets `_unmapped_outcome`
     instead of any flag; `ingest_snapshots` folds that marker into `IngestNotices`.
+    `play_type` is set from `_PLAY_TYPE_FROM_OUTCOME` for the form-unambiguous
+    outcome types (RUN -> run; the pass-shaped types -> pass; XP1/XP2/TRY ->
+    extra_point) and stays null for everything else.
     """
     result_raw = pl.col("result_raw")
     turnover = pl.col("_outcome_turnover")
@@ -404,6 +425,12 @@ def derive_outcome_columns(df: pl.DataFrame) -> pl.DataFrame:
             (result_raw.is_not_null() & (~result_raw.is_in(known_types)))
             .cast(pl.Int32)
             .alias("_unmapped_outcome"),
+            # Unambiguous outcome types get their canonical play_type; everything
+            # else (event-shaped or form-ambiguous types, unmapped values, null)
+            # stays null per the null-is-for-unparsed contract in docs/pipeline.md.
+            result_raw.replace_strict(
+                _PLAY_TYPE_FROM_OUTCOME, default=None, return_dtype=pl.Utf8
+            ).alias("play_type"),
         ]
     )
     return df

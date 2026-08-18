@@ -166,7 +166,10 @@ must add the mapping there before the source can ingest at all.
 vocabulary -- `run`, `pass`, `no_play`, `qb_kneel`, `extra_point`, `kickoff`, or null for an
 unparsed play -- so a downstream filter can rely on the column without knowing which source
 a row came from. Each source's own wording (e.g. sportapp.fi's raw "rush") stays in
-`result_raw`, never in `play_type`.
+`result_raw`, never in `play_type`. For IFAF, the form-unambiguous `outcome.type` values map
+onto the vocabulary (`RUN` -> `run`; the pass-shaped types -> `pass`; `XP1`/`XP2`/`TRY` ->
+`extra_point`); form-ambiguous or event-shaped types (`TOUCHDOWN`, `SAFETY`, ...) stay null
+with `result_raw` as the record, since the type string carries no play form.
 
 **Real-run baseline:** the phase 01.2-17 run above quarantined 10 games, all IFAF, all
 `downs_range` failures from null `down` values on penalty/PAT plays -- a real property of

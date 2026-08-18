@@ -298,6 +298,42 @@ def test_derive_outcome_columns_maps_known_vocabulary():
     assert rows[11]["penalty"] == 1
 
 
+def test_derive_outcome_columns_sets_play_type_for_unambiguous_outcomes():
+    # REVIEW WR-04: parsed IFAF plays used to sit at null play_type across the
+    # board, silently excluding the whole corpus from play_type filters. The
+    # form-unambiguous outcome types now map onto the canonical vocabulary;
+    # form-ambiguous/event types (TOUCHDOWN, SAFETY, penalty-only) stay null.
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "RUN"}},
+        {"playNumber": 2, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "COMPLETE_PASS"}},
+        {"playNumber": 3, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "INCOMPLETE_PASS"}},
+        {"playNumber": 4, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "SACK"}},
+        {"playNumber": 5, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "INTERCEPTION", "turnover": True}},
+        {"playNumber": 6, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "XP1", "pointsScored": 1}},
+        {"playNumber": 7, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "TRY", "pointsScored": 1}},
+        {"playNumber": 8, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "TOUCHDOWN", "pointsScored": 6}},
+        {"playNumber": 9, "context": {"half": 1, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "SAFETY", "turnover": True}},
+        {"playNumber": 10, "context": {"half": 1, "possessionTeamId": "w-usa"}, "penalty": True},
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    df = derive_outcome_columns(df)
+    play_types = df.sort("play_id")["play_type"].to_list()
+    assert play_types == [
+        "run", "pass", "pass", "pass", "pass",
+        "extra_point", "extra_point",
+        None, None, None,
+    ]
+
+
 def test_derive_outcome_columns_touchdown_without_points_scored_is_not_credited():
     """Regression test: a live-data finding — some "TOUCHDOWN"/"TD"-typed plays
     carry no outcome.pointsScored at all and never move the real scoreboard
