@@ -248,8 +248,10 @@ def flatten_unified_plays(payload: list, game_meta: dict, game_id: str) -> pl.Da
     integer `playNumber` sort first, in `playNumber` order; everything else (an
     absent key, a null `playNumber`, a non-int value, or a non-dict entry) sorts
     after all of those, in stable payload order (see `_play_sort_key`). `drive_id`
-    increments by 1 whenever
-    `context.possessionTeamId` differs from the previous play's, starting at 1.
+    starts at 1 and increments only when `context.possessionTeamId` changes
+    between two plays where it is known; a null possession id (missing metadata)
+    keeps the current drive instead of advancing it or starting the game at an
+    out-of-contract 0.
     `yards_to_go` is always left null (see the module docstring). `posteam`/
     `defteam`/`home_team`/`away_team` carry raw cpx.studio team labels here;
     `ingest_snapshots` maps them onto canonical team codes afterward.
@@ -263,8 +265,13 @@ def flatten_unified_plays(payload: list, game_meta: dict, game_id: str) -> pl.Da
     ordered = sorted(enumerate(payload), key=lambda pair: _play_sort_key(pair[0], pair[1]))
 
     rows: list[dict] = []
+    # drive_id seeds at 1 so a game whose first play lacks possessionTeamId still
+    # starts in-contract (monotonic_drive_ids expects the first drive to be 1, not
+    # 0). A null possessionTeamId never advances the drive counter — only a change
+    # between two known possession ids does — so missing metadata degrades to
+    # "same drive" instead of quarantining the game (REVIEW WR-05).
     prev_posteam_raw: str | None = None
-    drive_id = 0
+    drive_id = 1
 
     for play_id, (_, play) in enumerate(ordered, start=1):
         context = play.get("context") or {}
@@ -273,9 +280,10 @@ def flatten_unified_plays(payload: list, game_meta: dict, game_id: str) -> pl.Da
         score = context.get("score") or {}
 
         posteam_raw = context.get("possessionTeamId")
-        if posteam_raw != prev_posteam_raw:
-            drive_id += 1
-        prev_posteam_raw = posteam_raw
+        if posteam_raw is not None:
+            if prev_posteam_raw is not None and posteam_raw != prev_posteam_raw:
+                drive_id += 1
+            prev_posteam_raw = posteam_raw
 
         description_text = (
             description_obj.get("text")

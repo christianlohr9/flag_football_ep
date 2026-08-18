@@ -217,6 +217,20 @@ def test_flatten_drive_id_increments_on_possession_change_starting_at_1():
     assert df["drive_id"].to_list() == [1, 1, 2, 3]
 
 
+def test_flatten_drive_id_starts_at_1_when_first_play_lacks_possession():
+    # REVIEW WR-05: a possession-less first play used to leave drive_id at the
+    # out-of-contract 0, quarantining the game via monotonic_drive_ids for a
+    # missing-metadata condition. Null possession never advances the counter.
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 5}},  # no possessionTeamId
+        {"playNumber": 2, "context": {"half": 1, "ballOn": 15, "possessionTeamId": "w-usa"}},
+        {"playNumber": 3, "context": {"half": 1, "ballOn": 20}},  # null mid-game keeps drive
+        {"playNumber": 4, "context": {"half": 1, "ballOn": 30, "possessionTeamId": "w-ger"}},
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    assert df["drive_id"].to_list() == [1, 1, 1, 2]
+
+
 def test_flatten_missing_context_key_counted_not_raised():
     payload = [
         {"playNumber": 1, "context": {"half": 1, "ballOn": 5, "possessionTeamId": "w-usa"}},  # no down
