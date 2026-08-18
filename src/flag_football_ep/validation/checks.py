@@ -26,6 +26,12 @@ import polars as pl
 
 _MAX_EXAMPLES = 5
 
+# gapless_play_ids: a max play_id beyond this multiple of the game's row count is
+# treated as a corrupt cell (typo'd PLAY # surviving the non-strict cast), failing
+# immediately instead of scanning 1..max_id. Flag games run a few hundred plays;
+# real charting gaps are small, so 100x row count is far outside anything legitimate.
+_MAX_PLAUSIBLE_ID_FACTOR = 100
+
 
 class Status(str, Enum):
     PASS = "pass"
@@ -201,6 +207,11 @@ def gapless_play_ids(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
     part, in the style `downs_range` already uses for null `down` values. A game
     whose non-null play_ids are otherwise contiguous but contains nulls still FAILs
     on the null count; it never raises and never silently PASSes.
+
+    The expected 1..max range is never materialized: missing ids are counted
+    arithmetically and only the first few examples are scanned, and a max play_id
+    beyond `_MAX_PLAUSIBLE_ID_FACTOR` x row count fails immediately as a corrupt
+    cell -- so one typo'd PLAY # cell cannot exhaust memory or hang the run.
     """
     df = plays.sort(["game_id", "play_id"])
     agg = df.group_by("game_id", maintain_order=True).agg(
@@ -215,17 +226,37 @@ def gapless_play_ids(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
         max_id = row["max_id"]
         n_null = sum(1 for pid in ids if pid is None)
         non_null_ids = [pid for pid in ids if pid is not None]
-        expected = set(range(1, max_id + 1)) if max_id is not None else set()
         actual = set(non_null_ids)
-        missing = sorted(expected - actual)
         counts = Counter(non_null_ids)
         duplicated = sorted(pid for pid, c in counts.items() if c > 1)
 
         parts = []
         n_offending = 0
-        if missing:
-            parts.append(f"missing play_id(s) {_bounded(missing)} ({len(missing)} missing)")
-            n_offending += len(missing)
+        # A corrupt cell (e.g. a typo'd "99999999" surviving the non-strict cast)
+        # must degrade to a FAIL detail, not a multi-GB `set(range(...))`: the
+        # expected range is never materialized, missing ids are counted
+        # arithmetically, and an implausible max_id short-circuits even the
+        # bounded example scan.
+        if max_id is not None and max_id > len(ids) * _MAX_PLAUSIBLE_ID_FACTOR:
+            parts.append(
+                f"implausible max play_id {max_id} for {len(ids)} row(s) -- corrupt play_id cell suspected"
+            )
+            n_offending += 1
+        elif max_id is not None:
+            n_in_range = sum(1 for pid in actual if 1 <= pid <= max_id)
+            n_missing = max_id - n_in_range
+            if n_missing:
+                examples: list[int] = []
+                for candidate in range(1, max_id + 1):
+                    if candidate not in actual:
+                        examples.append(candidate)
+                        if len(examples) >= _MAX_EXAMPLES:
+                            break
+                text = ", ".join(str(v) for v in examples)
+                if n_missing > _MAX_EXAMPLES:
+                    text += f", ... ({n_missing} total)"
+                parts.append(f"missing play_id(s) {text} ({n_missing} missing)")
+                n_offending += n_missing
         if duplicated:
             dup_count = sum(c - 1 for pid, c in counts.items() if c > 1)
             parts.append(f"duplicated play_id(s) {_bounded(duplicated)} ({dup_count} duplicate row(s))")

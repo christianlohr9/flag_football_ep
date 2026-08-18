@@ -162,6 +162,27 @@ class TestGaplessPlayIds:
         assert "null play_id" in result.detail
         assert "3" in result.detail
 
+    def test_fail_fast_on_implausible_max_play_id_without_enumerating(self):
+        # REVIEW WR-02: one typo'd cell like 99999999 used to materialize a
+        # ~1e8-element set and hang the run; it must degrade to an immediate FAIL.
+        df = canonical_plays(n_games=1, plays_per_game=4, overrides={"play_id": [1, 2, 3, 99_999_999]})
+        results = gapless_play_ids(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert "implausible" in result.detail
+        assert "99999999" in result.detail
+
+    def test_missing_examples_bounded_with_total_count(self):
+        # A legitimate-but-gappy game still reports arithmetically correct totals
+        # with only the first examples listed.
+        df = canonical_plays(n_games=1, plays_per_game=4, overrides={"play_id": [1, 2, 3, 12]})
+        results = gapless_play_ids(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert "(8 missing)" in result.detail
+        assert "4, 5, 6, 7, 8" in result.detail
+        assert "9" not in result.detail.split("(")[0]
+
 
 class TestScoreReconstruction:
     def test_pass_when_last_row_matches_reference(self):
