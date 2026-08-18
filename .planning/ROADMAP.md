@@ -135,7 +135,34 @@ Plans:
   4. PAT baselines are empirical estimates from the full dataset (replacing hard-coded 50%/46%), and the PAT break-even chart exists
   5. Model artifacts carry date + training-data hash in the filename; `ep_model.pkl` is never silently overwritten again
 
-**Plans**: TBD
+**Plans**: 9 plans in 6 waves
+Plans:
+**Wave 1**
+
+- [ ] 01.3-01-PLAN.md — MLflow SQLite tracking-store migration (registry prerequisite), test-suite migration off the FileStore layout
+- [ ] 01.3-02-PLAN.md — Build the canonical corpus, profile `game_date`/`competition`/PAT coverage, land the competition-tier reference data and loader
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 01.3-03-PLAN.md — Model registry, `champion` alias resolution, `ffep promote`, retirement of the stale fixed-name pickles
+- [ ] 01.3-04-PLAN.md — Leave-one-game-out evaluation engine over `game_id`, grouped inner CV for tuning, refit-once production model
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 01.3-05-PLAN.md — Reliability curves per class, naive-baseline log-loss, per-source breakdown, out-of-fold persistence, production model registration
+- [ ] 01.3-06-PLAN.md — Empirical PAT baselines with binomial CIs, reusable break-even chart module and `ffep pat-breakeven`
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 01.3-07-PLAN.md — Candidate-experiment harness with MLflow-logged verdicts; `half` and competition-tier covariate candidates
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 01.3-08-PLAN.md — Recency weighting across a half-life grid; IFAF-only real-clock vs synthetic-time WP sub-experiment
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 01.3-09-PLAN.md — Combined adoption decision, full retrain, human review checkpoint, champion promotion, training report and operator docs
 
 ### Phase 1.4: Coaching Products
 
@@ -242,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
-| 1.3 Model Retraining | 0/TBD | Not started | - |
+| 1.3 Model Retraining | 0/9 | Planned | - |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
