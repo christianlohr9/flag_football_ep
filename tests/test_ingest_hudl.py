@@ -209,7 +209,10 @@ def _outcome_row(result: str, down: int = 1, yardline_50: int = 25) -> dict:
         ("No Good", {"no_good": 1}),
         ("Good", {"one_point_conv_success": 0, "two_point_conv_success": 0}),
         ("Penalty", {"play_type": "no_play", "penalty": 1}),
-        ("Complete, Penalty", {"penalty": 1, "complete_pass": 1}),
+        # Penalty nullifies regardless of base token (REVIEW WR-03): both flagged
+        # variants are no_play, with the base outcome kept in the flag columns.
+        ("Complete, Penalty", {"play_type": "no_play", "penalty": 1, "complete_pass": 1}),
+        ("Rush, Penalty", {"play_type": "no_play", "penalty": 1}),
         ("KNEEL", {"play_type": "qb_kneel"}),
         ("Sack", {"sack": 1, "play_type": "pass"}),
         ("Interception", {"interception": 1}),

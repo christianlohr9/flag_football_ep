@@ -306,8 +306,13 @@ def derive_outcome_columns(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         )
 
     df = df.with_columns(
-        pl.when(pl.col("tok_rush")).then(pl.lit("run"))
-        .when(pl.col("tok_penalty")).then(pl.lit("no_play"))
+        # tok_penalty is checked FIRST: a flagged play is a no-play regardless of
+        # its base token, so "Rush, Penalty" and "Complete, Penalty" both map to
+        # no_play (previously "Rush, Penalty" leaked through as run — REVIEW
+        # WR-03). The base outcome survives in the penalty/complete_pass/... flag
+        # columns derived below.
+        pl.when(pl.col("tok_penalty")).then(pl.lit("no_play"))
+        .when(pl.col("tok_rush")).then(pl.lit("run"))
         .when(pl.col("tok_kneel")).then(pl.lit("qb_kneel"))
         .when(pl.col("down") == 0).then(pl.lit("extra_point"))
         .when(pl.col("RESULT").fill_null("") == "").then(pl.lit(None, dtype=pl.Utf8))
