@@ -176,6 +176,31 @@ def test_correct_posteam_keeps_offense_when_no_defensive_touchdown():
     assert set(df["defteam"].to_list()) == {"102"}
 
 
+def test_correct_posteam_reassigns_defense_on_interception_touchdown():
+    # Guards the def_touchdown branch (REVIEW WR-06): a pick-six drive must flip
+    # posteam/defteam to the scoring defense from the play matching the drive's
+    # posteam_helper_2 marker, while other drives keep the raw offense.
+    df = pl.DataFrame(
+        {
+            "game_id": ["G1"] * 4,
+            "drive_id": [1, 1, 2, 2],
+            "play_id": [1, 2, 3, 4],
+            "posteam_id": ["101", "101", "102", "102"],
+            "home_team": ["101"] * 4,
+            "away_team": ["102"] * 4,
+            "def_touchdown": [0, 1, 0, 0],
+        }
+    )
+    out = correct_posteam(df)
+    # Drive 1 ends in a defensive touchdown: the drive's rows from the first
+    # marked play onward credit the defense ("102") as posteam.
+    assert out["posteam"].to_list()[1] == "102"
+    assert out["defteam"].to_list()[1] == "101"
+    # Drive 2 has no defensive touchdown: raw offense stands.
+    assert out["posteam"].to_list()[2] == "102"
+    assert out["defteam"].to_list()[2] == "101"
+
+
 def test_clean_yardage_stays_within_0_50():
     drives_data, match_data = _load_test001()
     df = flatten_plays(drives_data, match_data, "TEST001")

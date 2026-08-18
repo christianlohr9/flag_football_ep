@@ -423,7 +423,12 @@ def correct_posteam(df: pl.DataFrame) -> pl.DataFrame:
         )
         .with_columns(
             posteam_helper_max=pl.when(
-                ((pl.col("play_id")) == (pl.col("posteam_helper_2"))) & pl.col("def_touchdown") == 1
+                # Explicit parentheses: `&` binds tighter than `==` in Python, so the
+                # unparenthesized form parses as `(a == b & c) == 1` — the same
+                # precedence trap that corrupted scoring_play in the notebook (see
+                # canonical.add_scoring_play_team). Equivalent today only because
+                # def_touchdown is strictly 0/1.
+                (pl.col("play_id") == pl.col("posteam_helper_2")) & (pl.col("def_touchdown") == 1)
             )
             .then(pl.col("posteam_helper"))
             .otherwise(pl.lit(None))
