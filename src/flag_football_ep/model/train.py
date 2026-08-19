@@ -1,17 +1,23 @@
 """EP and WP model training, with MLflow as the tracking/artifact backend.
 
 Ports `models/ep_model.ipynb` (cells 2, 6, 7, 9-14, 16) and `models/wp_model.ipynb`
-(cells 2, 5, 6, 8-10, 12) behaviour-for-behaviour: same features, same
-`train_test_split(test_size=0.2, random_state=42)`, same fixed hyperparameters (see
-`flag_football_ep.model.hyperparams`), same metric. The one intentional behaviour change is
-the artifact sink -- every run gets its own MLflow run (params, metrics, model artifact)
-instead of the notebook's `pickle`-based dump into a fixed `"ep_model.pkl"` filename, which
-silently overwrote the same file on every run (T-1.2-07, threat register in the plan).
+(cells 2, 5, 6, 8-10, 12) behaviour-for-behaviour on features and fixed hyperparameters (see
+`flag_football_ep.model.hyperparams`). The evaluation protocol itself is not ported: the
+notebooks' play-level 80/20 random split (test_size 0.2, fixed seed) let plays from the
+same game land in both train and test, optimistically biasing every reported metric.
+REQ-S1-07 / D-07 replace it with leave-one-game-out (LOGO) measurement over `game_id`
+(`flag_football_ep.model.evaluate.run_logo`) -- every game is held out exactly once, and the
+reported metric is the pooled out-of-fold log-loss. The shipped model is a single refit on
+every game with the tuned params; the fold models `run_logo` fits are measurement-only and
+are never exported or registered. Also, every run gets its own MLflow run (params, metrics,
+model artifact) instead of the notebook's `pickle`-based dump into a fixed `"ep_model.pkl"`
+filename, which silently overwrote the same file on every run (T-1.2-07, threat register in
+the plan).
 
 `train_ep` and `train_wp` are thin, model-specific wrappers around the shared `_train`
-pipeline (filter -> prepare -> mutate -> drop_nulls -> split -> fit or tune -> evaluate) and
-the shared `_log_run` MLflow helper, so the two paths cannot drift from each other on the
-params/metrics/artifact contract.
+pipeline (filter -> prepare -> mutate -> drop_nulls -> tune (grouped inner CV) -> LOGO
+measurement -> refit once on all games -> log) and the shared `_log_run` MLflow helper, so
+the two paths cannot drift from each other on the params/metrics/artifact contract.
 
 Hyperopt tuning (`tune=True`) is preserved behind an explicit flag rather than run on every
 `ffep train`: RESEARCH Assumption A1 / Open Question 1 record that the notebook's tuned
@@ -49,7 +55,7 @@ import polars as pl
 import xgboost as xgb
 from hyperopt import STATUS_OK, Trials, fmin, tpe
 from sklearn.metrics import log_loss
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GroupKFold
 
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
@@ -59,16 +65,19 @@ from flag_football_ep.features.mutations import (
     prepare_wp_data,
 )
 from flag_football_ep.model import mlflow_store
+from flag_football_ep.model.evaluate import run_logo
 from flag_football_ep.model.hyperparams import (
     EP_FEATURES,
     EP_PARAMS,
-    EP_SELECTED_COLUMNS,
+    EP_TRAINING_COLUMNS,
     HYPEROPT_QUNIFORM_KEYS,
     HYPEROPT_SPACE,
+    INNER_CV_FOLDS,
+    LOGO_GROUP_COLUMN,
     TUNE_EARLY_STOPPING_ROUNDS,
     WP_FEATURES,
     WP_PARAMS,
-    WP_SELECTED_COLUMNS,
+    WP_TRAINING_COLUMNS,
 )
 
 # ep_model.ipynb cell 14 / wp_model.ipynb cell 12: the tuned refit only carries these
@@ -96,10 +105,10 @@ def train_ep(
         exclude_ids=list(config.train.exclude_games_ep),
         prepare_fn=prepare_ep_data,
         mutate_fn=make_ep_model_mutations,
-        selected_columns=EP_SELECTED_COLUMNS,
+        selected_columns=EP_TRAINING_COLUMNS,
         features=EP_FEATURES,
         fixed_params=EP_PARAMS,
-        metric_name="test_mlogloss",
+        metric_name="logo_mlogloss",
         weight_column="Total_W_Scaled",
         model_prefix="ep",
         tune=tune,
@@ -127,10 +136,10 @@ def train_wp(
         exclude_ids=list(config.train.exclude_games_wp),
         prepare_fn=prepare_wp_data,
         mutate_fn=make_wp_model_mutations,
-        selected_columns=WP_SELECTED_COLUMNS,
+        selected_columns=WP_TRAINING_COLUMNS,
         features=WP_FEATURES,
         fixed_params=WP_PARAMS,
-        metric_name="test_logloss",
+        metric_name="logo_logloss",
         weight_column=None,
         model_prefix="wp",
         tune=tune,
@@ -159,12 +168,12 @@ def _train(
 ) -> str:
     """Shared EP/WP fit-and-log pipeline.
 
-    filter excluded games -> `prepare_fn` -> `mutate_fn` -> `drop_nulls()` -> 80/20 split ->
-    fit (fixed params on the train split) or tune (hyperopt search on the split, then refit
-    `xgb.XGBRegressor` on the *full* frame with the best trial's params -- matching the
-    notebooks' tuned-refit cells) -> evaluate `metric_name` on the held-out test split ->
-    `_log_run` -> optional dated `.pkl` export. `train_ep`/`train_wp` only supply what
-    differs between the two paths; this is the one place the pipeline shape itself lives.
+    filter excluded games -> `prepare_fn` -> `mutate_fn` -> `drop_nulls()` -> tune (grouped
+    inner CV) -> LOGO measurement -> refit once on all games -> `_log_run` -> optional dated
+    `.pkl` export. REQ-S1-07 / D-07: no game's plays ever appear in both a fold's train and
+    test partition, and the model that ships is a single refit on every game -- the LOGO fold
+    models are measurement-only. `train_ep`/`train_wp` only supply what differs between the
+    two paths; this is the one place the pipeline shape itself lives.
     """
     try:
         filtered = (
@@ -183,58 +192,51 @@ def _train(
             f"{model_prefix}: missing required feature column(s): {', '.join(missing)}"
         )
 
-    X = model_data.select(list(features))
-    y = model_data.select("label")
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    if weight_column is not None:
-        # Same split settings applied to the weight column separately, exactly as the
-        # notebook does (ep_model.ipynb cell 6) -- row order is identical so the split
-        # lines up with X/y.
-        weight_train, _weight_test = train_test_split(
-            model_data.select(weight_column), test_size=0.2, random_state=42
-        )
-    else:
-        weight_train = None
-
     training_data_sha256 = _hash_frame(model_data)
 
     if tune:
         fit_params, trial_losses, best_params = _tune(
-            train_X, train_y, test_X, test_y, fixed_params, max_evals
-        )
-        fit_X = model_data.select(list(features)).to_numpy()
-        fit_y = model_data.select("label").to_numpy()
-        fit_weight = (
-            model_data.select(weight_column).to_numpy().ravel()
-            if weight_column is not None
-            else None
+            model_data, features, weight_column, fixed_params, max_evals
         )
     else:
         fit_params = dict(fixed_params)
         trial_losses = []
         best_params = None
-        fit_X = train_X.to_numpy()
-        fit_y = train_y.select("label").to_numpy()
-        fit_weight = weight_train.to_numpy().ravel() if weight_train is not None else None
 
-    model = xgb.XGBRegressor(**fit_params)
-    model.fit(fit_X, fit_y, sample_weight=fit_weight)
-
-    y_pred = model.predict(test_X.to_numpy())
-    # Explicit `labels` covering every class the model can output: a small held-out split
-    # can easily miss a rare class, and log_loss raises rather than silently comparing a
-    # subset of columns against y_pred's full width.
+    # Measurement: leave-one-game-out over LOGO_GROUP_COLUMN, using the (possibly tuned)
+    # fit_params -- never the play-level split the notebooks used.
+    logo = run_logo(
+        model_data=model_data,
+        features=features,
+        fixed_params=fit_params,
+        weight_column=weight_column,
+    )
     num_class = fixed_params.get("num_class")
     labels = list(range(num_class)) if num_class else None
-    metric_value = float(log_loss(test_y.to_numpy().ravel(), y_pred, labels=labels))
+    oof_pred_for_metric = logo.oof_pred if num_class else logo.oof_pred.ravel()
+    metric_value = float(log_loss(logo.oof_label, oof_pred_for_metric, labels=labels))
+
+    # Production refit: one fresh model fit on the *whole* frame with the tuned params --
+    # this is the artifact `_log_run`/`_export_pickle` ship. Separate from the LOGO fold
+    # models above, which are measurement-only and are never returned or logged.
+    fit_X = model_data.select(list(features)).to_numpy()
+    fit_y = model_data.select("label").to_numpy()
+    fit_weight = (
+        model_data.select(weight_column).to_numpy().ravel()
+        if weight_column is not None
+        else None
+    )
+    model = xgb.XGBRegressor(**fit_params)
+    model.fit(fit_X, fit_y, sample_weight=fit_weight)
 
     params = {
         **{str(key): value for key, value in fixed_params.items()},
         "n_plays": model_data.height,
         "n_features": len(features),
-        "test_size": 0.2,
-        "random_state": 42,
+        "cv_scheme": "leave-one-game-out",
+        "group_column": LOGO_GROUP_COLUMN,
+        "n_folds": logo.n_folds,
+        "logo_wall_seconds": round(logo.wall_seconds, 3),
         "training_data_sha256": training_data_sha256,
         "excluded_game_ids": ",".join(exclude_ids),
         "tuned": tune,
@@ -260,53 +262,72 @@ def _train(
 
 
 def _tune(
-    train_X: pl.DataFrame,
-    train_y: pl.DataFrame,
-    test_X: pl.DataFrame,
-    test_y: pl.DataFrame,
+    model_data: pl.DataFrame,
+    features: Sequence[str],
+    weight_column: str | None,
     fixed_params: dict,
     max_evals: int,
 ) -> tuple[dict, list[float], dict]:
     """Run the ported hyperopt search (ep_model.ipynb cells 9-11 / wp_model.ipynb cells 8-10)
-    and build the tuned-refit params (cell 14 / cell 12).
+    over a grouped inner CV, and build the tuned-refit params (cell 14 / cell 12).
+
+    Each trial is scored on `GroupKFold(n_splits=min(INNER_CV_FOLDS, n_distinct_games))` over
+    `LOGO_GROUP_COLUMN`, not a single fixed play-level split -- REQ-S1-07/D-07: no game's
+    plays may leak between a trial's train and eval partitions. This inner CV is deliberately
+    not LOGO -- scoring every trial with a full leave-one-game-out pass would multiply the
+    already-expensive LOGO fit count by `max_evals` (RESEARCH "Anti-Patterns to Avoid": the
+    LOGO x trials fit-count explosion). LOGO itself runs exactly once, after tuning, in
+    `_train`.
 
     Returns `(fit_params, trial_losses, best_params)`: `fit_params` is what the final model
     is fit with (structural keys from `fixed_params` plus the tuned numeric keys, no
     `subsample` -- exactly what the notebooks' refit cells construct); `trial_losses` is
-    every trial's held-out log_loss in trial order (for the stepped `tune_logloss` metric);
-    `best_params` is every searched key (int-cast where `HYPEROPT_QUNIFORM_KEYS` says to),
-    logged as `best_`-prefixed run params.
+    every trial's mean inner-fold log_loss in trial order (for the stepped `tune_logloss`
+    metric); `best_params` is every searched key (int-cast where `HYPEROPT_QUNIFORM_KEYS`
+    says to), logged as `best_`-prefixed run params.
     """
-    train_X_np = train_X.to_numpy()
-    train_y_np = train_y.to_numpy().ravel()
-    test_X_np = test_X.to_numpy()
-    test_y_np = test_y.to_numpy().ravel()
-    class_labels = sorted(set(np.unique(train_y_np)) | set(np.unique(test_y_np)))
+    X_np = model_data.select(list(features)).to_numpy()
+    y_np = model_data.select("label").to_numpy().ravel()
+    groups_np = model_data.select(LOGO_GROUP_COLUMN).to_numpy().ravel()
+    weight_np = (
+        model_data.select(weight_column).to_numpy().ravel() if weight_column is not None else None
+    )
+    # Computed once from the full frame so an inner fold missing a rare class cannot make
+    # log_loss raise (mirrors _train's `labels=list(range(num_class))` pre-flight).
+    class_labels = sorted(set(np.unique(y_np)))
+    n_distinct_games = len(set(groups_np))
+    n_splits = min(INNER_CV_FOLDS, n_distinct_games)
+    group_kfold = GroupKFold(n_splits=n_splits)
 
     def _objective(space: dict) -> dict:
         # ep_model.ipynb cell 10 / wp_model.ipynb cell 9 ("model_objective"), ported: an
-        # XGBClassifier per trial with early stopping against a held-out eval set, scored by
-        # sklearn log_loss on predict_proba. `reg_alpha`/`colsample_bytree` stay float here
-        # (see HYPEROPT_QUNIFORM_KEYS docstring for why the notebooks' int-cast is not
-        # ported).
-        clf = xgb.XGBClassifier(
-            n_estimators=int(space["n_estimators"]),
-            eta=space["eta"],
-            max_depth=int(space["max_depth"]),
-            gamma=space["gamma"],
-            reg_alpha=space["reg_alpha"],
-            min_child_weight=int(space["min_child_weight"]),
-            colsample_bytree=space["colsample_bytree"],
-            early_stopping_rounds=TUNE_EARLY_STOPPING_ROUNDS,
-        )
-        clf.fit(
-            train_X_np,
-            train_y_np,
-            eval_set=[(train_X_np, train_y_np), (test_X_np, test_y_np)],
-            verbose=False,
-        )
-        pred_proba = clf.predict_proba(test_X_np)
-        loss = log_loss(test_y_np, pred_proba, labels=class_labels)
+        # XGBClassifier per inner fold with early stopping against that fold's held-out
+        # partition. Scored by sklearn log_loss on predict_proba, mean over inner folds.
+        # `reg_alpha`/`colsample_bytree` stay float here (see HYPEROPT_QUNIFORM_KEYS
+        # docstring for why the notebooks' int-cast is not ported).
+        fold_losses = []
+        for train_idx, eval_idx in group_kfold.split(X_np, y_np, groups=groups_np):
+            clf = xgb.XGBClassifier(
+                n_estimators=int(space["n_estimators"]),
+                eta=space["eta"],
+                max_depth=int(space["max_depth"]),
+                gamma=space["gamma"],
+                reg_alpha=space["reg_alpha"],
+                min_child_weight=int(space["min_child_weight"]),
+                colsample_bytree=space["colsample_bytree"],
+                early_stopping_rounds=TUNE_EARLY_STOPPING_ROUNDS,
+            )
+            fold_weight = weight_np[train_idx] if weight_np is not None else None
+            clf.fit(
+                X_np[train_idx],
+                y_np[train_idx],
+                sample_weight=fold_weight,
+                eval_set=[(X_np[train_idx], y_np[train_idx]), (X_np[eval_idx], y_np[eval_idx])],
+                verbose=False,
+            )
+            pred_proba = clf.predict_proba(X_np[eval_idx])
+            fold_losses.append(log_loss(y_np[eval_idx], pred_proba, labels=class_labels))
+        loss = float(np.mean(fold_losses))
         return {"loss": loss, "status": STATUS_OK}
 
     trials = Trials()

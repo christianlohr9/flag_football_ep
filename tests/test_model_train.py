@@ -161,11 +161,11 @@ def test_train_ep_logs_every_hyperparam_plus_provenance_params(tmp_path: Path) -
 
     for key in EP_PARAMS:
         assert key in params, f"missing logged EP hyperparam: {key}"
-    for key in ("n_plays", "n_features", "test_size", "random_state", "training_data_sha256"):
+    for key in ("n_plays", "n_features", "cv_scheme", "n_folds", "training_data_sha256"):
         assert key in params, f"missing logged provenance param: {key}"
 
 
-def test_train_ep_logs_test_mlogloss_metric(tmp_path: Path) -> None:
+def test_train_ep_logs_logo_mlogloss_metric(tmp_path: Path) -> None:
     config = _make_config(tmp_path)
     plays = _ep_training_corpus()
 
@@ -175,7 +175,55 @@ def test_train_ep_logs_test_mlogloss_metric(tmp_path: Path) -> None:
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
 
-    assert "test_mlogloss" in run.data.metrics
+    assert "logo_mlogloss" in run.data.metrics
+    assert "test_mlogloss" not in run.data.metrics
+
+
+def test_train_ep_logs_cv_scheme_and_n_folds_params(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus(n_games=6, plays_per_game=16)
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    run = client.get_run(run_id)
+    params = run.data.params
+
+    assert params["cv_scheme"] == "leave-one-game-out"
+    assert int(params["n_folds"]) == plays["game_id"].n_unique()
+    assert "test_size" not in params
+    assert "random_state" not in params
+    assert "logo_wall_seconds" in params
+
+
+def test_train_ep_refit_model_fit_on_every_row(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The production model logged to MLflow is fit once on the full frame -- not an 80%
+    split. Captures the last `XGBRegressor.fit` call's X (the refit, after any LOGO fold
+    fits) and asserts its row count equals the training frame height."""
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus(n_games=6, plays_per_game=16)
+
+    captured: dict = {}
+    original_fit = __import__("xgboost").XGBRegressor.fit
+
+    def _spy_fit(self, X, y, *args, **kwargs):
+        captured["last_X_rows"] = X.shape[0]
+        return original_fit(self, X, y, *args, **kwargs)
+
+    monkeypatch.setattr("xgboost.XGBRegressor.fit", _spy_fit)
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    n_plays = int(client.get_run(run_id).data.params["n_plays"])
+
+    # The last XGBRegressor.fit call is always the production refit (LOGO fold fits happen
+    # first, one per held-out game, each on fewer rows than the full frame).
+    assert captured["last_X_rows"] == n_plays
 
 
 def test_train_ep_drops_excluded_games_and_logs_them(tmp_path: Path) -> None:
@@ -298,7 +346,7 @@ def test_train_wp_logs_into_its_own_experiment(tmp_path: Path) -> None:
     assert experiment.name != config.train.ep_experiment
 
 
-def test_train_wp_logs_test_logloss_metric(tmp_path: Path) -> None:
+def test_train_wp_logs_logo_logloss_metric(tmp_path: Path) -> None:
     config = _make_config(tmp_path)
     plays = _wp_training_corpus()
 
@@ -308,7 +356,8 @@ def test_train_wp_logs_test_logloss_metric(tmp_path: Path) -> None:
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
 
-    assert "test_logloss" in run.data.metrics
+    assert "logo_logloss" in run.data.metrics
+    assert "test_logloss" not in run.data.metrics
 
 
 def test_train_wp_drops_excluded_games_and_logs_them(tmp_path: Path) -> None:
@@ -442,6 +491,34 @@ def test_train_ep_tune_true_max_evals_2_logs_best_params(tmp_path: Path) -> None
     best_keys = [k for k in params if k.startswith("best_")]
     assert best_keys, "expected best_-prefixed params from the hyperopt search"
     assert any("eta" in k for k in best_keys)
+
+
+def test_train_ep_tune_inner_cv_no_shared_game_id_between_train_and_eval(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`_tune`'s inner CV scores each trial with GroupKFold over game_id -- no trial's
+    evaluation set may share a game_id with its training set. Wraps GroupKFold.split (the
+    exact call `_tune` makes) to capture the game_id values on each side of every split."""
+    from sklearn.model_selection import GroupKFold
+
+    config = _make_config(tmp_path)
+    plays = _tune_corpus()
+
+    captured_splits: list[tuple] = []
+    original_split = GroupKFold.split
+
+    def _spy_split(self, X, y=None, groups=None):
+        for train_idx, eval_idx in original_split(self, X, y=y, groups=groups):
+            captured_splits.append((groups[train_idx].copy(), groups[eval_idx].copy()))
+            yield train_idx, eval_idx
+
+    monkeypatch.setattr("sklearn.model_selection.GroupKFold.split", _spy_split)
+
+    train_ep(plays, config, tune=True, max_evals=2)
+
+    assert captured_splits, "expected GroupKFold.split to be called during tuning"
+    for train_groups, eval_groups in captured_splits:
+        assert set(train_groups).isdisjoint(set(eval_groups))
 
 
 def test_train_ep_tune_true_logs_stepped_trial_losses(tmp_path: Path) -> None:
