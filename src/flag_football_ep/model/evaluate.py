@@ -339,11 +339,10 @@ def write_oof_predictions(
 
     Writes to a `.tmp` sibling then `Path.replace`s it onto the live path -- the same
     write-to-temp-then-atomic-rename discipline `pipeline._atomic_write_parquet` uses
-    (replicated here rather than imported, since `write_oof_predictions` needs the plain
-    `Path.replace(...)` call this module's own acceptance criteria check for; the two
-    implementations must never drift on the "crash mid-write leaves the previous file
-    intact" guarantee). An interrupted write cannot destroy a previously good file, and no
-    stray `.tmp` file is left behind, regardless of outcome.
+    (replicated here rather than imported, so the atomic-rename call itself stays visible
+    in this module; the two implementations must never drift on the "crash mid-write
+    leaves the previous file intact" guarantee). An interrupted write cannot destroy a
+    previously good file, and no stray `.tmp` file is left behind, regardless of outcome.
     """
     frame = oof_frame(logo, prob_labels)
     config.paths.processed.mkdir(parents=True, exist_ok=True)
