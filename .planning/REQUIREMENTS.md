@@ -24,7 +24,7 @@ IDs preserve the intel slugs from `.planning/intel/requirements.md` (shown in pa
 - [ ] **REQ-S1-07** (split-fix): Model evaluation switched from play-level `train_test_split` to GroupKFold over `game_id`; no game contributes to both train and test.
 - [x] **REQ-S1-08** (calibration): Reliability curves per class and log-loss vs a naive baseline in the training report.
 - [ ] **REQ-S1-09** (feature-retest): Feature candidates re-tested on grouped CV with documented outcomes: `half`, real `half_seconds_remaining` (if REQ-S1-02 delivers), competition level/gender as covariate, recency weighting.
-- [ ] **REQ-S1-10** (pat-baselines): Hard-coded PAT baselines (50%/46% in `helper_add_ep_wp.py`) replaced with empirical estimates from the full dataset; break-even chart for coaching produced.
+- [x] **REQ-S1-10** (pat-baselines): Hard-coded PAT baselines (50%/46% in `helper_add_ep_wp.py`) replaced with empirical estimates from the full dataset; break-even chart for coaching produced.
 - [x] **REQ-S1-11** (model-versioning): Models versioned (date + training-data hash in filename); no artifact silently overwritten.
 
 ### Strand 1 — Coaching Products (Phase 1.4)
@@ -72,7 +72,7 @@ Mapped to a deferred roadmap phase; not part of the v1 gate.
 | REQ-S1-07 | Phase 1.3 | Pending |
 | REQ-S1-08 | Phase 1.3 | Complete |
 | REQ-S1-09 | Phase 1.3 | Pending |
-| REQ-S1-10 | Phase 1.3 | Pending |
+| REQ-S1-10 | Phase 1.3 | Complete |
 | REQ-S1-11 | Phase 1.3 | Complete |
 | REQ-S1-12 | Phase 1.4 | Pending |
 | REQ-S1-13 | Phase 1.4 | Pending |

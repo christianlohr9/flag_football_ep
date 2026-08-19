@@ -261,11 +261,22 @@ phase 1.3 replaces with the full versioning scheme.
   unilaterally because the Videoanalyst has been unavailable (`DEFERRED-ANALYST`, tracked as
   a pending todo); the validator is built to tolerate a contract version bump once it is
   ratified, but every derivation rule in this document reflects the unratified v1.1.
-- **PAT baselines are hard-coded.** `PAT_BASELINE_ONE_POINT = 0.5` and
-  `PAT_BASELINE_TWO_POINT = 0.92` (`flag_football_ep.features.mutations`) are the notebook's
-  original fixed assumptions (1-pt try from the 5, 2-pt try from the 10), ported as-is.
-  REQ-S1-10 (phase 1.3) replaces them with empirical break-even estimates computed from the
-  data.
+- **PAT baselines are estimated empirically from the corpus.** REQ-S1-10 replaced the
+  notebook's fixed 1-pt/2-pt assumptions with rates computed by
+  `flag_football_ep.features.mutations.estimate_pat_baselines`, which returns the pooled
+  1-pt and 2-pt success rates over the whole canonical dataset (`down == 0` rows, split by
+  `yards_to_go <= 5` for 1-pt vs `yards_to_go > 5` for 2-pt), each carrying its attempt count
+  and a Clopper-Pearson confidence interval (`scipy.stats.binomtest(...).proportion_ci()`).
+  `add_ep_variables` requires `pat_baselines` as an explicit keyword argument with no default
+  and no production fallback, so no code path can silently revert to a hard-coded constant.
+  `ffep pat-breakeven` renders the decision chart (1-pt vs 2-pt expected points, with the
+  break-even 2-point rate and the dataset's observed rate/CI marked). As of this writing the
+  measured pooled rates are 1-pt 49.0% (n=251) and 2-pt 41.2% (n=102) -- see
+  `.planning/phases/01.3-methodical-model-retraining/01.3-DATA-PROFILE.md` §"PAT attempt
+  counts" -- both corpus-dependent, not fixed, and expected to shift as more games are
+  ingested. The remaining genuine limitation: the rate is pooled across all sources and
+  competition levels in the corpus, so it blends women's international and other play rather
+  than isolating a single competition tier.
 - **`SPORTAPP_API_KEY` rotation is still pending** (STATE.md blocker, unchanged by this plan):
   the key that was previously committed in plaintext remains compromised in git history even
   after plan 01.2-17 deleted the two notebooks (`api_call.ipynb`, `api_fuzzing.ipynb`) that

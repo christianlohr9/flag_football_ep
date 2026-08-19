@@ -86,10 +86,47 @@ def _training_corpus(n_games: int = 12, plays_per_game: int = 16) -> pl.DataFram
     Mirrors `tests/test_model_train.py`'s `_ep_training_corpus`: a mid-half touchdown
     repeated across many games so both EP's sample-weight computation and WP's win label
     have enough variety for a real (if tiny) XGBoost fit with an 80/20 split.
+
+    Play 7 of every game is overridden to a 1-pt PAT attempt (`down=0`, `yards_to_go=3`) and
+    play 8 to a 2-pt PAT attempt (`down=0`, `yards_to_go=8`), alternating success/failure by
+    game index, so `estimate_pat_baselines` (REQ-S1-10) has a nonzero attempt count for both
+    types -- `score_plays` now estimates PAT baselines from the full input frame before
+    scoring and raises `InsufficientPatAttempts` if either type has zero attempts.
     """
     touchdown = [0] * plays_per_game
     touchdown[5] = 1  # mid-half, second drive of the half
-    overrides = {"touchdown": touchdown * n_games}
+
+    down = [((i % plays_per_game) - 1) % 4 + 1 for i in range(plays_per_game)]
+    yards_to_go = [5 + ((i % plays_per_game) % 16) for i in range(plays_per_game)]
+    one_point_conv_success = [0] * plays_per_game
+    two_point_conv_success = [0] * plays_per_game
+    # play_id 7 (index 6): 1-pt PAT try; play_id 8 (index 7): 2-pt PAT try.
+    down[6] = 0
+    yards_to_go[6] = 3
+    down[7] = 0
+    yards_to_go[7] = 8
+
+    all_down: list[int] = []
+    all_yards_to_go: list[int] = []
+    all_one_point: list[int] = []
+    all_two_point: list[int] = []
+    for game_idx in range(n_games):
+        game_one_point = list(one_point_conv_success)
+        game_two_point = list(two_point_conv_success)
+        game_one_point[6] = 1 if game_idx % 2 == 0 else 0
+        game_two_point[7] = 1 if game_idx % 2 == 0 else 0
+        all_down.extend(down)
+        all_yards_to_go.extend(yards_to_go)
+        all_one_point.extend(game_one_point)
+        all_two_point.extend(game_two_point)
+
+    overrides = {
+        "touchdown": touchdown * n_games,
+        "down": all_down,
+        "yards_to_go": all_yards_to_go,
+        "one_point_conv_success": all_one_point,
+        "two_point_conv_success": all_two_point,
+    }
     return canonical_plays_with_scores(
         n_games=n_games, plays_per_game=plays_per_game, overrides=overrides
     )
@@ -212,6 +249,28 @@ def test_score_module_never_uses_pickle_load() -> None:
 
     source = pathlib.Path("src/flag_football_ep/model/score.py").read_text(encoding="utf-8")
     assert "pickle.load" not in source
+
+
+def test_no_production_code_uses_legacy_notebook_baselines() -> None:
+    """Guards T-1.3-21: no `src/flag_football_ep/` module other than `features/mutations.py`
+    itself may reference `PatBaselines.legacy_notebook()` -- a silent reversion to the
+    pre-REQ-S1-10 hard-coded 0.5/0.92 PAT rates must fail this test, not slip through
+    unnoticed."""
+    import pathlib
+
+    src_root = pathlib.Path("src/flag_football_ep")
+    mutations_file = src_root / "features" / "mutations.py"
+    offending = []
+    for path in src_root.rglob("*.py"):
+        if path == mutations_file:
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "legacy_notebook" in text:
+            offending.append(str(path))
+
+    assert not offending, (
+        f"legacy_notebook referenced outside features/mutations.py: {offending}"
+    )
 
 
 # --- Task 2: score_plays producing EPA and WPA columns -------------------------------------

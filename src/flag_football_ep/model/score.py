@@ -41,6 +41,7 @@ from flag_football_ep.features.mutations import (
     WP_PROBABILITY_COLUMN,
     add_ep_variables,
     add_wp_variables,
+    estimate_pat_baselines,
     prepare_ep_data,
     prepare_wp_data,
 )
@@ -218,10 +219,16 @@ def score_plays(
             f"score_plays: input frame is missing a required column: {exc}"
         ) from exc
 
+    # Estimated once from the full input frame (REQ-S1-10) -- not from ep_scored, which has
+    # already been through null-feature partitioning inside _score_probabilities. A corpus
+    # with no PAT attempts must fail loudly (InsufficientPatAttempts), never silently fall
+    # back to a hard-coded constant.
+    pat_baselines = estimate_pat_baselines(plays)
+
     # add_ep_variables requires chronological order (shift(-1)/backward_fill()) --
     # _score_probabilities guarantees ep_scored is sorted on _ROW_ID_COLUMN (CR-01).
     ep_scored = _score_probabilities(ep_prepared, ep_model, EP_FEATURES, EP_PROB_LABELS)
-    ep_result = add_ep_variables(ep_scored)
+    ep_result = add_ep_variables(ep_scored, pat_baselines=pat_baselines)
 
     # add_wp_variables requires chronological order (shift(-1)/backward_fill()) --
     # _score_probabilities guarantees wp_scored is sorted on _ROW_ID_COLUMN (CR-01).

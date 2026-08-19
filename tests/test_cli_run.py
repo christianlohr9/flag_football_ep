@@ -36,7 +36,12 @@ def _write_drive_game(hudl_dir: Path, filename: str, drives: list[tuple[str, int
 
     "score": `n_plays - 1` rush plays then one `Rush, TD` (always `ODK=O`), followed by a
     separate PAT play -- so the drive closes on the TD (`derive_drive_id`'s closing-token
-    rule) and the PAT itself opens the next drive.
+    rule) and the PAT itself opens the next drive. PAT type alternates 1-pt/2-pt across
+    successive "score" drives (`ingest/hudl.py derive_outcome_columns`: `yardline_50 == 45`
+    -> `one_point_conv_success`, `yardline_50 == 40` -> `two_point_conv_success`) so
+    `estimate_pat_baselines` (REQ-S1-10) has a nonzero attempt count for both PAT types --
+    `score_plays` now estimates PAT baselines from the full corpus before scoring and raises
+    `InsufficientPatAttempts` if either type has zero attempts.
     "turnover": `n_plays - 1` rush plays then one `Rush, Fumble` (also drive-closing, but
     not scoring) -- `ODK` alternates O/D across successive turnover drives so `posteam`
     varies too (needed for `make_wp_model_mutations`'s label, which is degenerate -- a
@@ -49,6 +54,7 @@ def _write_drive_game(hudl_dir: Path, filename: str, drives: list[tuple[str, int
     play_num = 1
     yard = 20
     turnover_idx = 0
+    score_idx = 0
     for kind, n_plays in drives:
         if kind == "score":
             odk = "O"
@@ -78,13 +84,20 @@ def _write_drive_game(hudl_dir: Path, filename: str, drives: list[tuple[str, int
             play_num += 1
             yard = min(yard + 5, 45)
         if kind == "score":
+            # Alternate 1-pt (DIST <= 5, yardline_50 == 45) and 2-pt (DIST > 5,
+            # yardline_50 == 40) PAT tries so both attempt types are present in the corpus.
+            if score_idx % 2 == 0:
+                pat_dist, pat_yard = "3", "5"
+            else:
+                pat_dist, pat_yard = "8", "10"
+            score_idx += 1
             rows.append(
                 {
                     "PLAY #": str(play_num),
                     "ODK": "O",
                     "DN": "0",
-                    "DIST": "0",
-                    "YARD LN": "5",
+                    "DIST": pat_dist,
+                    "YARD LN": pat_yard,
                     "PLAY TYPE": "PAT",
                     "RESULT": "Good",
                     "GN/LS": "0",
@@ -115,6 +128,20 @@ _GAMES: dict[str, dict[str, list[tuple[str, int]]]] = {
 }
 
 
+def _expected_offense_points(drives: list[tuple[str, int]]) -> int:
+    """Total offense points implied by `_write_drive_game`'s alternating PAT assignment:
+    a touchdown (6) plus a successful 1-pt PAT (7 total, even `score_idx`) or 2-pt PAT
+    (8 total, odd `score_idx`) for every "score" drive, in the same order `_write_drive_game`
+    assigns PAT type."""
+    total = 0
+    score_idx = 0
+    for kind, _ in drives:
+        if kind == "score":
+            total += 6 + (1 if score_idx % 2 == 0 else 2)
+            score_idx += 1
+    return total
+
+
 def _write_training_tree(config: Config) -> None:
     """Write `_GAMES` plus matching reference CSVs into `config`'s raw/reference dirs."""
     tpi._write_reference_csvs(config.reference.half_boundaries.parent)
@@ -125,9 +152,9 @@ def _write_training_tree(config: Config) -> None:
         all_drives = halves["half1"] + halves["half2"]
         half1_len = _write_drive_game(config.paths.raw_hudl, filename, halves["half1"])
         _write_drive_game(config.paths.raw_hudl, filename, all_drives)
-        n_td = sum(1 for kind, _ in all_drives if kind == "score")
+        n_points = _expected_offense_points(all_drives)
         hb_lines.append(f"{filename},{half1_len + 1}\n")
-        fs_lines.append(f"{filename.removesuffix('.csv')},GER,AUT,{n_td * 7},0,test\n")
+        fs_lines.append(f"{filename.removesuffix('.csv')},GER,AUT,{n_points},0,test\n")
 
     hb_path = config.reference.half_boundaries.parent / "half_boundaries.csv"
     hb_path.write_text(hb_path.read_text() + "".join(hb_lines))
