@@ -233,6 +233,51 @@ def pat_breakeven(
 
 
 @app.command()
+def experiment(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    candidate: str = typer.Option("all", "--candidate", help="Candidate name or 'all'"),
+    model: str = typer.Option("both", "--model", help="One of: ep, wp, both"),
+) -> None:
+    """Run REQ-S1-09 feature-candidate experiments and print each result's verdict."""
+    if model not in {"ep", "wp", "both"}:
+        raise typer.BadParameter("--model must be one of: ep, wp, both")
+
+    from flag_football_ep.model.experiments import CANDIDATES
+
+    valid_candidates = [*sorted(CANDIDATES), "all"]
+    if candidate not in valid_candidates:
+        raise typer.BadParameter(
+            f"--candidate must be one of: {', '.join(valid_candidates)}"
+        )
+
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    import polars as pl
+
+    plays = pl.read_parquet(cfg.paths.processed / "plays.parquet")
+
+    from flag_football_ep.model.experiments import run_candidate
+
+    prefixes = ["ep", "wp"] if model == "both" else [model]
+    candidate_names = sorted(CANDIDATES) if candidate == "all" else [candidate]
+
+    for prefix in prefixes:
+        for name in candidate_names:
+            spec = CANDIDATES[name]
+            if prefix not in spec.applies_to:
+                continue
+            result = run_candidate(plays=plays, config=cfg, model_prefix=prefix, spec=spec)
+            verdict = "adopted" if result.adopted else "rejected"
+            typer.echo(
+                f"{name} ({prefix}): control={result.control_logloss:.6f} "
+                f"candidate={result.candidate_logloss:.6f} delta={result.delta:.6f} "
+                f"verdict={verdict}"
+            )
+
+
+@app.command()
 def promote(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     model: str = typer.Option("both", "--model", help="One of: ep, wp, both"),

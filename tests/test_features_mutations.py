@@ -7,6 +7,8 @@ targeted `overrides`/`extras`, matching the frozen notebook baseline behaviour d
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import polars as pl
 import pytest
 
@@ -17,6 +19,7 @@ from flag_football_ep.features.mutations import (
     InsufficientPatAttempts,
     MissingFeatureColumns,
     PatBaselines,
+    add_competition_tier_features,
     add_ep_variables,
     add_wp_variables,
     estimate_pat_baselines,
@@ -25,6 +28,7 @@ from flag_football_ep.features.mutations import (
     prepare_ep_data,
     prepare_wp_data,
 )
+from flag_football_ep.reference import COMPETITION_TIERS, UnmappedCompetitionError
 
 _EP_MODEL_COLUMNS = [
     "game_id",
@@ -989,3 +993,125 @@ class TestMakeWpModelMutations:
         winner_game1 = out.filter(pl.col("game_id") == game_ids[1])["Winner"].unique().to_list()
         assert winner_game0 == ["AWAY"]
         assert winner_game1 == ["TIE"]
+
+
+class TestAddCompetitionTierFeatures:
+    """Coverage for `add_competition_tier_features` (REQ-S1-09 competition-tier candidate,
+    plan 01.3-07 Task 2). Mapping frames are built inline per test rather than reading the
+    checked-in `data/reference/competition_tier.csv`, matching this module's
+    `canonical_plays_with_scores`-plus-inline-overrides convention.
+    """
+
+    def _frame(self, source: str = "hudl", competition: str = "TEST", n: int = 4) -> pl.DataFrame:
+        return canonical_plays_with_scores(
+            n_games=1, plays_per_game=n, source=source, overrides={"competition": [competition] * n}
+        )
+
+    def _mapping(self, rows: list[tuple[str, str, str]]) -> pl.DataFrame:
+        return pl.DataFrame(
+            {
+                "source": [r[0] for r in rows],
+                "competition": [r[1] for r in rows],
+                "tier": [r[2] for r in rows],
+            },
+            schema={"source": pl.Utf8, "competition": pl.Utf8, "tier": pl.Utf8},
+        )
+
+    def test_competition_tier_adds_one_int32_column_per_tier(self):
+        df = self._frame()
+        mapping = self._mapping([("hudl", "TEST", "womens-international")])
+
+        out, cols = add_competition_tier_features(df, mapping)
+
+        assert cols == [
+            "tier_womens_international",
+            "tier_womens_national",
+            "tier_mixed_other",
+        ]
+        for col in cols:
+            assert out.schema[col] == pl.Int32
+
+    def test_competition_tier_naming_rule_replaces_hyphen_with_underscore(self):
+        df = self._frame()
+        mapping = self._mapping([("hudl", "TEST", "womens-national")])
+
+        _, cols = add_competition_tier_features(df, mapping)
+
+        for tier, col in zip(COMPETITION_TIERS, cols):
+            assert col == f"tier_{tier.replace('-', '_')}"
+
+    def test_competition_tier_exactly_one_column_is_one_per_row(self):
+        df = self._frame(n=6)
+        mapping = self._mapping([("hudl", "TEST", "mixed-other")])
+
+        out, cols = add_competition_tier_features(df, mapping)
+
+        assert out.select(cols).sum_horizontal().min() == 1
+        assert out.select(cols).sum_horizontal().max() == 1
+
+    def test_competition_tier_row_count_and_order_preserved(self):
+        df = self._frame(n=5)
+        mapping = self._mapping([("hudl", "TEST", "womens-national")])
+
+        out, _ = add_competition_tier_features(df, mapping)
+
+        assert out.height == df.height
+        assert out["play_id"].to_list() == df["play_id"].to_list()
+
+    def test_competition_tier_returns_added_column_names(self):
+        df = self._frame()
+        mapping = self._mapping([("hudl", "TEST", "mixed-other")])
+
+        _, cols = add_competition_tier_features(df, mapping)
+
+        assert isinstance(cols, list)
+        assert all(isinstance(c, str) for c in cols)
+
+    def test_unmapped_competition_tier_pair_raises_naming_source_and_competition(self):
+        df = self._frame(source="hudl", competition="UNKNOWN")
+        mapping = self._mapping([])
+
+        with pytest.raises(UnmappedCompetitionError, match="hudl"):
+            add_competition_tier_features(df, mapping)
+
+    def test_competition_tier_absent_from_corpus_still_produces_all_zero_column(self):
+        # Only "mixed-other" is observed in this corpus; "womens-international" and
+        # "womens-national" never appear, but their columns must still exist as all-zero.
+        df = self._frame(competition="TEST")
+        mapping = self._mapping([("hudl", "TEST", "mixed-other")])
+
+        out, cols = add_competition_tier_features(df, mapping)
+
+        assert out["tier_womens_international"].to_list() == [0] * df.height
+        assert out["tier_womens_national"].to_list() == [0] * df.height
+        assert out["tier_mixed_other"].to_list() == [1] * df.height
+
+    def test_competition_tier_string_column_not_in_output(self):
+        df = self._frame()
+        mapping = self._mapping([("hudl", "TEST", "mixed-other")])
+
+        out, _ = add_competition_tier_features(df, mapping)
+
+        assert "competition_tier" not in out.columns
+
+    def test_real_corpus_competition_tier_mapping_covers_every_pair(self, repo_root: Path):
+        """The checked-in `data/reference/competition_tier.csv` covers every (source,
+        competition) pair actually present in the real corpus, per
+        01.3-DATA-PROFILE.md §3 -- guards against the reference file silently drifting out
+        of sync with the ingested data.
+        """
+        plays_path = repo_root / "data" / "processed" / "plays.parquet"
+        mapping_path = repo_root / "data" / "reference" / "competition_tier.csv"
+        if not plays_path.exists() or not mapping_path.exists():
+            pytest.skip("real corpus or competition_tier.csv not present in this worktree")
+
+        from flag_football_ep.reference import load_competition_tier
+
+        df = pl.read_parquet(plays_path)
+        mapping = load_competition_tier(mapping_path)
+
+        out, cols = add_competition_tier_features(df, mapping)
+
+        assert out.height == df.height
+        assert out.select(cols).sum_horizontal().min() == 1
+        assert out.select(cols).sum_horizontal().max() == 1
