@@ -21,6 +21,15 @@ import polars as pl
 import pytest
 from sklearn.model_selection import LeaveOneGroupOut
 
+from flag_football_ep.config import (
+    Config,
+    IfafSource,
+    Paths,
+    ReferenceFiles,
+    Sources,
+    SportappSource,
+    TrainSettings,
+)
 from flag_football_ep.features.mutations import (
     make_ep_model_mutations,
     make_wp_model_mutations,
@@ -32,10 +41,12 @@ from flag_football_ep.model.evaluate import (
     LogoResult,
     ReliabilityCurve,
     naive_baseline_logloss,
+    oof_frame,
     per_source_metrics,
     reliability_curves,
     render_reliability_figure,
     run_logo,
+    write_oof_predictions,
 )
 from flag_football_ep.model.hyperparams import (
     EP_FEATURES,
@@ -47,6 +58,73 @@ from flag_football_ep.model.hyperparams import (
     WP_TRAINING_COLUMNS,
 )
 from flag_football_ep.testing import canonical_plays_with_scores
+
+# --- shared config helper (tmp_path-scoped, never the real repo data/) -----------------------
+
+
+def _make_config(tmp_path) -> Config:
+    """A fully-populated Config pointing every path at `tmp_path` -- mirrors
+    `tests/test_model_train.py`'s `_make_config`."""
+    paths = Paths(
+        data_root=tmp_path / "data",
+        raw_hudl=tmp_path / "data" / "raw" / "hudl",
+        raw_sportapp=tmp_path / "data" / "raw" / "sportapp",
+        raw_ifaf=tmp_path / "data" / "raw" / "ifaf",
+        raw_legacy=tmp_path / "data" / "raw" / "legacy",
+        processed=tmp_path / "data" / "processed",
+        reference=tmp_path / "data" / "reference",
+        models=tmp_path / "models",
+        mlruns=tmp_path / "mlruns",
+        contract=tmp_path / "docs" / "data-contract.schema.json",
+    )
+    reference = ReferenceFiles(
+        half_boundaries=tmp_path / "data" / "reference" / "half_boundaries.csv",
+        final_scores=tmp_path / "data" / "reference" / "final_scores.csv",
+        team_mapping=tmp_path / "data" / "reference" / "team_mapping.csv",
+        sportapp_games=tmp_path / "data" / "reference" / "sportapp_games.csv",
+        competition_tier=tmp_path / "data" / "reference" / "competition_tier.csv",
+    )
+    sources = Sources(
+        sportapp=SportappSource(
+            base_url="https://example.invalid/api/v1/public", api_key_env="SPORTAPP_API_KEY"
+        ),
+        ifaf=IfafSource(
+            base_url="https://example.invalid/v1",
+            tournament="test-tournament",
+            api_key_env="CPX_API_KEY",
+        ),
+    )
+    train = TrainSettings(
+        ep_experiment="ep_model_test",
+        wp_experiment="wp_model_test",
+        exclude_games_ep=[],
+        exclude_games_wp=[],
+    )
+    return Config(paths=paths, reference=reference, sources=sources, train=train)
+
+
+def _logo_result(n_games: int = 4, plays_per_game: int = 6, n_outputs: int = 5) -> LogoResult:
+    """A hand-built LogoResult -- no real fit needed for oof_frame/write_oof_predictions
+    tests, only the array shapes and alignment `run_logo` guarantees."""
+    n_rows = n_games * plays_per_game
+    rng = np.random.default_rng(42)
+    game_ids = np.repeat([f"game-{i}" for i in range(n_games)], plays_per_game)
+    play_ids = np.tile(np.arange(plays_per_game), n_games)
+    sources = np.repeat(["hudl", "legacy"], n_rows // 2)
+    oof_pred = rng.dirichlet(np.ones(n_outputs), size=n_rows) if n_outputs > 1 else rng.uniform(
+        size=(n_rows, 1)
+    )
+    oof_label = rng.integers(0, max(n_outputs, 2), size=n_rows)
+    return LogoResult(
+        oof_pred=oof_pred,
+        oof_label=oof_label,
+        oof_game_id=game_ids,
+        oof_play_id=play_ids,
+        oof_source=sources,
+        n_folds=n_games,
+        wall_seconds=0.1,
+    )
+
 
 # --- shared corpus helpers ------------------------------------------------------------------
 
@@ -409,3 +487,92 @@ def test_render_reliability_figure_returns_figure_with_one_subplot_per_curve() -
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert len(fig.axes) == len(curves)
+
+
+# --- oof_frame -------------------------------------------------------------------------------
+
+
+def test_oof_frame_has_expected_columns_and_row_count() -> None:
+    logo = _logo_result(n_games=4, plays_per_game=6, n_outputs=5)
+
+    frame = oof_frame(logo, EP_PROB_LABELS)
+
+    assert frame.height == len(logo.oof_label)
+    assert set(frame.columns) == {"game_id", "play_id", "source", *EP_PROB_LABELS}
+
+
+def test_oof_frame_wp_binary_has_single_wp_column() -> None:
+    logo = _logo_result(n_games=4, plays_per_game=6, n_outputs=1)
+
+    frame = oof_frame(logo, ["wp"])
+
+    assert frame.height == len(logo.oof_label)
+    assert set(frame.columns) == {"game_id", "play_id", "source", "wp"}
+
+
+def test_oof_frame_game_id_play_id_pair_is_unique() -> None:
+    logo = _logo_result(n_games=4, plays_per_game=6, n_outputs=5)
+
+    frame = oof_frame(logo, EP_PROB_LABELS)
+
+    assert frame.select("game_id", "play_id").n_unique() == frame.height
+
+
+def test_oof_frame_raises_on_prob_labels_length_mismatch() -> None:
+    logo = _logo_result(n_games=4, plays_per_game=6, n_outputs=5)
+
+    with pytest.raises(EvaluationError, match="4"):
+        oof_frame(logo, EP_PROB_LABELS[:4])
+
+
+# --- write_oof_predictions --------------------------------------------------------------------
+
+
+def test_write_oof_predictions_writes_expected_path_and_returns_it(tmp_path) -> None:
+    config = _make_config(tmp_path)
+    logo = _logo_result(n_games=4, plays_per_game=6, n_outputs=5)
+
+    out_path = write_oof_predictions(logo, EP_PROB_LABELS, config, "ep")
+
+    assert out_path == config.paths.processed / "oof_predictions_ep.parquet"
+    assert out_path.is_file()
+
+
+def test_write_oof_predictions_rerun_replaces_file_no_tmp_residue(tmp_path) -> None:
+    config = _make_config(tmp_path)
+    logo = _logo_result(n_games=4, plays_per_game=6, n_outputs=5)
+
+    write_oof_predictions(logo, EP_PROB_LABELS, config, "ep")
+    write_oof_predictions(logo, EP_PROB_LABELS, config, "ep")
+
+    tmp_residue = list(config.paths.processed.glob("*.tmp"))
+    assert tmp_residue == []
+    matches = list(config.paths.processed.glob("oof_predictions_ep.parquet"))
+    assert len(matches) == 1
+
+
+def test_write_oof_predictions_wp_writes_wp_named_file(tmp_path) -> None:
+    config = _make_config(tmp_path)
+    logo = _logo_result(n_games=4, plays_per_game=6, n_outputs=1)
+
+    out_path = write_oof_predictions(logo, ["wp"], config, "wp")
+
+    assert out_path == config.paths.processed / "oof_predictions_wp.parquet"
+    assert out_path.is_file()
+
+
+def test_write_oof_predictions_roundtrips_and_joins_on_game_id_play_id(tmp_path) -> None:
+    config = _make_config(tmp_path)
+    logo = _logo_result(n_games=4, plays_per_game=6, n_outputs=5)
+
+    out_path = write_oof_predictions(logo, EP_PROB_LABELS, config, "ep")
+    read_back = pl.read_parquet(out_path)
+
+    training_frame = pl.DataFrame(
+        {
+            "game_id": logo.oof_game_id,
+            "play_id": logo.oof_play_id,
+        }
+    )
+    joined = training_frame.join(read_back, on=["game_id", "play_id"], how="inner")
+    assert joined.height == training_frame.height
