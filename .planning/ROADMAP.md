@@ -139,8 +139,8 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 01.3-01-PLAN.md — MLflow SQLite tracking-store migration (registry prerequisite), test-suite migration off the FileStore layout
-- [ ] 01.3-02-PLAN.md — Build the canonical corpus, profile `game_date`/`competition`/PAT coverage, land the competition-tier reference data and loader
+- [x] 01.3-01-PLAN.md — MLflow SQLite tracking-store migration (registry prerequisite), test-suite migration off the FileStore layout
+- [x] 01.3-02-PLAN.md — Build the canonical corpus, profile `game_date`/`competition`/PAT coverage, land the competition-tier reference data and loader
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
-| 1.3 Model Retraining | 0/9 | Planned | - |
+| 1.3 Model Retraining | 2/9 | In Progress|  |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
