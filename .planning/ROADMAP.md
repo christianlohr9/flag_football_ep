@@ -177,7 +177,39 @@ Plans:
   4. WP charts per game are generated as a review tool (using real time data from REQ-S1-02, or explicitly flagged as synthetic-time if unavailable)
   5. End-to-end: raw exports → finished report in under 10 minutes per opponent, verified for every group-stage opponent before the next camp/tournament
 
-**Plans**: TBD
+**Plans**: 14 plans
+Plans:
+**Wave 1**
+
+- [ ] 01.4-01-PLAN.md — Config surface (reports path, [report] settings) plus player-mapping and group-opponents reference loaders and CSVs
+- [ ] 01.4-02-PLAN.md — Reports package: Jinja2 environment with autoescape, tablet/print base template, in-memory chart embedding, dated run folder + latest/
+- [ ] 01.4-03-PLAN.md — 4th-down conversion rates by distance (Clopper-Pearson) and the headless conversion chart
+- [ ] 01.4-04-PLAN.md — Annotated per-game WP review chart with a visible synthetic-clock flag
+- [ ] 01.4-10-PLAN.md — Shared share-distribution and signed EPA bar renderers with a thin-sample convention
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 01.4-05-PLAN.md — Report aggregation primitives: field-zone and score-state buckets, rate cells with n + CI + muted, per-section data basis
+- [ ] 01.4-06-PLAN.md — Game-decisions cheat sheet: PAT break-even and 4th-down on one printable page with plain-German readings
+- [ ] 01.4-07-PLAN.md — Per-game WP review page with the swing table and a path-safe filename
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 01.4-08-PLAN.md — Opponent tendency aggregation: formation × down & distance × zone, routes, play-call by score state, 4th-down and PAT behaviour, summary sentences
+- [ ] 01.4-09-PLAN.md — Own-team efficiency aggregation: out-of-fold vs champion EPA provenance, per-player EPA and YAC, drive outcomes, basic defense section
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 01.4-11-PLAN.md — Opponent report page and template (summary block first, muted cells, per-section basis)
+- [ ] 01.4-12-PLAN.md — Own-team report page and template (prominent unmapped-player warning, numeric EPA provenance)
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 01.4-13-PLAN.md — `ffep report` orchestration and CLI: timed ingest → score(champion) → report, never retrains, with an end-to-end test
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 01.4-14-PLAN.md — Report workflow docs plus the blocking human checkpoint for tablet legibility, print-to-PDF and the real ten-minute timing
 
 ### Phase 2.0: Capture Protocol & Material Inventory
 
