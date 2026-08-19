@@ -36,9 +36,11 @@ import numpy as np
 import polars as pl
 from mlflow.exceptions import MlflowException
 
+from flag_football_ep import reference
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
     WP_PROBABILITY_COLUMN,
+    add_competition_tier_features,
     add_ep_variables,
     add_wp_variables,
     estimate_pat_baselines,
@@ -212,8 +214,14 @@ def score_plays(
     wp_model = load_model(wp_run_id, config)
 
     try:
-        ep_prepared = _prepare_ep_features(plays)
-        wp_prepared = prepare_wp_data(plays)
+        # REQ-S1-09 adoption (plan 01.3-09): EP_FEATURES/WP_FEATURES both require the
+        # competition-tier one-hot columns, built here the same way
+        # `model/train.py::_build_competition_tier` builds them for training -- before
+        # either prepare_fn runs, since the join needs the raw `competition` column.
+        tier_mapping = reference.load_competition_tier(config.reference.competition_tier)
+        augmented, _tier_features = add_competition_tier_features(plays, tier_mapping)
+        ep_prepared = _prepare_ep_features(augmented)
+        wp_prepared = prepare_wp_data(augmented)
     except pl.exceptions.ColumnNotFoundError as exc:
         raise MissingScoreColumns(
             f"score_plays: input frame is missing a required column: {exc}"

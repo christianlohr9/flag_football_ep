@@ -31,6 +31,7 @@ from flag_football_ep.config import (
     TrainSettings,
 )
 from flag_football_ep.features.mutations import (
+    add_competition_tier_features,
     make_ep_model_mutations,
     make_wp_model_mutations,
     prepare_ep_data,
@@ -128,6 +129,16 @@ def _logo_result(n_games: int = 4, plays_per_game: int = 6, n_outputs: int = 5) 
 
 # --- shared corpus helpers ------------------------------------------------------------------
 
+# `EP_FEATURES`/`WP_FEATURES` adopted the tier one-hot columns (plan 01.3-09), so
+# `EP_TRAINING_COLUMNS`/`WP_TRAINING_COLUMNS` now require them present before
+# `make_*_model_mutations` runs -- mirrors `model/train.py::_build_competition_tier`'s
+# production build step. `canonical_plays_with_scores` always sets `source="hudl"` (default)
+# and `competition="TEST"`; a minimal inline mapping (no config/reference file needed, since
+# `add_competition_tier_features` takes the mapping frame directly) covers that one pair.
+_TIER_MAPPING = pl.DataFrame(
+    {"source": ["hudl"], "competition": ["TEST"], "tier": ["womens-international"]}
+)
+
 
 def _ep_model_data(n_games: int = 6, plays_per_game: int = 16) -> pl.DataFrame:
     touchdown = [0] * plays_per_game
@@ -136,6 +147,7 @@ def _ep_model_data(n_games: int = 6, plays_per_game: int = 16) -> pl.DataFrame:
     plays = canonical_plays_with_scores(
         n_games=n_games, plays_per_game=plays_per_game, overrides=overrides
     )
+    plays, _tier_features = add_competition_tier_features(plays, _TIER_MAPPING)
     prepared = prepare_ep_data(plays)
     return make_ep_model_mutations(prepared, EP_TRAINING_COLUMNS)
 
@@ -147,6 +159,7 @@ def _wp_model_data(n_games: int = 6, plays_per_game: int = 16) -> pl.DataFrame:
     plays = canonical_plays_with_scores(
         n_games=n_games, plays_per_game=plays_per_game, overrides=overrides
     )
+    plays, _tier_features = add_competition_tier_features(plays, _TIER_MAPPING)
     prepared = prepare_wp_data(plays)
     return make_wp_model_mutations(prepared, WP_TRAINING_COLUMNS)
 

@@ -61,6 +61,14 @@ def _make_config(
         sportapp_games=tmp_path / "data" / "reference" / "sportapp_games.csv",
         competition_tier=tmp_path / "data" / "reference" / "competition_tier.csv",
     )
+    # REQ-S1-09 adoption (plan 01.3-09): `train_ep`/`train_wp` now call
+    # `_build_competition_tier` unconditionally, which reads this file.
+    # `canonical_plays_with_scores` always sets `competition="TEST"` for its default
+    # `source="hudl"`.
+    reference.competition_tier.parent.mkdir(parents=True, exist_ok=True)
+    reference.competition_tier.write_text(
+        "source,competition,tier\nhudl,TEST,womens-international\n"
+    )
     sources = Sources(
         sportapp=SportappSource(
             base_url="https://example.invalid/api/v1/public", api_key_env="SPORTAPP_API_KEY"
@@ -386,6 +394,8 @@ def test_score_module_never_imports_pandas() -> None:
 
 
 def test_score_probabilities_returns_rows_in_row_id_order(tmp_path: Path) -> None:
+    from flag_football_ep import reference
+    from flag_football_ep.features.mutations import add_competition_tier_features
     from flag_football_ep.model.score import (
         _ROW_ID_COLUMN,
         _prepare_ep_features,
@@ -403,6 +413,12 @@ def test_score_probabilities_returns_rows_in_row_id_order(tmp_path: Path) -> Non
         .alias("yardline_50")
     )
     plays = plays.with_row_index(name=_ROW_ID_COLUMN, offset=0)
+    # REQ-S1-09 adoption (plan 01.3-09): EP_FEATURES now includes the tier one-hot columns
+    # `score_plays` builds via `add_competition_tier_features` -- this test drives
+    # `_prepare_ep_features`/`_score_probabilities` directly (bypassing `score_plays`), so it
+    # must build them itself, the same way.
+    tier_mapping = reference.load_competition_tier(config.reference.competition_tier)
+    plays, _tier_features = add_competition_tier_features(plays, tier_mapping)
     ep_prepared = _prepare_ep_features(plays)
     ep_model = load_model(ep_run_id, config)
 
