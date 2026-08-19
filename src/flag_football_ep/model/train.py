@@ -58,9 +58,11 @@ from hyperopt import STATUS_OK, Trials, fmin, tpe
 from sklearn.metrics import log_loss
 from sklearn.model_selection import GroupKFold
 
+from flag_football_ep import reference
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
     WP_PROBABILITY_COLUMN,
+    add_competition_tier_features,
     make_ep_model_mutations,
     make_wp_model_mutations,
     prepare_ep_data,
@@ -105,6 +107,20 @@ class MissingTrainingColumns(ValueError):
     """Raised when the input frame lacks a column `train_ep`/`train_wp` needs."""
 
 
+def _build_competition_tier(df: pl.DataFrame, config: Config) -> pl.DataFrame:
+    """`_train`'s `build_fn` hook for the REQ-S1-09 `competition_tier` adoption (plan
+    01.3-09): both EP and WP adopted this candidate (01.3-07-SUMMARY.md;
+    `hyperparams.TIER_FEATURE_COLUMNS`), so both `train_ep`/`train_wp` pass this as
+    `build_fn`. Runs on the filtered canonical frame *before* `prepare_fn`/`mutate_fn` --
+    same ordering `model/experiments.py::_competition_tier_build` uses -- because the
+    `(source, competition)` join needs the raw canonical `competition` column, which is not
+    in `GROUP_COLUMNS` and would already be gone after `mutate_fn`'s final `.select(...)`.
+    """
+    mapping = reference.load_competition_tier(config.reference.competition_tier)
+    augmented, _tier_features = add_competition_tier_features(df, mapping)
+    return augmented
+
+
 def train_ep(
     plays: pl.DataFrame,
     config: Config,
@@ -130,6 +146,7 @@ def train_ep(
         tune=tune,
         max_evals=max_evals,
         export_pkl=export_pkl,
+        build_fn=_build_competition_tier,
     )
 
 
@@ -162,6 +179,7 @@ def train_wp(
         tune=tune,
         max_evals=max_evals,
         export_pkl=export_pkl,
+        build_fn=_build_competition_tier,
     )
 
 
@@ -183,21 +201,30 @@ def _train(
     tune: bool,
     max_evals: int,
     export_pkl: bool,
+    build_fn: Callable[[pl.DataFrame, Config], pl.DataFrame] | None = None,
 ) -> str:
     """Shared EP/WP fit-and-log pipeline.
 
-    filter excluded games -> `prepare_fn` -> `mutate_fn` -> `drop_nulls()` -> tune (grouped
-    inner CV) -> LOGO measurement -> calibration report + out-of-fold persistence -> refit
-    once on all games -> `_log_run` (registers the production refit) -> optional dated `.pkl`
-    export. REQ-S1-07 / D-07: no game's plays ever appear in both a fold's train and test
-    partition, and the model that ships is a single refit on every game -- the LOGO fold
-    models are measurement-only. `train_ep`/`train_wp` only supply what differs between the
-    two paths; this is the one place the pipeline shape itself lives.
+    filter excluded games -> `build_fn` (optional) -> `prepare_fn` -> `mutate_fn` ->
+    `drop_nulls()` -> tune (grouped inner CV) -> LOGO measurement -> calibration report +
+    out-of-fold persistence -> refit once on all games -> `_log_run` (registers the
+    production refit) -> optional dated `.pkl` export. REQ-S1-07 / D-07: no game's plays
+    ever appear in both a fold's train and test partition, and the model that ships is a
+    single refit on every game -- the LOGO fold models are measurement-only. `train_ep`/
+    `train_wp` only supply what differs between the two paths; this is the one place the
+    pipeline shape itself lives.
+
+    `build_fn`, when given, runs on the filtered frame *before* `prepare_fn` -- the REQ-S1-09
+    adoption hook (`_build_competition_tier`) for a candidate whose extra columns need raw
+    canonical columns `prepare_fn`/`mutate_fn` would otherwise have already dropped. `None`
+    (the default) is the pre-REQ-S1-09 pipeline shape, byte-for-byte.
     """
     try:
         filtered = (
             plays.filter(~pl.col("game_id").is_in(exclude_ids)) if exclude_ids else plays
         )
+        if build_fn is not None:
+            filtered = build_fn(filtered, config)
         prepared = prepare_fn(filtered)
         model_data = mutate_fn(prepared, selected_columns).drop_nulls()
     except pl.exceptions.ColumnNotFoundError as exc:

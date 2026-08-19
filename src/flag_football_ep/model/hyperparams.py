@@ -10,6 +10,20 @@ from __future__ import annotations
 
 from hyperopt import hp
 
+# --- Feature-candidate adoption (REQ-S1-09 / plan 01.3-09 "Apply the combined
+# feature-candidate adoption decision") ---------------------------------------------------
+# Column names exactly match `features.mutations.add_competition_tier_features`'s naming
+# rule ("tier_" prefix, "-" -> "_") applied to `reference.COMPETITION_TIERS`
+# ("womens-international", "womens-national", "mixed-other"). Not imported from
+# `reference` to avoid a hyperparams -> reference -> ... import for three literal strings;
+# `tests/test_migration_equivalence.py` and `tests/test_features_mutations.py` both assert
+# this naming rule stays in sync.
+TIER_FEATURE_COLUMNS: tuple[str, ...] = (
+    "tier_womens_international",
+    "tier_womens_national",
+    "tier_mixed_other",
+)
+
 # --- EP (models/ep_model.ipynb cell 2: "Spaltenauswahl") --------------------------------
 
 EP_FEATURES: list[str] = [
@@ -20,6 +34,15 @@ EP_FEATURES: list[str] = [
     "down2",
     "down3",
     "down4",
+    # REQ-S1-09 adoption (01.3-07-SUMMARY.md, combined-confirmation run in 01.3-09-SUMMARY.md):
+    # `half` measured +0.001790 pooled LOGO log-loss improvement for EP (adopted; rejected for
+    # WP at -0.002360, so `half` is not in `WP_FEATURES` below).
+    "half",
+    # `competition_tier` one-hot measured +0.000331 for EP (adopted). Built by
+    # `model/train.py::_build_competition_tier` (a `_train` `build_fn` hook) before
+    # `prepare_ep_data`/`make_ep_model_mutations` run, mirroring
+    # `model/experiments.py::_competition_tier_build`'s ordering.
+    *TIER_FEATURE_COLUMNS,
 ]
 
 EP_SELECTED_COLUMNS: list[str] = ["label", *EP_FEATURES, "Total_W_Scaled"]
@@ -59,6 +82,12 @@ WP_FEATURES: list[str] = [
     "down",
     "yards_to_go",
     "yardline_50",
+    # REQ-S1-09 adoption (01.3-07-SUMMARY.md, combined-confirmation run in 01.3-09-SUMMARY.md):
+    # `competition_tier` one-hot measured +0.000023 for WP (adopted). `half` was rejected for
+    # WP (-0.002360) and is intentionally absent here. Built by
+    # `model/train.py::_build_competition_tier` before `prepare_wp_data`/
+    # `make_wp_model_mutations`, same as EP.
+    *TIER_FEATURE_COLUMNS,
 ]
 
 WP_SELECTED_COLUMNS: list[str] = ["label", *WP_FEATURES]
@@ -168,3 +197,10 @@ RECENCY_HALF_LIFE_DAYS_GRID: tuple[float, ...] = (60.0, 180.0, 365.0, 730.0)
 # synthetic dates so it activates automatically once `game_date` is populated for any
 # source.
 RECENCY_NULL_DATE_WEIGHT: float = 1.0
+
+# plan 01.3-09 final adoption decision (all four REQ-S1-09 candidates, see
+# 01.3-09-SUMMARY.md): `recency` -- rejected for EP (every half-life arm identical to the
+# unweighted control, per the no-op above); `real_clock` -- never adopted into production
+# regardless of its measured delta, by explicit CONTEXT rule ("production stays synthetic
+# until Hudl delivers real time" / REQ-S1-02); neither constant above is wired into
+# `EP_FEATURES`/`WP_FEATURES` or `model/train.py`'s production path.

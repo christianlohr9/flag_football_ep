@@ -19,6 +19,16 @@ Ordering note: `CandidateSpec.build` runs on the filtered canonical frame *befor
 `prepare_fn`/`mutate_fn` -- some candidates (the competition-tier one-hot, plan 01.3-07
 Task 2) need raw canonical columns like `competition` that `make_*_model_mutations`'s
 final `.select(...)` would otherwise have already dropped.
+
+Plan 01.3-09 adoption note: `half` and `competition_tier` were adopted into
+`EP_FEATURES`/`WP_FEATURES` (REQ-S1-09's combined-confirmation decision) and are no longer
+registered in `CANDIDATES` below -- a candidate already in the production feature set has
+nothing left to test (`run_candidate`'s overlap check would always reject it). Because
+`competition_tier`'s one-hot columns are now part of the *control* arm too (not just a
+candidate's extra columns), `_build_current_production_base_features` builds them
+unconditionally at the top of `run_candidate`/`run_recency_candidate`/
+`run_real_clock_experiment`, before `spec.build`/`weight_build` runs -- mirrors
+`model/train.py::_build_competition_tier`'s production build step.
 """
 
 from __future__ import annotations
@@ -125,11 +135,6 @@ class CandidateSpec:
     weight_build: Callable[[pl.DataFrame, Config, float], tuple[pl.DataFrame, str]] | None = None
 
 
-def _half_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, list[str]]:
-    """Passthrough: `half` is already a `CORE_COLUMNS` Int32 column, no construction needed."""
-    return df, ["half"]
-
-
 def _competition_tier_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, list[str]]:
     """One-hot competition-tier covariate from the maintained tier vocabulary
     (`data/reference/competition_tier.csv`) -- CONTEXT §"Competition covariate" requires
@@ -138,9 +143,29 @@ def _competition_tier_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFr
     both the ingest-source column and `competition`, and `competition` is not in
     `GROUP_COLUMNS`, so it would already be gone from the frame after `mutate_fn`'s final
     `.select(...)`.
+
+    Adopted into production for both EP and WP (plan 01.3-09) -- no longer registered as a
+    `CANDIDATES` entry (nothing left to test), but reused directly by
+    `_build_current_production_base_features` below, which every harness entry point calls
+    unconditionally so the *control* arm also carries these columns.
     """
     mapping = reference.load_competition_tier(config.reference.competition_tier)
     return add_competition_tier_features(df, mapping)
+
+
+def _build_current_production_base_features(df: pl.DataFrame, config: Config) -> pl.DataFrame:
+    """Build every derived column the *current* `EP_FEATURES`/`WP_FEATURES` need beyond the
+    raw canonical/prepared frame (REQ-S1-09 adoption, plan 01.3-09): today, just the
+    competition-tier one-hot columns (`_competition_tier_build`). Called unconditionally at
+    the top of `run_candidate`/`run_recency_candidate`/`run_real_clock_experiment`, before
+    `spec.build`/`weight_build` runs -- both the control arm and any future candidate's arm
+    need these columns present, since `_model_prefix_config`'s `base_features`
+    (`EP_FEATURES`/`WP_FEATURES`) now includes them. Mirrors
+    `model/train.py::_build_competition_tier`'s production build step exactly, so the
+    harness's control number always matches what `ffep train` would log.
+    """
+    augmented, _tier_features = _competition_tier_build(df, config)
+    return augmented
 
 
 def _recency_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, list[str]]:
@@ -186,10 +211,8 @@ def _real_clock_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, l
 
 
 CANDIDATES: dict[str, CandidateSpec] = {
-    "half": CandidateSpec(name="half", build=_half_build, applies_to=("ep", "wp")),
-    "competition_tier": CandidateSpec(
-        name="competition_tier", build=_competition_tier_build, applies_to=("ep", "wp")
-    ),
+    # `half` and `competition_tier` were adopted into production (plan 01.3-09) and are
+    # intentionally absent here -- see module docstring's "plan 01.3-09 adoption note".
     "recency": CandidateSpec(
         name="recency",
         build=_recency_build,
@@ -284,6 +307,7 @@ def run_candidate(
 
     exclude_ids = _exclude_ids(model_prefix, config)
     filtered = plays.filter(~pl.col("game_id").is_in(exclude_ids)) if exclude_ids else plays
+    filtered = _build_current_production_base_features(filtered, config)
 
     augmented, extra_features = spec.build(filtered, config)
 
@@ -404,6 +428,7 @@ def run_recency_candidate(
     spec = CANDIDATES["recency"]
     exclude_ids = _exclude_ids(model_prefix, config)
     filtered = plays.filter(~pl.col("game_id").is_in(exclude_ids)) if exclude_ids else plays
+    filtered = _build_current_production_base_features(filtered, config)
 
     control_prepared = prepare_ep_data(filtered)
     control_frame = make_ep_model_mutations(control_prepared, list(EP_TRAINING_COLUMNS)).drop_nulls()
@@ -545,6 +570,7 @@ def run_real_clock_experiment(
     filtered = (
         ifaf_plays.filter(~pl.col("game_id").is_in(exclude_ids)) if exclude_ids else ifaf_plays
     )
+    filtered = _build_current_production_base_features(filtered, config)
 
     synthetic_prepared = prepare_wp_data(filtered)
     synthetic_full = make_wp_model_mutations(synthetic_prepared, list(WP_TRAINING_COLUMNS))

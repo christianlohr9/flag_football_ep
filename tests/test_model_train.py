@@ -39,7 +39,15 @@ def _make_config(
     exclude_games_ep: list[str] | None = None,
     exclude_games_wp: list[str] | None = None,
 ) -> Config:
-    """A fully-populated Config pointing every path at `tmp_path` -- never the real repo."""
+    """A fully-populated Config pointing every path at `tmp_path` -- never the real repo.
+
+    Also writes a minimal `competition_tier.csv` reference fixture: REQ-S1-09's
+    `competition_tier` candidate was adopted for both EP and WP (plan 01.3-09), so `train_ep`/
+    `train_wp` now call `_build_competition_tier` unconditionally, which reads this file via
+    `config.reference.competition_tier`. `flag_football_ep.testing.canonical_plays_with_scores`
+    always sets `competition="TEST"` regardless of `source`, so every `source` value used by
+    this test module (`hudl`, `legacy`) needs its own `(source, "TEST")` mapping row.
+    """
     paths = Paths(
         data_root=tmp_path / "data",
         raw_hudl=tmp_path / "data" / "raw" / "hudl",
@@ -58,6 +66,12 @@ def _make_config(
         team_mapping=tmp_path / "data" / "reference" / "team_mapping.csv",
         sportapp_games=tmp_path / "data" / "reference" / "sportapp_games.csv",
         competition_tier=tmp_path / "data" / "reference" / "competition_tier.csv",
+    )
+    reference.competition_tier.parent.mkdir(parents=True, exist_ok=True)
+    reference.competition_tier.write_text(
+        "source,competition,tier\n"
+        "hudl,TEST,womens-international\n"
+        "legacy,TEST,mixed-other\n"
     )
     sources = Sources(
         sportapp=SportappSource(
