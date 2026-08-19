@@ -11,12 +11,15 @@ Task 3).
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import mlflow
 import polars as pl
 import pytest
+from typer.testing import CliRunner
 
+from flag_football_ep.cli import app
 from flag_football_ep.config import (
     Config,
     IfafSource,
@@ -37,6 +40,17 @@ from flag_football_ep.model.experiments import (
 )
 from flag_football_ep.model.hyperparams import EP_FEATURES, WP_FEATURES
 from flag_football_ep.testing import canonical_plays_with_scores
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _plain(output: str) -> str:
+    """Strip ANSI escape codes -- matches `tests/test_cli_smoke.py`'s `_plain` helper, since
+    rich's `--help` rendering can split an option's leading `--` from its name."""
+    return _ANSI_RE.sub("", output)
+
+
+runner = CliRunner()
 
 # --- shared test config/corpus helpers (mirrors tests/test_model_train.py) ---------------
 
@@ -420,3 +434,32 @@ def test_run_candidate_competition_tier_wp_also_measures_cleanly(tmp_path: Path)
         "tier_womens_national",
         "tier_mixed_other",
     ]
+
+
+# --- `ffep experiment` CLI (plan 01.3-07 Task 3) --------------------------------------------
+
+
+def test_experiment_cli_help_exits_zero_and_lists_options() -> None:
+    result = runner.invoke(app, ["experiment", "--help"])
+
+    assert result.exit_code == 0
+    output = _plain(result.output)
+    assert "--candidate" in output
+    assert "--model" in output
+
+
+def test_experiment_cli_unknown_candidate_exits_nonzero_naming_valid_candidates() -> None:
+    result = runner.invoke(app, ["experiment", "--candidate", "bogus"])
+
+    assert result.exit_code != 0
+    assert "half" in result.output
+    assert "competition_tier" in result.output
+
+
+def test_experiment_cli_invalid_model_exits_nonzero_naming_allowed_values() -> None:
+    result = runner.invoke(app, ["experiment", "--model", "bogus"])
+
+    assert result.exit_code != 0
+    assert "ep" in result.output
+    assert "wp" in result.output
+    assert "both" in result.output
