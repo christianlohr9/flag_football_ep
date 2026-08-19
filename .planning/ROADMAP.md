@@ -158,7 +158,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 01.3-08-PLAN.md — Recency weighting across a half-life grid; IFAF-only real-clock vs synthetic-time WP sub-experiment
+- [x] 01.3-08-PLAN.md — Recency weighting across a half-life grid; IFAF-only real-clock vs synthetic-time WP sub-experiment
 
 **Wave 6** *(blocked on Wave 5)*
 
@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
-| 1.3 Model Retraining | 7/9 | In Progress|  |
+| 1.3 Model Retraining | 8/9 | In Progress|  |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
