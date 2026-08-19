@@ -144,8 +144,8 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 01.3-03-PLAN.md — Model registry, `champion` alias resolution, `ffep promote`, retirement of the stale fixed-name pickles
-- [ ] 01.3-04-PLAN.md — Leave-one-game-out evaluation engine over `game_id`, grouped inner CV for tuning, refit-once production model
+- [x] 01.3-03-PLAN.md — Model registry, `champion` alias resolution, `ffep promote`, retirement of the stale fixed-name pickles
+- [x] 01.3-04-PLAN.md — Leave-one-game-out evaluation engine over `game_id`, grouped inner CV for tuning, refit-once production model
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
-| 1.3 Model Retraining | 2/9 | In Progress|  |
+| 1.3 Model Retraining | 4/9 | In Progress|  |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
