@@ -14,7 +14,7 @@ This roadmap uses `strand.phase` numbering intentionally (1.1–1.4 = Strand 1, 
 
 - [x] **Phase 1.1: Data Contract with the Videoanalyst** - Hudl export preset, RESULT vocabulary, time data, optional defense fields (completed 2026-08-17)
 - [x] **Phase 1.2: Repo to Pipeline** - Notebook logic into `src/flag_football_ep`, ingest CLI with per-game validation, source merge (plans 01–17 executed 2026-08-17; verification found gaps, gap-closure plans 18–24 pending) (completed 2026-08-17)
-- [ ] **Phase 1.3: Methodical Model Retraining** - GroupKFold split fix, calibration, feature re-tests, empirical PAT baselines, model versioning
+- [x] **Phase 1.3: Methodical Model Retraining** - GroupKFold split fix, calibration, feature re-tests, empirical PAT baselines, model versioning (completed 2026-08-19)
 - [ ] **Phase 1.4: Coaching Products** - Opponent tendency reports, own-efficiency report, decision charts, WP review charts, <10 min turnaround
 - [ ] **Phase 2.0: Capture Protocol & Material Inventory** - Analyst conversation, drone protocol, legal clearance, sync convention (parallel, no code)
 - [ ] **Phase 2.1: CV Tracking Pilot (Go/No-Go Gate)** - One scrimmage: label → fine-tune RF-DETR → track → homography → XY CSV + radar demo; explicit gate decision
@@ -162,7 +162,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5)*
 
-- [ ] 01.3-09-PLAN.md — Combined adoption decision, full retrain, human review checkpoint, champion promotion, training report and operator docs
+- [x] 01.3-09-PLAN.md — Combined adoption decision, full retrain, human review checkpoint, champion promotion, training report and operator docs
 
 ### Phase 1.4: Coaching Products
 
@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
-| 1.3 Model Retraining | 8/9 | In Progress|  |
+| 1.3 Model Retraining | 9/9 | Complete   | 2026-08-19 |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
