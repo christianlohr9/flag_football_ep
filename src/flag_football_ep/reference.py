@@ -25,6 +25,15 @@ class UnmappedTeamError(Exception):
     """Raised when one or more team labels have no entry in the team mapping."""
 
 
+class UnmappedCompetitionError(Exception):
+    """Raised when one or more (source, competition) pairs have no entry in the
+    competition-tier mapping.
+    """
+
+
+COMPETITION_TIERS: tuple[str, ...] = ("womens-international", "womens-national", "mixed-other")
+
+
 _HALF_BOUNDARIES_SCHEMA: dict[str, pl.DataType] = {
     "filename": pl.Utf8,
     "half2_first_play": pl.Int32,
@@ -47,6 +56,11 @@ _SPORTAPP_GAMES_SCHEMA: dict[str, pl.DataType] = {
     "competition": pl.Utf8,
     "season": pl.Utf8,
     "note": pl.Utf8,
+}
+_COMPETITION_TIER_SCHEMA: dict[str, pl.DataType] = {
+    "source": pl.Utf8,
+    "competition": pl.Utf8,
+    "tier": pl.Utf8,
 }
 
 
@@ -120,6 +134,37 @@ def load_sportapp_games(path: Path) -> pl.DataFrame:
     return _read_reference_csv(path, _SPORTAPP_GAMES_SCHEMA)
 
 
+def load_competition_tier(path: Path) -> pl.DataFrame:
+    """Load `source,competition,tier`.
+
+    Rejects duplicate (source, competition) pairs and any `tier` value outside
+    `COMPETITION_TIERS`, naming the offending pairs/values in either case.
+    """
+    df = _read_reference_csv(path, _COMPETITION_TIER_SCHEMA)
+
+    if df.height:
+        dupes = (
+            df.group_by(["source", "competition"])
+            .agg(pl.len().alias("n"))
+            .filter(pl.col("n") > 1)
+            .select(["source", "competition"])
+            .rows()
+        )
+        if dupes:
+            raise ValueError(f"duplicate (source, competition) pair(s) in {path}: {dupes}")
+
+        bad_tiers = (
+            df.filter(~pl.col("tier").is_in(COMPETITION_TIERS))["tier"].unique().to_list()
+        )
+        if bad_tiers:
+            raise ValueError(
+                f"tier value(s) not in COMPETITION_TIERS {COMPETITION_TIERS} in {path}: "
+                f"{sorted(bad_tiers)}"
+            )
+
+    return df
+
+
 def map_teams(
     df: pl.DataFrame, mapping: pl.DataFrame, source: str, columns: Sequence[str]
 ) -> pl.DataFrame:
@@ -155,4 +200,45 @@ def map_teams(
             continue
         result = result.with_columns(pl.col(col).replace(lookup).alias(col))
 
+    return result
+
+
+def map_competition_tier(df: pl.DataFrame, mapping: pl.DataFrame) -> pl.DataFrame:
+    """Add a `competition_tier` column from the (source, competition) pair.
+
+    Left-joins `mapping` onto `df` on `["source", "competition"]`, preserving
+    row count and row order (join, never filter or sort). Raises
+    `UnmappedCompetitionError` listing every distinct unmapped (source,
+    competition) pair rather than ever letting a null `competition_tier` pass
+    through silently (including when `mapping` is empty).
+    """
+    typed_mapping = mapping.select(
+        pl.col("source").cast(pl.Utf8),
+        pl.col("competition").cast(pl.Utf8),
+        pl.col("tier").cast(pl.Utf8),
+    )
+    joined = df.with_row_index("__row_index__").join(
+        typed_mapping,
+        on=["source", "competition"],
+        how="left",
+    )
+
+    unmapped = (
+        joined.filter(pl.col("tier").is_null())
+        .select(["source", "competition"])
+        .unique()
+        .rows()
+    )
+    if unmapped:
+        details = ", ".join(
+            f"(source={source!r}, competition={competition!r})"
+            for source, competition in sorted(unmapped)
+        )
+        raise UnmappedCompetitionError(f"unmapped (source, competition) pair(s): {details}")
+
+    result = (
+        joined.sort("__row_index__")
+        .drop("__row_index__")
+        .rename({"tier": "competition_tier"})
+    )
     return result

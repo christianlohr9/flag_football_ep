@@ -44,6 +44,7 @@ class ReferenceFiles:
     final_scores: Path
     team_mapping: Path
     sportapp_games: Path
+    competition_tier: Path
 
 
 @dataclass(frozen=True)
@@ -93,7 +94,13 @@ _PATH_KEYS = (
     "mlruns",
     "contract",
 )
-_REFERENCE_KEYS = ("half_boundaries", "final_scores", "team_mapping", "sportapp_games")
+_REFERENCE_KEYS = (
+    "half_boundaries",
+    "final_scores",
+    "team_mapping",
+    "sportapp_games",
+    "competition_tier",
+)
 _SPORTAPP_KEYS = ("base_url", "api_key_env")
 _IFAF_KEYS = ("base_url", "tournament", "api_key_env")
 _TRAIN_KEYS = ("ep_experiment", "wp_experiment", "exclude_games_ep", "exclude_games_wp")

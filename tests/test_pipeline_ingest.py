@@ -66,6 +66,7 @@ def _make_config(root: Path, repo_root: Path) -> Config:
         final_scores=data_root / "reference" / "final_scores.csv",
         team_mapping=data_root / "reference" / "team_mapping.csv",
         sportapp_games=data_root / "reference" / "sportapp_games.csv",
+        competition_tier=data_root / "reference" / "competition_tier.csv",
     )
     sources = Sources(
         sportapp=SportappSource(base_url="https://example.invalid", api_key_env="SPORTAPP_API_KEY"),
@@ -308,6 +309,7 @@ half_boundaries = "{data_root / "reference" / "half_boundaries.csv"}"
 final_scores = "{data_root / "reference" / "final_scores.csv"}"
 team_mapping = "{data_root / "reference" / "team_mapping.csv"}"
 sportapp_games = "{data_root / "reference" / "sportapp_games.csv"}"
+competition_tier = "{data_root / "reference" / "competition_tier.csv"}"
 
 [sources.sportapp]
 base_url = "https://example.invalid"
