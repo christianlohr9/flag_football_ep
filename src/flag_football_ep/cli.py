@@ -258,7 +258,10 @@ def experiment(
 
     plays = pl.read_parquet(cfg.paths.processed / "plays.parquet")
 
-    from flag_football_ep.model.experiments import run_candidate
+    from flag_football_ep.model.experiments import (
+        run_candidate,
+        run_recency_candidate,
+    )
 
     prefixes = ["ep", "wp"] if model == "both" else [model]
     candidate_names = sorted(CANDIDATES) if candidate == "all" else [candidate]
@@ -267,6 +270,28 @@ def experiment(
         for name in candidate_names:
             spec = CANDIDATES[name]
             if prefix not in spec.applies_to:
+                typer.echo(f"{name} ({prefix}): skipped -- does not apply to {prefix!r}")
+                continue
+            if name == "recency":
+                # Weight candidate, not a feature candidate: sweeps a half-life grid via
+                # `run_recency_candidate`, never the generic `run_candidate` (see
+                # `model/experiments.py::_recency_build`).
+                best, half_life_results = run_recency_candidate(
+                    plays=plays, config=cfg, model_prefix=prefix
+                )
+                for arm in half_life_results:
+                    arm_verdict = "adopted" if arm.adopted else "rejected"
+                    typer.echo(
+                        f"recency {arm.name} ({prefix}): control={arm.control_logloss:.6f} "
+                        f"candidate={arm.candidate_logloss:.6f} delta={arm.delta:.6f} "
+                        f"verdict={arm_verdict}"
+                    )
+                best_verdict = "adopted" if best.adopted else "rejected"
+                typer.echo(
+                    f"recency winner ({prefix}): {best.name} "
+                    f"candidate={best.candidate_logloss:.6f} delta={best.delta:.6f} "
+                    f"verdict={best_verdict}"
+                )
                 continue
             result = run_candidate(plays=plays, config=cfg, model_prefix=prefix, spec=spec)
             verdict = "adopted" if result.adopted else "rejected"

@@ -34,6 +34,7 @@ from flag_football_ep import reference
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
     add_competition_tier_features,
+    add_recency_weight,
     make_ep_model_mutations,
     make_wp_model_mutations,
     prepare_ep_data,
@@ -47,6 +48,7 @@ from flag_football_ep.model.hyperparams import (
     EP_FEATURES,
     EP_PARAMS,
     EP_TRAINING_COLUMNS,
+    RECENCY_HALF_LIFE_DAYS_GRID,
     WP_FEATURES,
     WP_PARAMS,
     WP_TRAINING_COLUMNS,
@@ -108,11 +110,19 @@ class CandidateSpec:
     together with the ordered list of extra feature column names the candidate
     contributes. `applies_to` names which model prefixes (`"ep"`/`"wp"`) the candidate is
     defined for.
+
+    `weight_build` is the REQ-S1-09 recency-weighting candidate's hook (plan 01.3-08):
+    `None` for every feature candidate (`half`, `competition_tier`). When set, the
+    candidate varies the *sample weight* rather than the feature list -- `build` alone
+    cannot express that, so `run_recency_candidate` (not the generic `run_candidate`) reads
+    `weight_build(df, config, half_life_days) -> (df_with_weight_column, weight_column_name)`
+    once per grid entry in `RECENCY_HALF_LIFE_DAYS_GRID`.
     """
 
     name: str
     build: Callable[[pl.DataFrame, Config], tuple[pl.DataFrame, list[str]]]
     applies_to: tuple[str, ...]
+    weight_build: Callable[[pl.DataFrame, Config, float], tuple[pl.DataFrame, str]] | None = None
 
 
 def _half_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, list[str]]:
@@ -133,10 +143,43 @@ def _competition_tier_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFr
     return add_competition_tier_features(df, mapping)
 
 
+def _recency_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, list[str]]:
+    """`recency` is a sample-weight candidate (CONTEXT: multiplies into `Total_W_Scaled`),
+    not a feature candidate -- it must be measured via `run_recency_candidate`, never the
+    generic `run_candidate`, which only varies the feature list and has no half-life to
+    sweep. This `build` exists solely so `CandidateSpec`'s required field is satisfied;
+    calling it (i.e. calling `run_candidate` with `CANDIDATES["recency"]`) is a programming
+    error and raises rather than silently producing a no-op arm.
+    """
+    del df, config
+    raise ExperimentError(
+        "recency: use run_recency_candidate, not run_candidate -- recency varies the "
+        "sample weight across a half-life grid, not the feature list"
+    )
+
+
+def _recency_weight_build(
+    df: pl.DataFrame, config: Config, half_life_days: float
+) -> tuple[pl.DataFrame, str]:
+    """`CandidateSpec.weight_build` for `recency`: adds `Recency_W` via `add_recency_weight`
+    and reports its column name. `run_recency_candidate` passes this straight through to
+    `make_ep_model_mutations(..., recency_weight_column=...)`.
+    """
+    del config
+    weighted, _null_date_count = add_recency_weight(df, half_life_days)
+    return weighted, "Recency_W"
+
+
 CANDIDATES: dict[str, CandidateSpec] = {
     "half": CandidateSpec(name="half", build=_half_build, applies_to=("ep", "wp")),
     "competition_tier": CandidateSpec(
         name="competition_tier", build=_competition_tier_build, applies_to=("ep", "wp")
+    ),
+    "recency": CandidateSpec(
+        name="recency",
+        build=_recency_build,
+        applies_to=("ep",),
+        weight_build=_recency_weight_build,
     ),
 }
 
@@ -306,3 +349,139 @@ def run_candidate(
         control_features=list(base_features),
         candidate_features=candidate_features,
     )
+
+
+def run_recency_candidate(
+    *, plays: pl.DataFrame, config: Config, model_prefix: str
+) -> tuple[CandidateResult, list[CandidateResult]]:
+    """Measure the REQ-S1-09 recency-weighting candidate across
+    `RECENCY_HALF_LIFE_DAYS_GRID` plus an unweighted control, all on the same EP frame and
+    the same LOGO folds, and log every arm to the EP candidate experiment tagged
+    `candidate=recency`.
+
+    Recency multiplies into the existing `Total_W_Scaled` sample weight
+    (`make_ep_model_mutations(..., recency_weight_column="Recency_W")`), not a feature
+    column, so `EP_FEATURES` is identical across every arm -- this cannot go through the
+    generic `run_candidate`, which only varies the feature list (see `_recency_build`).
+
+    Raises `ExperimentError` naming `model_prefix` for anything other than `"ep"`:
+    `train_wp` fits without sample weights (`weight_column=None` for `"wp"` in
+    `_model_prefix_config`), so a WP recency arm has nothing to multiply the weight into.
+    `CANDIDATES["recency"].applies_to == ("ep",)` is how `ffep experiment --model both`
+    skips this candidate for WP without calling this function at all.
+
+    Returns `(best_half_life_result, half_life_results)`: `best_half_life_result` is the
+    grid entry with the lowest pooled log-loss (its `name` identifies the winning half-life,
+    e.g. `"recency_half_life_180.0"`), `adopted` is `True` only when it beats the control by
+    more than `CANDIDATE_ADOPTION_MIN_DELTA`. `half_life_results` has exactly
+    `len(RECENCY_HALF_LIFE_DAYS_GRID)` entries, each carrying the same `control_logloss` so
+    the control's number is always available alongside every arm's delta.
+    """
+    if model_prefix != "ep":
+        raise ExperimentError(
+            "run_recency_candidate: candidate 'recency' only applies to model_prefix 'ep' "
+            f"(train_wp fits without sample weights, weight_column=None), got {model_prefix!r}"
+        )
+
+    spec = CANDIDATES["recency"]
+    exclude_ids = _exclude_ids(model_prefix, config)
+    filtered = plays.filter(~pl.col("game_id").is_in(exclude_ids)) if exclude_ids else plays
+
+    control_prepared = prepare_ep_data(filtered)
+    control_frame = make_ep_model_mutations(control_prepared, list(EP_TRAINING_COLUMNS)).drop_nulls()
+
+    control_logo = run_logo(
+        model_data=control_frame,
+        features=EP_FEATURES,
+        fixed_params=EP_PARAMS,
+        weight_column="Total_W_Scaled",
+    )
+    control_logloss = _pooled_logloss(control_logo, EP_PARAMS)
+
+    experiment_name = candidate_experiment_name(model_prefix, config)
+    mlflow_store.ensure_experiment(experiment_name, config)
+
+    def _log_arm(
+        *,
+        half_life_label: str,
+        verdict: str,
+        candidate_logloss: float,
+        delta: float,
+        n_folds: int,
+        n_plays: int,
+    ) -> None:
+        with mlflow.start_run():
+            mlflow.set_tag("candidate", "recency")
+            mlflow.set_tag("phase", "01.3")
+            mlflow.log_param("model_prefix", model_prefix)
+            mlflow.log_param("half_life_days", half_life_label)
+            mlflow.log_param("verdict", verdict)
+            mlflow.log_param("n_folds", n_folds)
+            mlflow.log_param("n_plays", n_plays)
+            mlflow.log_metric("control_logloss", control_logloss)
+            mlflow.log_metric("candidate_logloss", candidate_logloss)
+            mlflow.log_metric("delta", delta)
+
+    _log_arm(
+        half_life_label="control",
+        verdict="control",
+        candidate_logloss=control_logloss,
+        delta=0.0,
+        n_folds=control_logo.n_folds,
+        n_plays=control_frame.height,
+    )
+
+    half_life_results: list[CandidateResult] = []
+    for half_life_days in RECENCY_HALF_LIFE_DAYS_GRID:
+        weighted, weight_column_name = spec.weight_build(filtered, config, half_life_days)
+        candidate_prepared = prepare_ep_data(weighted)
+        candidate_frame = make_ep_model_mutations(
+            candidate_prepared,
+            list(EP_TRAINING_COLUMNS),
+            recency_weight_column=weight_column_name,
+        ).drop_nulls()
+
+        if candidate_frame.height != control_frame.height:
+            raise ExperimentError(
+                f"run_recency_candidate: half_life_days={half_life_days!r} arm has "
+                f"{candidate_frame.height} rows, control has {control_frame.height} rows -- "
+                "both arms must be measured on the identical row set"
+            )
+
+        candidate_logo = run_logo(
+            model_data=candidate_frame,
+            features=EP_FEATURES,
+            fixed_params=EP_PARAMS,
+            weight_column="Total_W_Scaled",
+        )
+        candidate_logloss = _pooled_logloss(candidate_logo, EP_PARAMS)
+        delta = control_logloss - candidate_logloss
+        adopted = delta > CANDIDATE_ADOPTION_MIN_DELTA
+        verdict = "adopted" if adopted else "rejected"
+
+        _log_arm(
+            half_life_label=str(half_life_days),
+            verdict=verdict,
+            candidate_logloss=candidate_logloss,
+            delta=delta,
+            n_folds=candidate_logo.n_folds,
+            n_plays=candidate_frame.height,
+        )
+
+        half_life_results.append(
+            CandidateResult(
+                name=f"recency_half_life_{half_life_days}",
+                model_prefix=model_prefix,
+                control_logloss=control_logloss,
+                candidate_logloss=candidate_logloss,
+                delta=delta,
+                adopted=adopted,
+                n_folds=candidate_logo.n_folds,
+                n_plays=candidate_frame.height,
+                control_features=list(EP_FEATURES),
+                candidate_features=list(EP_FEATURES),
+            )
+        )
+
+    best = min(half_life_results, key=lambda r: r.candidate_logloss)
+    return best, half_life_results

@@ -37,8 +37,13 @@ from flag_football_ep.model.experiments import (
     ExperimentError,
     candidate_experiment_name,
     run_candidate,
+    run_recency_candidate,
 )
-from flag_football_ep.model.hyperparams import EP_FEATURES, WP_FEATURES
+from flag_football_ep.model.hyperparams import (
+    EP_FEATURES,
+    RECENCY_HALF_LIFE_DAYS_GRID,
+    WP_FEATURES,
+)
 from flag_football_ep.testing import canonical_plays_with_scores
 
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
@@ -108,6 +113,29 @@ def _ep_training_corpus(n_games: int = 12, plays_per_game: int = 16) -> pl.DataF
     overrides = {"touchdown": touchdown * n_games}
     return canonical_plays_with_scores(
         n_games=n_games, plays_per_game=plays_per_game, overrides=overrides
+    )
+
+
+def _ep_training_corpus_with_dates(n_games: int = 12, plays_per_game: int = 16) -> pl.DataFrame:
+    """`_ep_training_corpus` with `game_date` populated one distinct date per game, 90 days
+    apart -- spans more than one entry of `RECENCY_HALF_LIFE_DAYS_GRID` (min 60 days), so
+    the recency candidate's arms actually differ from the control and from each other.
+    """
+    from datetime import date, timedelta
+
+    touchdown = [0] * plays_per_game
+    touchdown[5] = 1
+    overrides = {"touchdown": touchdown * n_games}
+    base_date = date(2024, 1, 1)
+    game_dates: list[str] = []
+    for game_idx in range(n_games):
+        game_date = (base_date + timedelta(days=game_idx * 90)).isoformat()
+        game_dates.extend([game_date] * plays_per_game)
+    return canonical_plays_with_scores(
+        n_games=n_games,
+        plays_per_game=plays_per_game,
+        overrides=overrides,
+        extras={"game_date": game_dates},
     )
 
 
@@ -434,6 +462,133 @@ def test_run_candidate_competition_tier_wp_also_measures_cleanly(tmp_path: Path)
         "tier_womens_national",
         "tier_mixed_other",
     ]
+
+
+# --- recency candidate (plan 01.3-08 Task 2) -------------------------------------------------
+
+
+def test_candidates_registry_contains_recency_ep_only() -> None:
+    assert "recency" in CANDIDATES
+    assert CANDIDATES["recency"].applies_to == ("ep",)
+
+
+def test_recency_candidate_has_weight_build_but_half_and_competition_tier_do_not() -> None:
+    assert CANDIDATES["recency"].weight_build is not None
+    assert CANDIDATES["half"].weight_build is None
+    assert CANDIDATES["competition_tier"].weight_build is None
+
+
+def test_run_candidate_rejects_recency_spec_directing_to_run_recency_candidate(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    with pytest.raises(ExperimentError, match="run_recency_candidate"):
+        run_candidate(plays=plays, config=config, model_prefix="ep", spec=CANDIDATES["recency"])
+
+
+def test_run_recency_candidate_rejects_wp_naming_prefix(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    with pytest.raises(ExperimentError, match="wp"):
+        run_recency_candidate(plays=plays, config=config, model_prefix="wp")
+
+
+def test_run_recency_candidate_returns_one_result_per_grid_entry(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    _, half_life_results = run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    assert len(half_life_results) == len(RECENCY_HALF_LIFE_DAYS_GRID)
+
+
+def test_run_recency_candidate_best_result_is_min_candidate_logloss(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    best, half_life_results = run_recency_candidate(
+        plays=plays, config=config, model_prefix="ep"
+    )
+
+    assert best.candidate_logloss == min(r.candidate_logloss for r in half_life_results)
+    assert best in half_life_results
+
+
+def test_run_recency_candidate_best_name_identifies_winning_half_life(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    best, _ = run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    assert best.name.startswith("recency_half_life_")
+    winning_half_life = float(best.name.removeprefix("recency_half_life_"))
+    assert winning_half_life in RECENCY_HALF_LIFE_DAYS_GRID
+
+
+def test_run_recency_candidate_adopted_matches_delta_arithmetic(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    _, half_life_results = run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    for result in half_life_results:
+        assert result.delta == pytest.approx(result.control_logloss - result.candidate_logloss)
+        assert result.adopted == (result.delta > 0)
+
+
+def test_run_recency_candidate_feature_lists_identical_to_control_across_arms(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    _, half_life_results = run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    for result in half_life_results:
+        assert result.model_prefix == "ep"
+        assert result.control_features == list(EP_FEATURES)
+        assert result.candidate_features == list(EP_FEATURES)
+
+
+def test_run_recency_candidate_logs_one_mlflow_run_per_arm_tagged_recency(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    experiment = client.get_experiment_by_name(candidate_experiment_name("ep", config))
+    runs = client.search_runs(experiment_ids=[experiment.experiment_id])
+
+    # One control run plus one run per half-life grid entry.
+    assert len(runs) == len(RECENCY_HALF_LIFE_DAYS_GRID) + 1
+    for run in runs:
+        assert run.data.tags["candidate"] == "recency"
+        assert "half_life_days" in run.data.params
+
+    half_life_params = {run.data.params["half_life_days"] for run in runs}
+    assert "control" in half_life_params
+    for half_life in RECENCY_HALF_LIFE_DAYS_GRID:
+        assert str(half_life) in half_life_params
+
+
+def test_run_recency_candidate_never_logs_to_production_experiment(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    production_experiment = client.get_experiment_by_name(config.train.ep_experiment)
+
+    assert production_experiment is None
 
 
 # --- `ffep experiment` CLI (plan 01.3-07 Task 3) --------------------------------------------
