@@ -16,24 +16,23 @@ Row count is preserved: a play missing an EP or WP feature is scored with null
 probabilities rather than dropped (T-1.2-18), so the output always lines up 1:1 with the
 input `plays` frame.
 
-Sets `MLFLOW_ALLOW_FILE_STORE=true` at import time, independently of `model.train` (plan
-01.2-13) -- `ffep score` can be invoked without ever importing the training module, and
-mlflow>=3.15's local `file:` tracking store raises unless this is set.
+The MLflow tracking store is SQLite-backed (`flag_football_ep.model.mlflow_store`),
+independently of `model.train` (plan 01.2-13) -- `ffep score` can be invoked without ever
+importing the training module. `resolve_run`/`load_model` always call
+`mlflow_store.configure` before touching the store, so an ambient tracking URI set elsewhere
+in the process can never leak into this module's reads.
 """
 
 from __future__ import annotations
 
-import os
 import re
 from collections.abc import Sequence
 
-os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
-
-import mlflow  # noqa: E402
-import mlflow.xgboost  # noqa: E402
-import numpy as np  # noqa: E402
-import polars as pl  # noqa: E402
-from mlflow.exceptions import MlflowException  # noqa: E402
+import mlflow
+import mlflow.xgboost
+import numpy as np
+import polars as pl
+from mlflow.exceptions import MlflowException
 
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
@@ -43,6 +42,7 @@ from flag_football_ep.features.mutations import (
     prepare_ep_data,
     prepare_wp_data,
 )
+from flag_football_ep.model import mlflow_store
 from flag_football_ep.model.hyperparams import EP_FEATURES, EP_PROB_LABELS, WP_FEATURES
 
 # Plain hex only -- the mitigation for T-1.2-08: no path separator, `.`, or other fragment
@@ -77,7 +77,7 @@ def resolve_run(experiment: str, config: Config, run_id: str | None = None) -> s
     `RunNotFound` when an explicit run id does not exist, or when `experiment` has no
     FINISHED runs (including when the experiment itself does not exist yet).
     """
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
 
     if run_id is not None:
         _validate_run_id(run_id)
@@ -114,7 +114,7 @@ def load_model(run_id: str, config: Config):
     happens anywhere in this module.
     """
     _validate_run_id(run_id)
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     return mlflow.xgboost.load_model(f"runs:/{run_id}/model")
 
 
