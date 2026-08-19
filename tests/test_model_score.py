@@ -26,8 +26,9 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
-from flag_football_ep.model import mlflow_store
+from flag_football_ep.model import mlflow_store, registry
 from flag_football_ep.model.hyperparams import EP_PROB_LABELS
+from flag_football_ep.model.registry import RegistryError
 from flag_football_ep.model.score import RunNotFound, load_model, resolve_run, score_plays
 from flag_football_ep.model.train import train_ep, train_wp
 from flag_football_ep.testing import canonical_plays_with_scores
@@ -103,13 +104,28 @@ def _trained_config(tmp_path: Path) -> tuple[Config, str, str]:
     return config, ep_run_id, wp_run_id
 
 
+def _register_run(config: Config, run_id: str, model_prefix: str = "ep") -> str:
+    """Register `run_id`'s already-logged model as a version of `model_prefix`'s registered
+    model name. `train_ep`/`train_wp` do not call `registered_model_name=` themselves (that
+    wiring lands in plan 01.3-05) -- tests exercising `registry.promote` against a real
+    training run must register a version explicitly first, exactly like
+    `tests/test_model_registry.py::test_register_production_model_from_real_train_ep_run`.
+    """
+    name = registry.registered_model_name(model_prefix)
+    mlflow_store.configure(config)
+    with mlflow.start_run(run_id=run_id):
+        model = load_model(run_id, config)
+        registry.register_production_model(model, name, config)
+    return name
+
+
 # --- Task 1: run resolution and model loading ---------------------------------------------
 
 
 def test_resolve_run_with_explicit_id_returns_it_unchanged(tmp_path: Path) -> None:
     config, ep_run_id, _wp_run_id = _trained_config(tmp_path)
 
-    resolved = resolve_run(config.train.ep_experiment, config, run_id=ep_run_id)
+    resolved = resolve_run(config.train.ep_experiment, config, run_id=ep_run_id, model_prefix="ep")
 
     assert resolved == ep_run_id
 
@@ -118,42 +134,47 @@ def test_resolve_run_explicit_id_raises_run_not_found_when_missing(tmp_path: Pat
     config, _ep_run_id, _wp_run_id = _trained_config(tmp_path)
 
     with pytest.raises(RunNotFound):
-        resolve_run(config.train.ep_experiment, config, run_id="0" * 32)
+        resolve_run(config.train.ep_experiment, config, run_id="0" * 32, model_prefix="ep")
 
 
-def test_resolve_run_without_id_returns_latest_finished_run(tmp_path: Path) -> None:
+def test_resolve_run_without_id_returns_champion_not_latest(tmp_path: Path) -> None:
     config = _make_config(tmp_path)
     plays = _training_corpus()
 
     first_run_id = train_ep(plays, config)
+    name = _register_run(config, first_run_id, "ep")
+    registry.promote(name, first_run_id, config)
     second_run_id = train_ep(plays, config)
+    _register_run(config, second_run_id, "ep")
+    assert second_run_id != first_run_id
 
-    resolved = resolve_run(config.train.ep_experiment, config)
+    resolved = resolve_run(config.train.ep_experiment, config, model_prefix="ep")
 
-    assert resolved == second_run_id
-    assert resolved != first_run_id
+    assert resolved == first_run_id
+    assert resolved != second_run_id
 
 
-def test_resolve_run_on_experiment_with_no_runs_raises_run_not_found_naming_experiment(
+def test_resolve_run_without_id_and_no_champion_promoted_raises_registry_error(
     tmp_path: Path,
 ) -> None:
     config = _make_config(tmp_path)
-    # Force the store to exist without ever training into it.
-    mlflow_store.ensure_experiment("empty_experiment", config)
+    plays = _training_corpus()
+    run_id = train_ep(plays, config)
+    _register_run(config, run_id, "ep")  # registered, but never promoted
 
-    with pytest.raises(RunNotFound) as exc_info:
-        resolve_run("empty_experiment", config)
+    with pytest.raises(RegistryError) as exc_info:
+        resolve_run(config.train.ep_experiment, config, model_prefix="ep")
 
     message = str(exc_info.value)
-    assert "empty_experiment" in message
-    assert str(config.paths.mlruns) in message
+    assert "ep_model" in message
+    assert "ffep promote" in message
 
 
 def test_resolve_run_rejects_path_fragment_run_id(tmp_path: Path) -> None:
     config, _ep_run_id, _wp_run_id = _trained_config(tmp_path)
 
     with pytest.raises(ValueError):
-        resolve_run(config.train.ep_experiment, config, run_id="../../etc")
+        resolve_run(config.train.ep_experiment, config, run_id="../../etc", model_prefix="ep")
 
 
 def test_load_model_booster_feature_names_match_training_features(tmp_path: Path) -> None:
