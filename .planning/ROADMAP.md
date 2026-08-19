@@ -154,7 +154,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 01.3-07-PLAN.md — Candidate-experiment harness with MLflow-logged verdicts; `half` and competition-tier covariate candidates
+- [x] 01.3-07-PLAN.md — Candidate-experiment harness with MLflow-logged verdicts; `half` and competition-tier covariate candidates
 
 **Wave 5** *(blocked on Wave 4)*
 
@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
-| 1.3 Model Retraining | 6/9 | In Progress|  |
+| 1.3 Model Retraining | 7/9 | In Progress|  |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
