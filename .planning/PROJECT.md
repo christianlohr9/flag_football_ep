@@ -18,15 +18,15 @@ Before the next national-team camp/tournament, the HC has an auto-generated tend
 - [x] Notebook logic migrated into the `src/flag_football_ep` package (REQ-S1-04) — Validated in Phase 1.2: Repo to Pipeline
 - [x] Ingest CLI: Hudl export folder → canonical Parquet + per-game validation report (REQ-S1-05) — Validated in Phase 1.2: Repo to Pipeline
 - [x] Hudl + sportapp.fi/IFAF sources merged into one schema; raw files under `data/` (REQ-S1-06) — Validated in Phase 1.2: Repo to Pipeline
+- [x] Leave-one-game-out grouped CV over `game_id` replaces play-level train_test_split (REQ-S1-07) — Validated in Phase 1.3: Methodical Model Retraining
+- [x] Calibration report: reliability curves per class, log-loss vs naive baseline (REQ-S1-08) — Validated in Phase 1.3: Methodical Model Retraining
+- [x] Feature candidates re-tested on grouped CV: `half` (EP only) and competition tier adopted; recency and real-clock rejected on data-gap grounds (REQ-S1-09) — Validated in Phase 1.3: Methodical Model Retraining
+- [x] Empirical PAT baselines + break-even chart (REQ-S1-10) — Validated in Phase 1.3: Methodical Model Retraining
+- [x] Model versioning via MLflow registry with champion alias; dated + data-hash pickle exports (REQ-S1-11) — Validated in Phase 1.3: Methodical Model Retraining
 
 ### Active
 
 **Strand 1 — Hudl export, EP/WP retraining, scouting products**
-- [ ] GroupKFold over `game_id` replaces play-level train_test_split (REQ-S1-07)
-- [ ] Calibration report: reliability curves per class, log-loss vs naive baseline (REQ-S1-08)
-- [ ] Feature candidates re-tested on grouped CV (REQ-S1-09)
-- [ ] Empirical PAT baselines + break-even chart (REQ-S1-10)
-- [ ] Model versioning (date + training-data hash) (REQ-S1-11)
 - [ ] Auto-generated opponent tendency report per team, HTML/PDF (REQ-S1-12)
 - [ ] Own-team efficiency report: EPA by formation/play-call/route/player (REQ-S1-13)
 - [ ] Decision charts: PAT break-even, 4th-down conversion by distance (REQ-S1-14)
@@ -88,4 +88,4 @@ All eight decisions below are **locked** (synthesized from docs/plan-1-analytics
 </decisions>
 
 ---
-*Last updated: 2026-08-18 after Phase 1.2 completion (notebook logic migrated to `src/flag_football_ep`, `ffep` CLI with validated four-source ingest into canonical Parquet, per-game validation report)*
+*Last updated: 2026-08-19 after Phase 1.3 completion (EP/WP retrained on the full corpus with leave-one-game-out CV, calibration report, empirical PAT baselines, MLflow registry with champion promotion; EP's naive-baseline miss documented as an open quality item)*
