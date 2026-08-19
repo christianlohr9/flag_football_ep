@@ -165,6 +165,87 @@ def estimate_pat_baselines(plays: pl.DataFrame) -> PatBaselines:
     )
 
 
+def add_recency_weight(df: pl.DataFrame, half_life_days: float) -> tuple[pl.DataFrame, int]:
+    """Add an exponential-decay `Recency_W` Float64 column from `game_date` (REQ-S1-09).
+
+    `Recency_W = 0.5 ** (age_days / half_life_days)`, where `age_days` is the whole-day gap
+    between a row's `game_date` and the most recent non-null `game_date` in the frame -- the
+    most recent game gets `Recency_W == 1.0`; a game exactly one half-life older gets `0.5`.
+
+    `game_date` is parsed with `pl.col("game_date").str.to_date(strict=False)` (ISO
+    `YYYY-MM-DD`). A row whose raw `game_date` is null, or whose non-null value fails to
+    parse into the reference date's *neighbourhood* (i.e. every row with no usable date),
+    receives `flag_football_ep.model.hyperparams.RECENCY_NULL_DATE_WEIGHT` instead of NaN --
+    RESEARCH Pitfall 4's silent-NaN failure mode cannot occur unobserved. Returns
+    `(frame_with_recency_w, null_date_row_count)` so the caller can report how many rows
+    fell back to the null policy.
+
+    Raises `MissingFeatureColumns` naming `game_date` when the column is absent entirely,
+    `InvalidGameDateValues` listing the distinct unparseable values when a non-null
+    `game_date` fails `str.to_date`, and `DegenerateWeightRange` naming the observed date
+    when every non-null `game_date` in the frame is identical (a single-date corpus makes
+    recency weighting meaningless). A frame with *zero* non-null `game_date` values does not
+    raise `DegenerateWeightRange` -- every row falls back to `RECENCY_NULL_DATE_WEIGHT`,
+    which is the real corpus's current shape (`01.3-DATA-PROFILE.md` section 2: 100% null
+    across every source).
+    """
+    from flag_football_ep.model.hyperparams import RECENCY_NULL_DATE_WEIGHT
+
+    if "game_date" not in df.columns:
+        raise MissingFeatureColumns(
+            "add_recency_weight: missing required column: game_date"
+        )
+
+    parsed = df.with_columns(
+        pl.col("game_date").str.to_date(strict=False).alias("_recency_parsed_date")
+    )
+
+    unparseable = parsed.filter(
+        pl.col("game_date").is_not_null() & pl.col("_recency_parsed_date").is_null()
+    )
+    if unparseable.height > 0:
+        bad_values = sorted(set(unparseable["game_date"].to_list()))
+        raise InvalidGameDateValues(
+            f"add_recency_weight: {len(bad_values)} unparseable game_date value(s) "
+            f"(expected ISO YYYY-MM-DD): {', '.join(bad_values)}"
+        )
+
+    non_null_dates = parsed["_recency_parsed_date"].drop_nulls()
+    null_date_count = int(parsed.height - non_null_dates.len())
+    distinct_dates = non_null_dates.n_unique()
+
+    if distinct_dates == 1:
+        raise DegenerateWeightRange(
+            "add_recency_weight: every non-null game_date is identical "
+            f"({non_null_dates[0].isoformat()!r}) -- a single-date corpus makes recency "
+            "weighting meaningless"
+        )
+
+    if distinct_dates == 0:
+        result = parsed.with_columns(
+            Recency_W=pl.lit(RECENCY_NULL_DATE_WEIGHT).cast(pl.Float64)
+        )
+    else:
+        reference_date = non_null_dates.max()
+        result = (
+            parsed.with_columns(
+                _recency_age_days=(
+                    pl.lit(reference_date) - pl.col("_recency_parsed_date")
+                ).dt.total_days()
+            )
+            .with_columns(
+                Recency_W=pl.when(pl.col("_recency_age_days").is_not_null())
+                .then(0.5 ** (pl.col("_recency_age_days") / half_life_days))
+                .otherwise(pl.lit(RECENCY_NULL_DATE_WEIGHT))
+                .cast(pl.Float64)
+            )
+            .drop("_recency_age_days")
+        )
+
+    result = result.drop("_recency_parsed_date")
+    return result, null_date_count
+
+
 def _mark_half_end(df: pl.DataFrame) -> pl.DataFrame:
     """Add `index` (if absent), `half_end` and `game_end`.
 
@@ -606,7 +687,12 @@ def add_wp_variables(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def make_ep_model_mutations(df: pl.DataFrame, selected_columns: Sequence[str]) -> pl.DataFrame:
+def make_ep_model_mutations(
+    df: pl.DataFrame,
+    selected_columns: Sequence[str],
+    *,
+    recency_weight_column: str | None = None,
+) -> pl.DataFrame:
     """Port of `helper_add_model_mutations.make_ep_model_mutations`.
 
     Adds `label` (0..4 from `Next_Score_Half`), `down0`..`down4`, `Drive_Score_Dist`,
@@ -616,6 +702,16 @@ def make_ep_model_mutations(df: pl.DataFrame, selected_columns: Sequence[str]) -
     Must be called on the full training corpus, never per-game or on any subset with no
     variation in `Drive_Score_Dist` / `score_differential` -- `DegenerateWeightRange` is
     raised instead of silently emitting NaN/inf sample weights (RESEARCH Pitfall 4).
+
+    `recency_weight_column` is the REQ-S1-09 recency-weighting candidate's hook
+    (`model/experiments.py::run_recency_candidate`, `add_recency_weight`). When `None`
+    (the default), this function behaves exactly as it did before REQ-S1-09 -- production
+    callers are unaffected. When given, that column is multiplied into `Total_W` *before*
+    the existing min-max rescale (`Total_W = (Drive_Score_Dist_W + ScoreDiff_W) *
+    df[recency_weight_column]`), leaving the `Total_W_Scaled` formula and its
+    `DegenerateWeightRange` guards untouched; `Drive_Score_Dist_W`/`ScoreDiff_W` themselves
+    are never changed by this parameter -- CONTEXT keeps the existing weighting as an
+    untouched given.
     """
     df = (
         df.with_columns(
@@ -678,7 +774,14 @@ def make_ep_model_mutations(df: pl.DataFrame, selected_columns: Sequence[str]) -
                 - pl.col("score_differential").abs().min()
             )
         )
-        .with_columns(Total_W=pl.col("Drive_Score_Dist_W") + pl.col("ScoreDiff_W"))
+        .with_columns(
+            Total_W=(
+                (pl.col("Drive_Score_Dist_W") + pl.col("ScoreDiff_W"))
+                * pl.col(recency_weight_column)
+                if recency_weight_column is not None
+                else pl.col("Drive_Score_Dist_W") + pl.col("ScoreDiff_W")
+            )
+        )
         .with_columns(
             Total_W_Scaled=(pl.col("Total_W") - pl.col("Total_W").min())
             / (pl.col("Total_W").max() - pl.col("Total_W").min())

@@ -12,21 +12,27 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from flag_football_ep.testing import canonical_plays_with_scores
+from flag_football_ep.testing import canonical_plays, canonical_plays_with_scores
 from flag_football_ep.features.mutations import (
     EP_PROBABILITY_COLUMNS,
     DegenerateWeightRange,
     InsufficientPatAttempts,
+    InvalidGameDateValues,
     MissingFeatureColumns,
     PatBaselines,
     add_competition_tier_features,
     add_ep_variables,
+    add_recency_weight,
     add_wp_variables,
     estimate_pat_baselines,
     make_ep_model_mutations,
     make_wp_model_mutations,
     prepare_ep_data,
     prepare_wp_data,
+)
+from flag_football_ep.model.hyperparams import (
+    RECENCY_HALF_LIFE_DAYS_GRID,
+    RECENCY_NULL_DATE_WEIGHT,
 )
 from flag_football_ep.reference import COMPETITION_TIERS, UnmappedCompetitionError
 
@@ -929,6 +935,184 @@ class TestMakeEpModelMutations:
         out = make_ep_model_mutations(df, columns)
 
         assert out.columns == columns
+
+    def test_recency_weight_column_multiplies_into_total_w_before_scaling(self):
+        df = _multi_drive_ep_frame(n_games=3, plays_per_game=12)
+        # A constant recency factor of 0.5 everywhere must not change Total_W_Scaled at all
+        # -- the min-max rescale is invariant to a uniform scalar multiplier.
+        df = df.with_columns(Recency_W=pl.lit(0.5))
+
+        without = make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+        with_recency = make_ep_model_mutations(
+            df, _EP_MODEL_COLUMNS, recency_weight_column="Recency_W"
+        )
+
+        assert with_recency["Total_W_Scaled"].to_list() == pytest.approx(
+            without["Total_W_Scaled"].to_list()
+        )
+
+    def test_recency_weight_column_none_default_matches_prior_behavior(self):
+        df = _multi_drive_ep_frame(n_games=3, plays_per_game=12)
+
+        explicit_none = make_ep_model_mutations(
+            df, _EP_MODEL_COLUMNS, recency_weight_column=None
+        )
+        default = make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+
+        assert explicit_none["Total_W_Scaled"].to_list() == default["Total_W_Scaled"].to_list()
+
+    def test_recency_weight_column_total_w_scaled_stays_bounded_no_nan_no_inf(self):
+        df = _multi_drive_ep_frame(n_games=3, plays_per_game=12)
+        df = df.with_columns(
+            Recency_W=(0.5 ** (pl.col("play_id").cast(pl.Float64) / 90.0))
+        )
+
+        out = make_ep_model_mutations(df, _EP_MODEL_COLUMNS, recency_weight_column="Recency_W")
+
+        assert out["Total_W_Scaled"].is_nan().sum() == 0
+        assert out["Total_W_Scaled"].is_infinite().sum() == 0
+        assert out["Total_W_Scaled"].null_count() == 0
+        assert out["Total_W_Scaled"].min() >= 0
+        assert out["Total_W_Scaled"].max() <= 1
+
+    def test_recency_weight_column_changes_total_w_when_non_uniform(self):
+        df = _multi_drive_ep_frame(n_games=3, plays_per_game=12)
+        df = df.with_columns(
+            Recency_W=(0.5 ** (pl.col("play_id").cast(pl.Float64) / 90.0))
+        )
+
+        without = make_ep_model_mutations(df, _EP_MODEL_COLUMNS)
+        with_recency = make_ep_model_mutations(
+            df, _EP_MODEL_COLUMNS, recency_weight_column="Recency_W"
+        )
+
+        assert with_recency["Total_W_Scaled"].to_list() != without["Total_W_Scaled"].to_list()
+
+
+class TestAddRecencyWeight:
+    """Coverage for `add_recency_weight` (REQ-S1-09 recency-weighting candidate, plan
+    01.3-08 Task 1)."""
+
+    def test_recency_half_life_grid_spans_at_least_one_order_of_magnitude(self):
+        assert len(RECENCY_HALF_LIFE_DAYS_GRID) >= 3
+        assert all(v > 0 for v in RECENCY_HALF_LIFE_DAYS_GRID)
+        assert max(RECENCY_HALF_LIFE_DAYS_GRID) / min(RECENCY_HALF_LIFE_DAYS_GRID) >= 10
+
+    def test_recency_null_date_weight_is_positive(self):
+        assert RECENCY_NULL_DATE_WEIGHT > 0
+
+    def test_missing_game_date_column_raises_named(self):
+        df = canonical_plays(n_games=1, plays_per_game=2).drop("game_date")
+
+        with pytest.raises(MissingFeatureColumns, match="game_date"):
+            add_recency_weight(df, half_life_days=180.0)
+
+    def test_most_recent_game_gets_weight_one(self):
+        df = canonical_plays(
+            n_games=2,
+            plays_per_game=1,
+            extras={"game_date": ["2024-01-01", "2024-07-01"]},
+        )
+
+        out, _ = add_recency_weight(df, half_life_days=182.0)
+
+        most_recent = out.filter(pl.col("game_date") == "2024-07-01")
+        assert most_recent["Recency_W"].item() == pytest.approx(1.0, abs=1e-9)
+
+    def test_one_half_life_older_gets_half_within_tolerance(self):
+        # 2024 is a leap year: Jan(31)+Feb(29)+Mar(31)+Apr(30)+May(31)+Jun(30) = 182 days
+        # between 2024-01-01 and 2024-07-01.
+        df = canonical_plays(
+            n_games=2,
+            plays_per_game=1,
+            extras={"game_date": ["2024-01-01", "2024-07-01"]},
+        )
+
+        out, _ = add_recency_weight(df, half_life_days=182.0)
+
+        older = out.filter(pl.col("game_date") == "2024-01-01")
+        assert older["Recency_W"].item() == pytest.approx(0.5, abs=1e-9)
+
+    def test_null_date_rows_get_null_date_weight_constant(self):
+        df = canonical_plays(
+            n_games=3,
+            plays_per_game=1,
+            extras={"game_date": ["2024-07-01", "2024-01-01", None]},
+        )
+
+        out, _ = add_recency_weight(df, half_life_days=182.0)
+
+        null_row = out.filter(pl.col("game_date").is_null())
+        assert null_row["Recency_W"].item() == pytest.approx(RECENCY_NULL_DATE_WEIGHT)
+
+    def test_null_date_row_count_is_returned(self):
+        df = canonical_plays(
+            n_games=4,
+            plays_per_game=1,
+            extras={"game_date": ["2024-07-01", "2024-01-01", None, None]},
+        )
+
+        _, null_count = add_recency_weight(df, half_life_days=182.0)
+
+        assert null_count == 2
+
+    def test_recency_w_never_nan_or_infinite_including_null_dates(self):
+        df = canonical_plays(
+            n_games=4,
+            plays_per_game=1,
+            extras={"game_date": ["2024-07-01", "2024-01-01", None, "2023-01-01"]},
+        )
+
+        out, _ = add_recency_weight(df, half_life_days=180.0)
+
+        assert out["Recency_W"].is_nan().sum() == 0
+        assert out["Recency_W"].is_infinite().sum() == 0
+        assert out["Recency_W"].null_count() == 0
+        assert (out["Recency_W"] > 0).all()
+
+    def test_all_null_game_date_frame_does_not_raise_and_weight_is_null_date_constant(self):
+        # Matches the real corpus's current shape (01.3-DATA-PROFILE.md section 2: 100%
+        # null across every source) -- recency weighting must not fail on this shape, it
+        # degrades to a documented no-op.
+        df = canonical_plays(n_games=3, plays_per_game=2)  # game_date defaults to null
+
+        out, null_count = add_recency_weight(df, half_life_days=180.0)
+
+        assert null_count == out.height
+        assert out["Recency_W"].to_list() == pytest.approx(
+            [RECENCY_NULL_DATE_WEIGHT] * out.height
+        )
+
+    def test_degenerate_single_distinct_date_raises(self):
+        df = canonical_plays(
+            n_games=2,
+            plays_per_game=1,
+            extras={"game_date": ["2024-01-01", "2024-01-01"]},
+        )
+
+        with pytest.raises(DegenerateWeightRange, match="2024-01-01"):
+            add_recency_weight(df, half_life_days=180.0)
+
+    def test_unparseable_game_date_value_raises_named(self):
+        df = canonical_plays(
+            n_games=2,
+            plays_per_game=1,
+            extras={"game_date": ["2024-01-01", "not-a-date"]},
+        )
+
+        with pytest.raises(InvalidGameDateValues, match="not-a-date"):
+            add_recency_weight(df, half_life_days=180.0)
+
+    def test_recency_w_is_float64(self):
+        df = canonical_plays(
+            n_games=2,
+            plays_per_game=1,
+            extras={"game_date": ["2024-01-01", "2024-07-01"]},
+        )
+
+        out, _ = add_recency_weight(df, half_life_days=182.0)
+
+        assert out.schema["Recency_W"] == pl.Float64
 
 
 class TestMakeWpModelMutations:

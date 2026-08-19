@@ -146,3 +146,25 @@ CANDIDATE_EXPERIMENT_SUFFIX: str = "_candidates"
 # margin"), so this is zero -- kept as a named constant so a future decision to require a
 # margin has one place to change.
 CANDIDATE_ADOPTION_MIN_DELTA: float = 0.0
+
+# --- Recency weighting (REQ-S1-09 / CONTEXT "Recency weighting") -------------------------
+# Exponential decay by `game_date`, half-life tuned by the grouped-CV comparison in
+# `model/experiments.py::run_recency_candidate`. Brackets "only the last campaign matters"
+# (60 days, roughly a season quarter) through "history barely decays" (730 days, two years)
+# over the corpus's date span -- the grid itself is Claude's discretion per CONTEXT; the
+# 60..730 range spans more than one order of magnitude (730 / 60 ~= 12.2).
+RECENCY_HALF_LIFE_DAYS_GRID: tuple[float, ...] = (60.0, 180.0, 365.0, 730.0)
+
+# The weight given to a row whose `game_date` is null. Policy: a dateless row is
+# *undiscounted* (weight 1.0) rather than dropped or zero-weighted, so a source with poor
+# date coverage keeps its full influence instead of silently vanishing from the fit
+# (RESEARCH Pitfall 4 warns the alternative is an invisible NaN). `01.3-DATA-PROFILE.md`
+# section 2 measured `game_date` as 100% null for every row, in every source, in the real
+# corpus (ifaf, legacy, legacy-sportapp) -- there is currently no dated subset at all, so
+# this constant is not a minor edge case: with today's data every row falls back to it and
+# the recency weight is a no-op (Recency_W == 1.0 everywhere), making the candidate
+# experiment's real-corpus verdict effectively "no signal available yet" rather than a
+# genuine recency measurement. The mechanism is still implemented and tested against
+# synthetic dates so it activates automatically once `game_date` is populated for any
+# source.
+RECENCY_NULL_DATE_WEIGHT: float = 1.0
