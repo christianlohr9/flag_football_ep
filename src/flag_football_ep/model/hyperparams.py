@@ -132,3 +132,17 @@ WP_TRAINING_COLUMNS: list[str] = [*WP_SELECTED_COLUMNS, *GROUP_COLUMNS]
 # inner loop deliberately is not LOGO, to avoid the folds x trials fit-count explosion
 # (RESEARCH "Anti-Patterns to Avoid": nested LOGO-inside-hyperopt-trials).
 INNER_CV_FOLDS: int = 5
+
+# --- Feature-candidate experiments (REQ-S1-09 / CONTEXT "Feature re-tests & training-data
+# mix") -----------------------------------------------------------------------------------
+# Candidate runs (model/experiments.py) are measurement-only re-tests of individual feature
+# additions against the current production feature set -- they never ship. Kept in a
+# suffixed experiment so a candidate run can never be mistaken for a production run or
+# picked up by `ffep promote`'s "most recent FINISHED run" default.
+CANDIDATE_EXPERIMENT_SUFFIX: str = "_candidates"
+
+# The pooled LOGO log-loss improvement (control - candidate) a candidate must exceed to be
+# adopted. CONTEXT locks the adoption criterion as "improves" (not "improves by some
+# margin"), so this is zero -- kept as a named constant so a future decision to require a
+# margin has one place to change.
+CANDIDATE_ADOPTION_MIN_DELTA: float = 0.0
