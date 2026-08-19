@@ -27,6 +27,7 @@ from __future__ import annotations
 import time
 from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import polars as pl
@@ -35,6 +36,7 @@ from sklearn.calibration import calibration_curve
 from sklearn.metrics import log_loss
 from sklearn.model_selection import LeaveOneGroupOut
 
+from flag_football_ep.config import Config
 from flag_football_ep.model.hyperparams import LOGO_GROUP_COLUMN
 
 
@@ -293,3 +295,64 @@ def render_reliability_figure(curves: Sequence[ReliabilityCurve], title: str) ->
     fig.suptitle(title)
     fig.tight_layout()
     return fig
+
+
+# --- Out-of-fold prediction persistence (Phase 1.4-facing contract) ----------------------
+#
+# **Phase 1.4-facing contract.** File names `oof_predictions_ep.parquet` and
+# `oof_predictions_wp.parquet` under `config.paths.processed`; join key `(game_id, play_id)`;
+# EP columns exactly `EP_PROB_LABELS` (hyperparams.py), WP column exactly `wp`
+# (`features.mutations.WP_PROBABILITY_COLUMN`). Semantics: each historical play's probability
+# as predicted by a model that never saw that play's game (CONTEXT §Out-of-fold EPA, nflfastR
+# precedent). Phase 1.4 joins these onto `plays.parquet` for own-team EPA; new/unseen games
+# are scored with the refit champion model via `ffep score` instead, never these files.
+
+
+def oof_frame(logo: LogoResult, prob_labels: Sequence[str]) -> pl.DataFrame:
+    """Assemble `logo`'s out-of-fold predictions into a joinable Polars frame.
+
+    Columns: `game_id` (Utf8), `play_id` (Int32), `source` (Utf8) and one Float64 probability
+    column per entry of `prob_labels`, in `prob_labels` order -- `(game_id, play_id)` is
+    unique across the returned frame.
+    """
+    if len(prob_labels) != logo.oof_pred.shape[1]:
+        raise EvaluationError(
+            f"oof_frame: prob_labels has {len(prob_labels)} entries but logo.oof_pred has "
+            f"{logo.oof_pred.shape[1]} column(s) -- these must match"
+        )
+
+    data = {
+        "game_id": pl.Series("game_id", logo.oof_game_id, dtype=pl.Utf8),
+        "play_id": pl.Series("play_id", logo.oof_play_id, dtype=pl.Int32),
+        "source": pl.Series("source", logo.oof_source, dtype=pl.Utf8),
+    }
+    for col_idx, label in enumerate(prob_labels):
+        data[label] = pl.Series(label, logo.oof_pred[:, col_idx], dtype=pl.Float64)
+    return pl.DataFrame(data)
+
+
+def write_oof_predictions(
+    logo: LogoResult, prob_labels: Sequence[str], config: Config, model_prefix: str
+) -> Path:
+    """Write `oof_frame(logo, prob_labels)` to `oof_predictions_{model_prefix}.parquet`
+    under `config.paths.processed`. Returns the written path.
+
+    Writes to a `.tmp` sibling then `Path.replace`s it onto the live path -- the same
+    write-to-temp-then-atomic-rename discipline `pipeline._atomic_write_parquet` uses
+    (replicated here rather than imported, since `write_oof_predictions` needs the plain
+    `Path.replace(...)` call this module's own acceptance criteria check for; the two
+    implementations must never drift on the "crash mid-write leaves the previous file
+    intact" guarantee). An interrupted write cannot destroy a previously good file, and no
+    stray `.tmp` file is left behind, regardless of outcome.
+    """
+    frame = oof_frame(logo, prob_labels)
+    config.paths.processed.mkdir(parents=True, exist_ok=True)
+    out_path = config.paths.processed / f"oof_predictions_{model_prefix}.parquet"
+    tmp_path = out_path.with_suffix(out_path.suffix + ".tmp")
+    try:
+        frame.write_parquet(tmp_path)
+        tmp_path.replace(out_path)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+    return out_path

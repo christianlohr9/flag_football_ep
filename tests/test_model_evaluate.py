@@ -570,8 +570,8 @@ def test_write_oof_predictions_roundtrips_and_joins_on_game_id_play_id(tmp_path)
 
     training_frame = pl.DataFrame(
         {
-            "game_id": logo.oof_game_id,
-            "play_id": logo.oof_play_id,
+            "game_id": pl.Series("game_id", logo.oof_game_id, dtype=pl.Utf8),
+            "play_id": pl.Series("play_id", logo.oof_play_id, dtype=pl.Int32),
         }
     )
     joined = training_frame.join(read_back, on=["game_id", "play_id"], how="inner")
