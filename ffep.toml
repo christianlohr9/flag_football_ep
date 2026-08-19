@@ -21,6 +21,7 @@ half_boundaries = "data/reference/half_boundaries.csv"
 final_scores = "data/reference/final_scores.csv"
 team_mapping = "data/reference/team_mapping.csv"
 sportapp_games = "data/reference/sportapp_games.csv"
+competition_tier = "data/reference/competition_tier.csv"
 
 [sources.sportapp]
 base_url = "https://main-api-1.sportapp.fi/api/v1/public"

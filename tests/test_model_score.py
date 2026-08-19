@@ -58,6 +58,7 @@ def _make_config(
         final_scores=tmp_path / "data" / "reference" / "final_scores.csv",
         team_mapping=tmp_path / "data" / "reference" / "team_mapping.csv",
         sportapp_games=tmp_path / "data" / "reference" / "sportapp_games.csv",
+        competition_tier=tmp_path / "data" / "reference" / "competition_tier.csv",
     )
     sources = Sources(
         sportapp=SportappSource(

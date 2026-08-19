@@ -32,6 +32,7 @@ half_boundaries = "data/reference/half_boundaries.csv"
 final_scores = "data/reference/final_scores.csv"
 team_mapping = "data/reference/team_mapping.csv"
 sportapp_games = "data/reference/sportapp_games.csv"
+competition_tier = "data/reference/competition_tier.csv"
 
 [sources.sportapp]
 base_url = "https://example.invalid/api/v1/public"
@@ -169,3 +170,29 @@ def test_checked_in_config_exclude_games(repo_root: Path) -> None:
 
     assert cfg.train.exclude_games_ep == ["legacy-37"]
     assert cfg.train.exclude_games_wp == ["legacy-35"]
+
+
+def test_load_config_exposes_competition_tier_path(tmp_path: Path) -> None:
+    config_path = tmp_path / "ffep.toml"
+    config_path.write_text(MINIMAL_TOML, encoding="utf-8")
+
+    cfg = load_config(config_path)
+
+    assert cfg.reference.competition_tier == (
+        tmp_path / "data" / "reference" / "competition_tier.csv"
+    )
+
+
+def test_load_config_missing_competition_tier_key_raises_configerror_naming_it(
+    tmp_path: Path,
+) -> None:
+    incomplete = MINIMAL_TOML.replace(
+        'competition_tier = "data/reference/competition_tier.csv"\n', ""
+    )
+    config_path = tmp_path / "ffep.toml"
+    config_path.write_text(incomplete, encoding="utf-8")
+
+    with pytest.raises(ConfigError) as exc_info:
+        load_config(config_path)
+
+    assert "competition_tier" in str(exc_info.value)
