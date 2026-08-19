@@ -106,8 +106,9 @@ TUNE_EARLY_STOPPING_ROUNDS: int = 10
 HYPEROPT_QUNIFORM_KEYS: tuple[str, ...] = ("max_depth", "min_child_weight", "n_estimators")
 
 # --- Grouped-CV protocol (REQ-S1-07 / D-07 / CONTEXT "Grouped-CV protocol") -------------
-# Play-level train_test_split leaked same-game plays into both train and test. This phase
-# replaces it with leave-one-game-out (LOGO) measurement and a grouped inner CV for tuning.
+# The prior play-level random split leaked same-game plays into both train and test. This
+# phase replaces it with leave-one-game-out (LOGO) measurement and a grouped inner CV for
+# tuning.
 
 # The grouping key for the leave-one-group-out measurement loop (model/evaluate.py).
 LOGO_GROUP_COLUMN: str = "game_id"
