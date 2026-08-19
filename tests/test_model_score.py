@@ -26,6 +26,7 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
+from flag_football_ep.model import mlflow_store
 from flag_football_ep.model.hyperparams import EP_PROB_LABELS
 from flag_football_ep.model.score import RunNotFound, load_model, resolve_run, score_plays
 from flag_football_ep.model.train import train_ep, train_wp
@@ -137,8 +138,7 @@ def test_resolve_run_on_experiment_with_no_runs_raises_run_not_found_naming_expe
 ) -> None:
     config = _make_config(tmp_path)
     # Force the store to exist without ever training into it.
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
-    mlflow.set_experiment("empty_experiment")
+    mlflow_store.ensure_experiment("empty_experiment", config)
 
     with pytest.raises(RunNotFound) as exc_info:
         resolve_run("empty_experiment", config)
@@ -170,12 +170,12 @@ def test_load_model_sets_tracking_uri_from_config(tmp_path: Path) -> None:
 
     # Point the ambient tracking uri somewhere else first -- load_model must still resolve
     # against config.paths.mlruns, not whatever uri happens to be set beforehand.
-    mlflow.set_tracking_uri("file:" + str(tmp_path / "somewhere-else"))
+    mlflow.set_tracking_uri("sqlite:///" + str(tmp_path / "somewhere-else" / "mlflow.db"))
 
     model = load_model(ep_run_id, config)
 
     assert model is not None
-    assert mlflow.get_tracking_uri() == "file:" + str(config.paths.mlruns)
+    assert mlflow.get_tracking_uri() == mlflow_store.tracking_uri(config)
 
 
 def test_load_model_rejects_non_hex_run_id(tmp_path: Path) -> None:
