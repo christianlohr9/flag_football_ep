@@ -43,3 +43,27 @@ class TestRenderPage:
 
         assert "&lt;script&gt;" in html
         assert "<script>" not in html
+
+
+class TestBaseTemplate:
+    def test_starts_with_doctype_and_declares_german_lang(self):
+        html = render_page("base.html.j2", title="X")
+
+        assert html.startswith("<!DOCTYPE html")
+        assert 'lang="de"' in html
+
+    def test_contains_print_and_tablet_css_hooks(self):
+        html = render_page("base.html.j2", title="X")
+
+        assert "break-inside" in html
+        assert "print-color-adjust" in html
+        assert 'class="chart-img"' not in html  # class is defined in CSS, not emitted bare
+        assert ".chart-img" in html
+
+    def test_no_script_tag_and_no_external_resource_references(self):
+        html = render_page("base.html.j2", title="X")
+
+        assert "<script" not in html
+        assert "http://" not in html
+        assert "https://" not in html
+
