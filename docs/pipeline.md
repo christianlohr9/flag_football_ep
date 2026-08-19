@@ -221,14 +221,20 @@ directory, so `ffep` behaves the same regardless of where it is invoked from.
 ## 7. Model tracking (MLflow)
 
 Every `ffep train` run (EP and WP separately) logs params, metrics and the fitted XGBoost
-model as its own MLflow run under `mlruns/` (local `file:` store; `MLFLOW_ALLOW_FILE_STORE`
-is set automatically since mlflow>=3.15 deprecates the file store by default). Nothing ever
-overwrites a previous run's artifact the way the notebook's fixed `ep_model.pkl` dump did.
+model as its own MLflow run. Tracking metadata (params, metrics, tags, run/experiment
+records) lives in `mlruns/mlflow.db`, a local SQLite database; run and model artifacts live
+under `mlruns/artifacts/`. Both paths are resolved from `[paths] mlruns` in `ffep.toml`
+through the single shared helper `flag_football_ep.model.mlflow_store`. The store is
+SQLite-backed -- not the deprecated local `file:` store -- because the MLflow model registry
+(REQ-S1-11, "MLflow model registry is primary") requires a database-backed tracking store to
+support `register_model`/alias APIs; no `mlflow server` process is needed for any of this.
+Nothing ever overwrites a previous run's row in `mlruns/mlflow.db` or a previous run's
+artifact the way the notebook's fixed `ep_model.pkl` dump did.
 
 Browse runs with:
 
 ```bash
-uv run mlflow ui --backend-store-uri file:./mlruns
+mlflow ui --backend-store-uri sqlite:///$(pwd)/mlruns/mlflow.db
 ```
 
 `ffep score` resolves which model to use via `flag_football_ep.model.score.resolve_run`: an

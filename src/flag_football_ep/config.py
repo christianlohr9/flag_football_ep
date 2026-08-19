@@ -140,7 +140,7 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
     with path.open("rb") as f:
         data = tomllib.load(f)
 
-    base_dir = path.parent
+    base_dir = path.resolve().parent
 
     paths_table = _table(data, "paths")
     paths = Paths(

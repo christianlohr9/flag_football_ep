@@ -26,6 +26,7 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
+from flag_football_ep.model import mlflow_store
 from flag_football_ep.model.hyperparams import EP_FEATURES, EP_PARAMS, WP_FEATURES, WP_PARAMS
 from flag_football_ep.model.train import MissingTrainingColumns, train_ep, train_wp
 from flag_football_ep.testing import canonical_plays_with_scores
@@ -104,20 +105,6 @@ def _wp_training_corpus(n_games: int = 12, plays_per_game: int = 16) -> pl.DataF
     return _ep_training_corpus(n_games=n_games, plays_per_game=plays_per_game)
 
 
-def _run_dirs(mlruns_path: Path) -> list[Path]:
-    """Every MLflow run directory under `mlruns_path` (one level below an experiment id)."""
-    if not mlruns_path.exists():
-        return []
-    dirs = []
-    for experiment_dir in mlruns_path.iterdir():
-        if not experiment_dir.is_dir() or experiment_dir.name in {".trash", "models"}:
-            continue
-        for run_dir in experiment_dir.iterdir():
-            if run_dir.is_dir() and (run_dir / "params").exists():
-                dirs.append(run_dir)
-    return dirs
-
-
 # --- Task 1: EP training ------------------------------------------------------------------
 
 
@@ -137,15 +124,18 @@ def test_train_ep_run_directory_has_params_metric_and_model_artifact(tmp_path: P
 
     run_id = train_ep(plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
 
     assert len(run.data.params) > 0
     assert len(run.data.metrics) > 0
 
-    run_dirs = _run_dirs(config.paths.mlruns)
-    assert run_dirs, "expected at least one MLflow run directory under mlruns"
+    retrievable = client.search_runs(experiment_ids=[run.info.experiment_id])
+    assert any(r.info.run_id == run_id for r in retrievable), (
+        "expected the run to be retrievable through the MlflowClient search API"
+    )
+    assert (config.paths.mlruns / "mlflow.db").is_file()
 
     # MLflow >=3.x logs the model as a first-class "Logged Model" (mlflow.xgboost.log_model
     # with `name=`) rather than a plain artifacts/model/ path under the run directory --
@@ -163,7 +153,7 @@ def test_train_ep_logs_every_hyperparam_plus_provenance_params(tmp_path: Path) -
 
     run_id = train_ep(plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
     params = run.data.params
@@ -180,7 +170,7 @@ def test_train_ep_logs_test_mlogloss_metric(tmp_path: Path) -> None:
 
     run_id = train_ep(plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
 
@@ -194,7 +184,7 @@ def test_train_ep_drops_excluded_games_and_logs_them(tmp_path: Path) -> None:
 
     run_id = train_ep(plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
 
@@ -224,11 +214,11 @@ def test_train_ep_drops_null_rows_before_split(tmp_path: Path) -> None:
     run_id = train_ep(plays, config)
     run_id_baseline = train_ep(baseline_plays, config_baseline)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
 
-    mlflow.set_tracking_uri("file:" + str(config_baseline.paths.mlruns))
+    mlflow_store.configure(config_baseline)
     client_baseline = mlflow.tracking.MlflowClient()
     run_baseline = client_baseline.get_run(run_id_baseline)
 
@@ -241,7 +231,7 @@ def test_train_ep_booster_feature_names_match_ep_features(tmp_path: Path) -> Non
 
     run_id = train_ep(plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     loaded = mlflow.xgboost.load_model(f"runs:/{run_id}/model")
 
     assert loaded.get_booster().feature_names == list(EP_FEATURES)
@@ -265,6 +255,20 @@ def test_train_ep_never_writes_fixed_ep_model_pkl(tmp_path: Path) -> None:
     assert matches == []
 
 
+def test_train_ep_writes_sqlite_backed_store_and_no_filestore_layout(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+
+    train_ep(plays, config)
+
+    assert (config.paths.mlruns / "mlflow.db").is_file()
+
+    # FileStore's on-disk layout put a `params/` subdirectory directly under each run
+    # directory; the sqlite-backed store keeps no such layout under config.paths.mlruns.
+    params_dirs = list(config.paths.mlruns.rglob("params"))
+    assert params_dirs == []
+
+
 # --- Task 2: WP training on the shared run-logging helper --------------------------------
 
 
@@ -284,7 +288,7 @@ def test_train_wp_logs_into_its_own_experiment(tmp_path: Path) -> None:
 
     run_id = train_wp(plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
     experiment = client.get_experiment(run.info.experiment_id)
@@ -299,7 +303,7 @@ def test_train_wp_logs_test_logloss_metric(tmp_path: Path) -> None:
 
     run_id = train_wp(plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
 
@@ -313,7 +317,7 @@ def test_train_wp_drops_excluded_games_and_logs_them(tmp_path: Path) -> None:
 
     run_id = train_wp(plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
 
@@ -349,7 +353,7 @@ def test_train_wp_booster_feature_names_match_wp_features(tmp_path: Path) -> Non
 
     run_id = train_wp(plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     loaded = mlflow.xgboost.load_model(f"runs:/{run_id}/model")
 
     assert loaded.get_booster().feature_names == list(WP_FEATURES)
@@ -363,7 +367,7 @@ def test_train_ep_and_train_wp_are_independent_runs(tmp_path: Path) -> None:
     ep_run_id = train_ep(ep_plays, config)
     wp_run_id = train_wp(wp_plays, config)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
 
     ep_experiment = client.get_experiment_by_name(config.train.ep_experiment)
@@ -429,7 +433,7 @@ def test_train_ep_tune_true_max_evals_2_logs_best_params(tmp_path: Path) -> None
 
     run_id = train_ep(plays, config, tune=True, max_evals=2)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
     params = run.data.params
@@ -445,7 +449,7 @@ def test_train_ep_tune_true_logs_stepped_trial_losses(tmp_path: Path) -> None:
 
     run_id = train_ep(plays, config, tune=True, max_evals=2)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
     history = client.get_metric_history(run_id, "tune_logloss")
 
@@ -463,7 +467,7 @@ def test_train_ep_records_tuned_and_max_evals_params(tmp_path: Path) -> None:
     run_id_fixed = train_ep(plays, config, tune=False)
     run_id_tuned = train_ep(plays, config, tune=True, max_evals=2)
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
+    mlflow_store.configure(config)
     client = mlflow.tracking.MlflowClient()
 
     fixed_params = client.get_run(run_id_fixed).data.params

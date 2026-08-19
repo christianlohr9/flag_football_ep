@@ -27,43 +27,39 @@ models` for compatibility with existing consumers of the notebook's `{ep|wp}_mod
 convention -- MLflow (via `_log_run`) is the primary artifact store; REQ-S1-11 (phase 1.3)
 owns the full versioning scheme this export is a placeholder for.
 
-MLflow >=3.15's local `file:` tracking store is deprecated ("maintenance mode") unless
-`MLFLOW_ALLOW_FILE_STORE=true` is set -- CONTEXT.md's "local mlruns/" foundation decision
-(and this task's behaviour requirement that a run directory with params/metrics/artifact
-files exists under `config.paths.mlruns`) both depend on the file store, not the sqlite/
-server backend MLflow now recommends, so this module opts back in rather than switching
-tracking backends underneath the CONTEXT decision.
+The MLflow tracking store is SQLite-backed (`flag_football_ep.model.mlflow_store`), not the
+deprecated local `file:` store -- the MLflow model registry (REQ-S1-11, "MLflow model
+registry is primary") requires a database-backed store to support `register_model`/alias
+APIs, which the `file:` FileStore does not implement.
 """
 
 from __future__ import annotations
 
 import hashlib
 import io
-import os
 import pickle
 from collections.abc import Callable, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 
-os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
+import mlflow
+import mlflow.xgboost
+import numpy as np
+import polars as pl
+import xgboost as xgb
+from hyperopt import STATUS_OK, Trials, fmin, tpe
+from sklearn.metrics import log_loss
+from sklearn.model_selection import train_test_split
 
-import mlflow  # noqa: E402
-import mlflow.xgboost  # noqa: E402
-import numpy as np  # noqa: E402
-import polars as pl  # noqa: E402
-import xgboost as xgb  # noqa: E402
-from hyperopt import STATUS_OK, Trials, fmin, tpe  # noqa: E402
-from sklearn.metrics import log_loss  # noqa: E402
-from sklearn.model_selection import train_test_split  # noqa: E402
-
-from flag_football_ep.config import Config  # noqa: E402
-from flag_football_ep.features.mutations import (  # noqa: E402
+from flag_football_ep.config import Config
+from flag_football_ep.features.mutations import (
     make_ep_model_mutations,
     make_wp_model_mutations,
     prepare_ep_data,
     prepare_wp_data,
 )
-from flag_football_ep.model.hyperparams import (  # noqa: E402
+from flag_football_ep.model import mlflow_store
+from flag_football_ep.model.hyperparams import (
     EP_FEATURES,
     EP_PARAMS,
     EP_SELECTED_COLUMNS,
@@ -365,8 +361,7 @@ def _log_run(
     """
     model.get_booster().feature_names = feature_names
 
-    mlflow.set_tracking_uri("file:" + str(config.paths.mlruns))
-    mlflow.set_experiment(experiment)
+    mlflow_store.ensure_experiment(experiment, config)
     with mlflow.start_run() as run:
         mlflow.log_params(params)
         for metric_name, value in metrics.items():
