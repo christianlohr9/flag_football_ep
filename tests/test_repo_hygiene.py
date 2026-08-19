@@ -19,6 +19,16 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent
 NOTEBOOKS_DIR = REPO_ROOT / "notebooks"
 SRC_DIR = REPO_ROOT / "src"
+MODELS_DIR = REPO_ROOT / "models"
+
+# The four notebook-era fixed-filename pickles plan 01.3-03 retired to models/legacy/ --
+# these must never reappear directly under models/ (models/legacy/ itself is exempt).
+_FIXED_NAME_PICKLES = (
+    "ep_model.pkl",
+    "ep_model_simple.pkl",
+    "wp_model.pkl",
+    "wp_model_simple.pkl",
+)
 
 # The three thin demos created by plan 01.2-17; capped at 15 code cells each so they
 # cannot silently grow pipeline logic instead of importing it.
@@ -94,6 +104,16 @@ def test_repository_root_has_no_csv_or_xlsx_sprawl():
     root_xlsx = list(REPO_ROOT.glob("*.xlsx"))
     assert not root_csvs, f"root has stray CSVs: {root_csvs}"
     assert not root_xlsx, f"root has stray XLSX files: {root_xlsx}"
+
+
+def test_models_dir_has_no_fixed_name_pickles():
+    """`models/` (not `models/legacy/`) must never hold a notebook-era fixed-filename
+    pickle -- `flag_football_ep.model.train._export_pickle` writes
+    `{prefix}_model_{YYYYMMDD}_{hash8}.pkl` and refuses to overwrite; a fixed-name pickle
+    reappearing directly under `models/` means something bypassed that guard (T-1.3-10).
+    """
+    offenders = [name for name in _FIXED_NAME_PICKLES if (MODELS_DIR / name).exists()]
+    assert not offenders, f"models/ has stale fixed-name pickle(s): {offenders}"
 
 
 @pytest.mark.parametrize("demo_name", DEMO_NOTEBOOKS)

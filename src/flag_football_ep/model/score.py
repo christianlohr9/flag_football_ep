@@ -6,9 +6,11 @@ arbitrary caller-chosen pickle path (T-1.2-08, threat register in the plan). `re
 `load_model` always scope themselves to `config.paths.mlruns`, and any caller-supplied run
 id is validated against a plain-hex pattern before it is interpolated into a `runs:/` uri --
 the only artifacts reachable through this module are runs inside the configured tracking
-store. The MLflow model registry (a friendlier "latest model" API) is deferred to phase 1.3
-(01.2-CONTEXT.md); `resolve_run`'s "most recent FINISHED run" lookup is the interim
-equivalent.
+store. The default resolution (no explicit run id) goes through the MLflow model registry's
+`champion` alias (`flag_football_ep.model.registry`, REQ-S1-11): an unpromoted registered
+model is an error, not a fallback to the newest FINISHED run -- promotion is an explicit,
+human-invoked `ffep promote` step (CONTEXT.md "PAT baselines & model versioning" >
+Promotion).
 
 `score_plays` reuses the ported feature functions (`flag_football_ep.features.mutations`)
 for both EP and WP -- it does not reimplement `ExpPts`/`ep`/`epa`/`wp`/`wpa` derivation.
@@ -42,7 +44,7 @@ from flag_football_ep.features.mutations import (
     prepare_ep_data,
     prepare_wp_data,
 )
-from flag_football_ep.model import mlflow_store
+from flag_football_ep.model import mlflow_store, registry
 from flag_football_ep.model.hyperparams import EP_FEATURES, EP_PROB_LABELS, WP_FEATURES
 
 # Plain hex only -- the mitigation for T-1.2-08: no path separator, `.`, or other fragment
@@ -69,13 +71,17 @@ def _validate_run_id(run_id: str) -> None:
         )
 
 
-def resolve_run(experiment: str, config: Config, run_id: str | None = None) -> str:
+def resolve_run(
+    experiment: str, config: Config, run_id: str | None = None, *, model_prefix: str
+) -> str:
     """Resolve a run id for `experiment` against the MLflow store at `config.paths.mlruns`.
 
     An explicit `run_id` wins after being validated as a plain hex identifier and confirmed
-    to exist; otherwise the most recent FINISHED run of `experiment` is returned. Raises
-    `RunNotFound` when an explicit run id does not exist, or when `experiment` has no
-    FINISHED runs (including when the experiment itself does not exist yet).
+    to exist, raising `RunNotFound` if it does not. Otherwise resolution goes through the
+    MLflow registry's `champion` alias for `model_prefix` (`registry.resolve_champion`) --
+    an unpromoted registered model raises `registry.RegistryError` naming the model and
+    telling the operator to run `ffep promote`, rather than silently falling back to the
+    newest FINISHED run.
     """
     mlflow_store.configure(config)
 
@@ -89,19 +95,8 @@ def resolve_run(experiment: str, config: Config, run_id: str | None = None) -> s
             ) from exc
         return run_id
 
-    runs = mlflow.search_runs(
-        experiment_names=[experiment],
-        filter_string="attributes.status = 'FINISHED'",
-        order_by=["attributes.start_time DESC"],
-        max_results=1,
-        output_format="list",
-    )
-    if not runs:
-        raise RunNotFound(
-            f"no FINISHED runs found for experiment {experiment!r} in the MLflow store at "
-            f"{config.paths.mlruns}"
-        )
-    return runs[0].info.run_id
+    name = registry.registered_model_name(model_prefix)
+    return registry.resolve_champion(name, config)
 
 
 def load_model(run_id: str, config: Config):
@@ -210,8 +205,8 @@ def score_plays(
     """
     plays = plays.with_row_index(name=_ROW_ID_COLUMN, offset=0)
 
-    ep_run_id = resolve_run(config.train.ep_experiment, config, ep_run)
-    wp_run_id = resolve_run(config.train.wp_experiment, config, wp_run)
+    ep_run_id = resolve_run(config.train.ep_experiment, config, ep_run, model_prefix="ep")
+    wp_run_id = resolve_run(config.train.wp_experiment, config, wp_run, model_prefix="wp")
     ep_model = load_model(ep_run_id, config)
     wp_model = load_model(wp_run_id, config)
 

@@ -338,7 +338,15 @@ def test_cli_run_output_reports_ep_and_wp_run_ids(training_tree_toml: Path) -> N
 # make them read/write the operator's real `data/processed`, `mlruns`, `models` dirs. A
 # bare `--help` invocation is safe -- typer prints help and exits before the command body
 # (and `load_config`) ever runs.
-_STATEFUL_SUBCOMMANDS = ("ingest", "run", "train", "score", "fetch-sportapp", "fetch-ifaf")
+_STATEFUL_SUBCOMMANDS = (
+    "ingest",
+    "run",
+    "train",
+    "score",
+    "promote",
+    "fetch-sportapp",
+    "fetch-ifaf",
+)
 _INVOKE_CALL_RE = re.compile(r"\.invoke\(\s*app\s*,\s*(\[.*?\])", re.DOTALL)
 
 

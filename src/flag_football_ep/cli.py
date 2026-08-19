@@ -196,6 +196,62 @@ def score(
 
 
 @app.command()
+def promote(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    model: str = typer.Option("both", "--model", help="One of: ep, wp, both"),
+    run: Optional[str] = typer.Option(
+        None,
+        "--run",
+        help=(
+            "MLflow run id to promote; defaults to the most recent FINISHED run of that "
+            "model's experiment"
+        ),
+    ),
+) -> None:
+    """Promote a training run to the `champion` alias so `ffep score` resolves it."""
+    if model not in {"ep", "wp", "both"}:
+        raise typer.BadParameter("--model must be one of: ep, wp, both")
+    if run is not None and model == "both":
+        raise typer.BadParameter(
+            "--run cannot be combined with --model both (one run id cannot be both models)"
+        )
+
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    import mlflow
+
+    from flag_football_ep.model import mlflow_store, registry
+
+    experiments = {"ep": cfg.train.ep_experiment, "wp": cfg.train.wp_experiment}
+    prefixes = ["ep", "wp"] if model == "both" else [model]
+
+    for prefix in prefixes:
+        experiment = experiments[prefix]
+        if run is not None:
+            run_id = run
+        else:
+            mlflow_store.configure(cfg)
+            runs = mlflow.search_runs(
+                experiment_names=[experiment],
+                filter_string="attributes.status = 'FINISHED'",
+                order_by=["attributes.start_time DESC"],
+                max_results=1,
+                output_format="list",
+            )
+            if not runs:
+                raise typer.BadParameter(
+                    f"no FINISHED runs found for experiment {experiment!r} to promote"
+                )
+            run_id = runs[0].info.run_id
+
+        name = registry.registered_model_name(prefix)
+        version = registry.promote(name, run_id, cfg)
+        typer.echo(f"{name}: promoted run {run_id} to champion (version {version})")
+
+
+@app.command()
 def run(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     skip_fetch: bool = typer.Option(
