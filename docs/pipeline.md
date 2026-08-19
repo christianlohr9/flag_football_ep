@@ -213,7 +213,7 @@ First-run checklist for a new export:
 | `[sources.ifaf] tournament` | Default tournament identifier for `ffep fetch-ifaf` (overridable with `--tournament`). |
 | `[sources.ifaf] api_key_env` | Environment variable name for the optional cpx.studio API key -- the discovered endpoints have not required one so far. |
 | `[train] ep_experiment`, `wp_experiment` | MLflow experiment names `ffep train`/`ffep score` log to and resolve runs from. |
-| `[train] exclude_games_ep`, `exclude_games_wp` | Canonical `game_id`s excluded from training, ported verbatim from the notebook's `game_id != 37` / `!= 35` filters (`models/ep_model.ipynb` cell 3, `models/wp_model.ipynb` cell 3) -- these were single-game holdouts in the original notebook, not a methodology choice; phase 1.3 revisits holdout strategy under GroupKFold. |
+| `[train] exclude_games_ep`, `exclude_games_wp` | Canonical `game_id`s excluded from training, ported verbatim from the notebook's `game_id != 37` / `!= 35` filters (`models/ep_model.ipynb` cell 3, `models/wp_model.ipynb` cell 3) -- under phase 1.3's leave-one-game-out evaluation, every remaining game is both trained on and held out exactly once, so these are settled as data-quality exclusions, not holdouts. |
 
 Paths are resolved relative to `ffep.toml`'s own directory, not the process's working
 directory, so `ffep` behaves the same regardless of where it is invoked from.
@@ -238,16 +238,20 @@ mlflow ui --backend-store-uri sqlite:///$(pwd)/mlruns/mlflow.db
 ```
 
 `ffep score` resolves which model to use via `flag_football_ep.model.score.resolve_run`: an
-explicit `--ep-run`/`--wp-run` (validated as a plain hex run id) wins, otherwise the most
-recent `FINISHED` run of the configured experiment is used. This "most recent finished run"
-lookup is the interim equivalent of a model registry; the actual MLflow registry (a friendlier
-"latest model" API, plus REQ-S1-11's versioning-by-date-and-training-data-hash) is phase 1.3's
-job, built on this foundation.
+explicit `--ep-run`/`--wp-run` (validated as a plain hex run id) wins, otherwise resolution goes
+through the MLflow model registry's `champion` alias (REQ-S1-11) -- an unpromoted registered
+model fails loudly with an actionable `ffep promote` hint, never a silent fallback to the most
+recent FINISHED run.
 
 `--export-pkl` on `ffep train` additionally writes a dated, hash-suffixed `.pkl` under
 `[paths] models` for compatibility with existing consumers of the notebook's
-`{ep,wp}_model.pkl` convention -- MLflow is the primary store; this export is a placeholder
-phase 1.3 replaces with the full versioning scheme.
+`{ep,wp}_model.pkl` convention -- MLflow's model registry is the primary store; this export is
+a secondary, offline-compatible copy.
+
+**See `docs/model-training.md`** for the full retraining/experiment/promotion/scoring workflow
+(the evaluation protocol, the normal `ingest -> train -> review -> promote -> score` loop, why
+promotion is manual, running a `ffep experiment` candidate, the out-of-fold prediction contract,
+and PAT baselines) -- not duplicated here.
 
 ## 8. Known limitations
 
