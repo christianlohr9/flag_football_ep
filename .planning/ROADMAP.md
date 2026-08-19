@@ -149,8 +149,8 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 01.3-05-PLAN.md — Reliability curves per class, naive-baseline log-loss, per-source breakdown, out-of-fold persistence, production model registration
-- [ ] 01.3-06-PLAN.md — Empirical PAT baselines with binomial CIs, reusable break-even chart module and `ffep pat-breakeven`
+- [x] 01.3-05-PLAN.md — Reliability curves per class, naive-baseline log-loss, per-source breakdown, out-of-fold persistence, production model registration
+- [x] 01.3-06-PLAN.md — Empirical PAT baselines with binomial CIs, reusable break-even chart module and `ffep pat-breakeven`
 
 **Wave 4** *(blocked on Wave 3)*
 
@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
-| 1.3 Model Retraining | 4/9 | In Progress|  |
+| 1.3 Model Retraining | 6/9 | In Progress|  |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
