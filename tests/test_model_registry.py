@@ -60,6 +60,14 @@ def _make_config(
         sportapp_games=tmp_path / "data" / "reference" / "sportapp_games.csv",
         competition_tier=tmp_path / "data" / "reference" / "competition_tier.csv",
     )
+    # REQ-S1-09 adoption (plan 01.3-09): `train_ep`/`train_wp` now call
+    # `_build_competition_tier` unconditionally, which reads this file.
+    # `canonical_plays_with_scores` always sets `competition="TEST"` for its default
+    # `source="hudl"`.
+    reference.competition_tier.parent.mkdir(parents=True, exist_ok=True)
+    reference.competition_tier.write_text(
+        "source,competition,tier\nhudl,TEST,womens-international\n"
+    )
     sources = Sources(
         sportapp=SportappSource(
             base_url="https://example.invalid/api/v1/public", api_key_env="SPORTAPP_API_KEY"

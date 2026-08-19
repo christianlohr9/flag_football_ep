@@ -220,6 +220,15 @@ def _write_ifaf_fixture(ifaf_dir: Path) -> None:
         {"id": "TESTG1", "tournamentId": "test", "homeTeam": {"id": "w-ger"}, "awayTeam": {"id": "w-usa"}}
     ]
     (ifaf_dir / "games.json").write_text(json.dumps(games_meta), encoding="utf-8")
+    # `tournamentId: "test"` above must resolve to a real `competition` name (not null) --
+    # REQ-S1-09's competition-tier adoption (plan 01.3-09) requires every row's
+    # `(source, competition)` pair to be mapped before `train_ep`/`train_wp` can run;
+    # a null `competition` (the pre-existing default when no `tournament_*.json` is present)
+    # can never match a `competition_tier.csv` row. `_write_reference_csvs` below maps
+    # `(ifaf, "IFAF Test Cup")`.
+    (ifaf_dir / "tournament_test.json").write_text(
+        json.dumps({"id": "test", "name": "IFAF Test Cup"}), encoding="utf-8"
+    )
 
 
 # --- Reference CSVs ---------------------------------------------------------
@@ -254,6 +263,20 @@ def _write_reference_csvs(reference_dir: Path) -> None:
     )
     (reference_dir / "sportapp_games.csv").write_text(
         "source_game_id,competition,season,note\n", encoding="utf-8"
+    )
+    # REQ-S1-09 adoption (plan 01.3-09): `train_ep`/`train_wp` now build the competition-tier
+    # one-hot columns unconditionally, which requires every ingested row's `(source,
+    # competition)` pair to resolve here. Covers every source/competition pair this module's
+    # fixtures produce: Hudl filenames end `_EM.csv` (competition "EM"); `ingest_legacy`
+    # hardcodes `competition="legacy"`; the sportapp.fi fixture's `region` is "TestCup"; the
+    # IFAF fixture's `tournament_test.json` (added alongside this file) names "IFAF Test Cup".
+    (reference_dir / "competition_tier.csv").write_text(
+        "source,competition,tier\n"
+        "hudl,EM,womens-international\n"
+        "legacy,legacy,mixed-other\n"
+        "sportapp,TestCup,mixed-other\n"
+        "ifaf,IFAF Test Cup,womens-international\n",
+        encoding="utf-8",
     )
 
 

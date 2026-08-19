@@ -40,6 +40,17 @@ def _training_corpus(n_games: int = 4, plays_per_game: int = 16) -> pl.DataFrame
     )
 
 
+def _write_competition_tier_csv(config) -> None:
+    """REQ-S1-09 adoption (plan 01.3-09): `train_ep`/`train_wp` now call
+    `_build_competition_tier` unconditionally, which reads this file.
+    `canonical_plays_with_scores` (used by `_training_corpus` below) always sets
+    `competition="TEST"` for its default `source="hudl"`."""
+    config.reference.competition_tier.parent.mkdir(parents=True, exist_ok=True)
+    config.reference.competition_tier.write_text(
+        "source,competition,tier\nhudl,TEST,womens-international\n"
+    )
+
+
 def _register_run(config, run_id: str, model_prefix: str = "ep") -> None:
     """Register `run_id`'s already-logged model under `model_prefix`'s registered model name
     -- `train_ep`/`train_wp` don't call `registered_model_name=` themselves until plan
@@ -96,6 +107,7 @@ def test_promote_help() -> None:
 def test_promote_with_explicit_run_id_makes_it_champion(tmp_path: Path, repo_root: Path) -> None:
     config = tpi._make_config(tmp_path, repo_root)
     toml_path = tpi._write_toml_config(tmp_path, repo_root)
+    _write_competition_tier_csv(config)
     plays = _training_corpus()
     run_id = train_ep(plays, config)
     _register_run(config, run_id, "ep")
@@ -113,6 +125,7 @@ def test_promote_without_run_promotes_most_recent_finished_run(
 ) -> None:
     config = tpi._make_config(tmp_path, repo_root)
     toml_path = tpi._write_toml_config(tmp_path, repo_root)
+    _write_competition_tier_csv(config)
     plays = _training_corpus()
     first_run_id = train_ep(plays, config)
     _register_run(config, first_run_id, "ep")

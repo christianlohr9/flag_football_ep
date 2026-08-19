@@ -46,6 +46,29 @@ block, one run should report every differing column and its delta, not just the 
    not methodology changes -- PAT baselines, GroupKFold etc. stay frozen for phase 1.3).
    Documented here as a discovered, explained delta rather than asserted equal.
 
+4. **`half` and the `tier_*` competition columns (REQ-S1-09, plan 01.3-09 "Apply the
+   combined feature-candidate adoption decision")** -- `EP_FEATURES` gained `half` and the
+   three competition-tier one-hot columns (`tier_womens_international`, `tier_womens_national`,
+   `tier_mixed_other`); `WP_FEATURES` gained the same three tier columns. These are real
+   feature-set changes, not port deltas, so they are not "known deltas" of the frozen
+   baseline in the sense of items 1-3 above -- but the frozen baseline fixtures
+   (`tests/fixtures/baseline_{ep,wp}_model_data.parquet`) were captured before this
+   adoption and never had these columns, so the tests below build them (via
+   `add_competition_tier_features`, the same construction `model/train.py`'s
+   `_build_competition_tier` `build_fn` hook uses in production) and compare only the
+   baseline's pre-existing columns for statistics, asserting the adopted columns are
+   present and well-formed separately. Measured pooled LOGO log-loss deltas (control minus
+   candidate, real corpus, 01.3-07-SUMMARY.md / 01.3-09-SUMMARY.md) that justify each
+   adoption:
+     - `half` (EP): +0.001790 (adopted; rejected for WP at -0.002360, so `WP_FEATURES` does
+       not include it)
+     - `competition_tier` (EP): +0.000331 (adopted)
+     - `competition_tier` (WP): +0.000023 (adopted)
+     - combined EP arm (`half` + `competition_tier` together, 01.3-09-SUMMARY.md's
+       combined-confirmation run): control=1.029113, combined=1.027657, delta=+0.001457
+       (beats the control, so the union is adopted rather than the single best-performing
+       subset)
+
 Any delta on a column NOT in this list is a real port bug and must fail the test.
 
 The WR-02 fix to `canonical.add_score_columns` (evaluating the scoring branch before the
@@ -64,15 +87,21 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from flag_football_ep import reference
 from flag_football_ep.canonical import make_game_id
 from flag_football_ep.features.mutations import (
+    add_competition_tier_features,
     make_ep_model_mutations,
     make_wp_model_mutations,
     prepare_ep_data,
     prepare_wp_data,
 )
 from flag_football_ep.ingest.legacy import ingest_legacy
-from flag_football_ep.model.hyperparams import EP_SELECTED_COLUMNS, WP_SELECTED_COLUMNS
+from flag_football_ep.model.hyperparams import (
+    EP_SELECTED_COLUMNS,
+    TIER_FEATURE_COLUMNS,
+    WP_SELECTED_COLUMNS,
+)
 
 _FLOAT_TOL = 1e-9
 _NUMERIC_DTYPES = (pl.Int8, pl.Int16, pl.Int32, pl.Int64, pl.Float32, pl.Float64)
@@ -81,6 +110,25 @@ _NUMERIC_DTYPES = (pl.Int8, pl.Int16, pl.Int32, pl.Int64, pl.Float32, pl.Float64
 # recorded in the module docstring above.
 _EP_KNOWN_DELTA_COLUMNS = {"label", "Total_W_Scaled"}
 _WP_KNOWN_DELTA_COLUMNS = {"label", "receive_2h_ko"}
+
+# REQ-S1-09 adoption (module docstring, known delta #4): columns `EP_FEATURES`/`WP_FEATURES`
+# gained after the frozen baseline fixtures were captured. `EP_SELECTED_COLUMNS`/
+# `WP_SELECTED_COLUMNS` append new features before the trailing weight column (EP) or at the
+# list's end (WP), so these land in the same position in `EP_SELECTED_COLUMNS`/
+# `WP_SELECTED_COLUMNS`.
+_EP_ADOPTED_COLUMNS = ["half", *TIER_FEATURE_COLUMNS]
+_WP_ADOPTED_COLUMNS = list(TIER_FEATURE_COLUMNS)
+
+
+def _with_competition_tier(df: pl.DataFrame, repo_root: Path) -> pl.DataFrame:
+    """Build the REQ-S1-09 `competition_tier` one-hot columns on `df` -- mirrors
+    `model/train.py::_build_competition_tier`'s production ordering (before `prepare_fn`/
+    `mutate_fn`, since the join needs the raw canonical `competition` column)."""
+    mapping = reference.load_competition_tier(
+        repo_root / "data" / "reference" / "competition_tier.csv"
+    )
+    augmented, _tier_features = add_competition_tier_features(df, mapping)
+    return augmented
 
 
 def _label_distribution(df: pl.DataFrame, col: str = "label") -> dict[str, int]:
@@ -226,20 +274,32 @@ def test_wp_model_data_matches_baseline_within_tolerance(repo_root: Path) -> Non
     manifest, _baseline_ep, baseline_wp, legacy_csv = _load_fixtures(repo_root)
 
     conformed, _notices = ingest_legacy(legacy_csv, team_mapping=None)
+    conformed = _with_competition_tier(conformed, repo_root)
     wp_exclude_id = make_game_id("legacy", manifest["excluded_games"]["wp"])
     wp_input = conformed.filter(pl.col("game_id") != wp_exclude_id)
     wp_prepared = prepare_wp_data(wp_input)
     wp_model_data = make_wp_model_mutations(wp_prepared, WP_SELECTED_COLUMNS)
 
-    assert wp_model_data.columns == baseline_wp.columns
+    # REQ-S1-09 adoption (known delta #4): `WP_SELECTED_COLUMNS` gained the tier columns
+    # after the baseline was captured -- the frozen baseline has none of them.
+    expected_columns = [*baseline_wp.columns, *_WP_ADOPTED_COLUMNS]
+    assert wp_model_data.columns == expected_columns
     assert wp_model_data.height == baseline_wp.height
-    assert wp_model_data.dtypes == baseline_wp.dtypes
+    assert wp_model_data.dtypes[: len(baseline_wp.dtypes)] == baseline_wp.dtypes
 
     mismatches = _numeric_stat_mismatches(
-        wp_model_data, baseline_wp, list(WP_SELECTED_COLUMNS), skip=_WP_KNOWN_DELTA_COLUMNS
+        wp_model_data, baseline_wp, list(baseline_wp.columns), skip=_WP_KNOWN_DELTA_COLUMNS
     )
     assert not mismatches, "WP model_data statistics differ from the frozen baseline:\n" + "\n".join(
         mismatches
+    )
+
+    # The newly adopted tier columns themselves: well-formed one-hot Int32 indicators.
+    for col in _WP_ADOPTED_COLUMNS:
+        assert set(wp_model_data[col].unique().to_list()) <= {0, 1}
+    tier_sum = wp_model_data.select(pl.sum_horizontal(_WP_ADOPTED_COLUMNS).alias("s"))["s"]
+    assert set(tier_sum.unique().to_list()) == {1}, (
+        "exactly one tier column must be 1 per row"
     )
 
 
@@ -254,6 +314,7 @@ def test_wp_label_and_receive_2h_ko_documented_delta(repo_root: Path) -> None:
     manifest, _baseline_ep, baseline_wp, legacy_csv = _load_fixtures(repo_root)
 
     conformed, _notices = ingest_legacy(legacy_csv, team_mapping=None)
+    conformed = _with_competition_tier(conformed, repo_root)
     wp_exclude_id = make_game_id("legacy", manifest["excluded_games"]["wp"])
     wp_input = conformed.filter(pl.col("game_id") != wp_exclude_id)
     wp_prepared = prepare_wp_data(wp_input)
@@ -291,6 +352,7 @@ def test_ep_model_data_matches_baseline_legacy_subset_within_tolerance(repo_root
     manifest, baseline_ep, _baseline_wp, legacy_csv = _load_fixtures(repo_root)
 
     conformed, _notices = ingest_legacy(legacy_csv, team_mapping=None)
+    conformed = _with_competition_tier(conformed, repo_root)
     ep_exclude_id = make_game_id("legacy", manifest["excluded_games"]["ep"])
     ep_input = conformed.filter(pl.col("game_id") != ep_exclude_id)
     ep_prepared = prepare_ep_data(ep_input)
@@ -303,19 +365,38 @@ def test_ep_model_data_matches_baseline_legacy_subset_within_tolerance(repo_root
     )
     baseline_legacy_subset = baseline_ep.head(n_legacy)
 
-    assert ep_model_data.columns == baseline_legacy_subset.columns
-    assert ep_model_data.dtypes == baseline_legacy_subset.dtypes
+    # REQ-S1-09 adoption (known delta #4): `EP_SELECTED_COLUMNS` appends `half` and the tier
+    # columns right before the trailing `Total_W_Scaled` -- the frozen baseline has none of
+    # them, so they are inserted at the same position for the comparison.
+    expected_columns = [
+        *baseline_legacy_subset.columns[:-1],
+        *_EP_ADOPTED_COLUMNS,
+        baseline_legacy_subset.columns[-1],
+    ]
+    assert ep_model_data.columns == expected_columns
+    assert ep_model_data.dtypes[: len(baseline_legacy_subset.dtypes) - 1] == (
+        baseline_legacy_subset.dtypes[:-1]
+    )
+    assert ep_model_data.dtypes[-1] == baseline_legacy_subset.dtypes[-1]
 
     mismatches = _numeric_stat_mismatches(
         ep_model_data,
         baseline_legacy_subset,
-        list(EP_SELECTED_COLUMNS),
+        list(baseline_legacy_subset.columns),
         skip=_EP_KNOWN_DELTA_COLUMNS,
     )
     assert not mismatches, (
         "EP model_data statistics differ from the legacy subset of the frozen baseline "
         f"(subset boundary n_legacy={n_legacy}, derived from the package's own legacy-only "
         "chain, not hardcoded):\n" + "\n".join(mismatches)
+    )
+
+    # The newly adopted columns themselves: `half` is a passthrough Int32 core column
+    # (already validated by canonical.py); the tier columns are well-formed one-hot Int32
+    # indicators, exactly one 1 per row.
+    tier_sum = ep_model_data.select(pl.sum_horizontal(TIER_FEATURE_COLUMNS).alias("s"))["s"]
+    assert set(tier_sum.unique().to_list()) == {1}, (
+        "exactly one tier column must be 1 per row"
     )
 
 
@@ -330,6 +411,7 @@ def test_ep_total_w_scaled_documented_corpus_dependent_delta(repo_root: Path) ->
     manifest, baseline_ep, _baseline_wp, legacy_csv = _load_fixtures(repo_root)
 
     conformed, _notices = ingest_legacy(legacy_csv, team_mapping=None)
+    conformed = _with_competition_tier(conformed, repo_root)
     ep_exclude_id = make_game_id("legacy", manifest["excluded_games"]["ep"])
     ep_input = conformed.filter(pl.col("game_id") != ep_exclude_id)
     ep_prepared = prepare_ep_data(ep_input)
