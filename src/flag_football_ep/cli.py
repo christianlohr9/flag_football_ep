@@ -195,6 +195,43 @@ def score(
     scored.write_parquet(out_path)
 
 
+@app.command(name="pat-breakeven")
+def pat_breakeven(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    out: Optional[Path] = typer.Option(None, "--out", help="Output PNG path"),
+    overwrite: bool = typer.Option(
+        False, "--overwrite/--no-overwrite", help="Overwrite an existing PNG at --out"
+    ),
+) -> None:
+    """Render the PAT break-even chart (REQ-S1-10/REQ-S1-14) from the canonical dataset."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    import polars as pl
+
+    plays = pl.read_parquet(cfg.paths.processed / "plays.parquet")
+
+    from flag_football_ep.features.mutations import estimate_pat_baselines
+
+    baselines = estimate_pat_baselines(plays)
+
+    from flag_football_ep.charts.pat_breakeven import write_pat_breakeven
+
+    out_path = out or (cfg.paths.processed / "pat_breakeven.png")
+    written_path = write_pat_breakeven(baselines, out_path, overwrite=overwrite)
+
+    typer.echo(f"chart: {written_path}")
+    typer.echo(
+        f"1-pt rate: {baselines.one_point_rate:.4f} "
+        f"(n={baselines.one_point_attempts}, ci={baselines.one_point_ci})"
+    )
+    typer.echo(
+        f"2-pt rate: {baselines.two_point_rate:.4f} "
+        f"(n={baselines.two_point_attempts}, ci={baselines.two_point_ci})"
+    )
+
+
 @app.command()
 def promote(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
