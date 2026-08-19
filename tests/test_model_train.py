@@ -26,7 +26,7 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
-from flag_football_ep.model import mlflow_store
+from flag_football_ep.model import mlflow_store, registry
 from flag_football_ep.model.hyperparams import EP_FEATURES, EP_PARAMS, WP_FEATURES, WP_PARAMS
 from flag_football_ep.model.train import MissingTrainingColumns, train_ep, train_wp
 from flag_football_ep.testing import canonical_plays_with_scores
@@ -576,3 +576,193 @@ def test_train_ep_export_pkl_raises_on_second_call_same_day(tmp_path: Path) -> N
 
     with pytest.raises(FileExistsError):
         train_ep(plays, config, export_pkl=True)
+
+
+# --- Task 3: calibration report, per-source breakdown, registry registration -------------
+
+
+def _multi_source_ep_corpus(n_games: int = 6, plays_per_game: int = 16) -> pl.DataFrame:
+    """A two-source corpus (`hudl` + `legacy`) so per-source breakdown has >1 row to report.
+
+    `make_game_id` prefixes non-hudl sources (`legacy-test-0`), so concatenating two
+    single-source corpora never collides game_ids.
+    """
+    touchdown = [0] * plays_per_game
+    touchdown[5] = 1
+    overrides = {"touchdown": touchdown * n_games}
+    hudl = canonical_plays_with_scores(
+        n_games=n_games, plays_per_game=plays_per_game, source="hudl", overrides=overrides
+    )
+    legacy = canonical_plays_with_scores(
+        n_games=n_games, plays_per_game=plays_per_game, source="legacy", overrides=overrides
+    )
+    return pl.concat([hudl, legacy])
+
+
+def test_train_ep_logs_naive_and_improvement_metrics(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _multi_source_ep_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    metrics = client.get_run(run_id).data.metrics
+
+    assert "logo_mlogloss" in metrics
+    assert "naive_mlogloss" in metrics
+    assert "logloss_improvement" in metrics
+    assert metrics["logloss_improvement"] == pytest.approx(
+        metrics["naive_mlogloss"] - metrics["logo_mlogloss"]
+    )
+
+
+def test_train_wp_logs_naive_and_improvement_metrics(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    run_id = train_wp(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    metrics = client.get_run(run_id).data.metrics
+
+    assert "logo_logloss" in metrics
+    assert "naive_logloss" in metrics
+    assert "logloss_improvement" in metrics
+    assert metrics["logloss_improvement"] == pytest.approx(
+        metrics["naive_logloss"] - metrics["logo_logloss"]
+    )
+
+
+def test_train_ep_logs_reliability_png_artifact_for_all_classes(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _multi_source_ep_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    artifact_paths = {f.path for f in client.list_artifacts(run_id)}
+
+    assert "reliability_ep.png" in artifact_paths
+
+
+def test_train_wp_logs_reliability_png_artifact(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    run_id = train_wp(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    artifact_paths = {f.path for f in client.list_artifacts(run_id)}
+
+    assert "reliability_wp.png" in artifact_paths
+
+
+def test_train_ep_logs_per_source_metrics_markdown_artifact(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _multi_source_ep_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    artifact_paths = {f.path for f in client.list_artifacts(run_id)}
+    assert "per_source_metrics.md" in artifact_paths
+
+    downloaded = client.download_artifacts(run_id, "per_source_metrics.md")
+    text = Path(downloaded).read_text()
+    assert "hudl" in text
+    assert "legacy" in text
+    assert "__pooled__" in text
+
+
+def test_train_ep_logs_per_source_logloss_metrics(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _multi_source_ep_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    metrics = client.get_run(run_id).data.metrics
+
+    assert "logo_logloss_by_source_hudl" in metrics
+    assert "logo_logloss_by_source_legacy" in metrics
+    assert "logo_logloss_by_source___pooled__" not in metrics
+
+
+def test_train_ep_registers_model_version_but_champion_unresolved_until_promote(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _multi_source_ep_corpus()
+
+    train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    name = registry.registered_model_name("ep")
+
+    with pytest.raises(registry.RegistryError):
+        registry.resolve_champion(name, config)
+
+    versions = mlflow.tracking.MlflowClient().search_model_versions(f"name='{name}'")
+    assert len(versions) >= 1
+
+
+def test_train_ep_twice_produces_two_registered_versions(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _multi_source_ep_corpus()
+
+    train_ep(plays, config)
+    train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    name = registry.registered_model_name("ep")
+    versions = mlflow.tracking.MlflowClient().search_model_versions(f"name='{name}'")
+
+    assert len({v.version for v in versions}) == 2
+
+
+def test_train_ep_writes_oof_predictions_ep_parquet(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _multi_source_ep_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    n_plays = int(mlflow.tracking.MlflowClient().get_run(run_id).data.params["n_plays"])
+
+    oof_path = config.paths.processed / "oof_predictions_ep.parquet"
+    assert oof_path.is_file()
+    oof = pl.read_parquet(oof_path)
+    assert oof.height == n_plays
+
+
+def test_train_wp_writes_oof_predictions_wp_parquet(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    run_id = train_wp(plays, config)
+
+    mlflow_store.configure(config)
+    n_plays = int(mlflow.tracking.MlflowClient().get_run(run_id).data.params["n_plays"])
+
+    oof_path = config.paths.processed / "oof_predictions_wp.parquet"
+    assert oof_path.is_file()
+    oof = pl.read_parquet(oof_path)
+    assert oof.height == n_plays
+
+
+def test_train_ep_phase_tag_is_01_3(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _multi_source_ep_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    run = mlflow.tracking.MlflowClient().get_run(run_id)
+
+    assert run.data.tags["phase"] == "01.3"
