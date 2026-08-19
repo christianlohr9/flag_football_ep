@@ -13,12 +13,13 @@ import pytest
 from flag_football_ep.testing import canonical_plays_with_scores
 from flag_football_ep.features.mutations import (
     EP_PROBABILITY_COLUMNS,
-    PAT_BASELINE_ONE_POINT,
-    PAT_BASELINE_TWO_POINT,
     DegenerateWeightRange,
+    InsufficientPatAttempts,
     MissingFeatureColumns,
+    PatBaselines,
     add_ep_variables,
     add_wp_variables,
+    estimate_pat_baselines,
     make_ep_model_mutations,
     make_wp_model_mutations,
     prepare_ep_data,
@@ -394,7 +395,7 @@ class TestAddEpVariables:
             No_Score_Prob=0.2,
         )
 
-        out = add_ep_variables(df)
+        out = add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
 
         expected = 0 * 0.2 + 2 * 0.1 + 6 * 0.5 + (-2 * 0.1) + (-6 * 0.1)
         assert out["ExpPts"].item() == pytest.approx(expected)
@@ -423,8 +424,12 @@ class TestAddEpVariables:
         )
         intercept = _minimal_ep_frame([{**row0, **row0_probs, "interception": 1}, row1])
 
-        epa_non_intercept = add_ep_variables(non_intercept)["epa"][0]
-        epa_intercept = add_ep_variables(intercept)["epa"][0]
+        epa_non_intercept = add_ep_variables(
+            non_intercept, pat_baselines=PatBaselines.legacy_notebook()
+        )["epa"][0]
+        epa_intercept = add_ep_variables(
+            intercept, pat_baselines=PatBaselines.legacy_notebook()
+        )["epa"][0]
 
         assert epa_non_intercept != 0
         assert epa_intercept == pytest.approx(-epa_non_intercept)
@@ -442,7 +447,7 @@ class TestAddEpVariables:
             ]
         )
 
-        out = add_ep_variables(df)
+        out = add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
 
         assert out["epa"].item() == pytest.approx(6 - out["ep"].item())
 
@@ -459,13 +464,9 @@ class TestAddEpVariables:
             ]
         )
 
-        out = add_ep_variables(df)
+        out = add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
 
         assert out["epa"].item() == pytest.approx(-6 - out["ep"].item())
-
-    def test_pat_baselines_preserved(self):
-        assert PAT_BASELINE_ONE_POINT == 0.5
-        assert PAT_BASELINE_TWO_POINT == 0.92
 
     def test_missing_probability_column_raises_named(self):
         df = canonical_plays_with_scores(n_games=1, plays_per_game=8)
@@ -474,7 +475,7 @@ class TestAddEpVariables:
         df = df.drop("Safety_Prob")
 
         with pytest.raises(MissingFeatureColumns) as excinfo:
-            add_ep_variables(df)
+            add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
 
         assert "Safety_Prob" in str(excinfo.value)
 
@@ -482,10 +483,185 @@ class TestAddEpVariables:
         df = _with_ep_probs(_minimal_ep_frame([{}]))
         original_columns = list(df.columns)
 
-        add_ep_variables(df)
+        add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
 
         assert df.columns == original_columns
         assert "ExpPts" not in df.columns
+
+    def test_add_ep_variables_requires_pat_baselines_keyword(self):
+        df = _with_ep_probs(_minimal_ep_frame([{}]))
+
+        with pytest.raises(TypeError):
+            add_ep_variables(df)
+
+    def test_add_ep_variables_with_legacy_notebook_baselines_reproduces_pre_change_epa(self):
+        df = _minimal_ep_frame(
+            [
+                {
+                    "down": 0,
+                    "yards_to_go": 3,
+                    "one_point_conv_success": 0,
+                    "Touchdown_Prob": 0.0,
+                    "No_Score_Prob": 1.0,
+                }
+            ]
+        )
+
+        out = add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
+
+        assert out["epa"].item() == pytest.approx(0 - 0.5)
+
+    def test_add_ep_variables_uses_estimated_rates_on_all_four_pat_branches(self):
+        baselines = PatBaselines(
+            one_point_rate=0.6,
+            one_point_attempts=10,
+            one_point_successes=6,
+            one_point_ci=(0.4, 0.8),
+            two_point_rate=0.3,
+            two_point_attempts=10,
+            two_point_successes=3,
+            two_point_ci=(0.1, 0.5),
+        )
+
+        one_pt_success = _minimal_ep_frame(
+            [
+                {
+                    "down": 0,
+                    "yards_to_go": 3,
+                    "one_point_conv_success": 1,
+                    "Touchdown_Prob": 0.0,
+                    "No_Score_Prob": 1.0,
+                }
+            ]
+        )
+        one_pt_fail = _minimal_ep_frame(
+            [
+                {
+                    "down": 0,
+                    "yards_to_go": 3,
+                    "one_point_conv_success": 0,
+                    "Touchdown_Prob": 0.0,
+                    "No_Score_Prob": 1.0,
+                }
+            ]
+        )
+        two_pt_success = _minimal_ep_frame(
+            [
+                {
+                    "down": 0,
+                    "yards_to_go": 8,
+                    "two_point_conv_success": 1,
+                    "Touchdown_Prob": 0.0,
+                    "No_Score_Prob": 1.0,
+                }
+            ]
+        )
+        two_pt_fail = _minimal_ep_frame(
+            [
+                {
+                    "down": 0,
+                    "yards_to_go": 8,
+                    "two_point_conv_success": 0,
+                    "Touchdown_Prob": 0.0,
+                    "No_Score_Prob": 1.0,
+                }
+            ]
+        )
+
+        assert add_ep_variables(one_pt_success, pat_baselines=baselines)[
+            "epa"
+        ].item() == pytest.approx(1 - baselines.one_point_rate)
+        assert add_ep_variables(one_pt_fail, pat_baselines=baselines)[
+            "epa"
+        ].item() == pytest.approx(0 - baselines.one_point_rate)
+        assert add_ep_variables(two_pt_success, pat_baselines=baselines)[
+            "epa"
+        ].item() == pytest.approx(2 - baselines.two_point_rate)
+        assert add_ep_variables(two_pt_fail, pat_baselines=baselines)[
+            "epa"
+        ].item() == pytest.approx(0 - baselines.two_point_rate)
+
+
+class TestEstimatePatBaselines:
+    def _pat_frame(self, one_point_rows: list[dict], two_point_rows: list[dict]) -> pl.DataFrame:
+        one_point_defaults = {
+            "down": 0,
+            "yards_to_go": 3,
+            "one_point_conv_success": 0,
+            "two_point_conv_success": 0,
+        }
+        two_point_defaults = {
+            "down": 0,
+            "yards_to_go": 8,
+            "one_point_conv_success": 0,
+            "two_point_conv_success": 0,
+        }
+        rows = [{**one_point_defaults, **row} for row in one_point_rows] + [
+            {**two_point_defaults, **row} for row in two_point_rows
+        ]
+        columns = ["down", "yards_to_go", "one_point_conv_success", "two_point_conv_success"]
+        data = {col: [row[col] for row in rows] for col in columns}
+        return pl.DataFrame(data)
+
+    def test_counts_and_rate_match_hand_computed_values(self):
+        df = self._pat_frame(
+            one_point_rows=[
+                {"one_point_conv_success": 1},
+                {"one_point_conv_success": 1},
+                {"one_point_conv_success": 0},
+                {"one_point_conv_success": 0},
+            ],
+            two_point_rows=[
+                {"two_point_conv_success": 1},
+                {"two_point_conv_success": 0},
+            ],
+        )
+
+        baselines = estimate_pat_baselines(df)
+
+        assert baselines.one_point_attempts == 4
+        assert baselines.one_point_successes == 2
+        assert baselines.one_point_rate == pytest.approx(0.5)
+        assert baselines.two_point_attempts == 2
+        assert baselines.two_point_successes == 1
+        assert baselines.two_point_rate == pytest.approx(0.5)
+
+    def test_ci_brackets_the_rate(self):
+        df = self._pat_frame(
+            one_point_rows=[{"one_point_conv_success": 1}] * 6
+            + [{"one_point_conv_success": 0}] * 4,
+            two_point_rows=[{"two_point_conv_success": 1}] * 3
+            + [{"two_point_conv_success": 0}] * 7,
+        )
+
+        baselines = estimate_pat_baselines(df)
+
+        assert baselines.one_point_ci is not None
+        assert baselines.one_point_ci[0] <= baselines.one_point_rate <= baselines.one_point_ci[1]
+        assert baselines.two_point_ci is not None
+        assert baselines.two_point_ci[0] <= baselines.two_point_rate <= baselines.two_point_ci[1]
+
+    def test_zero_one_point_attempts_raises_insufficient_pat_attempts(self):
+        df = self._pat_frame(
+            one_point_rows=[],
+            two_point_rows=[{"two_point_conv_success": 1}],
+        )
+
+        with pytest.raises(InsufficientPatAttempts) as excinfo:
+            estimate_pat_baselines(df)
+
+        assert "one-point" in str(excinfo.value)
+
+    def test_zero_two_point_attempts_raises_insufficient_pat_attempts(self):
+        df = self._pat_frame(
+            one_point_rows=[{"one_point_conv_success": 1}],
+            two_point_rows=[],
+        )
+
+        with pytest.raises(InsufficientPatAttempts) as excinfo:
+            estimate_pat_baselines(df)
+
+        assert "two-point" in str(excinfo.value)
 
 
 def _two_game_ep_leak_frame() -> pl.DataFrame:
@@ -532,7 +708,7 @@ class TestAddEpVariablesCrossGameLeakage:
     def test_ep_does_not_leak_across_game_boundary(self):
         df = _two_game_ep_leak_frame()
 
-        out = add_ep_variables(df)
+        out = add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
 
         boundary_row = out.filter((pl.col("game_id") == "G1") & (pl.col("play_id") == 2))
         # Nothing later in game A to backward-fill from -> stays null, not game B's ExpPts.
@@ -541,7 +717,7 @@ class TestAddEpVariablesCrossGameLeakage:
     def test_home_ep_after_is_null_not_next_games_first_play(self):
         df = _two_game_ep_leak_frame()
 
-        out = add_ep_variables(df)
+        out = add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
 
         boundary_row = out.filter((pl.col("game_id") == "G1") & (pl.col("play_id") == 2))
         # shift(-1) has no next row within game A -> null, not game B's first-play home_ep.

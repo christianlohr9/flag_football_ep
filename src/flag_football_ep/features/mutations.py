@@ -5,9 +5,11 @@ Ported from `Python/helper_add_hudl_mutations.py` (`prepare_ep_data`, `prepare_w
 `Python/helper_add_model_mutations.py` (`make_ep_model_mutations`, `make_wp_model_mutations`).
 
 This is a behaviour-preserving port: every derived column, formula and constant matches the
-frozen notebook baseline (see `tests/fixtures/baseline_manifest.json`). No evaluation
-methodology changes (GroupKFold, calibration, empirical PAT baselines, feature re-tests) land
-here -- those are Phase 1.3 (REQ-S1-07..REQ-S1-10).
+frozen notebook baseline (see `tests/fixtures/baseline_manifest.json`), with one exception:
+REQ-S1-10 has landed -- PAT baselines are now estimated from the corpus via
+`estimate_pat_baselines` below, instead of the notebook's fixed 50%/92% assumptions.
+GroupKFold/LOGO evaluation lives in `model/evaluate.py` (REQ-S1-07) and calibration in
+`model/train.py` (REQ-S1-08).
 
 `half_seconds_remaining` (`prepare_wp_data`) is SYNTHETIC: it is derived as
 `1200 / max(play_id_half)` per half because real Hudl clock data has not been delivered
@@ -18,14 +20,10 @@ game clock, and do not source it from `game_clock_ms` here.
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 import polars as pl
-
-# Hard-coded PAT success-rate assumptions from the notebook (1-pt try from the 5 yard line,
-# 2-pt try from the 10). REQ-S1-10 (phase 1.3) replaces these with empirical break-even
-# estimates computed from the data; until then this is the single place to change them.
-PAT_BASELINE_ONE_POINT = 0.5
-PAT_BASELINE_TWO_POINT = 0.92
+from scipy.stats import binomtest
 
 # Order matters: it is the order the EP model's predict() output columns must land in.
 EP_PROBABILITY_COLUMNS = (
@@ -53,6 +51,113 @@ class DegenerateWeightRange(ValueError):
     never per game or on any subset with no variation in Drive_Score_Dist / score_differential
     -- a zero range silently produced NaN/inf weights in the notebook.
     """
+
+
+class InsufficientPatAttempts(ValueError):
+    """Raised when a PAT baseline would be estimated from zero attempts.
+
+    A PAT success rate must never be estimated from zero attempts -- silently returning a NaN
+    or 0.0 rate would distort every PAT `epa` in the corpus. `estimate_pat_baselines` is
+    intended to run on the pooled full-corpus frame, never on a per-game or per-source subset
+    that might have zero PAT-shaped rows.
+    """
+
+
+@dataclass(frozen=True)
+class PatBaselines:
+    """Empirical PAT success rates with attempt counts and confidence intervals (REQ-S1-10).
+
+    Every PAT `epa` adjustment in `add_ep_variables` uses these rates instead of a fixed
+    constant, so a rate estimated from a handful of tries is never quoted as if it were
+    precise -- see `one_point_ci`/`two_point_ci`.
+    """
+
+    one_point_rate: float
+    one_point_attempts: int
+    one_point_successes: int
+    one_point_ci: tuple[float, float] | None
+    two_point_rate: float
+    two_point_attempts: int
+    two_point_successes: int
+    two_point_ci: tuple[float, float] | None
+
+    @classmethod
+    def legacy_notebook(cls) -> "PatBaselines":
+        """The pre-REQ-S1-10 hard-coded notebook assumptions (1-pt 0.5, 2-pt 0.92), retained
+        only so regression tests can pin historical `epa` arithmetic -- production code must
+        never call this.
+        """
+        return cls(
+            one_point_rate=0.5,
+            one_point_attempts=0,
+            one_point_successes=0,
+            one_point_ci=None,
+            two_point_rate=0.92,
+            two_point_attempts=0,
+            two_point_successes=0,
+            two_point_ci=None,
+        )
+
+
+def estimate_pat_baselines(plays: pl.DataFrame) -> PatBaselines:
+    """Estimate pooled PAT success rates from the full canonical corpus (REQ-S1-10).
+
+    A 1-pt attempt is a row with `down == 0` and `yards_to_go <= 5`; a 2-pt attempt is a row
+    with `down == 0` and `yards_to_go > 5` -- the same predicates `add_ep_variables` uses to
+    identify a failed try. Returns the *pooled overall* success rate per PAT type across the
+    whole input frame -- CONTEXT locks the estimator as pooled, not per-source or per-season;
+    per-source counts are reported by the chart and the data profile, not baked into this
+    baseline. Each rate's confidence interval comes from
+    `scipy.stats.binomtest(...).proportion_ci()` (Clopper-Pearson), not a hand-rolled normal
+    approximation -- RESEARCH flags that this corpus's PAT attempt counts are small
+    (tens-to-low-hundreds) and its rates are often extreme (>90%), exactly where a normal
+    approximation breaks down. Raises `InsufficientPatAttempts` naming the PAT type and the
+    observed count when a type has zero attempts.
+    """
+    one_point_attempts_df = plays.filter(
+        (pl.col("down") == 0) & (pl.col("yards_to_go") <= 5)
+    )
+    two_point_attempts_df = plays.filter(
+        (pl.col("down") == 0) & (pl.col("yards_to_go") > 5)
+    )
+
+    one_point_attempts = one_point_attempts_df.height
+    two_point_attempts = two_point_attempts_df.height
+
+    if one_point_attempts == 0:
+        raise InsufficientPatAttempts(
+            "estimate_pat_baselines: 0 one-point PAT attempts observed (down == 0 and "
+            "yards_to_go <= 5) -- a PAT baseline must never be estimated from zero attempts"
+        )
+    if two_point_attempts == 0:
+        raise InsufficientPatAttempts(
+            "estimate_pat_baselines: 0 two-point PAT attempts observed (down == 0 and "
+            "yards_to_go > 5) -- a PAT baseline must never be estimated from zero attempts"
+        )
+
+    one_point_successes = int(
+        one_point_attempts_df.filter(pl.col("one_point_conv_success") == 1).height
+    )
+    two_point_successes = int(
+        two_point_attempts_df.filter(pl.col("two_point_conv_success") == 1).height
+    )
+
+    one_point_rate = one_point_successes / one_point_attempts
+    two_point_rate = two_point_successes / two_point_attempts
+
+    one_point_ci = binomtest(one_point_successes, one_point_attempts).proportion_ci()
+    two_point_ci = binomtest(two_point_successes, two_point_attempts).proportion_ci()
+
+    return PatBaselines(
+        one_point_rate=one_point_rate,
+        one_point_attempts=one_point_attempts,
+        one_point_successes=one_point_successes,
+        one_point_ci=(one_point_ci.low, one_point_ci.high),
+        two_point_rate=two_point_rate,
+        two_point_attempts=two_point_attempts,
+        two_point_successes=two_point_successes,
+        two_point_ci=(two_point_ci.low, two_point_ci.high),
+    )
 
 
 def _mark_half_end(df: pl.DataFrame) -> pl.DataFrame:
@@ -231,13 +336,18 @@ def prepare_wp_data(df: pl.DataFrame) -> pl.DataFrame:
     return output
 
 
-def add_ep_variables(df: pl.DataFrame) -> pl.DataFrame:
+def add_ep_variables(df: pl.DataFrame, *, pat_baselines: PatBaselines) -> pl.DataFrame:
     """Port of `helper_add_ep_wp.add_ep_variables`.
 
     Requires the five EP probability columns (`EP_PROBABILITY_COLUMNS`) already present --
     typically the model's `.predict()` output hstacked onto the `prepare_ep_data` frame.
     Computes `ExpPts`, `ep`, `epa` and the home/away cumulative EPA totals. Pure: returns a
     new frame, does not mutate `df`.
+
+    `pat_baselines` is a required keyword argument (REQ-S1-10) -- every PAT `epa` branch uses
+    its empirically estimated rates; there is no default and no production fallback to a
+    hard-coded constant. Pass `PatBaselines.legacy_notebook()` only in tests that pin
+    pre-REQ-S1-10 historical `epa` arithmetic.
     """
     missing = [c for c in EP_PROBABILITY_COLUMNS if c not in df.columns]
     if missing:
@@ -295,39 +405,41 @@ def add_ep_variables(df: pl.DataFrame) -> pl.DataFrame:
             )
             .otherwise(pl.col("epa"))
         )
-        # Offense extra-point. PAT_BASELINE_ONE_POINT is the notebook's hard-coded
-        # assumption (try from the 5); REQ-S1-10 (phase 1.3) replaces it with an empirical
-        # break-even estimate.
+        # Offense extra-point. Uses the empirical 1-pt success rate estimated from the corpus
+        # (REQ-S1-10, `estimate_pat_baselines`) instead of the notebook's hard-coded 0.5.
         .with_columns(
             epa=pl.when(pl.col("one_point_conv_success") == 1)
-            .then(1 - pl.lit(PAT_BASELINE_ONE_POINT))
+            .then(1 - pl.lit(pat_baselines.one_point_rate))
             .otherwise(pl.col("epa"))
         )
-        # Offense two-point conversion. PAT_BASELINE_TWO_POINT is the notebook's hard-coded
-        # assumption (try from the 10); REQ-S1-10 (phase 1.3) replaces it.
+        # Offense two-point conversion. Uses the empirical 2-pt success rate estimated from
+        # the corpus (REQ-S1-10, `estimate_pat_baselines`) instead of the notebook's
+        # hard-coded 0.92.
         .with_columns(
             epa=pl.when(pl.col("two_point_conv_success") == 1)
-            .then(2 - pl.lit(PAT_BASELINE_TWO_POINT))
+            .then(2 - pl.lit(pat_baselines.two_point_rate))
             .otherwise(pl.col("epa"))
         )
-        # Failed PAT (1 point; assumption: yards_to_go <= 5 is a 1-pt try).
+        # Failed PAT (1 point; assumption: yards_to_go <= 5 is a 1-pt try). Uses the same
+        # empirical 1-pt success rate as the success branch above (REQ-S1-10).
         .with_columns(
             epa=pl.when(
                 (pl.col("down") == 0)
                 & (pl.col("yards_to_go") <= 5)
                 & (pl.col("one_point_conv_success") == 0)
             )
-            .then(0 - pl.lit(PAT_BASELINE_ONE_POINT))
+            .then(0 - pl.lit(pat_baselines.one_point_rate))
             .otherwise(pl.col("epa"))
         )
-        # Failed PAT (2 points; assumption: yards_to_go > 5 is a 2-pt try).
+        # Failed PAT (2 points; assumption: yards_to_go > 5 is a 2-pt try). Uses the same
+        # empirical 2-pt success rate as the success branch above (REQ-S1-10).
         .with_columns(
             epa=pl.when(
                 (pl.col("down") == 0)
                 & (pl.col("yards_to_go") > 5)
                 & (pl.col("two_point_conv_success") == 0)
             )
-            .then(0 - pl.lit(PAT_BASELINE_TWO_POINT))
+            .then(0 - pl.lit(pat_baselines.two_point_rate))
             .otherwise(pl.col("epa"))
         )
         # Opponent scores defensive two-point conversion.
