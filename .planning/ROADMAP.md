@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
-| 1.3 Model Retraining | 9/9 | Complete   | 2026-08-19 |
+| 1.3 Model Retraining | 9/9 | Complete    | 2026-08-19 |
 | 1.4 Coaching Products | 0/TBD | Not started | - |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
