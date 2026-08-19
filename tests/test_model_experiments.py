@@ -37,8 +37,14 @@ from flag_football_ep.model.experiments import (
     ExperimentError,
     candidate_experiment_name,
     run_candidate,
+    run_real_clock_experiment,
+    run_recency_candidate,
 )
-from flag_football_ep.model.hyperparams import EP_FEATURES, WP_FEATURES
+from flag_football_ep.model.hyperparams import (
+    EP_FEATURES,
+    RECENCY_HALF_LIFE_DAYS_GRID,
+    WP_FEATURES,
+)
 from flag_football_ep.testing import canonical_plays_with_scores
 
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
@@ -108,6 +114,55 @@ def _ep_training_corpus(n_games: int = 12, plays_per_game: int = 16) -> pl.DataF
     overrides = {"touchdown": touchdown * n_games}
     return canonical_plays_with_scores(
         n_games=n_games, plays_per_game=plays_per_game, overrides=overrides
+    )
+
+
+def _ep_training_corpus_with_dates(n_games: int = 12, plays_per_game: int = 16) -> pl.DataFrame:
+    """`_ep_training_corpus` with `game_date` populated one distinct date per game, 90 days
+    apart -- spans more than one entry of `RECENCY_HALF_LIFE_DAYS_GRID` (min 60 days), so
+    the recency candidate's arms actually differ from the control and from each other.
+    """
+    from datetime import date, timedelta
+
+    touchdown = [0] * plays_per_game
+    touchdown[5] = 1
+    overrides = {"touchdown": touchdown * n_games}
+    base_date = date(2024, 1, 1)
+    game_dates: list[str] = []
+    for game_idx in range(n_games):
+        game_date = (base_date + timedelta(days=game_idx * 90)).isoformat()
+        game_dates.extend([game_date] * plays_per_game)
+    return canonical_plays_with_scores(
+        n_games=n_games,
+        plays_per_game=plays_per_game,
+        overrides=overrides,
+        extras={"game_date": game_dates},
+    )
+
+
+def _ifaf_wp_training_corpus(n_games: int = 3, plays_per_game: int = 16) -> pl.DataFrame:
+    """IFAF-sourced synthetic corpus with a monotonically-decreasing `game_clock_ms` per
+    half, plus enough games for a real (if tiny) LOGO pass -- drives the `real_clock`
+    candidate tests (plan 01.3-08 Task 3).
+    """
+    touchdown = [0] * plays_per_game
+    touchdown[-1] = 1
+    half_boundary = (plays_per_game + 1) // 2
+    half1_clock = [
+        1200000 - i * (1200000 // half_boundary) for i in range(half_boundary)
+    ]
+    half2_clock = [
+        1200000 - i * (1200000 // (plays_per_game - half_boundary))
+        for i in range(plays_per_game - half_boundary)
+    ]
+    game_clock_ms = (half1_clock + half2_clock) * n_games
+    overrides = {"touchdown": touchdown * n_games}
+    return canonical_plays_with_scores(
+        n_games=n_games,
+        plays_per_game=plays_per_game,
+        source="ifaf",
+        overrides=overrides,
+        extras={"game_clock_ms": game_clock_ms},
     )
 
 
@@ -434,6 +489,271 @@ def test_run_candidate_competition_tier_wp_also_measures_cleanly(tmp_path: Path)
         "tier_womens_national",
         "tier_mixed_other",
     ]
+
+
+# --- recency candidate (plan 01.3-08 Task 2) -------------------------------------------------
+
+
+def test_candidates_registry_contains_recency_ep_only() -> None:
+    assert "recency" in CANDIDATES
+    assert CANDIDATES["recency"].applies_to == ("ep",)
+
+
+def test_recency_candidate_has_weight_build_but_half_and_competition_tier_do_not() -> None:
+    assert CANDIDATES["recency"].weight_build is not None
+    assert CANDIDATES["half"].weight_build is None
+    assert CANDIDATES["competition_tier"].weight_build is None
+
+
+def test_run_candidate_rejects_recency_spec_directing_to_run_recency_candidate(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    with pytest.raises(ExperimentError, match="run_recency_candidate"):
+        run_candidate(plays=plays, config=config, model_prefix="ep", spec=CANDIDATES["recency"])
+
+
+def test_run_recency_candidate_rejects_wp_naming_prefix(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    with pytest.raises(ExperimentError, match="wp"):
+        run_recency_candidate(plays=plays, config=config, model_prefix="wp")
+
+
+def test_run_recency_candidate_returns_one_result_per_grid_entry(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    _, half_life_results = run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    assert len(half_life_results) == len(RECENCY_HALF_LIFE_DAYS_GRID)
+
+
+def test_run_recency_candidate_best_result_is_min_candidate_logloss(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    best, half_life_results = run_recency_candidate(
+        plays=plays, config=config, model_prefix="ep"
+    )
+
+    assert best.candidate_logloss == min(r.candidate_logloss for r in half_life_results)
+    assert best in half_life_results
+
+
+def test_run_recency_candidate_best_name_identifies_winning_half_life(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    best, _ = run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    assert best.name.startswith("recency_half_life_")
+    winning_half_life = float(best.name.removeprefix("recency_half_life_"))
+    assert winning_half_life in RECENCY_HALF_LIFE_DAYS_GRID
+
+
+def test_run_recency_candidate_adopted_matches_delta_arithmetic(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    _, half_life_results = run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    for result in half_life_results:
+        assert result.delta == pytest.approx(result.control_logloss - result.candidate_logloss)
+        assert result.adopted == (result.delta > 0)
+
+
+def test_run_recency_candidate_feature_lists_identical_to_control_across_arms(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    _, half_life_results = run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    for result in half_life_results:
+        assert result.model_prefix == "ep"
+        assert result.control_features == list(EP_FEATURES)
+        assert result.candidate_features == list(EP_FEATURES)
+
+
+def test_run_recency_candidate_logs_one_mlflow_run_per_arm_tagged_recency(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    experiment = client.get_experiment_by_name(candidate_experiment_name("ep", config))
+    runs = client.search_runs(experiment_ids=[experiment.experiment_id])
+
+    # One control run plus one run per half-life grid entry.
+    assert len(runs) == len(RECENCY_HALF_LIFE_DAYS_GRID) + 1
+    for run in runs:
+        assert run.data.tags["candidate"] == "recency"
+        assert "half_life_days" in run.data.params
+
+    half_life_params = {run.data.params["half_life_days"] for run in runs}
+    assert "control" in half_life_params
+    for half_life in RECENCY_HALF_LIFE_DAYS_GRID:
+        assert str(half_life) in half_life_params
+
+
+def test_run_recency_candidate_never_logs_to_production_experiment(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus_with_dates()
+
+    run_recency_candidate(plays=plays, config=config, model_prefix="ep")
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    production_experiment = client.get_experiment_by_name(config.train.ep_experiment)
+
+    assert production_experiment is None
+
+
+# --- real_clock candidate (plan 01.3-08 Task 3) -----------------------------------------------
+
+
+def test_candidates_registry_contains_real_clock_wp_only() -> None:
+    assert "real_clock" in CANDIDATES
+    assert CANDIDATES["real_clock"].applies_to == ("wp",)
+
+
+def test_run_candidate_rejects_real_clock_spec_directing_to_run_real_clock_experiment(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ifaf_wp_training_corpus()
+
+    with pytest.raises(ExperimentError, match="run_real_clock_experiment"):
+        run_candidate(
+            plays=plays, config=config, model_prefix="wp", spec=CANDIDATES["real_clock"]
+        )
+
+
+def test_run_real_clock_experiment_raises_when_no_ifaf_rows(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()  # defaults to source="hudl", no "ifaf" rows at all
+
+    with pytest.raises(ExperimentError, match="ifaf"):
+        run_real_clock_experiment(plays=plays, config=config)
+
+
+def test_run_real_clock_experiment_raises_when_fewer_than_two_ifaf_games(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ifaf_wp_training_corpus(n_games=1)
+
+    with pytest.raises(ExperimentError, match="game"):
+        run_real_clock_experiment(plays=plays, config=config)
+
+
+def test_run_real_clock_experiment_raises_named_when_a_wp_column_is_entirely_null(
+    tmp_path: Path,
+) -> None:
+    # Mirrors the real corpus's IFAF source, where `yards_to_go` is null for every row
+    # (01.3-08-SUMMARY.md finding) -- drop_nulls() would otherwise silently produce a 0-row
+    # frame that fails deep inside run_logo with an unnamed sklearn error.
+    config = _make_config(tmp_path)
+    plays = _ifaf_wp_training_corpus().with_columns(
+        pl.lit(None, dtype=pl.Int32).alias("yards_to_go")
+    )
+
+    with pytest.raises(ExperimentError, match="yards_to_go"):
+        run_real_clock_experiment(plays=plays, config=config)
+
+
+def test_run_real_clock_experiment_returns_synthetic_and_real_clock_results(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ifaf_wp_training_corpus()
+
+    synthetic_result, real_clock_result = run_real_clock_experiment(
+        plays=plays, config=config
+    )
+
+    assert isinstance(synthetic_result, CandidateResult)
+    assert isinstance(real_clock_result, CandidateResult)
+    assert synthetic_result.model_prefix == "wp"
+    assert real_clock_result.model_prefix == "wp"
+
+
+def test_run_real_clock_experiment_delta_and_adopted_consistent(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ifaf_wp_training_corpus()
+
+    synthetic_result, real_clock_result = run_real_clock_experiment(
+        plays=plays, config=config
+    )
+
+    assert synthetic_result.delta == pytest.approx(
+        synthetic_result.control_logloss - synthetic_result.candidate_logloss
+    )
+    assert real_clock_result.delta == real_clock_result.delta
+    assert synthetic_result.adopted == real_clock_result.adopted
+    assert synthetic_result.adopted == (synthetic_result.delta > 0)
+
+
+def test_run_real_clock_experiment_feature_lists_are_wp_features(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ifaf_wp_training_corpus()
+
+    synthetic_result, real_clock_result = run_real_clock_experiment(
+        plays=plays, config=config
+    )
+
+    assert synthetic_result.control_features == list(WP_FEATURES)
+    assert synthetic_result.candidate_features == list(WP_FEATURES)
+    assert real_clock_result.control_features == list(WP_FEATURES)
+    assert real_clock_result.candidate_features == list(WP_FEATURES)
+
+
+def test_run_real_clock_experiment_logs_two_mlflow_runs_tagged_real_clock(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ifaf_wp_training_corpus()
+
+    run_real_clock_experiment(plays=plays, config=config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    experiment = client.get_experiment_by_name(candidate_experiment_name("wp", config))
+    runs = client.search_runs(experiment_ids=[experiment.experiment_id])
+
+    assert len(runs) == 2
+    arms = {run.data.params["arm"] for run in runs}
+    assert arms == {"synthetic", "real_clock"}
+    for run in runs:
+        assert run.data.tags["candidate"] == "real_clock"
+
+
+def test_run_real_clock_experiment_never_touches_production_wp_experiment(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ifaf_wp_training_corpus()
+
+    run_real_clock_experiment(plays=plays, config=config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    production_experiment = client.get_experiment_by_name(config.train.wp_experiment)
+
+    assert production_experiment is None
+
+
+def test_wp_features_never_includes_game_clock_ms() -> None:
+    assert "game_clock_ms" not in WP_FEATURES
 
 
 # --- `ffep experiment` CLI (plan 01.3-07 Task 3) --------------------------------------------
