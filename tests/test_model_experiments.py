@@ -359,3 +359,64 @@ def test_run_candidate_never_logs_a_model_artifact(tmp_path: Path) -> None:
 def test_candidates_registry_contains_half() -> None:
     assert "half" in CANDIDATES
     assert CANDIDATES["half"].applies_to == ("ep", "wp")
+
+
+# --- competition_tier candidate (plan 01.3-07 Task 2) ---------------------------------------
+
+
+def _write_competition_tier_csv(config: Config, rows: list[tuple[str, str, str]]) -> None:
+    """Write a minimal `source,competition,tier` CSV at `config.reference.competition_tier`
+    -- the real reference file's schema, built inline per test rather than depending on the
+    checked-in `data/reference/competition_tier.csv`."""
+    config.reference.competition_tier.parent.mkdir(parents=True, exist_ok=True)
+    pl.DataFrame(
+        {
+            "source": [r[0] for r in rows],
+            "competition": [r[1] for r in rows],
+            "tier": [r[2] for r in rows],
+        }
+    ).write_csv(config.reference.competition_tier)
+
+
+def test_competition_tier_candidate_is_registered_in_candidates(tmp_path: Path) -> None:
+    assert "competition_tier" in CANDIDATES
+    assert CANDIDATES["competition_tier"].applies_to == ("ep", "wp")
+
+
+def test_run_candidate_competition_tier_control_and_candidate_arms_share_row_count(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+    # canonical_plays_with_scores defaults every row to source="hudl", competition="TEST".
+    _write_competition_tier_csv(config, [("hudl", "TEST", "womens-international")])
+
+    result = run_candidate(
+        plays=plays, config=config, model_prefix="ep", spec=CANDIDATES["competition_tier"]
+    )
+
+    assert result.n_plays > 0
+    assert result.candidate_features == [
+        *EP_FEATURES,
+        "tier_womens_international",
+        "tier_womens_national",
+        "tier_mixed_other",
+    ]
+
+
+def test_run_candidate_competition_tier_wp_also_measures_cleanly(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+    _write_competition_tier_csv(config, [("hudl", "TEST", "mixed-other")])
+
+    result = run_candidate(
+        plays=plays, config=config, model_prefix="wp", spec=CANDIDATES["competition_tier"]
+    )
+
+    assert result.model_prefix == "wp"
+    assert result.candidate_features == [
+        *WP_FEATURES,
+        "tier_womens_international",
+        "tier_womens_national",
+        "tier_mixed_other",
+    ]

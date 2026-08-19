@@ -30,8 +30,10 @@ import mlflow
 import polars as pl
 from sklearn.metrics import log_loss
 
+from flag_football_ep import reference
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
+    add_competition_tier_features,
     make_ep_model_mutations,
     make_wp_model_mutations,
     prepare_ep_data,
@@ -118,9 +120,24 @@ def _half_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, list[st
     return df, ["half"]
 
 
-# Populated with `half` in this task; `competition_tier` is added by plan 01.3-07 Task 2.
+def _competition_tier_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, list[str]]:
+    """One-hot competition-tier covariate from the maintained tier vocabulary
+    (`data/reference/competition_tier.csv`) -- CONTEXT §"Competition covariate" requires
+    this categorical tier, not the raw ingest-source label standing in for it. Runs before
+    `prepare_fn`/`mutate_fn` (see module docstring's ordering note) because the join needs
+    both the ingest-source column and `competition`, and `competition` is not in
+    `GROUP_COLUMNS`, so it would already be gone from the frame after `mutate_fn`'s final
+    `.select(...)`.
+    """
+    mapping = reference.load_competition_tier(config.reference.competition_tier)
+    return add_competition_tier_features(df, mapping)
+
+
 CANDIDATES: dict[str, CandidateSpec] = {
     "half": CandidateSpec(name="half", build=_half_build, applies_to=("ep", "wp")),
+    "competition_tier": CandidateSpec(
+        name="competition_tier", build=_competition_tier_build, applies_to=("ep", "wp")
+    ),
 }
 
 

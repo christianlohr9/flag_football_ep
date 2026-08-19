@@ -25,6 +25,11 @@ from dataclasses import dataclass
 import polars as pl
 from scipy.stats import binomtest
 
+# Module-level import, not lazy: neither `flag_football_ep.reference` nor
+# `flag_football_ep.canonical` (which it depends on) imports anything from
+# `flag_football_ep.features`, so there is no import cycle here.
+from flag_football_ep import reference
+
 # Order matters: it is the order the EP model's predict() output columns must land in.
 EP_PROBABILITY_COLUMNS = (
     "Touchdown_Prob",
@@ -728,3 +733,37 @@ def make_wp_model_mutations(df: pl.DataFrame, selected_columns: Sequence[str]) -
         .select(list(selected_columns))
     )
     return model_data
+
+
+def add_competition_tier_features(
+    df: pl.DataFrame, mapping: pl.DataFrame
+) -> tuple[pl.DataFrame, list[str]]:
+    """Add one Int32 one-hot indicator column per `reference.COMPETITION_TIERS` entry
+    (REQ-S1-09's competition-level/gender covariate).
+
+    Column names follow "replace `-` with `_`, prefix with `tier_`", e.g.
+    `womens-international -> tier_womens_international`. The column *list* is built from
+    `COMPETITION_TIERS` itself -- never from the tiers actually observed in `df` -- so the
+    candidate's feature list is identical whichever corpus is loaded (a tier present in the
+    vocabulary but absent from this corpus still gets its own all-zero column). Exactly one
+    tier column is 1 per row; the rest are 0.
+
+    Delegates the `(source, competition) -> tier` join to `reference.map_competition_tier`,
+    which raises `UnmappedCompetitionError` naming every unmapped pair rather than letting a
+    row silently fall back to an all-zero tier vector (RESEARCH Pitfall 5) -- this covariate
+    must come from the maintained tier vocabulary, never from `source` used as a proxy.
+    Preserves row count and row order. Returns `(frame_with_indicators, tier_column_names)`;
+    the intermediate `competition_tier` string column is dropped from the returned frame so
+    only the numeric indicators travel into the model frame.
+    """
+    joined = reference.map_competition_tier(df, mapping)
+
+    tier_columns = [
+        f"tier_{tier.replace('-', '_')}" for tier in reference.COMPETITION_TIERS
+    ]
+    indicator_exprs = [
+        (pl.col("competition_tier") == tier).cast(pl.Int32).alias(column_name)
+        for tier, column_name in zip(reference.COMPETITION_TIERS, tier_columns)
+    ]
+    result = joined.with_columns(indicator_exprs).drop("competition_tier")
+    return result, tier_columns
