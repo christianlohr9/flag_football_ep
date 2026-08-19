@@ -104,3 +104,30 @@ TUNE_EARLY_STOPPING_ROUNDS: int = 10
 # out `colsample_bytree` for any sampled value below 1.0 -- an objective-cell bug the
 # refit cells never actually apply, so it is not ported here (CONTEXT "obvious fixes only").
 HYPEROPT_QUNIFORM_KEYS: tuple[str, ...] = ("max_depth", "min_child_weight", "n_estimators")
+
+# --- Grouped-CV protocol (REQ-S1-07 / D-07 / CONTEXT "Grouped-CV protocol") -------------
+# Play-level train_test_split leaked same-game plays into both train and test. This phase
+# replaces it with leave-one-game-out (LOGO) measurement and a grouped inner CV for tuning.
+
+# The grouping key for the leave-one-group-out measurement loop (model/evaluate.py).
+LOGO_GROUP_COLUMN: str = "game_id"
+
+# Metadata columns that must survive `make_*_model_mutations`'s `.select(...)` so the
+# evaluation loop can group by game, join out-of-fold predictions back on
+# (game_id, play_id), and break metrics down per source. All three are CORE_COLUMNS and
+# listed in NON_NULL_COLUMNS (canonical.py), so carrying them through `_train`'s
+# `drop_nulls()` cannot drop rows.
+GROUP_COLUMNS: tuple[str, ...] = ("game_id", "play_id", "source")
+
+# `EP_SELECTED_COLUMNS`/`WP_SELECTED_COLUMNS` stay frozen -- tests/test_migration_equivalence.py
+# compares them column-for-column against the frozen notebook baseline frames
+# (tests/fixtures/baseline_{ep,wp}_model_data.parquet). These `*_TRAINING_COLUMNS` supersets
+# are what `train_ep`/`train_wp` pass as `selected_columns` instead.
+EP_TRAINING_COLUMNS: list[str] = [*EP_SELECTED_COLUMNS, *GROUP_COLUMNS]
+WP_TRAINING_COLUMNS: list[str] = [*WP_SELECTED_COLUMNS, *GROUP_COLUMNS]
+
+# Fold count for the grouped inner CV that scores hyperopt trials (model/train.py `_tune`).
+# CONTEXT leaves the exact number to Claude's discretion (K=5 suggested, not locked). The
+# inner loop deliberately is not LOGO, to avoid the folds x trials fit-count explosion
+# (RESEARCH "Anti-Patterns to Avoid": nested LOGO-inside-hyperopt-trials).
+INNER_CV_FOLDS: int = 5
