@@ -11,10 +11,16 @@ REQ-S1-10 has landed -- PAT baselines are now estimated from the corpus via
 GroupKFold/LOGO evaluation lives in `model/evaluate.py` (REQ-S1-07) and calibration in
 `model/train.py` (REQ-S1-08).
 
-`half_seconds_remaining` (`prepare_wp_data`) is SYNTHETIC: it is derived as
+`half_seconds_remaining` (`prepare_wp_data`) is SYNTHETIC by default: it is derived as
 `1200 / max(play_id_half)` per half because real Hudl clock data has not been delivered
-(REQ-S1-02 pending). Phase 1.4 gates the WP charts on this flag -- never treat it as a real
-game clock, and do not source it from `game_clock_ms` here.
+(REQ-S1-02 pending). Phase 1.4 gates the WP charts on this flag -- never treat the default
+output as a real game clock. `prepare_wp_data(..., real_clock=True)` is a narrower, opt-in
+exception (REQ-S1-09, plan 01.3-08): it sources `half_seconds_remaining` from the IFAF
+`game_clock_ms` column, solely for the IFAF-only sub-experiment
+(`model/experiments.py::run_real_clock_experiment`) that quantifies what the synthetic
+construction costs versus the real clock. This path must not be enabled in the production
+WP feature path (`model/hyperparams.py::WP_FEATURES`) until REQ-S1-02 delivers real Hudl
+time -- every other caller of `prepare_wp_data` keeps getting the synthetic default.
 """
 
 from __future__ import annotations
@@ -55,6 +61,22 @@ class DegenerateWeightRange(ValueError):
     These sample weights (RESEARCH Pitfall 4) must be computed on the full training corpus,
     never per game or on any subset with no variation in Drive_Score_Dist / score_differential
     -- a zero range silently produced NaN/inf weights in the notebook.
+    """
+
+
+class InvalidGameClockValues(ValueError):
+    """Raised by `prepare_wp_data(..., real_clock=True)` when one or more rows in the input
+    frame have a null `game_clock_ms`. A partially populated third-party clock would
+    otherwise silently make the real-clock arm incomparable to the synthetic arm it is
+    measured against in `model/experiments.py::run_real_clock_experiment`.
+    """
+
+
+class InvalidGameDateValues(ValueError):
+    """Raised by `add_recency_weight` when one or more non-null `game_date` values cannot be
+    parsed as an ISO `YYYY-MM-DD` date. A partially-unparseable `game_date` column would
+    otherwise silently fall back to the null-date policy for those rows, hiding a data-shape
+    problem behind a normal-looking weight.
     """
 
 
@@ -366,39 +388,75 @@ def prepare_ep_data(df: pl.DataFrame) -> pl.DataFrame:
     return output
 
 
-def prepare_wp_data(df: pl.DataFrame) -> pl.DataFrame:
+def prepare_wp_data(df: pl.DataFrame, *, real_clock: bool = False) -> pl.DataFrame:
     """Port of `helper_add_hudl_mutations.prepare_wp_data`.
 
-    Adds `index` (if absent), `half_end`, `game_end`, `helper_one`, `play_id_half`,
-    `play_time`, `half_seconds_remaining` (SYNTHETIC), `game_seconds_remaining`,
-    `elapsed_share`, `Diff_Time_Ratio`, `start_posteam`, `receive_2h_ko`.
+    Adds `index` (if absent), `half_end`, `game_end`, `half_seconds_remaining`,
+    `game_seconds_remaining`, `elapsed_share`, `Diff_Time_Ratio`, `start_posteam`,
+    `receive_2h_ko`. When `real_clock` is False (the default and only production path), also
+    adds `helper_one` and `play_id_half`/`play_time` as intermediate columns behind the
+    synthetic derivation.
 
-    `half_seconds_remaining` is SYNTHETIC: 1200 seconds per half, decremented per play by
-    `1200 / max(play_id_half)`, because real Hudl clock data has not been delivered
-    (REQ-S1-02 pending; see module docstring). `game_seconds_remaining` mirrors the same
-    synthetic assumption starting from 2400 seconds per game.
+    `real_clock=False` (default): `half_seconds_remaining` is SYNTHETIC -- 1200 seconds per
+    half, decremented per play by `1200 / max(play_id_half)`, because real Hudl clock data
+    has not been delivered (REQ-S1-02 pending; see module docstring). `game_seconds_remaining`
+    mirrors the same synthetic assumption starting from 2400 seconds per game. This branch is
+    byte-for-byte the pre-REQ-S1-09 behaviour -- unchanged by the `real_clock` parameter.
+
+    `real_clock=True` (REQ-S1-09, plan 01.3-08, opt-in only): `half_seconds_remaining` is
+    `game_clock_ms / 1000.0` (the IFAF real game clock) instead of the synthetic
+    construction; `game_seconds_remaining` uses the same half==2-direct /
+    first-half-plus-1200 rule the synthetic path uses, so the only thing differing between
+    the two arms is where `half_seconds_remaining` comes from. Raises
+    `MissingFeatureColumns` naming `game_clock_ms` when that column is absent, and
+    `InvalidGameClockValues` reporting the null count when any row's `game_clock_ms` is null
+    -- a partially populated clock would silently make the two arms incomparable.
     """
-    output = (
-        _mark_half_end(df)
-        .with_columns(helper_one=pl.lit(1))
-        .with_columns(play_id_half=pl.col("helper_one").cum_sum().over(["game_id", "half"]))
-        .with_columns(
-            play_time=pl.when(pl.col("play_id_half") == 1)
-            .then(pl.lit(0))
-            .otherwise(1200 / pl.col("play_id_half").max())
-            .over(["game_id", "half"])
-        )
-        .with_columns(
-            half_seconds_remaining=(
-                1200 - pl.col("play_time").cum_sum().over(["game_id", "half"])
+    marked = _mark_half_end(df)
+
+    if real_clock:
+        if "game_clock_ms" not in marked.columns:
+            raise MissingFeatureColumns(
+                "prepare_wp_data: missing required column: game_clock_ms (real_clock=True)"
             )
-        )
-        .with_columns(
+        null_clock_count = marked["game_clock_ms"].null_count()
+        if null_clock_count > 0:
+            raise InvalidGameClockValues(
+                f"prepare_wp_data: {null_clock_count} row(s) have a null game_clock_ms -- "
+                "real_clock=True requires a fully populated clock so the real-clock arm "
+                "stays comparable to the synthetic arm"
+            )
+        time_derived = marked.with_columns(
+            half_seconds_remaining=pl.col("game_clock_ms").cast(pl.Float64) / 1000.0
+        ).with_columns(
             game_seconds_remaining=pl.when(pl.col("half") == 2)
             .then(pl.col("half_seconds_remaining"))
-            .otherwise(2400 - pl.col("play_time").cum_sum().over("game_id"))
+            .otherwise(1200 + pl.col("half_seconds_remaining"))
         )
-        .with_columns(elapsed_share=(2400 - pl.col("game_seconds_remaining")) / 2400)
+    else:
+        time_derived = (
+            marked.with_columns(helper_one=pl.lit(1))
+            .with_columns(play_id_half=pl.col("helper_one").cum_sum().over(["game_id", "half"]))
+            .with_columns(
+                play_time=pl.when(pl.col("play_id_half") == 1)
+                .then(pl.lit(0))
+                .otherwise(1200 / pl.col("play_id_half").max())
+                .over(["game_id", "half"])
+            )
+            .with_columns(
+                half_seconds_remaining=(
+                    1200 - pl.col("play_time").cum_sum().over(["game_id", "half"])
+                )
+            )
+            .with_columns(
+                game_seconds_remaining=pl.when(pl.col("half") == 2)
+                .then(pl.col("half_seconds_remaining"))
+                .otherwise(2400 - pl.col("play_time").cum_sum().over("game_id"))
+            )
+        )
+
+    output = (
+        time_derived.with_columns(elapsed_share=(2400 - pl.col("game_seconds_remaining")) / 2400)
         .with_columns(
             Diff_Time_Ratio=pl.col("score_differential")
             / (-4 * pl.col("elapsed_share")).exp()

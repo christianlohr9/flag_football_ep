@@ -170,6 +170,21 @@ def _recency_weight_build(
     return weighted, "Recency_W"
 
 
+def _real_clock_build(df: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, list[str]]:
+    """`real_clock` compares two `prepare_wp_data` derivations (synthetic vs. IFAF
+    `game_clock_ms`) on the same IFAF-only subset -- it is neither a feature addition nor a
+    sample-weight variation, so it must be measured via `run_real_clock_experiment`, never
+    the generic `run_candidate`. This `build` exists solely so `CandidateSpec`'s required
+    field is satisfied; calling it directly is a programming error.
+    """
+    del df, config
+    raise ExperimentError(
+        "real_clock: use run_real_clock_experiment, not run_candidate -- real_clock "
+        "compares two prepare_wp_data derivations on an IFAF-only subset, not a feature "
+        "addition"
+    )
+
+
 CANDIDATES: dict[str, CandidateSpec] = {
     "half": CandidateSpec(name="half", build=_half_build, applies_to=("ep", "wp")),
     "competition_tier": CandidateSpec(
@@ -180,6 +195,9 @@ CANDIDATES: dict[str, CandidateSpec] = {
         build=_recency_build,
         applies_to=("ep",),
         weight_build=_recency_weight_build,
+    ),
+    "real_clock": CandidateSpec(
+        name="real_clock", build=_real_clock_build, applies_to=("wp",)
     ),
 }
 
@@ -485,3 +503,143 @@ def run_recency_candidate(
 
     best = min(half_life_results, key=lambda r: r.candidate_logloss)
     return best, half_life_results
+
+
+def run_real_clock_experiment(
+    *, plays: pl.DataFrame, config: Config
+) -> tuple[CandidateResult, CandidateResult]:
+    """Measure the REQ-S1-09 IFAF-only real-clock WP sub-experiment: synthetic
+    `half_seconds_remaining` versus the real IFAF `game_clock_ms`-derived clock, on the same
+    IFAF games and the same LOGO folds. Logs both arms to the WP candidate experiment tagged
+    `candidate=real_clock` with an `arm` param of `synthetic` or `real_clock`.
+
+    Restricts `plays` to `source == "ifaf"` before either arm runs (CONTEXT: "comparing real
+    game_clock_ms-derived time vs the synthetic construction on the same games" -- both arms
+    must see the identical game population). Raises `ExperimentError` naming the source and
+    the row/game counts when that subset is empty or has fewer than 2 distinct `game_id`
+    values (LOGO is undefined for one game), when a non-time `WP_TRAINING_COLUMNS` entry
+    (e.g. `yards_to_go`) is null for every row of the subset -- `drop_nulls()` would
+    otherwise silently produce a 0-row frame that fails deep inside `run_logo`'s
+    `LeaveOneGroupOut` with an unnamed sklearn error instead of a diagnosable one -- and when
+    the two arms' built frames end up with different row counts (a partially-null derivation
+    would otherwise make them silently incomparable).
+
+    Returns `(synthetic_result, real_clock_result)`. Both carry the same
+    `control_logloss`/`candidate_logloss`/`delta`/`adopted` (control = synthetic, candidate
+    = real_clock) so either object alone documents the full verdict; `name` distinguishes
+    which arm each describes. `WP_FEATURES` is never edited by this function -- production
+    WP stays on the synthetic path (`prepare_wp_data`'s default) regardless of this
+    experiment's outcome, per CONTEXT: "the production feature set stays synthetic until
+    Hudl delivers real time".
+    """
+    ifaf_plays = plays.filter(pl.col("source") == "ifaf")
+    n_games = ifaf_plays["game_id"].n_unique() if ifaf_plays.height > 0 else 0
+    if ifaf_plays.height == 0 or n_games < 2:
+        raise ExperimentError(
+            f"run_real_clock_experiment: source='ifaf' subset has {ifaf_plays.height} "
+            f"row(s) across {n_games} distinct game_id(s) -- leave-one-game-out requires "
+            "at least 2 games"
+        )
+
+    exclude_ids = _exclude_ids("wp", config)
+    filtered = (
+        ifaf_plays.filter(~pl.col("game_id").is_in(exclude_ids)) if exclude_ids else ifaf_plays
+    )
+
+    synthetic_prepared = prepare_wp_data(filtered)
+    synthetic_full = make_wp_model_mutations(synthetic_prepared, list(WP_TRAINING_COLUMNS))
+    synthetic_frame = synthetic_full.drop_nulls()
+
+    real_clock_prepared = prepare_wp_data(filtered, real_clock=True)
+    real_clock_full = make_wp_model_mutations(real_clock_prepared, list(WP_TRAINING_COLUMNS))
+    real_clock_frame = real_clock_full.drop_nulls()
+
+    if synthetic_frame.height == 0 or real_clock_frame.height == 0:
+        fully_null_columns = sorted(
+            {
+                column
+                for frame in (synthetic_full, real_clock_full)
+                for column in WP_TRAINING_COLUMNS
+                if frame.height > 0 and frame[column].null_count() == frame.height
+            }
+        )
+        raise ExperimentError(
+            "run_real_clock_experiment: not viable on this corpus -- the IFAF subset has "
+            f"{ifaf_plays.height} row(s) across {n_games} game(s), but drop_nulls() removes "
+            "every row because the following WP_TRAINING_COLUMNS entry/entries are null for "
+            f"every row in this subset: {', '.join(fully_null_columns) or 'unknown'}. This is "
+            "not a game_clock_ms/time-feature problem -- it is a pre-existing IFAF ingest "
+            "data-coverage gap unrelated to this candidate."
+        )
+
+    if synthetic_frame.height != real_clock_frame.height:
+        raise ExperimentError(
+            f"run_real_clock_experiment: synthetic arm has {synthetic_frame.height} rows, "
+            f"real_clock arm has {real_clock_frame.height} rows -- both arms must be "
+            "measured on the identical row set"
+        )
+
+    synthetic_logo = run_logo(
+        model_data=synthetic_frame,
+        features=WP_FEATURES,
+        fixed_params=WP_PARAMS,
+        weight_column=None,
+    )
+    real_clock_logo = run_logo(
+        model_data=real_clock_frame,
+        features=WP_FEATURES,
+        fixed_params=WP_PARAMS,
+        weight_column=None,
+    )
+
+    synthetic_logloss = _pooled_logloss(synthetic_logo, WP_PARAMS)
+    real_clock_logloss = _pooled_logloss(real_clock_logo, WP_PARAMS)
+    delta = synthetic_logloss - real_clock_logloss
+    adopted = delta > CANDIDATE_ADOPTION_MIN_DELTA
+    verdict = "adopted" if adopted else "rejected"
+
+    experiment_name = candidate_experiment_name("wp", config)
+    mlflow_store.ensure_experiment(experiment_name, config)
+
+    def _log_arm(*, arm: str, n_folds: int, n_plays: int) -> None:
+        with mlflow.start_run():
+            mlflow.set_tag("candidate", "real_clock")
+            mlflow.set_tag("phase", "01.3")
+            mlflow.log_param("model_prefix", "wp")
+            mlflow.log_param("arm", arm)
+            mlflow.log_param("verdict", verdict)
+            mlflow.log_param("n_folds", n_folds)
+            mlflow.log_param("n_plays", n_plays)
+            mlflow.log_metric("synthetic_logloss", synthetic_logloss)
+            mlflow.log_metric("real_clock_logloss", real_clock_logloss)
+            mlflow.log_metric("delta", delta)
+
+    _log_arm(arm="synthetic", n_folds=synthetic_logo.n_folds, n_plays=synthetic_frame.height)
+    _log_arm(arm="real_clock", n_folds=real_clock_logo.n_folds, n_plays=real_clock_frame.height)
+
+    synthetic_result = CandidateResult(
+        name="real_clock_synthetic",
+        model_prefix="wp",
+        control_logloss=synthetic_logloss,
+        candidate_logloss=real_clock_logloss,
+        delta=delta,
+        adopted=adopted,
+        n_folds=synthetic_logo.n_folds,
+        n_plays=synthetic_frame.height,
+        control_features=list(WP_FEATURES),
+        candidate_features=list(WP_FEATURES),
+    )
+    real_clock_result = CandidateResult(
+        name="real_clock_real_clock",
+        model_prefix="wp",
+        control_logloss=synthetic_logloss,
+        candidate_logloss=real_clock_logloss,
+        delta=delta,
+        adopted=adopted,
+        n_folds=real_clock_logo.n_folds,
+        n_plays=real_clock_frame.height,
+        control_features=list(WP_FEATURES),
+        candidate_features=list(WP_FEATURES),
+    )
+
+    return synthetic_result, real_clock_result

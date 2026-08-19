@@ -17,6 +17,7 @@ from flag_football_ep.features.mutations import (
     EP_PROBABILITY_COLUMNS,
     DegenerateWeightRange,
     InsufficientPatAttempts,
+    InvalidGameClockValues,
     InvalidGameDateValues,
     MissingFeatureColumns,
     PatBaselines,
@@ -392,6 +393,117 @@ class TestPrepareWpData:
             ][0]
             assert half1_first == 1200
             assert half2_first == 1200
+
+
+class TestPrepareWpDataRealClock:
+    """Coverage for `prepare_wp_data(..., real_clock=True)` (REQ-S1-09 IFAF sub-experiment,
+    plan 01.3-08 Task 3)."""
+
+    def _decreasing_clock(self, plays_per_game: int = 8) -> list[int]:
+        """Monotonically-decreasing `game_clock_ms` per half, matching the plan's
+        build-spec ("a small synthetic IFAF-sourced frame with a monotonically decreasing
+        game_clock_ms")."""
+        half_boundary = (plays_per_game + 1) // 2
+        half1 = [1200000 - i * 150000 for i in range(half_boundary)]
+        half2 = [1200000 - i * 150000 for i in range(plays_per_game - half_boundary)]
+        return half1 + half2
+
+    def _ifaf_frame(
+        self, game_clock_ms: list | None = None, n_games: int = 1, plays_per_game: int = 8
+    ) -> pl.DataFrame:
+        extras = {} if game_clock_ms is None else {"game_clock_ms": game_clock_ms}
+        return canonical_plays_with_scores(
+            n_games=n_games, plays_per_game=plays_per_game, source="ifaf", extras=extras
+        )
+
+    def test_real_clock_default_parameter_is_false(self):
+        import inspect
+
+        assert inspect.signature(prepare_wp_data).parameters["real_clock"].default is False
+
+    def test_no_kwarg_behavior_matches_explicit_real_clock_false(self):
+        df = self._ifaf_frame(game_clock_ms=self._decreasing_clock())
+
+        default_out = prepare_wp_data(df)
+        explicit_false_out = prepare_wp_data(df, real_clock=False)
+
+        assert (
+            default_out["half_seconds_remaining"].to_list()
+            == explicit_false_out["half_seconds_remaining"].to_list()
+        )
+
+    def test_real_clock_half_seconds_remaining_derived_from_game_clock_ms(self):
+        clock = self._decreasing_clock()
+        df = self._ifaf_frame(game_clock_ms=clock)
+
+        out = prepare_wp_data(df, real_clock=True).sort("play_id")
+
+        expected = [c / 1000.0 for c in clock]
+        assert out["half_seconds_remaining"].to_list() == pytest.approx(expected)
+
+    def test_real_clock_half_seconds_remaining_non_increasing_within_half(self):
+        df = self._ifaf_frame(game_clock_ms=self._decreasing_clock())
+
+        out = prepare_wp_data(df, real_clock=True)
+
+        for half in (1, 2):
+            values = (
+                out.filter(pl.col("half") == half)
+                .sort("play_id")["half_seconds_remaining"]
+                .to_list()
+            )
+            assert all(a >= b for a, b in zip(values, values[1:]))
+
+    def test_real_clock_game_seconds_remaining_matches_half_seconds_in_second_half(self):
+        df = self._ifaf_frame(game_clock_ms=self._decreasing_clock())
+
+        out = prepare_wp_data(df, real_clock=True)
+
+        half2_rows = out.filter(pl.col("half") == 2)
+        assert half2_rows["game_seconds_remaining"].to_list() == pytest.approx(
+            half2_rows["half_seconds_remaining"].to_list()
+        )
+
+    def test_real_clock_game_seconds_remaining_is_1200_plus_half_seconds_in_first_half(self):
+        df = self._ifaf_frame(game_clock_ms=self._decreasing_clock())
+
+        out = prepare_wp_data(df, real_clock=True)
+
+        half1_rows = out.filter(pl.col("half") == 1)
+        expected = (half1_rows["half_seconds_remaining"] + 1200).to_list()
+        assert half1_rows["game_seconds_remaining"].to_list() == pytest.approx(expected)
+
+    def test_real_clock_diff_time_ratio_same_formula_as_synthetic_path(self):
+        df = self._ifaf_frame(game_clock_ms=self._decreasing_clock())
+
+        out = prepare_wp_data(df, real_clock=True)
+
+        expected = out["score_differential"] / (-4 * out["elapsed_share"]).exp()
+        assert out["Diff_Time_Ratio"].to_list() == pytest.approx(expected.to_list())
+
+    def test_real_clock_missing_game_clock_ms_column_raises_named(self):
+        df = self._ifaf_frame(game_clock_ms=self._decreasing_clock()).drop("game_clock_ms")
+
+        with pytest.raises(MissingFeatureColumns, match="game_clock_ms"):
+            prepare_wp_data(df, real_clock=True)
+
+    def test_real_clock_null_game_clock_ms_raises_named_reporting_count(self):
+        clock = self._decreasing_clock()
+        clock[0] = None
+        clock[1] = None
+        df = self._ifaf_frame(game_clock_ms=clock)
+
+        with pytest.raises(InvalidGameClockValues, match="2"):
+            prepare_wp_data(df, real_clock=True)
+
+    def test_real_clock_does_not_affect_default_synthetic_path(self):
+        # Regression: adding the real_clock branch must not alter the untouched synthetic
+        # path's output for the same input frame.
+        df = self._ifaf_frame(game_clock_ms=self._decreasing_clock())
+
+        synthetic_out = prepare_wp_data(df)
+
+        assert synthetic_out["half_seconds_remaining"][0] == 1200
 
 
 class TestAddEpVariables:

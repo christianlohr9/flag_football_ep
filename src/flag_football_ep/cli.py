@@ -260,6 +260,7 @@ def experiment(
 
     from flag_football_ep.model.experiments import (
         run_candidate,
+        run_real_clock_experiment,
         run_recency_candidate,
     )
 
@@ -291,6 +292,20 @@ def experiment(
                     f"recency winner ({prefix}): {best.name} "
                     f"candidate={best.candidate_logloss:.6f} delta={best.delta:.6f} "
                     f"verdict={best_verdict}"
+                )
+                continue
+            if name == "real_clock":
+                # IFAF-only synthetic-vs-real-clock comparison, not a feature addition:
+                # measured via `run_real_clock_experiment`, never the generic
+                # `run_candidate` (see `model/experiments.py::_real_clock_build`).
+                synthetic_result, real_clock_result = run_real_clock_experiment(
+                    plays=plays, config=cfg
+                )
+                verdict = "adopted" if real_clock_result.adopted else "rejected"
+                typer.echo(
+                    f"real_clock ({prefix}): synthetic={synthetic_result.control_logloss:.6f} "
+                    f"real_clock={real_clock_result.candidate_logloss:.6f} "
+                    f"delta={real_clock_result.delta:.6f} verdict={verdict}"
                 )
                 continue
             result = run_candidate(plays=plays, config=cfg, model_prefix=prefix, spec=spec)
