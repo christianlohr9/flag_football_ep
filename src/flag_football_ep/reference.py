@@ -11,6 +11,7 @@ raising.
 from __future__ import annotations
 
 import warnings
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
@@ -61,6 +62,15 @@ _COMPETITION_TIER_SCHEMA: dict[str, pl.DataType] = {
     "source": pl.Utf8,
     "competition": pl.Utf8,
     "tier": pl.Utf8,
+}
+_PLAYER_MAPPING_SCHEMA: dict[str, pl.DataType] = {
+    "source": pl.Utf8,
+    "source_player": pl.Utf8,
+    "canonical_player": pl.Utf8,
+}
+_GROUP_OPPONENTS_SCHEMA: dict[str, pl.DataType] = {
+    "canonical_team": pl.Utf8,
+    "team_name": pl.Utf8,
 }
 
 
@@ -125,6 +135,47 @@ def load_team_mapping(path: Path) -> pl.DataFrame:
         )
         if dupes:
             raise ValueError(f"duplicate (source, source_team) pair(s) in {path}: {dupes}")
+
+    return df
+
+
+def load_player_mapping(path: Path) -> pl.DataFrame:
+    """Load `source,source_player,canonical_player`. Rejects duplicate (source, source_player).
+
+    Deliberate divergence from a `source,source_name_or_jersey,canonical_player_id` schema:
+    `canonical_player` is the display name the report prints, not an opaque id into
+    `data/reference/roster.csv` (which has no `source` column and is an unverified
+    single-source dump).
+    """
+    df = _read_reference_csv(path, _PLAYER_MAPPING_SCHEMA)
+
+    if df.height:
+        dupes = (
+            df.group_by(["source", "source_player"])
+            .agg(pl.len().alias("n"))
+            .filter(pl.col("n") > 1)
+            .select(["source", "source_player"])
+            .rows()
+        )
+        if dupes:
+            raise ValueError(f"duplicate (source, source_player) pair(s) in {path}: {dupes}")
+
+    return df
+
+
+def load_group_opponents(path: Path) -> pl.DataFrame:
+    """Load `canonical_team,team_name`. Rejects duplicate `canonical_team` values."""
+    df = _read_reference_csv(path, _GROUP_OPPONENTS_SCHEMA)
+
+    if df.height:
+        dupes = (
+            df.group_by("canonical_team")
+            .agg(pl.len().alias("n"))
+            .filter(pl.col("n") > 1)["canonical_team"]
+            .to_list()
+        )
+        if dupes:
+            raise ValueError(f"duplicate canonical_team in {path}: {dupes}")
 
     return df
 
@@ -201,6 +252,46 @@ def map_teams(
         result = result.with_columns(pl.col(col).replace(lookup).alias(col))
 
     return result
+
+
+@dataclass(frozen=True)
+class PlayerMappingResult:
+    """Result of `map_players`: the mapped frame plus every label left unmapped."""
+
+    frame: pl.DataFrame
+    unmapped: list[str]
+
+
+def map_players(
+    df: pl.DataFrame, mapping: pl.DataFrame, source: str, columns: Sequence[str]
+) -> PlayerMappingResult:
+    """Replace every listed column's values with the canonical player name.
+
+    Deliberate divergence from `map_teams`/`map_competition_tier`'s raise-on-unmapped
+    precedent: CONTEXT.md locks "the report never breaks on an unmapped name" -- an
+    unmapped label is left as-is in the output column (never raised, never dropped, never
+    nulled) and the caller renders `unmapped` as a prominent warning block.
+    """
+    source_map = mapping.filter(pl.col("source") == source)
+    lookup = dict(
+        zip(source_map["source_player"].to_list(), source_map["canonical_player"].to_list())
+    )
+
+    unmapped: set[str] = set()
+    for col in columns:
+        if col not in df.columns:
+            continue
+        for label in df[col].drop_nulls().unique().to_list():
+            if label not in lookup:
+                unmapped.add(label)
+
+    result = df
+    for col in columns:
+        if col not in result.columns:
+            continue
+        result = result.with_columns(pl.col(col).replace(lookup).alias(col))
+
+    return PlayerMappingResult(frame=result, unmapped=sorted(unmapped))
 
 
 def map_competition_tier(df: pl.DataFrame, mapping: pl.DataFrame) -> pl.DataFrame:
