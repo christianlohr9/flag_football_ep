@@ -9,16 +9,21 @@ instruction.
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
 import polars as pl
+import pytest
 
 from flag_football_ep.charts.wp_review import (
     WP_ANNOTATION_MAX,
     WP_ANNOTATION_TOP_K,
+    render_wp_review,
     select_wp_annotations,
+    write_wp_review,
 )
 
 _PLAY_ID_RE = re.compile(r"^P\d+ ")
+_PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
 def _game_plays(rows: list[dict]) -> pl.DataFrame:
@@ -208,3 +213,125 @@ class TestSelectWpAnnotations:
 
         for label in out["annotation_label"].to_list():
             assert _PLAY_ID_RE.match(label)
+
+
+class TestRenderWpReview:
+    def test_returns_a_figure_with_exactly_one_axes(self):
+        from matplotlib.figure import Figure
+
+        game = _plain_game()
+
+        fig = render_wp_review(game, game_label="GER vs FRA")
+
+        assert isinstance(fig, Figure)
+        assert len(fig.axes) == 1
+
+    def test_wp_line_y_data_within_0_1(self):
+        game = _plain_game()
+
+        fig = render_wp_review(game, game_label="GER vs FRA")
+        ax = fig.axes[0]
+
+        wp_line = ax.get_lines()[0]
+        y_values = wp_line.get_ydata()
+        assert min(y_values) >= 0
+        assert max(y_values) <= 1
+
+    def test_constant_horizontal_line_at_half(self):
+        game = _plain_game()
+
+        fig = render_wp_review(game, game_label="GER vs FRA")
+        ax = fig.axes[0]
+
+        constant_line_ys = [
+            line.get_ydata()[0]
+            for line in ax.get_lines()
+            if len(set(line.get_ydata())) == 1
+        ]
+        assert any(y == pytest.approx(0.5) for y in constant_line_ys)
+
+    def test_annotation_caption_count_matches_select_wp_annotations(self):
+        game = _plain_game()
+        expected = select_wp_annotations(game)
+
+        fig = render_wp_review(game, game_label="GER vs FRA")
+        ax = fig.axes[0]
+
+        caption_texts = [t for t in ax.texts if _PLAY_ID_RE.match(t.get_text())]
+        assert len(caption_texts) == expected.height
+
+    def test_synthetic_clock_true_flags_title_and_axes_text(self):
+        game = _plain_game()
+
+        fig = render_wp_review(game, game_label="GER vs FRA", synthetic_clock=True)
+        ax = fig.axes[0]
+
+        assert "synthetisch" in ax.get_title()
+        assert any("synthetisch" in t.get_text() for t in ax.texts)
+
+    def test_synthetic_clock_false_has_no_synthetisch_anywhere(self):
+        game = _plain_game()
+
+        fig = render_wp_review(game, game_label="GER vs FRA", synthetic_clock=False)
+        ax = fig.axes[0]
+
+        assert "synthetisch" not in ax.get_title()
+        assert not any("synthetisch" in t.get_text() for t in ax.texts)
+
+    def test_x_label_contains_play_hash(self):
+        game = _plain_game()
+
+        fig = render_wp_review(game, game_label="GER vs FRA")
+        ax = fig.axes[0]
+
+        assert "Play #" in ax.get_xlabel()
+
+    def test_single_row_game_renders_placeholder_and_raises_nothing(self):
+        game = _game_plays([{"play_id": 1, "home_wp": 0.5, "wpa": None}])
+
+        fig = render_wp_review(game, game_label="GER vs FRA")
+        ax = fig.axes[0]
+
+        assert any("keine WP-Daten" in t.get_text() for t in ax.texts)
+
+
+class TestWriteWpReview:
+    def test_writes_a_png_and_returns_the_path(self, tmp_path: Path):
+        game = _plain_game()
+        out_path = tmp_path / "chart.png"
+
+        result = write_wp_review(game, out_path, game_label="GER vs FRA")
+
+        assert result == out_path
+        assert out_path.exists()
+        assert out_path.read_bytes()[:8] == _PNG_SIGNATURE
+
+    def test_refuses_to_overwrite_existing_file_by_default(self, tmp_path: Path):
+        game = _plain_game()
+        out_path = tmp_path / "chart.png"
+        write_wp_review(game, out_path, game_label="GER vs FRA")
+
+        with pytest.raises(FileExistsError) as excinfo:
+            write_wp_review(game, out_path, game_label="GER vs FRA")
+
+        assert str(out_path) in str(excinfo.value)
+
+    def test_overwrite_true_replaces_existing_file(self, tmp_path: Path):
+        game = _plain_game()
+        out_path = tmp_path / "chart.png"
+        write_wp_review(game, out_path, game_label="GER vs FRA")
+
+        result = write_wp_review(
+            game, out_path, game_label="GER vs FRA", overwrite=True
+        )
+
+        assert result == out_path
+        assert out_path.read_bytes()[:8] == _PNG_SIGNATURE
+
+    def test_creates_parent_directories(self, tmp_path: Path):
+        game = _plain_game()
+        out_path = tmp_path / "nested" / "dir" / "chart.png"
+
+        write_wp_review(game, out_path, game_label="GER vs FRA")
+
+        assert out_path.exists()

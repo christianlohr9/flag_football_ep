@@ -11,7 +11,13 @@ turnover -- see `select_wp_annotations`.
 
 from __future__ import annotations
 
+from pathlib import Path
+from typing import TYPE_CHECKING
+
 import polars as pl
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
 
 # More than eight captions on a single WP curve stops being readable on a tablet during a
 # film session -- this is a hard cap independent of how many scoring/turnover plays a game
@@ -107,3 +113,132 @@ def select_wp_annotations(
         ).iter_rows(named=True)
     ]
     return candidates.with_columns(annotation_label=pl.Series(labels, dtype=pl.Utf8))
+
+
+def render_wp_review(
+    game_plays: pl.DataFrame,
+    *,
+    game_label: str,
+    synthetic_clock: bool = True,
+    top_k: int = WP_ANNOTATION_TOP_K,
+) -> "Figure":
+    """Render REQ-S1-15's per-game WP review chart: the home-team WP curve across a game,
+    annotated with the plays that actually moved it, and an unmissable synthetic-clock
+    disclosure when `synthetic_clock` is True.
+
+    `synthetic_clock` defaults to True because `features.mutations.prepare_wp_data`'s only
+    production path is `real_clock=False` -- the per-play clock is interpolated, not real.
+    When True, the disclosure appears in two independent places: the title suffix and an
+    in-axes `Hinweis` note, so the flag survives being cropped or embedded under a separate
+    heading.
+
+    A game with fewer than two non-null `home_wp` rows renders an empty axes with a centred
+    `keine WP-Daten für dieses Spiel` placeholder instead of raising.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    non_null_wp = game_plays.filter(pl.col("home_wp").is_not_null())
+    if non_null_wp.height < 2:
+        ax.text(
+            0.5,
+            0.5,
+            "keine WP-Daten für dieses Spiel",
+            ha="center",
+            va="center",
+            transform=ax.transAxes,
+        )
+        ax.set_axis_off()
+        fig.tight_layout()
+        return fig
+
+    home_team = game_plays["home_team"][0]
+
+    ax.plot(
+        non_null_wp["play_id"], non_null_wp["home_wp"], color="tab:blue", linewidth=1.5
+    )
+    ax.axhline(0.5, color="gray", linestyle="--")
+    ax.axhspan(0.5, 1.0, color="tab:blue", alpha=0.05)
+    ax.set_ylim(0, 1)
+
+    annotations = select_wp_annotations(game_plays, top_k=top_k)
+    if annotations.height > 0:
+        ax.plot(
+            annotations["play_id"],
+            annotations["home_wp"],
+            marker="o",
+            linestyle="none",
+            color="tab:orange",
+        )
+        for i, row in enumerate(annotations.iter_rows(named=True)):
+            offset = 15 if i % 2 == 0 else -20
+            ax.annotate(
+                row["annotation_label"],
+                xy=(row["play_id"], row["home_wp"]),
+                xytext=(0, offset),
+                textcoords="offset points",
+                ha="center",
+                fontsize="x-small",
+            )
+
+    x_label = "Play # (synthetische Spielzeit)" if synthetic_clock else "Play #"
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(f"Win Probability {home_team}")
+
+    title = f"WP Review — {game_label}"
+    if synthetic_clock:
+        title += " (synthetische Spielzeit)"
+    ax.set_title(title)
+
+    if synthetic_clock:
+        ax.text(
+            0.02,
+            0.02,
+            "Hinweis: synthetische Spielzeit — Uhr pro Play interpoliert, "
+            "keine echten Clock-Daten",
+            transform=ax.transAxes,
+            fontsize="x-small",
+            ha="left",
+            va="bottom",
+        )
+
+    fig.tight_layout()
+    return fig
+
+
+def write_wp_review(
+    game_plays: pl.DataFrame,
+    out_path: Path,
+    *,
+    game_label: str,
+    synthetic_clock: bool = True,
+    overwrite: bool = False,
+) -> Path:
+    """Render and write the WP review chart as a PNG at `out_path`.
+
+    Refuses to overwrite an existing file unless `overwrite` is True (mirrors
+    `write_pat_breakeven`'s write-once guard), so an accidental rerun cannot silently
+    replace a chart already shared with the coaching staff.
+    """
+    out_path = Path(out_path)
+    if out_path.exists() and not overwrite:
+        raise FileExistsError(
+            f"refusing to overwrite existing WP review chart: {out_path}"
+        )
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fig = render_wp_review(
+        game_plays, game_label=game_label, synthetic_clock=synthetic_clock
+    )
+    try:
+        fig.savefig(out_path)
+    finally:
+        import matplotlib.pyplot as plt
+
+        plt.close(fig)
+    return out_path
