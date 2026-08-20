@@ -22,6 +22,8 @@ if TYPE_CHECKING:
 
 # Single report accent colour (matches the base template's one-accent "clean neutral" style).
 _ACCENT = "#1f4e79"
+# Contrasting second tone for negative EPA bars -- distinct from both the accent and muted grey.
+_NEGATIVE = "#c1440e"
 # Thin-sample rows below the report's muting threshold; muting outranks sign or magnitude.
 _MUTED = "#999999"
 
@@ -152,6 +154,103 @@ def render_share_bars(
     omission_notes = []
     if omitted:
         omission_notes.append(f"{omitted} weitere Kategorien nicht angezeigt")
+    _draw_omission_note(ax, omission_notes)
+
+    ax.set_title(title)
+    fig.tight_layout()
+    return fig
+
+
+def render_epa_bars(
+    table: pl.DataFrame,
+    *,
+    label_col: str,
+    epa_col: str,
+    n_col: str,
+    muted_col: str = "muted",
+    title: str,
+    max_bars: int = 12,
+) -> "Figure":
+    """Render a signed EPA-per-play rollup as a horizontal bar chart around a zero baseline,
+    without showing or saving it.
+
+    Rows with a null `epa_col` are dropped from the chart (never plotted as zero) and their
+    count is reported in an axes note. Remaining rows are sorted by `epa_col` descending
+    (best at the top); when more than `max_bars` remain, only the top `max_bars` are kept and
+    the omitted count is annotated. X limits are symmetric around zero from the data's maximum
+    absolute value, with a solid reference line at `x = 0`. Positive bars use the report accent
+    colour, negative bars a contrasting tone, and muted rows stay grey regardless of sign --
+    muting outranks sign because a thin sample is the more important caveat. An empty `table`
+    renders a `keine Daten` placeholder and returns normally.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    if table.height == 0:
+        return _empty_placeholder(title)
+
+    null_dropped = table[epa_col].null_count()
+    non_null = table.filter(pl.col(epa_col).is_not_null())
+
+    if non_null.height == 0:
+        fig = _empty_placeholder(title)
+        ax = fig.axes[0]
+        if null_dropped:
+            ax.text(
+                0.5,
+                0.2,
+                f"{null_dropped} Zeilen ohne EPA-Wert nicht angezeigt",
+                ha="center",
+                fontsize=8,
+            )
+        return fig
+
+    sorted_table = non_null.sort(epa_col, descending=True)
+    omitted = max(sorted_table.height - max_bars, 0)
+    plotted = sorted_table.head(max_bars)
+
+    labels = plotted[label_col].to_list()
+    values = plotted[epa_col].to_list()
+    ns = plotted[n_col].to_list()
+    muted = plotted[muted_col].to_list()
+
+    n_bars = len(labels)
+    fig, ax = plt.subplots(figsize=_figsize(n_bars))
+
+    y_positions = list(range(n_bars))
+    colors = []
+    for value, m in zip(values, muted):
+        if m:
+            colors.append(_MUTED)
+        elif value >= 0:
+            colors.append(_ACCENT)
+        else:
+            colors.append(_NEGATIVE)
+
+    bars = ax.barh(y_positions, values, color=colors)
+    ax.set_yticks(y_positions)
+    ax.set_yticklabels(labels)
+    ax.invert_yaxis()  # best EPA at the top
+
+    max_abs = max(abs(v) for v in values)
+    margin = max_abs * 0.15 + 1e-6
+    ax.set_xlim(-(max_abs + margin), max_abs + margin)
+    ax.axvline(0, color="black", linewidth=1)
+
+    for bar, n, value in zip(bars, ns, values):
+        y = bar.get_y() + bar.get_height() / 2
+        _annotate_n(ax, y, value, n)
+
+    ax.set_xlabel("EPA/Play")
+    _draw_muted_note(ax)
+
+    omission_notes = []
+    if omitted:
+        omission_notes.append(f"{omitted} weitere Kategorien nicht angezeigt")
+    if null_dropped:
+        omission_notes.append(f"{null_dropped} Zeilen ohne EPA-Wert nicht angezeigt")
     _draw_omission_note(ax, omission_notes)
 
     ax.set_title(title)

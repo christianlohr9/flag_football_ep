@@ -9,7 +9,7 @@ from __future__ import annotations
 import polars as pl
 import pytest
 
-from flag_football_ep.charts.tendency import render_share_bars
+from flag_football_ep.charts.tendency import render_epa_bars, render_share_bars
 
 
 def _share_table(n_rows: int = 5) -> pl.DataFrame:
@@ -112,3 +112,175 @@ class TestRenderShareBars:
 
         texts = [t.get_text() for t in ax.texts]
         assert any("geringe Stichprobe" in t for t in texts)
+
+
+def _epa_table(n_rows: int = 5) -> pl.DataFrame:
+    return pl.DataFrame(
+        {
+            "label": [f"Formation {i}" for i in range(n_rows)],
+            "epa": [0.5 - 0.2 * i for i in range(n_rows)],
+            "n": [10 + i for i in range(n_rows)],
+            "muted": [i % 3 == 0 for i in range(n_rows)],
+        }
+    )
+
+
+class TestRenderEpaBars:
+    def test_returns_a_figure_with_one_axes(self):
+        from matplotlib.figure import Figure
+
+        fig = render_epa_bars(
+            _epa_table(), label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+
+        assert isinstance(fig, Figure)
+        assert len(fig.axes) == 1
+
+    def test_constant_vertical_line_at_zero(self):
+        fig = render_epa_bars(
+            _epa_table(), label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        ax = fig.axes[0]
+
+        vline_x_values = [
+            line.get_xdata()[0]
+            for line in ax.get_lines()
+            if len(set(line.get_xdata())) == 1
+        ]
+        assert any(x == pytest.approx(0.0) for x in vline_x_values)
+
+    def test_x_limits_symmetric_around_zero(self):
+        fig = render_epa_bars(
+            _epa_table(), label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        ax = fig.axes[0]
+
+        xmin, xmax = ax.get_xlim()
+        assert xmin == pytest.approx(-xmax)
+
+    def test_bars_ordered_by_epa_descending(self):
+        table = _epa_table(5)
+        fig = render_epa_bars(
+            table, label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        ax = fig.axes[0]
+
+        expected_order = table.sort("epa", descending=True)["label"].to_list()
+        actual_order = [t.get_text() for t in ax.get_yticklabels()]
+        assert actual_order == expected_order
+
+    def test_x_label_is_epa_per_play(self):
+        fig = render_epa_bars(
+            _epa_table(), label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        ax = fig.axes[0]
+
+        assert ax.get_xlabel() == "EPA/Play"
+
+    def test_negative_bar_facecolor_differs_from_positive(self):
+        table = pl.DataFrame(
+            {
+                "label": ["Pos", "Neg"],
+                "epa": [0.3, -0.3],
+                "n": [10, 8],
+                "muted": [False, False],
+            }
+        )
+        fig = render_epa_bars(
+            table, label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        ax = fig.axes[0]
+
+        colors = {bar.get_facecolor() for bar in ax.patches}
+        assert len(colors) == 2
+
+    def test_muted_row_stays_grey_regardless_of_negative_sign(self):
+        muted_table = pl.DataFrame(
+            {"label": ["MutedNeg"], "epa": [-0.3], "n": [3], "muted": [True]}
+        )
+        non_muted_table = pl.DataFrame(
+            {"label": ["Neg"], "epa": [-0.3], "n": [3], "muted": [False]}
+        )
+        muted_fig = render_epa_bars(
+            muted_table, label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        non_muted_fig = render_epa_bars(
+            non_muted_table, label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+
+        muted_color = muted_fig.axes[0].patches[0].get_facecolor()
+        non_muted_color = non_muted_fig.axes[0].patches[0].get_facecolor()
+
+        assert muted_color != non_muted_color
+
+    def test_null_epa_rows_dropped_and_count_annotated(self):
+        table = pl.concat(
+            [
+                _epa_table(4),
+                pl.DataFrame(
+                    {"label": ["Null Row"], "epa": [None], "n": [5], "muted": [False]},
+                    schema=_epa_table(4).schema,
+                ),
+            ]
+        )
+        fig = render_epa_bars(
+            table, label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        ax = fig.axes[0]
+
+        assert len(ax.patches) == 4
+        texts = [t.get_text() for t in ax.texts]
+        assert any("1" in t and "ohne EPA-Wert" in t for t in texts)
+
+    def test_all_null_epa_renders_keine_daten_placeholder(self):
+        table = pl.DataFrame(
+            {"label": ["A", "B"], "epa": [None, None], "n": [5, 3], "muted": [False, False]}
+        )
+
+        fig = render_epa_bars(
+            table, label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        ax = fig.axes[0]
+
+        texts = [t.get_text() for t in ax.texts]
+        assert "keine Daten" in texts
+
+    def test_empty_table_renders_keine_daten_placeholder_without_raising(self):
+        empty = pl.DataFrame(
+            schema={
+                "label": pl.Utf8,
+                "epa": pl.Float64,
+                "n": pl.Int64,
+                "muted": pl.Boolean,
+            }
+        )
+
+        fig = render_epa_bars(
+            empty, label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        ax = fig.axes[0]
+
+        texts = [t.get_text() for t in ax.texts]
+        assert "keine Daten" in texts
+
+    def test_every_bar_has_n_annotation(self):
+        table = _epa_table(4)
+        fig = render_epa_bars(
+            table, label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        ax = fig.axes[0]
+
+        n_annotations = [t for t in ax.texts if t.get_text().startswith("n=")]
+        assert len(n_annotations) == 4
+
+    def test_does_not_close_figures(self):
+        import matplotlib.pyplot as plt
+
+        before = set(plt.get_fignums())
+        fig = render_epa_bars(
+            _epa_table(), label_col="label", epa_col="epa", n_col="n", title="Test"
+        )
+        after = set(plt.get_fignums())
+
+        assert fig.number in after - before
+        plt.close(fig)
