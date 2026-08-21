@@ -3,9 +3,10 @@
 Every command follows the same shape: load the TOML config, lazily import the
 stage module it delegates to, and call exactly one stage function. Stage
 modules (`config`, `pipeline`, `fetch.sportapp`, `fetch.ifaf`, `model.train`,
-`model.score`) are implemented by later plans; this module only defines the
-option surface and the delegation contract so later plans never have to edit
-this file (except `pipeline.run_ingest`/`run_all`, wired in plans 14 and 16).
+`model.score`, `reports.build`) are implemented by later plans; this module
+only defines the option surface and the delegation contract so later plans
+never have to edit this file (except `pipeline.run_ingest`/`run_all`, wired in
+plans 14 and 16).
 
 Secrets (API keys) are read from environment variables named in the config
 and are never printed or interpolated into echoed output.
@@ -16,7 +17,9 @@ from typing import List, Optional
 
 import typer
 
-app = typer.Typer(no_args_is_help=True, add_completion=False, help="flag-football EP/WP pipeline")
+app = typer.Typer(
+    no_args_is_help=True, add_completion=False, help="flag-football EP/WP pipeline"
+)
 
 DEFAULT_CONFIG = Path("ffep.toml")
 DEFAULT_SOURCES = ["hudl", "legacy", "sportapp", "ifaf"]
@@ -45,7 +48,9 @@ def ingest(
     result = run_ingest(cfg, source, out, strict)
 
     typer.echo(f"plays:  {result.plays_path} ({result.n_plays} rows)")
-    typer.echo(f"games:  {result.games_path} ({result.n_games} games, {result.n_quarantined} quarantined)")
+    typer.echo(
+        f"games:  {result.games_path} ({result.n_games} games, {result.n_quarantined} quarantined)"
+    )
     typer.echo(f"report: {result.report_path}")
 
     for notice in result.notices:
@@ -65,7 +70,9 @@ def fetch_sportapp(
         None, "--games-file", help="File with one sportapp.fi game id per line"
     ),
     force: bool = typer.Option(
-        False, "--force/--no-force", help="Re-fetch games even if already cached on disk"
+        False,
+        "--force/--no-force",
+        help="Re-fetch games even if already cached on disk",
     ),
 ) -> None:
     """Fetch sportapp.fi play-by-play games into the raw sportapp directory."""
@@ -86,7 +93,9 @@ def fetch_sportapp(
     else:
         from flag_football_ep.reference import load_sportapp_games
 
-        ids = load_sportapp_games(cfg.reference.sportapp_games)["source_game_id"].to_list()
+        ids = load_sportapp_games(cfg.reference.sportapp_games)[
+            "source_game_id"
+        ].to_list()
 
     api_key = os.environ.get(cfg.sources.sportapp.api_key_env)
     if not api_key:
@@ -112,7 +121,9 @@ def fetch_ifaf(
     ),
     limit: int = typer.Option(500, "--limit", help="Maximum number of games to fetch"),
     force: bool = typer.Option(
-        False, "--force/--no-force", help="Re-fetch games even if already cached on disk"
+        False,
+        "--force/--no-force",
+        help="Re-fetch games even if already cached on disk",
     ),
 ) -> None:
     """Fetch IFAF tournament play-by-play into the raw ifaf directory."""
@@ -146,9 +157,13 @@ def train(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     model: str = typer.Option("both", "--model", help="One of: ep, wp, both"),
     tune: bool = typer.Option(False, "--tune/--no-tune", help="Run hyperopt tuning"),
-    max_evals: int = typer.Option(100, "--max-evals", help="Max hyperopt evaluations when tuning"),
+    max_evals: int = typer.Option(
+        100, "--max-evals", help="Max hyperopt evaluations when tuning"
+    ),
     export_pkl: bool = typer.Option(
-        False, "--export-pkl/--no-export-pkl", help="Also export a .pkl alongside the MLflow run"
+        False,
+        "--export-pkl/--no-export-pkl",
+        help="Also export a .pkl alongside the MLflow run",
     ),
 ) -> None:
     """Train the EP and/or WP models from the canonical Parquet dataset."""
@@ -174,8 +189,12 @@ def train(
 @app.command()
 def score(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
-    ep_run: Optional[str] = typer.Option(None, "--ep-run", help="MLflow run id for the EP model"),
-    wp_run: Optional[str] = typer.Option(None, "--wp-run", help="MLflow run id for the WP model"),
+    ep_run: Optional[str] = typer.Option(
+        None, "--ep-run", help="MLflow run id for the EP model"
+    ),
+    wp_run: Optional[str] = typer.Option(
+        None, "--wp-run", help="MLflow run id for the WP model"
+    ),
     out: Optional[Path] = typer.Option(None, "--out", help="Output Parquet path"),
 ) -> None:
     """Score the canonical Parquet dataset with trained EP/WP models."""
@@ -271,7 +290,9 @@ def experiment(
         for name in candidate_names:
             spec = CANDIDATES[name]
             if prefix not in spec.applies_to:
-                typer.echo(f"{name} ({prefix}): skipped -- does not apply to {prefix!r}")
+                typer.echo(
+                    f"{name} ({prefix}): skipped -- does not apply to {prefix!r}"
+                )
                 continue
             if name == "recency":
                 # Weight candidate, not a feature candidate: sweeps a half-life grid via
@@ -308,7 +329,9 @@ def experiment(
                     f"delta={real_clock_result.delta:.6f} verdict={verdict}"
                 )
                 continue
-            result = run_candidate(plays=plays, config=cfg, model_prefix=prefix, spec=spec)
+            result = run_candidate(
+                plays=plays, config=cfg, model_prefix=prefix, spec=spec
+            )
             verdict = "adopted" if result.adopted else "rejected"
             typer.echo(
                 f"{name} ({prefix}): control={result.control_logloss:.6f} "
@@ -395,15 +418,24 @@ def run(
 
         sportapp_api_key = secret(cfg.sources.sportapp.api_key_env, required=False)
         if sportapp_api_key:
-            game_ids = load_sportapp_games(cfg.reference.sportapp_games)["source_game_id"].to_list()
-            fetch_games(game_ids, cfg.paths.raw_sportapp, sportapp_api_key, cfg.sources.sportapp.base_url)
+            game_ids = load_sportapp_games(cfg.reference.sportapp_games)[
+                "source_game_id"
+            ].to_list()
+            fetch_games(
+                game_ids,
+                cfg.paths.raw_sportapp,
+                sportapp_api_key,
+                cfg.sources.sportapp.base_url,
+            )
         else:
             typer.echo(
                 f"skipping sportapp.fi fetch: {cfg.sources.sportapp.api_key_env} is not set"
             )
 
         ifaf_api_key_env = getattr(cfg.sources.ifaf, "api_key_env", None)
-        ifaf_api_key = secret(ifaf_api_key_env, required=False) if ifaf_api_key_env else None
+        ifaf_api_key = (
+            secret(ifaf_api_key_env, required=False) if ifaf_api_key_env else None
+        )
         fetch_tournament(
             cfg.sources.ifaf.base_url,
             cfg.sources.ifaf.tournament,
@@ -424,6 +456,58 @@ def run(
     typer.echo(f"ep run:  {result.ep_run}")
     typer.echo(f"wp run:  {result.wp_run}")
     typer.echo(f"scored:  {result.scored_path}")
+    for stage, seconds in result.durations.items():
+        typer.echo(f"  {stage}: {seconds:.2f}s")
+    typer.echo(f"  total: {sum(result.durations.values()):.2f}s")
+
+
+@app.command()
+def report(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    opponent: List[str] = typer.Option(
+        [],
+        "--opponent",
+        help="Group-opponent team code(s) to build (repeatable); default: every group opponent",
+    ),
+    product: List[str] = typer.Option(
+        [],
+        "--product",
+        help="Product(s) to build (repeatable): opponents, own-team, decisions, wp-review; default: all",
+    ),
+    skip_ingest: bool = typer.Option(
+        False,
+        "--skip-ingest/--no-skip-ingest",
+        help="Re-render from the existing plays.parquet instead of re-ingesting raw exports",
+    ),
+) -> None:
+    """Build the full REQ-S1-16 report set: ingest -> score(champion) -> report."""
+    from flag_football_ep.reports.build import PRODUCTS
+
+    invalid_products = [p for p in product if p not in PRODUCTS]
+    if invalid_products:
+        raise typer.BadParameter(
+            f"unknown product name(s) {invalid_products}; valid products are {list(PRODUCTS)}"
+        )
+
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    from flag_football_ep.reports.build import run_report_pipeline
+
+    result = run_report_pipeline(
+        cfg,
+        opponents=list(opponent) or None,
+        products=list(product) or None,
+        skip_ingest=skip_ingest,
+    )
+
+    for filename in result.filenames:
+        typer.echo(f"report: {filename}")
+    typer.echo(f"run:    {result.run_dir}")
+    typer.echo(f"latest: {result.latest_dir}")
+    for notice in result.notices:
+        typer.echo(f"notice: {notice}")
     for stage, seconds in result.durations.items():
         typer.echo(f"  {stage}: {seconds:.2f}s")
     typer.echo(f"  total: {sum(result.durations.values()):.2f}s")

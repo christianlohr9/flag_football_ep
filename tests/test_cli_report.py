@@ -13,12 +13,15 @@ store.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import polars as pl
 import pytest
+from typer.testing import CliRunner
 
 import test_model_score as tms
+from flag_football_ep.cli import app
 from flag_football_ep.config import Config
 from flag_football_ep.model import mlflow_store, registry
 from flag_football_ep.reports.build import (
@@ -32,6 +35,19 @@ from flag_football_ep.reports.opponent import opponent_filename
 from flag_football_ep.reports.own_team import OWN_TEAM_FILENAME
 from flag_football_ep.reports.wp_review import wp_review_filename
 from flag_football_ep.testing import canonical_plays_with_scores
+
+_CLI_RUNNER = CliRunner()
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _plain(output: str) -> str:
+    """Strip ANSI escape codes -- rich's `--help` rendering can split an option's leading
+    `--` from the rest of its name with a color-reset escape sequence, which breaks a naive
+    substring check against the raw CliRunner output (mirrors
+    `test_charts_pat_breakeven.py::_plain`)."""
+    return _ANSI_RE.sub("", output)
+
 
 # --- shared fixtures/helpers ----------------------------------------------------------------
 
@@ -133,6 +149,61 @@ def _wp_only_plays(game_id: str = "G1", n_plays: int = 4) -> pl.DataFrame:
 def _write_oof_wp_parquet(processed_dir: Path, rows: dict) -> None:
     processed_dir.mkdir(parents=True, exist_ok=True)
     pl.DataFrame(rows).write_parquet(processed_dir / "oof_predictions_wp.parquet")
+
+
+def _config_to_toml(config: Config) -> str:
+    """Serialise an arbitrary already-built `Config` back into `ffep.toml` text -- generic
+    over whichever helper produced it (`tms._make_config`/`_trained_config`), so the CLI
+    tests below exercise the exact same paths (including the temporary MLflow store and any
+    trained/promoted models) a `Config` object already carries."""
+    return f"""
+[paths]
+data_root = "{config.paths.data_root}"
+raw_hudl = "{config.paths.raw_hudl}"
+raw_sportapp = "{config.paths.raw_sportapp}"
+raw_ifaf = "{config.paths.raw_ifaf}"
+raw_legacy = "{config.paths.raw_legacy}"
+processed = "{config.paths.processed}"
+reference = "{config.paths.reference}"
+models = "{config.paths.models}"
+mlruns = "{config.paths.mlruns}"
+contract = "{config.paths.contract}"
+reports = "{config.paths.reports}"
+
+[reference]
+half_boundaries = "{config.reference.half_boundaries}"
+final_scores = "{config.reference.final_scores}"
+team_mapping = "{config.reference.team_mapping}"
+sportapp_games = "{config.reference.sportapp_games}"
+competition_tier = "{config.reference.competition_tier}"
+player_mapping = "{config.reference.player_mapping}"
+group_opponents = "{config.reference.group_opponents}"
+
+[sources.sportapp]
+base_url = "{config.sources.sportapp.base_url}"
+api_key_env = "{config.sources.sportapp.api_key_env}"
+
+[sources.ifaf]
+base_url = "{config.sources.ifaf.base_url}"
+tournament = "{config.sources.ifaf.tournament}"
+api_key_env = "{config.sources.ifaf.api_key_env}"
+
+[train]
+ep_experiment = "{config.train.ep_experiment}"
+wp_experiment = "{config.train.wp_experiment}"
+exclude_games_ep = []
+exclude_games_wp = []
+
+[report]
+own_team = "{config.report.own_team}"
+cycle_start_season = {config.report.cycle_start_season}
+"""
+
+
+def _write_toml(config: Config, root: Path) -> Path:
+    toml_path = root / "ffep.toml"
+    toml_path.write_text(_config_to_toml(config), encoding="utf-8")
+    return toml_path
 
 
 def _promoted_config(tmp_path: Path) -> Config:
@@ -348,3 +419,93 @@ def test_run_report_pipeline_skip_ingest_records_zero_duration_and_notice(
 
     assert result.durations["ingest"] == 0.0
     assert any("skip-ingest" in n or "übersprungen" in n for n in result.notices)
+
+
+# --- ffep report CLI ------------------------------------------------------------------------
+
+
+class TestReportCli:
+    def test_help_exits_zero_and_lists_every_option(self) -> None:
+        result = _CLI_RUNNER.invoke(app, ["report", "--help"])
+
+        assert result.exit_code == 0
+        output = _plain(result.output)
+        assert "--opponent" in output
+        assert "--product" in output
+        assert "--skip-ingest" in output
+        assert "--config" in output
+
+    def test_unknown_product_exits_nonzero_listing_valid_products(
+        self, tmp_path: Path
+    ) -> None:
+        config = tms._make_config(tmp_path)
+        _write_group_opponents(config.reference.group_opponents.parent, [])
+        toml_path = _write_toml(config, tmp_path)
+
+        result = _CLI_RUNNER.invoke(
+            app, ["report", "--config", str(toml_path), "--product", "bogus"]
+        )
+
+        assert result.exit_code != 0
+        assert "bogus" in result.output
+        for name in PRODUCTS:
+            assert name in result.output
+
+    def test_opponent_outside_reference_file_exits_nonzero_naming_value(
+        self, tmp_path: Path
+    ) -> None:
+        config = _promoted_config(tmp_path)
+        _write_group_opponents(
+            config.reference.group_opponents.parent, [("AUT", "Austria")]
+        )
+        _write_player_mapping(config.reference.player_mapping.parent)
+        plays = tms._training_corpus()
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        plays.write_parquet(config.paths.processed / "plays.parquet")
+        toml_path = _write_toml(config, tmp_path)
+
+        result = _CLI_RUNNER.invoke(
+            app,
+            [
+                "report",
+                "--config",
+                str(toml_path),
+                "--opponent",
+                "NOPE",
+                "--skip-ingest",
+            ],
+        )
+
+        assert result.exit_code != 0
+        message = str(result.exception) if result.exception else result.output
+        assert "NOPE" in message
+
+    def test_successful_run_echoes_report_run_latest_notice_and_duration_block(
+        self, tmp_path: Path
+    ) -> None:
+        config = _promoted_config(tmp_path)
+        _write_group_opponents(config.reference.group_opponents.parent, [])
+        _write_player_mapping(config.reference.player_mapping.parent)
+        plays = tms._training_corpus()
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        plays.write_parquet(config.paths.processed / "plays.parquet")
+        toml_path = _write_toml(config, tmp_path)
+
+        result = _CLI_RUNNER.invoke(
+            app,
+            [
+                "report",
+                "--config",
+                str(toml_path),
+                "--product",
+                "decisions",
+                "--skip-ingest",
+            ],
+        )
+
+        assert result.exit_code == 0, result.output
+        assert "report: " in result.output
+        assert "run:" in result.output
+        assert "latest:" in result.output
+        for stage in ("ingest", "score", "report", "total"):
+            assert stage in result.output
