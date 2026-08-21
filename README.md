@@ -24,9 +24,23 @@ Requires Python >=3.12; `uv` manages the virtualenv and dependencies from
 | `ffep train` | Train the EP and/or WP models, logging params/metrics/artifact to MLflow (`mlruns/`). |
 | `ffep score` | Score the canonical dataset with the trained models, writing `plays_scored.parquet`. |
 | `ffep run` | Chain ingest -> train -> score behind one command with per-stage timing. |
+| `ffep report` | Chain ingest -> score(champion) -> report, writing the full coaching-report set (opponent, own-team, decisions, WP-review) as offline HTML. |
 
 Full reference (every option, config key, and the validation/quarantine semantics) lives in
 [`docs/pipeline.md`](docs/pipeline.md).
+
+## Coaching-Reports
+
+```bash
+ffep report
+```
+
+Generates the full REQ-S1-16 report set from raw exports in one command: opponent tendency
+reports, the own-team efficiency report, the decision cheatsheet and per-game win-probability
+review, each a standalone offline HTML file (PDF via the browser's print dialog, no PDF
+dependency). See [`docs/coaching-reports.md`](docs/coaching-reports.md) for the full command
+reference, the model-promotion discipline, the two maintained reference-file schemas and the
+documented discretion decisions.
 
 ## Repository map
 
