@@ -19,10 +19,11 @@ data/processed/*
 mlruns/
 
 # own-team efficiency report renders player names (PII), same policy as
-# data/raw/hudl/* above; every report is regenerable from `ffep report`
-# NOTE: root-anchored (/reports/) -- a bare `reports/` pattern matches at any
-# depth and would silently ignore src/flag_football_ep/reports/ (the report
-# *builder* source package, which must be tracked).
+# data/raw/hudl/* above; every report is regenerable from `ffep report`.
+# Anchored to the repo root (`ffep.toml`'s `reports = "reports"` output dir) --
+# an unanchored `reports/` also matches src/flag_football_ep/reports/, the
+# source package every Phase 1.4 report builder lives in, which must stay
+# tracked.
 /reports/
 
 # data/raw/legacy/, data/raw/sportapp/, data/raw/ifaf/ and data/reference/
