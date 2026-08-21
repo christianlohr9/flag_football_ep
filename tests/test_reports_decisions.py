@@ -90,9 +90,13 @@ class TestBuildDecisionsPage:
         assert "data:image/png;base64," in html  # 4th-down chart still embedded
 
     def test_closes_all_figures_after_call(self):
+        # compare against the pre-call set: other test modules may legitimately
+        # hold open figures, so asserting an empty registry is order-dependent
+        before = set(plt.get_fignums())
+
         build_decisions_page(_full_corpus_plays())
 
-        assert plt.get_fignums() == []
+        assert set(plt.get_fignums()) == before
 
     def test_no_script_tag_and_no_external_resource_references(self):
         html = build_decisions_page(_full_corpus_plays())

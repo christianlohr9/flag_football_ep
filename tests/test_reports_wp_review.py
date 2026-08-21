@@ -142,8 +142,12 @@ class TestBuildWpReviewPage:
     def test_no_open_figures_after_call(self):
         import matplotlib.pyplot as plt
 
+        # compare against the pre-call set: other test modules may legitimately
+        # hold open figures, so asserting an empty registry is order-dependent
+        before = set(plt.get_fignums())
+
         build_wp_review_page(_plain_game(), game_id="g1")
-        assert plt.get_fignums() == []
+        assert set(plt.get_fignums()) == before
 
 
 class TestWpReviewTemplate:
