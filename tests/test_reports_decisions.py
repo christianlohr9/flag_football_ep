@@ -102,6 +102,47 @@ class TestBuildDecisionsPage:
         assert "https://" not in html
 
 
+class TestGoNoGoVerdictThreeBranches:
+    """T-1.4-21: a go/no-go verdict must never be stated confidently on a straddling
+    interval -- the reading has three explicit branches, not a false-confidence default."""
+
+    def test_straddling_ci_prints_honest_too_thin_reading(self):
+        # one_point_rate 0.8 -> breakeven 0.4; two-point n=4, 1 success -> wide CI straddles it
+        html = build_decisions_page(_full_corpus_plays())
+
+        assert "Zu dünne Datenlage für eine klare Empfehlung." in html
+
+    def test_ci_clearly_above_breakeven_recommends_two_point(self):
+        rows = (
+            [{"down": 0, "yards_to_go": 3, "one_point_conv_success": 1}] * 4
+            + [{"down": 0, "yards_to_go": 3, "one_point_conv_success": 0}] * 16
+            # one_point_rate = 0.2 -> breakeven 0.1
+            + [{"down": 0, "yards_to_go": 8, "two_point_conv_success": 1}] * 45
+            + [{"down": 0, "yards_to_go": 8, "two_point_conv_success": 0}] * 5
+            # two_point_rate = 0.9, n=50 -> tight CI, clearly above 0.1
+        )
+
+        html = build_decisions_page(_plays_frame(rows))
+
+        assert "Empfehlung: 2-Punkte-Versuch" in html
+        assert "Zu dünne Datenlage" not in html
+
+    def test_ci_clearly_below_breakeven_recommends_one_point(self):
+        rows = (
+            [{"down": 0, "yards_to_go": 3, "one_point_conv_success": 1}] * 45
+            + [{"down": 0, "yards_to_go": 3, "one_point_conv_success": 0}] * 5
+            # one_point_rate = 0.9 -> breakeven 0.45
+            + [{"down": 0, "yards_to_go": 8, "two_point_conv_success": 1}] * 2
+            + [{"down": 0, "yards_to_go": 8, "two_point_conv_success": 0}] * 48
+            # two_point_rate = 0.04, n=50 -> tight CI, clearly below 0.45
+        )
+
+        html = build_decisions_page(_plays_frame(rows))
+
+        assert "Empfehlung: 1-Punkt-Versuch" in html
+        assert "Zu dünne Datenlage" not in html
+
+
 class TestDecisionsCheatsheetTemplate:
     def test_contains_both_chart_headings(self):
         html = build_decisions_page(_full_corpus_plays())
