@@ -195,8 +195,8 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 01.4-08-PLAN.md — Opponent tendency aggregation: formation × down & distance × zone, routes, play-call by score state, 4th-down and PAT behaviour, summary sentences
-- [ ] 01.4-09-PLAN.md — Own-team efficiency aggregation: out-of-fold vs champion EPA provenance, per-player EPA and YAC, drive outcomes, basic defense section
+- [x] 01.4-08-PLAN.md — Opponent tendency aggregation: formation × down & distance × zone, routes, play-call by score state, 4th-down and PAT behaviour, summary sentences
+- [x] 01.4-09-PLAN.md — Own-team efficiency aggregation: out-of-fold vs champion EPA provenance, per-player EPA and YAC, drive outcomes, basic defense section
 
 **Wave 4** *(blocked on Wave 3)*
 
