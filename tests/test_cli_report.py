@@ -14,15 +14,20 @@ store.
 from __future__ import annotations
 
 import re
+import socket
+from dataclasses import replace
+from datetime import date
 from pathlib import Path
 
 import polars as pl
 import pytest
 from typer.testing import CliRunner
 
+import test_cli_run as tcr
 import test_model_score as tms
+import test_pipeline_ingest as tpi
 from flag_football_ep.cli import app
-from flag_football_ep.config import Config
+from flag_football_ep.config import Config, ReportSettings
 from flag_football_ep.model import mlflow_store, registry
 from flag_football_ep.reports.build import (
     PRODUCTS,
@@ -509,3 +514,278 @@ class TestReportCli:
         assert "latest:" in result.output
         for stage in ("ingest", "score", "report", "total"):
             assert stage in result.output
+
+
+# --- end-to-end: synthetic raw tree -> ffep report -> written HTML on disk (task 3) ---------
+
+_MAPPED_RECEIVER = "Anna Mapped"
+_UNMAPPED_RECEIVER = "Unmapped Spielerin"
+_RICH_HUDL_COLUMNS = [
+    "PLAY #",
+    "ODK",
+    "DN",
+    "DIST",
+    "YARD LN",
+    "PLAY TYPE",
+    "RESULT",
+    "GN/LS",
+    "OFF FORM",
+    "OFF PLAY",
+    "TARGET ROUTE",
+    "THROWN BY",
+    "RECEIVED BY",
+    "YAC",
+]
+
+
+def _write_rich_hudl_csv(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [";".join(_RICH_HUDL_COLUMNS)]
+    for row in rows:
+        lines.append(";".join(str(row.get(c, "")) for c in _RICH_HUDL_COLUMNS))
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8-sig")
+
+
+def _write_rich_drive_game(
+    hudl_dir: Path, filename: str, drives: list[tuple[str, int]]
+) -> int:
+    """Same drive shape/play-count totals as `test_cli_run._write_drive_game` (score/turnover
+    drives, alternating 1-pt/2-pt PATs), with rich charting columns populated on every offensive
+    play -- so the opponent/own-team reports have real formation/route/player data to render,
+    and the unmapped-player-warning path (`_UNMAPPED_RECEIVER`, deliberately absent from the
+    seeded player-mapping CSV) is exercised end to end. Returns the total play count written."""
+    rows: list[dict] = []
+    play_num = 1
+    yard = 20
+    turnover_idx = 0
+    score_idx = 0
+    for kind, n_plays in drives:
+        if kind == "score":
+            odk = "O"
+        else:
+            odk = "O" if turnover_idx % 2 == 0 else "D"
+            turnover_idx += 1
+        for i in range(n_plays):
+            is_last = i == n_plays - 1
+            if is_last and kind == "score":
+                result = "Rush, TD"
+            elif is_last and kind == "turnover":
+                result = "Rush, Fumble"
+            else:
+                result = "Rush"
+            receiver = _MAPPED_RECEIVER if play_num % 2 == 0 else _UNMAPPED_RECEIVER
+            rows.append(
+                {
+                    "PLAY #": str(play_num),
+                    "ODK": odk,
+                    "DN": str((i % 4) + 1),
+                    "DIST": "10",
+                    "YARD LN": str(yard),
+                    "PLAY TYPE": "Rush",
+                    "RESULT": result,
+                    "GN/LS": "5",
+                    "OFF FORM": "Trips" if play_num % 2 == 0 else "Doubles",
+                    "OFF PLAY": "Inside Zone",
+                    "TARGET ROUTE": "Slant" if play_num % 2 == 0 else "Go",
+                    "THROWN BY": "QB Eins",
+                    "RECEIVED BY": receiver,
+                    "YAC": "3",
+                }
+            )
+            play_num += 1
+            yard = min(yard + 5, 45)
+        if kind == "score":
+            if score_idx % 2 == 0:
+                pat_dist, pat_yard = "3", "5"
+            else:
+                pat_dist, pat_yard = "8", "10"
+            score_idx += 1
+            rows.append(
+                {
+                    "PLAY #": str(play_num),
+                    "ODK": "O",
+                    "DN": "0",
+                    "DIST": pat_dist,
+                    "YARD LN": pat_yard,
+                    "PLAY TYPE": "PAT",
+                    "RESULT": "Good",
+                    "GN/LS": "0",
+                }
+            )
+            play_num += 1
+    _write_rich_hudl_csv(hudl_dir / filename, rows)
+    return play_num - 1
+
+
+def _write_rich_training_tree(config: Config) -> None:
+    """Writes `test_cli_run._GAMES`' three-game shape onto `config`'s raw Hudl directory via
+    `_write_rich_drive_game`, plus matching `half_boundaries.csv`/`final_scores.csv` entries --
+    mirrors `test_cli_run._write_training_tree` exactly (same totals, same helper reused for
+    the final-score point count), so the corpus trains a real (if tiny) EP/WP fit."""
+    tpi._write_reference_csvs(config.reference.half_boundaries.parent)
+
+    hb_lines = []
+    fs_lines = []
+    for filename, halves in tcr._GAMES.items():
+        all_drives = halves["half1"] + halves["half2"]
+        half1_len = _write_rich_drive_game(
+            config.paths.raw_hudl, filename, halves["half1"]
+        )
+        _write_rich_drive_game(config.paths.raw_hudl, filename, all_drives)
+        n_points = tcr._expected_offense_points(all_drives)
+        hb_lines.append(f"{filename},{half1_len + 1}\n")
+        fs_lines.append(f"{filename.removesuffix('.csv')},GER,AUT,{n_points},0,test\n")
+
+    hb_path = config.reference.half_boundaries.parent / "half_boundaries.csv"
+    hb_path.write_text(hb_path.read_text() + "".join(hb_lines))
+    fs_path = config.reference.final_scores.parent / "final_scores.csv"
+    fs_path.write_text(fs_path.read_text() + "".join(fs_lines))
+
+
+def _report_ready_toml(tmp_path: Path, repo_root: Path) -> Path:
+    """Build the full synthetic raw tree, train + promote both models once, seed the
+    group-opponents/player-mapping reference CSVs, and write the matching `ffep.toml` --
+    everything `ffep report --config ...` needs to run for real, end to end."""
+    config = tpi._make_config(tmp_path, repo_root)
+    config = replace(
+        config, report=ReportSettings(own_team="GER", cycle_start_season=2020)
+    )
+
+    _write_rich_training_tree(config)
+    _write_group_opponents(
+        config.reference.group_opponents.parent, [("AUT", "Austria")]
+    )
+    _write_player_mapping(
+        config.reference.player_mapping.parent,
+        [("hudl", "QB Eins", "QB Eins"), ("hudl", _MAPPED_RECEIVER, _MAPPED_RECEIVER)],
+    )
+
+    from flag_football_ep.model.train import train_ep, train_wp
+    from flag_football_ep.pipeline import run_ingest
+
+    run_ingest(config, ["hudl"])
+    plays = pl.read_parquet(config.paths.processed / "plays.parquet")
+
+    ep_run = train_ep(plays, config)
+    mlflow_store.ensure_experiment(config.train.ep_experiment, config)
+    tms._register_run(config, ep_run, "ep")
+    registry.promote(registry.registered_model_name("ep"), ep_run, config)
+
+    wp_run = train_wp(plays, config)
+    mlflow_store.ensure_experiment(config.train.wp_experiment, config)
+    tms._register_run(config, wp_run, "wp")
+    registry.promote(registry.registered_model_name("wp"), wp_run, config)
+
+    return _write_toml(config, tmp_path)
+
+
+_HTTP_URL_RE = re.compile(r"https?://")
+_MAX_REPORT_BYTES = 8 * 1024 * 1024
+
+
+def _assert_self_contained_html(path: Path) -> None:
+    content = path.read_text(encoding="utf-8")
+    assert content.startswith("<!DOCTYPE html"), f"{path} does not start with a doctype"
+    assert "data:image/png;base64," in content, f"{path} has no embedded chart"
+    assert "<script" not in content.lower(), f"{path} contains a <script> tag"
+    assert not _HTTP_URL_RE.search(content), (
+        f"{path} references an external http(s) URL"
+    )
+    assert path.stat().st_size < _MAX_REPORT_BYTES, f"{path} exceeds the 8 MB budget"
+
+
+class TestReportEndToEnd:
+    def test_full_run_writes_self_contained_reports_with_no_network(
+        self, tmp_path: Path, repo_root: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        toml_path = _report_ready_toml(tmp_path, repo_root)
+
+        def _no_network(*args: object, **kwargs: object) -> None:
+            raise AssertionError("ffep report must never attempt a network connection")
+
+        monkeypatch.setattr(socket.socket, "connect", _no_network)
+
+        result = _CLI_RUNNER.invoke(app, ["report", "--config", str(toml_path)])
+        assert result.exit_code == 0, result.output
+
+        reports_root = tmp_path / "reports"
+        run_dir = reports_root / date.today().isoformat()
+        latest_dir = reports_root / "latest"
+        assert run_dir.is_dir()
+        assert latest_dir.is_dir()
+
+        run_files = {p.name for p in run_dir.iterdir()}
+        latest_files = {p.name for p in latest_dir.iterdir()}
+        assert run_files == latest_files
+        assert run_files  # never an empty run
+
+        expected = {
+            opponent_filename("AUT"),
+            OWN_TEAM_FILENAME,
+            DECISIONS_FILENAME,
+        }
+        assert expected <= run_files
+        wp_review_files = [n for n in run_files if n.startswith("wp-review-")]
+        assert len(wp_review_files) == len(tcr._GAMES)
+
+        for name in run_files:
+            _assert_self_contained_html(run_dir / name)
+
+        own_team_html = (run_dir / OWN_TEAM_FILENAME).read_text(encoding="utf-8")
+        assert _UNMAPPED_RECEIVER in own_team_html
+        assert "Nicht zugeordnete Spielernamen" in own_team_html
+
+        for name in wp_review_files:
+            page = (run_dir / name).read_text(encoding="utf-8")
+            assert "out-of-fold" in page or "Champion-Modell" in page
+            assert "WP-Provenienz unbekannt" not in page
+
+    def test_opponent_flag_restricts_to_that_opponent_plus_non_opponent_products(
+        self, tmp_path: Path, repo_root: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        toml_path = _report_ready_toml(tmp_path, repo_root)
+        monkeypatch.setattr(
+            socket.socket,
+            "connect",
+            lambda *a, **k: (_ for _ in ()).throw(AssertionError("no network")),
+        )
+
+        result = _CLI_RUNNER.invoke(
+            app, ["report", "--config", str(toml_path), "--opponent", "AUT"]
+        )
+        assert result.exit_code == 0, result.output
+
+        latest_dir = tmp_path / "reports" / "latest"
+        files = {p.name for p in latest_dir.iterdir()}
+        opponent_files = {n for n in files if n.startswith("opponent-")}
+        assert opponent_files == {opponent_filename("AUT")}
+        assert OWN_TEAM_FILENAME in files
+        assert DECISIONS_FILENAME in files
+        assert any(n.startswith("wp-review-") for n in files)
+
+    def test_second_run_replaces_latest_rather_than_merging(
+        self, tmp_path: Path, repo_root: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        toml_path = _report_ready_toml(tmp_path, repo_root)
+        monkeypatch.setattr(
+            socket.socket,
+            "connect",
+            lambda *a, **k: (_ for _ in ()).throw(AssertionError("no network")),
+        )
+
+        first = _CLI_RUNNER.invoke(app, ["report", "--config", str(toml_path)])
+        assert first.exit_code == 0, first.output
+
+        latest_dir = tmp_path / "reports" / "latest"
+        stray = latest_dir / "stray-leftover.html"
+        stray.write_text("<!DOCTYPE html><html></html>", encoding="utf-8")
+        assert stray.exists()
+
+        second = _CLI_RUNNER.invoke(app, ["report", "--config", str(toml_path)])
+        assert second.exit_code == 0, second.output
+
+        assert not stray.exists()
+        run_dir = tmp_path / "reports" / date.today().isoformat()
+        run_files = {p.name for p in run_dir.iterdir()}
+        latest_files = {p.name for p in latest_dir.iterdir()}
+        assert run_files == latest_files
