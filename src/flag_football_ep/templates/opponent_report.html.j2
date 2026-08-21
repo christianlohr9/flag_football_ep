@@ -1,0 +1,33 @@
+{% extends "base.html.j2" %}
+
+{% block title %}Gegner-Report — {{ team_name }} ({{ team }}){% endblock %}
+
+{% block subtitle %}{{ generated_on.isoformat() }} · {{ overall_basis.text }}{% endblock %}
+
+{% block content %}
+<div class="summary-block">
+<ul>
+{% for sentence in summary_sentences %}
+<li>{{ sentence }}</li>
+{% endfor %}
+</ul>
+</div>
+{% if notices %}
+<div class="warning-block">
+{% for notice in notices %}
+<p>{{ notice }}</p>
+{% endfor %}
+</div>
+{% endif %}
+{% for section in sections %}
+<h2>{{ section.heading }}</h2>
+{% if section.chart_data_uri %}
+<img class="chart-img" src="{{ section.chart_data_uri }}" alt="{{ section.heading }}">
+{% endif %}
+{% if section.empty_notice %}
+<p>{{ section.empty_notice }}</p>
+{% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block footnotes %}{% endblock %}

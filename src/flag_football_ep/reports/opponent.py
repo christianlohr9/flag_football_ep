@@ -10,13 +10,17 @@ renders `OpponentReportData` into the HTML report; this module only builds it.
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
+from datetime import date
 from typing import Sequence
 
 import polars as pl
 
+from flag_football_ep.charts.tendency import render_share_bars
 from flag_football_ep.reports.aggregate import (
     DISTANCE_BUCKETS,
+    FIELD_ZONES,
     MUTED_MIN_N,
     ReportSection,
     SectionBasis,
@@ -26,6 +30,7 @@ from flag_football_ep.reports.aggregate import (
     section_basis,
     share_table,
 )
+from flag_football_ep.reports.render import fig_to_data_uri, render_page
 
 _DISTANCE_LABELS: tuple[str, ...] = tuple(label for label, _, _ in DISTANCE_BUCKETS)
 _PAT_TYPE_LABELS: tuple[str, ...] = ("1-Punkt", "2-Punkt")
@@ -539,4 +544,206 @@ def build_opponent_data(
         sections=sections,
         overall_basis=overall_basis,
         notices=tuple(notices),
+    )
+
+
+TEAM_SLUG_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
+"""Allow-list for a sanitised team slug -- mirrors `wp_review.GAME_SLUG_PATTERN`'s
+belt-and-braces re-check (validate against a known identifier pattern before the
+sanitised value is ever interpolated into a filename)."""
+
+_UNSAFE_TEAM_CHAR_PATTERN = re.compile(r"[^A-Za-z0-9._-]")
+_TEAM_DASH_RUN_PATTERN = re.compile(r"-{2,}")
+
+
+def team_slug(team: str) -> str:
+    """Turn `team` into a filesystem-safe slug, mirroring `wp_review.game_slug`'s shape.
+
+    Every character outside `[A-Za-z0-9._-]` becomes `-`, runs of `-` collapse to one, and
+    leading `.`/`-` characters are stripped -- a leading dot must never survive, so a slug
+    can never be read as a relative path segment such as `..`. Raises `ValueError` naming
+    the input when the sanitised result is empty or does not match `TEAM_SLUG_PATTERN` (the
+    belt-and-braces re-check).
+
+    The canonical team code reaching this function comes from a hand-edited reference CSV
+    (the group-opponents list a human maintains), so it is validated here even though plan
+    13 additionally restricts the CLI `--opponent` value to the closed set
+    `load_group_opponents` returns before this function is ever called -- defence in depth,
+    since this module has no way to know a future caller enforces that closed set too.
+    """
+    replaced = _UNSAFE_TEAM_CHAR_PATTERN.sub("-", team)
+    collapsed = _TEAM_DASH_RUN_PATTERN.sub("-", replaced)
+    slug = collapsed.lstrip(".-")
+    if not slug or not TEAM_SLUG_PATTERN.match(slug):
+        raise ValueError(
+            f"team_slug: {team!r} sanitises to an empty or unsafe slug -- refusing to "
+            "build an output filename from it"
+        )
+    return slug
+
+
+def opponent_filename(team: str) -> str:
+    """The path-safe filename for `team`'s opponent page: `opponent-{team_slug}.html`."""
+    return f"opponent-{team_slug(team)}.html"
+
+
+_SECTION_COLUMNS: dict[str, tuple[tuple[str, str], ...]] = {
+    "formation_tendencies": (
+        ("off_form", "Formation"),
+        ("down", "Down"),
+        ("distance_bucket", "Distance"),
+        ("field_zone", "Feldzone"),
+        ("play_type", "Play-Call"),
+    ),
+    "route_distribution": (
+        ("gruppierung", "Gruppierung"),
+        ("gruppe", "Gruppe"),
+        ("target_route", "Route"),
+    ),
+    "playcall_by_score_state": (
+        ("score_state", "Score State"),
+        ("down", "Down"),
+        ("distance_bucket", "Distance"),
+        ("play_type", "Play-Call"),
+    ),
+    "fourth_down_and_pat_behavior": (
+        ("kennzahl", "Kennzahl"),
+        ("bucket", "Bucket"),
+    ),
+}
+"""Per-section table columns, in display order, mapped to their German header label. The
+template contains no arithmetic and no formatting logic -- everything a `<td>` shows is
+precomputed here."""
+
+_SECTION_RATE_COLUMN: dict[str, str] = {
+    "formation_tendencies": "share",
+    "route_distribution": "share",
+    "playcall_by_score_state": "share",
+    "fourth_down_and_pat_behavior": "rate",
+}
+
+_SECTION_RATE_LABEL: dict[str, str] = {
+    "formation_tendencies": "Anteil",
+    "route_distribution": "Anteil",
+    "playcall_by_score_state": "Anteil",
+    "fourth_down_and_pat_behavior": "Rate",
+}
+
+_CHART_LABEL_COLUMNS: dict[str, tuple[str, ...]] = {
+    "formation_tendencies": ("off_form", "down", "distance_bucket", "field_zone", "play_type"),
+    "route_distribution": ("gruppierung", "gruppe", "target_route"),
+}
+"""The two share-based sections CONTEXT calls out for a chart -- play-call and 4th-down/PAT
+stay table-only."""
+
+
+def _format_rate_cell(value: float | None, n: object) -> str:
+    """Pre-format one rate/share cell: no decimal places, always `(n=K)`; `keine Daten`
+    when there is nothing to show. The template's only job is markup -- it never does this
+    arithmetic itself.
+    """
+    if value is None or not n:
+        return "keine Daten"
+    pct = round(value * 100)
+    return f"{pct}% (n={int(n)})"
+
+
+def _format_table_value(column: str, value: object) -> str:
+    """Plain-text display for a non-rate table cell. `down` gets a trailing `.` to read as
+    an ordinal (`1.`), matching this module's own summary-sentence convention; every other
+    column renders as-is."""
+    if value is None:
+        return "unbekannt"
+    if column == "down":
+        return f"{value}."
+    return str(value)
+
+
+def _section_headers(section_key: str) -> tuple[str, ...]:
+    columns = _SECTION_COLUMNS.get(section_key, ())
+    rate_label = _SECTION_RATE_LABEL.get(section_key, "Anteil")
+    return tuple(label for _, label in columns) + (rate_label,)
+
+
+def _section_rows(section: ReportSection) -> list[dict[str, object]]:
+    if section.table.height == 0:
+        return []
+    columns = _SECTION_COLUMNS.get(section.key, ())
+    rate_col = _SECTION_RATE_COLUMN.get(section.key)
+    rows: list[dict[str, object]] = []
+    for row in section.table.to_dicts():
+        cells = [_format_table_value(col, row.get(col)) for col, _ in columns]
+        rate_value = row.get(rate_col) if rate_col else None
+        cells.append(_format_rate_cell(rate_value, row.get("n")))
+        rows.append({"muted": bool(row.get("muted", False)), "cells": cells})
+    return rows
+
+
+def _chart_label_expr(cols: Sequence[str]) -> pl.Expr:
+    return pl.concat_str(
+        [pl.col(c).cast(pl.Utf8).fill_null(pl.lit("unbekannt")) for c in cols],
+        separator=" / ",
+    )
+
+
+def _section_chart_uri(section: ReportSection) -> str | None:
+    """Render `render_share_bars` over `section`'s table and embed it via `fig_to_data_uri`
+    -- the ONLY two sections CONTEXT calls out for a chart (formation tendencies, route
+    distribution). An empty table, or a section carrying an `empty_notice`, contributes no
+    chart, only its notice.
+    """
+    if section.empty_notice is not None:
+        return None
+    cols = _CHART_LABEL_COLUMNS.get(section.key)
+    if cols is None or section.table.height == 0:
+        return None
+    labeled = section.table.with_columns(_chart_label_expr(cols).alias("_chart_label"))
+    fig = render_share_bars(
+        labeled,
+        label_col="_chart_label",
+        share_col="share",
+        n_col="n",
+        muted_col="muted",
+        title=section.heading,
+    )
+    return fig_to_data_uri(fig)
+
+
+def build_opponent_page(
+    data: OpponentReportData, *, generated_on: date | None = None
+) -> str:
+    """Render `data` as one standalone HTML page: REQ-S1-12's deliverable. No filesystem
+    writes -- returns the rendered string; `reports.render.write_report_run` is the only
+    place a report ever lands on disk.
+
+    Every rate/share cell is pre-formatted here (see `_format_rate_cell`) into its display
+    string and each row carries a `muted` flag, so `templates/opponent_report.html.j2`
+    contains no arithmetic and no formatting logic, only markup.
+    """
+    generated_on = generated_on or date.today()
+
+    sections_context = [
+        {
+            "key": section.key,
+            "heading": section.heading,
+            "basis_text": section.basis.text,
+            "empty_notice": section.empty_notice,
+            "headers": _section_headers(section.key),
+            "rows": _section_rows(section),
+            "chart_data_uri": _section_chart_uri(section),
+        }
+        for section in data.sections
+    ]
+
+    return render_page(
+        "opponent_report.html.j2",
+        team=data.team,
+        team_name=data.team_name,
+        generated_on=generated_on,
+        overall_basis=data.overall_basis,
+        summary_sentences=data.summary_sentences,
+        notices=data.notices,
+        sections=sections_context,
+        muted_min_n=MUTED_MIN_N,
+        field_zones=FIELD_ZONES,
     )
