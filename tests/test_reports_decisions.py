@@ -100,3 +100,34 @@ class TestBuildDecisionsPage:
         assert "<script" not in html
         assert "http://" not in html
         assert "https://" not in html
+
+
+class TestDecisionsCheatsheetTemplate:
+    def test_contains_both_chart_headings(self):
+        html = build_decisions_page(_full_corpus_plays())
+
+        assert "<h2>PAT: 1 Punkt vs. 2 Punkte</h2>" in html
+        assert "<h2>4th down: Conversion nach Distance</h2>" in html
+
+    def test_each_chart_is_inside_a_chart_img_element(self):
+        html = build_decisions_page(_full_corpus_plays())
+
+        assert html.count('class="chart-img"') == 2
+
+    def test_summary_block_appears_before_first_chart_block(self):
+        html = build_decisions_page(_full_corpus_plays())
+
+        summary_index = html.index('class="summary-block"')
+        first_chart_block_index = html.index('class="chart-block"')
+
+        assert summary_index < first_chart_block_index
+
+    def test_footnotes_mention_clopper_pearson(self):
+        html = build_decisions_page(_full_corpus_plays())
+
+        assert "Clopper-Pearson" in html
+
+    def test_contains_german_lang_attribute_inherited_from_base(self):
+        html = build_decisions_page(_full_corpus_plays())
+
+        assert 'lang="de"' in html

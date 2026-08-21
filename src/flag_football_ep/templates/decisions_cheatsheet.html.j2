@@ -2,6 +2,8 @@
 
 {% block title %}Game Decisions — Cheat Sheet{% endblock %}
 
+{% block subtitle %}{{ generated_on.isoformat() }} · Datenbasis: gesamter Korpus (gepoolt){% endblock %}
+
 {% block content %}
 <div class="summary-block">
 <ul>
@@ -11,11 +13,31 @@
 </ul>
 </div>
 
+<div class="chart-block">
+<h2>PAT: 1 Punkt vs. 2 Punkte</h2>
 {% if pat_chart_uri %}
 <img class="chart-img" src="{{ pat_chart_uri }}" alt="PAT Break-even Chart">
+<p class="section-basis">Datenbasis: gesamter Korpus (gepoolt).</p>
 {% else %}
 <p class="warning-block">{{ pat_hinweis }}</p>
 {% endif %}
+</div>
 
+<div class="chart-block">
+<h2>4th down: Conversion nach Distance</h2>
 <img class="chart-img" src="{{ fourth_down_chart_uri }}" alt="4th-down Conversion Chart">
+<p class="section-basis">Datenbasis: gesamter Korpus (gepoolt).</p>
+</div>
+{% endblock %}
+
+{% block footnotes %}
+<p>
+Konfidenzintervalle nach Clopper-Pearson.
+Distance-Buckets:
+{% for label, min_distance, max_distance in distance_buckets %}
+{{ label }} yards{% if not loop.last %}, {% endif %}
+{% endfor %}
+.
+Alle Raten sind über den gesamten Korpus gepoolt.
+</p>
 {% endblock %}
