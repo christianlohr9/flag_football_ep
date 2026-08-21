@@ -181,11 +181,11 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 01.4-01-PLAN.md — Config surface (reports path, [report] settings) plus player-mapping and group-opponents reference loaders and CSVs
-- [ ] 01.4-02-PLAN.md — Reports package: Jinja2 environment with autoescape, tablet/print base template, in-memory chart embedding, dated run folder + latest/
-- [ ] 01.4-03-PLAN.md — 4th-down conversion rates by distance (Clopper-Pearson) and the headless conversion chart
-- [ ] 01.4-04-PLAN.md — Annotated per-game WP review chart with a visible synthetic-clock flag
-- [ ] 01.4-10-PLAN.md — Shared share-distribution and signed EPA bar renderers with a thin-sample convention
+- [x] 01.4-01-PLAN.md — Config surface (reports path, [report] settings) plus player-mapping and group-opponents reference loaders and CSVs
+- [x] 01.4-02-PLAN.md — Reports package: Jinja2 environment with autoescape, tablet/print base template, in-memory chart embedding, dated run folder + latest/
+- [x] 01.4-03-PLAN.md — 4th-down conversion rates by distance (Clopper-Pearson) and the headless conversion chart
+- [x] 01.4-04-PLAN.md — Annotated per-game WP review chart with a visible synthetic-clock flag
+- [x] 01.4-10-PLAN.md — Shared share-distribution and signed EPA bar renderers with a thin-sample convention
 
 **Wave 2** *(blocked on Wave 1)*
 
