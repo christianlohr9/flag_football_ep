@@ -205,7 +205,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 01.4-13-PLAN.md — `ffep report` orchestration and CLI: timed ingest → score(champion) → report, never retrains, with an end-to-end test
+- [x] 01.4-13-PLAN.md — `ffep report` orchestration and CLI: timed ingest → score(champion) → report, never retrains, with an end-to-end test
 
 **Wave 6** *(blocked on Wave 5)*
 
