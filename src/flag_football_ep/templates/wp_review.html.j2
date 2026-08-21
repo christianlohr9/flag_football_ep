@@ -1,0 +1,70 @@
+{% extends "base.html.j2" %}
+
+{% block title %}WP Review — {{ game_label }}{% endblock %}
+
+{% block subtitle %}
+{{ generated_on }} ·
+{% if summary %}Endstand: {{ summary.home_team }} {{ summary.home_score }} : {{ summary.away_score }} {{ summary.away_team }}{% else %}{{ no_wp_data_notice }}{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if summary %}
+<div class="summary-block">
+  <p>Endstand: {{ summary.home_team }} {{ summary.home_score }} : {{ summary.away_score }} {{ summary.away_team }}</p>
+  {% if summary.biggest_swing %}
+  <p>Größter Swing: Play {{ summary.biggest_swing.play_id }} ({{ "%+.1f"|format(summary.biggest_swing.wpa * 100) }}%)</p>
+  {% endif %}
+  <p>Führungswechsel: {{ summary.lead_changes }}</p>
+</div>
+{% else %}
+<div class="summary-block">
+  <p>{{ no_wp_data_notice }}</p>
+</div>
+{% endif %}
+
+{% if synthetic_clock %}
+<div class="warning-block">
+  <p>Hinweis: Die Zeitachse dieser Kurve ist eine synthetische, pro Play interpolierte
+  Spielzeit und enthält keine echten Clock-Daten. WP-Werte sind daher nicht für
+  Clock-Management-Entscheidungen nutzbar.</p>
+</div>
+{% endif %}
+
+<div class="chart-block">
+  <img class="chart-img" src="{{ chart_data_uri }}" alt="WP Review Kurve {{ game_label }}">
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Play</th>
+      <th>Ereignis</th>
+      <th>Ballbesitz</th>
+      <th>WP vorher</th>
+      <th>WP nachher</th>
+      <th>WP-Änderung</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in swing_rows %}
+    <tr>
+      <td>{{ row.play_id }}</td>
+      <td>{{ row.event }}</td>
+      <td>{{ row.posteam }}</td>
+      <td>{{ row.wp_before }}</td>
+      <td>{{ row.wp_after }}</td>
+      <td>{{ row.wp_change }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block footnotes %}
+<p>{{ wp_provenance }}</p>
+<p>Out-of-fold bedeutet: der WP-Wert stammt von einem Modell, das dieses Spiel während des
+Trainings nie gesehen hat -- so bleibt die Kurve eine ehrliche Rückschau statt einer im
+Training geschönten.</p>
+<p>Ausgewählte Plays: die betragsmäßig größten WP-Swings plus alle Score- und Turnover-Plays,
+gedeckelt auf maximal 8 Markierungen.</p>
+{% endblock %}
