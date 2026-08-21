@@ -1,0 +1,21 @@
+{% extends "base.html.j2" %}
+
+{% block title %}Game Decisions — Cheat Sheet{% endblock %}
+
+{% block content %}
+<div class="summary-block">
+<ul>
+{% for reading in readings %}
+<li>{{ reading }}</li>
+{% endfor %}
+</ul>
+</div>
+
+{% if pat_chart_uri %}
+<img class="chart-img" src="{{ pat_chart_uri }}" alt="PAT Break-even Chart">
+{% else %}
+<p class="warning-block">{{ pat_hinweis }}</p>
+{% endif %}
+
+<img class="chart-img" src="{{ fourth_down_chart_uri }}" alt="4th-down Conversion Chart">
+{% endblock %}
