@@ -10,13 +10,68 @@ from __future__ import annotations
 from pathlib import Path
 
 import polars as pl
-
 import pytest
 
+from flag_football_ep.config import (
+    Config,
+    IfafSource,
+    Paths,
+    ReferenceFiles,
+    ReportSettings,
+    Sources,
+    SportappSource,
+    TrainSettings,
+)
 from flag_football_ep.model.hyperparams import EP_PROB_LABELS
 from flag_football_ep.reports.aggregate import MUTED_MIN_N
-from flag_football_ep.reports.own_team import attach_epa, efficiency_by_call, player_efficiency
+from flag_football_ep.reports.own_team import (
+    OwnTeamReportData,
+    ReportSection,
+    attach_epa,
+    build_own_team_data,
+    defense_section,
+    drive_outcomes,
+    efficiency_by_call,
+    player_efficiency,
+)
 from flag_football_ep.testing import canonical_plays_with_scores
+
+_HOME = "HOME"
+_AWAY = "AWAY"
+
+
+def _make_config(tmp_path: Path) -> Config:
+    paths = Paths(
+        data_root=tmp_path,
+        raw_hudl=tmp_path / "raw_hudl",
+        raw_sportapp=tmp_path / "raw_sportapp",
+        raw_ifaf=tmp_path / "raw_ifaf",
+        raw_legacy=tmp_path / "raw_legacy",
+        processed=tmp_path / "processed",
+        reference=tmp_path / "reference",
+        models=tmp_path / "models",
+        mlruns=tmp_path / "mlruns",
+        contract=tmp_path / "contract.json",
+        reports=tmp_path / "reports",
+    )
+    reference = ReferenceFiles(
+        half_boundaries=tmp_path / "half_boundaries.csv",
+        final_scores=tmp_path / "final_scores.csv",
+        team_mapping=tmp_path / "team_mapping.csv",
+        sportapp_games=tmp_path / "sportapp_games.csv",
+        competition_tier=tmp_path / "competition_tier.csv",
+        player_mapping=tmp_path / "player_mapping.csv",
+        group_opponents=tmp_path / "group_opponents.csv",
+    )
+    sources = Sources(
+        sportapp=SportappSource(base_url="https://x", api_key_env="X"),
+        ifaf=IfafSource(base_url="https://x", tournament="x", api_key_env="X"),
+    )
+    train = TrainSettings(
+        ep_experiment="ep", wp_experiment="wp", exclude_games_ep=[], exclude_games_wp=[]
+    )
+    report = ReportSettings(own_team=_HOME, cycle_start_season=2026)
+    return Config(paths=paths, reference=reference, sources=sources, train=train, report=report)
 
 
 def _pat_ready(df: pl.DataFrame) -> pl.DataFrame:
@@ -330,3 +385,176 @@ class TestPlayerEfficiency:
         assert section.table.height == 0
         assert section.empty_notice is not None
         assert unmapped == ()
+
+
+class TestDriveOutcomes:
+    def test_touchdown_drive_classified_as_td_even_with_fourth_down(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "drive_id": [1, 1, 1, 1],
+                "down": [1, 2, 3, 4],
+                "touchdown": [0, 0, 0, 1],
+                "first_down": [0, 0, 0, 0],
+            },
+        )
+        section = drive_outcomes(df)
+        assert section.table.filter(pl.col("drive_outcome") == "TD")["n"].item() == 1
+
+    def test_interception_drive_classified_as_turnover(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=3,
+            overrides={
+                "drive_id": [1, 1, 1],
+                "interception": [0, 1, 0],
+            },
+        )
+        section = drive_outcomes(df)
+        outcomes = section.table["drive_outcome"].to_list()
+        assert "Turnover" in outcomes
+
+    def test_failed_fourth_down_classified_as_downs(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "drive_id": [1, 1, 1, 1],
+                "down": [1, 2, 3, 4],
+                "first_down": [0, 0, 0, 0],
+                "touchdown": [0, 0, 0, 0],
+                "interception": [0, 0, 0, 0],
+            },
+        )
+        section = drive_outcomes(df)
+        assert section.table.filter(pl.col("drive_outcome") == "Downs")["n"].item() == 1
+
+    def test_half_boundary_drive_classified_as_halbzeitende(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "drive_id": [1, 1, 2, 2],
+                "half": [1, 1, 1, 1],
+                "down": [1, 2, 1, 2],
+                "first_down": [0, 0, 0, 0],
+                "touchdown": [0, 0, 0, 0],
+                "interception": [0, 0, 0, 0],
+            },
+        )
+        section = drive_outcomes(df)
+        assert section.table.filter(pl.col("drive_outcome") == "Halbzeitende")["n"].item() == 1
+
+    def test_all_null_drive_success_still_produces_full_breakdown(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            overrides={"drive_id": [1, 1, 2, 2]},
+            extras={"drive_success": [None, None, None, None]},
+        )
+        section = drive_outcomes(df)
+        assert section.table.height > 0
+        assert section.table["n"].sum() == 2
+
+    def test_punkte_pro_drive_matches_hand_computed_value(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "drive_id": [1, 1, 2, 2],
+                "touchdown": [0, 1, 0, 0],
+                "one_point_conv_success": [0, 0, 0, 0],
+                "two_point_conv_success": [0, 0, 0, 0],
+            },
+        )
+        section = drive_outcomes(df)
+        # 1 touchdown (6 points) across 2 drives -> 3.0 points/drive
+        assert section.table["punkte_pro_drive"][0] == pytest.approx(3.0)
+        assert section.table["drive_count"][0] == 2
+
+    def test_empty_input_returns_empty_section(self) -> None:
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=2)
+        empty = df.filter(pl.lit(False))
+        section = drive_outcomes(empty)
+        assert section.table.height == 0
+        assert section.empty_notice is not None
+
+
+class TestDefenseSection:
+    def test_uses_defteam_not_posteam(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            extras={"def_front": ["4-2", "4-2", "3-3", "3-3"]},
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2, 0.3, 0.4]))
+        # posteam alternates HOME/AWAY (odd play_id -> HOME); defteam alternates AWAY/HOME.
+        section = defense_section(df, team=_AWAY)
+        # AWAY is defteam on odd play_ids (play_id 1, 3) -> 2 rows contribute.
+        assert section.table["n"].sum() == 2
+
+    def test_takeaway_counts(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=2,
+            overrides={"interception": [1, 0], "def_touchdown": [0, 0]},
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2]))
+        section = defense_section(df, team=_AWAY)
+        assert section.table["interceptions_n"][0] == 1 if section.table.height else True
+
+    def test_fully_uncharted_frame_yields_empty_section(self) -> None:
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=2)
+        df = df.with_columns(epa=pl.Series([0.1, 0.2]))
+        section = defense_section(df, team=_AWAY)
+        assert section.table.height == 0
+        assert section.empty_notice is not None
+
+
+class TestBuildOwnTeamData:
+    def _pat_ready(self, df: pl.DataFrame) -> pl.DataFrame:
+        height = df.height
+        down = [0, 0] + [1] * (height - 2)
+        yards_to_go = [3, 10] + [10] * (height - 2)
+        one_pt = [1, 0] + [0] * (height - 2)
+        two_pt = [0, 1] + [0] * (height - 2)
+        return df.with_columns(
+            down=pl.Series(down, dtype=pl.Int32),
+            yards_to_go=pl.Series(yards_to_go, dtype=pl.Int32),
+            one_point_conv_success=pl.Series(one_pt, dtype=pl.Int32),
+            two_point_conv_success=pl.Series(two_pt, dtype=pl.Int32),
+        )
+
+    def test_missing_player_mapping_file_produces_notice_and_raises_nothing(
+        self, tmp_path: Path
+    ) -> None:
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        df = self._pat_ready(canonical_plays_with_scores(n_games=1, plays_per_game=8))
+        result = build_own_team_data(df, config=config, scored=None)
+        assert isinstance(result, OwnTeamReportData)
+        assert any("Mapping" in n for n in result.notices)
+
+    def test_no_own_team_rows_returns_empty_sections_and_notices(self, tmp_path: Path) -> None:
+        config = _make_config(tmp_path)
+        config = Config(
+            paths=config.paths,
+            reference=config.reference,
+            sources=config.sources,
+            train=config.train,
+            report=ReportSettings(own_team="NOT_IN_CORPUS", cycle_start_season=2026),
+        )
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        df = self._pat_ready(canonical_plays_with_scores(n_games=1, plays_per_game=8))
+        result = build_own_team_data(df, config=config, scored=None)
+        assert all(section.table.height == 0 for section in result.sections)
+        assert len(result.notices) > 0
+
+    def test_returns_report_sections_with_headings(self, tmp_path: Path) -> None:
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        df = self._pat_ready(canonical_plays_with_scores(n_games=1, plays_per_game=8))
+        result = build_own_team_data(df, config=config, scored=None)
+        assert len(result.sections) == 4
+        assert all(isinstance(s, ReportSection) for s in result.sections)

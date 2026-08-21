@@ -23,6 +23,7 @@ from typing import Literal
 
 import polars as pl
 
+from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
     add_ep_variables,
     add_wp_variables,
@@ -31,18 +32,25 @@ from flag_football_ep.features.mutations import (
     prepare_wp_data,
 )
 from flag_football_ep.model.hyperparams import EP_PROB_LABELS
-from flag_football_ep.reference import map_players
+from flag_football_ep.reference import MissingReferenceFile, load_player_mapping, map_players
 from flag_football_ep.reports.aggregate import (
     MUTED_MIN_N,
     SectionBasis,
     charted_only,
     rate_table,
     section_basis,
+    share_table,
 )
 
 EpaSource = Literal["oof", "champion"]
 
 _ATTACH_ROW_ID = "_attach_epa_row_id"
+
+_EMPTY_MAPPING_SCHEMA: dict[str, pl.DataType] = {
+    "source": pl.Utf8,
+    "source_player": pl.Utf8,
+    "canonical_player": pl.Utf8,
+}
 
 
 @dataclass(frozen=True)
@@ -440,3 +448,280 @@ def player_efficiency(
     basis = section_basis(canon.filter(pl.col("_qb_player").is_not_null() | pl.col("received_by").is_not_null()))
     section = ReportSection(key=key, heading=heading, table=table, basis=basis, empty_notice=empty_notice)
     return section, tuple(unmapped)
+
+
+# --- drive_outcomes -------------------------------------------------------------------------
+
+_DRIVE_TABLE_SCHEMA: dict[str, pl.DataType] = {
+    "drive_outcome": pl.Utf8,
+    "n": pl.Int64,
+    "group_n": pl.Int64,
+    "share": pl.Float64,
+    "ci_low": pl.Float64,
+    "ci_high": pl.Float64,
+    "muted": pl.Boolean,
+    "punkte_pro_drive": pl.Float64,
+    "drive_count": pl.Int64,
+}
+
+
+def drive_outcomes(plays: pl.DataFrame) -> ReportSection:
+    """Drive-outcome breakdown (TD / Turnover / Downs / Halbzeitende / Sonstiges) plus a
+    `punkte_pro_drive` headline, broadcast onto every table row alongside `drive_count`.
+
+    Derives the breakdown FRESH per `(game_id, drive_id)`. Does NOT read the canonical
+    `drive_success` column: it is populated only for the `legacy` source with different,
+    binary semantics, so aggregating it would null out the majority of the corpus (RESEARCH
+    Pitfall 4). Do not "fix" this back to reading `drive_success`.
+
+    Classification precedence per drive: `TD` when any play has `touchdown == 1`; `Turnover`
+    when any play has `interception == 1` or the drive's last play changes possession
+    (`posteam_after != posteam`) on a non-scoring play; `Downs` when the last play is a 4th
+    down that did not convert (`down == 4` and `first_down == 0`); `Halbzeitende` when the
+    last play is the last play of its `(game_id, half)`; otherwise `Sonstiges`.
+    """
+    heading = "Drive Success: Punkte pro Drive und Drive-Ausgänge"
+    key = "drive_outcomes"
+
+    if plays.height == 0:
+        table = pl.DataFrame(schema=_DRIVE_TABLE_SCHEMA)
+        return ReportSection(
+            key=key,
+            heading=heading,
+            table=table,
+            basis=section_basis(plays),
+            empty_notice="Keine Drives vorhanden.",
+        )
+
+    ordered = plays.sort(["game_id", "drive_id", "play_id"])
+
+    half_ends = ordered.group_by(["game_id", "half"], maintain_order=True).agg(
+        _half_max_play_id=pl.col("play_id").max()
+    )
+
+    per_drive = (
+        ordered.group_by(["game_id", "drive_id"], maintain_order=True)
+        .agg(
+            any_touchdown=(pl.col("touchdown") == 1).any(),
+            any_interception=(pl.col("interception") == 1).any(),
+            last_down=pl.col("down").last(),
+            last_first_down=pl.col("first_down").last(),
+            last_play_id=pl.col("play_id").last(),
+            last_half=pl.col("half").last(),
+            last_posteam=pl.col("posteam").last(),
+            last_posteam_after=pl.col("posteam_after").last(),
+        )
+        .join(
+            half_ends,
+            left_on=["game_id", "last_half"],
+            right_on=["game_id", "half"],
+            how="left",
+        )
+    )
+
+    outcome_expr = (
+        pl.when(pl.col("any_touchdown"))
+        .then(pl.lit("TD"))
+        .when(pl.col("any_interception"))
+        .then(pl.lit("Turnover"))
+        .when(
+            pl.col("last_posteam_after").is_not_null()
+            & (pl.col("last_posteam_after") != pl.col("last_posteam"))
+        )
+        .then(pl.lit("Turnover"))
+        .when((pl.col("last_down") == 4) & (pl.col("last_first_down") == 0))
+        .then(pl.lit("Downs"))
+        .when(pl.col("last_play_id") == pl.col("_half_max_play_id"))
+        .then(pl.lit("Halbzeitende"))
+        .otherwise(pl.lit("Sonstiges"))
+    )
+    per_drive = per_drive.with_columns(drive_outcome=outcome_expr)
+
+    n_drives = per_drive.height
+    # share_table requires at least one group column; "_all" is a constant so every drive
+    # lands in the same single group -- the group column is dropped from the output below.
+    per_drive = per_drive.with_columns(_all=pl.lit("all"))
+    table = share_table(per_drive, group_cols=["_all"], category_col="drive_outcome").drop(
+        "_all"
+    )
+
+    total_points = plays.select(
+        (
+            pl.col("touchdown").fill_null(0) * 6
+            + pl.col("one_point_conv_success").fill_null(0) * 1
+            + pl.col("two_point_conv_success").fill_null(0) * 2
+        ).sum()
+    ).item()
+    punkte_pro_drive = (total_points / n_drives) if n_drives else None
+
+    table = table.with_columns(
+        punkte_pro_drive=pl.lit(punkte_pro_drive, dtype=pl.Float64),
+        drive_count=pl.lit(n_drives, dtype=pl.Int64),
+    ).select(list(_DRIVE_TABLE_SCHEMA))
+
+    basis = section_basis(plays)
+    empty_notice = None if table.height > 0 else "Keine Drives vorhanden."
+    return ReportSection(key=key, heading=heading, table=table, basis=basis, empty_notice=empty_notice)
+
+
+# --- defense_section -------------------------------------------------------------------------
+
+_DEFENSE_TABLE_SCHEMA: dict[str, pl.DataType] = {
+    "dimension": pl.Utf8,
+    "wert": pl.Utf8,
+    "n": pl.Int64,
+    "epa_play_allowed": pl.Float64,
+    "muted": pl.Boolean,
+    "interceptions_n": pl.Int64,
+    "def_touchdowns_n": pl.Int64,
+}
+
+_DEFENSE_DIMENSIONS: tuple[str, ...] = ("def_front", "coverage")
+
+
+def defense_section(plays: pl.DataFrame, *, team: str) -> ReportSection:
+    """EPA/play allowed by `def_front` and `coverage`, plus takeaway counts.
+
+    Filters to `defteam == team` (the own team on defense). `epa_play_allowed` is the mean
+    EPA of the OPPOSING offense on those plays -- a lower value is better for the defense.
+    Both `def_front` and `coverage` are Hudl-only, restricted individually with
+    `charted_only`; the basis reports the union of rows charted on at least one of the two.
+    This extends REQ-S1-13, it does not redefine it -- no per-defender attribution here
+    (explicitly deferred in CONTEXT); no player mapping is needed since both fields are
+    formation-level.
+    """
+    heading = "Defense: EPA/Play erlaubt nach DEF FRONT und COVERAGE (niedriger ist besser)"
+    key = "defense_section"
+
+    defense_all = plays.filter(pl.col("defteam") == team)
+    df = defense_all.filter(pl.col("epa").is_not_null())
+
+    interceptions_n = int(defense_all.filter(pl.col("interception") == 1).height)
+    def_touchdowns_n = int(defense_all.filter(pl.col("def_touchdown") == 1).height)
+
+    tables = []
+    for dim in _DEFENSE_DIMENSIONS:
+        charted = charted_only(df, dim)
+        if charted.height == 0:
+            continue
+        grouped = (
+            charted.group_by(dim, maintain_order=True)
+            .agg(n=pl.len().cast(pl.Int64), epa_play_allowed=pl.col("epa").mean())
+            .rename({dim: "wert"})
+            .with_columns(dimension=pl.lit(dim), muted=pl.col("n") < MUTED_MIN_N)
+            .select(["dimension", "wert", "n", "epa_play_allowed", "muted"])
+        )
+        tables.append(grouped)
+
+    table = pl.concat(tables, how="vertical") if tables else pl.DataFrame(
+        schema={k: v for k, v in _DEFENSE_TABLE_SCHEMA.items() if k not in ("interceptions_n", "def_touchdowns_n")}
+    )
+    table = table.with_columns(
+        interceptions_n=pl.lit(interceptions_n, dtype=pl.Int64),
+        def_touchdowns_n=pl.lit(def_touchdowns_n, dtype=pl.Int64),
+    ).select(list(_DEFENSE_TABLE_SCHEMA))
+
+    charted_mask = pl.lit(False)
+    for dim in _DEFENSE_DIMENSIONS:
+        charted_mask = charted_mask | pl.col(dim).is_not_null()
+    basis_df = df.filter(charted_mask) if df.height else df
+    basis = section_basis(basis_df)
+
+    empty_notice = (
+        None if table.height > 0 else "Kein Charting-Material für diese Auswertung vorhanden."
+    )
+    return ReportSection(key=key, heading=heading, table=table, basis=basis, empty_notice=empty_notice)
+
+
+# --- build_own_team_data ---------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class OwnTeamReportData:
+    """The complete own-team efficiency data object (REQ-S1-13), render-ready."""
+
+    team: str
+    cycle_start_season: int
+    sections: tuple[ReportSection, ...]
+    unmapped_players: tuple[str, ...]
+    overall_basis: SectionBasis
+    notices: tuple[str, ...]
+
+
+def build_own_team_data(
+    plays: pl.DataFrame, *, config: Config, scored: pl.DataFrame | None = None
+) -> OwnTeamReportData:
+    """Assemble the full own-team `OwnTeamReportData` for `config.report.own_team`.
+
+    `attach_epa` runs on the FULL, unfiltered `plays` corpus first (see `attach_epa`'s
+    docstring for why), and only the resulting EPA-attached frame is filtered to
+    `posteam == team` (offensive sections) / `defteam == team` (defense section).
+    `notices` collects a German string per degraded condition: a missing OOF predictions
+    file (either EP or WP), plays with no EPA source at all, a missing player-mapping file,
+    unmapped player names, any empty section, and an absent own team. Never raises.
+    """
+    team = config.report.own_team
+    cycle_start_season = config.report.cycle_start_season
+    notices: list[str] = []
+
+    ep_oof_path = config.paths.processed / "oof_predictions_ep.parquet"
+    wp_oof_path = config.paths.processed / "oof_predictions_wp.parquet"
+    if not ep_oof_path.exists():
+        notices.append(
+            f"Keine Out-of-fold EP-Predictions gefunden ({ep_oof_path}); historische Plays "
+            "bleiben ohne EPA, sofern kein Champion-Scoring vorliegt."
+        )
+    if not wp_oof_path.exists():
+        notices.append(
+            f"Keine Out-of-fold WP-Predictions gefunden ({wp_oof_path}); historische Plays "
+            "bleiben ohne WP, sofern kein Champion-Scoring vorliegt."
+        )
+
+    scored_plays = attach_epa(plays, processed_dir=config.paths.processed, scored=scored)
+
+    if scored_plays.height:
+        n_no_source = scored_plays.filter(pl.col("epa_source").is_null()).height
+        if n_no_source:
+            notices.append(
+                f"{n_no_source} Play(s) ohne EPA-Quelle (weder OOF noch Champion-Scoring) "
+                "wurden von den EPA-Auswertungen ausgeschlossen."
+            )
+
+    offense = scored_plays.filter(pl.col("posteam") == team)
+    defense = scored_plays.filter(pl.col("defteam") == team)
+
+    try:
+        mapping = load_player_mapping(config.reference.player_mapping)
+    except MissingReferenceFile:
+        notices.append(
+            f"Spieler-Mapping-Datei fehlt ({config.reference.player_mapping}); nicht "
+            "zugeordnete Spielernamen können nicht aufgelöst werden."
+        )
+        mapping = pl.DataFrame(schema=_EMPTY_MAPPING_SCHEMA)
+
+    call_section = efficiency_by_call(offense, cycle_start_season=cycle_start_season)
+    player_section, unmapped = player_efficiency(
+        offense, mapping, cycle_start_season=cycle_start_season
+    )
+    drive_section = drive_outcomes(offense)
+    def_section = defense_section(defense, team=team)
+
+    if unmapped:
+        notices.append(f"Nicht zugeordnete Spielernamen: {', '.join(unmapped)}")
+
+    sections = (call_section, player_section, drive_section, def_section)
+    for section in sections:
+        if section.table.height == 0:
+            notices.append(f"Abschnitt '{section.heading}' enthält keine Daten.")
+
+    if offense.height == 0:
+        notices.append(f"Keine Offense-Plays für {team!r} im Korpus gefunden.")
+
+    return OwnTeamReportData(
+        team=team,
+        cycle_start_season=cycle_start_season,
+        sections=sections,
+        unmapped_players=tuple(unmapped),
+        overall_basis=section_basis(offense),
+        notices=tuple(notices),
+    )
