@@ -189,9 +189,9 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 01.4-05-PLAN.md — Report aggregation primitives: field-zone and score-state buckets, rate cells with n + CI + muted, per-section data basis
-- [ ] 01.4-06-PLAN.md — Game-decisions cheat sheet: PAT break-even and 4th-down on one printable page with plain-German readings
-- [ ] 01.4-07-PLAN.md — Per-game WP review page with the swing table and a path-safe filename
+- [x] 01.4-05-PLAN.md — Report aggregation primitives: field-zone and score-state buckets, rate cells with n + CI + muted, per-section data basis
+- [x] 01.4-06-PLAN.md — Game-decisions cheat sheet: PAT break-even and 4th-down on one printable page with plain-German readings
+- [x] 01.4-07-PLAN.md — Per-game WP review page with the swing table and a path-safe filename
 
 **Wave 3** *(blocked on Wave 2)*
 
