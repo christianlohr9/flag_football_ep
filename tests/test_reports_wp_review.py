@@ -142,3 +142,58 @@ class TestBuildWpReviewPage:
 
         build_wp_review_page(_plain_game(), game_id="g1")
         assert plt.get_fignums() == []
+
+
+class TestWpReviewTemplate:
+    def test_warning_block_present_only_when_synthetic_clock_true(self):
+        page_with = build_wp_review_page(
+            _plain_game(), game_id="g1", synthetic_clock=True
+        )
+        page_without = build_wp_review_page(
+            _plain_game(), game_id="g1", synthetic_clock=False
+        )
+        assert 'class="warning-block"' in page_with
+        assert 'class="warning-block"' not in page_without
+
+    def test_swing_table_row_count_matches_annotations_exactly(self):
+        from flag_football_ep.charts.wp_review import select_wp_annotations
+
+        game = _plain_game()
+        annotations = select_wp_annotations(game)
+        page = build_wp_review_page(game, game_id="g1")
+        assert page.count("<tr") == annotations.height + 1
+
+    def test_footnotes_contain_exact_provenance_string(self):
+        from flag_football_ep.reports.wp_review import _wp_provenance_text
+
+        game = _plain_game()
+        n = game.height
+        sources = ["oof"] * (n // 2) + ["champion"] * (n - n // 2)
+        game = game.with_columns(wp_source=pl.Series(sources))
+        expected = _wp_provenance_text(game)
+        page = build_wp_review_page(game, game_id="g1")
+        assert expected in page
+
+    def test_summary_block_precedes_chart_block_in_document_order(self):
+        page = build_wp_review_page(_plain_game(), game_id="g1")
+        # search past the <style> block (which references both class names in the print
+        # media query) so this asserts body content order, not CSS selector order.
+        body_start = page.index("<body>")
+        assert page.index('class="summary-block"', body_start) < page.index(
+            'class="chart-block"', body_start
+        )
+
+    def test_game_id_with_markup_renders_escaped(self):
+        game = _game_plays([{"play_id": 1, "home_wp": 0.5, "wpa": 0.01}])
+        # only home_team/away_team drive game_label when both are present -- drop them so
+        # the fallback path (bare game_id) is exercised.
+        game = game.drop("home_team", "away_team")
+        page = build_wp_review_page(game, game_id="<b>x</b>")
+        assert "<b>x</b>" not in page
+        assert "&lt;b&gt;x&lt;/b&gt;" in page
+
+    def test_no_script_tags_and_no_external_references(self):
+        page = build_wp_review_page(_plain_game(), game_id="g1")
+        assert "<script" not in page
+        assert 'src="http' not in page
+        assert 'href="http' not in page
