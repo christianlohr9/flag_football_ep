@@ -6,13 +6,8 @@ predictions, new plays use the promoted champion's scores, and a single play nev
 from both. `attach_epa` is the single place this join happens; every other function in this
 module consumes its output.
 
-`ReportSection` here intentionally mirrors `reports.opponent.ReportSection` (plan 08)
-field-for-field (`key`, `heading`, `table`, `basis`, `empty_notice`). Plan 08 is a same-wave
-sibling plan (wave 3) that this plan does not declare a dependency on, and
-`reports/opponent.py` had not landed in this worktree at the time this plan executed, so a
-local copy is declared here rather than importing one that does not exist yet. A follow-up
-plan should deduplicate onto one shared definition (e.g. move `ReportSection` into
-`reports/aggregate.py`) once both plans are merged.
+`ReportSection` is the shared per-section container from `reports.aggregate`, used by both
+this module and `reports.opponent`.
 """
 
 from __future__ import annotations
@@ -35,6 +30,7 @@ from flag_football_ep.model.hyperparams import EP_PROB_LABELS
 from flag_football_ep.reference import MissingReferenceFile, load_player_mapping, map_players
 from flag_football_ep.reports.aggregate import (
     MUTED_MIN_N,
+    ReportSection,
     SectionBasis,
     charted_only,
     rate_table,
@@ -51,21 +47,6 @@ _EMPTY_MAPPING_SCHEMA: dict[str, pl.DataType] = {
     "source_player": pl.Utf8,
     "canonical_player": pl.Utf8,
 }
-
-
-@dataclass(frozen=True)
-class ReportSection:
-    """One report section: heading, table, data basis, and an explicit empty-data notice.
-
-    `empty_notice` is a German sentence set when `table` is empty, `None` otherwise --
-    CONTEXT's locked "explicit no-data block rather than failing" behaviour.
-    """
-
-    key: str
-    heading: str
-    table: pl.DataFrame
-    basis: SectionBasis
-    empty_notice: str | None
 
 
 # --- attach_epa ---------------------------------------------------------------------------

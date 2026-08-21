@@ -18,6 +18,7 @@ import polars as pl
 from flag_football_ep.reports.aggregate import (
     DISTANCE_BUCKETS,
     MUTED_MIN_N,
+    ReportSection,
     SectionBasis,
     add_report_buckets,
     charted_only,
@@ -32,22 +33,6 @@ _PAT_CHOICE_LABELS: tuple[str, ...] = ("Gesamt",)
 
 _NO_CHARTED_MATERIAL = "Kein Charting-Material für diese Auswertung vorhanden."
 _NO_PLAYS = "Keine Plays für diese Auswertung vorhanden."
-
-
-@dataclass(frozen=True)
-class ReportSection:
-    """One rendered block of the opponent report.
-
-    `empty_notice` is a German sentence set when `table` has nothing meaningful to show
-    (CONTEXT's locked "explicit no-data block rather than failing" behaviour, resolved
-    as a per-section notice) and `None` otherwise.
-    """
-
-    key: str
-    heading: str
-    table: pl.DataFrame
-    basis: SectionBasis
-    empty_notice: str | None
 
 
 @dataclass(frozen=True)

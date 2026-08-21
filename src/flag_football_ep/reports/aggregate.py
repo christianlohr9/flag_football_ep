@@ -173,6 +173,23 @@ def section_basis(df: pl.DataFrame) -> SectionBasis:
     return SectionBasis(games=games, sources=sources, n_plays=n_plays, text=text)
 
 
+@dataclass(frozen=True)
+class ReportSection:
+    """One rendered block of a tendency report: heading, table, data basis, empty notice.
+
+    `empty_notice` is a German sentence set when `table` has nothing meaningful to show
+    (CONTEXT's locked "explicit no-data block rather than failing" behaviour, resolved
+    as a per-section notice) and `None` otherwise. Shared by the opponent and own-team
+    report builders.
+    """
+
+    key: str
+    heading: str
+    table: pl.DataFrame
+    basis: SectionBasis
+    empty_notice: str | None
+
+
 def charted_only(plays: pl.DataFrame, column: str) -> pl.DataFrame:
     """Filter to rows where `column` is non-null.
 
