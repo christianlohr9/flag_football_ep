@@ -23,6 +23,7 @@ from flag_football_ep.config import (
     IfafSource,
     Paths,
     ReferenceFiles,
+    ReportSettings,
     Sources,
     SportappSource,
     TrainSettings,
@@ -52,6 +53,7 @@ def _make_config(
         models=tmp_path / "models",
         mlruns=tmp_path / "mlruns",
         contract=tmp_path / "docs" / "data-contract.schema.json",
+        reports=tmp_path / "reports",
     )
     reference = ReferenceFiles(
         half_boundaries=tmp_path / "data" / "reference" / "half_boundaries.csv",
@@ -59,6 +61,8 @@ def _make_config(
         team_mapping=tmp_path / "data" / "reference" / "team_mapping.csv",
         sportapp_games=tmp_path / "data" / "reference" / "sportapp_games.csv",
         competition_tier=tmp_path / "data" / "reference" / "competition_tier.csv",
+        player_mapping=tmp_path / "data" / "reference" / "player_mapping.csv",
+        group_opponents=tmp_path / "data" / "reference" / "group_opponents.csv",
     )
     # REQ-S1-09 adoption (plan 01.3-09): `train_ep`/`train_wp` now call
     # `_build_competition_tier` unconditionally, which reads this file.
@@ -84,7 +88,8 @@ def _make_config(
         exclude_games_ep=exclude_games_ep or [],
         exclude_games_wp=exclude_games_wp or [],
     )
-    return Config(paths=paths, reference=reference, sources=sources, train=train)
+    report = ReportSettings(own_team="HOME", cycle_start_season=2026)
+    return Config(paths=paths, reference=reference, sources=sources, train=train, report=report)
 
 
 def _register_trivial_version(config: Config, name: str, experiment: str = "ep_model_test") -> tuple[str, str]:

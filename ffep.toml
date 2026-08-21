@@ -15,6 +15,7 @@ reference = "data/reference"
 models = "models"
 mlruns = "mlruns"
 contract = "docs/data-contract.schema.json"
+reports = "reports"
 
 [reference]
 half_boundaries = "data/reference/half_boundaries.csv"
@@ -22,6 +23,8 @@ final_scores = "data/reference/final_scores.csv"
 team_mapping = "data/reference/team_mapping.csv"
 sportapp_games = "data/reference/sportapp_games.csv"
 competition_tier = "data/reference/competition_tier.csv"
+player_mapping = "data/reference/player_mapping.csv"
+group_opponents = "data/reference/group_opponents.csv"
 
 [sources.sportapp]
 base_url = "https://main-api-1.sportapp.fi/api/v1/public"
@@ -40,3 +43,11 @@ ep_experiment = "ep_model"
 wp_experiment = "wp_model"
 exclude_games_ep = ["legacy-37"]
 exclude_games_wp = ["legacy-35"]
+
+# cycle_start_season is the documented "current cycle" boundary (Phase 1.4
+# CONTEXT.md left this to implementer discretion): seasons >= this value are
+# the current cycle in own-team player tables. own_team is the canonical
+# team code the own-team efficiency report is built for.
+[report]
+own_team = "GER"
+cycle_start_season = 2025

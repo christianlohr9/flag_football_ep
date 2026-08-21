@@ -29,6 +29,7 @@ from flag_football_ep.config import (
     IfafSource,
     Paths,
     ReferenceFiles,
+    ReportSettings,
     Sources,
     SportappSource,
     TrainSettings,
@@ -60,6 +61,7 @@ def _make_config(root: Path, repo_root: Path) -> Config:
         models=root / "models",
         mlruns=root / "mlruns",
         contract=repo_root / "docs" / "data-contract.schema.json",
+        reports=root / "reports",
     )
     reference = ReferenceFiles(
         half_boundaries=data_root / "reference" / "half_boundaries.csv",
@@ -67,6 +69,8 @@ def _make_config(root: Path, repo_root: Path) -> Config:
         team_mapping=data_root / "reference" / "team_mapping.csv",
         sportapp_games=data_root / "reference" / "sportapp_games.csv",
         competition_tier=data_root / "reference" / "competition_tier.csv",
+        player_mapping=data_root / "reference" / "player_mapping.csv",
+        group_opponents=data_root / "reference" / "group_opponents.csv",
     )
     sources = Sources(
         sportapp=SportappSource(base_url="https://example.invalid", api_key_env="SPORTAPP_API_KEY"),
@@ -75,7 +79,8 @@ def _make_config(root: Path, repo_root: Path) -> Config:
     train = TrainSettings(
         ep_experiment="ep_model", wp_experiment="wp_model", exclude_games_ep=[], exclude_games_wp=[]
     )
-    return Config(paths=paths, reference=reference, sources=sources, train=train)
+    report = ReportSettings(own_team="HOME", cycle_start_season=2026)
+    return Config(paths=paths, reference=reference, sources=sources, train=train, report=report)
 
 
 def _write_hudl_csv(path: Path, rows: list[dict]) -> Path:
@@ -278,6 +283,14 @@ def _write_reference_csvs(reference_dir: Path) -> None:
         "ifaf,IFAF Test Cup,womens-international\n",
         encoding="utf-8",
     )
+    (reference_dir / "player_mapping.csv").write_text(
+        "source,source_player,canonical_player\nhudl,Test Player,Test Player\n",
+        encoding="utf-8",
+    )
+    (reference_dir / "group_opponents.csv").write_text(
+        "canonical_team,team_name\nAUT,Austria\n",
+        encoding="utf-8",
+    )
 
 
 @pytest.fixture
@@ -326,6 +339,7 @@ reference = "{data_root / "reference"}"
 models = "{root / "models"}"
 mlruns = "{root / "mlruns"}"
 contract = "{repo_root / "docs" / "data-contract.schema.json"}"
+reports = "{root / "reports"}"
 
 [reference]
 half_boundaries = "{data_root / "reference" / "half_boundaries.csv"}"
@@ -333,6 +347,8 @@ final_scores = "{data_root / "reference" / "final_scores.csv"}"
 team_mapping = "{data_root / "reference" / "team_mapping.csv"}"
 sportapp_games = "{data_root / "reference" / "sportapp_games.csv"}"
 competition_tier = "{data_root / "reference" / "competition_tier.csv"}"
+player_mapping = "{data_root / "reference" / "player_mapping.csv"}"
+group_opponents = "{data_root / "reference" / "group_opponents.csv"}"
 
 [sources.sportapp]
 base_url = "https://example.invalid"
@@ -348,6 +364,10 @@ ep_experiment = "ep_model"
 wp_experiment = "wp_model"
 exclude_games_ep = []
 exclude_games_wp = []
+
+[report]
+own_team = "HOME"
+cycle_start_season = 2026
 """
     config_path = root / "ffep.toml"
     config_path.write_text(toml_text, encoding="utf-8")

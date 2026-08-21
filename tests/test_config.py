@@ -26,6 +26,7 @@ reference = "data/reference"
 models = "models"
 mlruns = "mlruns"
 contract = "docs/data-contract.schema.json"
+reports = "reports"
 
 [reference]
 half_boundaries = "data/reference/half_boundaries.csv"
@@ -33,6 +34,8 @@ final_scores = "data/reference/final_scores.csv"
 team_mapping = "data/reference/team_mapping.csv"
 sportapp_games = "data/reference/sportapp_games.csv"
 competition_tier = "data/reference/competition_tier.csv"
+player_mapping = "data/reference/player_mapping.csv"
+group_opponents = "data/reference/group_opponents.csv"
 
 [sources.sportapp]
 base_url = "https://example.invalid/api/v1/public"
@@ -48,6 +51,10 @@ ep_experiment = "ep_model"
 wp_experiment = "wp_model"
 exclude_games_ep = ["legacy-37"]
 exclude_games_wp = ["legacy-35"]
+
+[report]
+own_team = "GER"
+cycle_start_season = 2025
 """
 
 
@@ -196,3 +203,39 @@ def test_load_config_missing_competition_tier_key_raises_configerror_naming_it(
         load_config(config_path)
 
     assert "competition_tier" in str(exc_info.value)
+
+
+def test_load_config_exposes_reports_path_and_new_reference_files(tmp_path: Path) -> None:
+    config_path = tmp_path / "ffep.toml"
+    config_path.write_text(MINIMAL_TOML, encoding="utf-8")
+
+    cfg = load_config(config_path)
+
+    assert cfg.paths.reports == tmp_path / "reports"
+    assert cfg.reference.player_mapping == tmp_path / "data" / "reference" / "player_mapping.csv"
+    assert cfg.reference.group_opponents == (
+        tmp_path / "data" / "reference" / "group_opponents.csv"
+    )
+
+
+def test_load_config_exposes_report_settings(tmp_path: Path) -> None:
+    config_path = tmp_path / "ffep.toml"
+    config_path.write_text(MINIMAL_TOML, encoding="utf-8")
+
+    cfg = load_config(config_path)
+
+    assert cfg.report.own_team == "GER"
+    assert cfg.report.cycle_start_season == 2025
+
+
+def test_load_config_missing_report_table_raises_configerror(tmp_path: Path) -> None:
+    incomplete = MINIMAL_TOML.replace(
+        '\n[report]\nown_team = "GER"\ncycle_start_season = 2025\n', ""
+    )
+    config_path = tmp_path / "ffep.toml"
+    config_path.write_text(incomplete, encoding="utf-8")
+
+    with pytest.raises(ConfigError) as exc_info:
+        load_config(config_path)
+
+    assert "report" in str(exc_info.value)

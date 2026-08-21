@@ -36,6 +36,7 @@ class Paths:
     models: Path
     mlruns: Path
     contract: Path
+    reports: Path
 
 
 @dataclass(frozen=True)
@@ -45,6 +46,8 @@ class ReferenceFiles:
     team_mapping: Path
     sportapp_games: Path
     competition_tier: Path
+    player_mapping: Path
+    group_opponents: Path
 
 
 @dataclass(frozen=True)
@@ -75,11 +78,18 @@ class TrainSettings:
 
 
 @dataclass(frozen=True)
+class ReportSettings:
+    own_team: str
+    cycle_start_season: int
+
+
+@dataclass(frozen=True)
 class Config:
     paths: Paths
     reference: ReferenceFiles
     sources: Sources
     train: TrainSettings
+    report: ReportSettings
 
 
 _PATH_KEYS = (
@@ -93,6 +103,7 @@ _PATH_KEYS = (
     "models",
     "mlruns",
     "contract",
+    "reports",
 )
 _REFERENCE_KEYS = (
     "half_boundaries",
@@ -100,10 +111,13 @@ _REFERENCE_KEYS = (
     "team_mapping",
     "sportapp_games",
     "competition_tier",
+    "player_mapping",
+    "group_opponents",
 )
 _SPORTAPP_KEYS = ("base_url", "api_key_env")
 _IFAF_KEYS = ("base_url", "tournament", "api_key_env")
 _TRAIN_KEYS = ("ep_experiment", "wp_experiment", "exclude_games_ep", "exclude_games_wp")
+_REPORT_KEYS = ("own_team", "cycle_start_season")
 
 
 def _table(data: dict, dotted_name: str) -> dict:
@@ -177,11 +191,17 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
         **{key: _key(train_table, "train", key) for key in _TRAIN_KEYS}
     )
 
+    report_table = _table(data, "report")
+    report = ReportSettings(
+        **{key: _key(report_table, "report", key) for key in _REPORT_KEYS}
+    )
+
     return Config(
         paths=paths,
         reference=reference,
         sources=Sources(sportapp=sportapp, ifaf=ifaf),
         train=train,
+        report=report,
     )
 
 

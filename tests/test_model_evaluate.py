@@ -26,6 +26,7 @@ from flag_football_ep.config import (
     IfafSource,
     Paths,
     ReferenceFiles,
+    ReportSettings,
     Sources,
     SportappSource,
     TrainSettings,
@@ -77,6 +78,7 @@ def _make_config(tmp_path) -> Config:
         models=tmp_path / "models",
         mlruns=tmp_path / "mlruns",
         contract=tmp_path / "docs" / "data-contract.schema.json",
+        reports=tmp_path / "reports",
     )
     reference = ReferenceFiles(
         half_boundaries=tmp_path / "data" / "reference" / "half_boundaries.csv",
@@ -84,6 +86,8 @@ def _make_config(tmp_path) -> Config:
         team_mapping=tmp_path / "data" / "reference" / "team_mapping.csv",
         sportapp_games=tmp_path / "data" / "reference" / "sportapp_games.csv",
         competition_tier=tmp_path / "data" / "reference" / "competition_tier.csv",
+        player_mapping=tmp_path / "data" / "reference" / "player_mapping.csv",
+        group_opponents=tmp_path / "data" / "reference" / "group_opponents.csv",
     )
     sources = Sources(
         sportapp=SportappSource(
@@ -101,7 +105,8 @@ def _make_config(tmp_path) -> Config:
         exclude_games_ep=[],
         exclude_games_wp=[],
     )
-    return Config(paths=paths, reference=reference, sources=sources, train=train)
+    report = ReportSettings(own_team="HOME", cycle_start_season=2026)
+    return Config(paths=paths, reference=reference, sources=sources, train=train, report=report)
 
 
 def _logo_result(n_games: int = 4, plays_per_game: int = 6, n_outputs: int = 5) -> LogoResult:

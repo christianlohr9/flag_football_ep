@@ -10,14 +10,18 @@ import pytest
 from flag_football_ep.reference import (
     COMPETITION_TIERS,
     MissingReferenceFile,
+    PlayerMappingResult,
     UnmappedCompetitionError,
     UnmappedTeamError,
     load_competition_tier,
     load_final_scores,
+    load_group_opponents,
     load_half_boundaries,
+    load_player_mapping,
     load_sportapp_games,
     load_team_mapping,
     map_competition_tier,
+    map_players,
     map_teams,
 )
 
@@ -348,3 +352,163 @@ def test_map_competition_tier_empty_mapping_raises(tmp_path: Path) -> None:
 
 def test_competition_tiers_is_fixed_vocabulary() -> None:
     assert COMPETITION_TIERS == ("womens-international", "womens-national", "mixed-other")
+
+
+# --- load_player_mapping ------------------------------------------------------
+
+
+def test_load_player_mapping_duplicate_pair_raises(tmp_path: Path) -> None:
+    path = _write_csv(
+        tmp_path,
+        "player_mapping.csv",
+        [
+            "source,source_player,canonical_player",
+            "hudl,S Nuhse,Saskia Nühse",
+            "hudl,S Nuhse,Saskia Nühse",
+        ],
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        load_player_mapping(path)
+
+    assert "S Nuhse" in str(exc_info.value)
+
+
+def test_load_player_mapping_header_only_loads_empty_with_warning(tmp_path: Path) -> None:
+    path = _write_csv(tmp_path, "player_mapping.csv", ["source,source_player,canonical_player"])
+
+    with pytest.warns(UserWarning):
+        df = load_player_mapping(path)
+
+    assert df.height == 0
+    assert df.schema["source"] == pl.Utf8
+    assert df.schema["source_player"] == pl.Utf8
+    assert df.schema["canonical_player"] == pl.Utf8
+
+
+def test_load_player_mapping_missing_file_raises(tmp_path: Path) -> None:
+    missing = tmp_path / "does-not-exist.csv"
+
+    with pytest.raises(MissingReferenceFile) as exc_info:
+        load_player_mapping(missing)
+
+    assert str(missing) in str(exc_info.value)
+
+
+# --- load_group_opponents ------------------------------------------------------
+
+
+def test_load_group_opponents_duplicate_canonical_team_raises(tmp_path: Path) -> None:
+    path = _write_csv(
+        tmp_path,
+        "group_opponents.csv",
+        [
+            "canonical_team,team_name",
+            "AUT,Austria",
+            "AUT,Austria",
+        ],
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        load_group_opponents(path)
+
+    assert "AUT" in str(exc_info.value)
+
+
+def test_load_group_opponents_header_only_loads_empty_with_warning(tmp_path: Path) -> None:
+    path = _write_csv(tmp_path, "group_opponents.csv", ["canonical_team,team_name"])
+
+    with pytest.warns(UserWarning):
+        df = load_group_opponents(path)
+
+    assert df.height == 0
+    assert df.schema["canonical_team"] == pl.Utf8
+    assert df.schema["team_name"] == pl.Utf8
+
+
+def test_load_group_opponents_missing_file_raises(tmp_path: Path) -> None:
+    missing = tmp_path / "does-not-exist.csv"
+
+    with pytest.raises(MissingReferenceFile) as exc_info:
+        load_group_opponents(missing)
+
+    assert str(missing) in str(exc_info.value)
+
+
+# --- map_players ------------------------------------------------------
+
+
+def _player_mapping_frame(rows: list[tuple[str, str, str]]) -> pl.DataFrame:
+    return pl.DataFrame(
+        rows, schema=["source", "source_player", "canonical_player"], orient="row"
+    )
+
+
+def test_map_players_replaces_mapped_labels() -> None:
+    df = pl.DataFrame({"thrown_by": ["S Nuhse", "K Fischer"]})
+    mapping = _player_mapping_frame(
+        [("hudl", "S Nuhse", "Saskia Nühse"), ("hudl", "K Fischer", "Kyra Fischer")]
+    )
+
+    result = map_players(df, mapping, "hudl", ["thrown_by"])
+
+    assert isinstance(result, PlayerMappingResult)
+    assert result.frame["thrown_by"].to_list() == ["Saskia Nühse", "Kyra Fischer"]
+    assert result.unmapped == []
+
+
+def test_map_players_leaves_unmapped_label_verbatim_and_lists_it() -> None:
+    df = pl.DataFrame({"thrown_by": ["S Nuhse", "UNKNOWN"]})
+    mapping = _player_mapping_frame([("hudl", "S Nuhse", "Saskia Nühse")])
+
+    result = map_players(df, mapping, "hudl", ["thrown_by"])
+
+    assert result.frame["thrown_by"].to_list() == ["Saskia Nühse", "UNKNOWN"]
+    assert result.unmapped == ["UNKNOWN"]
+
+
+def test_map_players_empty_mapping_returns_every_label_as_unmapped_and_raises_nothing() -> None:
+    df = pl.DataFrame({"thrown_by": ["S Nuhse", "K Fischer", "S Nuhse"]})
+    mapping = pl.DataFrame(
+        {"source": [], "source_player": [], "canonical_player": []},
+        schema=["source", "source_player", "canonical_player"],
+    )
+
+    result = map_players(df, mapping, "hudl", ["thrown_by"])
+
+    assert result.frame["thrown_by"].to_list() == df["thrown_by"].to_list()
+    assert result.unmapped == sorted(set(df["thrown_by"].to_list()))
+
+
+def test_map_players_preserves_height_and_order() -> None:
+    df = pl.DataFrame({"thrown_by": ["C", "A", "B", "A"]})
+    mapping = _player_mapping_frame(
+        [("hudl", "A", "Player A"), ("hudl", "B", "Player B"), ("hudl", "C", "Player C")]
+    )
+
+    result = map_players(df, mapping, "hudl", ["thrown_by"])
+
+    assert result.frame.height == df.height
+    assert result.frame["thrown_by"].to_list() == ["Player C", "Player A", "Player B", "Player A"]
+
+
+def test_map_players_skips_column_not_in_frame() -> None:
+    df = pl.DataFrame({"thrown_by": ["S Nuhse"]})
+    mapping = _player_mapping_frame([("hudl", "S Nuhse", "Saskia Nühse")])
+
+    result = map_players(df, mapping, "hudl", ["thrown_by", "received_by"])
+
+    assert result.frame["thrown_by"].to_list() == ["Saskia Nühse"]
+    assert result.unmapped == []
+
+
+def test_map_players_never_raises_on_unmapped_labels() -> None:
+    df = pl.DataFrame({"thrown_by": ["UNKNOWN1", "UNKNOWN2"]})
+    mapping = pl.DataFrame(
+        {"source": [], "source_player": [], "canonical_player": []},
+        schema=["source", "source_player", "canonical_player"],
+    )
+
+    result = map_players(df, mapping, "hudl", ["thrown_by"])  # must not raise
+
+    assert result.unmapped == ["UNKNOWN1", "UNKNOWN2"]
