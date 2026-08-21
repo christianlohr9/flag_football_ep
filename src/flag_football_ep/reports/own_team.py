@@ -31,10 +31,12 @@ from flag_football_ep.features.mutations import (
     prepare_wp_data,
 )
 from flag_football_ep.model.hyperparams import EP_PROB_LABELS
+from flag_football_ep.reference import map_players
 from flag_football_ep.reports.aggregate import (
     MUTED_MIN_N,
     SectionBasis,
     charted_only,
+    rate_table,
     section_basis,
 )
 
@@ -283,3 +285,158 @@ def efficiency_by_call(plays: pl.DataFrame, *, cycle_start_season: int) -> Repor
         None if table.height > 0 else "Kein Charting-Material für diese Auswertung vorhanden."
     )
     return ReportSection(key=key, heading=heading, table=table, basis=basis, empty_notice=empty_notice)
+
+
+# --- player_efficiency ----------------------------------------------------------------------
+
+_PLAYER_SOURCE_COLUMNS: tuple[str, ...] = ("qb", "thrown_by", "received_by", "target")
+
+_PLAYER_TABLE_SCHEMA: dict[str, pl.DataType] = {
+    "rolle": pl.Utf8,
+    "spieler": pl.Utf8,
+    "n_cycle": pl.Int64,
+    "epa_play_cycle": pl.Float64,
+    "n_alltime": pl.Int64,
+    "epa_play_alltime": pl.Float64,
+    "completion_n": pl.Int64,
+    "completion_rate": pl.Float64,
+    "completion_ci_low": pl.Float64,
+    "completion_ci_high": pl.Float64,
+    "yac_summe": pl.Int64,
+    "yac_schnitt": pl.Float64,
+    "yac_anteil": pl.Float64,
+    "muted": pl.Boolean,
+}
+
+
+def _canonicalise_players(
+    df: pl.DataFrame, mapping: pl.DataFrame
+) -> tuple[pl.DataFrame, list[str]]:
+    """Canonicalise `_PLAYER_SOURCE_COLUMNS` in `df` via `map_players`, called once per
+    `source` present in the frame (a mapping row is keyed by `(source, source_player)`).
+    Returns the canonicalised frame (row count and order preserved) and the sorted union of
+    every label left unmapped across sources.
+    """
+    columns = [c for c in _PLAYER_SOURCE_COLUMNS if c in df.columns]
+    if df.height == 0 or not columns:
+        return df, []
+
+    row_id = "_canon_row_id"
+    indexed = df.with_row_index(name=row_id, offset=0)
+
+    unmapped: set[str] = set()
+    parts: list[pl.DataFrame] = []
+    for src in sorted(indexed["source"].drop_nulls().unique().to_list()):
+        subset = indexed.filter(pl.col("source") == src)
+        result = map_players(subset, mapping, src, columns)
+        unmapped.update(result.unmapped)
+        parts.append(result.frame)
+
+    no_source = indexed.filter(pl.col("source").is_null())
+    if no_source.height:
+        parts.append(no_source)
+
+    combined = pl.concat(parts, how="vertical").sort(row_id).drop(row_id)
+    return combined, sorted(unmapped)
+
+
+def player_efficiency(
+    plays: pl.DataFrame, mapping: pl.DataFrame, *, cycle_start_season: int
+) -> tuple[ReportSection, tuple[str, ...]]:
+    """Per-QB and per-receiver EPA, YAC shares, and the unmapped-player warning.
+
+    Canonicalises identities before any rollup via `_canonicalise_players` -- `map_players`
+    never raises, so an unmapped spelling still appears in the table verbatim; the returned
+    unmapped tuple is what a page turns into a prominent warning block. Rows whose player
+    column is null are excluded from the player rollups (an unattributed play is not a
+    player's play). Sorted per role by `epa_play_cycle` descending with `n_cycle` as
+    tiebreaker.
+    """
+    heading = "EPA pro QB und Receiver, YAC-Anteile"
+    key = "player_efficiency"
+
+    canon, unmapped = _canonicalise_players(plays, mapping)
+
+    if canon.height == 0 or not any(c in canon.columns for c in _PLAYER_SOURCE_COLUMNS):
+        table = pl.DataFrame(schema=_PLAYER_TABLE_SCHEMA)
+        section = ReportSection(
+            key=key,
+            heading=heading,
+            table=table,
+            basis=section_basis(canon),
+            empty_notice="Kein Charting-Material für diese Auswertung vorhanden.",
+        )
+        return section, tuple(unmapped)
+
+    canon = canon.with_columns(
+        _qb_player=pl.coalesce([pl.col("thrown_by"), pl.col("qb")])
+    )
+
+    qb_rows = canon.filter(pl.col("_qb_player").is_not_null())
+    qb_epa = _epa_rollup_by(qb_rows, "_qb_player", cycle_start_season=cycle_start_season)
+    if qb_epa.height:
+        completion = rate_table(
+            qb_rows, ["_qb_player"], pl.col("complete_pass") == 1, label_col="_label"
+        ).select(
+            [
+                pl.col("_qb_player"),
+                pl.col("n").alias("completion_n"),
+                pl.col("rate").alias("completion_rate"),
+                pl.col("ci_low").alias("completion_ci_low"),
+                pl.col("ci_high").alias("completion_ci_high"),
+            ]
+        )
+        qb_table = (
+            qb_epa.join(completion, on="_qb_player", how="left")
+            .rename({"_qb_player": "spieler"})
+            .with_columns(
+                rolle=pl.lit("QB"),
+                yac_summe=pl.lit(None, dtype=pl.Int64),
+                yac_schnitt=pl.lit(None, dtype=pl.Float64),
+                yac_anteil=pl.lit(None, dtype=pl.Float64),
+            )
+            .sort(["epa_play_cycle", "n_cycle"], descending=[True, True], nulls_last=True)
+            .select(list(_PLAYER_TABLE_SCHEMA))
+        )
+    else:
+        qb_table = pl.DataFrame(schema=_PLAYER_TABLE_SCHEMA)
+
+    recv_rows = canon.filter(pl.col("received_by").is_not_null())
+    recv_epa = _epa_rollup_by(recv_rows, "received_by", cycle_start_season=cycle_start_season)
+    if recv_epa.height:
+        yac_rows = recv_rows.filter(pl.col("yac").is_not_null())
+        total_yac = yac_rows["yac"].sum() if yac_rows.height else None
+        yac_agg = recv_rows.group_by("received_by", maintain_order=True).agg(
+            yac_summe=pl.col("yac").sum().cast(pl.Int64),
+            yac_schnitt=pl.col("yac").mean(),
+        )
+        if total_yac:
+            yac_agg = yac_agg.with_columns(
+                yac_anteil=pl.col("yac_summe").fill_null(0) / total_yac
+            )
+        else:
+            yac_agg = yac_agg.with_columns(yac_anteil=pl.lit(None, dtype=pl.Float64))
+        recv_table = (
+            recv_epa.join(yac_agg, on="received_by", how="left")
+            .rename({"received_by": "spieler"})
+            .with_columns(
+                rolle=pl.lit("Receiver"),
+                completion_n=pl.lit(None, dtype=pl.Int64),
+                completion_rate=pl.lit(None, dtype=pl.Float64),
+                completion_ci_low=pl.lit(None, dtype=pl.Float64),
+                completion_ci_high=pl.lit(None, dtype=pl.Float64),
+            )
+            .sort(["epa_play_cycle", "n_cycle"], descending=[True, True], nulls_last=True)
+            .select(list(_PLAYER_TABLE_SCHEMA))
+        )
+    else:
+        recv_table = pl.DataFrame(schema=_PLAYER_TABLE_SCHEMA)
+
+    table = pl.concat([qb_table, recv_table], how="vertical")
+
+    empty_notice = (
+        None if table.height > 0 else "Kein Charting-Material für diese Auswertung vorhanden."
+    )
+    basis = section_basis(canon.filter(pl.col("_qb_player").is_not_null() | pl.col("received_by").is_not_null()))
+    section = ReportSection(key=key, heading=heading, table=table, basis=basis, empty_notice=empty_notice)
+    return section, tuple(unmapped)

@@ -11,9 +11,11 @@ from pathlib import Path
 
 import polars as pl
 
+import pytest
+
 from flag_football_ep.model.hyperparams import EP_PROB_LABELS
 from flag_football_ep.reports.aggregate import MUTED_MIN_N
-from flag_football_ep.reports.own_team import attach_epa, efficiency_by_call
+from flag_football_ep.reports.own_team import attach_epa, efficiency_by_call, player_efficiency
 from flag_football_ep.testing import canonical_plays_with_scores
 
 
@@ -239,3 +241,92 @@ class TestEfficiencyByCall:
         assert section.table.height == 0
         assert section.empty_notice is not None
         assert section.basis.n_plays == 0
+
+
+class TestPlayerEfficiency:
+    def _mapping(self) -> pl.DataFrame:
+        return pl.DataFrame(
+            {
+                "source": ["hudl", "hudl"],
+                "source_player": ["S Nuhse", "S. Nuhse"],
+                "canonical_player": ["Saskia Nuhse", "Saskia Nuhse"],
+            }
+        )
+
+    def test_mapped_spellings_merge_into_one_row(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            extras={
+                "thrown_by": ["S Nuhse", "S. Nuhse", None, None],
+                "received_by": [None, None, "R1", "R1"],
+            },
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2, 0.3, 0.4]))
+        section, unmapped = player_efficiency(df, self._mapping(), cycle_start_season=2026)
+        qb_rows = section.table.filter(pl.col("rolle") == "QB")
+        assert qb_rows.height == 1
+        assert qb_rows["spieler"].item() == "Saskia Nuhse"
+        assert qb_rows["n_alltime"].item() == 2
+
+    def test_unmapped_spelling_appears_verbatim_and_in_unmapped_tuple(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=2, extras={"thrown_by": ["Someone Else", None]}
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2]))
+        section, unmapped = player_efficiency(df, self._mapping(), cycle_start_season=2026)
+        qb_rows = section.table.filter(pl.col("rolle") == "QB")
+        assert "Someone Else" in qb_rows["spieler"].to_list()
+        assert "Someone Else" in unmapped
+
+    def test_empty_mapping_frame_yields_every_name_unmapped(self) -> None:
+        empty_mapping = pl.DataFrame(
+            schema={"source": pl.Utf8, "source_player": pl.Utf8, "canonical_player": pl.Utf8}
+        )
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=2, extras={"thrown_by": ["A", "B"]}
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2]))
+        section, unmapped = player_efficiency(df, empty_mapping, cycle_start_season=2026)
+        assert set(unmapped) == {"A", "B"}
+
+    def test_yac_anteil_sums_to_one(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=3,
+            extras={"received_by": ["A", "A", "B"], "yac": [3, 2, 5]},
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2, 0.3]))
+        section, _ = player_efficiency(df, self._mapping(), cycle_start_season=2026)
+        recv_rows = section.table.filter(pl.col("rolle") == "Receiver")
+        total_share = recv_rows["yac_anteil"].sum()
+        assert total_share == pytest.approx(1.0, abs=1e-9)
+
+    def test_null_player_column_rows_excluded(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=3, extras={"thrown_by": ["A", None, "A"]}
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2, 0.3]))
+        section, _ = player_efficiency(df, self._mapping(), cycle_start_season=2026)
+        qb_rows = section.table.filter(pl.col("rolle") == "QB")
+        assert qb_rows["n_alltime"].sum() == 2
+
+    def test_sorted_by_epa_play_cycle_descending(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            extras={"thrown_by": ["A", "B", "A", "B"]},
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.9, 0.1, 0.9]))
+        section, _ = player_efficiency(df, self._mapping(), cycle_start_season=2026)
+        qb_rows = section.table.filter(pl.col("rolle") == "QB")
+        cycle_epas = qb_rows["epa_play_cycle"].to_list()
+        assert cycle_epas == sorted(cycle_epas, reverse=True)
+
+    def test_fully_uncharted_frame_returns_empty_table(self) -> None:
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=2)
+        df = df.with_columns(epa=pl.Series([0.1, 0.2]))
+        section, unmapped = player_efficiency(df, self._mapping(), cycle_start_season=2026)
+        assert section.table.height == 0
+        assert section.empty_notice is not None
+        assert unmapped == ()
