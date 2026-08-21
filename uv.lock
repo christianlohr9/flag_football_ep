@@ -544,6 +544,7 @@ source = { editable = "." }
 dependencies = [
     { name = "hyperopt" },
     { name = "ipykernel" },
+    { name = "jinja2" },
     { name = "matplotlib" },
     { name = "mlflow" },
     { name = "numpy" },
@@ -568,6 +569,7 @@ dev = [
 requires-dist = [
     { name = "hyperopt", specifier = ">=0.2.7" },
     { name = "ipykernel", specifier = ">=6.29.5" },
+    { name = "jinja2", specifier = ">=3.1.6" },
     { name = "matplotlib", specifier = ">=3.9.2" },
     { name = "mlflow", specifier = ">=3.15" },
     { name = "numpy", specifier = ">=2.1.0" },
