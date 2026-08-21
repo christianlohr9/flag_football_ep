@@ -143,8 +143,13 @@ class TestBuildOpponentPage:
         assert page.count("data:image/png;base64,") == 2
 
     def test_no_leaked_figures(self) -> None:
+        # compare against the pre-call set: other test modules may legitimately
+        # hold open figures, so asserting an empty registry is order-dependent
+        before = set(plt.get_fignums())
+
         build_opponent_page(_single_game_data())
-        assert plt.get_fignums() == []
+
+        assert set(plt.get_fignums()) == before
 
     def test_zero_film_page_contains_every_empty_notice_and_does_not_raise(self) -> None:
         data = _zero_film_data()
