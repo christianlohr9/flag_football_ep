@@ -1,0 +1,84 @@
+{% extends "base.html.j2" %}
+
+{% block title %}Eigene Effizienz — {{ team }}{% endblock %}
+
+{% block subtitle %}{{ generated_on.isoformat() }} · {{ overall_basis_text }} · {{ cycle_definition_text }}{% endblock %}
+
+{% block content %}
+<div class="summary-block">
+<ul>
+<li>{{ punkte_pro_drive_text }}</li>
+<li>EPA/Play (aktueller Zyklus): {{ overall_epa_text }}</li>
+</ul>
+</div>
+
+{% if unmapped_players %}
+<div class="warning-block">
+<h2>Nicht zugeordnete Spielerinnen-Namen</h2>
+<p>
+Folgende Namen konnten keinem Spieler zugeordnet werden. Sie erscheinen unten in den
+Tabellen unter ihrer Original-Schreibweise. Bitte in
+<code>data/reference/player_mapping.csv</code> ergänzen:
+</p>
+<ul>
+{% for name in unmapped_players %}
+<li>{{ name }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+{% if notices %}
+<div class="warning-block">
+<ul>
+{% for notice in notices %}
+<li>{{ notice }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+{% for section in sections %}
+<h2>{{ section.heading }}</h2>
+<p class="section-basis">{{ section.basis_text }}</p>
+{% if section.chart_uri %}
+<div class="chart-block">
+<img class="chart-img" src="{{ section.chart_uri }}" alt="{{ section.heading }}">
+{% if section.chart_caption %}
+<p class="section-basis">{{ section.chart_caption }}</p>
+{% endif %}
+</div>
+{% endif %}
+{% if section.empty_notice %}
+<p class="warning-block">{{ section.empty_notice }}</p>
+{% else %}
+<table>
+<thead>
+<tr>
+{% for header in section.headers %}
+<th>{{ header }}</th>
+{% endfor %}
+</tr>
+</thead>
+<tbody>
+{% for row in section.rows %}
+<tr>
+{% for cell in row.cells %}
+<td class="{% if row.muted %}muted-cell{% endif %}">{{ cell }}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block footnotes %}
+<p>{{ provenance_sentence }}</p>
+<p>{{ cycle_definition_text }}</p>
+<p>
+Konfidenzintervalle nach Clopper-Pearson. Zellen mit n &lt; {{ muted_min_n }} sind grau
+markiert (geringe Stichprobe) -- sie werden immer angezeigt, nie ausgeblendet.
+</p>
+{% endblock %}

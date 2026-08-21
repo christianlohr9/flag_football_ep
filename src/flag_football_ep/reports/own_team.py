@@ -1,10 +1,14 @@
-"""Own-team efficiency data for the configured own team (REQ-S1-13).
+"""Own-team efficiency data and page for the configured own team (REQ-S1-13).
 
-This module computes REQ-S1-13 for the configured own team, performs no rendering and no
-writes, and honours the locked 1.3 EPA contract: historical plays use persisted out-of-fold
-predictions, new plays use the promoted champion's scores, and a single play never draws
-from both. `attach_epa` is the single place this join happens; every other function in this
-module consumes its output.
+This module computes REQ-S1-13's `OwnTeamReportData` for the configured own team and honours
+the locked 1.3 EPA contract: historical plays use persisted out-of-fold predictions, new
+plays use the promoted champion's scores, and a single play never draws from both. `attach_epa`
+is the single place this join happens; every other data-builder function in this module
+consumes its output.
+
+`build_own_team_page` turns that data object into one standalone HTML string via
+`own_team_report.html.j2` -- it performs no filesystem writes, matching plan 02's
+`reports.render` discipline (`build.py` owns every write).
 
 `ReportSection` is the shared per-section container from `reports.aggregate`, used by both
 this module and `reports.opponent`.
@@ -13,11 +17,13 @@ this module and `reports.opponent`.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Literal
 
 import polars as pl
 
+from flag_football_ep.charts.tendency import render_epa_bars, render_share_bars
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
     add_ep_variables,
@@ -37,8 +43,11 @@ from flag_football_ep.reports.aggregate import (
     section_basis,
     share_table,
 )
+from flag_football_ep.reports.render import fig_to_data_uri, render_page
 
 EpaSource = Literal["oof", "champion"]
+
+OWN_TEAM_FILENAME: str = "own-team.html"
 
 _ATTACH_ROW_ID = "_attach_epa_row_id"
 
@@ -619,7 +628,15 @@ def defense_section(plays: pl.DataFrame, *, team: str) -> ReportSection:
 
 @dataclass(frozen=True)
 class OwnTeamReportData:
-    """The complete own-team efficiency data object (REQ-S1-13), render-ready."""
+    """The complete own-team efficiency data object (REQ-S1-13), render-ready.
+
+    `n_epa_oof`/`n_epa_champion`/`n_epa_none` and `overall_epa_play_cycle`/
+    `overall_epa_play_n_cycle` are the raw scalars plan 12's `build_own_team_page` needs to
+    state the page's own EPA provenance and cycle-EPA headline in numbers -- computed once
+    here, over the team's plays (offense + defense, no double count since a play can never
+    be both for the same team), rather than re-deriving them from already-rolled-up
+    `sections` tables.
+    """
 
     team: str
     cycle_start_season: int
@@ -627,6 +644,11 @@ class OwnTeamReportData:
     unmapped_players: tuple[str, ...]
     overall_basis: SectionBasis
     notices: tuple[str, ...]
+    n_epa_oof: int
+    n_epa_champion: int
+    n_epa_none: int
+    overall_epa_play_cycle: float | None
+    overall_epa_play_n_cycle: int
 
 
 def build_own_team_data(
@@ -671,6 +693,22 @@ def build_own_team_data(
     offense = scored_plays.filter(pl.col("posteam") == team)
     defense = scored_plays.filter(pl.col("defteam") == team)
 
+    # A play's posteam and defteam are never equal, so offense/defense never overlap here --
+    # this union is exactly "every play involving the own team", the natural scope for a
+    # page-wide EPA-provenance statement (plan 12).
+    team_plays = pl.concat([offense, defense], how="vertical")
+    n_epa_oof = int(team_plays.filter(pl.col("epa_source") == "oof").height)
+    n_epa_champion = int(team_plays.filter(pl.col("epa_source") == "champion").height)
+    n_epa_none = int(team_plays.filter(pl.col("epa_source").is_null()).height)
+
+    cycle_offense = offense.filter(
+        (pl.col("season") >= cycle_start_season) & pl.col("epa").is_not_null()
+    )
+    overall_epa_play_n_cycle = cycle_offense.height
+    overall_epa_play_cycle = (
+        float(cycle_offense["epa"].mean()) if overall_epa_play_n_cycle else None
+    )
+
     try:
         mapping = load_player_mapping(config.reference.player_mapping)
     except MissingReferenceFile:
@@ -705,4 +743,316 @@ def build_own_team_data(
         unmapped_players=tuple(unmapped),
         overall_basis=section_basis(offense),
         notices=tuple(notices),
+        n_epa_oof=n_epa_oof,
+        n_epa_champion=n_epa_champion,
+        n_epa_none=n_epa_none,
+        overall_epa_play_cycle=overall_epa_play_cycle,
+        overall_epa_play_n_cycle=overall_epa_play_n_cycle,
+    )
+
+
+# --- build_own_team_page -------------------------------------------------------------------
+
+_NO_DATA = "keine Daten"
+_NOT_APPLICABLE = "–"  # en dash: "this stat does not apply to this row" (never "missing")
+
+_DIMENSION_LABELS: dict[str, str] = {
+    "off_form": "Formation",
+    "off_play": "Play-Call",
+    "target_route": "Route",
+    "def_front": "DEF FRONT",
+    "coverage": "COVERAGE",
+}
+
+
+def _format_epa(value: float | None, n: int | None) -> str:
+    """`+X.XX (n=K)`; `keine Daten` when the value or its play count is missing/zero. Every
+    EPA cell a template renders must carry its own count -- this is the single place that
+    rule is enforced so no cell can ever print a bare number.
+    """
+    if value is None or not n:
+        return _NO_DATA
+    sign = "+" if value >= 0 else ""
+    return f"{sign}{value:.2f} (n={n})"
+
+
+def _format_pct(value: float | None, n: int | None) -> str:
+    """`XX% (n=K)`; `keine Daten` when the value or its count is missing/zero."""
+    if value is None or not n:
+        return _NO_DATA
+    return f"{value:.0%} (n={n})"
+
+
+def _format_float_or_dash(value: float | None) -> str:
+    """One decimal, or an en dash when the stat does not apply to this row (e.g. a QB row's
+    YAC columns)."""
+    return _NOT_APPLICABLE if value is None else f"{value:.1f}"
+
+
+def _format_pct_or_dash(value: float | None) -> str:
+    return _NOT_APPLICABLE if value is None else f"{value:.0%}"
+
+
+def _call_section_context(section: ReportSection) -> dict:
+    """`efficiency_by_call` -> template context: one row per (dimension, wert), an
+    `off_play`-only EPA chart (formation/route stay table-only per plan 12's action text --
+    three charts on a tablet page is one too many), pre-formatted EPA cells, no arithmetic
+    left for the template.
+    """
+    rows = [
+        {
+            "cells": [
+                _DIMENSION_LABELS.get(row["dimension"], row["dimension"]),
+                row["wert"],
+                _format_epa(row["epa_play_cycle"], row["n_cycle"]),
+                _format_epa(row["epa_play_alltime"], row["n_alltime"]),
+            ],
+            "muted": bool(row["muted"]),
+        }
+        for row in section.table.to_dicts()
+    ]
+
+    chart_uri = None
+    chart_caption = None
+    if section.table.height:
+        off_play_rows = section.table.filter(pl.col("dimension") == "off_play")
+        if off_play_rows.height:
+            fig = render_epa_bars(
+                off_play_rows,
+                label_col="wert",
+                epa_col="epa_play_cycle",
+                n_col="n_cycle",
+                muted_col="muted",
+                title="EPA/Play nach Play-Call (aktueller Zyklus)",
+            )
+            chart_uri = fig_to_data_uri(fig)
+            chart_caption = (
+                "Formation- und Routen-Aufschlüsselung siehe Tabelle unten."
+            )
+
+    return {
+        "key": section.key,
+        "heading": section.heading,
+        "basis_text": section.basis.text,
+        "empty_notice": section.empty_notice,
+        "chart_uri": chart_uri,
+        "chart_caption": chart_caption,
+        "headers": ["Dimension", "Wert", "EPA/Play (Zyklus)", "EPA/Play (gesamt)"],
+        "rows": rows,
+    }
+
+
+def _player_section_context(section: ReportSection) -> dict:
+    """`player_efficiency` -> template context: one row per player, a receiver-only EPA
+    chart (QBs stay table-only -- CONTEXT locks the per-player breakdown as table data; one
+    chart per role would be a third/fourth chart on the same page), YAC columns rendered as
+    an en dash on QB rows where they do not apply.
+    """
+    rows = [
+        {
+            "cells": [
+                row["rolle"],
+                row["spieler"],
+                _format_epa(row["epa_play_cycle"], row["n_cycle"]),
+                _format_epa(row["epa_play_alltime"], row["n_alltime"]),
+                _format_pct(row["completion_rate"], row["completion_n"]),
+                _format_float_or_dash(row["yac_schnitt"]),
+                _format_pct_or_dash(row["yac_anteil"]),
+            ],
+            "muted": bool(row["muted"]),
+        }
+        for row in section.table.to_dicts()
+    ]
+
+    chart_uri = None
+    if section.table.height:
+        receiver_rows = section.table.filter(pl.col("rolle") == "Receiver")
+        if receiver_rows.height:
+            fig = render_epa_bars(
+                receiver_rows,
+                label_col="spieler",
+                epa_col="epa_play_cycle",
+                n_col="n_cycle",
+                muted_col="muted",
+                title="EPA/Play nach Receiver (aktueller Zyklus)",
+            )
+            chart_uri = fig_to_data_uri(fig)
+
+    return {
+        "key": section.key,
+        "heading": section.heading,
+        "basis_text": section.basis.text,
+        "empty_notice": section.empty_notice,
+        "chart_uri": chart_uri,
+        "chart_caption": None,
+        "headers": [
+            "Rolle",
+            "Spieler",
+            "EPA/Play (Zyklus)",
+            "EPA/Play (gesamt)",
+            "Completion-Rate",
+            "YAC-Schnitt",
+            "YAC-Anteil",
+        ],
+        "rows": rows,
+    }
+
+
+def _drive_section_context(section: ReportSection) -> dict:
+    """`drive_outcomes` -> template context: one row per outcome, a share chart over the
+    whole table (there is only one grouping, unlike the call/player sections)."""
+    rows = [
+        {
+            "cells": [row["drive_outcome"], _format_pct(row["share"], row["n"])],
+            "muted": bool(row["muted"]),
+        }
+        for row in section.table.to_dicts()
+    ]
+
+    chart_uri = None
+    if section.table.height:
+        fig = render_share_bars(
+            section.table,
+            label_col="drive_outcome",
+            share_col="share",
+            n_col="n",
+            muted_col="muted",
+            title="Drive-Ausgänge",
+        )
+        chart_uri = fig_to_data_uri(fig)
+
+    return {
+        "key": section.key,
+        "heading": section.heading,
+        "basis_text": section.basis.text,
+        "empty_notice": section.empty_notice,
+        "chart_uri": chart_uri,
+        "chart_caption": None,
+        "headers": ["Drive-Ausgang", "Anteil"],
+        "rows": rows,
+    }
+
+
+def _defense_section_context(section: ReportSection) -> dict:
+    """`defense_section` -> template context: table only, no chart (this section is
+    deliberately small per REQ-S1-13's "extends, does not redefine" scope -- CONTEXT). The
+    lower-is-better direction is already stated in `section.heading` itself (plan 09).
+    """
+    rows = [
+        {
+            "cells": [
+                _DIMENSION_LABELS.get(row["dimension"], row["dimension"]),
+                row["wert"],
+                _format_epa(row["epa_play_allowed"], row["n"]),
+            ],
+            "muted": bool(row["muted"]),
+        }
+        for row in section.table.to_dicts()
+    ]
+
+    return {
+        "key": section.key,
+        "heading": section.heading,
+        "basis_text": section.basis.text,
+        "empty_notice": section.empty_notice,
+        "chart_uri": None,
+        "chart_caption": None,
+        "headers": ["Dimension", "Wert", "EPA/Play erlaubt"],
+        "rows": rows,
+    }
+
+
+def _generic_section_context(section: ReportSection) -> dict:
+    """Fallback for any future section key this module does not yet know how to chart --
+    table-only, so a new section degrades to a plain table rather than raising."""
+    columns = [c for c in section.table.columns if c not in ("muted",)]
+    rows = [
+        {
+            "cells": [str(row.get(c, "")) for c in columns],
+            "muted": bool(row.get("muted", False)),
+        }
+        for row in section.table.to_dicts()
+    ]
+    return {
+        "key": section.key,
+        "heading": section.heading,
+        "basis_text": section.basis.text,
+        "empty_notice": section.empty_notice,
+        "chart_uri": None,
+        "chart_caption": None,
+        "headers": columns,
+        "rows": rows,
+    }
+
+
+_SECTION_CONTEXT_BUILDERS = {
+    "efficiency_by_call": _call_section_context,
+    "player_efficiency": _player_section_context,
+    "drive_outcomes": _drive_section_context,
+    "defense_section": _defense_section_context,
+}
+
+
+def build_own_team_page(data: OwnTeamReportData, *, generated_on: date | None = None) -> str:
+    """Render an `OwnTeamReportData` into one standalone HTML document string (REQ-S1-13).
+
+    Performs no filesystem writes. Every numeric cell is pre-formatted into its display
+    string plus a `muted` flag before it reaches the template -- `own_team_report.html.j2`
+    does no arithmetic. Embeds up to three charts (`render_epa_bars` over the
+    `efficiency_by_call` section's `off_play` rows, `render_epa_bars` over the
+    `player_efficiency` section's receiver rows, `render_share_bars` over the
+    `drive_outcomes` section's outcome shares) through `fig_to_data_uri`, so every rendered
+    `Figure` is closed before this function returns. A section whose table is empty
+    contributes no chart, only its `empty_notice`.
+
+    The footnotes' EPA-provenance sentence and the summary block's cycle-EPA headline are
+    built from `data.n_epa_oof`/`n_epa_champion`/`n_epa_none` and
+    `data.overall_epa_play_cycle`/`overall_epa_play_n_cycle` -- the page states its own EPA
+    provenance in numbers, never a generic disclaimer.
+    """
+    generated_on = generated_on or date.today()
+
+    sections_by_key = {section.key: section for section in data.sections}
+    drive_section = sections_by_key.get("drive_outcomes")
+
+    punkte_pro_drive_text = _NO_DATA
+    if drive_section is not None and drive_section.table.height:
+        first = drive_section.table.to_dicts()[0]
+        drive_count = first.get("drive_count")
+        punkte_pro_drive = first.get("punkte_pro_drive")
+        if punkte_pro_drive is not None and drive_count:
+            punkte_pro_drive_text = (
+                f"{punkte_pro_drive:.2f} Punkte pro Drive (n={drive_count} Drives)"
+            )
+
+    overall_epa_text = _format_epa(data.overall_epa_play_cycle, data.overall_epa_play_n_cycle)
+
+    n_epa_total = data.n_epa_oof + data.n_epa_champion + data.n_epa_none
+    provenance_sentence = (
+        f"EPA-Herkunft ({n_epa_total} Plays gesamt): {data.n_epa_oof} aus "
+        f"Out-of-fold-Predictions (historische Plays), {data.n_epa_champion} aus "
+        f"Champion-Scoring (neue Plays), {data.n_epa_none} ohne EPA-Quelle."
+    )
+
+    cycle_definition_text = f"Aktueller Zyklus: Saison {data.cycle_start_season} und später."
+
+    section_contexts = [
+        _SECTION_CONTEXT_BUILDERS.get(section.key, _generic_section_context)(section)
+        for section in data.sections
+    ]
+
+    return render_page(
+        "own_team_report.html.j2",
+        team=data.team,
+        generated_on=generated_on,
+        overall_basis_text=data.overall_basis.text,
+        cycle_start_season=data.cycle_start_season,
+        cycle_definition_text=cycle_definition_text,
+        punkte_pro_drive_text=punkte_pro_drive_text,
+        overall_epa_text=overall_epa_text,
+        unmapped_players=data.unmapped_players,
+        notices=data.notices,
+        sections=section_contexts,
+        provenance_sentence=provenance_sentence,
+        muted_min_n=MUTED_MIN_N,
     )
