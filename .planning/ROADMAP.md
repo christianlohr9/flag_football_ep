@@ -200,8 +200,8 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 01.4-11-PLAN.md — Opponent report page and template (summary block first, muted cells, per-section basis)
-- [ ] 01.4-12-PLAN.md — Own-team report page and template (prominent unmapped-player warning, numeric EPA provenance)
+- [x] 01.4-11-PLAN.md — Opponent report page and template (summary block first, muted cells, per-section basis)
+- [x] 01.4-12-PLAN.md — Own-team report page and template (prominent unmapped-player warning, numeric EPA provenance)
 
 **Wave 5** *(blocked on Wave 4)*
 
