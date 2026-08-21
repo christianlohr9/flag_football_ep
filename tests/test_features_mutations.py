@@ -15,6 +15,7 @@ import pytest
 from flag_football_ep.testing import canonical_plays, canonical_plays_with_scores
 from flag_football_ep.features.mutations import (
     EP_PROBABILITY_COLUMNS,
+    FOURTH_DOWN_DISTANCE_BUCKETS,
     DegenerateWeightRange,
     InsufficientPatAttempts,
     InvalidGameClockValues,
@@ -25,6 +26,7 @@ from flag_football_ep.features.mutations import (
     add_ep_variables,
     add_recency_weight,
     add_wp_variables,
+    estimate_fourth_down_rates,
     estimate_pat_baselines,
     make_ep_model_mutations,
     make_wp_model_mutations,
@@ -784,6 +786,138 @@ class TestEstimatePatBaselines:
             estimate_pat_baselines(df)
 
         assert "two-point" in str(excinfo.value)
+
+
+class TestEstimateFourthDownRates:
+    _DEFAULTS = {
+        "down": 4,
+        "yards_to_go": 3,
+        "play_type": "run",
+        "penalty": 0,
+        "first_down": 0,
+        "touchdown": 0,
+    }
+
+    def _fourth_down_frame(self, rows: list[dict]) -> pl.DataFrame:
+        full_rows = [{**self._DEFAULTS, **row} for row in rows]
+        columns = list(self._DEFAULTS)
+        data = {col: [row[col] for row in full_rows] for col in columns}
+        return pl.DataFrame(data)
+
+    def test_no_fourth_down_rows_returns_zero_attempts_and_no_raise(self):
+        df = self._fourth_down_frame([{"down": 1}, {"down": 2}, {"down": 3}])
+
+        rates = estimate_fourth_down_rates(df)
+
+        assert rates.total_attempts == 0
+        assert rates.total_conversions == 0
+        assert rates.overall_rate is None
+        assert len(rates.buckets) == len(FOURTH_DOWN_DISTANCE_BUCKETS)
+        assert all(bucket.rate is None and bucket.ci is None for bucket in rates.buckets)
+
+    def test_bucket_assignment_at_every_boundary(self):
+        boundary_distances = [1, 3, 4, 6, 7, 10, 11, 25]
+        df = self._fourth_down_frame([{"yards_to_go": d} for d in boundary_distances])
+
+        rates = estimate_fourth_down_rates(df)
+
+        by_label = {bucket.label: bucket for bucket in rates.buckets}
+        assert by_label["1-3"].attempts == 2  # 1, 3
+        assert by_label["4-6"].attempts == 2  # 4, 6
+        assert by_label["7-10"].attempts == 2  # 7, 10
+        assert by_label["11+"].attempts == 2  # 11, 25
+        assert rates.total_attempts == 8
+
+    def test_touchdown_with_first_down_zero_counts_as_conversion(self):
+        df = self._fourth_down_frame(
+            [{"yards_to_go": 3, "touchdown": 1, "first_down": 0}]
+        )
+
+        rates = estimate_fourth_down_rates(df)
+
+        by_label = {bucket.label: bucket for bucket in rates.buckets}
+        assert by_label["1-3"].attempts == 1
+        assert by_label["1-3"].conversions == 1
+
+    def test_first_down_without_touchdown_counts_as_conversion(self):
+        df = self._fourth_down_frame(
+            [{"yards_to_go": 5, "first_down": 1, "touchdown": 0}]
+        )
+
+        rates = estimate_fourth_down_rates(df)
+
+        by_label = {bucket.label: bucket for bucket in rates.buckets}
+        assert by_label["4-6"].attempts == 1
+        assert by_label["4-6"].conversions == 1
+
+    def test_no_play_rows_excluded_from_attempts(self):
+        df = self._fourth_down_frame(
+            [{"play_type": "no_play"}, {"play_type": "run"}]
+        )
+
+        rates = estimate_fourth_down_rates(df)
+
+        assert rates.total_attempts == 1
+
+    def test_penalty_rows_excluded_from_attempts(self):
+        df = self._fourth_down_frame([{"penalty": 1}, {"penalty": 0}])
+
+        rates = estimate_fourth_down_rates(df)
+
+        assert rates.total_attempts == 1
+
+    def test_down_zero_pat_rows_excluded(self):
+        df = self._fourth_down_frame(
+            [{"down": 0, "play_type": "extra_point"}, {"down": 4}]
+        )
+
+        rates = estimate_fourth_down_rates(df)
+
+        assert rates.total_attempts == 1
+
+    def test_yards_to_go_below_one_or_null_excluded_from_every_bucket(self):
+        df = self._fourth_down_frame(
+            [{"yards_to_go": 0}, {"yards_to_go": None}, {"yards_to_go": 5}]
+        )
+
+        rates = estimate_fourth_down_rates(df)
+
+        assert rates.total_attempts == 1
+        by_label = {bucket.label: bucket for bucket in rates.buckets}
+        assert by_label["1-3"].attempts == 0
+
+    def test_empty_bucket_has_none_rate_and_ci_and_does_not_raise(self):
+        df = self._fourth_down_frame([{"yards_to_go": 3}])
+
+        rates = estimate_fourth_down_rates(df)
+
+        by_label = {bucket.label: bucket for bucket in rates.buckets}
+        assert by_label["11+"].attempts == 0
+        assert by_label["11+"].rate is None
+        assert by_label["11+"].ci is None
+
+    def test_buckets_tuple_always_full_length(self):
+        df = self._fourth_down_frame([{"yards_to_go": 3}])
+
+        rates = estimate_fourth_down_rates(df)
+
+        assert len(rates.buckets) == len(FOURTH_DOWN_DISTANCE_BUCKETS)
+        assert [bucket.label for bucket in rates.buckets] == [
+            label for label, _, _ in FOURTH_DOWN_DISTANCE_BUCKETS
+        ]
+
+    def test_ci_brackets_rate_for_populated_bucket(self):
+        df = self._fourth_down_frame(
+            [{"yards_to_go": 3, "first_down": 1}] * 6
+            + [{"yards_to_go": 3, "first_down": 0}] * 4
+        )
+
+        rates = estimate_fourth_down_rates(df)
+
+        by_label = {bucket.label: bucket for bucket in rates.buckets}
+        bucket = by_label["1-3"]
+        assert bucket.ci is not None
+        assert bucket.ci[0] <= bucket.rate <= bucket.ci[1]
 
 
 def _two_game_ep_leak_frame() -> pl.DataFrame:

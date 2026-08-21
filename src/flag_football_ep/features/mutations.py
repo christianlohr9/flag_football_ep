@@ -187,6 +187,142 @@ def estimate_pat_baselines(plays: pl.DataFrame) -> PatBaselines:
     )
 
 
+# Order matters: it is the bar order `charts/fourth_down.py` renders in.
+FOURTH_DOWN_DISTANCE_BUCKETS: tuple[tuple[str, int, int | None], ...] = (
+    ("1-3", 1, 3),
+    ("4-6", 4, 6),
+    ("7-10", 7, 10),
+    ("11+", 11, None),
+)
+
+
+@dataclass(frozen=True)
+class FourthDownBucket:
+    """One `FOURTH_DOWN_DISTANCE_BUCKETS` distance bucket of 4th-down attempts (REQ-S1-14).
+
+    `rate`/`ci` are `None` when `attempts == 0` -- a bucket with no observed attempts still
+    appears in `FourthDownRates.buckets` so `charts/fourth_down.py` can render it as an
+    explicit gap rather than silently dropping it or drawing a false 0% conversion rate.
+    """
+
+    label: str
+    min_distance: int
+    max_distance: int | None
+    attempts: int
+    conversions: int
+    rate: float | None
+    ci: tuple[float, float] | None
+
+
+@dataclass(frozen=True)
+class FourthDownRates:
+    """Empirical 4th-down conversion rates by distance bucket (REQ-S1-14).
+
+    `buckets` always has `len(FOURTH_DOWN_DISTANCE_BUCKETS)` entries, in
+    `FOURTH_DOWN_DISTANCE_BUCKETS` order, regardless of how many of them have zero attempts.
+    """
+
+    buckets: tuple[FourthDownBucket, ...]
+    total_attempts: int
+    total_conversions: int
+    overall_rate: float | None
+
+
+def _fourth_down_distance_bucket_expr() -> pl.Expr:
+    """Chained `pl.when(...).then(...).otherwise(...)` mapping `yards_to_go` to a
+    `FOURTH_DOWN_DISTANCE_BUCKETS` label, built from the tuple itself so the bucket boundaries
+    have one source of truth. A `yards_to_go` below 1, or null, matches none of the chained
+    conditions and falls through to `otherwise(None)` -- excluded from every bucket, never
+    folded into "1-3".
+    """
+    expr: pl.Expr | None = None
+    for label, min_distance, max_distance in FOURTH_DOWN_DISTANCE_BUCKETS:
+        condition = pl.col("yards_to_go") >= min_distance
+        if max_distance is not None:
+            condition = condition & (pl.col("yards_to_go") <= max_distance)
+        expr = (
+            pl.when(condition).then(pl.lit(label))
+            if expr is None
+            else expr.when(condition).then(pl.lit(label))
+        )
+    assert expr is not None  # FOURTH_DOWN_DISTANCE_BUCKETS is never empty
+    return expr.otherwise(pl.lit(None, dtype=pl.Utf8))
+
+
+def estimate_fourth_down_rates(plays: pl.DataFrame) -> FourthDownRates:
+    """Estimate 4th-down conversion rates per distance bucket from the corpus (REQ-S1-14).
+
+    An attempt is a row with `down == 4` and `play_type` in `{"run", "pass"}` -- an actual
+    4th-down snap the offense ran. `play_type == "no_play"` is excluded (no snap was run), as
+    are rows with `penalty == 1` (a play wiped out by a penalty is neither a conversion nor a
+    failure). `down == 0` PAT rows are excluded by the `down == 4` predicate itself -- those
+    belong to `estimate_pat_baselines`, not here.
+
+    A conversion is `first_down == 1` OR `touchdown == 1` on that row. A 4th-down touchdown is
+    a conversion even when `first_down` is 0, because scoring ends the series successfully.
+
+    Attempts are bucketed by `yards_to_go` via `_fourth_down_distance_bucket_expr` (a chained
+    polars `when/then/otherwise`, never a Python-level row loop). A `yards_to_go` below 1, or
+    null, matches no bucket and is excluded from every bucket -- and therefore also from
+    `total_attempts`/`total_conversions`, which are summed across the four buckets.
+
+    Each bucket's confidence interval is `binomtest(conversions, attempts).proportion_ci()`
+    (Clopper-Pearson), the same small-sample estimator `estimate_pat_baselines` uses -- never
+    a normal approximation. Unlike `estimate_pat_baselines`, a bucket with zero attempts does
+    NOT raise: `rate` and `ci` are set to `None`, and the bucket still appears in `buckets`
+    (always the full `len(FOURTH_DOWN_DISTANCE_BUCKETS)`, in that order) so the chart can
+    render an explicit gap -- a corpus legitimately may have no 4th-and-11+ attempts, and the
+    decision cheat sheet still has to render. `overall_rate` is `None` when
+    `total_attempts == 0`.
+    """
+    attempts_df = plays.filter(
+        (pl.col("down") == 4)
+        & pl.col("play_type").is_in(["run", "pass"])
+        & (pl.col("penalty") != 1)
+    ).with_columns(_fourth_down_bucket=_fourth_down_distance_bucket_expr())
+
+    buckets: list[FourthDownBucket] = []
+    total_attempts = 0
+    total_conversions = 0
+    for label, min_distance, max_distance in FOURTH_DOWN_DISTANCE_BUCKETS:
+        bucket_df = attempts_df.filter(pl.col("_fourth_down_bucket") == label)
+        attempts = bucket_df.height
+        conversions = int(
+            bucket_df.filter((pl.col("first_down") == 1) | (pl.col("touchdown") == 1)).height
+        )
+
+        if attempts == 0:
+            rate = None
+            ci = None
+        else:
+            rate = conversions / attempts
+            proportion_ci = binomtest(conversions, attempts).proportion_ci()
+            ci = (proportion_ci.low, proportion_ci.high)
+
+        buckets.append(
+            FourthDownBucket(
+                label=label,
+                min_distance=min_distance,
+                max_distance=max_distance,
+                attempts=attempts,
+                conversions=conversions,
+                rate=rate,
+                ci=ci,
+            )
+        )
+        total_attempts += attempts
+        total_conversions += conversions
+
+    overall_rate = total_conversions / total_attempts if total_attempts > 0 else None
+
+    return FourthDownRates(
+        buckets=tuple(buckets),
+        total_attempts=total_attempts,
+        total_conversions=total_conversions,
+        overall_rate=overall_rate,
+    )
+
+
 def add_recency_weight(df: pl.DataFrame, half_life_days: float) -> tuple[pl.DataFrame, int]:
     """Add an exponential-decay `Recency_W` Float64 column from `game_date` (REQ-S1-09).
 
