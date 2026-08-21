@@ -13,8 +13,10 @@ own bucket boundaries and their own definition of "thin sample".
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Sequence
 
 import polars as pl
+from scipy.stats import binomtest
 
 # CONTEXT ("Tendency report content"): locks "3 zones plus an explicit red zone" over
 # yardline_50 (yards to the opponent goal line). The red zone (0-9) is the locked explicit
@@ -186,3 +188,174 @@ def charted_only(plays: pl.DataFrame, column: str) -> pl.DataFrame:
             f"{CHARTED_COLUMNS}"
         )
     return plays.filter(pl.col(column).is_not_null())
+
+
+@dataclass(frozen=True)
+class RateCell:
+    """A single rate observation with its sample size and confidence interval.
+
+    `muted` is `n < MUTED_MIN_N` (CONTEXT: "cells under a threshold are visually muted, never
+    hidden"). The consumer's job is to render muted cells greyed, never to drop them.
+    """
+
+    label: str
+    n: int
+    successes: int
+    rate: float | None
+    ci: tuple[float, float] | None
+    muted: bool
+
+    @property
+    def text(self) -> str:
+        """German display string: rounded percentage plus the count in parentheses, e.g.
+        `78% Pass (n=9)`. Returns `keine Daten` when `n == 0`.
+        """
+        if self.n == 0 or self.rate is None:
+            return "keine Daten"
+        pct = round(self.rate * 100)
+        return f"{pct}% {self.label} (n={self.n})"
+
+
+def rate_table(
+    df: pl.DataFrame,
+    group_cols: Sequence[str],
+    success: pl.Expr,
+    *,
+    label_col: str = "label",
+) -> pl.DataFrame:
+    """One row per `group_cols` group with `n`, `successes`, `rate`, `ci_low`/`ci_high`
+    (Clopper-Pearson) and `muted` (`n < MUTED_MIN_N`). Also adds a `label_col` column (default
+    `"label"`) holding the group's display label -- `group_cols` values joined with `" / "` --
+    so a caller can build `RateCell(label=row[label_col], ...)` directly from each output row.
+
+    The aggregation stays in polars (`pl.len()` for `n`, the boolean `success` expression's
+    true count for `successes`); the Clopper-Pearson interval is computed per row in a small
+    Python loop over the already-tiny aggregated frame -- only the scipy call is per row.
+    `rate` and both CI bounds are null when `n == 0`. Rows are sorted by `group_cols` so table
+    output is deterministic across runs. Returns an empty frame with the full declared schema
+    (not a bare empty frame) when `df` is empty, and raises nothing.
+    """
+    group_cols = list(group_cols)
+    schema = {col: pl.Utf8 for col in group_cols}
+    schema[label_col] = pl.Utf8
+    schema["n"] = pl.Int64
+    schema["successes"] = pl.Int64
+    schema["rate"] = pl.Float64
+    schema["ci_low"] = pl.Float64
+    schema["ci_high"] = pl.Float64
+    schema["muted"] = pl.Boolean
+
+    if df.height == 0:
+        return pl.DataFrame(schema=schema)
+
+    grouped = (
+        df.with_columns(success.cast(pl.Int32).alias("__success__"))
+        .group_by(group_cols, maintain_order=True)
+        .agg(
+            n=pl.len(),
+            successes=pl.col("__success__").sum(),
+        )
+        .sort(group_cols)
+        .with_columns(
+            n=pl.col("n").cast(pl.Int64),
+            successes=pl.col("successes").cast(pl.Int64),
+        )
+    )
+
+    rows = grouped.to_dicts()
+    rates: list[float | None] = []
+    ci_lows: list[float | None] = []
+    ci_highs: list[float | None] = []
+    muted: list[bool] = []
+    for row in rows:
+        n = int(row["n"])
+        successes = int(row["successes"])
+        if n == 0:
+            rates.append(None)
+            ci_lows.append(None)
+            ci_highs.append(None)
+        else:
+            rates.append(successes / n)
+            ci = binomtest(successes, n).proportion_ci()
+            ci_lows.append(ci.low)
+            ci_highs.append(ci.high)
+        muted.append(n < MUTED_MIN_N)
+
+    result = grouped.with_columns(
+        pl.Series("rate", rates, dtype=pl.Float64),
+        pl.Series("ci_low", ci_lows, dtype=pl.Float64),
+        pl.Series("ci_high", ci_highs, dtype=pl.Float64),
+        pl.Series("muted", muted, dtype=pl.Boolean),
+        pl.concat_str(
+            [pl.col(col).cast(pl.Utf8) for col in group_cols], separator=" / "
+        ).alias(label_col),
+    )
+    return result
+
+
+def share_table(
+    df: pl.DataFrame,
+    group_cols: Sequence[str],
+    category_col: str,
+) -> pl.DataFrame:
+    """The distribution of `category_col`'s values within each `group_cols` group.
+
+    One row per (group, category) pair with `n` (rows in that category), `group_n` (rows in
+    the group), `share = n / group_n`, Clopper-Pearson `ci_low`/`ci_high` for that share, and
+    `muted = group_n < MUTED_MIN_N`. Null `category_col` values are excluded from the
+    numerator but reported as their own `"unbekannt"` category row rather than silently
+    vanishing, so a distribution always sums to 1 within a group. Sorted by `group_cols` then
+    `share` descending, so the dominant tendency is the first row a template renders. Returns
+    an empty frame with the full declared schema when `df` is empty, and raises nothing.
+    """
+    group_cols = list(group_cols)
+    schema = {col: pl.Utf8 for col in group_cols}
+    schema[category_col] = pl.Utf8
+    schema["n"] = pl.Int64
+    schema["group_n"] = pl.Int64
+    schema["share"] = pl.Float64
+    schema["ci_low"] = pl.Float64
+    schema["ci_high"] = pl.Float64
+    schema["muted"] = pl.Boolean
+
+    if df.height == 0:
+        return pl.DataFrame(schema=schema)
+
+    filled = df.with_columns(
+        pl.col(category_col).cast(pl.Utf8).fill_null(pl.lit("unbekannt")).alias(category_col)
+    )
+
+    group_n_df = filled.group_by(group_cols, maintain_order=True).agg(group_n=pl.len())
+
+    counts = (
+        filled.group_by([*group_cols, category_col], maintain_order=True)
+        .agg(n=pl.len())
+        .join(group_n_df, on=group_cols, how="left")
+        .with_columns(
+            n=pl.col("n").cast(pl.Int64),
+            group_n=pl.col("group_n").cast(pl.Int64),
+        )
+    )
+
+    rows = counts.to_dicts()
+    shares: list[float] = []
+    ci_lows: list[float] = []
+    ci_highs: list[float] = []
+    muted: list[bool] = []
+    for row in rows:
+        n = int(row["n"])
+        group_n = int(row["group_n"])
+        shares.append(n / group_n)
+        ci = binomtest(n, group_n).proportion_ci()
+        ci_lows.append(ci.low)
+        ci_highs.append(ci.high)
+        muted.append(group_n < MUTED_MIN_N)
+
+    result = counts.with_columns(
+        pl.Series("share", shares, dtype=pl.Float64),
+        pl.Series("ci_low", ci_lows, dtype=pl.Float64),
+        pl.Series("ci_high", ci_highs, dtype=pl.Float64),
+        pl.Series("muted", muted, dtype=pl.Boolean),
+    ).sort([*group_cols, "share"], descending=[False] * len(group_cols) + [True])
+
+    return result
