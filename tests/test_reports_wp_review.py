@@ -8,8 +8,10 @@ import pytest
 
 import polars as pl
 
+from flag_football_ep.features.mutations import add_wp_variables, prepare_wp_data
 from flag_football_ep.reports.wp_review import (
     GAME_SLUG_PATTERN,
+    attach_wp_provenance,
     build_wp_review_page,
     game_slug,
     wp_review_filename,
@@ -197,3 +199,176 @@ class TestWpReviewTemplate:
         assert "<script" not in page
         assert 'src="http' not in page
         assert 'href="http' not in page
+
+
+def _provenance_plays() -> pl.DataFrame:
+    """A 4-play single-game frame carrying every column `attach_wp_provenance`'s pipeline
+    (`prepare_wp_data` + `add_wp_variables`) needs: play 1 and 2 will be matched by the OOF
+    fixture below, play 3 only by `scored`, play 4 by neither."""
+    rows = []
+    for play_id in range(1, 5):
+        rows.append(
+            {
+                "game_id": "G1",
+                "play_id": play_id,
+                "half": 1,
+                "score_differential": 0,
+                "posteam": "HOME",
+                "home_team": "HOME",
+                "away_team": "AWAY",
+                "home_team_score": 0,
+                "away_team_score": 0,
+                "touchdown": 0,
+                "interception": 0,
+                "one_point_conv_success": 0,
+                "two_point_conv_success": 0,
+                "safety": 0,
+            }
+        )
+    return pl.DataFrame(rows)
+
+
+def _write_oof_parquet(tmp_path, rows: list[dict]) -> None:
+    pl.DataFrame(rows).write_parquet(tmp_path / "oof_predictions_wp.parquet")
+
+
+class TestAttachWpProvenance:
+    def _scored(self) -> pl.DataFrame:
+        # play 2's champion values deliberately conflict with its OOF value (0.55) --
+        # attach_wp_provenance must never let this reach a play the OOF join already matched.
+        return pl.DataFrame(
+            {
+                "game_id": ["G1", "G1"],
+                "play_id": [2, 3],
+                "wp": [0.10, 0.42],
+                "home_wp": [0.10, 0.42],
+                "away_wp": [0.90, 0.58],
+                "wpa": [0.20, -0.05],
+            }
+        )
+
+    def test_oof_matched_play_gets_oof_source(self, tmp_path):
+        _write_oof_parquet(
+            tmp_path, {"game_id": ["G1", "G1"], "play_id": [1, 2], "wp": [0.60, 0.55]}
+        )
+        result = attach_wp_provenance(
+            _provenance_plays(), processed_dir=tmp_path, scored=self._scored()
+        )
+        row = result.filter(pl.col("play_id") == 1).row(0, named=True)
+        assert row["wp_source"] == "oof"
+
+    def test_champion_only_play_gets_champion_source(self, tmp_path):
+        _write_oof_parquet(
+            tmp_path, {"game_id": ["G1", "G1"], "play_id": [1, 2], "wp": [0.60, 0.55]}
+        )
+        result = attach_wp_provenance(
+            _provenance_plays(), processed_dir=tmp_path, scored=self._scored()
+        )
+        row = result.filter(pl.col("play_id") == 3).row(0, named=True)
+        assert row["wp_source"] == "champion"
+        assert row["wp"] == pytest.approx(0.42)
+
+    def test_play_in_neither_source_gets_null_source_and_null_home_wp(self, tmp_path):
+        _write_oof_parquet(
+            tmp_path, {"game_id": ["G1", "G1"], "play_id": [1, 2], "wp": [0.60, 0.55]}
+        )
+        result = attach_wp_provenance(
+            _provenance_plays(), processed_dir=tmp_path, scored=self._scored()
+        )
+        row = result.filter(pl.col("play_id") == 4).row(0, named=True)
+        assert row["wp_source"] is None
+        assert row["home_wp"] is None
+
+    def test_conflicting_values_take_the_oof_value(self, tmp_path):
+        _write_oof_parquet(
+            tmp_path, {"game_id": ["G1", "G1"], "play_id": [1, 2], "wp": [0.60, 0.55]}
+        )
+        result = attach_wp_provenance(
+            _provenance_plays(), processed_dir=tmp_path, scored=self._scored()
+        )
+        row = result.filter(pl.col("play_id") == 2).row(0, named=True)
+        assert row["wp_source"] == "oof"
+        assert row["wp"] == pytest.approx(0.55)  # not the scored 0.10
+
+    def test_oof_derived_columns_match_add_wp_variables_directly(self, tmp_path):
+        oof_rows = {"game_id": ["G1", "G1"], "play_id": [1, 2], "wp": [0.60, 0.55]}
+        _write_oof_parquet(tmp_path, oof_rows)
+        result = attach_wp_provenance(
+            _provenance_plays(), processed_dir=tmp_path, scored=self._scored()
+        )
+
+        # Independently derive the same two OOF rows through the production pipeline and
+        # compare -- proves attach_wp_provenance did not hand-roll the arithmetic.
+        context = (
+            _provenance_plays()
+            .filter(pl.col("play_id").is_in([1, 2]))
+            .join(pl.DataFrame(oof_rows), on=["game_id", "play_id"], how="inner")
+            .sort(["game_id", "play_id"])
+        )
+        expected = add_wp_variables(prepare_wp_data(context))
+
+        for play_id, expected_home_wp, expected_wpa in zip(
+            expected["play_id"].to_list(),
+            expected["home_wp"].to_list(),
+            expected["wpa"].to_list(),
+        ):
+            actual = result.filter(pl.col("play_id") == play_id).row(0, named=True)
+            assert actual["home_wp"] == pytest.approx(expected_home_wp)
+            if expected_wpa is None:
+                assert actual["wpa"] is None
+            else:
+                assert actual["wpa"] == pytest.approx(expected_wpa)
+
+    def test_row_count_and_order_preserved(self, tmp_path):
+        _write_oof_parquet(
+            tmp_path, {"game_id": ["G1", "G1"], "play_id": [1, 2], "wp": [0.60, 0.55]}
+        )
+        plays = _provenance_plays()
+        result = attach_wp_provenance(
+            plays, processed_dir=tmp_path, scored=self._scored()
+        )
+        assert result.height == plays.height
+        assert result["play_id"].to_list() == [1, 2, 3, 4]
+
+    def test_missing_oof_file_raises_nothing_and_yields_champion_for_matched_scored_rows(
+        self, tmp_path
+    ):
+        plays = _provenance_plays()
+        assert not (tmp_path / "oof_predictions_wp.parquet").exists()
+        result = attach_wp_provenance(
+            plays, processed_dir=tmp_path, scored=self._scored()
+        )
+        assert result.height == plays.height
+        row2 = result.filter(pl.col("play_id") == 2).row(0, named=True)
+        row3 = result.filter(pl.col("play_id") == 3).row(0, named=True)
+        assert row2["wp_source"] == "champion"
+        assert row3["wp_source"] == "champion"
+
+    def test_scored_none_with_present_oof_file_still_resolves_historical_rows(
+        self, tmp_path
+    ):
+        _write_oof_parquet(
+            tmp_path, {"game_id": ["G1", "G1"], "play_id": [1, 2], "wp": [0.60, 0.55]}
+        )
+        plays = _provenance_plays()
+        result = attach_wp_provenance(plays, processed_dir=tmp_path, scored=None)
+        row1 = result.filter(pl.col("play_id") == 1).row(0, named=True)
+        row3 = result.filter(pl.col("play_id") == 3).row(0, named=True)
+        assert row1["wp_source"] == "oof"
+        assert row1["wp"] == pytest.approx(0.60)
+        assert row3["wp_source"] is None
+        assert row3["home_wp"] is None
+
+    def test_page_built_from_resolved_frame_names_actual_counts(self, tmp_path):
+        _write_oof_parquet(
+            tmp_path, {"game_id": ["G1", "G1"], "play_id": [1, 2], "wp": [0.60, 0.55]}
+        )
+        plays = _provenance_plays()
+        resolved = attach_wp_provenance(
+            plays, processed_dir=tmp_path, scored=self._scored()
+        )
+        page = build_wp_review_page(resolved, game_id="G1")
+        # 2 oof (play 1, 2), 1 champion (play 3), 1 without a model value (play 4)
+        assert "2 Plays out-of-fold" in page
+        assert "1 Plays Champion-Modell" in page
+        assert "1 Plays ohne Modellwert" in page
