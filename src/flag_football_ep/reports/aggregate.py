@@ -347,7 +347,9 @@ def share_table(
     counts = (
         filled.group_by([*group_cols, category_col], maintain_order=True)
         .agg(n=pl.len())
-        .join(group_n_df, on=group_cols, how="left")
+        # join_nulls: real corpora carry null group keys (e.g. `down` on un-charted
+        # rows); a default join would drop their group_n and crash the share math
+        .join(group_n_df, on=group_cols, how="left", join_nulls=True)
         .with_columns(
             n=pl.col("n").cast(pl.Int64),
             group_n=pl.col("group_n").cast(pl.Int64),
