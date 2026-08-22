@@ -209,7 +209,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5)*
 
-- [ ] 01.4-14-PLAN.md — Report workflow docs plus the blocking human checkpoint for tablet legibility, print-to-PDF and the real ten-minute timing
+- [x] 01.4-14-PLAN.md — Report workflow docs plus the blocking human checkpoint for tablet legibility, print-to-PDF and the real ten-minute timing
 
 ### Phase 2.0: Capture Protocol & Material Inventory
 
