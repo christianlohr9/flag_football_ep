@@ -26,6 +26,13 @@ mlruns/
 # tracked.
 /reports/
 
+# drone/side-camera sample clips show players' faces (PII), same policy as
+# data/raw/hudl/* above (Phase 2.0, REQ-S2-01, T-2.0-01)
+# NOTE: ignore contents (data/video/*), not the directory itself — git
+# cannot re-include a file inside a wholesale-excluded directory.
+data/video/*
+!data/video/.gitkeep
+
 # data/raw/legacy/, data/raw/sportapp/, data/raw/ifaf/ and data/reference/
 # are intentionally NOT ignored: the legacy CSV is the bulk of the training
 # corpus, the raw JSON snapshots make fetch reproducible offline, and the
