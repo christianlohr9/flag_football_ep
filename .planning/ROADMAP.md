@@ -231,8 +231,8 @@ Plans:
 
 **Wave 2** *(blockiert auf Wave 1)*
 
-- [ ] 02.0-02-PLAN.md — `docs/material-inventory.md` und `docs/sync-convention.md` plus Section-/CSV-Drift-Gates
-- [ ] 02.0-03-PLAN.md — `docs/capture-protocol.md` (Wunschzettel, zwei Domänen × drei Stufen) und `docs/capture-legal.md` plus Tonfall-/Policy-Gates
+- [x] 02.0-02-PLAN.md — `docs/material-inventory.md` und `docs/sync-convention.md` plus Section-/CSV-Drift-Gates
+- [x] 02.0-03-PLAN.md — `docs/capture-protocol.md` (Wunschzettel, zwei Domänen × drei Stufen) und `docs/capture-legal.md` plus Tonfall-/Policy-Gates
 
 **Wave 3** *(blockiert auf Wave 2)*
 
@@ -316,7 +316,7 @@ Plans:
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
 | 1.3 Model Retraining | 9/9 | Complete    | 2026-08-19 |
 | 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
-| 2.0 Capture Protocol | 1/4 | In Progress|  |
+| 2.0 Capture Protocol | 3/4 | In Progress|  |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
 | 2.2 Dataset Buildout | 0/TBD | Not started (gated) | - |
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
