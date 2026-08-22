@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-last_updated: "2026-08-19T22:02:07.107Z"
+status: ready_to_plan
+last_updated: 2026-08-22T08:45:04.659Z
 last_activity: 2026-08-19 -- Phase 01.4 all 14 plans complete; verification pending
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 51
-  completed_plans: 37
+  completed_plans: 51
   percent: 30
+stopped_at: Phase 01.4 complete (14/14) — ready to discuss Phase 2.0
 ---
 
 # Project State
@@ -20,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-02)
 
 **Core value:** Before the next camp/tournament: auto-generated tendency report per group opponent from raw exports in < 10 minutes, plus an explicit CV pilot go/no-go decision.
-**Current focus:** Phase 01.4 — coaching-products
+**Current focus:** Phase 2.0 — capture protocol & material inventory
 
 ## Current Position
 
-Phase: 01.4 (coaching-products) — EXECUTING
-Plan: 14 of 14
-Status: Executing Phase 01.4
-Last activity: 2026-08-19 -- Phase 01.4 all 14 plans complete; verification pending
+Phase: 2.0
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-22
 
 Progress: [██████████] 100%
 
@@ -35,7 +36,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 37
+- Total plans completed: 51
 - Average duration: -
 - Total execution time: -
 
@@ -46,6 +47,7 @@ Progress: [██████████] 100%
 | 01.1 | 3 | - | - |
 | 01.2 | 25 | - | - |
 | 01.3 | 9 | - | - |
+| 01.4 | 14 | - | - |
 
 **Recent Trend:**
 

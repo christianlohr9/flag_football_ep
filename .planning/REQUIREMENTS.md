@@ -29,11 +29,11 @@ IDs preserve the intel slugs from `.planning/intel/requirements.md` (shown in pa
 
 ### Strand 1 — Coaching Products (Phase 1.4)
 
-- [ ] **REQ-S1-12** (opponent-tendency-report): Auto-generated opponent tendency report per team (HTML/PDF): formation × down & distance × field zone, target-route distribution, play-call tendencies by score state, 4th-down and PAT behavior.
-- [ ] **REQ-S1-13** (own-efficiency-report): Own-team efficiency: EPA/play by formation/play-call/route, EPA per QB/receiver (`Thrown By`/`RECEIVED BY`), YAC shares, drive success.
-- [ ] **REQ-S1-14** (decision-charts): Decision charts: PAT break-even, 4th-down conversion rates by distance.
-- [ ] **REQ-S1-15** (wp-review-charts): Win-probability charts per game as a review tool (after the time-data fix).
-- [ ] **REQ-S1-16** (report-turnaround): Before the next camp/tournament, an auto-generated report exists for every group-stage opponent; generation from raw exports takes < 10 minutes.
+- [x] **REQ-S1-12** (opponent-tendency-report): Auto-generated opponent tendency report per team (HTML/PDF): formation × down & distance × field zone, target-route distribution, play-call tendencies by score state, 4th-down and PAT behavior.
+- [x] **REQ-S1-13** (own-efficiency-report): Own-team efficiency: EPA/play by formation/play-call/route, EPA per QB/receiver (`Thrown By`/`RECEIVED BY`), YAC shares, drive success.
+- [x] **REQ-S1-14** (decision-charts): Decision charts: PAT break-even, 4th-down conversion rates by distance.
+- [x] **REQ-S1-15** (wp-review-charts): Win-probability charts per game as a review tool (after the time-data fix).
+- [x] **REQ-S1-16** (report-turnaround): Before the next camp/tournament, an auto-generated report exists for every group-stage opponent; generation from raw exports takes < 10 minutes.
 
 ### Strand 2 — CV Tracking
 
@@ -74,11 +74,11 @@ Mapped to a deferred roadmap phase; not part of the v1 gate.
 | REQ-S1-09 | Phase 1.3 | Complete |
 | REQ-S1-10 | Phase 1.3 | Complete |
 | REQ-S1-11 | Phase 1.3 | Complete |
-| REQ-S1-12 | Phase 1.4 | Pending |
-| REQ-S1-13 | Phase 1.4 | Pending |
-| REQ-S1-14 | Phase 1.4 | Pending |
-| REQ-S1-15 | Phase 1.4 | Pending |
-| REQ-S1-16 | Phase 1.4 | Pending |
+| REQ-S1-12 | Phase 1.4 | Complete |
+| REQ-S1-13 | Phase 1.4 | Complete |
+| REQ-S1-14 | Phase 1.4 | Complete |
+| REQ-S1-15 | Phase 1.4 | Complete |
+| REQ-S1-16 | Phase 1.4 | Complete |
 | REQ-S2-01 | Phase 2.0 | Pending |
 | REQ-S2-02 | Phase 2.1 | Pending |
 | REQ-S2-03 | Phase 2.2 | Pending (gated on 2.1) |

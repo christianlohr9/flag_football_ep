@@ -15,7 +15,7 @@ This roadmap uses `strand.phase` numbering intentionally (1.1–1.4 = Strand 1, 
 - [x] **Phase 1.1: Data Contract with the Videoanalyst** - Hudl export preset, RESULT vocabulary, time data, optional defense fields (completed 2026-08-17)
 - [x] **Phase 1.2: Repo to Pipeline** - Notebook logic into `src/flag_football_ep`, ingest CLI with per-game validation, source merge (plans 01–17 executed 2026-08-17; verification found gaps, gap-closure plans 18–24 pending) (completed 2026-08-17)
 - [x] **Phase 1.3: Methodical Model Retraining** - GroupKFold split fix, calibration, feature re-tests, empirical PAT baselines, model versioning (completed 2026-08-19)
-- [ ] **Phase 1.4: Coaching Products** - Opponent tendency reports, own-efficiency report, decision charts, WP review charts, <10 min turnaround
+- [x] **Phase 1.4: Coaching Products** - Opponent tendency reports, own-efficiency report, decision charts, WP review charts, <10 min turnaround (completed 2026-08-22)
 - [ ] **Phase 2.0: Capture Protocol & Material Inventory** - Analyst conversation, drone protocol, legal clearance, sync convention (parallel, no code)
 - [ ] **Phase 2.1: CV Tracking Pilot (Go/No-Go Gate)** - One scrimmage: label → fine-tune RF-DETR → track → homography → XY CSV + radar demo; explicit gate decision
 - [ ] **Phase 2.2: Dataset Buildout** - 1,500–3,000 verified frames, 60/40 domain mix, per-domain eval, versioned dataset (only after passed pilot)
@@ -302,7 +302,7 @@ Plans:
 | 1.1 Data Contract | 3/3 | Complete    | 2026-08-17 |
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
 | 1.3 Model Retraining | 9/9 | Complete    | 2026-08-19 |
-| 1.4 Coaching Products | 0/TBD | Not started | - |
+| 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
 | 2.0 Capture Protocol | 0/TBD | Not started | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
 | 2.2 Dataset Buildout | 0/TBD | Not started (gated) | - |
