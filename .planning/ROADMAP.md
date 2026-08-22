@@ -227,7 +227,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 02.0-01-PLAN.md — Gitignoretes `data/video/`, die beiden handgepflegten Referenz-CSVs (`video_inventory.csv`, `video_sync.csv`) und ihre mechanischen Gates
+- [x] 02.0-01-PLAN.md — Gitignoretes `data/video/`, die beiden handgepflegten Referenz-CSVs (`video_inventory.csv`, `video_sync.csv`) und ihre mechanischen Gates
 
 **Wave 2** *(blockiert auf Wave 1)*
 
@@ -316,7 +316,7 @@ Plans:
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
 | 1.3 Model Retraining | 9/9 | Complete    | 2026-08-19 |
 | 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
-| 2.0 Capture Protocol | 0/4 | Planned | - |
+| 2.0 Capture Protocol | 1/4 | In Progress|  |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
 | 2.2 Dataset Buildout | 0/TBD | Not started (gated) | - |
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
