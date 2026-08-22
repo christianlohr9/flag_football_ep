@@ -223,7 +223,20 @@ Plans:
   3. Legal is cleared: EU-Drohnenverordnung (category, registration, insurance) and DSGVO consent verified to cover analysis use, not just publication (C-02, C-03)
   4. A sync convention mapping a video play to a Hudl-PBP play is defined (timestamp overlay, clap/board at drive start) — without it, tracking stays decoupled from Strand 1
 
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves (documents + reference-CSV templates only; no pipeline or CV code)
+Plans:
+**Wave 1**
+
+- [ ] 02.0-01-PLAN.md — Gitignoretes `data/video/`, die beiden handgepflegten Referenz-CSVs (`video_inventory.csv`, `video_sync.csv`) und ihre mechanischen Gates
+
+**Wave 2** *(blockiert auf Wave 1)*
+
+- [ ] 02.0-02-PLAN.md — `docs/material-inventory.md` und `docs/sync-convention.md` plus Section-/CSV-Drift-Gates
+- [ ] 02.0-03-PLAN.md — `docs/capture-protocol.md` (Wunschzettel, zwei Domänen × drei Stufen) und `docs/capture-legal.md` plus Tonfall-/Policy-Gates
+
+**Wave 3** *(blockiert auf Wave 2)*
+
+- [ ] 02.0-04-PLAN.md — Blockierender Human-Checkpoint: Abnahme der vier Dokumente und Registrierung des Ist-Bestands
 
 ### Phase 2.1: CV Tracking Pilot (Go/No-Go Gate)
 
@@ -303,7 +316,7 @@ Plans:
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
 | 1.3 Model Retraining | 9/9 | Complete    | 2026-08-19 |
 | 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
-| 2.0 Capture Protocol | 0/TBD | Not started | - |
+| 2.0 Capture Protocol | 0/4 | Planned | - |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
 | 2.2 Dataset Buildout | 0/TBD | Not started (gated) | - |
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
