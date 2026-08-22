@@ -23,15 +23,13 @@ Before the next national-team camp/tournament, the HC has an auto-generated tend
 - [x] Feature candidates re-tested on grouped CV: `half` (EP only) and competition tier adopted; recency and real-clock rejected on data-gap grounds (REQ-S1-09) — Validated in Phase 1.3: Methodical Model Retraining
 - [x] Empirical PAT baselines + break-even chart (REQ-S1-10) — Validated in Phase 1.3: Methodical Model Retraining
 - [x] Model versioning via MLflow registry with champion alias; dated + data-hash pickle exports (REQ-S1-11) — Validated in Phase 1.3: Methodical Model Retraining
+- [x] Auto-generated opponent tendency report per group opponent, self-contained German HTML (REQ-S1-12) — Validated in Phase 1.4: Coaching Products
+- [x] Own-team efficiency report: EPA by formation/play-call/route/player, YAC, drive success, EPA provenance (REQ-S1-13) — Validated in Phase 1.4: Coaching Products
+- [x] Decision charts: PAT break-even + 4th-down conversion on one printable cheat sheet (REQ-S1-14) — Validated in Phase 1.4: Coaching Products
+- [x] Win-probability review chart per game with synthetic-clock disclosure (REQ-S1-15) — Validated in Phase 1.4: Coaching Products
+- [x] `ffep report`: raw exports → complete report set in 25s measured (< 10 min budget) for every group opponent (REQ-S1-16) — Validated in Phase 1.4: Coaching Products
 
 ### Active
-
-**Strand 1 — Hudl export, EP/WP retraining, scouting products**
-- [ ] Auto-generated opponent tendency report per team, HTML/PDF (REQ-S1-12)
-- [ ] Own-team efficiency report: EPA by formation/play-call/route/player (REQ-S1-13)
-- [ ] Decision charts: PAT break-even, 4th-down conversion by distance (REQ-S1-14)
-- [ ] Win-probability charts per game as review tool (REQ-S1-15)
-- [ ] Raw export → report in < 10 minutes for every group opponent (REQ-S1-16)
 
 **Strand 2 — CV object detection & player tracking**
 - [ ] Material inventory + drone capture protocol + legal clearance + sync convention (REQ-S2-01)
@@ -88,4 +86,4 @@ All eight decisions below are **locked** (synthesized from docs/plan-1-analytics
 </decisions>
 
 ---
-*Last updated: 2026-08-19 after Phase 1.3 completion (EP/WP retrained on the full corpus with leave-one-game-out CV, calibration report, empirical PAT baselines, MLflow registry with champion promotion; EP's naive-baseline miss documented as an open quality item)*
+*Last updated: 2026-08-22 after Phase 1.4 completion (coaching report products: opponent tendency, own-team efficiency, decisions cheat sheet, WP review pages, and the `ffep report` batch command — real run measured at 25s end-to-end, human-approved; 2 critical code-review findings on edge-case robustness tracked in 01.4-REVIEW.md as fast-follow candidates)*
