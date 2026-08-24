@@ -26,6 +26,7 @@ from flag_football_ep.canonical import CANONICAL_COLUMNS
 from flag_football_ep.cli import app
 from flag_football_ep.config import (
     Config,
+    CvSettings,
     IfafSource,
     Paths,
     ReferenceFiles,
@@ -62,6 +63,9 @@ def _make_config(root: Path, repo_root: Path) -> Config:
         mlruns=root / "mlruns",
         contract=repo_root / "docs" / "data-contract.schema.json",
         reports=root / "reports",
+        video=data_root / "video",
+        labels=data_root / "labels",
+        tracking=data_root / "processed" / "tracking",
     )
     reference = ReferenceFiles(
         half_boundaries=data_root / "reference" / "half_boundaries.csv",
@@ -71,6 +75,10 @@ def _make_config(root: Path, repo_root: Path) -> Config:
         competition_tier=data_root / "reference" / "competition_tier.csv",
         player_mapping=data_root / "reference" / "player_mapping.csv",
         group_opponents=data_root / "reference" / "group_opponents.csv",
+        hover_positions=data_root / "reference" / "hover_positions.csv",
+        homography_calibration=data_root / "reference" / "homography_calibration.csv",
+        gt_positions=data_root / "reference" / "gt_positions.csv",
+        continuity_review=data_root / "reference" / "continuity_review.csv",
     )
     sources = Sources(
         sportapp=SportappSource(base_url="https://example.invalid", api_key_env="SPORTAPP_API_KEY"),
@@ -80,7 +88,29 @@ def _make_config(root: Path, repo_root: Path) -> Config:
         ep_experiment="ep_model", wp_experiment="wp_model", exclude_games_ep=[], exclude_games_wp=[]
     )
     report = ReportSettings(own_team="HOME", cycle_start_season=2026)
-    return Config(paths=paths, reference=reference, sources=sources, train=train, report=report)
+    cv = CvSettings(
+        pilot_session_id="test-session",
+        detector_model="cv_detector_model_test",
+        detector_experiment="cv_detector_test",
+        resolution=672,
+        sahi=False,
+        sahi_slice=640,
+        sahi_overlap=0.2,
+        train_epochs=1,
+        train_batch_size=4,
+        train_grad_accum=4,
+        device="cpu",
+        label_frame_target=10,
+        cvat_host="http://localhost:8080",
+        cvat_username_env="CVAT_USERNAME",
+        cvat_password_env="CVAT_PASSWORD",
+        field_length_yards=50.0,
+        field_width_yards=25.0,
+        endzone_yards=10.0,
+    )
+    return Config(
+        paths=paths, reference=reference, sources=sources, train=train, report=report, cv=cv
+    )
 
 
 def _write_hudl_csv(path: Path, rows: list[dict]) -> Path:
@@ -340,6 +370,9 @@ models = "{root / "models"}"
 mlruns = "{root / "mlruns"}"
 contract = "{repo_root / "docs" / "data-contract.schema.json"}"
 reports = "{root / "reports"}"
+video = "{data_root / "video"}"
+labels = "{data_root / "labels"}"
+tracking = "{data_root / "processed" / "tracking"}"
 
 [reference]
 half_boundaries = "{data_root / "reference" / "half_boundaries.csv"}"
@@ -349,6 +382,10 @@ sportapp_games = "{data_root / "reference" / "sportapp_games.csv"}"
 competition_tier = "{data_root / "reference" / "competition_tier.csv"}"
 player_mapping = "{data_root / "reference" / "player_mapping.csv"}"
 group_opponents = "{data_root / "reference" / "group_opponents.csv"}"
+hover_positions = "{data_root / "reference" / "hover_positions.csv"}"
+homography_calibration = "{data_root / "reference" / "homography_calibration.csv"}"
+gt_positions = "{data_root / "reference" / "gt_positions.csv"}"
+continuity_review = "{data_root / "reference" / "continuity_review.csv"}"
 
 [sources.sportapp]
 base_url = "https://example.invalid"
@@ -368,6 +405,26 @@ exclude_games_wp = []
 [report]
 own_team = "HOME"
 cycle_start_season = 2026
+
+[cv]
+pilot_session_id = "test-session"
+detector_model = "cv_detector_model_test"
+detector_experiment = "cv_detector_test"
+resolution = 672
+sahi = false
+sahi_slice = 640
+sahi_overlap = 0.2
+train_epochs = 1
+train_batch_size = 4
+train_grad_accum = 4
+device = "cpu"
+label_frame_target = 10
+cvat_host = "http://localhost:8080"
+cvat_username_env = "CVAT_USERNAME"
+cvat_password_env = "CVAT_PASSWORD"
+field_length_yards = 50.0
+field_width_yards = 25.0
+endzone_yards = 10.0
 """
     config_path = root / "ffep.toml"
     config_path.write_text(toml_text, encoding="utf-8")

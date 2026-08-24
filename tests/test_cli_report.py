@@ -174,6 +174,9 @@ models = "{config.paths.models}"
 mlruns = "{config.paths.mlruns}"
 contract = "{config.paths.contract}"
 reports = "{config.paths.reports}"
+video = "{config.paths.video}"
+labels = "{config.paths.labels}"
+tracking = "{config.paths.tracking}"
 
 [reference]
 half_boundaries = "{config.reference.half_boundaries}"
@@ -183,6 +186,10 @@ sportapp_games = "{config.reference.sportapp_games}"
 competition_tier = "{config.reference.competition_tier}"
 player_mapping = "{config.reference.player_mapping}"
 group_opponents = "{config.reference.group_opponents}"
+hover_positions = "{config.reference.hover_positions}"
+homography_calibration = "{config.reference.homography_calibration}"
+gt_positions = "{config.reference.gt_positions}"
+continuity_review = "{config.reference.continuity_review}"
 
 [sources.sportapp]
 base_url = "{config.sources.sportapp.base_url}"
@@ -202,6 +209,26 @@ exclude_games_wp = []
 [report]
 own_team = "{config.report.own_team}"
 cycle_start_season = {config.report.cycle_start_season}
+
+[cv]
+pilot_session_id = "{config.cv.pilot_session_id}"
+detector_model = "{config.cv.detector_model}"
+detector_experiment = "{config.cv.detector_experiment}"
+resolution = {config.cv.resolution}
+sahi = {str(config.cv.sahi).lower()}
+sahi_slice = {config.cv.sahi_slice}
+sahi_overlap = {config.cv.sahi_overlap}
+train_epochs = {config.cv.train_epochs}
+train_batch_size = {config.cv.train_batch_size}
+train_grad_accum = {config.cv.train_grad_accum}
+device = "{config.cv.device}"
+label_frame_target = {config.cv.label_frame_target}
+cvat_host = "{config.cv.cvat_host}"
+cvat_username_env = "{config.cv.cvat_username_env}"
+cvat_password_env = "{config.cv.cvat_password_env}"
+field_length_yards = {config.cv.field_length_yards}
+field_width_yards = {config.cv.field_width_yards}
+endzone_yards = {config.cv.endzone_yards}
 """
 
 
