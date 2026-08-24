@@ -17,9 +17,12 @@ from typing import List, Optional
 
 import typer
 
+from flag_football_ep.cv.commands import cv_app
+
 app = typer.Typer(
     no_args_is_help=True, add_completion=False, help="flag-football EP/WP pipeline"
 )
+app.add_typer(cv_app, name="cv")
 
 DEFAULT_CONFIG = Path("ffep.toml")
 DEFAULT_SOURCES = ["hudl", "legacy", "sportapp", "ifaf"]
