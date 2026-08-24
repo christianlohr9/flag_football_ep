@@ -124,14 +124,19 @@ def clip_paths(config: Config, session_id: str) -> list[Path]:
         if local_path.startswith("/") or local_path.startswith("~"):
             raise ClipNotFound(f"local_path is not repo-relative: {local_path!r}")
 
-        resolved = (repo_root / local_path).resolve()
-        try:
-            resolved.relative_to(repo_root)
-        except ValueError:
-            raise ClipNotFound(
-                f"local_path escapes the repo root: {local_path!r}"
-            ) from None
+        candidate = Path(local_path)
+        # Syntactic escape check (no ".." component), deliberately not a filesystem
+        # `.resolve()` + `relative_to(repo_root)` check: `data/video/` legitimately
+        # contains symlinks (footage synced in from elsewhere on disk, per
+        # docs/material-inventory.md), and resolving through those would make a
+        # perfectly repo-relative `local_path` look like it "escapes" the repo root.
+        # A CSV row can still only reference paths that stay inside `data/video/` --
+        # this check rejects `..` traversal the same way an absolute path is rejected
+        # above (T-2.1-02).
+        if ".." in candidate.parts:
+            raise ClipNotFound(f"local_path escapes the repo root: {local_path!r}")
 
+        resolved = repo_root / candidate
         if not resolved.exists():
             raise ClipNotFound(f"registered clip file does not exist: {resolved}")
 

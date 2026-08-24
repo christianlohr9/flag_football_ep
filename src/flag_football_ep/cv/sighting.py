@@ -318,7 +318,11 @@ def _classify_tier(resolution: str, apparent_player_px_p50: float) -> str:
 
 
 def _repo_relative(path: Path, repo_root: Path) -> str:
-    return path.resolve().relative_to(repo_root).as_posix()
+    # Deliberately not `path.resolve()`: `data/video/` legitimately contains symlinks
+    # (footage synced in from elsewhere on disk), and resolving through one would
+    # produce a path outside `repo_root` for an otherwise perfectly repo-relative
+    # clip -- see the matching note in cv/frames.py::clip_paths.
+    return path.relative_to(repo_root).as_posix()
 
 
 def _write_hover_positions_csv(rows: list[ClipSighting], path: Path) -> None:
