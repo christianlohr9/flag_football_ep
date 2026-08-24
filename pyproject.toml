@@ -15,13 +15,49 @@ dependencies = [
     "scikit-learn>=1.5.1",
     "hyperopt>=0.2.7",
     "xgboost>=2.1.1",
-    "setuptools>=73.0.1",
+    # Upper-bounded: newer setuptools releases drop `pkg_resources`, which
+    # `hyperopt` (core dependency, model/hyperparams.py) still imports at
+    # module load time. Without this bound, resolving the `cv` extras group's
+    # `torch` pulls the unified lock's `setuptools` past that cutoff and
+    # breaks the core (no-extras) install (Phase 2.1 plan 01, Task 1 fix).
+    "setuptools>=73.0.1,<81",
     "pyarrow>=17.0.0",
     "typer>=0.27",
     "mlflow>=3.15",
     "scipy>=1.14.1",
     "jinja2>=3.1.6",
 ]
+
+[project.optional-dependencies]
+# Phase 2.1 CV tracking pilot stack (D-07: core install stays lean, opt in via
+# `uv sync --extra cv`). Apache-2.0/MIT only (C-06). The AGPL-3.0-licensed
+# tracking package named in the original source plan docs must never be added
+# here — see docs/cv-setup.md and tests/test_cv_dependencies.py for the reason;
+# `trackers` (roboflow, Apache-2.0) is the OC-SORT implementation this phase
+# uses instead.
+cv = [
+    "rfdetr>=1.9.3",
+    "trackers>=2.6.0",
+    "supervision>=0.30.0",
+    "sahi>=0.12.6",
+    "transformers>=5.15.1",
+    "umap-learn>=0.5.12",
+    "opencv-python>=5.0.0",
+    "torch>=2.13",
+    "cvat-sdk>=2.73.0",
+]
+# `autodistill`/`autodistill-grounding-dino` (RESEARCH's original zero-shot
+# pre-labeling orchestration pick) are deliberately absent: `autodistill`
+# 0.1.29's `autodistill.detection.detection_base_model` imports `roboflow` at
+# module level, but `roboflow` is not declared in autodistill's own PyPI
+# metadata — installing the `cv` group alone leaves `CaptionOntology`
+# unimportable (`ModuleNotFoundError: No module named 'roboflow'`), confirmed
+# on the primary machine 2026-08-24 (plan 02.1-01 Task 3 install probe,
+# RESEARCH Open Question 2). Per this plan's documented fallback, zero-shot
+# pre-labeling uses `transformers.GroundingDinoForObjectDetection` with the
+# `IDEA-Research/grounding-dino-tiny` checkpoint instead (binding for plan
+# 02.1-07) — already covered by the `transformers` entry above, no extra
+# package needed. See docs/cv-setup.md.
 
 [project.scripts]
 ffep = "flag_football_ep.cli:app"

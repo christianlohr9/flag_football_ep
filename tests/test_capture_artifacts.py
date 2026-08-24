@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import tomllib
 from pathlib import Path
 
 import polars as pl
@@ -218,11 +219,35 @@ def test_capture_artifacts_contain_no_roster_names() -> None:
             assert name.lower() not in text, f"{path} contains roster name {name!r}"
 
 
-def test_phase_adds_no_video_python_dependency() -> None:
+def test_core_dependencies_stay_free_of_cv_libraries() -> None:
+    """D-07: core `uv sync` (no extras) stays lean, with no CV/video library.
+
+    Phase 2.1 legitimately introduces CV/video dependencies, but only inside the
+    optional `[project.optional-dependencies.cv]` group — never in core
+    `[project.dependencies]`.
+    """
     pyproject_text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    forbidden = ("opencv", "decord", "ffmpeg-python", "imageio-ffmpeg", "moviepy")
-    for token in forbidden:
-        assert token not in pyproject_text, (
-            f"pyproject.toml mentions {token!r} — Phase 2.0 is docs + reference "
-            "data only, no CV/video pipeline dependency"
-        )
+    data = tomllib.loads(pyproject_text)
+    core_dependencies = data["project"]["dependencies"]
+    forbidden = (
+        "opencv",
+        "decord",
+        "ffmpeg-python",
+        "imageio-ffmpeg",
+        "moviepy",
+        "rfdetr",
+        "torch",
+        "transformers",
+    )
+    for entry in core_dependencies:
+        for token in forbidden:
+            assert token not in entry, (
+                f"project.dependencies entry {entry!r} mentions {token!r} — "
+                "D-07: core install must stay free of CV/video libraries; "
+                "add it under [project.optional-dependencies.cv] instead"
+            )
+
+    cv_group = data["project"]["optional-dependencies"]["cv"]
+    assert any("trackers" in entry for entry in cv_group), (
+        "the `cv` optional-dependencies group must list `trackers`"
+    )
