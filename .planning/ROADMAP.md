@@ -250,7 +250,7 @@ Plans:
   3. Manual 4–8-point homography per hover position yields an XY CSV in field coordinates, and a top-down radar clip has been demoed to HC and analyst
   4. The go/no-go decision is recorded against the gate criteria (C-09): ≥ 90% of a play tracked without ID switch, position error ~≤ 1 m against known field dimensions, inference of one game < 1 h — clear miss routes back to Phase 2.0 (capture setup), not to more labeling (D-06)
 
-**Plans**: 17 plans in 12 waves (full Strand-1 engineering rigor per D-08: package + config foundation, contracts, pipeline stages, three human measurement checkpoints, gate decision)
+**Plans**: 17 plans in 13 waves (full Strand-1 engineering rigor per D-08: package + config foundation, contracts, pipeline stages, three human measurement checkpoints, gate decision)
 Plans:
 **Wave 1**
 
@@ -296,12 +296,15 @@ Plans:
 - [ ] 02.1-13-PLAN.md — Calibration point-picking checkpoint, field coordinates in yards, held-out reprojection error
 - [ ] 02.1-14-PLAN.md — Track-overlay rendering, continuity statistics, the 61-clip human continuity review
 
-**Wave 11** *(blocked on Wave 10; two parallel plans)*
+**Wave 11** *(blocked on Wave 10)*
 
 - [ ] 02.1-15-PLAN.md — Ground-truth foot-position labelling and the measured position-error distribution
+
+**Wave 12** *(blocked on 02.1-15; appends to `docs/pilot-accuracy.md`, which 02.1-15 creates)*
+
 - [ ] 02.1-16-PLAN.md — Top-down radar rendering and the side-by-side showcase reel
 
-**Wave 12** *(blocked on Wave 11)*
+**Wave 13** *(blocked on Wave 12)*
 
 - [ ] 02.1-17-PLAN.md — Gate document, go/no-go decision checkpoint, HC demo record, REQ-S2-02 closure
 
