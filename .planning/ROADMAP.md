@@ -16,7 +16,7 @@ This roadmap uses `strand.phase` numbering intentionally (1.1–1.4 = Strand 1, 
 - [x] **Phase 1.2: Repo to Pipeline** - Notebook logic into `src/flag_football_ep`, ingest CLI with per-game validation, source merge (plans 01–17 executed 2026-08-17; verification found gaps, gap-closure plans 18–24 pending) (completed 2026-08-17)
 - [x] **Phase 1.3: Methodical Model Retraining** - GroupKFold split fix, calibration, feature re-tests, empirical PAT baselines, model versioning (completed 2026-08-19)
 - [x] **Phase 1.4: Coaching Products** - Opponent tendency reports, own-efficiency report, decision charts, WP review charts, <10 min turnaround (completed 2026-08-22)
-- [ ] **Phase 2.0: Capture Protocol & Material Inventory** - Analyst conversation, drone protocol, legal clearance, sync convention (parallel, no code)
+- [x] **Phase 2.0: Capture Protocol & Material Inventory** - Analyst conversation, drone protocol, legal clearance, sync convention (parallel, no code) (completed 2026-08-24)
 - [ ] **Phase 2.1: CV Tracking Pilot (Go/No-Go Gate)** - One scrimmage: label → fine-tune RF-DETR → track → homography → XY CSV + radar demo; explicit gate decision
 - [ ] **Phase 2.2: Dataset Buildout** - 1,500–3,000 verified frames, 60/40 domain mix, per-domain eval, versioned dataset (only after passed pilot)
 - [ ] **Phase 2.3: Tracks to Coaching Metrics** - Snap detection, route classification vs TARGET ROUTE, separation/speeds/spacing, PBP join
@@ -236,7 +236,7 @@ Plans:
 
 **Wave 3** *(blockiert auf Wave 2)*
 
-- [ ] 02.0-04-PLAN.md — Blockierender Human-Checkpoint: Abnahme der vier Dokumente und Registrierung des Ist-Bestands
+- [x] 02.0-04-PLAN.md — Blockierender Human-Checkpoint: Abnahme der vier Dokumente und Registrierung des Ist-Bestands
 
 ### Phase 2.1: CV Tracking Pilot (Go/No-Go Gate)
 
@@ -316,7 +316,7 @@ Plans:
 | 1.2 Repo to Pipeline | 25/25 | Complete    | 2026-08-18 |
 | 1.3 Model Retraining | 9/9 | Complete    | 2026-08-19 |
 | 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
-| 2.0 Capture Protocol | 3/4 | In Progress|  |
+| 2.0 Capture Protocol | 4/4 | Complete   | 2026-08-24 |
 | 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
 | 2.2 Dataset Buildout | 0/TBD | Not started (gated) | - |
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
