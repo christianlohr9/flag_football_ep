@@ -28,11 +28,11 @@ Before the next national-team camp/tournament, the HC has an auto-generated tend
 - [x] Decision charts: PAT break-even + 4th-down conversion on one printable cheat sheet (REQ-S1-14) — Validated in Phase 1.4: Coaching Products
 - [x] Win-probability review chart per game with synthetic-clock disclosure (REQ-S1-15) — Validated in Phase 1.4: Coaching Products
 - [x] `ffep report`: raw exports → complete report set in 25s measured (< 10 min budget) for every group opponent (REQ-S1-16) — Validated in Phase 1.4: Coaching Products
+- [x] Material inventory + drone capture protocol + legal clearance + sync convention — 172 per-play clips registered and hashed across three domains; all four docs human-approved (wish list not forwarded for now by user decision) (REQ-S2-01) — Validated in Phase 2.0: Capture Protocol & Material Inventory
 
 ### Active
 
 **Strand 2 — CV object detection & player tracking**
-- [ ] Material inventory + drone capture protocol + legal clearance + sync convention (REQ-S2-01)
 - [ ] CV pilot on one scrimmage with explicit go/no-go gate (REQ-S2-02)
 - [ ] Dataset buildout to 1,500–3,000 verified frames, 60/40 domain mix (REQ-S2-03)
 - [ ] Coaching metrics on XY tracks: snap detection, routes, separation, spacing, PBP join (REQ-S2-04)
@@ -86,4 +86,4 @@ All eight decisions below are **locked** (synthesized from docs/plan-1-analytics
 </decisions>
 
 ---
-*Last updated: 2026-08-22 after Phase 1.4 completion (coaching report products: opponent tendency, own-team efficiency, decisions cheat sheet, WP review pages, and the `ffep report` batch command — real run measured at 25s end-to-end, human-approved; 2 critical code-review findings on edge-case robustness tracked in 01.4-REVIEW.md as fast-follow candidates)*
+*Last updated: 2026-08-24 after Phase 2.0 completion (capture protocol, legal note, material inventory, and sync convention approved by the user; 172 per-play clips — 61 drone friendly, 60 GoPro WC GER-MEX, 51 TV WC USA-AUS — probed, hashed, and registered in data/reference/video_inventory.csv; Phase 2.1 pilot material available)*
