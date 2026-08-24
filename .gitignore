@@ -33,6 +33,13 @@ mlruns/
 data/video/*
 !data/video/.gitkeep
 
+# labeled frames are extracted player images (PII), same policy as
+# data/video/* above (Phase 2.1, REQ-S2-02, T-2.1-01)
+# NOTE: ignore contents (data/labels/*), not the directory itself — git
+# cannot re-include a file inside a wholesale-excluded directory.
+data/labels/*
+!data/labels/.gitkeep
+
 # data/raw/legacy/, data/raw/sportapp/, data/raw/ifaf/ and data/reference/
 # are intentionally NOT ignored: the legacy CSV is the bulk of the training
 # corpus, the raw JSON snapshots make fetch reproducible offline, and the

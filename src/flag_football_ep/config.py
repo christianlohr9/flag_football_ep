@@ -37,6 +37,9 @@ class Paths:
     mlruns: Path
     contract: Path
     reports: Path
+    video: Path
+    labels: Path
+    tracking: Path
 
 
 @dataclass(frozen=True)
@@ -48,6 +51,10 @@ class ReferenceFiles:
     competition_tier: Path
     player_mapping: Path
     group_opponents: Path
+    hover_positions: Path
+    homography_calibration: Path
+    gt_positions: Path
+    continuity_review: Path
 
 
 @dataclass(frozen=True)
@@ -84,12 +91,35 @@ class ReportSettings:
 
 
 @dataclass(frozen=True)
+class CvSettings:
+    pilot_session_id: str
+    detector_model: str
+    detector_experiment: str
+    resolution: int
+    sahi: bool
+    sahi_slice: int
+    sahi_overlap: float
+    train_epochs: int
+    train_batch_size: int
+    train_grad_accum: int
+    device: str
+    label_frame_target: int
+    cvat_host: str
+    cvat_username_env: str
+    cvat_password_env: str
+    field_length_yards: float
+    field_width_yards: float
+    endzone_yards: float
+
+
+@dataclass(frozen=True)
 class Config:
     paths: Paths
     reference: ReferenceFiles
     sources: Sources
     train: TrainSettings
     report: ReportSettings
+    cv: CvSettings
 
 
 _PATH_KEYS = (
@@ -104,6 +134,9 @@ _PATH_KEYS = (
     "mlruns",
     "contract",
     "reports",
+    "video",
+    "labels",
+    "tracking",
 )
 _REFERENCE_KEYS = (
     "half_boundaries",
@@ -113,11 +146,35 @@ _REFERENCE_KEYS = (
     "competition_tier",
     "player_mapping",
     "group_opponents",
+    "hover_positions",
+    "homography_calibration",
+    "gt_positions",
+    "continuity_review",
 )
 _SPORTAPP_KEYS = ("base_url", "api_key_env")
 _IFAF_KEYS = ("base_url", "tournament", "api_key_env")
 _TRAIN_KEYS = ("ep_experiment", "wp_experiment", "exclude_games_ep", "exclude_games_wp")
 _REPORT_KEYS = ("own_team", "cycle_start_season")
+_CV_KEYS = (
+    "pilot_session_id",
+    "detector_model",
+    "detector_experiment",
+    "resolution",
+    "sahi",
+    "sahi_slice",
+    "sahi_overlap",
+    "train_epochs",
+    "train_batch_size",
+    "train_grad_accum",
+    "device",
+    "label_frame_target",
+    "cvat_host",
+    "cvat_username_env",
+    "cvat_password_env",
+    "field_length_yards",
+    "field_width_yards",
+    "endzone_yards",
+)
 
 
 def _table(data: dict, dotted_name: str) -> dict:
@@ -196,12 +253,16 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
         **{key: _key(report_table, "report", key) for key in _REPORT_KEYS}
     )
 
+    cv_table = _table(data, "cv")
+    cv = CvSettings(**{key: _key(cv_table, "cv", key) for key in _CV_KEYS})
+
     return Config(
         paths=paths,
         reference=reference,
         sources=Sources(sportapp=sportapp, ifaf=ifaf),
         train=train,
         report=report,
+        cv=cv,
     )
 
 

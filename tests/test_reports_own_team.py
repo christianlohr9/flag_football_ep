@@ -14,6 +14,7 @@ import pytest
 
 from flag_football_ep.config import (
     Config,
+    CvSettings,
     IfafSource,
     Paths,
     ReferenceFiles,
@@ -53,6 +54,9 @@ def _make_config(tmp_path: Path) -> Config:
         mlruns=tmp_path / "mlruns",
         contract=tmp_path / "contract.json",
         reports=tmp_path / "reports",
+        video=tmp_path / "video",
+        labels=tmp_path / "labels",
+        tracking=tmp_path / "processed" / "tracking",
     )
     reference = ReferenceFiles(
         half_boundaries=tmp_path / "half_boundaries.csv",
@@ -62,6 +66,10 @@ def _make_config(tmp_path: Path) -> Config:
         competition_tier=tmp_path / "competition_tier.csv",
         player_mapping=tmp_path / "player_mapping.csv",
         group_opponents=tmp_path / "group_opponents.csv",
+        hover_positions=tmp_path / "hover_positions.csv",
+        homography_calibration=tmp_path / "homography_calibration.csv",
+        gt_positions=tmp_path / "gt_positions.csv",
+        continuity_review=tmp_path / "continuity_review.csv",
     )
     sources = Sources(
         sportapp=SportappSource(base_url="https://x", api_key_env="X"),
@@ -71,7 +79,29 @@ def _make_config(tmp_path: Path) -> Config:
         ep_experiment="ep", wp_experiment="wp", exclude_games_ep=[], exclude_games_wp=[]
     )
     report = ReportSettings(own_team=_HOME, cycle_start_season=2026)
-    return Config(paths=paths, reference=reference, sources=sources, train=train, report=report)
+    cv = CvSettings(
+        pilot_session_id="test-session",
+        detector_model="cv_detector_model_test",
+        detector_experiment="cv_detector_test",
+        resolution=672,
+        sahi=False,
+        sahi_slice=640,
+        sahi_overlap=0.2,
+        train_epochs=1,
+        train_batch_size=4,
+        train_grad_accum=4,
+        device="cpu",
+        label_frame_target=10,
+        cvat_host="http://localhost:8080",
+        cvat_username_env="CVAT_USERNAME",
+        cvat_password_env="CVAT_PASSWORD",
+        field_length_yards=50.0,
+        field_width_yards=25.0,
+        endzone_yards=10.0,
+    )
+    return Config(
+        paths=paths, reference=reference, sources=sources, train=train, report=report, cv=cv
+    )
 
 
 def _pat_ready(df: pl.DataFrame) -> pl.DataFrame:
@@ -544,6 +574,7 @@ class TestBuildOwnTeamData:
             sources=config.sources,
             train=config.train,
             report=ReportSettings(own_team="NOT_IN_CORPUS", cycle_start_season=2026),
+            cv=config.cv,
         )
         config.paths.processed.mkdir(parents=True, exist_ok=True)
         df = self._pat_ready(canonical_plays_with_scores(n_games=1, plays_per_game=8))

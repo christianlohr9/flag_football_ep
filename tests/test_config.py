@@ -27,6 +27,9 @@ models = "models"
 mlruns = "mlruns"
 contract = "docs/data-contract.schema.json"
 reports = "reports"
+video = "data/video"
+labels = "data/labels"
+tracking = "data/processed/tracking"
 
 [reference]
 half_boundaries = "data/reference/half_boundaries.csv"
@@ -36,6 +39,10 @@ sportapp_games = "data/reference/sportapp_games.csv"
 competition_tier = "data/reference/competition_tier.csv"
 player_mapping = "data/reference/player_mapping.csv"
 group_opponents = "data/reference/group_opponents.csv"
+hover_positions = "data/reference/hover_positions.csv"
+homography_calibration = "data/reference/homography_calibration.csv"
+gt_positions = "data/reference/gt_positions.csv"
+continuity_review = "data/reference/continuity_review.csv"
 
 [sources.sportapp]
 base_url = "https://example.invalid/api/v1/public"
@@ -55,6 +62,26 @@ exclude_games_wp = ["legacy-35"]
 [report]
 own_team = "GER"
 cycle_start_season = 2025
+
+[cv]
+pilot_session_id = "2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE"
+detector_model = "cv_detector_model"
+detector_experiment = "cv_detector"
+resolution = 672
+sahi = false
+sahi_slice = 640
+sahi_overlap = 0.2
+train_epochs = 30
+train_batch_size = 4
+train_grad_accum = 4
+device = "cpu"
+label_frame_target = 400
+cvat_host = "http://localhost:8080"
+cvat_username_env = "CVAT_USERNAME"
+cvat_password_env = "CVAT_PASSWORD"
+field_length_yards = 50.0
+field_width_yards = 25.0
+endzone_yards = 10.0
 """
 
 
