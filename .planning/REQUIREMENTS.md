@@ -37,7 +37,7 @@ IDs preserve the intel slugs from `.planning/intel/requirements.md` (shown in pa
 
 ### Strand 2 — CV Tracking
 
-- [ ] **REQ-S2-01** (capture-protocol): Material inventory with the Videoanalyst (domains, resolution, frame rate, 2–3 sample clips each); one-page drone capture protocol agreed (fixed hover, ~30–60 m, 4K, fixed exposure, battery-swap between drives); EU drone regulation + DSGVO consent cleared; sync convention mapping video plays to Hudl-PBP plays defined.
+- [x] **REQ-S2-01** (capture-protocol): Material inventory with the Videoanalyst (domains, resolution, frame rate, 2–3 sample clips each); one-page drone capture protocol agreed (fixed hover, ~30–60 m, 4K, fixed exposure, battery-swap between drives); EU drone regulation + DSGVO consent cleared; sync convention mapping video plays to Hudl-PBP plays defined.
 - [ ] **REQ-S2-02** (cv-pilot): Pilot on one scrimmage/training: zero-shot baseline → CVAT + SAM2 correction of ~300–500 frames (`player`, `referee`) → RF-DETR-Small fine-tune → OC-SORT tracking + SigLIP/UMAP/KMeans team split → manual homography → XY CSV + top-down radar clip. Acceptance: explicit go/no-go against gate criteria (≥90% track continuity, ~≤1 m position error, <1 h inference/game); clear miss → back to Phase 2.0.
 - [ ] **REQ-S2-03** (dataset-buildout): Only after passed pilot: 1,500–3,000 verified frames via model-in-the-loop (2 active-learning iterations), ~60% drone / ~40% second domain, targeting hard cases; per-domain eval splits; dataset cleanly versioned (Roboflow Universe or DVC); publication option assessed.
 - [ ] **REQ-S2-04** (coaching-metrics): Small testable modules on the XY CSV: snap detection → play segmentation; route overlays + route classification validated against `TARGET ROUTE`; separation at catch, QB time-to-throw, speeds/accelerations, defense spacing; join with Strand-1 PBP via sync convention → EPA per route/concept with positional context.
@@ -79,7 +79,7 @@ Mapped to a deferred roadmap phase; not part of the v1 gate.
 | REQ-S1-14 | Phase 1.4 | Complete |
 | REQ-S1-15 | Phase 1.4 | Complete |
 | REQ-S1-16 | Phase 1.4 | Complete |
-| REQ-S2-01 | Phase 2.0 | Pending |
+| REQ-S2-01 | Phase 2.0 | Complete |
 | REQ-S2-02 | Phase 2.1 | Pending |
 | REQ-S2-03 | Phase 2.2 | Pending (gated on 2.1) |
 | REQ-S2-04 | Phase 2.3 | Pending (gated on 2.1) |
