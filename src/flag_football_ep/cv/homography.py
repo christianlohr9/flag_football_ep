@@ -31,11 +31,30 @@ that already hold a `Config` still get to validate custom field dimensions by lo
 the CSV against a non-default `ffep.toml` copy if ever needed; in practice this pilot
 always validates against the one checked-in config.
 
-`pick_points` (the point-picking tool) is implemented by Task 2 of this plan.
+`pick_points`'s out-of-frame pixel-bounds check is intentionally the light-weight
+non-negative-coordinate guard rather than a full cross-reference against
+`data/reference/hover_positions.csv`'s per-clip resolution: that reference file is
+plan 02.1-03's output and this plan only depends on 02.1-02's contracts, so requiring
+it here would make every calibration load fail before 02.1-03 lands. The full
+resolution-bounds cross-check is left to whichever later plan wires
+`hover_positions.csv` + `video_inventory.csv` together for this purpose.
+
+`pick_points`'s interactive picking (mouse clicks on an `cv2.imshow` window) only runs
+when the operator opts in via `FFEP_CV_CALIBRATE_INTERACTIVE=1` in the environment --
+empirically, `cv2.imshow`/`cv2.waitKey` do not reliably raise `cv2.error` in every
+headless/CI environment (verified during this plan's implementation: they can succeed
+silently with a window that will never receive real clicks), so autodetecting "is a
+window available" from exception behavior alone is not a safe way to guarantee the
+T-2.1-12 "never blocks" mitigation. Defaulting to the safe reference-frame-export path
+and gating the interactive attempt behind an explicit opt-in keeps every automated
+invocation (tests, CI, a first-time `ffep cv calibrate` run) non-blocking by
+construction; when opted in, the pick loop is additionally bounded by a hard
+iteration/time cap so it still cannot hang even in a genuinely broken environment.
 """
 
 from __future__ import annotations
 
+import os
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -305,9 +324,173 @@ def reprojection_error_yards(
     return np.linalg.norm(projected - target_arr, axis=1)
 
 
-def pick_points(clip: Path, hover_position_id: str, out_csv: Path, *, at_second: float) -> Path:
-    """Extract a still frame from `clip` at `at_second` and seed `out_csv` with a
-    row template for the operator to hand-pick point correspondences for
-    `hover_position_id`.
+def _draw_reference_grid(frame: np.ndarray, landmarks: dict[str, tuple[float, float]]) -> np.ndarray:
+    """Annotate `frame` with a 100px pixel grid (axis-labelled) so an operator can
+    hand-read source pixel coordinates off the exported JPEG -- the documented
+    fallback when interactive picking is unavailable or not opted into.
     """
-    raise NotImplementedError("cv.homography.pick_points is implemented by plan 02.1-04")
+    import cv2
+
+    annotated = frame.copy()
+    height, width = annotated.shape[:2]
+    color = (0, 255, 0)
+
+    for x in range(0, width, 100):
+        cv2.line(annotated, (x, 0), (x, height), color, 1)
+        cv2.putText(annotated, str(x), (x + 2, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
+    for y in range(0, height, 100):
+        cv2.line(annotated, (0, y), (width, y), color, 1)
+        cv2.putText(annotated, str(y), (2, y + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
+
+    for i, name in enumerate(sorted(landmarks)):
+        cv2.putText(
+            annotated,
+            f"{i + 1}. {name}",
+            (5, height - 10 - 14 * i),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.4,
+            (0, 200, 255),
+            1,
+        )
+
+    return annotated
+
+
+def _pick_points_interactive(
+    frame: np.ndarray, names: list[str], *, max_wait_iterations: int = 250, wait_ms: int = 20
+) -> list[tuple[str, tuple[float, float]]]:
+    """Open `frame` in a window and consume left-clicks in `names` order, ESC to
+    finish early. Hard-bounded by `max_wait_iterations` * `wait_ms` (~5s by default)
+    so this can never block indefinitely (T-2.1-12) regardless of whether a human is
+    present to interact with it. Returns whatever was picked before the window closed
+    (possibly nothing).
+    """
+    import cv2
+
+    picked: list[tuple[str, tuple[float, float]]] = []
+    window = "ffep calibration"
+
+    def _on_click(event: int, x: int, y: int, flags: int, param: object) -> None:
+        if event == cv2.EVENT_LBUTTONDOWN and len(picked) < len(names):
+            picked.append((names[len(picked)], (float(x), float(y))))
+
+    cv2.namedWindow(window)
+    cv2.setMouseCallback(window, _on_click)
+    try:
+        for _ in range(max_wait_iterations):
+            cv2.imshow(window, frame)
+            key = cv2.waitKey(wait_ms) & 0xFF
+            if key == 27 or len(picked) >= len(names):  # ESC
+                break
+    finally:
+        cv2.destroyWindow(window)
+
+    return picked
+
+
+def _append_calibration_rows(
+    out_csv: Path, hover_position_id: str, rows: list[dict[str, object]]
+) -> Path:
+    """Replace `hover_position_id`'s rows in `out_csv` with `rows` (re-picking
+    replaces, never duplicates), sort by (hover_position_id, landmark), and write
+    atomically -- validated via `load_calibration` before the write is committed, so
+    an invalid set never overwrites a previously-valid on-disk CSV (T-2.1-11).
+    """
+    if out_csv.exists():
+        existing = _read_calibration_csv(out_csv)
+        existing = existing.filter(pl.col("hover_position_id") != hover_position_id)
+    else:
+        existing = pl.DataFrame(schema=_CALIBRATION_SCHEMA)
+
+    new_rows = pl.DataFrame(rows, schema=_CALIBRATION_SCHEMA)
+    combined = pl.concat([existing, new_rows], how="vertical").sort(
+        ["hover_position_id", "landmark"]
+    )
+
+    tmp_path = out_csv.with_suffix(out_csv.suffix + ".tmp")
+    combined.write_csv(tmp_path)
+
+    try:
+        load_calibration(tmp_path)
+    except CalibrationError:
+        tmp_path.unlink(missing_ok=True)
+        raise
+
+    os.replace(tmp_path, out_csv)
+    return out_csv
+
+
+def pick_points(clip: Path, hover_position_id: str, out_csv: Path, *, at_second: float) -> Path:
+    """Extract a still frame from `clip` at `at_second`, always writing an annotated
+    reference-frame JPEG (`data/labels/calibration/{hover_position_id}_ref.jpg`, the
+    documented hand-edit fallback), and, only when `FFEP_CV_CALIBRATE_INTERACTIVE=1`
+    is set, also attempt interactive point picking on that frame. Picked rows (if any)
+    replace `hover_position_id`'s existing rows in `out_csv` (never duplicate),
+    validated before the write is committed. Returns `out_csv`.
+    """
+    import cv2
+
+    clip = Path(clip)
+    out_csv = Path(out_csv)
+
+    cap = cv2.VideoCapture(str(clip))
+    try:
+        fps = cap.get(cv2.CAP_PROP_FPS) or 0.0
+        if fps > 0:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, round(at_second * fps))
+        else:
+            cap.set(cv2.CAP_PROP_POS_MSEC, at_second * 1000.0)
+        ok, frame = cap.read()
+    finally:
+        cap.release()
+
+    if not ok or frame is None:
+        raise CalibrationError(f"could not extract a frame at {at_second}s from {clip}")
+
+    from flag_football_ep.config import load_config
+
+    cfg = load_config()
+    landmarks = field_landmarks(cfg)
+    names = sorted(landmarks)
+
+    annotated = _draw_reference_grid(frame, landmarks)
+
+    ref_dir = cfg.paths.labels / "calibration"
+    ref_dir.mkdir(parents=True, exist_ok=True)
+    ref_path = ref_dir / f"{hover_position_id}_ref.jpg"
+    cv2.imwrite(str(ref_path), annotated)
+
+    print(f"reference frame: {ref_path}")
+    print("landmark checklist (click in this order, or hand-edit the CSV using the "
+          "pixel grid on the reference frame):")
+    for i, name in enumerate(names):
+        print(f"  {i + 1}. {name}")
+
+    picked_rows: list[tuple[str, tuple[float, float]]] = []
+    if os.environ.get("FFEP_CV_CALIBRATE_INTERACTIVE") == "1":
+        try:
+            picked_rows = _pick_points_interactive(frame, names)
+        except Exception as exc:  # noqa: BLE001 - any GUI failure falls back safely
+            print(
+                f"interactive picking unavailable ({exc}); hand-edit points by reading "
+                f"pixel coordinates off {ref_path}"
+            )
+            picked_rows = []
+
+    if picked_rows:
+        rows: list[dict[str, object]] = [
+            {
+                "hover_position_id": hover_position_id,
+                "landmark": name,
+                "source_x_px": x,
+                "source_y_px": y,
+                "target_x_yards": landmarks[name][0],
+                "target_y_yards": landmarks[name][1],
+                "use_for_fit": True,
+                "notes": "",
+            }
+            for name, (x, y) in picked_rows
+        ]
+        _append_calibration_rows(out_csv, hover_position_id, rows)
+
+    return out_csv

@@ -1,11 +1,13 @@
 """Math-only unit tests for `flag_football_ep.cv.homography` -- no real video, no
-model weights.
+model weights. Task 2's clip fixture is a tiny synthetically generated `.mp4`, never
+real footage.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
+import cv2
 import numpy as np
 import polars as pl
 import pytest
@@ -18,8 +20,10 @@ from flag_football_ep.cv.homography import (
     MIN_FIT_POINTS,
     CalibrationError,
     ViewTransformer,
+    _append_calibration_rows,
     field_landmarks,
     load_calibration,
+    pick_points,
     reprojection_error_yards,
     transformer_for,
 )
@@ -65,6 +69,16 @@ _SOURCE_PX = np.array(
 def _write_calibration_csv(path: Path, rows: list[dict[str, object]]) -> None:
     df = pl.DataFrame(rows) if rows else pl.DataFrame(schema=list(CALIBRATION_COLUMNS))
     df.write_csv(path)
+
+
+def _make_synthetic_clip(path: Path, *, width: int = 200, height: int = 150, n_frames: int = 20, fps: float = 10.0) -> Path:
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    writer = cv2.VideoWriter(str(path), fourcc, fps, (width, height))
+    for i in range(n_frames):
+        frame = np.full((height, width, 3), (i * 5) % 256, dtype=np.uint8)
+        writer.write(frame)
+    writer.release()
+    return path
 
 
 # --- ViewTransformer ---------------------------------------------------------
@@ -272,3 +286,83 @@ def test_reprojection_error_yards_nonzero_for_known_perturbation() -> None:
     errors = reprojection_error_yards(vt, _SOURCE_PX, perturbed_target)
     assert np.isclose(errors[0], 0.5, atol=1e-3)
     assert np.allclose(errors[1:], 0.0, atol=1e-3)
+
+
+# --- pick_points / _append_calibration_rows -------------------------------------
+
+
+def test_pick_points_reference_frame_only_mode_writes_jpeg_and_leaves_csv_unchanged(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("FFEP_CV_CALIBRATE_INTERACTIVE", raising=False)
+    cfg = _config()
+
+    clip = _make_synthetic_clip(tmp_path / "clip.mp4")
+    out_csv = tmp_path / "calibration.csv"
+    _write_calibration_csv(out_csv, [])
+    before = out_csv.read_bytes()
+
+    written = pick_points(clip, "hp-08", out_csv, at_second=0.5)
+
+    assert written == out_csv
+    assert out_csv.read_bytes() == before
+
+    ref_path = cfg.paths.labels / "calibration" / "hp-08_ref.jpg"
+    assert ref_path.exists()
+    ref_path.unlink()
+
+
+def test_pick_points_ref_jpeg_is_gitignored() -> None:
+    cfg = _config()
+    ref_dir = cfg.paths.labels / "calibration"
+    ref_dir.mkdir(parents=True, exist_ok=True)
+    probe = ref_dir / "hp-gitignore-probe_ref.jpg"
+    probe.write_bytes(b"\xff\xd8\xff\xd9")  # minimal jpeg-ish bytes
+    try:
+        import subprocess
+
+        result = subprocess.run(
+            ["git", "check-ignore", "-q", str(probe)],
+            cwd=Path.cwd(),
+        )
+        assert result.returncode == 0
+    finally:
+        probe.unlink()
+
+
+def test_append_calibration_rows_replaces_not_duplicates(tmp_path: Path) -> None:
+    cfg = _config()
+    landmarks = field_landmarks(cfg)
+    initial_rows = _valid_fit_rows("hp-09", landmarks)
+    path = tmp_path / "calibration.csv"
+    _write_calibration_csv(path, initial_rows)
+
+    replacement_rows = _valid_fit_rows("hp-09", landmarks)
+    for row in replacement_rows:
+        row["notes"] = "re-picked"
+
+    _append_calibration_rows(path, "hp-09", replacement_rows)
+
+    df = load_calibration(path)
+    hp09 = df.filter(pl.col("hover_position_id") == "hp-09")
+    assert hp09.height == len(replacement_rows)
+    assert set(hp09["notes"].to_list()) == {"re-picked"}
+
+
+def test_append_calibration_rows_invalid_set_leaves_disk_content_byte_identical(
+    tmp_path: Path,
+) -> None:
+    cfg = _config()
+    landmarks = field_landmarks(cfg)
+    existing_rows = _valid_fit_rows("hp-10-existing", landmarks)
+    path = tmp_path / "calibration.csv"
+    _write_calibration_csv(path, existing_rows)
+    before = path.read_bytes()
+
+    invalid_rows = _valid_fit_rows("hp-10-invalid", landmarks)[: MIN_FIT_POINTS - 1]
+
+    with pytest.raises(CalibrationError):
+        _append_calibration_rows(path, "hp-10-invalid", invalid_rows)
+
+    assert path.read_bytes() == before
+    assert not path.with_suffix(path.suffix + ".tmp").exists()
