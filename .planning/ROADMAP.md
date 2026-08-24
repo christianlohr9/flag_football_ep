@@ -250,7 +250,60 @@ Plans:
   3. Manual 4–8-point homography per hover position yields an XY CSV in field coordinates, and a top-down radar clip has been demoed to HC and analyst
   4. The go/no-go decision is recorded against the gate criteria (C-09): ≥ 90% of a play tracked without ID switch, position error ~≤ 1 m against known field dimensions, inference of one game < 1 h — clear miss routes back to Phase 2.0 (capture setup), not to more labeling (D-06)
 
-**Plans**: TBD
+**Plans**: 17 plans in 12 waves (full Strand-1 engineering rigor per D-08: package + config foundation, contracts, pipeline stages, three human measurement checkpoints, gate decision)
+Plans:
+**Wave 1**
+
+- [ ] 02.1-01-PLAN.md — `cv` extras group, CV config surface, `data/labels/` ignore block, environment smoke test
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 02.1-02-PLAN.md — `cv` subpackage contracts (18 modules) and the full `ffep cv` command surface with lazy imports
+
+**Wave 3** *(blocked on Wave 2; four parallel plans, no shared files)*
+
+- [ ] 02.1-03-PLAN.md — Clip discovery, frame extraction, sighting pass (hover grouping + apparent size) and the settings review checkpoint
+- [ ] 02.1-04-PLAN.md — ViewTransformer, field landmark table, calibration reference CSV and the point-picking tool
+- [ ] 02.1-05-PLAN.md — XY tracking schema, atomic Parquet writer, synthetic-track factory, CSV export
+- [ ] 02.1-06-PLAN.md — Detector MLflow pyfunc registry (champion alias) and the SigLIP+UMAP+KMeans team classifier
+
+**Wave 4** *(blocked on 02.1-03)*
+
+- [ ] 02.1-07-PLAN.md — Deterministic clip-stratified training-frame sample and Grounding DINO zero-shot pre-labels to COCO
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 02.1-08-PLAN.md — Self-hosted CVAT on loopback (Apple-Silicon reality + SAM2 status recorded) and the pre-label task push/pull
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 02.1-09-PLAN.md — COCO validation + content hash, the human labelling checkpoint, dataset record
+
+**Wave 7** *(blocked on 02.1-06 and 02.1-09)*
+
+- [ ] 02.1-10-PLAN.md — RF-DETR-Small fine-tune wrapper, the CUDA-box training checkpoint, champion registration
+
+**Wave 8** *(blocked on Wave 7)*
+
+- [ ] 02.1-11-PLAN.md — Champion-resolved inference, evidence-driven SAHI toggle, runtime extrapolation formula
+
+**Wave 9** *(blocked on Wave 8)*
+
+- [ ] 02.1-12-PLAN.md — OC-SORT tracking over all 61 clips with containment notices, session-wide team assignment
+
+**Wave 10** *(blocked on Wave 9; two parallel plans)*
+
+- [ ] 02.1-13-PLAN.md — Calibration point-picking checkpoint, field coordinates in yards, held-out reprojection error
+- [ ] 02.1-14-PLAN.md — Track-overlay rendering, continuity statistics, the 61-clip human continuity review
+
+**Wave 11** *(blocked on Wave 10; two parallel plans)*
+
+- [ ] 02.1-15-PLAN.md — Ground-truth foot-position labelling and the measured position-error distribution
+- [ ] 02.1-16-PLAN.md — Top-down radar rendering and the side-by-side showcase reel
+
+**Wave 12** *(blocked on Wave 11)*
+
+- [ ] 02.1-17-PLAN.md — Gate document, go/no-go decision checkpoint, HC demo record, REQ-S2-02 closure
 
 ### Phase 2.2: Dataset Buildout
 
@@ -317,7 +370,7 @@ Plans:
 | 1.3 Model Retraining | 9/9 | Complete    | 2026-08-19 |
 | 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
 | 2.0 Capture Protocol | 4/4 | Complete    | 2026-08-24 |
-| 2.1 CV Pilot (Gate) | 0/TBD | Not started | - |
+| 2.1 CV Pilot (Gate) | 0/17 | Planned | - |
 | 2.2 Dataset Buildout | 0/TBD | Not started (gated) | - |
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
 | 2.4 Player Identity | 0/TBD | Not started (gated) | - |
