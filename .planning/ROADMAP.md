@@ -254,7 +254,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 02.1-01-PLAN.md — `cv` extras group, CV config surface, `data/labels/` ignore block, environment smoke test
+- [x] 02.1-01-PLAN.md — `cv` extras group, CV config surface, `data/labels/` ignore block, environment smoke test
 
 **Wave 2** *(blocked on Wave 1)*
 
