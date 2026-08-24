@@ -12,6 +12,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+pytest.importorskip("umap", reason="requires the cv extras group (uv sync --extra cv)")
+
 from flag_football_ep.cv.teams import ClassifierNotFitted, InsufficientCrops, TeamClassifier
 
 

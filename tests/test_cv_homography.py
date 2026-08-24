@@ -7,10 +7,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import cv2
 import numpy as np
 import polars as pl
 import pytest
+
+cv2 = pytest.importorskip("cv2", reason="requires the cv extras group (uv sync --extra cv)")
 
 from flag_football_ep.config import load_config
 from flag_football_ep.reference import MissingReferenceFile
