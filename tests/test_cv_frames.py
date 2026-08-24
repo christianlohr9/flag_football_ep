@@ -14,12 +14,22 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+from collections import Counter
 from pathlib import Path
 
 import pytest
 
 from flag_football_ep.config import Config, load_config
-from flag_football_ep.cv.frames import ClipNotFound, clip_number, clip_paths, extract_frames
+from flag_football_ep.cv.frames import (
+    ClipNotFound,
+    ManifestError,
+    clip_number,
+    clip_paths,
+    extract_frames,
+    read_manifest,
+    sample_training_frames,
+    write_manifest,
+)
 from test_config import MINIMAL_TOML
 
 FFMPEG_AVAILABLE = shutil.which("ffmpeg") is not None and shutil.which("ffprobe") is not None
@@ -204,3 +214,203 @@ def test_extract_frames_creates_out_dir_if_absent(tmp_path: Path) -> None:
 
     assert out_dir.exists()
     assert written[0].exists()
+
+
+# --- sample_training_frames / write_manifest / read_manifest (plan 02.1-07 Task 1) ---
+
+_SAMPLE_SESSION_ID = "sess-1"
+_SAMPLE_N_CLIPS = 8
+
+
+def _make_sample_session(
+    tmp_path: Path, session_id: str, n_clips: int, *, duration: float = 2.0, fps: int = 24
+) -> None:
+    rows = []
+    for i in range(1, n_clips + 1):
+        rel_path = f"data/video/{session_id}/Wide - Clip {i:03d}.mp4"
+        _make_synthetic_clip(tmp_path / rel_path, duration=duration, fps=fps)
+        row = _row(rel_path, session_id=session_id)
+        row["duration_seconds"] = str(duration)
+        row["fps"] = str(float(fps))
+        rows.append(row)
+    _write_inventory(tmp_path, rows)
+
+
+def _write_hover_positions(tmp_path: Path, mapping: dict[int, str]) -> None:
+    lines = [
+        "clip_number,clip_path,hover_position_id,apparent_player_px_p10,"
+        "apparent_player_px_p50,tier,notes"
+    ]
+    for n, hp in sorted(mapping.items()):
+        lines.append(f"{n},,{hp},0.0,0.0,Brauchbar,")
+    path = tmp_path / "data" / "reference" / "hover_positions.csv"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+@pytest.fixture
+def sample_session(tmp_path: Path) -> str:
+    _make_sample_session(tmp_path, _SAMPLE_SESSION_ID, _SAMPLE_N_CLIPS)
+    mapping = {i: ("hp-01" if i <= 4 else "hp-02") for i in range(1, _SAMPLE_N_CLIPS + 1)}
+    _write_hover_positions(tmp_path, mapping)
+    return _SAMPLE_SESSION_ID
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_training_frames_is_deterministic(
+    tmp_path: Path, cfg: Config, sample_session: str
+) -> None:
+    out_dir = tmp_path / "out"
+    manifest_path = out_dir / "manifest.json"
+
+    first = sample_training_frames(cfg, sample_session, target=24, seed=20260516, out_dir=out_dir)
+    write_manifest(first, manifest_path)
+    first_bytes = manifest_path.read_bytes()
+
+    second = sample_training_frames(cfg, sample_session, target=24, seed=20260516, out_dir=out_dir)
+    write_manifest(second, manifest_path)
+    second_bytes = manifest_path.read_bytes()
+
+    assert first_bytes == second_bytes
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_training_frames_respects_target_and_per_clip_bounds(
+    tmp_path: Path, cfg: Config, sample_session: str
+) -> None:
+    out_dir = tmp_path / "out"
+    manifest = sample_training_frames(cfg, sample_session, target=24, seed=1, out_dir=out_dir)
+
+    assert abs(len(manifest.frames) - 24) <= max(1, round(24 * 0.10))
+    counts = Counter(frame.clip_number for frame in manifest.frames)
+    assert set(counts) == set(range(1, _SAMPLE_N_CLIPS + 1))
+    for count in counts.values():
+        assert 3 <= count <= 12
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_training_frames_split_is_clip_level_no_leak(
+    tmp_path: Path, cfg: Config, sample_session: str
+) -> None:
+    out_dir = tmp_path / "out"
+    manifest = sample_training_frames(cfg, sample_session, target=24, seed=1, out_dir=out_dir)
+
+    val_clips = {n for n, split in manifest.split.items() if split == "val"}
+    train_clips = {n for n, split in manifest.split.items() if split == "train"}
+
+    assert val_clips.isdisjoint(train_clips)
+    assert len(val_clips) >= 6
+    for frame in manifest.frames:
+        assert frame.split == manifest.split[frame.clip_number]
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_training_frames_stratifies_by_hover_position(tmp_path: Path, cfg: Config) -> None:
+    session_id = "sess-2"
+    durations = {1: 6.0, 2: 6.0, 3: 2.0, 4: 2.0}
+    rows = []
+    for n, duration in durations.items():
+        rel_path = f"data/video/{session_id}/Wide - Clip {n:03d}.mp4"
+        _make_synthetic_clip(tmp_path / rel_path, duration=duration, fps=24)
+        row = _row(rel_path, session_id=session_id)
+        row["duration_seconds"] = str(duration)
+        row["fps"] = "24.0"
+        rows.append(row)
+    _write_inventory(tmp_path, rows)
+    _write_hover_positions(tmp_path, {1: "hp-01", 2: "hp-01", 3: "hp-02", 4: "hp-02"})
+
+    out_dir = tmp_path / "out"
+    manifest = sample_training_frames(cfg, session_id, target=32, seed=1, out_dir=out_dir)
+
+    counts = Counter(frame.clip_number for frame in manifest.frames)
+    hp01_total = counts[1] + counts[2]
+    hp02_total = counts[3] + counts[4]
+    assert hp01_total > hp02_total
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_training_frames_frame_index_matches_written_filename(
+    tmp_path: Path, cfg: Config, sample_session: str
+) -> None:
+    out_dir = tmp_path / "out"
+    manifest = sample_training_frames(cfg, sample_session, target=24, seed=1, out_dir=out_dir)
+
+    assert manifest.frames
+    for frame in manifest.frames:
+        image_path = Path(frame.image_path)
+        assert image_path.exists()
+        assert image_path.name.endswith(f"_f{frame.frame_index:05d}.jpg")
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_training_frames_different_seed_changes_sample(
+    tmp_path: Path, cfg: Config, sample_session: str
+) -> None:
+    out_dir_a = tmp_path / "out-a"
+    out_dir_b = tmp_path / "out-b"
+
+    manifest_a = sample_training_frames(cfg, sample_session, target=24, seed=1, out_dir=out_dir_a)
+    manifest_b = sample_training_frames(cfg, sample_session, target=24, seed=2, out_dir=out_dir_b)
+
+    timestamps_a = sorted(frame.timestamp_s for frame in manifest_a.frames)
+    timestamps_b = sorted(frame.timestamp_s for frame in manifest_b.frames)
+    assert timestamps_a != timestamps_b
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_write_manifest_then_read_manifest_round_trips(
+    tmp_path: Path, cfg: Config, sample_session: str
+) -> None:
+    out_dir = tmp_path / "out"
+    manifest = sample_training_frames(cfg, sample_session, target=24, seed=1, out_dir=out_dir)
+    path = write_manifest(manifest, out_dir / "manifest.json")
+
+    loaded = read_manifest(path)
+
+    assert loaded.session_id == manifest.session_id
+    assert loaded.seed == manifest.seed
+    assert loaded.target == manifest.target
+    assert loaded.split == manifest.split
+    assert [f.image_path for f in loaded.frames] == [f.image_path for f in manifest.frames]
+    assert [f.frame_index for f in loaded.frames] == [f.frame_index for f in manifest.frames]
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_write_manifest_is_atomic_no_leftover_tmp_file(
+    tmp_path: Path, cfg: Config, sample_session: str
+) -> None:
+    out_dir = tmp_path / "out"
+    manifest = sample_training_frames(cfg, sample_session, target=24, seed=1, out_dir=out_dir)
+    manifest_path = out_dir / "manifest.json"
+
+    written_path = write_manifest(manifest, manifest_path)
+
+    assert written_path == manifest_path
+    assert manifest_path.exists()
+    assert not manifest_path.with_suffix(manifest_path.suffix + ".tmp").exists()
+
+
+def test_read_manifest_raises_for_missing_path(tmp_path: Path) -> None:
+    missing = tmp_path / "does-not-exist.json"
+
+    with pytest.raises(ManifestError, match="does-not-exist.json"):
+        read_manifest(missing)
+
+
+def test_read_manifest_raises_for_invalid_json(tmp_path: Path) -> None:
+    path = tmp_path / "manifest.json"
+    path.write_text("{not valid json", encoding="utf-8")
+
+    with pytest.raises(ManifestError):
+        read_manifest(path)
+
+
+def test_read_manifest_raises_for_non_integer_seed(tmp_path: Path) -> None:
+    path = tmp_path / "manifest.json"
+    path.write_text(
+        '{"session_id": "s", "seed": "not-an-int", "target": 4, "split": {}, "frames": []}',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ManifestError, match="non-integer"):
+        read_manifest(path)
