@@ -26,6 +26,7 @@ from flag_football_ep.cv.schema import (
     empty_tracking_frame,
     write_tracking_parquet,
 )
+from flag_football_ep.testing import synthetic_tracks
 
 REQUIRED_TRACKING_FIELDS = {
     "session_id": "s1",
@@ -201,3 +202,50 @@ def test_write_tracking_parquet_leaves_previous_file_intact_on_conform_failure(
 
     assert path.read_bytes() == before
     assert not path.with_suffix(path.suffix + ".tmp").exists()
+
+
+# -- Task 2: synthetic_tracks factory -----------------------------------------------
+
+
+def test_synthetic_tracks_default_output_passes_conform_unchanged() -> None:
+    df = synthetic_tracks()
+    conformed = conform_tracking(df)
+    assert conformed.equals(df.select(list(TRACKING_COLUMNS)))
+    assert conformed.height > 0
+
+
+def test_synthetic_tracks_is_deterministic() -> None:
+    a = synthetic_tracks()
+    b = synthetic_tracks()
+    assert a.equals(b)
+
+
+def test_synthetic_tracks_with_teams_fills_only_team_id() -> None:
+    df = synthetic_tracks(with_teams=True)
+    players = df.filter(pl.col("class_name") == "player")
+    referees = df.filter(pl.col("class_name") == "referee")
+
+    assert players["team_id"].null_count() == 0
+    assert referees.height > 0
+    assert referees["team_id"].null_count() == referees.height
+
+    for name in ("hover_position_id", "x_yards", "y_yards", "game_id", "play_id"):
+        assert df[name].null_count() == df.height
+
+
+def test_synthetic_tracks_with_field_coords_fills_only_field_coords() -> None:
+    df = synthetic_tracks(with_field_coords=True)
+
+    assert df["x_yards"].null_count() == 0
+    assert df["y_yards"].null_count() == 0
+    for name in ("team_id", "hover_position_id", "game_id", "play_id"):
+        assert df[name].null_count() == df.height
+
+
+def test_synthetic_tracks_with_pbp_keys_fills_only_game_and_play_id() -> None:
+    df = synthetic_tracks(with_pbp_keys=True)
+
+    assert df["game_id"].null_count() == 0
+    assert df["play_id"].null_count() == 0
+    for name in ("team_id", "hover_position_id", "x_yards", "y_yards"):
+        assert df[name].null_count() == df.height
