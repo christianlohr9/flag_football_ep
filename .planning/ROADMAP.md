@@ -263,9 +263,9 @@ Plans:
 **Wave 3** *(blocked on Wave 2; four parallel plans, no shared files)*
 
 - [ ] 02.1-03-PLAN.md — Clip discovery, frame extraction, sighting pass (hover grouping + apparent size) and the settings review checkpoint
-- [ ] 02.1-04-PLAN.md — ViewTransformer, field landmark table, calibration reference CSV and the point-picking tool
-- [ ] 02.1-05-PLAN.md — XY tracking schema, atomic Parquet writer, synthetic-track factory, CSV export
-- [ ] 02.1-06-PLAN.md — Detector MLflow pyfunc registry (champion alias) and the SigLIP+UMAP+KMeans team classifier
+- [x] 02.1-04-PLAN.md — ViewTransformer, field landmark table, calibration reference CSV and the point-picking tool
+- [x] 02.1-05-PLAN.md — XY tracking schema, atomic Parquet writer, synthetic-track factory, CSV export
+- [x] 02.1-06-PLAN.md — Detector MLflow pyfunc registry (champion alias) and the SigLIP+UMAP+KMeans team classifier
 
 **Wave 4** *(blocked on 02.1-03)*
 
