@@ -258,7 +258,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 02.1-02-PLAN.md — `cv` subpackage contracts (18 modules) and the full `ffep cv` command surface with lazy imports
+- [x] 02.1-02-PLAN.md — `cv` subpackage contracts (18 modules) and the full `ffep cv` command surface with lazy imports
 
 **Wave 3** *(blocked on Wave 2; four parallel plans, no shared files)*
 
