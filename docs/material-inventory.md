@@ -2,7 +2,7 @@
 
 Maschinenlesbares Gegenstück: `data/reference/video_inventory.csv`.
 
-**Status: einseitig erstellt am 2026-08-22 — Analysten-Ergänzung ausstehend (siehe Ratifizierungs-Block).**
+**Status: einseitig erstellt am 2026-08-22, Ist-Bestand registriert am 2026-08-24 — Analysten-Ergänzung ausstehend (siehe Ratifizierungs-Block).**
 
 ## Zweck & Abgrenzung
 
@@ -14,11 +14,11 @@ Dieses Dokument ist die Übergabe an zwei spätere Phasen: Phase 2.1 liest den g
 
 ## Domänen & Bestand
 
-| domain (CSV-Wert) | Beschreibung | Wer hält das Material | Stand 2026-08-22 |
+| domain (CSV-Wert) | Beschreibung | Wer hält das Material | Stand 2026-08-24 |
 |---|---|---|---|
-| `drone` | Drohne in fester Hover-Position, Primärdomäne (D-03); bei offiziellen Spielen verboten (C-01) | unbekannt — beim Videoanalysten/Staff, nicht gesichtet | unbekannt — beim Videoanalysten/Staff, nicht gesichtet, siehe Ratifizierungs-Block |
-| `sideline` | erhöhte Seitenkamera / Stativ / GoPro-Längsseite / Veo-Klasse, Zweitdomäne für offizielle Spiele | unbekannt — beim Videoanalysten/Staff, nicht gesichtet | unbekannt — beim Videoanalysten/Staff, nicht gesichtet, siehe Ratifizierungs-Block |
-| `broadcast` | TV-/Seitenansicht Fremdmaterial; nur registriert, nicht verarbeitet (Phase 2.5, zurückgestellt) | unbekannt — beim Videoanalysten/Staff, nicht gesichtet | unbekannt — beim Videoanalysten/Staff, nicht gesichtet, siehe Ratifizierungs-Block |
+| `drone` | Drohne in fester Hover-Position, Primärdomäne (D-03); bei offiziellen Spielen verboten (C-01) | Nutzer — lokal gesichert unter `data/video/` | 61 Clips (je Play) Friendly GER vs Panama Rojo vom 2026-05-16, gehasht und registriert |
+| `sideline` | erhöhte Seitenkamera / Stativ / GoPro-Längsseite / Veo-Klasse, Zweitdomäne für offizielle Spiele | Nutzer — lokal gesichert unter `data/video/` | 60 Clips (je Play) WC GER vs MEX vom 2026-08-14 (GoPro), gehasht und registriert |
+| `broadcast` | TV-/Seitenansicht Fremdmaterial; nur registriert, nicht verarbeitet (Phase 2.5, zurückgestellt) | Nutzer — lokal gesichert unter `data/video/` | 51 Clips (je Play) WC USA vs AUS vom 2026-08-14 (TV), gehasht und registriert |
 
 Diese drei Werte sind das vollständige `domain`-Vokabular von `data/reference/video_inventory.csv`; es wird hier nichts erfunden, nichts geschätzt. Die tatsächlichen Bestandszahlen entstehen erst, wenn Material gesichtet und gesichert wurde (siehe „Clip registrieren" unten).
 
