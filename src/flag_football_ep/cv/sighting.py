@@ -39,14 +39,39 @@ class SightingError(CvError, RuntimeError):
 # whose fingerprints correlate at or above this value share a hover_position_id. Recorded
 # in `SightingResult.notices` on every run (D-03: the grouping count drives the
 # homography count, so the threshold used to get there must be traceable).
-_CORRELATION_THRESHOLD = 0.97
+#
+# 0.97 was the plan's literal starting point but proved far too strict against real
+# footage: raw single-frame grayscale correlation between two clips visually confirmed
+# to share the same static framing came out at 0.1-0.5 (compression noise, exposure
+# flicker, player-position content dominating a two-frame sample), never near 0.97 --
+# every one of the 2026-05-16 pilot session's 61 clips landed in its own singleton
+# group. Re-validated empirically against the full pilot session (see
+# docs/pilot-sighting.md): the multi-frame-averaged, blurred fingerprint below produces
+# an identical, clean 2-group split (31/30 clips) for every threshold in [-0.1, 0.1], a
+# wide, stable plateau -- 0.05 sits at its center. Re-run `ffep cv sight` after any
+# threshold change; the value actually used is always recorded in `SightingResult.notices`.
+_CORRELATION_THRESHOLD = 0.05
 _FINGERPRINT_SIZE = (64, 36)  # (width, height)
+_FINGERPRINT_SAMPLE_FRAMES = 8
+_FINGERPRINT_BLUR_KERNEL = (61, 61)  # suppresses per-frame compression/exposure noise
 
-# Apparent-size measurement: sample up to this many frames per clip for MOG2
-# background subtraction; discard components smaller than the area floor (noise) or
-# taller than 1/4 of frame height (scoreboard/stand artifacts, not players).
-_MOG2_SAMPLE_FRAMES = 30
-_MIN_BLOB_AREA_PX = 6
+# Apparent-size measurement: MOG2 background subtraction over (almost) every frame of
+# the clip, discarding an initial warmup while the per-pixel model converges. Real
+# compressed drone footage carries persistent edge/line compression flicker and sideline
+# crowd motion that a naive small-area floor does not filter (validated against the
+# 2026-05-16 pilot session -- an earlier, looser parameterization produced 100,000+
+# spurious sub-5px "blobs" per clip from exactly this noise). The area floor, fill-ratio
+# ("extent") and aspect-ratio filters below reject thin line segments and speckle noise
+# while keeping solid player-shaped blobs; see docs/pilot-sighting.md for the validation.
+_MOG2_WINDOW_FRAMES = 300  # ~10s at 30fps, i.e. effectively "the whole clip"
+_MOG2_WARMUP_FRAMES = 60
+_MOG2_VAR_THRESHOLD = 64
+_MOG2_HISTORY = 300
+_MOG2_BLUR_KERNEL = (15, 15)
+_MOG2_OPEN_KERNEL_SIZE = (5, 5)
+_MIN_BLOB_AREA_PX = 150
+_MIN_BLOB_EXTENT = 0.35  # area / (w*h): rejects thin lines/streaks, keeps solid blobs
+_MAX_BLOB_ASPECT_RATIO = 3.0
 
 # docs/capture-protocol.md's verbatim tier vocabulary -- this module must reuse these
 # words exactly, never invent a new vocabulary.
@@ -123,40 +148,24 @@ def _inventory_resolutions(config: Config, session_id: str) -> dict[int, str]:
     return resolutions
 
 
-def _last_frame_timestamp(cap) -> float:
-    """The timestamp (seconds) of the last decodable frame. `frame_count / fps`
-    overshoots it by one frame interval, and seeking exactly at that overshoot
-    timestamp fails to read a frame at all.
-    """
-    cv2 = _cv2()
-    fps = cap.get(cv2.CAP_PROP_FPS) or 0.0
-    frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0.0
-    if fps <= 0 or frame_count <= 0:
-        return 0.0
-    return max(frame_count - 1, 0) / fps
-
-
 def _cv2():
     import cv2
 
     return cv2
 
 
-def _read_frame_at(cap, seconds: float) -> np.ndarray | None:
-    cv2 = _cv2()
-    cap.set(cv2.CAP_PROP_POS_MSEC, max(seconds, 0.0) * 1000.0)
-    ok, frame = cap.read()
-    if not ok or frame is None:
-        return None
-    return frame
-
-
 def _framing_fingerprint(clip: Path) -> np.ndarray:
-    """One frame near clip start (0.5s) and one near the end, grayscale, downscaled to
-    64x36 and concatenated -- a static-camera framing fingerprint. A drone repositioning
-    between drives shows up as a distinct fingerprint (a new hover-position group);
-    players moving within the frame wash out across the two samples and the 64x36
-    downscale, which is exactly what makes framing (not content) the grouping signal.
+    """A static-camera framing fingerprint: `_FINGERPRINT_SAMPLE_FRAMES` frames spread
+    across the clip, each converted to grayscale, heavily Gaussian-blurred and
+    downscaled to 64x36, then averaged into one array.
+
+    A single start/end frame pair (the plan's literal starting point) turned out to be
+    dominated by moving-player content and per-frame compression/exposure noise on real
+    footage, not framing -- averaging several frames and blurring before the downscale
+    suppresses both, leaving the static background/field layout as the dominant signal.
+    A drone repositioning between drives still shows up as a distinctly different
+    fingerprint (a new hover-position group); see the `_CORRELATION_THRESHOLD` docstring
+    for the empirical validation.
     """
     cv2 = _cv2()
     cap = cv2.VideoCapture(str(clip))
@@ -164,21 +173,32 @@ def _framing_fingerprint(clip: Path) -> np.ndarray:
         if not cap.isOpened():
             raise SightingError(f"could not open clip for fingerprinting: {clip}")
 
-        last_ts = _last_frame_timestamp(cap)
-        start_ts = min(0.5, last_ts)
-        end_ts = max(last_ts - 0.5, start_ts)
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+        if frame_count <= 0:
+            raise SightingError(f"clip reports zero frames: {clip}")
 
-        start_frame = _read_frame_at(cap, start_ts)
-        end_frame = _read_frame_at(cap, end_ts)
-        if start_frame is None or end_frame is None:
-            raise SightingError(f"could not read start/end frame from clip: {clip}")
+        n = min(_FINGERPRINT_SAMPLE_FRAMES, frame_count)
+        sample_indices = sorted({int(i * frame_count / n) for i in range(n)})
 
-        parts: list[np.ndarray] = []
-        for frame in (start_frame, end_frame):
+        accumulator = np.zeros(
+            (_FINGERPRINT_SIZE[1], _FINGERPRINT_SIZE[0]), dtype=np.float64
+        )
+        n_read = 0
+        for idx in sample_indices:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
+            ok, frame = cap.read()
+            if not ok or frame is None:
+                continue
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            small = cv2.resize(gray, _FINGERPRINT_SIZE, interpolation=cv2.INTER_AREA)
-            parts.append(small.astype(np.float64).ravel())
-        return np.concatenate(parts)
+            blurred = cv2.GaussianBlur(gray, _FINGERPRINT_BLUR_KERNEL, 0)
+            small = cv2.resize(blurred, _FINGERPRINT_SIZE, interpolation=cv2.INTER_AREA)
+            accumulator += small.astype(np.float64)
+            n_read += 1
+
+        if n_read == 0:
+            raise SightingError(f"could not read any frame for fingerprinting: {clip}")
+
+        return (accumulator / n_read).ravel()
     finally:
         cap.release()
 
@@ -198,25 +218,39 @@ def _group_by_framing(
     """Assign deterministic `hp-01`/`hp-02`/... IDs.
 
     Processes clip numbers in ascending order (never insertion order, so the result is
-    stable regardless of how `fingerprints` was built), joining the first existing
-    group whose representative fingerprint correlates at or above `threshold`, else
-    starting a new group. Groups are renumbered by their lowest clip number, so
-    re-running against the same clips reproduces identical IDs every time.
+    stable regardless of how `fingerprints` was built) and joins each clip to the
+    existing group whose running centroid (mean of every member's fingerprint so far)
+    correlates highest with it, provided that best correlation is at or above
+    `threshold`; otherwise it starts a new group. Comparing against a group's centroid
+    rather than only its first member is what makes this robust on real footage: real
+    per-clip fingerprints correlate with each other only loosely (see
+    `_CORRELATION_THRESHOLD`), and averaging across a growing group cancels much of that
+    noise the same way `_framing_fingerprint`'s own multi-frame average does. Groups are
+    renumbered by their lowest clip number, so re-running against the same clips
+    reproduces identical IDs every time.
     """
     groups: list[list[int]] = []
-    representatives: list[np.ndarray] = []
+    sums: list[np.ndarray] = []
+    counts: list[int] = []
 
     for n in sorted(fingerprints):
         fp = fingerprints[n]
-        joined = False
-        for gi, rep in enumerate(representatives):
-            if _normalized_cross_correlation(fp, rep) >= threshold:
-                groups[gi].append(n)
-                joined = True
-                break
-        if not joined:
+        best_gi: int | None = None
+        best_score = threshold
+        for gi in range(len(groups)):
+            centroid = sums[gi] / counts[gi]
+            score = _normalized_cross_correlation(fp, centroid)
+            if score >= best_score:
+                best_score = score
+                best_gi = gi
+        if best_gi is not None:
+            groups[best_gi].append(n)
+            sums[best_gi] = sums[best_gi] + fp
+            counts[best_gi] += 1
+        else:
             groups.append([n])
-            representatives.append(fp)
+            sums.append(fp.copy())
+            counts.append(1)
 
     groups.sort(key=min)
     return {n: f"hp-{i:02d}" for i, members in enumerate(groups, start=1) for n in members}
@@ -224,12 +258,25 @@ def _group_by_framing(
 
 def _apparent_player_heights(clip: Path) -> tuple[float, float, int]:
     """Median (p50) and 10th-percentile (p10) foreground-blob pixel height, sampled via
-    `cv2.createBackgroundSubtractorMOG2` over up to `_MOG2_SAMPLE_FRAMES` frames spread
-    across the clip. The camera is static (D-03's hover-position premise), so surviving
-    foreground blobs are moving players. Components touching the frame border or taller
-    than 1/4 of frame height (scoreboard/stand artifacts) are discarded. Returns
-    `(0.0, 0.0, 0)` when no clean sample survives -- an honest empty result, not a
-    fabricated measurement.
+    `cv2.createBackgroundSubtractorMOG2` over consecutive frames (not frames scattered
+    across the clip -- MOG2 needs temporal continuity to build a stable per-pixel
+    background model; jumping between widely separated frame indices made every frame
+    look like a scene change and produced tens of thousands of spurious detections on
+    real footage). The camera is static (D-03's hover-position premise), so surviving
+    foreground blobs are moving players.
+
+    An initial `_MOG2_WARMUP_FRAMES` are fed to the subtractor but never scored, giving
+    the background model time to converge. Frames are blurred before `.apply()` and
+    components are filtered by area, border-touching, height (scoreboard/stand
+    artifacts), fill ratio ("extent" -- rejects thin field-line/compression-edge
+    streaks) and aspect ratio (rejects further streak-shaped noise) -- all four are
+    needed on real footage; see `_MIN_BLOB_AREA_PX`'s module-level comment for the
+    validation against the 2026-05-16 pilot session.
+
+    Returns `(0.0, 0.0, 0)` when no clean sample survives -- an honest empty result, not
+    a fabricated measurement. The third element is the number of frames analyzed
+    (post-warmup), not the number of blob observations -- matching the "sampled frames"
+    phrasing `sight_session` writes into each row's `notes`.
     """
     cv2 = _cv2()
     cap = cv2.VideoCapture(str(clip))
@@ -241,25 +288,34 @@ def _apparent_player_heights(clip: Path) -> tuple[float, float, int]:
         if frame_count <= 0:
             return (0.0, 0.0, 0)
 
-        n_samples = min(_MOG2_SAMPLE_FRAMES, frame_count)
-        sample_indices = sorted(
-            {int(i * frame_count / n_samples) for i in range(n_samples)}
-        )
+        window = min(_MOG2_WINDOW_FRAMES, frame_count)
+        warmup = min(_MOG2_WARMUP_FRAMES, window // 3)
 
-        subtractor = cv2.createBackgroundSubtractorMOG2(detectShadows=False)
+        subtractor = cv2.createBackgroundSubtractorMOG2(
+            detectShadows=False,
+            varThreshold=_MOG2_VAR_THRESHOLD,
+            history=_MOG2_HISTORY,
+        )
+        open_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, _MOG2_OPEN_KERNEL_SIZE)
+
         heights: list[float] = []
         frame_height: int | None = None
+        frames_analyzed = 0
 
-        for idx in sample_indices:
-            cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
+        for i in range(window):
             ok, frame = cap.read()
             if not ok or frame is None:
-                continue
+                break
             if frame_height is None:
                 frame_height = frame.shape[0]
 
-            mask = subtractor.apply(frame)
-            _, mask = cv2.threshold(mask, 200, 255, cv2.THRESH_BINARY)
+            blurred = cv2.GaussianBlur(frame, _MOG2_BLUR_KERNEL, 0)
+            mask = subtractor.apply(blurred)
+            if i < warmup:
+                continue
+            frames_analyzed += 1
+
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, open_kernel)
             n_components, _labels, stats, _centroids = cv2.connectedComponentsWithStats(
                 mask, connectivity=8
             )
@@ -271,15 +327,22 @@ def _apparent_player_heights(clip: Path) -> tuple[float, float, int]:
                     continue  # touches the frame border
                 if frame_height and h > frame_height / 4:
                     continue  # scoreboard/stand artifact, not a player
+                if area / float(w * h) < _MIN_BLOB_EXTENT:
+                    continue  # thin line/streak, not a solid blob
+                if w > _MAX_BLOB_ASPECT_RATIO * h or h > _MAX_BLOB_ASPECT_RATIO * w:
+                    continue  # further streak-shaped-noise rejection
                 heights.append(float(h))
 
         if not heights:
-            return (0.0, 0.0, 0)
+            # frames_analyzed is still honest here (frames were processed, just no
+            # blob survived the filters) -- callers use it to distinguish "measured
+            # zero" from "clip had zero frames".
+            return (0.0, 0.0, frames_analyzed)
 
         arr = np.array(heights)
         p10 = float(np.percentile(arr, 10))
         p50 = float(np.percentile(arr, 50))
-        return (p10, p50, len(heights))
+        return (p10, p50, frames_analyzed)
     finally:
         cap.release()
 
@@ -386,7 +449,7 @@ def sight_session(config: Config, session_id: str, *, out_csv: Path | None = Non
     for n in sorted(clip_by_number):
         clip = clip_by_number[n]
         p10, p50, n_samples = _apparent_player_heights(clip)
-        if n_samples == 0:
+        if p10 == 0.0 and p50 == 0.0:
             notices.append(f"clip {n}: no moving-blob samples recovered by MOG2")
 
         resolution = resolutions.get(n, "")

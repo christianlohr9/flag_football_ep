@@ -102,23 +102,28 @@ def _write_moving_rectangle_clip(
     path: Path,
     *,
     rect_height: int,
-    size: tuple[int, int] = (160, 120),
+    size: tuple[int, int] = (400, 300),
     n_frames: int = 40,
     fps: float = 20.0,
     background: int = 60,
 ) -> None:
     """A clip with a fixed-height rectangle sweeping horizontally across a static
     background -- the moving foreground blob `_apparent_player_heights` must recover.
+
+    `rect_width` (30) keeps blob area comfortably above `_MIN_BLOB_AREA_PX` even after
+    `_apparent_player_heights`'s Gaussian blur and morphological opening; `size`'s frame
+    height (300) keeps `rect_height` well under the frame_height/4 scoreboard-artifact
+    cap.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     width, height = size
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     writer = cv2.VideoWriter(str(path), fourcc, fps, size)
     y = height // 2 - rect_height // 2
-    rect_width = 14
+    rect_width = 30
     for i in range(n_frames):
         frame = np.full((height, width, 3), background, dtype=np.uint8)
-        x = 20 + (i * 7) % (width - 40)
+        x = 20 + (i * 7) % (width - 60)
         cv2.rectangle(frame, (x, y), (x + rect_width, y + rect_height), (230, 230, 230), -1)
         writer.write(frame)
     writer.release()
@@ -213,7 +218,7 @@ def test_framing_fingerprint_distinct_patterns_correlate_below_threshold(tmp_pat
 
 def test_apparent_player_heights_recovers_known_height_within_tolerance(tmp_path: Path) -> None:
     clip = tmp_path / "moving.mp4"
-    known_height = 24
+    known_height = 60
     _write_moving_rectangle_clip(clip, rect_height=known_height)
 
     p10, p50, n_samples = _apparent_player_heights(clip)
@@ -228,7 +233,8 @@ def test_apparent_player_heights_returns_empty_for_static_clip(tmp_path: Path) -
 
     p10, p50, n_samples = _apparent_player_heights(clip)
 
-    assert n_samples == 0
+    # No moving foreground at all: p10/p50 are honestly zero. n_samples still counts
+    # frames analyzed (post-warmup) -- it is not a proxy for "blobs found".
     assert p10 == 0.0
     assert p50 == 0.0
 
