@@ -2,7 +2,7 @@
 
 Maschinenlesbares Gegenstück: `data/reference/hover_positions.csv` (`ffep cv sight`).
 
-**Status: automatisiert erzeugt am 2026-08-24 (`uv run --extra cv ffep cv sight`, Korrelationsschwelle 0.05) — Review durch Nutzer ausstehend (Checkpoint Plan 02.1-03 Task 3, siehe Ratifizierungs-Block).**
+**Status: automatisiert erzeugt am 2026-08-24 (`uv run --extra cv ffep cv sight`, Korrelationsschwelle 0.05) — am 2026-08-24 durch Nutzer-Review freigegeben (Checkpoint Plan 02.1-03 Task 3, siehe Ratifizierungs-Block).**
 
 ## Zweck & Abgrenzung
 
@@ -104,8 +104,8 @@ ursprünglichen Annahme, keine strukturelle Überraschung.
 
 ## Ratifizierungs-Block
 
-> Ausstehend: Nutzer-Review der Kontaktabzüge (`data/labels/sighting/`), stichprobenartige
-> Sichtprüfung der `hover_position_id`-Zuordnung gegen Originalclips, Plausibilitätsprüfung der
-> gemessenen Spielergröße, und Entscheidung über die vorgeschlagene `resolution`/`sahi`-Änderung
-> (Checkpoint Plan 02.1-03 Task 3). Nach Freigabe wird die `ffep.toml`-Änderung angewendet und dieser
-> Abschnitt aktualisiert.
+> Freigegeben am 2026-08-24 durch den Nutzer (Checkpoint Plan 02.1-03 Task 3): Gruppierung in 2
+> Hover-Positionen bestätigt (Kontaktabzüge geprüft), gemessene Spielergröße (p50 = 30 px) als
+> plausibel bewertet, vorgeschlagene Einstellungen ohne Änderung übernommen. Die
+> `ffep.toml`-Änderung (`[cv] resolution = 896`, `sahi = false`) ist angewendet; Plan 02.1-13
+> kalibriert 2 Homographien.
