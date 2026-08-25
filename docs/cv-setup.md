@@ -95,4 +95,162 @@ Beim Import von `cv2` und `transformers`/`av` gemeinsam meldet macOS eine doppel
 
 ## CVAT
 
-<!-- gefuellt von Plan 02.1-08 -->
+Selbst gehostetes CVAT (D-06) auf der Primärmaschine, ausschliesslich auf Loopback erreichbar
+-- keine Vendoring des CVAT-Quellbaums in dieses Repository (T-2.1-22).
+
+### Start
+
+CVAT wurde ausserhalb dieses Repos nach `~/src/cvat` geklont, nicht als Vollklon, sondern als
+partieller/sparse Klon (Begruendung siehe "Apple-Silicon-Realitaet" unten):
+
+```bash
+git clone --filter=blob:none --sparse --no-checkout --depth 1 \
+  https://github.com/cvat-ai/cvat.git ~/src/cvat
+
+git -C ~/src/cvat sparse-checkout set --no-cone \
+  '/*.yml' '/*.yaml' '/*.md' '/*.env*' '/serverless'
+
+git -C ~/src/cvat checkout develop
+```
+
+Das holt exakt die Docker-Compose-Dateien, das README und den `serverless/`-Baum (fuer den
+SAM2-Versuch, siehe unten) -- nicht den vollen Monorepo-Quellbaum von `cvat-server`/`cvat-ui`,
+deren Code ohnehin nicht aus dem Quelltext gebaut, sondern als vorgebaute Docker-Images
+(`cvat/server`, `cvat/ui`) gezogen wird.
+
+Der Standard-`docker-compose.yml` published Traefik (den einzigen extern erreichbaren Dienst)
+ohne Host-IP (`8080:8080`, `8090:8090`), was sich zu `0.0.0.0` aufloest -- im gesamten LAN
+erreichbar. Das Filmmaterial, das diese UI ausliefert, ist PII nach `docs/capture-legal.md`
+(Gesichter der Spielerinnen); ein LAN-erreichbarer Annotationsserver ist eine unnoetige
+Offenlegungsflaeche (T-2.1-05). Deshalb ein lokales Override, das die Ports auf Loopback bindet
+(`docker-compose.override.yml` neben `docker-compose.yml`, automatisch von `docker compose up`
+geladen, nicht Teil dieses Repos):
+
+```yaml
+# ~/src/cvat/docker-compose.override.yml
+services:
+  traefik:
+    ports: !override
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8090:8090"
+```
+
+(`!override` ist noetig statt eines einfachen `ports:`-Overrides, weil Compose Listen wie
+`ports:` standardmaessig ueber mehrere Dateien hinweg **verkettet**, nicht ersetzt -- ohne den
+Tag stuende die `0.0.0.0`-Basiszeile weiterhin zusaetzlich im aufgeloesten Compose-Modell. Per
+`docker compose config` verifiziert: nach dem Override enthaelt die aufgeloeste Konfiguration
+ausschliesslich die beiden `127.0.0.1`-Eintraege, keinen `0.0.0.0`-Eintrag mehr.)
+
+Start- und Admin-Befehle (Standard-CVAT-Ablauf, `~/src/cvat/README.md`):
+
+```bash
+docker compose --project-directory ~/src/cvat \
+  -f ~/src/cvat/docker-compose.yml -f ~/src/cvat/docker-compose.override.yml up -d
+docker exec -it cvat_server bash -ic 'python3 ~/manage.py createsuperuser'
+```
+
+**Status dieser Ausfuehrung:** Der Compose-Aufbau (Klon, Sparse-Checkout, Override-Datei) ist
+fertig und per `docker compose config` gegen Syntaxfehler und die Loopback-Bindung verifiziert.
+Das tatsaechliche Hochfahren der Container (`docker compose up -d`, Image-Pull, Superuser
+anlegen, Live-`curl`-Verifikation gegen `127.0.0.1:8080`) konnte in dieser automatisierten
+Ausfuehrungs-Session **nicht** abgeschlossen werden -- Grund siehe naechster Abschnitt. Die
+obigen Befehle sind copy-paste-fertig fuer eine Session mit normaler Bandbreite.
+
+### Apple-Silicon-Realitaet
+
+Primaermaschine weiterhin Apple M4 Max (Namensabweichung zu "M5 Max" siehe oben), Docker
+Desktop 29.5.3, Docker Compose v5.1.4 (Docker Desktop, nicht der alte `docker-compose`-Standalone).
+
+**Docker Desktop mit korruptem VM-Zustand:** Vor dem ersten Start dieser Session verweigerte
+der Docker-Desktop-Daemon den Start mit einem intern gespeicherten, offensichtlich korrupten
+Datenträger-Groessenwert:
+
+```
+running engines: starting engine: engine linux/virtualization-framework failed to start:
+ensuring disk: cannot resize ".../Docker.raw" to 1422465MiB: truncate ...: permission denied
+```
+
+(1422465 MiB ~= 1,4 PB -- kein plausibler Zielwert, ein Altzustand aus einer frueheren Sitzung).
+Docker Desktop hat daraufhin selbststaendig einen "Reset to factory defaults" ausgeloest
+(Application-Support-Verzeichnis und VM-Datentraeger geloescht) und ist danach sauber
+gestartet. Kein CVAT-spezifischer Fehler, aber wörtlich festgehalten, weil es in dieser Session
+tatsaechlich passiert ist, bevor irgendein Compose-Befehl lief.
+
+**Netzwerk-Durchsatz in dieser Ausfuehrungsumgebung:** Nach dem Neustart war der Daemon
+funktionsfaehig, aber der beobachtete Netzwerkdurchsatz zu GitHub und Docker Hub aus dieser
+automatisierten Ausfuehrungs-Session war extrem gering:
+
+- `curl` zu `github.com`: ~24-36 KB/s gemessen (mehrere Messungen, `-w '%{speed_download}'`)
+- `docker pull alpine:latest` (ein ~3,6-MB-Image): 2 Minuten 29 Sekunden fuer den einzigen Layer
+
+Der volle CVAT-Stack zieht rund zehn Images (`postgres`, `redis`, `apache/kvrocks`,
+`cvat/server` -- das amd64-only-Image aus RESEARCH Pitfall 1, per Rosetta/QEMU-Emulation auf
+Apple Silicon --, `cvat/ui`, `traefik`, `openpolicyagent/opa`, `clickhouse-server`,
+`timberio/vector`, `grafana-oss`), zusammen deutlich im Gigabyte-Bereich. Bei der gemessenen
+Rate waere das Nachladen dieser Images allein zehn bis dreissig Stunden -- innerhalb dieser
+Session nicht time-boxbar. Statt das (RESEARCH Pitfall 1's eigene Anweisung: "budget real setup
+time, but do not keep fighting it") zu erzwingen, wird das hier als Umgebungs-Limitation dieser
+konkreten Ausfuehrungs-Session festgehalten, nicht als generelles Problem der Internetanbindung
+des Nutzers -- die vorherigen Plaene (02.1-01, `uv sync --extra cv`, mehrere Gigabyte an
+PyPI-Paketen inkl. `torch`) liefen in einer anderen Sitzung ohne diese Einschraenkung durch.
+Rosetta/QEMU-Emulationsverhalten des `cvat/server`-Images selbst (Restart-Loops,
+Startup-Zeiten) konnte dadurch in dieser Session nicht beobachtet werden -- das ist die
+tatsaechliche, unvermeidliche Luecke: nicht erfunden, sondern ehrlich als "nicht getestet"
+markiert.
+
+### SAM2-Status
+
+**Nicht deployt, Fallback in Kraft.** Zwei unabhaengige Gruende, beide vor jedem Image-Pull
+durch Lesen von `~/src/cvat/README.md` und `~/src/cvat/serverless/` (sparse ausgecheckt, siehe
+oben) ermittelt -- der zweite Grund war so nicht in RESEARCH.md vorausgesehen:
+
+1. **Netzwerk (siehe oben):** der CVAT-Stack selbst (inkl. der Nuclio-Serverless-Infrastruktur,
+   `docker-compose.yml -f components/serverless/docker-compose.serverless.yml`) konnte in dieser
+   Session nicht hochgefahren werden -- ohne laufenden Stack gibt es nichts, wohin `nuctl deploy`
+   deployen koennte.
+2. **SAM2 ist in dieser CVAT-Version gar nicht Teil der Serverless-Funktionsgalerie.** Die
+   offizielle Modelltabelle in `~/src/cvat/README.md` (Stand `develop`-Branch, heute geklont)
+   listet `facebookresearch/sam` (Segment Anything, **v1** -- punkt-/box-basierter Interactor)
+   als verfuegbare Funktion, aber **keine `sam2`-Funktion**. Der Verzeichnisbaum
+   `serverless/pytorch/facebookresearch/` bestaetigt das: er enthaelt `sam/` und `detectron2/`,
+   kein `sam2/`. Es gibt in dieser CVAT-Version schlicht keine mitgelieferte SAM2-Nuclio-Funktion
+   zum Deployen -- eine funktionierende SAM2-Integration muesste zunaechst aus einem
+   Community-Beitrag von Grund auf gebaut werden, was RESEARCH Pitfall 1's
+   Zeitbudget-Warnung ("this is not a 10-minute docker compose up") bereits fuer den
+   guenstigeren Fall (SAM2 existiert, deployt aber fehlerhaft) aussprach.
+
+**Fallback (bindend, durch RESEARCH Pitfall 1 vorautorisiert):** SAM2-Propagierung laeuft, falls
+ueberhaupt gewuenscht, als eigenstaendiges Python-Skript ausserhalb von Docker (CPU- oder
+MPS-Fallback, RESEARCH Pitfall 3), das vorpropagierte Masken/Boxen direkt im
+CVAT/COCO-importierbaren Format schreibt. CVAT selbst dient ausschliesslich als
+Korrektur-UI (manuelle Box-Korrektur der Grounding-DINO-Vorlabels aus Plan 02.1-07, optional
+SAM2-vorpropagiert). Das erfuellt weiterhin D-06 ("footage never leaves the user's machines"),
+da sowohl das Skript als auch CVAT lokal laufen.
+
+### Zugangsdaten
+
+CVAT-Zugangsdaten werden ausschliesslich ueber Umgebungsvariablen aufgeloest (nie ueber eine
+fest codierte URL oder ein fest codiertes Passwort, siehe `flag_football_ep.config.secret()`):
+
+- `CVAT_USERNAME` -- der beim `createsuperuser`-Schritt angelegte Benutzername
+- `CVAT_PASSWORD` -- das zugehoerige Passwort
+
+Beide Namen (nie Werte) stehen in `.env.example`; echte Werte gehoeren ausschliesslich in die
+git-ignorierte `.env`. `ffep.toml`s `[cv]`-Tabelle referenziert nur die Variablennamen
+(`cvat_username_env = "CVAT_USERNAME"`, `cvat_password_env = "CVAT_PASSWORD"`), nie einen Wert.
+
+### Abbau
+
+Stack stoppen und alle Volumes entfernen (Datenbank, hochgeladene Frames, Keys, Logs -- alles,
+was ein no-go die Entscheidung sauber rueckgaengig machen soll):
+
+```bash
+docker compose --project-directory ~/src/cvat \
+  -f ~/src/cvat/docker-compose.yml -f ~/src/cvat/docker-compose.override.yml down -v
+```
+
+Named Volumes (`cvat_db`, `cvat_data`, `cvat_keys`, `cvat_logs`, `cvat_inmem_db`,
+`cvat_events_db`, `cvat_cache_db`) leben unter Docker Desktops interner VM-Disk, nicht im
+Projektbaum -- `down -v` entfernt sie vollstaendig. Den geklonten Compose-Baum selbst entfernt
+`rm -rf ~/src/cvat` (er liegt, wie oben beschrieben, ausserhalb dieses Repos und war nie Teil
+der Versionskontrolle hier).
