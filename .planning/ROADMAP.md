@@ -269,7 +269,7 @@ Plans:
 
 **Wave 4** *(blocked on 02.1-03)*
 
-- [ ] 02.1-07-PLAN.md — Deterministic clip-stratified training-frame sample and Grounding DINO zero-shot pre-labels to COCO
+- [x] 02.1-07-PLAN.md — Deterministic clip-stratified training-frame sample and Grounding DINO zero-shot pre-labels to COCO
 
 **Wave 5** *(blocked on Wave 4)*
 
