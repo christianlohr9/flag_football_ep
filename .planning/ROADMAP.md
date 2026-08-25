@@ -273,7 +273,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 02.1-08-PLAN.md — Self-hosted CVAT on loopback (Apple-Silicon reality + SAM2 status recorded) and the pre-label task push/pull
+- [x] 02.1-08-PLAN.md — Self-hosted CVAT on loopback (Apple-Silicon reality + SAM2 status recorded) and the pre-label task push/pull
 
 **Wave 6** *(blocked on Wave 5)*
 
