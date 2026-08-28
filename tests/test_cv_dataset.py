@@ -262,6 +262,28 @@ def test_validate_coco_out_of_bounds_bbox_raises(tmp_path: Path, small_bounds: N
     assert "frame_a.jpg" in str(exc_info.value) and "bounds" in str(exc_info.value)
 
 
+def test_validate_coco_tolerates_subpixel_bbox_overflow(tmp_path: Path, small_bounds: None) -> None:
+    """CVAT derives a bbox from a corrected polygon by taking its coordinate extrema,
+    which can land a fraction of a pixel outside the frame (observed up to ~0.26px on
+    real corrected data) -- a floating-point artifact, not a labeling error, and must
+    not fail the whole dataset build."""
+    coco_dir = tmp_path / "coco"
+    specs = [("frame_a.jpg", "train"), ("frame_b.jpg", "train")]
+    manifest = _manifest(specs)
+    images = [
+        {"id": 1, "file_name": "frame_a.jpg", "width": 640, "height": 480},
+        {"id": 2, "file_name": "frame_b.jpg", "width": 640, "height": 480},
+    ]
+    annotations = [{"id": 1, "image_id": 1, "category_id": 1, "bbox": [10.0, -0.26, 20.0, 30.0]}]
+    _write_coco(coco_dir, categories=_default_categories(), images=images, annotations=annotations)
+    _write_fake_image(coco_dir, "frame_a.jpg")
+    _write_fake_image(coco_dir, "frame_b.jpg")
+
+    stats = dataset.validate_coco(coco_dir, manifest)
+
+    assert stats.n_boxes["player"] == 1
+
+
 # --- validate_coco: split coverage ---------------------------------------------------------
 
 

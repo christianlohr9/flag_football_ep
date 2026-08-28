@@ -43,6 +43,14 @@ CLASS_NAMES: tuple[str, ...] = ("player", "referee")
 _MIN_IMAGES = 250
 _MAX_IMAGES = 600
 
+# Sub-pixel tolerance for the bbox-in-bounds check: CVAT derives a bbox from a
+# corrected polygon annotation by taking its coordinate extrema, which can land a
+# fraction of a pixel outside the frame (observed up to ~0.26px on real corrected
+# data, always at the edge a partially-visible player/referee was boxed against) --
+# not a labeling error, a floating-point artifact of the polygon-to-bbox conversion.
+# A box that is out of bounds by more than this is still rejected.
+_BBOX_BOUNDS_EPSILON_PX = 1.0
+
 # Explicit connect/read timeouts for every CVAT request, mirroring
 # `fetch/sportapp.py`'s discipline of never issuing an unbounded network call.
 _CVAT_CONNECT_TIMEOUT_S = 10.0
@@ -155,7 +163,8 @@ def validate_coco(coco_dir: Path, manifest: FrameSampleManifest) -> DatasetStats
                 f"degenerate bbox {bbox!r} (w>0, h>0 required)"
             )
         img_w, img_h = image.get("width"), image.get("height")
-        if x < 0 or y < 0 or x + w > img_w or y + h > img_h:
+        eps = _BBOX_BOUNDS_EPSILON_PX
+        if x < -eps or y < -eps or x + w > img_w + eps or y + h > img_h + eps:
             raise DatasetError(
                 f"{annotation_path} annotation {ann_id} bbox {bbox!r} on "
                 f"{image['file_name']} falls outside the image bounds ({img_w}x{img_h})"
