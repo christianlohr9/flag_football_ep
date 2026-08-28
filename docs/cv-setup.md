@@ -411,17 +411,20 @@ deshalb genau das, was der Trainer tatsächlich liefert, statt mit einer zweiten
 mAP-Implementierung (`supervision`) einen Pro-Klasse-AP50 nachzubauen, der mit der
 offiziellen COCO-Auswertung uneins sein könnte.
 
-**MLflow-Run:** `b9ab055c13de4366ab5b41e44d0d60e3` (Experiment `cv_detector` ==
+**MLflow-Run:** `87a8a5222f7a472787875e974d089c44` (Experiment `cv_detector` ==
 `cfg.cv.detector_experiment`), registriertes Modell `cv_detector_model`, **Version 1**.
+(Die Registrierung lief zweimal über denselben `--from-artifacts`-Pfad: der erste Lauf
+landete im kurzlebigen MLflow-Store des Executor-Worktrees und wurde mit ihm verworfen;
+massgeblich ist ausschliesslich der hier genannte Run im persistenten Store.)
 
 **Promotion:** Auf `champion` promotet (`ffep cv promote --run
-b9ab055c13de4366ab5b41e44d0d60e3`, Version 1) -- Entscheidung des Orchestrators, nicht
+87a8a5222f7a472787875e974d089c44`, Version 1) -- Entscheidung des Orchestrators, nicht
 eigenmächtig durch die Trainings-Task selbst: einziger registrierter Kandidat, objektiv
 starke Metriken (`mAP_50=0.9571`, `mAP_50_95=0.8112`), ein MLflow-Alias ist trivial
 reversibel (`ffep cv promote --run <anderer-run>` verschiebt ihn jederzeit neu, keine
 Version wird dabei gelöscht), und der Nutzer hatte für diese Nacht-Session explizit
 mechanische Weiterarbeit ohne Rückfragen an menschlichen Gates angewiesen. `resolve_champion`
-verifiziert nach der Promotion: löst auf `b9ab055c13de4366ab5b41e44d0d60e3` auf.
+verifiziert nach der Promotion: löst auf `87a8a5222f7a472787875e974d089c44` auf.
 
 **Statistische Ehrlichkeit:** Der Val-Split besteht aus einer Handvoll Clips (10 von 46
 im 304-Frame-Subset) eines einzigen Spiels, gelabelt von einer einzigen Annotationsperson
