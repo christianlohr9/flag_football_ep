@@ -201,6 +201,7 @@ FUNCTION_CONTRACTS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "output_dir",
             "register",
             "from_artifacts",
+            "resume",
         ),
     ),
     ("detect", "load_detector", ("config", "run_id")),

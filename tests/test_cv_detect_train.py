@@ -503,7 +503,9 @@ def test_train_cli_requires_dataset_unless_from_artifacts_given() -> None:
     from flag_football_ep.cli import app
 
     runner = CliRunner()
-    result = runner.invoke(app, ["cv", "train"])
+    # --config satisfies the suite-hygiene guard (T-1.2-32); the BadParameter for the
+    # missing --dataset/--from-artifacts fires before the config file is ever loaded.
+    result = runner.invoke(app, ["cv", "train", "--config", "does-not-exist.toml"])
 
     assert result.exit_code != 0
     # Rich's error panel wraps flag names in ANSI colour codes that split literal
