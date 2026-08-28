@@ -46,7 +46,16 @@ dependencies = [
 # `trackers` (roboflow, Apache-2.0) is the OC-SORT implementation this phase
 # uses instead.
 cv = [
-    "rfdetr>=1.9.3",
+    # `[train]` (not bare `rfdetr`): `RFDETRSmall.train()`/`.evaluate()` run on a
+    # PyTorch Lightning stack (`rfdetr.training`) that ships behind this extras
+    # group -- `pytorch-lightning`, `torchmetrics[detection]`, `faster-coco-eval`,
+    # `pycocotools`, `roboflow`, `rf100vl` -- absent from a bare `pip install
+    # rfdetr` (confirmed via `importlib.metadata.metadata("rfdetr").get_all(
+    # "Requires-Dist")` against the installed 1.9.3; `cv/detect.py::train_detector`
+    # raises `ImportError` pointing at this exact extra otherwise). All six
+    # transitive packages independently verified Apache-2.0/BSD/MIT via PyPI +
+    # GitHub license metadata (plan 02.1-10) -- C-06 stays satisfied.
+    "rfdetr[train]>=1.9.3",
     "trackers>=2.6.0",
     "supervision>=0.30.0",
     "sahi>=0.12.6",
