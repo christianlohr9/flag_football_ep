@@ -179,7 +179,11 @@ def dataset(
 @cv_app.command()
 def train(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
-    dataset: Path = typer.Option(..., "--dataset", help="Validated COCO dataset directory"),
+    dataset: Optional[Path] = typer.Option(
+        None,
+        "--dataset",
+        help="Validated COCO dataset directory (required unless --from-artifacts is given)",
+    ),
     epochs: Optional[int] = typer.Option(
         None, "--epochs", help="Override cfg.cv.train_epochs"
     ),
@@ -210,8 +214,19 @@ def train(
             "--no-register run on another machine, without retraining"
         ),
     ),
+    resume: Optional[Path] = typer.Option(
+        None,
+        "--resume",
+        help=(
+            "Resume from a full PyTorch Lightning checkpoint (e.g. <out>/last.ckpt) -- "
+            "continues toward --epochs as a total target, not an additional count"
+        ),
+    ),
 ) -> None:
     """Train the RF-DETR player/referee detector."""
+    if from_artifacts is None and dataset is None:
+        raise typer.BadParameter("--dataset is required unless --from-artifacts is given")
+
     from flag_football_ep.config import load_config
 
     cfg = load_config(config)
@@ -229,6 +244,7 @@ def train(
         output_dir=out,
         register=register,
         from_artifacts=from_artifacts,
+        resume=resume,
     )
 
     typer.echo(f"run: {result.run_id}")

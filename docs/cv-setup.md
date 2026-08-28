@@ -345,3 +345,90 @@ Agreement). Das ist eine bekannte Grenze dieses Piloten, keine versteckte: bei e
 Solo-Entwickler-Projekt mit einer Annotationsperson ist eine IAA-Messung nicht budgetiert:
 diese Kennzahlen und der Content-Hash belegen Konsistenz-mit-sich-selbst und
 Rueckverfolgbarkeit, nicht Inter-Annotator-Zuverlaessigkeit.
+
+## Detector-Training
+
+RF-DETR-Small Fine-Tune auf dem korrigierten 304-Frame-Datensatz (`### Datensatz` oben),
+`src/flag_football_ep/cv/detect.py::train_detector`, Plan 02.1-10.
+
+**Maschine: Primärmaschine (Apple M4 Max, MPS) statt Dell-CUDA-Box (D-05) -- vom Nutzer
+für diese Ausführung ausdrücklich autorisierte Abweichung, 2026-08-28.** D-05 sieht den
+Dell-Rechner (8 GB CUDA) als Trainingsmaschine vor; für diesen Lauf wurde stattdessen
+direkt auf der Primärmaschine trainiert (`--device mps`), weil sie ohnehin am Stück
+verfügbar war und das Fine-Tune nachweislich MPS-tauglich ist (siehe unten). Die
+Dell-/Colab-Pfade bleiben unverändert dokumentiert und einsatzbereit (`ffep cv train
+--no-register --device cuda`, siehe Task 2 dieses Plans) -- diese Ausführung ersetzt sie
+nicht als Standardweg, sondern zeigt einen zusätzlichen, funktionierenden Fallback.
+`PYTORCH_ENABLE_MPS_FALLBACK=1` wurde vorsorglich gesetzt (RESEARCH Pitfall 3); im
+tatsächlichen Lauf war kein einziger CPU-Fallback-Hinweis für einen nicht unterstützten
+MPS-Operator zu beobachten -- RF-DETRs DINOv2-Backbone lief durchgehend nativ auf MPS.
+
+**Chunked/resumable statt eines einzelnen Laufs:** Ein einzelner `ffep cv train`-Aufruf
+für alle 30 Epochen hätte das Werkzeug-Zeitlimit dieser Ausführungsumgebung (10 Minuten
+pro Kommando) klar überschritten. `train_detector`/`ffep cv train` wurden um ein
+`--resume`-Flag erweitert (`rfdetr`s eigenes `TrainConfig.resume`, ein vollständiger
+PyTorch-Lightning-Checkpoint inkl. Optimizer-/LR-Scheduler-Zustand, geschrieben als
+`last.ckpt` bei jeder Epoche) -- der Lauf wurde in sechs Fünf-Epochen-Abschnitten
+ausgeführt (Ziel-Epochenzahl bleibt bei jedem Aufruf `30`, PyTorch Lightning setzt einfach
+bei `current_epoch` aus dem Checkpoint fort). Dieselbe Mechanik macht den Lauf auch gegen
+einen Schlafzustand der Maschine robust (bekanntes Risiko dieser Umgebung), da jeder
+Abschnitt sauber am Epochenende endet, nie mitten in einer Epoche abgebrochen wird.
+
+**Resolved Settings** (`ffep.toml [cv]`, unverändert übernommen -- keine MPS-bedingte
+Anpassung nötig):
+
+| Setting | Wert |
+|---|---|
+| `resolution` | 896 |
+| `epochs` | 30 (Gesamtziel, über 6 Abschnitte à 5 Epochen erreicht) |
+| `batch_size` | 4 |
+| `grad_accum_steps` | 4 |
+| effektive Batchgröße | 16 (`batch_size * grad_accum_steps`, identisch zum geplanten Wert) |
+| `device` | `mps` |
+| `dataset_content_sha256` | `ab3a9673d61bc348d37ce298ba12d18b76395d1ade82a735c5b3d82d2e46aec0` (== `### Datensatz` oben) |
+| `torch_version` | 2.13.0 |
+| `cuda_available` | `false` (erwartet -- kein CUDA auf dieser Maschine) |
+
+**Wall-Clock:** ~40 Minuten 35 Sekunden reine Trainingszeit über die 6 Abschnitte
+(2026-08-28T22:10:46Z bis 2026-08-28T22:51:58Z, jeder Abschnitt inkl. Datensatz-Neuaufbau,
+Modell-Init und einer vollen Val-Evaluation am Ende), plus ~1 Minute für den separaten
+Registrierungsschritt (`ffep cv train --from-artifacts`, ohne erneutes Training).
+
+**Validierungsmetriken** (Split `val`: 65 Bilder aus 10 Clips, siehe `### Datensatz`
+oben für den vollen Split-Kontext):
+
+| Klasse | AP50 | AP50-95 |
+|---|---|---|
+| Gesamt (`mAP`) | 0.9571 | 0.8112 |
+| `player` | -- (RF-DETRs Callback liefert je Klasse nur den über IoU 0.5:0.95 gemittelten AP, keinen separaten AP50) | 0.8266 |
+| `referee` | -- (s.o.) | 0.7958 |
+
+Die installierte `rfdetr==1.9.3`-Trainingsstack (`COCOEvalCallback`) berechnet den
+Gesamt-AP50 und Gesamt-AP50-95 getrennt, aber pro Klasse nur einen einzigen,
+COCO-typisch über IoU 0.5:0.95 gemittelten AP-Wert (`val/AP/<class>`) -- kein separater
+Pro-Klasse-AP50 existiert in der installierten Bibliothek. `train_detector` meldet
+deshalb genau das, was der Trainer tatsächlich liefert, statt mit einer zweiten
+mAP-Implementierung (`supervision`) einen Pro-Klasse-AP50 nachzubauen, der mit der
+offiziellen COCO-Auswertung uneins sein könnte.
+
+**MLflow-Run:** `b9ab055c13de4366ab5b41e44d0d60e3` (Experiment `cv_detector` ==
+`cfg.cv.detector_experiment`), registriertes Modell `cv_detector_model`, **Version 1**.
+
+**Promotion:** Auf `champion` promotet (`ffep cv promote --run
+b9ab055c13de4366ab5b41e44d0d60e3`, Version 1) -- Entscheidung des Orchestrators, nicht
+eigenmächtig durch die Trainings-Task selbst: einziger registrierter Kandidat, objektiv
+starke Metriken (`mAP_50=0.9571`, `mAP_50_95=0.8112`), ein MLflow-Alias ist trivial
+reversibel (`ffep cv promote --run <anderer-run>` verschiebt ihn jederzeit neu, keine
+Version wird dabei gelöscht), und der Nutzer hatte für diese Nacht-Session explizit
+mechanische Weiterarbeit ohne Rückfragen an menschlichen Gates angewiesen. `resolve_champion`
+verifiziert nach der Promotion: löst auf `b9ab055c13de4366ab5b41e44d0d60e3` auf.
+
+**Statistische Ehrlichkeit:** Der Val-Split besteht aus einer Handvoll Clips (10 von 46
+im 304-Frame-Subset) eines einzigen Spiels, gelabelt von einer einzigen Annotationsperson
+(siehe `### Datensatz`s eigene IAA-Einschränkung oben) -- diese Zahlen beschreiben die
+Anpassung an genau dieses Piloten-Regime, keine allgemeine Leistungsfähigkeit. Der
+niedrigere `referee`-AP ist bei der Klassenhäufigkeit (652 `referee`- vs. 5962
+`player`-Boxen im Gesamtdatensatz) erwartet und akzeptabel -- weniger Trainingsbeispiele
+für diese Klasse, nicht ein Modellfehler. Die eigentlichen Gate-Kriterien (C-09) sind
+Tracking-Kontinuität, Positionsfehler und Inferenzzeit -- **nicht** mAP; dieser Abschnitt
+ist Kontext für die Gate-Entscheidung (Plan 02.1-17), kein Gate-Kriterium selbst.
