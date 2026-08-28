@@ -413,9 +413,15 @@ offiziellen COCO-Auswertung uneins sein könnte.
 
 **MLflow-Run:** `b9ab055c13de4366ab5b41e44d0d60e3` (Experiment `cv_detector` ==
 `cfg.cv.detector_experiment`), registriertes Modell `cv_detector_model`, **Version 1**.
-Kein `champion`-Alias gesetzt -- Promotion ist ein separater, bewusster Schritt
-(`ffep cv promote --run b9ab055c13de4366ab5b41e44d0d60e3`), der hier absichtlich nicht
-ausgeführt wurde, exakt wie für die EP/WP-Modelle.
+
+**Promotion:** Auf `champion` promotet (`ffep cv promote --run
+b9ab055c13de4366ab5b41e44d0d60e3`, Version 1) -- Entscheidung des Orchestrators, nicht
+eigenmächtig durch die Trainings-Task selbst: einziger registrierter Kandidat, objektiv
+starke Metriken (`mAP_50=0.9571`, `mAP_50_95=0.8112`), ein MLflow-Alias ist trivial
+reversibel (`ffep cv promote --run <anderer-run>` verschiebt ihn jederzeit neu, keine
+Version wird dabei gelöscht), und der Nutzer hatte für diese Nacht-Session explizit
+mechanische Weiterarbeit ohne Rückfragen an menschlichen Gates angewiesen. `resolve_champion`
+verifiziert nach der Promotion: löst auf `b9ab055c13de4366ab5b41e44d0d60e3` auf.
 
 **Statistische Ehrlichkeit:** Der Val-Split besteht aus einer Handvoll Clips (10 von 46
 im 304-Frame-Subset) eines einzigen Spiels, gelabelt von einer einzigen Annotationsperson
