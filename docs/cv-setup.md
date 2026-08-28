@@ -254,3 +254,94 @@ Named Volumes (`cvat_db`, `cvat_data`, `cvat_keys`, `cvat_logs`, `cvat_inmem_db`
 Projektbaum -- `down -v` entfernt sie vollstaendig. Den geklonten Compose-Baum selbst entfernt
 `rm -rf ~/src/cvat` (er liegt, wie oben beschrieben, ausserhalb dieses Repos und war nie Teil
 der Versionskontrolle hier).
+
+### Datensatz
+
+Der korrigierte Trainingsdatensatz aus Plan 02.1-09 -- Grounding-DINO-Vorlabels (Plan 02.1-07),
+von Hand in CVAT korrigiert, per `ffep cv dataset` gegen das Sample-Manifest validiert
+(`cv/dataset.py::validate_coco`) und mit einem reproduzierbaren Inhalts-Hash versehen
+(`cv/dataset.py::dataset_hash`).
+
+**CVAT-Task:** id `1`, Name `pilot-2026-05-16`, 404 gepushte Frames (Sitzung
+`2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE`).
+
+**Korrigierter Bereich:** Frames 1-304 von 404 (CVAT-Frame-Reihenfolge = Push-/Manifest-
+Reihenfolge). Frames 305-404 wurden **nicht** korrigiert -- sie tragen weiterhin nur die
+rohen Grounding-DINO-Vorlabels aus Plan 02.1-07 und sind aus dem Trainingsdatensatz
+ausgeschlossen (siehe "Trim auf 304 Frames" unten).
+
+**Export-Datum:** 2026-08-28
+
+**Datensatz-Kennzahlen** (nach Trim, `ffep cv dataset --coco
+data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/corrected --manifest
+data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/manifest.json`):
+
+| Kennzahl | Wert |
+|---|---|
+| `n_images` | 304 |
+| `player`-Boxen | 5962 |
+| `referee`-Boxen | 652 |
+| Bilder ohne Annotation (`_empty_images`) | 0 |
+| Split `train` | 239 Bilder |
+| Split `val` | 65 Bilder |
+| `content_sha256` | `ab3a9673d61bc348d37ce298ba12d18b76395d1ade82a735c5b3d82d2e46aec0` |
+
+Beide Splits tragen mindestens eine `player`-Box (von `validate_coco` erzwungen). 304 Bilder
+liegen innerhalb des von REQ-S2-02/D-06 erzwungenen Bands `[250, 600]`.
+
+**Hover-Positionen im Datensatz** (`data/reference/hover_positions.csv`, Plan 02.1-03):
+
+| Hover-Position | Frames | Clips | davon `train` | davon `val` |
+|---|---|---|---|---|
+| hp-01 | 164 | 24 | 138 | 26 |
+| hp-02 | 140 | 22 | 101 | 39 |
+
+Beide der zwei bestätigten Hover-Positionen sind im 304-Frame-Subset gut vertreten (54 % / 46 %,
+nah am ursprünglichen 61-Clip-Verhältnis 30/31) -- der Trim auf die ersten 304 Frames hat keine
+Hover-Position kollabieren lassen, weil `sample_training_frames` (Plan 02.1-07) die Clips
+zwischen den Hover-Positionen interleaved statt sie block-weise anzuordnen.
+
+**Rueckverfolgbarkeit (D-15):** `content_sha256` ist der Wert, den Plan 02.1-10s
+MLflow-Trainingslauf als Parameter loggt -- jeder registrierte Detector laesst sich damit exakt
+auf diesen Label-Stand zurueckverfolgen, nicht nur auf "irgendeine Version von `corrected/`".
+
+**Labeling-Konvention** (vom Nutzer in dieser Sitzung angewandt, bindend fuer Plan 02.1-15s
+Ground-Truth-Labeling zur Konsistenz):
+
+- Jede klar sichtbare Person wird geboxt.
+- Nur Personen mit einer aktiven Schiedsrichterrolle auf dem Feld erhalten das Label `referee`.
+- **Alle** anderen Personen -- inklusive Trainerstab, Ersatzspielerinnen und Seitenlinien-
+  Personal -- erhalten `player`, nicht etwa eine dritte Klasse oder werden ausgelassen. Die
+  raeumliche Filterung (wer tatsaechlich auf dem Feld ist) passiert stromabwaerts in
+  Feldkoordinaten (Plan 02.1-11ff.), nicht bereits beim Boxen.
+- Boxen umschliessen den vollstaendig sichtbaren Koerper inklusive Gliedmassen.
+- Die Boxen-Unterkante sitzt eng an den Fuessen, der Schatten wird ausgeschlossen -- Begruendung:
+  der Fusspunkt ist der Punkt, der spaeter per Homographie in Feldkoordinaten projiziert wird
+  (Plan 02.1-13), ein lockerer Unterkanten-Rand oder ein eingeschlossener Schatten wuerde direkt
+  in einen Positionsfehler uebersetzen.
+- Frames bis ca. Frame 103 wurden als Polygon annotiert (CVAT leitet daraus die exportierte Box
+  ueber die Koordinaten-Extrema ab); spaetere Frames direkt als Rechteck. Das erklaert, warum
+  `validate_coco`s Bounds-Check eine Sub-Pixel-Toleranz (`_BBOX_BOUNDS_EPSILON_PX = 1.0`, siehe
+  `cv/dataset.py`) braucht: die Polygon-zu-Box-Ableitung landet bei am Bildrand geboxten Personen
+  gelegentlich um Bruchteile eines Pixels ausserhalb des Frames (gemessen bis 0.26px auf diesem
+  Datensatz) -- ein Rundungsartefakt der Ableitung, kein Labeling-Fehler.
+
+**Trim auf 304 Frames (Abweichung vom Plan, siehe SUMMARY):** Die Labeling-Sitzung wurde nach
+304 von 404 Frames als vollstaendig markiert und in CVAT gespeichert; die Begruendung des
+Nutzers war Qualitaet vor Quantitaet -- nach 304 sorgfaeltig korrigierten Frames war der
+Ermuedungspunkt erreicht, an dem eine erzwungene Fortsetzung eher Korrekturfehler eingefuehrt
+haette als zusaetzlichen Trainingswert zu liefern. Die verbleibenden 100 Frames (305-404) tragen
+weiterhin nur die unkorrigierten Grounding-DINO-Vorlabels aus Plan 02.1-07 und wurden vor dem
+`ffep cv dataset`-Lauf aus `instances.json` und dem Sample-Manifest entfernt (Annotation-IDs
+neu durchnummeriert fuer Konsistenz) -- sie duerfen nicht ins Training einfliessen. Der volle
+404-Frame-Export bleibt als `instances.full-404.json` neben `instances.json` erhalten
+(git-ignoriert), falls die restlichen 100 Frames in einer spaeteren Sitzung nachkorrigiert
+werden sollen. 304 liegt weiterhin innerhalb des REQ-S2-02/D-06-Bands `[250, 600]`.
+
+**Ehrliche Einschraenkung:** Diese Boxen stammen von einer einzelnen Annotatorin/einem
+einzelnen Annotator auf dem Material eines einzigen Spiels (GER vs. Panama Rojo,
+2026-05-16) -- es gibt keine Zweit-Annotator-Uebereinstimmungsmessung (Inter-Annotator
+Agreement). Das ist eine bekannte Grenze dieses Piloten, keine versteckte: bei einem
+Solo-Entwickler-Projekt mit einer Annotationsperson ist eine IAA-Messung nicht budgetiert:
+diese Kennzahlen und der Content-Hash belegen Konsistenz-mit-sich-selbst und
+Rueckverfolgbarkeit, nicht Inter-Annotator-Zuverlaessigkeit.
