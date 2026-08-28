@@ -144,6 +144,50 @@ def _resolve_manifest_path(config: Config) -> Path:
     return config.paths.labels / "frames" / "manifest.json"
 
 
+def _filter_manifest_to_dataset(
+    manifest: FrameSampleManifest, coco_dir: Path
+) -> FrameSampleManifest:
+    """Restrict `manifest` to the frames actually present in `coco_dir`'s COCO export.
+
+    `train_detector` has no manifest parameter (plan 02.1-02's stub signature), so it
+    always resolves the *full* sampling manifest (`_resolve_manifest_path`) -- but a
+    corrected export can legitimately be a strict subset of that manifest: plan
+    02.1-09's own labelling session stopped at 304 of 404 sampled frames on a
+    documented, sanctioned quality-over-quantity call (D-04's soft time-box), leaving
+    the remaining frames unreviewed rather than absent from the manifest. Passing the
+    unfiltered manifest straight to `validate_coco` would reject every such export as
+    "missing" frames it never claims to cover. This filters down to exactly the
+    manifest frames whose file name is present in `coco_dir/instances.json`'s image
+    set -- a strict superset-to-exact-match reconciliation, not a validation bypass:
+    `validate_coco` still raises on a genuine mismatch (an image in `coco_dir` with no
+    matching manifest frame at all is not something this filter can produce, since it
+    only ever removes manifest entries, never keeps foreign COCO image names).
+    """
+    from flag_football_ep.cv.frames import FrameSampleManifest as _FrameSampleManifest
+
+    annotation_path = coco_dir / "instances.json"
+    data = json.loads(annotation_path.read_text(encoding="utf-8"))
+    present_names = {image["file_name"] for image in data.get("images", [])}
+
+    filtered_frames = [
+        frame for frame in manifest.frames if Path(frame.image_path).name in present_names
+    ]
+    remaining_clips = {frame.clip_number for frame in filtered_frames}
+    filtered_split = {
+        clip_number: split
+        for clip_number, split in manifest.split.items()
+        if clip_number in remaining_clips
+    }
+
+    return _FrameSampleManifest(
+        session_id=manifest.session_id,
+        seed=manifest.seed,
+        target=manifest.target,
+        frames=filtered_frames,
+        split=filtered_split,
+    )
+
+
 def _prepare_dataset_layout(
     coco_dir: Path, manifest: FrameSampleManifest, output_dir: Path
 ) -> tuple[Path, str]:
@@ -152,7 +196,10 @@ def _prepare_dataset_layout(
     directory holds its images plus an `_annotations.coco.json`) under `output_dir`,
     never under `data/labels/`. The clip-level split comes straight from
     `manifest.split`/`manifest.frames[*].split` -- read, never re-derived -- so
-    training and every later metric use the exact same partition. Returns
+    training and every later metric use the exact same partition. `manifest` is
+    first restricted to the frames actually present in `coco_dir` (see
+    `_filter_manifest_to_dataset`), so a corrected export that legitimately covers
+    fewer frames than the full sampling manifest still validates. Returns
     `(dataset_dir, content_sha256)`.
 
     Raises `dataset.DatasetError` (via `validate_coco`) before any trainer import or
@@ -160,6 +207,7 @@ def _prepare_dataset_layout(
     """
     from flag_football_ep.cv.dataset import validate_coco
 
+    manifest = _filter_manifest_to_dataset(manifest, coco_dir)
     stats = validate_coco(coco_dir, manifest)
 
     annotation_path = coco_dir / "instances.json"

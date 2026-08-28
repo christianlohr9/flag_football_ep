@@ -266,6 +266,38 @@ def test_prepare_dataset_layout_splits_train_and_valid_with_no_overlap(
     assert {img["file_name"] for img in valid_ann["images"]} == valid_files
 
 
+def test_prepare_dataset_layout_tolerates_a_manifest_that_oversamples_the_dataset(
+    tmp_path: Path, _stub_validate_coco: None
+) -> None:
+    """A corrected COCO export can legitimately cover fewer frames than the full
+    sampling manifest (plan 02.1-09's documented, sanctioned early-stop labelling
+    session) -- `_prepare_dataset_layout` must filter the manifest down to what the
+    export actually contains rather than treating the extra manifest frames as
+    "missing".
+    """
+    coco_dir, manifest = _build_dataset(tmp_path)
+    # Drop clip 2 (both its frames) from the COCO export -- the manifest still
+    # references them, mirroring the real 404-sampled/304-corrected split.
+    dropped = {"clip002_f00010.jpg", "clip002_f00020.jpg"}
+    for name in dropped:
+        (coco_dir / name).unlink()
+    data = json.loads((coco_dir / "instances.json").read_text())
+    data["images"] = [img for img in data["images"] if img["file_name"] not in dropped]
+    data["annotations"] = [
+        ann for ann in data["annotations"] if ann["image_id"] in {i["id"] for i in data["images"]}
+    ]
+    (coco_dir / "instances.json").write_text(json.dumps(data))
+
+    dataset_dir, _content_sha256 = detect._prepare_dataset_layout(
+        coco_dir, manifest, tmp_path / "out"
+    )
+
+    train_files = {p.name for p in (dataset_dir / "train").glob("*.jpg")}
+    valid_files = {p.name for p in (dataset_dir / "valid").glob("*.jpg")}
+    assert train_files == {"clip001_f00010.jpg", "clip001_f00020.jpg"}
+    assert valid_files == set()  # clip 2 (the only val clip) was entirely dropped
+
+
 # --- abort-before-trainer --------------------------------------------------------------------
 
 
