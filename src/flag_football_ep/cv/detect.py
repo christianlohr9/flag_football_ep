@@ -595,8 +595,23 @@ def _call_model(model, image: np.ndarray, *, resolution: int) -> sv.Detections:
     is enforceable per call, independent of what a checkpoint happened to train at) is
     a registration-time change to `cv/registry.py` outside this plan's scope, not a
     `detect_video` bug -- tracked as a follow-up, not fixed here.
+
+    Strips `.metadata`/`.data` off the returned `Detections` before handing it back:
+    RF-DETR's real `predict(..., include_source_image=True)` (the pyfunc wrapper's
+    default) attaches the *entire input crop* under `metadata["source_image"]` plus a
+    `data["source_shape"]` entry, verified against the real champion model -- every
+    tile in `_detect_tiled` has a different source image/shape, and
+    `sv.Detections.merge` raises `ValueError: Conflicting metadata for key:
+    'source_image'` the moment two tiles' detections are merged (found running Task 3's
+    real three-clip SAHI throughput sample). Neither field is used anywhere downstream
+    of this module (`DetectionBatch` only carries `xyxy`/`confidence`/`class_id`), so
+    dropping both is also a memory-hygiene win for the full-frame path, not just a
+    SAHI-path bug fix.
     """
-    return model.predict(image, params={"shape": (resolution, resolution)})
+    detections = model.predict(image, params={"shape": (resolution, resolution)})
+    detections.metadata = {}
+    detections.data = {}
+    return detections
 
 
 def _confidence_filtered(detections: sv.Detections) -> sv.Detections:

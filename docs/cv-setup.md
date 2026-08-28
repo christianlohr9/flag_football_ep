@@ -435,3 +435,53 @@ niedrigere `referee`-AP ist bei der Klassenhäufigkeit (652 `referee`- vs. 5962
 für diese Klasse, nicht ein Modellfehler. Die eigentlichen Gate-Kriterien (C-09) sind
 Tracking-Kontinuität, Positionsfehler und Inferenzzeit -- **nicht** mAP; dieser Abschnitt
 ist Kontext für die Gate-Entscheidung (Plan 02.1-17), kein Gate-Kriterium selbst.
+
+## Inferenz-Durchsatz
+
+`src/flag_football_ep/cv/detect.py::detect_video` + `src/flag_football_ep/cv/benchmark.py::
+extrapolate_game_runtime`, Plan 02.1-11. Misst den tatsächlichen Detektions-Durchsatz auf der
+Primärmaschine (D-11 verlangt genau das -- Dell-/Colab-Zahlen sind nur Referenz) und
+beantwortet die in Plan 02.1-03 offen gelassene SAHI-Frage mit gemessenen statt
+angenommenen Werten (RESEARCH Pitfall 4: SAHI darf nicht per Default aktiviert werden).
+
+**Maschine:** Primärmaschine (Apple M4 Max, siehe `## Hardware-Hinweis` oben),
+`platform.node()` = `MacBook-Pro-2.fritz.box`. Der champion-aufgelöste Detektor lädt
+automatisch auf `mps` (`torch.backends.mps.is_available() -> True`, kein expliziter
+Geräte-Parameter in `detect_video`/`load_detector` -- die Geräteauswahl liegt bei
+`RFDETRSmall` selbst).
+
+**Methodik:** Drei Clips aus `data/reference/hover_positions.csv` gewählt, um die
+gemessene Spannweite der scheinbaren Spielergröße (`apparent_player_px_p50`)
+abzudecken -- kleinstes p50, Median-p50, größtes p50:
+
+| Clip | `apparent_player_px_p50` | Rolle |
+|---|---|---|
+| 001 | 25.0 px | kleinstes p50 |
+| 052 | 30.0 px | Median-p50 |
+| 003 | 61.0 px | größtes p50 |
+
+Jeder Clip einmal mit `sahi=false` und einmal mit `sahi=true`, jeweils bei der
+freigegebenen `[cv] resolution = 896` (Plan 02.1-03) durchlaufen (volle Clip-Länge, kein
+Frame-Subsampling); Detektionszahlen und `StageTiming` (`decode`/`detect`/`postprocess`)
+über alle drei Clips je Modus aufsummiert und durch `extrapolate_game_runtime(...,
+footage_seconds=954/30.0, game_seconds=3000.0)` (50 min) geschickt:
+
+| Modus | Auflösung | s pro Footage-Sekunde | Extrapolation auf 50 min | Erkannte Boxen pro Frame |
+|---|---|---|---|---|
+| `sahi=false` | 896 | 0.79 | 39.73 min | 20.1 |
+| `sahi=true` | 896 | 5.21 | 260.67 min | 32.4 |
+
+**Entscheidung: `[cv] sahi = false` bleibt unverändert.** Volle-Bild-Inferenz erkennt
+bereits reichlich Boxen (~20 pro Frame über alle drei Clips, bei durchweg *Brauchbar*
+eingestuften Größen) und bleibt mit 39.73 von 60 erlaubten Minuten deutlich im C-09-Budget,
+während `sahi=true` das Budget um mehr als das Vierfache überschreitet (260.67 min) für nur
+gut die anderthalbfache Boxzahl pro Frame -- ein Hinweis auf zusätzliche Tile-Seam-Duplikate
+statt proportional besserer Recall (RESEARCH Pitfall 4s dokumentierte Tuning-Lücke), nicht
+auf einen entscheidenden Recall-Gewinn, der die Kostenexplosion rechtfertigen würde.
+`ffep.toml`s `[cv] sahi = false` war bereits so gesetzt (Plan 02.1-03) und bleibt damit
+konsistent mit dieser Messung -- keine Konfigurationsänderung nötig.
+
+**Das ist nicht die Gate-Messung.** Dies ist eine Drei-Clip-Durchsatzstichprobe, die den
+vollständigen 61-Clip-Tracking-Lauf aus Plan 02.1-12 de-riskt; die tatsächliche C-09-Zahl
+kommt aus diesem vollständigen Lauf und wird in der Gate-Entscheidung (Plan 02.1-17)
+festgehalten -- diese Tabelle darf dort nicht als Gate-Ergebnis zitiert werden.
