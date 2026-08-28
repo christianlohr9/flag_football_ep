@@ -12,6 +12,7 @@ the real `DatasetError` this module must propagate before ever importing `rfdetr
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -487,3 +488,28 @@ def test_from_artifacts_missing_checkpoint_raises_named_error(tmp_path: Path) ->
 
     with pytest.raises(detect.WeightsNotFound, match="checkpoint_best_total.pth"):
         detect.train_detector(config, tmp_path / "unused-dataset", from_artifacts=artifacts_dir)
+
+
+# --- CLI: --dataset is required only when --from-artifacts is absent -----------------------
+
+
+def test_train_cli_requires_dataset_unless_from_artifacts_given() -> None:
+    """`ffep cv train --from-artifacts <dir>` (Task 3's own registration-only command,
+    matching the real primary-machine round trip) must not demand `--dataset` -- it is
+    unused in that mode. Omitting both is still a clean, named usage error.
+    """
+    from typer.testing import CliRunner
+
+    from flag_football_ep.cli import app
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["cv", "train"])
+
+    assert result.exit_code != 0
+    # Rich's error panel wraps flag names in ANSI colour codes that split literal
+    # substrings like `--dataset`/`--from-artifacts` across escape sequences --
+    # strip them before asserting on the message text.
+    plain_output = re.sub(r"\x1b\[[0-9;]*m", "", result.output)
+    assert "--dataset" in plain_output
+    assert "--from-artifacts" in plain_output
+    assert "required unless" in plain_output

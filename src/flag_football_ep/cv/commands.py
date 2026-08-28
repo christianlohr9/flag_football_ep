@@ -179,7 +179,11 @@ def dataset(
 @cv_app.command()
 def train(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
-    dataset: Path = typer.Option(..., "--dataset", help="Validated COCO dataset directory"),
+    dataset: Optional[Path] = typer.Option(
+        None,
+        "--dataset",
+        help="Validated COCO dataset directory (required unless --from-artifacts is given)",
+    ),
     epochs: Optional[int] = typer.Option(
         None, "--epochs", help="Override cfg.cv.train_epochs"
     ),
@@ -220,6 +224,9 @@ def train(
     ),
 ) -> None:
     """Train the RF-DETR player/referee detector."""
+    if from_artifacts is None and dataset is None:
+        raise typer.BadParameter("--dataset is required unless --from-artifacts is given")
+
     from flag_football_ep.config import load_config
 
     cfg = load_config(config)
