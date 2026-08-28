@@ -281,7 +281,7 @@ Plans:
 
 **Wave 7** *(blocked on 02.1-06 and 02.1-09)*
 
-- [ ] 02.1-10-PLAN.md — RF-DETR-Small fine-tune wrapper, the CUDA-box training checkpoint, champion registration
+- [x] 02.1-10-PLAN.md — RF-DETR-Small fine-tune wrapper, the CUDA-box training checkpoint, champion registration
 
 **Wave 8** *(blocked on Wave 7)*
 
