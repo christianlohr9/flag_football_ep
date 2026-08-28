@@ -321,6 +321,24 @@ def test_prepare_dataset_layout_tolerates_a_manifest_that_oversamples_the_datase
     assert valid_files == set()  # clip 2 (the only val clip) was entirely dropped
 
 
+def test_resume_is_forwarded_to_the_trainer_as_a_bare_string(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _stub_validate_coco: None
+) -> None:
+    config = _make_config(tmp_path)
+    coco_dir, manifest = _build_dataset(tmp_path)
+    write_manifest(manifest, config.paths.labels / "frames" / "manifest.json")
+
+    state = _FakeTrainerState()
+    monkeypatch.setattr("rfdetr.RFDETRSmall", _make_fake_rfdetr_small(state, _EVAL_METRICS))
+
+    resume_ckpt = tmp_path / "out" / "last.ckpt"
+    detect.train_detector(
+        config, coco_dir, register=False, output_dir=tmp_path / "out", resume=resume_ckpt
+    )
+
+    assert state.train_calls[0]["resume"] == str(resume_ckpt)
+
+
 # --- abort-before-trainer --------------------------------------------------------------------
 
 

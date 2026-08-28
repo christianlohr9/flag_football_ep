@@ -210,6 +210,14 @@ def train(
             "--no-register run on another machine, without retraining"
         ),
     ),
+    resume: Optional[Path] = typer.Option(
+        None,
+        "--resume",
+        help=(
+            "Resume from a full PyTorch Lightning checkpoint (e.g. <out>/last.ckpt) -- "
+            "continues toward --epochs as a total target, not an additional count"
+        ),
+    ),
 ) -> None:
     """Train the RF-DETR player/referee detector."""
     from flag_football_ep.config import load_config
@@ -229,6 +237,7 @@ def train(
         output_dir=out,
         register=register,
         from_artifacts=from_artifacts,
+        resume=resume,
     )
 
     typer.echo(f"run: {result.run_id}")

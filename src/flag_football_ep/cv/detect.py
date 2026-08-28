@@ -309,8 +309,20 @@ def train_detector(
     output_dir: Path | None = None,
     register: bool = True,
     from_artifacts: Path | None = None,
+    resume: Path | None = None,
 ) -> DetectorTrainResult:
     """Fine-tune RF-DETR on the validated COCO dataset at `dataset_dir`.
+
+    `resume`, when given, is forwarded to `RFDETRSmall.train(resume=...)` as-is
+    (rfdetr's own `TrainConfig.resume` field): a path to a full PyTorch Lightning
+    `.ckpt` (optimizer/scheduler state included, e.g. `<output_dir>/last.ckpt`,
+    written every epoch whenever `checkpoint_interval != 1`, the `TrainConfig`
+    default). `epochs` stays the *total* target across the whole run -- Lightning
+    restores `current_epoch` from the checkpoint and continues training up to
+    `epochs`, it does not add `epochs` more on top. This is what makes a long run
+    resumable across multiple bounded foreground calls (a single-machine wall-clock
+    constraint, not a plan requirement) without discarding optimizer/LR-scheduler
+    state between chunks.
 
     `None`-defaulting keyword overrides fall back to `config.cv.train_*`/`device`.
     `register=False` produces a checkpoint+metrics directory without touching MLflow
@@ -378,7 +390,7 @@ def train_detector(
     from rfdetr import RFDETRSmall
 
     model = RFDETRSmall(resolution=resolved_resolution)
-    model.train(
+    train_kwargs: dict[str, object] = dict(
         dataset_dir=str(prepared_dir),
         epochs=resolved_epochs,
         batch_size=resolved_batch_size,
@@ -394,6 +406,9 @@ def train_detector(
         mlflow=False,
         clearml=False,
     )
+    if resume is not None:
+        train_kwargs["resume"] = str(resume)
+    model.train(**train_kwargs)
 
     raw_metrics = model.evaluate(
         split="val",
