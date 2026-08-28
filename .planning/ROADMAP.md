@@ -277,7 +277,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5)*
 
-- [ ] 02.1-09-PLAN.md — COCO validation + content hash, the human labelling checkpoint, dataset record
+- [x] 02.1-09-PLAN.md — COCO validation + content hash, the human labelling checkpoint, dataset record
 
 **Wave 7** *(blocked on 02.1-06 and 02.1-09)*
 
