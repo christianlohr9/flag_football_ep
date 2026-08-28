@@ -92,7 +92,13 @@ class RFDETRWrapper(mlflow.pyfunc.PythonModel):
         self.model = RFDETRSmall(pretrain_weights=context.artifacts["weights"])
 
     def predict(self, context, model_input, params=None):
-        return self.model.predict(model_input)
+        # `params` is the standard MLflow pyfunc side-channel (e.g. `{"shape": (r, r)}`
+        # from `cv.detect._call_model`) -- forwarded straight into the wrapped
+        # `RFDETRSmall.predict(**params)` call so a caller of the loaded pyfunc model
+        # can still control per-call inference options (resolution, threshold) the
+        # same way it could against the raw `RFDETRSmall` instance. `None`/`{}` is a
+        # no-op, matching the previous unconditional `self.model.predict(model_input)`.
+        return self.model.predict(model_input, **(params or {}))
 
 
 class CheckpointNotFound(RegistryError):
