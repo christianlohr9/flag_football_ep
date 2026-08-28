@@ -188,6 +188,29 @@ def _filter_manifest_to_dataset(
     )
 
 
+# Mirrors `cv/dataset.py`'s own `_IMAGE_SUFFIXES` -- kept as a separate constant
+# rather than importing the private module attribute across module boundaries.
+_IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png")
+
+
+def _index_images_by_name(coco_dir: Path) -> dict[str, Path]:
+    """Map every image file's basename under `coco_dir` to its actual path.
+
+    A real CVAT COCO export (`dataset.export_cvat_task`) nests images under
+    `images/default/`, not directly beside `instances.json` -- `dataset_hash`
+    already tolerates this via `rglob`, but this module's dataset-layout builder
+    needs the same tolerance to actually find and copy each image `validate_coco`
+    accepted by `file_name` alone. First match (in sorted path order) wins on a
+    duplicate basename across subdirectories (not expected for any dataset this
+    pipeline produces).
+    """
+    index: dict[str, Path] = {}
+    for path in sorted(coco_dir.rglob("*")):
+        if path.is_file() and path.suffix.lower() in _IMAGE_SUFFIXES:
+            index.setdefault(path.name, path)
+    return index
+
+
 def _prepare_dataset_layout(
     coco_dir: Path, manifest: FrameSampleManifest, output_dir: Path
 ) -> tuple[Path, str]:
@@ -205,7 +228,7 @@ def _prepare_dataset_layout(
     Raises `dataset.DatasetError` (via `validate_coco`) before any trainer import or
     call when `coco_dir` fails structural validation.
     """
-    from flag_football_ep.cv.dataset import validate_coco
+    from flag_football_ep.cv.dataset import DatasetError, validate_coco
 
     manifest = _filter_manifest_to_dataset(manifest, coco_dir)
     stats = validate_coco(coco_dir, manifest)
@@ -217,6 +240,7 @@ def _prepare_dataset_layout(
     annotations = data["annotations"]
 
     manifest_by_file_name = {Path(frame.image_path).name: frame for frame in manifest.frames}
+    image_path_by_name = _index_images_by_name(coco_dir)
 
     split_images: dict[str, list[dict]] = {"train": [], "valid": []}
     split_image_ids: dict[str, set[int]] = {"train": set(), "valid": set()}
@@ -231,7 +255,13 @@ def _prepare_dataset_layout(
         split_dir = dataset_dir / split_name
         split_dir.mkdir(parents=True, exist_ok=True)
         for image in split_images[split_name]:
-            shutil.copy2(coco_dir / image["file_name"], split_dir / image["file_name"])
+            source = image_path_by_name.get(image["file_name"])
+            if source is None:
+                raise DatasetError(
+                    f"image file {image['file_name']!r} listed in "
+                    f"{annotation_path} was not found anywhere under {coco_dir}"
+                )
+            shutil.copy2(source, split_dir / image["file_name"])
         split_annotations = [
             ann for ann in annotations if ann["image_id"] in split_image_ids[split_name]
         ]

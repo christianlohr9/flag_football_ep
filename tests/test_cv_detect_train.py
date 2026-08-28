@@ -266,6 +266,29 @@ def test_prepare_dataset_layout_splits_train_and_valid_with_no_overlap(
     assert {img["file_name"] for img in valid_ann["images"]} == valid_files
 
 
+def test_prepare_dataset_layout_finds_images_nested_under_images_default(
+    tmp_path: Path, _stub_validate_coco: None
+) -> None:
+    """A real CVAT COCO export (`dataset.export_cvat_task`) nests image files under
+    `images/default/`, not directly beside `instances.json` -- `_prepare_dataset_layout`
+    must still locate and copy them by `file_name` alone (`_index_images_by_name`).
+    """
+    coco_dir, manifest = _build_dataset(tmp_path)
+    nested_dir = coco_dir / "images" / "default"
+    nested_dir.mkdir(parents=True)
+    for _clip_number, _split, file_name in _FRAME_SPECS:
+        (coco_dir / file_name).rename(nested_dir / file_name)
+
+    dataset_dir, _content_sha256 = detect._prepare_dataset_layout(
+        coco_dir, manifest, tmp_path / "out"
+    )
+
+    train_files = {p.name for p in (dataset_dir / "train").glob("*.jpg")}
+    valid_files = {p.name for p in (dataset_dir / "valid").glob("*.jpg")}
+    assert train_files == {"clip001_f00010.jpg", "clip001_f00020.jpg"}
+    assert valid_files == {"clip002_f00010.jpg", "clip002_f00020.jpg"}
+
+
 def test_prepare_dataset_layout_tolerates_a_manifest_that_oversamples_the_dataset(
     tmp_path: Path, _stub_validate_coco: None
 ) -> None:
