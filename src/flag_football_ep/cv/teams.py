@@ -28,6 +28,8 @@ Implemented by plan 02.1-06 (together with `cv.registry`).
 
 from __future__ import annotations
 
+from collections import Counter
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from sklearn.cluster import KMeans
@@ -35,7 +37,7 @@ from sklearn.cluster import KMeans
 from flag_football_ep.cv import CvError
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Mapping, Sequence
 
     import numpy as np
     import polars as pl
@@ -51,9 +53,22 @@ _MIN_FIT_CROPS = 20
 # Batch size for the SigLIP embedding pass, matching the roboflow/sports reference.
 _DEFAULT_BATCH_SIZE = 32
 
+# `assign_teams`'s per-track fit-sample cap -- keeps one long track from dominating the
+# session-wide fit. A module constant (mirroring `_MIN_FIT_CROPS`'s own convention)
+# rather than a function parameter: `assign_teams`'s three-parameter signature
+# (`tracks`, `config`, `crops_by_track`) is a fixed contract (`tests/test_cv_contracts.py`),
+# so a "configurable number per track" (Task 2 action text) has to live here instead.
+_MAX_FIT_CROPS_PER_TRACK = 20
+
+# A track's majority team-cluster share below this threshold is a coin flip, not a
+# real signal -- `assign_teams` leaves `team_id` null and emits a notice rather than
+# guessing (Task 2 action text).
+_MIN_MAJORITY_SHARE = 0.6
+
 __all__ = [
     "ClassifierNotFitted",
     "InsufficientCrops",
+    "TeamAssignmentResult",
     "TeamClassifier",
     "assign_teams",
 ]
@@ -110,12 +125,23 @@ class TeamClassifier:
             return
         # Function-local import: transformers is a `cv`-extras dependency, never
         # imported at module level (D-07/D-08).
-        from transformers import AutoProcessor, SiglipVisionModel
+        #
+        # `SiglipImageProcessor` directly, not `AutoProcessor`: verified against the
+        # real `google/siglip-base-patch16-224` checkpoint (plan 02.1-12 Task 3's real
+        # 61-clip run) that `AutoProcessor.from_pretrained` unconditionally tries to
+        # also resolve `SiglipTokenizer` (the paired text processor) even though this
+        # class only ever needs the image side -- that raises `ImportError: ...
+        # requires the SentencePiece library` on an environment (this project's own)
+        # that never installed `sentencepiece`, since nothing here does text encoding.
+        # `SiglipImageProcessor` loads only the vision preprocessing config, matching
+        # what `SiglipVisionModel` actually consumes, with no tokenizer/SentencePiece
+        # dependency at all.
+        from transformers import SiglipImageProcessor, SiglipVisionModel
 
         self._siglip_model = SiglipVisionModel.from_pretrained(SIGLIP_MODEL_PATH).to(
             self._device
         )
-        self._siglip_processor = AutoProcessor.from_pretrained(SIGLIP_MODEL_PATH)
+        self._siglip_processor = SiglipImageProcessor.from_pretrained(SIGLIP_MODEL_PATH)
 
     def _extract_siglip_features(self, crops) -> np.ndarray:
         import numpy as np
@@ -176,8 +202,127 @@ class TeamClassifier:
         return self._cluster_model.predict(projections)
 
 
-def assign_teams(tracks: pl.DataFrame, config: Config, *, crops_by_track) -> pl.DataFrame:
-    """Fit one `TeamClassifier` on `crops_by_track` and add a team-id column to
-    `tracks`, one assignment per track (not per frame).
+@dataclass
+class TeamAssignmentResult:
+    """`assign_teams`'s output: `tracks` with `team_id` filled (already passed through
+    `schema.conform_tracking`) plus `notices` -- one per track whose majority
+    team-cluster share fell below `_MIN_MAJORITY_SHARE` (naming the track id), since a
+    coin-flip assignment is worse than an admitted gap.
     """
-    raise NotImplementedError("cv.teams.assign_teams is implemented by plan 02.1-12")
+
+    tracks: pl.DataFrame
+    notices: list[str] = field(default_factory=list)
+
+
+def assign_teams(
+    tracks: pl.DataFrame, config: Config, *, crops_by_track: Mapping[tuple[int, int], Sequence]
+) -> TeamAssignmentResult:
+    """Fit ONE `TeamClassifier` for the whole session and add a `team_id` column to
+    `tracks`, one assignment per TRACK (never per frame -- a track's team assignment
+    does not flicker frame to frame).
+
+    `crops_by_track` is keyed by `(clip_number, track_id)`: `track_id` alone is only
+    unique *within* a clip (D-02, `cv.track.track_session`'s per-clip tracker
+    instances), so the composite key is what makes a track globally addressable across
+    the whole session.
+
+    Fitting once per session (not per clip) is required because `sklearn.KMeans`
+    cluster labels are arbitrary per fit -- a per-clip fit would produce team ids that
+    mean different things in different clips and would silently corrupt any later
+    possession or formation analysis. The fit sample is drawn evenly across every
+    non-referee track, capped at `_MAX_FIT_CROPS_PER_TRACK` crops per track so one long
+    track cannot dominate it, in a fixed (sorted-by-key) order so the fit is
+    deterministic regardless of `crops_by_track`'s own iteration order.
+
+    Every track's `team_id` is the majority cluster over that track's own predicted
+    crops. A track whose majority share is below `_MIN_MAJORITY_SHARE` gets `team_id`
+    null plus a notice naming its track id -- a coin-flip assignment is worse than an
+    admitted gap. `class_name == "referee"` rows always get `team_id` null and referee
+    crops never reach the fit or the per-track prediction -- officials belong to no
+    team and their crops would pull the clusters.
+
+    Cluster label 0/1 is arbitrary: which integer means which real-world team is read
+    off the radar reel by a human (plan 02.1-16), and nothing downstream may assume a
+    fixed mapping -- not even across two different `assign_teams` calls.
+    """
+    import polars as pl
+
+    from flag_football_ep.cv.schema import conform_tracking
+
+    track_class_by_key: dict[tuple[int, int], str] = {
+        (int(row["clip_number"]), int(row["track_id"])): row["class_name"]
+        for row in tracks.group_by(["clip_number", "track_id"])
+        .agg(pl.col("class_name").first())
+        .iter_rows(named=True)
+    }
+
+    def _is_referee(key: tuple[int, int]) -> bool:
+        return track_class_by_key.get(key) == "referee"
+
+    # Deterministic key order: the fit result must not depend on `crops_by_track`'s
+    # own iteration order.
+    sorted_keys = sorted(crops_by_track)
+    player_keys = [key for key in sorted_keys if key in track_class_by_key and not _is_referee(key)]
+
+    fit_crops: list = []
+    for key in player_keys:
+        crops = list(crops_by_track[key])[:_MAX_FIT_CROPS_PER_TRACK]
+        fit_crops.extend(crops)
+
+    classifier = TeamClassifier(device=config.cv.device)
+    classifier.fit(fit_crops)
+
+    notices: list[str] = []
+    team_id_by_key: dict[tuple[int, int], int | None] = {}
+
+    for key in player_keys:
+        clip_number, track_id = key
+        crops = list(crops_by_track[key])
+        if not crops:
+            team_id_by_key[key] = None
+            continue
+
+        predicted = classifier.predict(crops)
+        counts = Counter(int(label) for label in predicted)
+        majority_label, majority_count = counts.most_common(1)[0]
+        share = majority_count / len(predicted)
+
+        if share < _MIN_MAJORITY_SHARE:
+            notices.append(
+                f"track {track_id} (clip {clip_number}): majority team-cluster share "
+                f"{share:.2f} is below the {_MIN_MAJORITY_SHARE} threshold -- team_id "
+                "left null"
+            )
+            team_id_by_key[key] = None
+        else:
+            team_id_by_key[key] = majority_label
+
+    assignment_schema = {"clip_number": pl.Int32, "track_id": pl.Int32, "team_id": pl.Int32}
+    if team_id_by_key:
+        assignment_df = pl.DataFrame(
+            [
+                {"clip_number": clip_number, "track_id": track_id, "team_id": team_id}
+                for (clip_number, track_id), team_id in team_id_by_key.items()
+            ],
+            schema=assignment_schema,
+        )
+    else:
+        assignment_df = pl.DataFrame(schema=assignment_schema)
+
+    base = tracks.drop("team_id") if "team_id" in tracks.columns else tracks
+    base = base.with_columns(
+        [pl.col("clip_number").cast(pl.Int32), pl.col("track_id").cast(pl.Int32)]
+    )
+    joined = base.join(assignment_df, on=["clip_number", "track_id"], how="left")
+
+    # Belt and suspenders: even if `crops_by_track` somehow carried a referee key,
+    # every referee row's team_id is forced null here.
+    joined = joined.with_columns(
+        pl.when(pl.col("class_name") == "referee")
+        .then(pl.lit(None).cast(pl.Int32))
+        .otherwise(pl.col("team_id"))
+        .alias("team_id")
+    )
+
+    conformed = conform_tracking(joined)
+    return TeamAssignmentResult(tracks=conformed, notices=notices)
