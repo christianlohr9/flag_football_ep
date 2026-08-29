@@ -9,12 +9,34 @@ downloading model weights or real footage").
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
+import polars as pl
 import pytest
 
 pytest.importorskip("umap", reason="requires the cv extras group (uv sync --extra cv)")
 
-from flag_football_ep.cv.teams import ClassifierNotFitted, InsufficientCrops, TeamClassifier
+from flag_football_ep.cv import teams as teams_module
+from flag_football_ep.cv.schema import conform_tracking
+from flag_football_ep.cv.teams import (
+    ClassifierNotFitted,
+    InsufficientCrops,
+    TeamAssignmentResult,
+    TeamClassifier,
+    assign_teams,
+)
+from flag_football_ep.config import (
+    Config,
+    CvSettings,
+    IfafSource,
+    Paths,
+    ReferenceFiles,
+    ReportSettings,
+    Sources,
+    SportappSource,
+    TrainSettings,
+)
 
 
 def _identity_embedder(crops) -> np.ndarray:
@@ -145,3 +167,287 @@ def test_import_teams_module_pulls_in_neither_transformers_nor_torch() -> None:
     )
     assert result.returncode == 0, result.stderr
     assert "ok" in result.stdout
+
+
+# --- assign_teams coverage (plan 02.1-12 Task 2) ---------------------------------------------
+
+
+def _make_config() -> Config:
+    """A minimal but fully-populated Config -- `assign_teams` only reads `config.cv.device`."""
+    paths = Paths(
+        data_root=Path("data"),
+        raw_hudl=Path("data/raw/hudl"),
+        raw_sportapp=Path("data/raw/sportapp"),
+        raw_ifaf=Path("data/raw/ifaf"),
+        raw_legacy=Path("data/raw/legacy"),
+        processed=Path("data/processed"),
+        reference=Path("data/reference"),
+        models=Path("models"),
+        mlruns=Path("mlruns"),
+        contract=Path("docs/data-contract.schema.json"),
+        reports=Path("reports"),
+        video=Path("data/video"),
+        labels=Path("data/labels"),
+        tracking=Path("data/processed/tracking"),
+    )
+    reference = ReferenceFiles(
+        half_boundaries=Path("data/reference/half_boundaries.csv"),
+        final_scores=Path("data/reference/final_scores.csv"),
+        team_mapping=Path("data/reference/team_mapping.csv"),
+        sportapp_games=Path("data/reference/sportapp_games.csv"),
+        competition_tier=Path("data/reference/competition_tier.csv"),
+        player_mapping=Path("data/reference/player_mapping.csv"),
+        group_opponents=Path("data/reference/group_opponents.csv"),
+        hover_positions=Path("data/reference/hover_positions.csv"),
+        homography_calibration=Path("data/reference/homography_calibration.csv"),
+        gt_positions=Path("data/reference/gt_positions.csv"),
+        continuity_review=Path("data/reference/continuity_review.csv"),
+    )
+    sources = Sources(
+        sportapp=SportappSource(
+            base_url="https://example.invalid/api/v1/public", api_key_env="SPORTAPP_API_KEY"
+        ),
+        ifaf=IfafSource(
+            base_url="https://example.invalid/v1",
+            tournament="test-tournament",
+            api_key_env="CPX_API_KEY",
+        ),
+    )
+    train = TrainSettings(
+        ep_experiment="ep_model_test",
+        wp_experiment="wp_model_test",
+        exclude_games_ep=[],
+        exclude_games_wp=[],
+    )
+    report = ReportSettings(own_team="HOME", cycle_start_season=2026)
+    cv = CvSettings(
+        pilot_session_id="test-session",
+        detector_model="cv_detector_model_test",
+        detector_experiment="cv_detector_test",
+        resolution=224,
+        sahi=False,
+        sahi_slice=640,
+        sahi_overlap=0.2,
+        train_epochs=1,
+        train_batch_size=4,
+        train_grad_accum=4,
+        device="cpu",
+        label_frame_target=10,
+        cvat_host="http://localhost:8080",
+        cvat_username_env="CVAT_USERNAME",
+        cvat_password_env="CVAT_PASSWORD",
+        field_length_yards=50.0,
+        field_width_yards=25.0,
+        endzone_yards=10.0,
+    )
+    return Config(
+        paths=paths, reference=reference, sources=sources, train=train, report=report, cv=cv
+    )
+
+
+def _tracks_row(*, clip_number: int, track_id: int, class_name: str, frame_index: int) -> dict:
+    return {
+        "session_id": "test-session",
+        "clip_number": clip_number,
+        "frame_index": frame_index,
+        "timestamp_s": frame_index / 30.0,
+        "track_id": track_id,
+        "class_name": class_name,
+        "confidence": 0.9,
+        "bbox_x1": 0.0,
+        "bbox_y1": 0.0,
+        "bbox_x2": 10.0,
+        "bbox_y2": 10.0,
+        "foot_x_px": 5.0,
+        "foot_y_px": 10.0,
+        "detector_run_id": "0" * 32,
+        "tracked_at": "2026-08-29T00:00:00Z",
+    }
+
+
+def _make_tracks(spec: list[tuple[int, int, str]], n_frames: int = 2) -> pl.DataFrame:
+    """`spec` is a list of `(clip_number, track_id, class_name)`; each gets `n_frames` rows."""
+    rows = [
+        _tracks_row(clip_number=clip, track_id=track, class_name=class_name, frame_index=i)
+        for clip, track, class_name in spec
+        for i in range(n_frames)
+    ]
+    return pl.DataFrame(rows)
+
+
+def _blob(mean: float, n: int, *, dim: int = 6, seed: int) -> list[np.ndarray]:
+    rng = np.random.default_rng(seed)
+    return [rng.normal(loc=mean, scale=0.5, size=dim) for _ in range(n)]
+
+
+def _install_identity_classifier(monkeypatch: pytest.MonkeyPatch, seen_crops: list) -> None:
+    """Monkeypatch `teams.TeamClassifier` (the name `assign_teams` looks up at call
+    time) to a factory that ignores `device` and uses a spy identity embedder --
+    real UMAP/KMeans clustering, zero SigLIP/network.
+    """
+
+    def _spy_embedder(crops) -> np.ndarray:
+        seen_crops.extend(crops)
+        return _identity_embedder(crops)
+
+    def _factory(device: str = "cpu") -> TeamClassifier:
+        return TeamClassifier(embedder=_spy_embedder, seed=20260516)
+
+    monkeypatch.setattr(teams_module, "TeamClassifier", _factory)
+
+
+def _two_team_dataset() -> tuple[pl.DataFrame, dict[tuple[int, int], list[np.ndarray]]]:
+    spec = [
+        (1, 0, "referee"),
+        (1, 1, "player"),
+        (1, 2, "player"),
+        (2, 0, "referee"),
+        (2, 1, "player"),
+        (2, 2, "player"),
+    ]
+    tracks = _make_tracks(spec)
+    # Referee crops are wildly out of range: if they ever reached the fit they would
+    # visibly corrupt the two-blob clustering below.
+    crops_by_track = {
+        (1, 0): _blob(500.0, 6, seed=101),
+        (1, 1): _blob(0.0, 25, seed=1),
+        (1, 2): _blob(20.0, 25, seed=2),
+        (2, 0): _blob(500.0, 6, seed=102),
+        (2, 1): _blob(0.0, 25, seed=3),
+        (2, 2): _blob(20.0, 25, seed=4),
+    }
+    return tracks, crops_by_track
+
+
+def test_two_clearly_separated_groups_yield_two_team_ids_consistent_per_track(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tracks, crops_by_track = _two_team_dataset()
+
+    seen_crops: list = []
+    _install_identity_classifier(monkeypatch, seen_crops)
+
+    result = assign_teams(tracks, _make_config(), crops_by_track=crops_by_track)
+
+    assert isinstance(result, TeamAssignmentResult)
+    df = result.tracks
+
+    # Every row of a given track shares exactly one team_id.
+    for clip, track in ((1, 1), (1, 2), (2, 1), (2, 2)):
+        team_ids = set(
+            df.filter((pl.col("clip_number") == clip) & (pl.col("track_id") == track))[
+                "team_id"
+            ].to_list()
+        )
+        assert len(team_ids) == 1, (clip, track, team_ids)
+
+    # Exactly two distinct team ids across every player row.
+    player_team_ids = set(df.filter(pl.col("class_name") == "player")["team_id"].to_list())
+    assert len(player_team_ids) == 2
+
+
+def test_referee_rows_are_null_and_referee_crops_never_reach_the_fit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tracks, crops_by_track = _two_team_dataset()
+
+    seen_crops: list = []
+    _install_identity_classifier(monkeypatch, seen_crops)
+
+    result = assign_teams(tracks, _make_config(), crops_by_track=crops_by_track)
+
+    referee_team_ids = set(
+        result.tracks.filter(pl.col("class_name") == "referee")["team_id"].to_list()
+    )
+    assert referee_team_ids == {None}
+
+    # Referee crops never reached the embedder, in the fit call or any predict call.
+    referee_crop_values = {tuple(v) for v in crops_by_track[(1, 0)]} | {
+        tuple(v) for v in crops_by_track[(2, 0)]
+    }
+    seen_values = {tuple(v) for v in seen_crops}
+    assert not (referee_crop_values & seen_values)
+
+
+def test_ambiguous_track_gets_null_team_id_and_a_notice_naming_the_track_id(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    spec = [
+        (1, 1, "player"),
+        (1, 2, "player"),
+        (1, 3, "player"),
+    ]
+    tracks = _make_tracks(spec)
+
+    # Track 3's crops split exactly 50/50 between the two blobs the classifier learns
+    # from tracks 1/2 -- a coin flip, not a real signal.
+    crops_by_track = {
+        (1, 1): _blob(0.0, 25, seed=1),
+        (1, 2): _blob(20.0, 25, seed=2),
+        (1, 3): _blob(0.0, 5, seed=3) + _blob(20.0, 5, seed=4),
+    }
+
+    seen_crops: list = []
+    _install_identity_classifier(monkeypatch, seen_crops)
+
+    result = assign_teams(tracks, _make_config(), crops_by_track=crops_by_track)
+
+    ambiguous_team_ids = set(
+        result.tracks.filter(pl.col("track_id") == 3)["team_id"].to_list()
+    )
+    assert ambiguous_team_ids == {None}
+    assert any("3" in notice for notice in result.notices), result.notices
+
+
+def test_session_wide_fit_is_independent_of_crops_by_track_iteration_order(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    spec = [
+        (1, 1, "player"),
+        (1, 2, "player"),
+        (2, 1, "player"),
+        (2, 2, "player"),
+    ]
+    tracks = _make_tracks(spec)
+    crops_by_track = {
+        (1, 1): _blob(0.0, 25, seed=1),
+        (1, 2): _blob(20.0, 25, seed=2),
+        (2, 1): _blob(0.0, 25, seed=3),
+        (2, 2): _blob(20.0, 25, seed=4),
+    }
+    reversed_crops_by_track = dict(reversed(list(crops_by_track.items())))
+
+    seen_a: list = []
+    _install_identity_classifier(monkeypatch, seen_a)
+    result_a = assign_teams(tracks, _make_config(), crops_by_track=crops_by_track)
+
+    seen_b: list = []
+    _install_identity_classifier(monkeypatch, seen_b)
+    result_b = assign_teams(tracks, _make_config(), crops_by_track=reversed_crops_by_track)
+
+    sort_cols = ["clip_number", "track_id", "frame_index"]
+    left = result_a.tracks.sort(sort_cols)
+    right = result_b.tracks.sort(sort_cols)
+    assert left["team_id"].to_list() == right["team_id"].to_list()
+
+
+def test_assign_teams_output_passes_conform_tracking(monkeypatch: pytest.MonkeyPatch) -> None:
+    spec = [
+        (1, 0, "referee"),
+        (1, 1, "player"),
+        (1, 2, "player"),
+    ]
+    tracks = _make_tracks(spec)
+    crops_by_track = {
+        (1, 0): _blob(500.0, 6, seed=201),
+        (1, 1): _blob(0.0, 25, seed=1),
+        (1, 2): _blob(20.0, 25, seed=2),
+    }
+
+    seen_crops: list = []
+    _install_identity_classifier(monkeypatch, seen_crops)
+
+    result = assign_teams(tracks, _make_config(), crops_by_track=crops_by_track)
+
+    reconformed = conform_tracking(result.tracks)
+    assert reconformed.height == result.tracks.height
