@@ -5,8 +5,8 @@ clip_number,n_tracks,longest_track_frac,n_fragments,auto_flag,verdict,id_switche
 4,27,1.0,10,ok,pass,,
 5,28,1.0,9,ok,fail,1,blau8 und rot5 switchen nach kurzer Ueberlagerung
 6,27,1.0,7,ok,pass,,
-7,39,1.0,21,fragmented,fail,4,blau6/blau9 kurz aus dem Bild -> neue Nummern, rote analog
-8,43,1.0,18,ok,fail,2,rot6 nach Ueberlagerungen am Ende zu blau3, blau3 verliert Box
+7,39,1.0,21,fragmented,fail,4,"blau6/blau9 kurz aus dem Bild -> neue Nummern, rote analog"
+8,43,1.0,18,ok,fail,2,"rot6 nach Ueberlagerungen am Ende zu blau3, blau3 verliert Box"
 9,29,1.0,6,ok,fail,1,Switch bei Ueberlagerung
 10,24,1.0,4,ok,fail,1,QB-Track springt auf gegnerischen Blitz ueber
 11,18,1.0,2,ok,pass,,
