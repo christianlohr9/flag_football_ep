@@ -302,7 +302,7 @@ Plans:
 
 **Wave 12** *(blocked on 02.1-15; appends to `docs/pilot-accuracy.md`, which 02.1-15 creates)*
 
-- [ ] 02.1-16-PLAN.md — Top-down radar rendering and the side-by-side showcase reel
+- [x] 02.1-16-PLAN.md — Top-down radar rendering and the side-by-side showcase reel
 
 **Wave 13** *(blocked on Wave 12)*
 
