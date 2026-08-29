@@ -58,10 +58,13 @@ from __future__ import annotations
 
 import json
 import shutil
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+import numpy as np
 
 from flag_football_ep.cv import CvError
 from flag_football_ep.cv.dataset import CLASS_NAMES
@@ -69,9 +72,10 @@ from flag_football_ep.cv.dataset import CLASS_NAMES
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    import numpy as np
+    import supervision as sv
 
     from flag_football_ep.config import Config
+    from flag_football_ep.cv.benchmark import StageTiming
     from flag_football_ep.cv.frames import FrameSampleManifest
 
 
@@ -89,6 +93,14 @@ class InvalidResolution(CvError, ValueError):
     """Raised when a requested training resolution is not a multiple of
     `_RESOLUTION_DIVISOR` (224 -- the lcm of RF-DETR-Small's documented 32/56
     divisibility rules, so any multiple satisfies both). Names the offending value.
+    """
+
+
+class InvalidDetectionClass(CvError, ValueError):
+    """Raised when the detector emits a class id outside `dataset.CLASS_NAMES`'
+    fixed two-class vocabulary. Names the offending id and the frame it came from --
+    a silent out-of-vocabulary id would corrupt every downstream track/team/coordinate
+    stage that assumes `class_id` always indexes `CLASS_NAMES`.
     """
 
 
@@ -131,6 +143,21 @@ _CHECKPOINT_FILENAME = "checkpoint_best_total.pth"
 _METRICS_FILENAME = "metrics.json"
 _PARAMS_FILENAME = "params.json"
 _DATASET_LAYOUT_DIRNAME = "dataset"
+
+# RFDETRSmall.predict(threshold=0.5, ...)'s own documented default (rfdetr==1.9.3,
+# verified via inspect.signature) -- detect_video filters to this floor explicitly
+# rather than trusting every caller of the model to pass no override, so the floor is
+# visible in this module rather than implicit in a library default nobody reads.
+_MODEL_CONFIDENCE_THRESHOLD = 0.5
+
+# IoU threshold `detect_video`'s SAHI path uses to de-duplicate the same real-world box
+# detected in two overlapping tiles after each tile's boxes are shifted back into
+# full-frame coordinates. Not RF-DETR/SAHI tuned (RESEARCH.md Pitfall 4's open tuning
+# gap) -- this is cross-tile de-duplication, a separate, uncontroversial step from
+# per-tile detection quality.
+_SAHI_MERGE_IOU_THRESHOLD = 0.5
+
+_TIMING_STAGES: tuple[str, ...] = ("decode", "detect", "postprocess")
 
 
 def _resolve_manifest_path(config: Config) -> Path:
@@ -512,8 +539,258 @@ def _register_from_artifacts(artifacts_dir: Path, config: Config) -> DetectorTra
 def load_detector(config: Config, run_id: str | None = None):
     """Load a trained RF-DETR checkpoint. `run_id=None` resolves the `champion` alias
     (`cv.registry.resolve_champion`) instead of the newest FINISHED run.
+
+    Accepts no filesystem path argument at all -- a weights path is not a supported
+    input (T-2.1-15): every caller either names an existing MLflow run id or accepts
+    the `champion` alias, never an arbitrary path this process would deserialize.
+    Loads via `mlflow.pyfunc.load_model(f"runs:/{run_id}/model")` (the same
+    `runs:/<id>/model` uri shape `model.score.load_model` uses for EP/WP), after
+    `mlflow_store.configure(config)` -- never against an ambient tracking uri set
+    elsewhere in the process (mirrors `cv.registry`'s own rule, RESEARCH.md Pitfall 5).
+    Any resolution/load failure (an unregistered run, a corrupt/missing artifact) is
+    wrapped in `WeightsNotFound` naming the run id and the tracking store uri, never
+    left as a bare `MlflowException` for the CLI to print unexplained.
     """
-    raise NotImplementedError("cv.detect.load_detector is implemented by plan 02.1-11")
+    from mlflow.exceptions import MlflowException
+
+    import mlflow.pyfunc
+
+    from flag_football_ep.cv import registry
+    from flag_football_ep.model import mlflow_store
+
+    resolved_run_id = (
+        run_id
+        if run_id is not None
+        else registry.resolve_champion(registry.detector_model_name(config), config)
+    )
+
+    mlflow_store.configure(config)
+    try:
+        return mlflow.pyfunc.load_model(f"runs:/{resolved_run_id}/model")
+    except MlflowException as exc:
+        raise WeightsNotFound(
+            f"could not load detector weights for run {resolved_run_id!r} from "
+            f"tracking store {mlflow_store.tracking_uri(config)!r}: {exc}"
+        ) from exc
+
+
+def _call_model(model, image: np.ndarray, *, resolution: int) -> sv.Detections:
+    """Run `model.predict` on one image, requesting `resolution` via the pyfunc
+    `params` channel (`RFDETRWrapper.predict` forwards `params` straight into the
+    wrapped `RFDETRSmall.predict(**params)` call, so `params={"shape": (r, r)}`
+    reaches `RFDETRSmall.predict(shape=(r, r))` unchanged when `params` survives to the
+    wrapper). A fake test model with a `predict(image, params=None)` method satisfies
+    the same contract with no MLflow or `rfdetr` involved.
+
+    Verified against a real champion-loaded model (`ffep.toml`'s `cv_detector_model`,
+    run `87a8a5222f7a472787875e974d089c44`): MLflow's outer `PyFuncModel.predict`
+    silently drops `params` before they ever reach `RFDETRWrapper.predict` when the
+    registered model carries no `ModelSignature` `params_schema` (a warning is logged,
+    not an error) -- `register_detector_model` (`cv/registry.py`, plan 02.1-06) does not
+    declare one. In that case the loaded model falls back to `RFDETRSmall.predict`'s own
+    `shape=None -> (model.resolution, model.resolution)` default, which is the
+    resolution the checkpoint was trained/loaded at -- for the current champion that is
+    896, matching `ffep.toml`'s `[cv] resolution`, so this does not silently mis-run
+    inference today. Declaring a `params_schema` at registration time (so `resolution`
+    is enforceable per call, independent of what a checkpoint happened to train at) is
+    a registration-time change to `cv/registry.py` outside this plan's scope, not a
+    `detect_video` bug -- tracked as a follow-up, not fixed here.
+
+    Strips `.metadata`/`.data` off the returned `Detections` before handing it back:
+    RF-DETR's real `predict(..., include_source_image=True)` (the pyfunc wrapper's
+    default) attaches the *entire input crop* under `metadata["source_image"]` plus a
+    `data["source_shape"]` entry, verified against the real champion model -- every
+    tile in `_detect_tiled` has a different source image/shape, and
+    `sv.Detections.merge` raises `ValueError: Conflicting metadata for key:
+    'source_image'` the moment two tiles' detections are merged (found running Task 3's
+    real three-clip SAHI throughput sample). Neither field is used anywhere downstream
+    of this module (`DetectionBatch` only carries `xyxy`/`confidence`/`class_id`), so
+    dropping both is also a memory-hygiene win for the full-frame path, not just a
+    SAHI-path bug fix.
+    """
+    detections = model.predict(image, params={"shape": (resolution, resolution)})
+    detections.metadata = {}
+    detections.data = {}
+    return detections
+
+
+def _confidence_filtered(detections: sv.Detections) -> sv.Detections:
+    """Drop every detection below `_MODEL_CONFIDENCE_THRESHOLD` -- RF-DETR's own
+    documented default, applied explicitly here rather than only trusted to already
+    hold inside whatever produced `detections`.
+    """
+    return detections[detections.confidence >= _MODEL_CONFIDENCE_THRESHOLD]
+
+
+def _empty_detections() -> sv.Detections:
+    import supervision as sv
+
+    return sv.Detections(
+        xyxy=np.zeros((0, 4), dtype=np.float64),
+        confidence=np.zeros((0,), dtype=np.float64),
+        class_id=np.zeros((0,), dtype=np.int64),
+    )
+
+
+def _detect_full_frame(model, frame_rgb: np.ndarray, *, resolution: int) -> sv.Detections:
+    """Full-frame inference path (`sahi=False`): one model call over the whole frame at
+    `resolution`, confidence-floored.
+    """
+    detections = _call_model(model, frame_rgb, resolution=resolution)
+    return _confidence_filtered(detections)
+
+
+def _detect_tiled(
+    config: Config, model, frame_rgb: np.ndarray, *, resolution: int
+) -> sv.Detections:
+    """SAHI tiled-slicing inference path (`sahi=True`, C-05): slice `frame_rgb` per
+    `config.cv.sahi_slice`/`sahi_overlap` (RESEARCH.md Standard Stack -- `sahi` is
+    model-agnostic via `supervision` loaders), run the model once per tile, shift each
+    tile's boxes back into full-frame pixel coordinates by its slice offset, merge every
+    tile's (confidence-floored) detections, and de-duplicate cross-tile double-counts of
+    the same real-world box with `with_nms` (`_SAHI_MERGE_IOU_THRESHOLD`). Starts from
+    `sahi`'s own documented slicing defaults (RESEARCH.md Pitfall 4's open RF-DETR
+    tuning gap at high tile resolution is a measured, not assumed, follow-up -- Task 3
+    is where that measurement happens).
+    """
+    import supervision as sv
+    from sahi.slicing import slice_image
+
+    slice_result = slice_image(
+        frame_rgb,
+        slice_height=config.cv.sahi_slice,
+        slice_width=config.cv.sahi_slice,
+        overlap_height_ratio=config.cv.sahi_overlap,
+        overlap_width_ratio=config.cv.sahi_overlap,
+    )
+
+    tile_detections: list[sv.Detections] = []
+    for tile_image, (offset_x, offset_y) in zip(
+        slice_result.images, slice_result.starting_pixels
+    ):
+        detections = _confidence_filtered(
+            _call_model(model, tile_image, resolution=resolution)
+        )
+        if len(detections) == 0:
+            continue
+        offset = np.array([offset_x, offset_y, offset_x, offset_y], dtype=np.float64)
+        detections.xyxy = detections.xyxy.astype(np.float64) + offset
+        tile_detections.append(detections)
+
+    if not tile_detections:
+        return _empty_detections()
+
+    merged = sv.Detections.merge(tile_detections)
+    return merged.with_nms(threshold=_SAHI_MERGE_IOU_THRESHOLD, class_agnostic=False)
+
+
+def _to_detection_batch(frame_index: int, detections: sv.Detections) -> DetectionBatch:
+    """Build one frame's `DetectionBatch`, validating every `class_id` indexes
+    `dataset.CLASS_NAMES` -- an out-of-vocabulary id raises `InvalidDetectionClass`
+    naming the id and the frame rather than silently corrupting downstream stages that
+    assume `class_id` always maps to a `CLASS_NAMES` entry.
+    """
+    for class_id in detections.class_id:
+        if not (0 <= int(class_id) < len(CLASS_NAMES)):
+            raise InvalidDetectionClass(
+                f"detector emitted class id {int(class_id)} outside the "
+                f"{len(CLASS_NAMES)}-class vocabulary {list(CLASS_NAMES)} at frame "
+                f"{frame_index}"
+            )
+    return DetectionBatch(
+        frame_index=frame_index,
+        xyxy=detections.xyxy,
+        confidence=detections.confidence,
+        class_id=detections.class_id,
+    )
+
+
+def _iter_detection_batches(
+    config: Config,
+    capture,
+    model,
+    *,
+    resolution: int,
+    sahi: bool,
+    stage_totals: dict[str, dict[str, float]],
+) -> Iterator[DetectionBatch]:
+    """Decode `capture` frame by frame, run detection (full-frame or SAHI-tiled) on
+    each, and yield one `DetectionBatch` per frame -- including frames with zero
+    detections, never a skipped frame (D-09: the whole game is the denominator).
+    Stops cleanly at end-of-stream (`capture.read()` returning `ok=False`) rather than
+    retrying a failed read, and always releases `capture` on exit (including on an
+    exception raised mid-stream, e.g. `InvalidDetectionClass`).
+    """
+    import cv2
+
+    frame_index = 0
+    try:
+        while True:
+            decode_start = time.perf_counter()
+            ok, frame_bgr = capture.read()
+            decode_elapsed = time.perf_counter() - decode_start
+            if not ok:
+                break
+            stage_totals["decode"]["seconds"] += decode_elapsed
+            stage_totals["decode"]["frames"] += 1
+
+            frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
+
+            detect_start = time.perf_counter()
+            if sahi:
+                detections = _detect_tiled(config, model, frame_rgb, resolution=resolution)
+            else:
+                detections = _detect_full_frame(model, frame_rgb, resolution=resolution)
+            detect_elapsed = time.perf_counter() - detect_start
+            stage_totals["detect"]["seconds"] += detect_elapsed
+            stage_totals["detect"]["frames"] += 1
+
+            postprocess_start = time.perf_counter()
+            batch = _to_detection_batch(frame_index, detections)
+            postprocess_elapsed = time.perf_counter() - postprocess_start
+            stage_totals["postprocess"]["seconds"] += postprocess_elapsed
+            stage_totals["postprocess"]["frames"] += 1
+
+            yield batch
+            frame_index += 1
+    finally:
+        capture.release()
+
+
+class DetectionRun:
+    """An `Iterator[DetectionBatch]` returned by `detect_video`: iterating it decodes
+    and detects one frame at a time (lazy, never loads a whole clip into memory), and
+    `.timings()` -- read any time, most usefully after the iterator is exhausted --
+    returns the `StageTiming` entries (`decode`/`detect`/`postprocess`) accumulated so
+    far, so the C-09 inference-time gate criterion comes from instrumented code, not an
+    estimate.
+    """
+
+    def __init__(
+        self,
+        frames: Iterator[DetectionBatch],
+        stage_totals: dict[str, dict[str, float]],
+    ) -> None:
+        self._frames = frames
+        self._stage_totals = stage_totals
+
+    def __iter__(self) -> "DetectionRun":
+        return self
+
+    def __next__(self) -> DetectionBatch:
+        return next(self._frames)
+
+    def timings(self) -> tuple[StageTiming, ...]:
+        from flag_football_ep.cv.benchmark import StageTiming
+
+        return tuple(
+            StageTiming(
+                stage=stage,
+                seconds=self._stage_totals[stage]["seconds"],
+                frames=int(self._stage_totals[stage]["frames"]),
+            )
+            for stage in _TIMING_STAGES
+        )
 
 
 def detect_video(
@@ -522,5 +799,25 @@ def detect_video(
     """Run per-frame detection over `clip` with a loaded detector, yielding one
     `DetectionBatch` per frame (empty, not skipped, when nothing is detected).
     `sahi=True` runs tiled-slicing inference for small/oblique domains (C-05).
+
+    Opens `clip` with `cv2.VideoCapture` immediately (not lazily on first iteration) so
+    an unopenable clip raises `MissingClipError` naming the path as soon as
+    `detect_video` is called, rather than on the caller's first `next()`. The returned
+    `DetectionRun` accumulates per-stage timing (`decode`, `detect`, `postprocess`) as
+    it is iterated, readable via `.timings()`.
     """
-    raise NotImplementedError("cv.detect.detect_video is implemented by plan 02.1-11")
+    import cv2
+
+    clip = Path(clip)
+    capture = cv2.VideoCapture(str(clip))
+    if not capture.isOpened():
+        capture.release()
+        raise MissingClipError(f"could not open clip for decoding: {clip}")
+
+    stage_totals: dict[str, dict[str, float]] = {
+        stage: {"seconds": 0.0, "frames": 0} for stage in _TIMING_STAGES
+    }
+    frames = _iter_detection_batches(
+        config, capture, model, resolution=resolution, sahi=sahi, stage_totals=stage_totals
+    )
+    return DetectionRun(frames, stage_totals)
