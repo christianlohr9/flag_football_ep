@@ -298,7 +298,7 @@ Plans:
 
 **Wave 11** *(blocked on Wave 10)*
 
-- [ ] 02.1-15-PLAN.md — Ground-truth foot-position labelling and the measured position-error distribution
+- [x] 02.1-15-PLAN.md — Ground-truth foot-position labelling and the measured position-error distribution
 
 **Wave 12** *(blocked on 02.1-15; appends to `docs/pilot-accuracy.md`, which 02.1-15 creates)*
 
