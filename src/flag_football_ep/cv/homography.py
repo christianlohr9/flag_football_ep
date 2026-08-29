@@ -95,14 +95,10 @@ FIELD_LANDMARKS: tuple[str, ...] = (
     "endzone_west_back_north",
     "endzone_east_back_south",
     "endzone_east_back_north",
-    "yardline_10_south",
-    "yardline_10_north",
-    "yardline_20_south",
-    "yardline_20_north",
-    "yardline_30_south",
-    "yardline_30_north",
-    "yardline_40_south",
-    "yardline_40_north",
+    "yardline_5_south",
+    "yardline_5_north",
+    "yardline_45_south",
+    "yardline_45_north",
     "midfield_south",
     "midfield_north",
 )
@@ -142,14 +138,14 @@ def field_landmarks(config: Config) -> dict[str, tuple[float, float]]:
         "endzone_west_back_north": (-endzone, width),
         "endzone_east_back_south": (length + endzone, 0.0),
         "endzone_east_back_north": (length + endzone, width),
-        "yardline_10_south": (10.0, 0.0),
-        "yardline_10_north": (10.0, width),
-        "yardline_20_south": (20.0, 0.0),
-        "yardline_20_north": (20.0, width),
-        "yardline_30_south": (30.0, 0.0),
-        "yardline_30_north": (30.0, width),
-        "yardline_40_south": (40.0, 0.0),
-        "yardline_40_north": (40.0, width),
+        # The pilot field carries only the IFAF no-run-zone lines 5 yards off each
+        # goal line -- intermediate 10/20/30/40 yardlines are NOT painted on this
+        # field and were dropped from the vocabulary so nobody is tempted to guess
+        # invisible lines during calibration.
+        "yardline_5_south": (5.0, 0.0),
+        "yardline_5_north": (5.0, width),
+        "yardline_45_south": (length - 5.0, 0.0),
+        "yardline_45_north": (length - 5.0, width),
         "midfield_south": (midfield_x, 0.0),
         "midfield_north": (midfield_x, width),
     }
