@@ -289,7 +289,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8)*
 
-- [ ] 02.1-12-PLAN.md — OC-SORT tracking over all 61 clips with containment notices, session-wide team assignment
+- [x] 02.1-12-PLAN.md — OC-SORT tracking over all 61 clips with containment notices, session-wide team assignment
 
 **Wave 10** *(blocked on Wave 9; two parallel plans)*
 
