@@ -2,9 +2,11 @@
 
 `boxmot` (the tracker named in the source plan docs and research notes) is
 AGPL-3.0-licensed as of 2026-08-24 and violates the project's no-AGPL policy
-(C-06). `trackers` (roboflow, Apache-2.0) is the OC-SORT implementation this
-phase uses instead — see `.planning/phases/02.1-cv-tracking-pilot-go-no-go-gate/
-02.1-RESEARCH.md` §Common Pitfalls (Pitfall 2).
+(C-06). `trackers` (roboflow, Apache-2.0) is the tracker implementation this
+phase uses instead (OC-SORT through plan 02.1-12; BoT-SORT from the 02.1-12/
+02.1-14 gap-fix iteration onward, same package) — see
+`.planning/phases/02.1-cv-tracking-pilot-go-no-go-gate/02.1-RESEARCH.md` §Common
+Pitfalls (Pitfall 2).
 """
 
 from __future__ import annotations
@@ -40,6 +42,6 @@ def test_cv_group_exists_and_lists_trackers() -> None:
     cv_group = data["project"]["optional-dependencies"]["cv"]
     assert any("trackers" in entry for entry in cv_group), (
         "the `cv` optional-dependencies group must list `trackers` "
-        "(roboflow, Apache-2.0) — the OC-SORT implementation this phase uses; "
+        "(roboflow, Apache-2.0) — the tracker implementation this phase uses; "
         "`boxmot` is forbidden (AGPL-3.0, C-06)"
     )

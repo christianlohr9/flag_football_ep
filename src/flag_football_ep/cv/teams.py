@@ -23,7 +23,21 @@ column on the tracks frame -- it fits one `TeamClassifier` per session and assig
 track's predicted cluster, never per-frame (a track's team assignment does not flicker
 frame to frame).
 
-Implemented by plan 02.1-06 (together with `cv.registry`).
+`extract_track_crops` builds `assign_teams`'s `crops_by_track` input from a tracks
+frame and the session's clips: torso-region crops (upper half of the box's height,
+inner 60% of its width) by default, not the full detection box. Added in the
+02.1-12/02.1-14 gap-fix iteration after an 11-clip experiment (5 human-reviewed + 6
+statistically worst clips of the 61-clip pilot) found the full-body-crop fit conflated
+jersey colour with background/field colour bleeding in at the box edges and legs --
+torso-only crops fixed all 8 of the human's team-assignment corrections with under 10%
+churn among the other, already-correct tracks (the stability bound the gap-fix
+iteration's decision rule required), where full-body crops (the plan 02.1-12 baseline)
+missed most of them. See the experiment report for the full comparison, including the
+colour-histogram alternative that was tried and rejected (worse on both fixed-count
+and stability).
+
+Implemented by plan 02.1-06 (together with `cv.registry`); `extract_track_crops` added
+in the 02.1-12/02.1-14 gap-fix iteration.
 """
 
 from __future__ import annotations
@@ -65,12 +79,27 @@ _MAX_FIT_CROPS_PER_TRACK = 20
 # guessing (Task 2 action text).
 _MIN_MAJORITY_SHARE = 0.6
 
+# `extract_track_crops`'s default per-track sample size -- validated by the
+# 02.1-12/02.1-14 gap-fix iteration's Experiment 2 (fixed 8/8 human team-assignment
+# corrections with 8.74% churn among the rest, at this exact sample size). A module
+# constant, mirroring `_MAX_FIT_CROPS_PER_TRACK`'s own convention, but still overridable
+# per call since `extract_track_crops` is not a fixed-signature contract function.
+_DEFAULT_CROPS_PER_TRACK = 6
+
+# Torso-region crop geometry (gap-fix iteration finding): the inner 60% of the box's
+# width, upper 50% of its height -- excludes the legs (where grass/field colour bleeds
+# in at the box edges during a stride) and the very top/side edges (background bleed
+# from imperfect detector boxes), keeping only jersey-coloured pixels.
+_TORSO_WIDTH_FRACTION = 0.6
+_TORSO_HEIGHT_FRACTION = 0.5
+
 __all__ = [
     "ClassifierNotFitted",
     "InsufficientCrops",
     "TeamAssignmentResult",
     "TeamClassifier",
     "assign_teams",
+    "extract_track_crops",
 ]
 
 
@@ -326,3 +355,123 @@ def assign_teams(
 
     conformed = conform_tracking(joined)
     return TeamAssignmentResult(tracks=conformed, notices=notices)
+
+
+def _sample_frame_indices(n_rows: int, max_crops: int) -> list[int]:
+    """Up to `max_crops` row-positions (0-indexed into a frame-sorted group), spread
+    evenly across `n_rows` -- the first and last available frame always included when
+    `n_rows > 1`, so the sample spans the whole track's lifetime rather than clustering
+    near one moment of the play.
+    """
+    if n_rows <= max_crops:
+        return list(range(n_rows))
+    if max_crops <= 1:
+        return [0]
+    step = (n_rows - 1) / (max_crops - 1)
+    return sorted({round(i * step) for i in range(max_crops)})
+
+
+def _crop_row(frame_rgb: np.ndarray, row: Mapping, *, torso: bool) -> np.ndarray | None:
+    """Crop `row`'s bounding box out of `frame_rgb`, restricted to the torso region
+    (`_TORSO_WIDTH_FRACTION`/`_TORSO_HEIGHT_FRACTION`) when `torso=True`, else the full
+    box. Returns `None` for a box that clips to nothing after rounding/clamping to the
+    frame bounds (a box already at the frame edge) -- the caller drops it rather than
+    appending an empty array to a track's crop list.
+    """
+    x1, y1, x2, y2 = row["bbox_x1"], row["bbox_y1"], row["bbox_x2"], row["bbox_y2"]
+    if torso:
+        w = x2 - x1
+        h = y2 - y1
+        margin = (1.0 - _TORSO_WIDTH_FRACTION) / 2.0
+        x1, x2 = x1 + margin * w, x2 - margin * w
+        y2 = y1 + _TORSO_HEIGHT_FRACTION * h
+
+    height, width = frame_rgb.shape[:2]
+    ix1 = max(int(round(x1)), 0)
+    iy1 = max(int(round(y1)), 0)
+    ix2 = min(int(round(x2)), width)
+    iy2 = min(int(round(y2)), height)
+    if ix2 <= ix1 or iy2 <= iy1:
+        return None
+    return frame_rgb[iy1:iy2, ix1:ix2].copy()
+
+
+def extract_track_crops(
+    config: Config,
+    session_id: str,
+    tracks: pl.DataFrame,
+    *,
+    max_crops_per_track: int = _DEFAULT_CROPS_PER_TRACK,
+    torso: bool = True,
+) -> dict[tuple[int, int], list[np.ndarray]]:
+    """Build `assign_teams`'s `crops_by_track` input: for every `(clip_number,
+    track_id)` present in `tracks`, decode that clip once and pull up to
+    `max_crops_per_track` crops spread evenly across the track's own lifetime
+    (`_sample_frame_indices`).
+
+    `torso=True` (the default, gap-fix iteration finding) crops the inner
+    `_TORSO_WIDTH_FRACTION` of the box's width and the upper `_TORSO_HEIGHT_FRACTION`
+    of its height, instead of the full detection box -- see the module docstring for
+    why. Every row's class (`player` or `referee`) is included; `assign_teams` itself
+    is what excludes referees from the fit and from prediction, not this function --
+    `extract_track_crops` only answers "what does this track look like," not "should
+    this track's crops influence team assignment."
+
+    Raises `MissingClipError` (from `cv.detect`, naming the path) when a clip referenced
+    by `tracks` cannot be opened for decoding -- a silently empty crop list for a track
+    would look like an ambiguous-team notice downstream, not a missing-file bug.
+    """
+    import cv2
+    import numpy as np
+    import polars as pl
+
+    from flag_football_ep.cv import frames
+    from flag_football_ep.cv.detect import MissingClipError
+
+    clip_paths = {
+        frames.clip_number(path): path for path in frames.clip_paths(config, session_id)
+    }
+    crops_by_track: dict[tuple[int, int], list[np.ndarray]] = {}
+
+    clip_numbers = sorted(tracks["clip_number"].unique().to_list())
+    for clip_number in clip_numbers:
+        clip_rows = tracks.filter(pl.col("clip_number") == clip_number)
+        if clip_rows.height == 0:
+            continue
+        clip_path = clip_paths.get(int(clip_number))
+        if clip_path is None:
+            continue  # clip not registered for this session -- nothing to decode
+
+        frame_to_rows: dict[int, list[Mapping]] = {}
+        for (track_id,), group in clip_rows.group_by(["track_id"]):
+            ordered = group.sort("frame_index")
+            for i in _sample_frame_indices(ordered.height, max_crops_per_track):
+                row = ordered.row(i, named=True)
+                frame_to_rows.setdefault(int(row["frame_index"]), []).append(row)
+        if not frame_to_rows:
+            continue
+
+        capture = cv2.VideoCapture(str(clip_path))
+        if not capture.isOpened():
+            capture.release()
+            raise MissingClipError(f"could not open clip for crop extraction: {clip_path}")
+
+        remaining = dict(frame_to_rows)
+        frame_index = 0
+        try:
+            while remaining:
+                read_ok, frame_bgr = capture.read()
+                if not read_ok:
+                    break
+                if frame_index in remaining:
+                    frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
+                    for row in remaining.pop(frame_index):
+                        crop = _crop_row(frame_rgb, row, torso=torso)
+                        if crop is not None:
+                            key = (int(clip_number), int(row["track_id"]))
+                            crops_by_track.setdefault(key, []).append(crop)
+                frame_index += 1
+        finally:
+            capture.release()
+
+    return crops_by_track

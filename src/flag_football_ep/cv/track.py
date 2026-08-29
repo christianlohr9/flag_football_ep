@@ -1,7 +1,7 @@
 """Per-session tracking: detect + associate every clip into player tracks.
 
 Owns the streaming, per-clip loop analogous to `pipeline.run_ingest`'s per-source
-orchestration: `track_session` runs `detect.detect_video` + OC-SORT association
+orchestration: `track_session` runs `detect.detect_video` + BoT-SORT association
 (`trackers`, Apache-2.0 -- the only tracking library this stack links; see C-06 in
 PROJECT.md for the license policy an AGPL-licensed alternative would violate) over
 every clip registered for `session_id`, one clip at a time, inside a per-clip
@@ -10,6 +10,22 @@ try/except so a single corrupt or zero-detection clip never aborts the whole ses
 is what makes the D-09 "whole game is the denominator" gate measurement possible
 without one bad clip blocking the run. Anomalies are collected as `notices`, not
 raised, exactly like `pipeline.run_ingest`'s `notices: list[str]` convention.
+
+Tracker choice (gap-fix iteration, post plan 02.1-12): switched from OC-SORT to
+`trackers.BoTSORTTracker` with a tuned `lost_track_buffer`/association-threshold/
+confirmation-window, after an 11-clip experiment (5 human-reviewed + 6
+statistically worst clips of the 61-clip pilot) measured a 50.5% reduction in
+fragmented-or-late-starting player tracks against the OC-SORT baseline. BoT-SORT
+ships camera-motion compensation (CMC, `enable_cmc=True` by default) -- the direct
+antidote to the ID-reassignment cascades a camera pan triggers (every track's
+predicted position jumps with the pan unless the tracker corrects for the camera's
+own motion first). CMC needs the actual decoded frame, not just detections, so this
+module now decodes each clip a second time in lockstep with `detect.detect_video`'s
+own internal decode (accepted as the cost of CMC -- decode is a small fraction of
+total per-clip time next to `detect`, see the C-09 stage-timing breakdown in
+`docs/cv-setup.md`). A frame read that comes up short (decode desync) degrades
+gracefully: `frame=None` for that update() call, and BoT-SORT silently skips CMC for
+that one step rather than raising.
 
 Resolves its detector exactly like `cv.detect.load_detector`: `run_id=None` goes
 through `cv.registry.resolve_champion`, never "the newest FINISHED run." The single
@@ -21,7 +37,9 @@ Writes `data/processed/tracking/*.parquet` with the same atomic-write discipline
 (`.tmp` sibling + `os.replace`) `pipeline._atomic_write_parquet` already uses for
 `plays.parquet` (D-14).
 
-Implemented by plan 02.1-12 (together with `teams.assign_teams`).
+Implemented by plan 02.1-12 (together with `teams.assign_teams`); tracker swapped to
+BoT-SORT in the 02.1-12/02.1-14 gap-fix iteration ordered after the human continuity
+review found systematic ID-fragmentation and camera-pan cascades.
 """
 
 from __future__ import annotations
@@ -39,7 +57,7 @@ if TYPE_CHECKING:
 
 # Per-stage timing buckets accumulated across the whole session -- the shape
 # `cv.benchmark.extrapolate_game_runtime` consumes (decode/detect are read straight off
-# `detect.DetectionRun.timings()`; `track` covers both the OC-SORT `update()` call and
+# `detect.DetectionRun.timings()`; `track` covers both the BoT-SORT `update()` call and
 # `detect_video`'s own "postprocess" stage, since both turn raw model/tracker output
 # into structured rows; `write` covers the final atomic Parquet write).
 _STAGE_NAMES: tuple[str, ...] = ("decode", "detect", "track", "write")
@@ -49,11 +67,26 @@ _STAGE_NAMES: tuple[str, ...] = ("decode", "detect", "track", "write")
 # whole-game denominator needs to know about a silently short clip, not just a crash.
 _FRAME_COUNT_TOLERANCE = 2
 
-# `trackers.OCSORTTracker.update` returns `tracker_id == -1` for a detection that has
-# not yet been confirmed over `minimum_consecutive_frames` -- a provisional track, not
-# a real one. Verified against the installed `trackers==2.6.0`: a fresh detection's
-# first `update()` call always returns -1; the same track_id is assigned once confirmed.
+# `trackers.BoTSORTTracker.update` returns `tracker_id == -1` for a detection that has
+# not yet been confirmed over `_TRACKER_MINIMUM_CONSECUTIVE_FRAMES` -- a provisional
+# track, not a real one. Verified against the installed `trackers==2.6.0`: with
+# `instant_first_frame_activation=True` (the default this module relies on), a track
+# spawned on a clip's very first tracked frame is confirmed immediately (real id, not
+# -1); a track spawned on any later frame still needs the confirmation window before
+# losing the -1 sentinel.
 _UNCONFIRMED_TRACK_ID = -1
+
+# BoT-SORT tuning (gap-fix iteration, post plan 02.1-12): measured on an 11-clip
+# sample (5 human-reviewed + 6 statistically worst clips of the 61-clip pilot) against
+# the OC-SORT baseline and BoT-SORT's own defaults -- this combination gave the
+# largest reduction (50.5%) in fragmented-or-late-starting player tracks of every
+# variant tried (OC-SORT with a longer `lost_track_buffer`/lower IoU threshold, plain
+# BoT-SORT defaults, this tuned BoT-SORT). Still well above the ideal ~10-14
+# tracks/clip -- this is a measured improvement, not a fix to ideal, and is recorded
+# as a known limitation in the experiment report, not silently oversold here.
+_TRACKER_LOST_TRACK_BUFFER = 90
+_TRACKER_MINIMUM_IOU_THRESHOLD_FIRST_ASSOC = 0.1
+_TRACKER_MINIMUM_CONSECUTIVE_FRAMES = 5
 
 # Mirrors `frames.py`'s own private `_INVENTORY_SCHEMA`/`_HOVER_POSITIONS_SCHEMA` --
 # kept as separate constants rather than importing the private module attributes
@@ -186,14 +219,19 @@ def track_session(
     every gap is named so D-09's "whole game is the denominator" measurement stays
     honest (T-2.1-31) rather than silently inflated.
 
-    Each clip gets its own fresh `trackers.OCSORTTracker` instance (Apache-2.0, the only
-    tracking library this stack links -- C-06, T-2.1-SC) -- track ids are per-clip, not
-    global, because each clip is a separate play (D-02). A detection whose `tracker_id`
-    is still -1 (OC-SORT's "not yet confirmed over `minimum_consecutive_frames`"
-    sentinel) is dropped, not written as a row -- an unconfirmed track is not a track.
+    Each clip gets its own fresh `trackers.BoTSORTTracker` instance (Apache-2.0, the
+    only tracking library this stack links -- C-06, T-2.1-SC) -- track ids are
+    per-clip, not global, because each clip is a separate play (D-02). BoT-SORT's
+    camera-motion compensation (`enable_cmc=True`, the default) needs the decoded
+    frame alongside the detections, so this loop decodes each clip a second time in
+    lockstep with `detect.detect_video`'s own internal decode. A detection whose
+    `tracker_id` is still -1 (BoT-SORT's "not yet confirmed over
+    `minimum_consecutive_frames`" sentinel) is dropped, not written as a row -- an
+    unconfirmed track is not a track.
     """
+    import cv2
     import supervision as sv
-    from trackers import OCSORTTracker
+    from trackers import BoTSORTTracker
 
     from flag_football_ep.cv import detect, frames, registry, schema
     from flag_football_ep.cv.dataset import CLASS_NAMES
@@ -221,54 +259,74 @@ def track_session(
     for clip_path in clip_paths:
         clip_num = frames.clip_number(clip_path)
         try:
-            tracker = OCSORTTracker()
             fps = _probe_fps(clip_path)
+            tracker = BoTSORTTracker(
+                lost_track_buffer=_TRACKER_LOST_TRACK_BUFFER,
+                frame_rate=fps,
+                minimum_iou_threshold_first_assoc=_TRACKER_MINIMUM_IOU_THRESHOLD_FIRST_ASSOC,
+                minimum_consecutive_frames=_TRACKER_MINIMUM_CONSECUTIVE_FRAMES,
+            )
             detection_run = detect.detect_video(
                 config, clip_path, model, resolution=resolved_resolution, sahi=resolved_sahi
             )
+            # A second decode of the same clip, in lockstep with detect_video's own
+            # internal decode, purely so BoT-SORT's CMC step has a real frame to
+            # register against -- `detect.DetectionBatch` never carries the source
+            # image (see detect.py's `_call_model` docstring on why that field is
+            # stripped), so this is the only way to hand CMC pixels without changing
+            # that shared contract.
+            frame_capture = cv2.VideoCapture(str(clip_path))
 
             clip_track_ids: set[int] = set()
             frame_count = 0
-            for batch in detection_run:
-                frame_count += 1
-                frame_detections = sv.Detections(
-                    xyxy=batch.xyxy,
-                    confidence=batch.confidence,
-                    class_id=batch.class_id,
-                )
-
-                track_start = time.perf_counter()
-                tracked = tracker.update(frame_detections)
-                stage_seconds["track"] += time.perf_counter() - track_start
-
-                for i in range(len(tracked)):
-                    track_id = int(tracked.tracker_id[i])
-                    if track_id == _UNCONFIRMED_TRACK_ID:
-                        continue
-                    clip_track_ids.add(track_id)
-
-                    x1, y1, x2, y2 = (float(v) for v in tracked.xyxy[i])
-                    class_id = int(tracked.class_id[i])
-                    rows.append(
-                        {
-                            "session_id": session_id,
-                            "clip_number": clip_num,
-                            "frame_index": batch.frame_index,
-                            "timestamp_s": batch.frame_index / fps,
-                            "track_id": track_id,
-                            "class_name": CLASS_NAMES[class_id],
-                            "confidence": float(tracked.confidence[i]),
-                            "bbox_x1": x1,
-                            "bbox_y1": y1,
-                            "bbox_x2": x2,
-                            "bbox_y2": y2,
-                            "foot_x_px": (x1 + x2) / 2.0,
-                            "foot_y_px": y2,
-                            "hover_position_id": hover_ids.get(clip_num),
-                            "detector_run_id": resolved_run_id,
-                            "tracked_at": tracked_at,
-                        }
+            try:
+                for batch in detection_run:
+                    frame_count += 1
+                    frame_detections = sv.Detections(
+                        xyxy=batch.xyxy,
+                        confidence=batch.confidence,
+                        class_id=batch.class_id,
                     )
+
+                    read_ok, frame_bgr = frame_capture.read()
+                    frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB) if read_ok else None
+
+                    track_start = time.perf_counter()
+                    tracked = tracker.update(
+                        frame_detections, frame=frame_rgb, timestamp=batch.frame_index / fps
+                    )
+                    stage_seconds["track"] += time.perf_counter() - track_start
+
+                    for i in range(len(tracked)):
+                        track_id = int(tracked.tracker_id[i])
+                        if track_id == _UNCONFIRMED_TRACK_ID:
+                            continue
+                        clip_track_ids.add(track_id)
+
+                        x1, y1, x2, y2 = (float(v) for v in tracked.xyxy[i])
+                        class_id = int(tracked.class_id[i])
+                        rows.append(
+                            {
+                                "session_id": session_id,
+                                "clip_number": clip_num,
+                                "frame_index": batch.frame_index,
+                                "timestamp_s": batch.frame_index / fps,
+                                "track_id": track_id,
+                                "class_name": CLASS_NAMES[class_id],
+                                "confidence": float(tracked.confidence[i]),
+                                "bbox_x1": x1,
+                                "bbox_y1": y1,
+                                "bbox_x2": x2,
+                                "bbox_y2": y2,
+                                "foot_x_px": (x1 + x2) / 2.0,
+                                "foot_y_px": y2,
+                                "hover_position_id": hover_ids.get(clip_num),
+                                "detector_run_id": resolved_run_id,
+                                "tracked_at": tracked_at,
+                            }
+                        )
+            finally:
+                frame_capture.release()
 
             for timing in detection_run.timings():
                 if timing.stage == "decode":
