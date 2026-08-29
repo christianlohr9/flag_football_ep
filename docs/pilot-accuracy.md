@@ -281,3 +281,75 @@ Worst-Case aus v1 unverändert gültig (Median 0,152 + 0,27 ≈ 0,42 yd; p90 0,3
   gemergt und v2 wurde gegen denselben GT-Satz nachgemessen (`## v2-Messung
   (BoT-SORT-/Torso-Crop-Gap-Fix)` unten). Beide Zahlensätze stehen hier nebeneinander; der
   formale C-09-Gate-Entscheid selbst wird weiterhin erst in Plan 02.1-17 getroffen.
+
+## Showcase-Reel
+
+Erzeugt von `src/flag_football_ep/cv/radar.py` (Plan 02.1-16, D-16): ein Seite-an-Seite-Reel aus
+`overlay.draw_frame`s annotiertem Drohnen-Footage (links) und einer synchronisierten Top-Down-Radar-
+Ansicht der Feld-Yard-Positionen (rechts), gedacht als HC-/Analyst-Demo-Asset, nicht als Messung.
+
+### Auswahlregel
+
+Die gezeigten Clips wurden nicht nach Geschmack ausgesucht, sondern per fester, reproduzierbarer Regel
+aus `data/reference/continuity_review.csv` (dem Kontinuitäts-Review aus Plan 02.1-14) gezogen:
+
+1. Filtere auf `verdict = pass` und `id_switches = 0` (in `continuity_review.csv` für alle
+   Pass-Verdikt-Clips als leeres Feld eingetragen — konsistent damit, dass jeder Fail-Verdikt-Clip
+   einen expliziten, von null verschiedenen `id_switches`-Wert trägt).
+2. Sortiere nach `longest_track_frac` absteigend (bei diesem Datensatz für alle 6 Pass-Clips auf
+   1.0 gebunden — die Regel bleibt für zukünftige Läufe wirksam, in denen dieser Wert
+   diskriminiert), dann nach `n_fragments` aufsteigend als reproduzierbarer Tie-Breaker (weniger
+   Track-Fragmente = ein sauberer durchgängiger Track), dann nach `clip_number` aufsteigend als
+   letzter, deterministischer Tie-Breaker.
+3. Stelle sicher, dass mindestens ein Clip pro Hover-Position vertreten ist, sobald in den
+   Pass-Kandidaten mehr als eine vorkommt (hier: hp-01 und hp-02) — nötigenfalls würde der
+   bestplatzierte Kandidat der fehlenden Hover-Position gegen den schwächsten der bereits gewählten
+   getauscht; bei diesem Lauf war kein Tausch nötig (siehe Tabelle unten).
+4. Bevorzuge unter gleichrangigen Kandidaten Clips, deren `reviewer_note` echtes Spielgeschehen statt
+   Huddle/Stillstand belegt — bei diesem Lauf trägt keiner der 6 Pass-Clips eine `reviewer_note`, das
+   Kriterium war für diese Auswahl also inert (für zukünftige Läufe dennoch Teil der festen Regel).
+5. Nimm die Top 5 (Ober­grenze der D-16-Spanne 3–5 Clips).
+
+Von 61 Clips erfüllen 6 `verdict = pass` und `id_switches = 0` (Clips 1, 2, 4, 6, 11, 13). Die Regel
+wählt daraus 5; Clip 1 fällt als letztplatzierter (11 Fragmente, die meisten der Pass-Gruppe) heraus.
+
+### Gewählte Clips
+
+| Clip | Hover-Position | `longest_track_frac` | `n_fragments` | `n_tracks` |
+|---|---|---|---|---|
+| 11 | hp-01 | 1,0 | 2 | 18 |
+| 2  | hp-01 | 1,0 | 3 | 28 |
+| 6  | hp-02 | 1,0 | 7 | 27 |
+| 13 | hp-02 | 1,0 | 9 | 20 |
+| 4  | hp-02 | 1,0 | 10 | 27 |
+
+Beide Hover-Positionen sind vertreten (hp-01: 2 Clips, hp-02: 3 Clips).
+
+### Render
+
+```
+ffep cv radar \
+  --tracks data/processed/tracking/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE_tracks.parquet \
+  --clip 11 --clip 2 --clip 6 --clip 13 --clip 4 \
+  --out data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/showcase/showcase.mp4
+```
+
+| Kennzahl | Wert |
+|---|---|
+| Ausgabepfad | `data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/showcase/showcase.mp4` (gitignored, PII) |
+| Dauer | 46,1 s |
+| Auflösung | 3840 x 1120 px (2 x 1920 px Breite je Hälfte + 40 px Kopfzeile, 1080 px Höhe) |
+| Bildrate | 30 fps |
+| Frames gesamt | 1383 (357+285+267+220+234 Quell-Frames der 5 Clips + 4 x 5 schwarze Trenn-Frames zwischen den Plays) |
+
+End-to-end per Frame-Stichprobe geprüft (Frame 0, 50, 200, 360, 700, 1000, 1382): jede der 5 Clip-
+Segmente zeigt links das annotierte Drohnen-Footage (Team-Boxen, Track-IDs, Schiedsrichter-Box gelb),
+rechts synchron die Radar-Ansicht (Feldlinien alle 5 Yards, dieselben Team-Farben/Marker-Formen —
+Kreis für Spielerinnen, Dreieck für Schiedsrichter, Quadrat für Tracks ohne Team-Zuordnung); die
+Kopfzeile zählt Clip-Nummer und Play-Index (`clip 11 -- play 1/5` ... `clip 4 -- play 5/5`) korrekt
+hoch; an den Clip-Grenzen liegt jeweils ein kurzer schwarzer Trenn-Abschnitt.
+
+**Dieses Reel zeigt die BESTEN Plays der Pipeline und ist damit Demonstrations-Evidenz, keine
+Leistungsmessung — die gemessenen Zahlen stehen in `## Gemessener Positionsfehler (v1)`/`### Gemessener
+Positionsfehler (v2)` oben und in `data/reference/continuity_review.csv` (61-Clip-Kontinuitäts-Review,
+Plan 02.1-14: nur 6 von 20 reviewten Clips bestehen, konservative Ober­schranke 77 % < 90 %-Zielwert).**
