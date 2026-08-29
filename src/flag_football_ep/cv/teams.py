@@ -125,12 +125,23 @@ class TeamClassifier:
             return
         # Function-local import: transformers is a `cv`-extras dependency, never
         # imported at module level (D-07/D-08).
-        from transformers import AutoProcessor, SiglipVisionModel
+        #
+        # `SiglipImageProcessor` directly, not `AutoProcessor`: verified against the
+        # real `google/siglip-base-patch16-224` checkpoint (plan 02.1-12 Task 3's real
+        # 61-clip run) that `AutoProcessor.from_pretrained` unconditionally tries to
+        # also resolve `SiglipTokenizer` (the paired text processor) even though this
+        # class only ever needs the image side -- that raises `ImportError: ...
+        # requires the SentencePiece library` on an environment (this project's own)
+        # that never installed `sentencepiece`, since nothing here does text encoding.
+        # `SiglipImageProcessor` loads only the vision preprocessing config, matching
+        # what `SiglipVisionModel` actually consumes, with no tokenizer/SentencePiece
+        # dependency at all.
+        from transformers import SiglipImageProcessor, SiglipVisionModel
 
         self._siglip_model = SiglipVisionModel.from_pretrained(SIGLIP_MODEL_PATH).to(
             self._device
         )
-        self._siglip_processor = AutoProcessor.from_pretrained(SIGLIP_MODEL_PATH)
+        self._siglip_processor = SiglipImageProcessor.from_pretrained(SIGLIP_MODEL_PATH)
 
     def _extract_siglip_features(self, crops) -> np.ndarray:
         import numpy as np

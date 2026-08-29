@@ -485,3 +485,105 @@ konsistent mit dieser Messung -- keine Konfigurationsänderung nötig.
 vollständigen 61-Clip-Tracking-Lauf aus Plan 02.1-12 de-riskt; die tatsächliche C-09-Zahl
 kommt aus diesem vollständigen Lauf und wird in der Gate-Entscheidung (Plan 02.1-17)
 festgehalten -- diese Tabelle darf dort nicht als Gate-Ergebnis zitiert werden.
+
+## Tracking-Lauf
+
+`src/flag_football_ep/cv/track.py::track_session` + `src/flag_football_ep/cv/teams.py::
+assign_teams`, Plan 02.1-12. Der vollständige Tracking-Lauf über alle 61 Pilot-Clips --
+das ist die reale C-09-Messung, die die Drei-Clip-Stichprobe aus `## Inferenz-Durchsatz`
+oben ausdrücklich vertagt hat.
+
+**Datum:** 2026-08-29
+**Maschine:** Primärmaschine (Apple M4 Max), `platform.node()` = `MacBook-Pro-2.fritz.box`
+**Detector Run ID:** `87a8a5222f7a472787875e974d089c44` (champion-Alias von `cv_detector_model`)
+**Settings:** `resolution=896`, `sahi=false` (unverändert aus `ffep.toml`s `[cv]`-Tabelle,
+Plan 02.1-03/02.1-11)
+
+**Methodik-Hinweis (Ausführung):** `track_session` selbst lief unverändert und ungekürzt --
+aber statt eines einzelnen `ffep cv track --session ...`-Aufrufs wurde der Lauf über vier
+Bash-Tool-Aufrufe verteilt (Clip-Bereiche 1-16 / 17-32 / 33-47 / 48-61, nach kumulativer
+Clip-Dauer balanciert), weil ein einzelner Prozess das 10-Minuten-Limit eines
+Ausführungsschritts hätte reißen können. Jeder Teil-Lauf ist ein echter,
+unveränderter `track_session`-Aufruf gegen eine Teilmenge der Clips (`frames.clip_paths`
+prozesslokal auf die jeweilige Clip-Nummern-Menge eingeschränkt, kein Code im Repository
+geändert); die vier Teil-Parquets wurden anschließend zu einer Session-Tabelle
+zusammengeführt. Jeder Clip durchlief exakt dieselbe Pro-Clip-`try`/`except`-Absicherung
+wie bei einem einzelnen durchgehenden Lauf.
+
+**Ergebnis (Tracking):**
+
+| Metrik | Wert |
+|---|---|
+| Clips verarbeitet | 61 / 61 |
+| Clips mit Hinweis (Notice) | 0 |
+| Clips mit null Tracks | 0 |
+| Distinkte Tracks (Session) | 2031 (1874 `player`, 157 `referee`) |
+| Wall-Clock (Summe der 4 Teil-Läufe) | 542.9 s (~9.05 min) |
+| Output-Parquet | `data/processed/tracking/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE_tracks.parquet` |
+| Zeilen im Output-Parquet | 341.461 |
+
+**Pro-Stage-Sekunden (aufsummiert über alle 61 Clips):**
+
+| Stage | Sekunden | Realtime-Faktor (s / 664.41 s Footage) |
+|---|---|---|
+| `decode` | 29.21 | 0.0440x |
+| `detect` | 473.00 | 0.7119x |
+| `track` | 11.03 | 0.0166x |
+| `write` | 0.09 | 0.0001x |
+
+**C-09-Extrapolation (die reale Gate-Zahl, nicht mehr die Drei-Clip-Schätzung):** über
+`cv.benchmark.extrapolate_game_runtime` mit den obigen vier Stage-Summen,
+`footage_seconds=664.41` (Summe aller 61 `duration_seconds` aus `video_inventory.csv`) und
+`game_seconds=3000.0` (50-min-Default, D-11 Annahme 3, unverändert aus Plan 02.1-11):
+
+**38.63 min** extrapolierte Laufzeit für ein 50-minütiges Spiel -- deutlich innerhalb des
+60-Minuten-C-09-Budgets, konsistent mit der Drei-Clip-Schätzung aus `## Inferenz-Durchsatz`
+(39.73 min). Vollständige Formel:
+
+```
+[machine=MacBook-Pro-2.fritz.box] linear extrapolation (assumption 1):
+total real-time factor = decode(29.211s / 664.41s footage = 0.043966x realtime)
+  + detect(473.003s / 664.41s footage = 0.711915x realtime)
+  + track(11.029s / 664.41s footage = 0.016600x realtime)
+  + write(0.087s / 664.41s footage = 0.000132x realtime)
+  = 0.772611x realtime;
+extrapolated game duration = 0.772611x * 3000.0s game (continuous-game denominator,
+  assumption 2) = 2317.83s = 38.63 min
+```
+
+### Hinweise
+
+Keine -- alle 61 Clips wurden erfolgreich verarbeitet, kein Clip löste eine Ausnahme aus,
+kein Clip lieferte null Tracks, und kein Clip wich um mehr als zwei Frames von der in
+`video_inventory.csv` deklarierten Dauer ab.
+
+**Team-Zuordnung (`assign_teams`):** Ein `TeamClassifier` wurde einmal für die gesamte
+Session gefittet (SigLIP `google/siglip-base-patch16-224`, UMAP, KMeans), gespeist aus je
+bis zu 10 gleichmäßig über die Track-Frames verteilten Crops pro Track (17.626 Crops
+insgesamt, 1874 `player`-Tracks -- `referee`-Tracks nie eingespeist). Von den 1874
+`player`-Tracks erhielten **1864 (99.47 %)** eine `team_id`; 10 Tracks fielen unter die
+0.6-Mehrheitsschwelle und blieben `null` (siehe `### Team-Zuordnung: Ambivalente Tracks`
+unten). Cluster-Label 0/1 ist arbiträr -- welches Label welches reale Team ist, wird erst
+in Plan 02.1-16 anhand des Radar-Reels von Hand festgelegt.
+
+Bei der Vorbereitung dieses Laufs wurde ein Bug in `cv/teams.py::TeamClassifier._ensure_siglip`
+gefunden und behoben: `AutoProcessor.from_pretrained` versucht immer auch den zugehörigen
+Text-Tokenizer aufzulösen und schlägt ohne installiertes `sentencepiece` mit `ImportError`
+fehl, obwohl `TeamClassifier` nur den Bild-Pfad braucht. Fix: `SiglipImageProcessor`
+direkt statt `AutoProcessor` (siehe Commit-Historie Plan 02.1-12).
+
+### Team-Zuordnung: Ambivalente Tracks
+
+Die folgenden 10 Tracks lagen bei der Mehrheits-Cluster-Zuordnung exakt bei 0.50 (unter der
+0.6-Schwelle) und blieben `team_id = null`:
+
+- track 46 (clip 7): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 9 (clip 9): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 41 (clip 15): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 15 (clip 18): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 8 (clip 27): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 34 (clip 37): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 7 (clip 38): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 12 (clip 45): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 8 (clip 50): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 14 (clip 53): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
