@@ -5,12 +5,18 @@ Every test injects a synthetic `embedder` (an identity function over pre-compute
 feature vectors) so no SigLIP weights are ever downloaded and no network round trip
 happens -- per RESEARCH's Validation Architecture rule ("no CV test should require
 downloading model weights or real footage").
+
+`extract_track_crops` coverage (gap-fix iteration, added alongside the torso-crop
+default) uses tiny, real, decodable synthetic clips (`cv2.VideoWriter`, mirroring
+`tests/test_cv_track.py`'s convention) -- no network, no real footage, but real
+decode/crop arithmetic against actual pixel data.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
+import cv2
 import numpy as np
 import polars as pl
 import pytest
@@ -18,6 +24,7 @@ import pytest
 pytest.importorskip("umap", reason="requires the cv extras group (uv sync --extra cv)")
 
 from flag_football_ep.cv import teams as teams_module
+from flag_football_ep.cv.detect import MissingClipError
 from flag_football_ep.cv.schema import conform_tracking
 from flag_football_ep.cv.teams import (
     ClassifierNotFitted,
@@ -25,6 +32,7 @@ from flag_football_ep.cv.teams import (
     TeamAssignmentResult,
     TeamClassifier,
     assign_teams,
+    extract_track_crops,
 )
 from flag_football_ep.config import (
     Config,
@@ -451,3 +459,276 @@ def test_assign_teams_output_passes_conform_tracking(monkeypatch: pytest.MonkeyP
 
     reconformed = conform_tracking(result.tracks)
     assert reconformed.height == result.tracks.height
+
+
+# --- extract_track_crops coverage (gap-fix iteration) -----------------------------------------
+
+
+def _make_config_tmp(tmp_path: Path, *, session_id: str = "test-session") -> Config:
+    """Mirrors `tests/test_cv_track.py::_make_config` -- every path under `tmp_path`,
+    never the real repo, so `frames.clip_paths`' inventory resolution has somewhere
+    real to decode from.
+    """
+    paths = Paths(
+        data_root=tmp_path / "data",
+        raw_hudl=tmp_path / "data" / "raw" / "hudl",
+        raw_sportapp=tmp_path / "data" / "raw" / "sportapp",
+        raw_ifaf=tmp_path / "data" / "raw" / "ifaf",
+        raw_legacy=tmp_path / "data" / "raw" / "legacy",
+        processed=tmp_path / "data" / "processed",
+        reference=tmp_path / "data" / "reference",
+        models=tmp_path / "models",
+        mlruns=tmp_path / "mlruns",
+        contract=tmp_path / "docs" / "data-contract.schema.json",
+        reports=tmp_path / "reports",
+        video=tmp_path / "data" / "video",
+        labels=tmp_path / "data" / "labels",
+        tracking=tmp_path / "data" / "processed" / "tracking",
+    )
+    reference = ReferenceFiles(
+        half_boundaries=tmp_path / "data" / "reference" / "half_boundaries.csv",
+        final_scores=tmp_path / "data" / "reference" / "final_scores.csv",
+        team_mapping=tmp_path / "data" / "reference" / "team_mapping.csv",
+        sportapp_games=tmp_path / "data" / "reference" / "sportapp_games.csv",
+        competition_tier=tmp_path / "data" / "reference" / "competition_tier.csv",
+        player_mapping=tmp_path / "data" / "reference" / "player_mapping.csv",
+        group_opponents=tmp_path / "data" / "reference" / "group_opponents.csv",
+        hover_positions=tmp_path / "data" / "reference" / "hover_positions.csv",
+        homography_calibration=tmp_path / "data" / "reference" / "homography_calibration.csv",
+        gt_positions=tmp_path / "data" / "reference" / "gt_positions.csv",
+        continuity_review=tmp_path / "data" / "reference" / "continuity_review.csv",
+    )
+    sources = Sources(
+        sportapp=SportappSource(
+            base_url="https://example.invalid/api/v1/public", api_key_env="SPORTAPP_API_KEY"
+        ),
+        ifaf=IfafSource(
+            base_url="https://example.invalid/v1",
+            tournament="test-tournament",
+            api_key_env="CPX_API_KEY",
+        ),
+    )
+    train = TrainSettings(
+        ep_experiment="ep_model_test",
+        wp_experiment="wp_model_test",
+        exclude_games_ep=[],
+        exclude_games_wp=[],
+    )
+    report = ReportSettings(own_team="HOME", cycle_start_season=2026)
+    cv = CvSettings(
+        pilot_session_id=session_id,
+        detector_model="cv_detector_model_test",
+        detector_experiment="cv_detector_test",
+        resolution=224,
+        sahi=False,
+        sahi_slice=640,
+        sahi_overlap=0.2,
+        train_epochs=1,
+        train_batch_size=4,
+        train_grad_accum=4,
+        device="cpu",
+        label_frame_target=10,
+        cvat_host="http://localhost:8080",
+        cvat_username_env="CVAT_USERNAME",
+        cvat_password_env="CVAT_PASSWORD",
+        field_length_yards=50.0,
+        field_width_yards=25.0,
+        endzone_yards=10.0,
+    )
+    return Config(
+        paths=paths, reference=reference, sources=sources, train=train, report=report, cv=cv
+    )
+
+
+_CROP_TEST_FPS = 10.0
+_INVENTORY_HEADER = (
+    "domain,session_id,game_id,capture_date,resolution,fps,duration_seconds,"
+    "local_path,content_sha256,notes"
+)
+
+
+def _write_inventory_tmp(config: Config, rows: list[dict[str, str]]) -> Path:
+    fields = (
+        "domain",
+        "session_id",
+        "game_id",
+        "capture_date",
+        "resolution",
+        "fps",
+        "duration_seconds",
+        "local_path",
+        "content_sha256",
+        "notes",
+    )
+    lines = [_INVENTORY_HEADER] + [
+        ",".join(row.get(field, "") for field in fields) for row in rows
+    ]
+    inventory_path = config.paths.reference / "video_inventory.csv"
+    inventory_path.parent.mkdir(parents=True, exist_ok=True)
+    inventory_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return inventory_path
+
+
+def _inventory_row_tmp(
+    local_path: str, *, duration_seconds: float, session_id: str = "test-session"
+) -> dict[str, str]:
+    return {
+        "domain": "drone",
+        "session_id": session_id,
+        "game_id": "",
+        "capture_date": "2026-05-16",
+        "resolution": "1920x1080",
+        "fps": str(_CROP_TEST_FPS),
+        "duration_seconds": str(duration_seconds),
+        "local_path": local_path,
+        "content_sha256": "",
+        "notes": "",
+    }
+
+
+def _write_two_tone_clip(
+    path: Path, n_frames: int, *, width: int = 100, height: int = 100
+) -> Path:
+    """A tiny, real, decodable clip: every frame's top half is a uniform dark value
+    (10) and bottom half a uniform light value (200), the same on every channel so
+    BGR/RGB conversion never changes the recorded value -- lets a test assert exactly
+    which half of the frame a crop came from without caring about channel order.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    writer = cv2.VideoWriter(str(path), fourcc, _CROP_TEST_FPS, (width, height))
+    try:
+        for _ in range(n_frames):
+            frame = np.full((height, width, 3), 10, dtype=np.uint8)
+            frame[height // 2 :, :, :] = 200
+            writer.write(frame)
+    finally:
+        writer.release()
+    return path
+
+
+def _crop_tracks_row(
+    *, clip_number: int, track_id: int, frame_index: int, class_name: str = "player"
+) -> dict:
+    # bbox spans y=[10, 90] of a 100-tall frame: top half of the box (y<50) lands in
+    # the clip's dark (10) region, bottom half in the light (200) region.
+    return {
+        "session_id": "test-session",
+        "clip_number": clip_number,
+        "frame_index": frame_index,
+        "timestamp_s": frame_index / _CROP_TEST_FPS,
+        "track_id": track_id,
+        "class_name": class_name,
+        "confidence": 0.9,
+        "bbox_x1": 20.0,
+        "bbox_y1": 10.0,
+        "bbox_x2": 60.0,
+        "bbox_y2": 90.0,
+        "foot_x_px": 40.0,
+        "foot_y_px": 90.0,
+        "detector_run_id": "0" * 32,
+        "tracked_at": "2026-08-29T00:00:00Z",
+    }
+
+
+def test_extract_track_crops_torso_default_only_covers_the_dark_top_half(
+    tmp_path: Path,
+) -> None:
+    config = _make_config_tmp(tmp_path)
+    n_frames = 4
+    _write_two_tone_clip(config.paths.video / "Wide - Clip 001.mp4", n_frames)
+    _write_inventory_tmp(
+        config, [_inventory_row_tmp("data/video/Wide - Clip 001.mp4", duration_seconds=0.4)]
+    )
+    tracks = pl.DataFrame(
+        [_crop_tracks_row(clip_number=1, track_id=0, frame_index=i) for i in range(n_frames)]
+    )
+
+    crops = extract_track_crops(config, "test-session", tracks)
+
+    assert (1, 0) in crops
+    for crop in crops[(1, 0)]:
+        # bbox height is 80px (10..90); torso keeps the upper 50% -> y in [10, 50),
+        # entirely inside the clip's dark (10) top half.
+        assert crop.max() <= 30, "torso crop leaked into the light bottom half"
+
+
+def test_extract_track_crops_full_box_spans_both_tones_when_torso_false(
+    tmp_path: Path,
+) -> None:
+    config = _make_config_tmp(tmp_path)
+    n_frames = 4
+    _write_two_tone_clip(config.paths.video / "Wide - Clip 001.mp4", n_frames)
+    _write_inventory_tmp(
+        config, [_inventory_row_tmp("data/video/Wide - Clip 001.mp4", duration_seconds=0.4)]
+    )
+    tracks = pl.DataFrame(
+        [_crop_tracks_row(clip_number=1, track_id=0, frame_index=i) for i in range(n_frames)]
+    )
+
+    crops = extract_track_crops(config, "test-session", tracks, torso=False)
+
+    for crop in crops[(1, 0)]:
+        assert crop.min() <= 30
+        assert crop.max() >= 180, "full-box crop should still reach the light bottom half"
+
+
+def test_extract_track_crops_caps_and_spreads_samples_across_the_track_lifetime(
+    tmp_path: Path,
+) -> None:
+    config = _make_config_tmp(tmp_path)
+    n_frames = 40
+    _write_two_tone_clip(config.paths.video / "Wide - Clip 001.mp4", n_frames)
+    _write_inventory_tmp(
+        config, [_inventory_row_tmp("data/video/Wide - Clip 001.mp4", duration_seconds=4.0)]
+    )
+    tracks = pl.DataFrame(
+        [_crop_tracks_row(clip_number=1, track_id=0, frame_index=i) for i in range(n_frames)]
+    )
+
+    crops = extract_track_crops(config, "test-session", tracks, max_crops_per_track=5)
+
+    assert len(crops[(1, 0)]) == 5
+
+
+def test_extract_track_crops_keys_by_clip_number_and_track_id_across_clips(
+    tmp_path: Path,
+) -> None:
+    config = _make_config_tmp(tmp_path)
+    n_frames = 3
+    _write_two_tone_clip(config.paths.video / "Wide - Clip 001.mp4", n_frames)
+    _write_two_tone_clip(config.paths.video / "Wide - Clip 002.mp4", n_frames)
+    _write_inventory_tmp(
+        config,
+        [
+            _inventory_row_tmp("data/video/Wide - Clip 001.mp4", duration_seconds=0.3),
+            _inventory_row_tmp("data/video/Wide - Clip 002.mp4", duration_seconds=0.3),
+        ],
+    )
+    tracks = pl.DataFrame(
+        [_crop_tracks_row(clip_number=1, track_id=0, frame_index=i) for i in range(n_frames)]
+        + [_crop_tracks_row(clip_number=2, track_id=0, frame_index=i) for i in range(n_frames)]
+        + [_crop_tracks_row(clip_number=2, track_id=1, frame_index=i) for i in range(n_frames)]
+    )
+
+    crops = extract_track_crops(config, "test-session", tracks)
+
+    assert set(crops.keys()) == {(1, 0), (2, 0), (2, 1)}
+
+
+def test_extract_track_crops_raises_missing_clip_error_naming_the_path(
+    tmp_path: Path,
+) -> None:
+    config = _make_config_tmp(tmp_path)
+    bad_clip = config.paths.video / "Wide - Clip 001.mp4"
+    bad_clip.parent.mkdir(parents=True, exist_ok=True)
+    bad_clip.write_bytes(b"not a real video file")
+    _write_inventory_tmp(
+        config, [_inventory_row_tmp("data/video/Wide - Clip 001.mp4", duration_seconds=0.3)]
+    )
+    tracks = pl.DataFrame([_crop_tracks_row(clip_number=1, track_id=0, frame_index=0)])
+
+    with pytest.raises(MissingClipError) as exc_info:
+        extract_track_crops(config, "test-session", tracks)
+
+    assert str(bad_clip) in str(exc_info.value)
