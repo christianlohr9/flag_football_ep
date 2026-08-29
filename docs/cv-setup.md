@@ -489,9 +489,19 @@ festgehalten -- diese Tabelle darf dort nicht als Gate-Ergebnis zitiert werden.
 ## Tracking-Lauf
 
 `src/flag_football_ep/cv/track.py::track_session` + `src/flag_football_ep/cv/teams.py::
-assign_teams`, Plan 02.1-12. Der vollständige Tracking-Lauf über alle 61 Pilot-Clips --
+assign_teams`, Plan 02.1-12 (v1), Gap-Fix-Iteration nach Plan 02.1-12/vor Plan 02.1-14
+(v2, BoT-SORT + Torso-Crop). Der vollständige Tracking-Lauf über alle 61 Pilot-Clips --
 das ist die reale C-09-Messung, die die Drei-Clip-Stichprobe aus `## Inferenz-Durchsatz`
 oben ausdrücklich vertagt hat.
+
+**v1 ist die ursprüngliche OC-SORT-/Vollkörper-Crop-Messung aus Plan 02.1-12, unten in
+`### v1` archiviert. Nach dem menschlichen Kontinuitäts-Review wurden zwei Gap-Fixes
+gemergt (`faf75dd` -- Tracker-Wechsel zu getuntem BoT-SORT; `b870a72` -- Torso-Region-Crops
+für die Team-Zuordnung), und der volle Lauf wurde als `### v2` neu gemessen. Beide Läufe
+bleiben hier nebeneinander erhalten; `### v2` ist der aktuelle Stand, den Plan 02.1-17s
+Gate-Entscheid zitiert.**
+
+### v1 (OC-SORT-Tracker, Vollkörper-Crops -- Plan 02.1-12)
 
 **Datum:** 2026-08-29
 **Maschine:** Primärmaschine (Apple M4 Max), `platform.node()` = `MacBook-Pro-2.fritz.box`
@@ -551,7 +561,7 @@ extrapolated game duration = 0.772611x * 3000.0s game (continuous-game denominat
   assumption 2) = 2317.83s = 38.63 min
 ```
 
-### Hinweise
+#### Hinweise (v1)
 
 Keine -- alle 61 Clips wurden erfolgreich verarbeitet, kein Clip löste eine Ausnahme aus,
 kein Clip lieferte null Tracks, und kein Clip wich um mehr als zwei Frames von der in
@@ -562,7 +572,7 @@ Session gefittet (SigLIP `google/siglip-base-patch16-224`, UMAP, KMeans), gespei
 bis zu 10 gleichmäßig über die Track-Frames verteilten Crops pro Track (17.626 Crops
 insgesamt, 1874 `player`-Tracks -- `referee`-Tracks nie eingespeist). Von den 1874
 `player`-Tracks erhielten **1864 (99.47 %)** eine `team_id`; 10 Tracks fielen unter die
-0.6-Mehrheitsschwelle und blieben `null` (siehe `### Team-Zuordnung: Ambivalente Tracks`
+0.6-Mehrheitsschwelle und blieben `null` (siehe `#### Team-Zuordnung: Ambivalente Tracks (v1)`
 unten). Cluster-Label 0/1 ist arbiträr -- welches Label welches reale Team ist, wird erst
 in Plan 02.1-16 anhand des Radar-Reels von Hand festgelegt.
 
@@ -572,7 +582,7 @@ Text-Tokenizer aufzulösen und schlägt ohne installiertes `sentencepiece` mit `
 fehl, obwohl `TeamClassifier` nur den Bild-Pfad braucht. Fix: `SiglipImageProcessor`
 direkt statt `AutoProcessor` (siehe Commit-Historie Plan 02.1-12).
 
-### Team-Zuordnung: Ambivalente Tracks
+#### Team-Zuordnung: Ambivalente Tracks (v1)
 
 Die folgenden 10 Tracks lagen bei der Mehrheits-Cluster-Zuordnung exakt bei 0.50 (unter der
 0.6-Schwelle) und blieben `team_id = null`:
@@ -587,3 +597,175 @@ Die folgenden 10 Tracks lagen bei der Mehrheits-Cluster-Zuordnung exakt bei 0.50
 - track 12 (clip 45): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
 - track 8 (clip 50): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
 - track 14 (clip 53): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+
+### v2 (BoT-SORT-Tracker, Torso-Crops -- Gap-Fix-Iteration nach dem Kontinuitäts-Review)
+
+Orchestrator-angeordneter Re-Lauf der v1-Pipeline nach zwei gemergten Gap-Fixes: `faf75dd`
+(Tracker-Wechsel von OC-SORT zu getuntem `trackers.BoTSORTTracker`, Kamerabewegungs-
+Kompensation/CMC, siehe `## OC-SORT-Tracker-Klasse` -- der Name dort bleibt historisch, der
+tatsächlich verwendete Tracker ist inzwischen BoT-SORT) und `b870a72` (`cv/teams.py::
+extract_track_crops`, Torso-Region-Crops statt Vollkörper-Crops für die Team-Zuordnung).
+Beide Fixes reagieren auf den Befund des menschlichen Kontinuitäts-Reviews (systematische
+ID-Fragmentierung und Kamera-Schwenk-Kaskaden bei OC-SORT; Grün/Hintergrund-Bleed an
+Box-Rändern und Beinen bei Vollkörper-Team-Crops) und wurden an einer 11-Clip-Stichprobe
+(5 human-reviewte + 6 statistisch schlechteste Clips) gegen die jeweilige Baseline
+gemessen, bevor sie gemergt wurden (siehe die Commit-Historie für die vollen
+Experiment-Zahlen).
+
+**Datum:** 2026-08-29
+**Maschine:** Primärmaschine (Apple M4 Max), `platform.node()` = `MacBook-Pro-2.fritz.box`
+**Detector Run ID:** `87a8a5222f7a472787875e974d089c44` (champion-Alias von `cv_detector_model`,
+unverändert gegenüber v1 -- nur Tracker und Crop-Geometrie änderten sich, nicht der Detektor)
+**Settings:** `resolution=896`, `sahi=false` (unverändert), Tracker `BoTSORTTracker
+(lost_track_buffer=90, minimum_iou_threshold_first_assoc=0.1, minimum_consecutive_frames=5,
+enable_cmc=True)`, Team-Crops `extract_track_crops(..., torso=True)` (innere 60 % der
+Box-Breite, obere 50 % der Box-Höhe, bis zu 6 Crops/Track)
+
+**Methodik-Hinweis (Ausführung):** wie beim v1-Lauf wurde `track_session` selbst unverändert
+und ungekürzt ausgeführt, aber über vier Bash-Tool-Aufrufe verteilt (Clip-Bereiche
+1-16 / 17-32 / 33-47 / 48-61), weil ein einzelner Prozess das Ausführungsschritt-Zeitlimit
+hätte reißen können; die vier Teil-Parquets wurden anschließend zu einer Session-Tabelle
+zusammengeführt. `extract_track_crops` lief ebenfalls in denselben vier Clip-Bereichen (rein
+lesend/dekodierend, keine Modell-Inferenz, daher deutlich schneller), die vier
+`crops_by_track`-Teilmengen wurden vor dem einmaligen `assign_teams`-Aufruf zusammengeführt
+-- `assign_teams` selbst lief exakt einmal für die gesamte Session (KMeans-Cluster-Label
+müssen über die ganze Session konsistent sein, nie pro Clip gefittet).
+
+**Ergebnis (Tracking):**
+
+| Metrik | v1 (OC-SORT) | v2 (BoT-SORT) |
+|---|---|---|
+| Clips verarbeitet | 61 / 61 | 61 / 61 |
+| Clips mit Hinweis (Notice) | 0 | 0 |
+| Clips mit null Tracks | 0 | 0 |
+| Distinkte Tracks (Session) | 2031 (1874 `player`, 157 `referee`) | **1592 (1453 `player`, 139 `referee`)** |
+| Zeilen im Output-Parquet | 341.461 | 354.404 |
+| Wall-Clock (Summe der 4 Teil-Läufe) | 542.9 s (~9.05 min) | 729.7 s (~12.16 min) |
+
+Die Track-Zahl sinkt um **21.6 %** (2031 -> 1592 gesamt, 1874 -> 1453 bei `player`) -- weniger
+Tracks bei unveränderter Clip-/Detektions-Basis heisst hier weniger Fragmentierung/ID-Wechsel
+je Spielzug, konsistent mit dem 50.5%-Ergebnis der 11-Clip-Gap-Fix-Experiment-Stichprobe (die
+volle 61-Clip-Session zeigt einen kleineren, aber klar positiven Effekt als die Stichprobe --
+erwartbar, da die Stichprobe gezielt die statistisch schlechtesten Clips einschloss). Die
+Zeilenzahl steigt trotzdem leicht (354.404 vs. 341.461), weil BoT-SORTs längerer
+`lost_track_buffer` (90 vs. OC-SORTs Default) Tracks über kurze Verdeckungen hinweg am Leben
+hält statt sie zu beenden und neu zu vergeben -- mehr Frames pro (im Schnitt selteneren) Track.
+
+**Pro-Stage-Sekunden (aufsummiert über alle 61 Clips):**
+
+| Stage | v1 Sekunden | v2 Sekunden | Kommentar |
+|---|---|---|---|
+| `decode` | 29.21 | 29.82 | BoT-SORTs CMC braucht das dekodierte Frame zusätzlich zu `detect_video`s eigenem Decode -- ein zweiter Decode-Durchlauf pro Clip, aber Decode bleibt insgesamt klein |
+| `detect` | 473.00 | 480.53 | Rauschen zwischen Läufen, gleicher Detektor/gleiche Settings |
+| `track` | 11.03 | 125.14 | Grösster Unterschied: BoT-SORTs CMC-Schritt (Kamerabewegungs-Kompensation über das echte Frame) ist deutlich teurer als OC-SORTs reine Kalman-Filter-Assoziation |
+| `write` | 0.09 | 0.09 | unverändert |
+
+**C-09-Extrapolation (v2, die aktuelle Gate-Zahl):** über `cv.benchmark.extrapolate_game_runtime`
+mit den obigen vier v2-Stage-Summen, `footage_seconds=664.41` (unverändert, dieselben 61 Clips)
+und `game_seconds=3000.0` (50-min-Default, D-11 Annahme 3):
+
+**47.83 min** extrapolierte Laufzeit für ein 50-minütiges Spiel -- weiterhin klar innerhalb des
+60-Minuten-C-09-Budgets, aber der Sicherheitsabstand schrumpft merklich gegenüber v1s
+38.63 min, ausschliesslich durch BoT-SORTs teureren `track`-Schritt (CMC). Vollständige Formel:
+
+```
+[machine=MacBook-Pro-2.fritz.box] linear extrapolation (assumption 1):
+total real-time factor = decode(29.816s / 664.41s footage = 0.044876x realtime)
+  + detect(480.525s / 664.41s footage = 0.723236x realtime)
+  + track(125.139s / 664.41s footage = 0.188346x realtime)
+  + write(0.091s / 664.41s footage = 0.000136x realtime)
+  = 0.956594x realtime;
+extrapolated game duration = 0.956594x * 3000.0s game (continuous-game denominator,
+  assumption 2) = 2869.78s = 47.83 min
+```
+
+#### Hinweise (v2)
+
+Keine -- wie beim v1-Lauf wurden alle 61 Clips erfolgreich verarbeitet, kein Clip löste eine
+Ausnahme aus, kein Clip lieferte null Tracks, und kein Clip wich um mehr als zwei Frames von
+der in `video_inventory.csv` deklarierten Dauer ab.
+
+**Team-Zuordnung (`assign_teams` mit `extract_track_crops(..., torso=True)`):** Ein
+`TeamClassifier` wurde wie in v1 einmal für die gesamte Session gefittet (SigLIP
+`google/siglip-base-patch16-224`, UMAP, KMeans), diesmal gespeist aus Torso-Region-Crops
+(innere 60 % der Box-Breite, obere 50 % der Box-Höhe) statt Vollkörper-Crops, bis zu 6
+gleichmässig über die Track-Frames verteilten Crops pro Track. Gezählt nach derselben
+Methode wie v1 (erster `class_name`-Wert je Track, da 55 Tracks im Session-Verlauf zwischen
+`player`/`referee` wechseln -- ein bekanntes Detektor-Rauschen, unverändert von v1): von
+**1453** `player`-Tracks erhielten **1436 (98.83 %)** eine `team_id`; 17 Tracks fielen unter
+die 0.6-Mehrheitsschwelle und blieben `null` (siehe `#### Team-Zuordnung: Ambivalente Tracks
+(v2)` unten) -- gegenüber v1s 99.47 % (1864/1874) ein leichter Rückgang um 0.64
+Prozentpunkte, nicht die in der 11-Clip-Stichprobe gemessene Verbesserung. Ehrlich
+eingeordnet: die 11-Clip-Stichprobe war so gebaut, dass sie die 8 konkreten, von Hand
+gefundenen Fehlzuordnungen aus dem Kontinuitäts-Review traf (wo Torso-Crops nachweislich
+half); die volle 61-Clip-Session enthält viele weitere, in der Stichprobe nicht vertretene
+Tracks, bei denen der Torso-Crop stattdessen zu weniger diskriminativen Embeddings führen
+kann (kleinerer Bildausschnitt, weniger Textur). Cluster-Label 0/1 bleibt arbiträr -- die
+reale Team-Zuordnung erfolgt weiterhin erst in Plan 02.1-16 von Hand.
+
+Kein neuer Bug wurde bei diesem Lauf gefunden -- der `SiglipImageProcessor`-Fix aus v1 bleibt
+in Kraft und die SigLIP-Embedding-Pipeline lief unverändert.
+
+#### Team-Zuordnung: Ambivalente Tracks (v2)
+
+Die folgenden 17 Tracks lagen bei der Mehrheits-Cluster-Zuordnung exakt bei 0.50 (unter der
+0.6-Schwelle) und blieben `team_id = null`:
+
+- track 4 (clip 3): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 1 (clip 12): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 12 (clip 12): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 12 (clip 16): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 20 (clip 17): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 21 (clip 17): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 2 (clip 22): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 1 (clip 23): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 13 (clip 25): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 5 (clip 27): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 27 (clip 29): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 6 (clip 31): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 19 (clip 35): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 3 (clip 39): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 3 (clip 50): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 9 (clip 57): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+- track 21 (clip 57): majority team-cluster share 0.50 is below the 0.6 threshold -- team_id left null
+
+#### Kontinuität (v2, `cv/continuity.py::measure_continuity`)
+
+Die Auto-Spalten von `data/reference/continuity_review.csv` wurden gegen den v2-Tracking-Output
+neu berechnet (61 Zeilen, `verdict` absichtlich leer -- das menschliche Kontinuitäts-Review von
+Plan 02.1-14 Task 3 ist ein separater, noch offener Schritt auf einem pausierten Ausführungs-
+Zweig und nicht Teil dieses Re-Laufs): `auto_flag` verteilt sich auf 57 `ok` und 4 `fragmented`,
+kein Clip mit `few-tracks` oder `no-tracks`. Diese Datei ersetzt keine menschliche Verdikt-Spalte
+-- `summarise_review` verweigert einen `pass_rate` solange auch nur eine Zeile unbewertet ist
+(D-09, T-2.1-31).
+
+#### Positionsfehler (v2, `cv/accuracy.py::measure_position_error`)
+
+Gemessen gegen dieselben 250 hand-markierten GT-Punkte wie v1 (`data/reference/gt_positions.csv`,
+unverändert), diesmal gegen den v2-Tracking-Output samt neu projizierten `x_yards`/`y_yards`
+(`ffep cv coords`):
+
+| Kennzahl | v1 | v2 |
+|---|---|---|
+| Median (yd) | 0,169 | 0,171 |
+| p90 (yd) | 0,415 | 0,422 |
+| Max (yd) | 1,527 | 1,527 |
+| Match-Rate | 98,4 % (246/250) | **99,6 % (249/250)** |
+| Unmatched | 4 | **1** |
+
+Median/p90/Max bleiben praktisch unverändert (Max ist exakt identisch -- derselbe Ausreisser-
+GT-Punkt in `midfield`/hp-02, siehe `docs/pilot-accuracy.md`s Fehlerzerlegung, die von der
+Tracker-Wahl unabhängig ist). Die Match-Rate verbessert sich klar (98,4 % -> 99,6 %): BoT-SORTs
+längerer `lost_track_buffer` lässt Tracks über kurze Lücken hinweg bestehen, wodurch mehr
+GT-Punkte einen Track-Fusspunkt im 3-Yard-Suchradius finden. Die volle Zerlegung (pro Feldzone,
+Massstabs-Kontrolle, Fehlerzerlegung gegen die Homographie) steht in `docs/pilot-accuracy.md`.
+
+#### Overlay-Videos (v2, `cv/overlay.py::render_track_overlay`)
+
+Alle 61 Clip-Overlays wurden gegen den v2-Tracking-Output neu gerendert (`ffep cv overlay`,
+~2:49 min Wall-Clock für alle 61 Clips) und ersetzen die vorherigen Overlays unter
+`data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/overlays/` (PII, gitignored, nicht
+Teil dieses Commits). `render_track_overlay`/`measure_continuity` selbst wurden für diesen
+Re-Lauf aus dem pausierten Plan-02.1-14-Zweig übernommen (Commits `ff027bc`/`47acf56`,
+unverändert) -- das menschliche Kontinuitäts-Review (Plan 02.1-14 Task 3) bleibt auf jenem
+Zweig offen und ist nicht Teil dieses Re-Laufs.

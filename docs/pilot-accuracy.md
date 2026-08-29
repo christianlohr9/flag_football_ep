@@ -3,12 +3,15 @@
 Maschinenlesbares Gegenstück: `data/reference/gt_positions.csv`
 (`src/flag_football_ep/cv/accuracy.py`, `ffep cv accuracy --prepare` / `--measure`).
 
-**Status: gemessen am 2026-08-29 gegen die v1-Pipeline-Tracks (`ffep cv accuracy --measure`) —
-250 von einer Person hand-markierte Fusspositionen, 21 Frames, 12 Clips, 8 Massstabs-Paare.
-Diese Zahlen sind explizit v1-Pipeline: ein Tracking-Rework (BoT-SORT/Team-Zuordnungs-Fix) läuft
-parallel; eine Neu-Messung gegen den überarbeiteten Tracking-Output folgt. Der formale C-09-
-Gate-Entscheid wird bis dahin nicht hier, sondern erst in Plan 02.1-17 nach der Neu-Messung
-getroffen — dieses Dokument liefert die Messmaschinerie und den v1-Befund, nicht das Urteil.**
+**Status: v1 gemessen am 2026-08-29 gegen die ursprünglichen OC-SORT-Pipeline-Tracks
+(`ffep cv accuracy --measure`), v2 nachgemessen am selben Tag gegen den nach dem
+Kontinuitäts-Review gemergten BoT-SORT-/Torso-Crop-Gap-Fix (`faf75dd`/`b870a72`) —
+250 von einer Person hand-markierte Fusspositionen, 21 Frames, 12 Clips, 8 Massstabs-Paare,
+identisch für beide Messungen (`data/reference/gt_positions.csv` unverändert). Beide
+Messungen bleiben hier nebeneinander erhalten (`## Gemessener Positionsfehler (v1)` = v1,
+`## v2-Messung (BoT-SORT-/Torso-Crop-Gap-Fix)` = v2 mit denselben Tabellen). Der formale
+C-09-Gate-Entscheid selbst wird nicht hier, sondern in Plan 02.1-17 getroffen — dieses
+Dokument liefert die Messmaschinerie und beide Befunde, nicht das Urteil.**
 
 ## Zweck & Abgrenzung
 
@@ -59,7 +62,7 @@ Spielgeschehen kam der echten Ost-Endzone in dieser Aufnahme nie nahe genug. Das
 **Phase-2.0-Rückmeldung zum Aufnahme-Setup** (Hover-Position/Kameraausrichtung deckte dieses Ende des
 Felds über die gesamte Session nicht ab), keine Pipeline- oder Labeling-Schwäche dieses Plans.
 
-## Gemessener Positionsfehler
+## Gemessener Positionsfehler (v1)
 
 Schwellenwert C-09: ~1 m ≈ **1,094 Yards**.
 
@@ -75,12 +78,12 @@ Schwellenwert C-09: ~1 m ≈ **1,094 Yards**.
 Median und p90 liegen klar unter dem ~1-m-Schwellenwert (Median bei 15 % davon, p90 bei 38 %) — die
 typische Positionsgenauigkeit dieser v1-Pipeline ist deutlich besser als das Kriterium verlangt. Der
 Max-Wert (1,527 Yards / 1,396 m) liegt **über** dem Schwellenwert: ein einzelner Ausreisser, kein
-Muster (siehe `## Fehler pro Feldzone`). Die 4 unmatched GT-Punkte (1,6 % aller Punkte) sind Fälle ohne
+Muster (siehe `## Fehler pro Feldzone (v1)`). Die 4 unmatched GT-Punkte (1,6 % aller Punkte) sind Fälle ohne
 Track-Fusspunkt innerhalb von 3 Yards im selben Frame — sie zählen in die Match-Rate, nie in die
 Fehlerverteilung (T-2.1-37: ein stillschweigendes Verwerfen würde nur die einfachen Fälle
 vermessen).
 
-## Fehler pro Feldzone
+## Fehler pro Feldzone (v1)
 
 | Feldzone | n | Median (yd) | p90 (yd) | Max (yd) | Match-Rate | Unmatched |
 |---|---|---|---|---|---|---|
@@ -91,7 +94,7 @@ vermessen).
 | east-endzone | 0 | — | — | — | — | — (keine Daten, s.o.) |
 
 Der einzige über dem Schwellenwert liegende Einzelwert (Max 1,527 Yards) stammt aus `midfield`, unter
-Hover-Position hp-02 (siehe `## Fehlerzerlegung`). Der Median dieser Zone (0,238 yd) bleibt trotzdem
+Hover-Position hp-02 (siehe `## Fehlerzerlegung (v1)`). Der Median dieser Zone (0,238 yd) bleibt trotzdem
 klar im Budget — ein einzelner Ausreisser hebt den Max-Wert, nicht die zentrale Tendenz. `east-half`
 hat mit 93,5 % die niedrigste Match-Rate (3 von 46 unmatched) — plausibel am Rand der hp-01/hp-02-
 Sichtfelder, wo ein Track gelegentlich fehlt oder ausserhalb des 3-Yard-Suchradius liegt, aber keine
@@ -130,7 +133,7 @@ zwingend die Homographie-Güte. Die einzige Zahl in diesem Dokument, die eine ec
 vermessene Distanz gegen die Homographie prüft, bleibt `docs/homography-calibration.md`s 0,27-Yard-
 Reprojektionsfehler.
 
-## Fehlerzerlegung
+## Fehlerzerlegung (v1)
 
 Der oben gemessene Positionsfehler (Median 0,169 / p90 0,415 / Max 1,527 Yards) ist **der
 Fusspunkt-Fehler der Pipeline unter der eigenen Homographie des Projekts** — nicht die
@@ -169,12 +172,98 @@ verfügbare End-to-End-Güteaussage dieser Homographie, und ihr Max-Wert (1,527 
 gesamten Datensatz, bei dem das zutrifft. Diese Zahl wird hier offen berichtet, nicht unter der
 Aggregat-Statistik versteckt.
 
+## v2-Messung (BoT-SORT-/Torso-Crop-Gap-Fix)
+
+Nachgemessen am 2026-08-29 gegen denselben GT-Satz (`data/reference/gt_positions.csv`,
+250 Punkte, 21 Frames, 12 Clips, 8 Massstabs-Paare — unverändert, keine Neu-Labelling
+nötig), nachdem die beiden Gap-Fixes aus dem menschlichen Kontinuitäts-Review gemergt
+wurden: `faf75dd` (Tracker-Wechsel OC-SORT -> getuntes `trackers.BoTSORTTracker`) und
+`b870a72` (`extract_track_crops`, Torso-Region-Crops statt Vollkörper-Crops für die
+Team-Zuordnung — betrifft `team_id`, nicht die hier gemessenen Positionen direkt). Volle
+Lauf-Details (Track-Zahlen, Stage-Timing, C-09-Laufzeit-Extrapolation) stehen in
+`docs/cv-setup.md`s `### v2 (BoT-SORT-Tracker, Torso-Crops -- Gap-Fix-Iteration nach dem
+Kontinuitäts-Review)`.
+
+### Gemessener Positionsfehler (v2)
+
+| Kennzahl | v1 (Yards) | v2 (Yards) |
+|---|---|---|
+| Median | 0,169 | 0,171 |
+| p90 | 0,415 | 0,422 |
+| Max | 1,527 | 1,527 |
+| **Schwellenwert (~1 m)** | **1,094** | **1,094** |
+| Match-Rate | 98,4 % (246/250) | **99,6 % (249/250)** |
+| Unmatched | 4 | **1** |
+
+Median und p90 verschieben sich nur marginal (+0,002 / +0,007 yd) — im Rauschen der
+Messung, kein praktisch bedeutsamer Unterschied. Der Max-Wert ist **exakt identisch**
+(1,527 yd): derselbe Ausreisser-GT-Punkt in `midfield`/hp-02 matcht in beiden Läufen
+denselben Track-Fusspunkt, weil die zugrundeliegende Detektion (nicht die Tracker-
+Zuordnung) diesen Fehler verursacht — siehe `### Fehlerzerlegung (v2)` unten. Die
+Match-Rate verbessert sich klar (98,4 % -> 99,6 %, 3 der 4 vormals unmatched GT-Punkte
+finden jetzt einen Track-Fusspunkt im 3-Yard-Suchradius): BoT-SORTs längerer
+`lost_track_buffer` (90 Frames) lässt Tracks über kurze Verdeckungen/Lücken hinweg
+bestehen statt sie zu beenden, wodurch mehr GT-Frames einen passenden Track vorfinden.
+
+### Fehler pro Feldzone (v2)
+
+| Feldzone | n | Median (yd) v1 | Median (yd) v2 | p90 (yd) v2 | Max (yd) v2 | Match-Rate v2 | Unmatched v2 |
+|---|---|---|---|---|---|---|---|
+| west-endzone | 36 | 0,154 | 0,154 | 0,371 | 0,828 | 97,2 % | 1 |
+| west-half | 120 | 0,151 | 0,151 | 0,325 | 0,621 | 100,0 % | 0 |
+| midfield | 48 | 0,238 | 0,238 | 0,529 | **1,527** | 100,0 % | 0 |
+| east-half | 46 | 0,163 | 0,196 | 0,460 | 0,944 | **100,0 %** | **0** |
+| east-endzone | 0 | — | — | — | — | — | — (weiterhin keine Daten) |
+
+`west-endzone`, `west-half` und `midfield` sind zwischen v1 und v2 praktisch unverändert
+(identische Detektionen, nur die Tracker-Zuordnung änderte sich, und für diese drei Zonen
+matchte der greedy nearest-neighbour in beiden Läufen denselben Fusspunkt). `east-half`
+ist die einzige Zone mit einem sichtbaren Unterschied: die Match-Rate springt von 93,5 %
+(3 von 46 unmatched) auf **100 %** — aber Median/p90/Max steigen zugleich leicht (0,163 ->
+0,196 / 0,410 -> 0,460 / 0,557 -> 0,944 yd). Das ist kein Widerspruch: die 3 vormals
+unmatched GT-Punkte in dieser Zone erhalten jetzt einen Track-Fusspunkt (BoT-SORTs
+Coverage-Gewinn am Rand der hp-01/hp-02-Sichtfelder), aber diese neu gematchten Punkte
+tragen einen grösseren Fehler als die bereits zuvor gematchten — sie ziehen den Median und
+den Max-Wert der Zone nach oben. Insgesamt ein ehrlicher Tradeoff: mehr Coverage
+(weniger Blindstellen für spätere Analysen), leicht höhere Zonen-Fehlerzahlen an genau
+den Rand-Punkten, die vorher schlicht fehlten. Kein zonenspezifisches, durchgängiges
+Versagen (kein D-06-Befund).
+
+### Massstabs-Kontrolle (v2)
+
+Unverändert von v1 — die Massstabs-Paare sind reine GT-zu-GT-Distanzen durch dieselbe
+Homographie projiziert (`## Massstabs-Kontrolle` oben) und hängen nicht vom
+Tracking-Output ab. Kein neuer Lauf nötig; dieselben 8 Werte (mittlerer signierter Fehler
+-0,015 yd) gelten unverändert für v2.
+
+### Fehlerzerlegung (v2)
+
+Wie bei v1 (`## Fehlerzerlegung (v1)`) ist der gemessene Fehler primär die Differenz
+zwischen "wo der Mensch die Füsse sieht" und "wo die Pipeline sie platziert", nicht die
+Homographie-Güte selbst. Aufgeschlüsselt nach Hover-Position:
+
+| Hover-Position | n | Median (yd) v1 | Median (yd) v2 | p90 (yd) v2 | Max (yd) v2 | Match-Rate v2 |
+|---|---|---|---|---|---|---|
+| hp-01 | 156 | 0,152 | 0,152 | 0,365 | 0,828 | 99,4 % |
+| hp-02 | 94 | 0,206 | 0,210 | 0,479 | 1,527 | **100,0 %** |
+
+hp-01 ist zwischen v1 und v2 **exakt identisch** (Median/p90/Max) — dieselbe Detektion,
+derselbe greedy-Match für alle 156 GT-Punkte dieser Hover-Position, nur die Match-Rate
+sinkt marginal (100 % -> 99,4 %, ein einzelner GT-Punkt bleibt jetzt unmatched statt vorher
+gematcht; keine praktische Bedeutung bei n=156). hp-02 verschiebt sich minimal nach oben
+(Median 0,206 -> 0,210 yd, p90 0,452 -> 0,479 yd), erreicht aber jetzt **100 % Match-Rate**
+(vorher waren einige der v1-weiten 4 Unmatched-Punkte hier). Der Max-Wert (1,527 yd) bleibt
+identisch — derselbe Einzelpunkt, weiterhin **über** dem ~1-m-Schwellenwert ohne jede
+Addition, weiterhin offen berichtet statt versteckt. Für hp-01 bleibt der additive
+Worst-Case aus v1 unverändert gültig (Median 0,152 + 0,27 ≈ 0,42 yd; p90 0,365 + 0,27 ≈
+0,64 yd; Max 0,828 + 0,27 ≈ 1,10 yd), da die zugrundeliegenden Rohwerte identisch sind.
+
 ## Grenzen
 
 - **Ein Spiel, eine Session** (`2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE`) — keine Aussage über
   andere Spiele, Lichtverhältnisse oder Kamera-Setups.
 - **Zwei Hover-Positionen, eine davon (hp-02) ohne unabhängige Homographie-Kontrolle** — siehe
-  `## Fehlerzerlegung`.
+  `## Fehlerzerlegung (v1)` / `### Fehlerzerlegung (v2)`.
 - **Eine Annotatorin/ein Annotator, keine IAA-Messung** — dieselbe Grenze wie beim Trainingsdatensatz
   (`docs/cv-setup.md`).
 - **Hand-markierte Fusspunkte tragen eigene Markierungsunsicherheit.** Bei den hier typischen
@@ -187,6 +276,8 @@ Aggregat-Statistik versteckt.
   für die Homographie-Kalibrierung selbst.
 - **`east-endzone` hat keine Daten** — Aufnahme-Abdeckungslücke dieser konkreten Session, siehe
   `## Ground-Truth-Set`. Als Phase-2.0-Feedback zu behandeln, nicht als Pipeline-Schwäche.
-- **v1-Pipeline-Zahlen:** ein Tracking-Rework (BoT-SORT/Team-Zuordnungs-Fix) läuft parallel zu dieser
-  Messung. Diese Zahlen gelten für den zum Messzeitpunkt aktuellen Tracking-Output und werden nach dem
-  Rework neu erhoben, bevor Plan 02.1-17 den formalen C-09-Gate-Entscheid trifft.
+- **v1/v2-Pipeline-Zahlen, formaler Gate-Entscheid noch offen:** das Tracking-Rework
+  (BoT-SORT-Tracker-Wechsel `faf75dd` + Torso-Crop-Team-Zuordnung `b870a72`) ist inzwischen
+  gemergt und v2 wurde gegen denselben GT-Satz nachgemessen (`## v2-Messung
+  (BoT-SORT-/Torso-Crop-Gap-Fix)` unten). Beide Zahlensätze stehen hier nebeneinander; der
+  formale C-09-Gate-Entscheid selbst wird weiterhin erst in Plan 02.1-17 getroffen.

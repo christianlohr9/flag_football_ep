@@ -444,7 +444,9 @@ def overlay(
 
     tracks_df = pl.read_parquet(tracks)
     clip_numbers = clip or sorted(tracks_df["clip_number"].unique().to_list())
-    out_directory = out_dir or (cfg.paths.processed / "overlay")
+    # Overlays are rendered player footage (PII, T-2.1-01) -- they belong under the
+    # gitignored label tree, never under `reports/` or `data/processed/`.
+    out_directory = out_dir or (cfg.paths.labels / cfg.cv.pilot_session_id / "overlays")
 
     from flag_football_ep.cv.frames import clip_number as clip_number_of
     from flag_football_ep.cv.frames import clip_paths
