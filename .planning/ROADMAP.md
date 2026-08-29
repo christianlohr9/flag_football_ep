@@ -294,7 +294,7 @@ Plans:
 **Wave 10** *(blocked on Wave 9; two parallel plans)*
 
 - [x] 02.1-13-PLAN.md — Calibration point-picking checkpoint, field coordinates in yards, held-out reprojection error
-- [ ] 02.1-14-PLAN.md — Track-overlay rendering, continuity statistics, the 61-clip human continuity review
+- [x] 02.1-14-PLAN.md — Track-overlay rendering, continuity statistics, the 61-clip human continuity review
 
 **Wave 11** *(blocked on Wave 10)*
 
