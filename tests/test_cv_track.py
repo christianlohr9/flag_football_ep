@@ -1,4 +1,4 @@
-"""Coverage for `flag_football_ep.cv.track.track_session`: per-clip OC-SORT tracking,
+"""Coverage for `flag_football_ep.cv.track.track_session`: per-clip BoT-SORT tracking,
 per-clip containment, stage timing, and schema-conforming pixel-space output --
 offline against a fake detector and tiny synthetic clips (`cv2.VideoWriter`), no real
 RF-DETR weights, no network, no GPU.
@@ -6,7 +6,9 @@ RF-DETR weights, no network, no GPU.
 `load_detector` itself is monkeypatched to return a fake model directly (its own
 contract -- champion resolution, `WeightsNotFound` wrapping -- is covered by
 `tests/test_cv_detect_infer.py`); this file's job is `track_session`'s own orchestration:
-the per-clip try/except, notices, stage timing, and the OC-SORT association loop.
+the per-clip try/except, notices, stage timing, and the BoT-SORT association loop
+(tracker swapped from OC-SORT in the 02.1-12/02.1-14 gap-fix iteration -- see
+`cv/track.py`'s module docstring for the measured rationale).
 """
 
 from __future__ import annotations
@@ -210,8 +212,8 @@ def _empty() -> sv.Detections:
 
 
 def _moving_player_box(call_index: int) -> sv.Detections:
-    """A single "player" (class_id 0) detection, sliding one pixel per call so OC-SORT's
-    motion model has something non-degenerate to associate on.
+    """A single "player" (class_id 0) detection, sliding one pixel per call so the
+    tracker's motion model has something non-degenerate to associate on.
     """
     x1 = 10.0 + call_index
     return _detections([[x1, 20.0, x1 + 20.0, 60.0]], [0.9], [0])
@@ -407,6 +409,45 @@ def test_stage_seconds_contains_all_four_stages_with_nonnegative_values(
     assert set(result.stage_seconds) == {"decode", "detect", "track", "write"}
     for value in result.stage_seconds.values():
         assert value >= 0.0
+
+
+def test_late_spawning_track_needs_the_tuned_confirmation_window_before_appearing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Regression coverage for the BoT-SORT tuning (gap-fix iteration, post plan
+    02.1-12): a track that spawns after the clip's very first tracked frame does not
+    get BoT-SORT's `instant_first_frame_activation` shortcut, so it needs
+    `_TRACKER_MINIMUM_CONSECUTIVE_FRAMES` (5) consecutive updates before its rows carry
+    a real track id -- proof the tuned confirmation window, not BoT-SORT's own default
+    (2) or OC-SORT's prior default (3), is actually wired through `track_session`.
+    """
+    config = _make_config(tmp_path)
+    n_frames = 8
+    _write_synthetic_clip(config.paths.video / "Wide - Clip 001.mp4", n_frames)
+    _write_inventory(
+        config,
+        [_inventory_row("data/video/Wide - Clip 001.mp4", duration_seconds=n_frames / _CLIP_FPS)],
+    )
+
+    def _boxes(call_index: int) -> sv.Detections:
+        # No detections at all for the first two frames, so the player box's first
+        # appearance (call_index 2) is not the tracker's very first update() call --
+        # it does not qualify for instant first-frame activation.
+        if call_index < 2:
+            return _empty()
+        return _moving_player_box(call_index)
+
+    model = _FakeModel(_boxes)
+    _install_fake_model(monkeypatch, model)
+
+    result = track_session(config, "test-session", run_id="deadbeef00")
+
+    tracks_df = pl.read_parquet(result.parquet_path)
+    seen_frames = sorted(tracks_df["frame_index"].to_list())
+    assert seen_frames, "expected at least one confirmed row once the box stabilises"
+    # frames 0-1: no detections; frames 2-5: unconfirmed (tracker_id -1, dropped);
+    # frame 6 is the 5th consecutive confirmed update -- the earliest real track id.
+    assert min(seen_frames) == 6
 
 
 def test_boxmot_is_absent_from_the_source_tree() -> None:
