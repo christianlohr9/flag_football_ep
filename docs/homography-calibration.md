@@ -1,8 +1,9 @@
 # Homographie-Kalibrierung — Pilot-Session Drohne (2026-05-16)
 
-**Status: Referenzbilder automatisiert exportiert am 2026-08-29 (`uv run --extra cv` gegen
-`homography.pick_points`, ein repräsentativer Clip je Hover-Position) — Punktkorrespondenzen
-ausstehend, Freigabe durch Nutzer-Checkpoint (Plan 02.1-13 Task 2).**
+**Status: Kalibrierung abgeschlossen am 2026-08-29 — Punktkorrespondenzen vom Nutzer über die
+lokale Picker-Seite gesetzt (hp-01: 4 Fit + 1 Held-out, 0.27 yd Reprojektionsfehler; hp-02: 4 Fit,
+exakt bestimmt), Feldkoordinaten für alle 341.461 Track-Zeilen berechnet (25.03% out-of-bounds,
+dominiert von absichtlich mitgetrackten Randpersonen).**
 
 Maschinenlesbares Gegenstück: `data/reference/homography_calibration.csv`
 (`ffep cv calibrate` / `homography.pick_points`, `homography.load_calibration`).
@@ -22,7 +23,13 @@ ein Grobcheck der Homographie selbst, kein Ersatz dafür).
 
 ## Feld-Landmarken
 
-`homography.field_landmarks(config)` berechnet die feste 18-Namen-Landmarken-Vokabel
+**Vokabular-Korrektur nach Feldrealität (2026-08-29):** Das Pilotfeld trägt keine
+10/20/30/40-Yard-Linien — markiert sind nur Goallinien, Endzonen-Rücklinien, Mittellinie und die
+beiden 5-Yard-No-Run-Zone-Linien. Die ursprünglich geplanten `yardline_10/20/30/40`-Landmarken
+wurden aus dem Vokabular entfernt (niemand soll unsichtbare Linien raten); an ihre Stelle treten
+`yardline_5_*` (x = 5) und `yardline_45_*` (x = 45). Das Vokabular umfasst damit 14 Namen.
+
+`homography.field_landmarks(config)` berechnet die feste Landmarken-Vokabel
 (`homography.FIELD_LANDMARKS`) aus `config.cv.field_length_yards` (50.0),
 `field_width_yards` (25.0) und `endzone_yards` (10.0). Koordinatenkonvention (D-13):
 **x = 0** an der Westgoalline, **x = 50** an der Ostgoalline (negative x bzw. x > 50 liegt in einer
@@ -40,14 +47,10 @@ zwingend die geografische Ausrichtung vor Ort.
 | `endzone_west_back_north` | -10.0 | 25.0 |
 | `endzone_east_back_south` | 60.0 | 0.0 |
 | `endzone_east_back_north` | 60.0 | 25.0 |
-| `yardline_10_south` | 10.0 | 0.0 |
-| `yardline_10_north` | 10.0 | 25.0 |
-| `yardline_20_south` | 20.0 | 0.0 |
-| `yardline_20_north` | 20.0 | 25.0 |
-| `yardline_30_south` | 30.0 | 0.0 |
-| `yardline_30_north` | 30.0 | 25.0 |
-| `yardline_40_south` | 40.0 | 0.0 |
-| `yardline_40_north` | 40.0 | 25.0 |
+| `yardline_5_south` | 5.0 | 0.0 |
+| `yardline_5_north` | 5.0 | 25.0 |
+| `yardline_45_south` | 45.0 | 0.0 |
+| `yardline_45_north` | 45.0 | 25.0 |
 | `midfield_south` | 25.0 | 0.0 |
 | `midfield_north` | 25.0 | 25.0 |
 
@@ -92,10 +95,17 @@ zwingend die geografische Ausrichtung vor Ort.
   Endzone (deutet auf beide Seitenlinien im Bild, konsistent mit der in `docs/pilot-sighting.md` als
   "weite Rahmung" beschriebenen Einstellung), sowie ein Eckpylon am rechten Bildrand nahe der
   Endzonen-Hinterlinie.
-- Punktkorrespondenzen: *ausstehend — Plan 02.1-13 Task 2 (Nutzer-Checkpoint)*.
-- Reprojektionsabweichung (zurückgehaltene Landmarken): *ausstehend*.
-- Anzahl zurückgehaltener Punkte: *ausstehend*.
-- Out-of-Bounds-Anteil (aus `add_field_coordinates`-Notices): *ausstehend*.
+- Punktkorrespondenzen: **5** (vom Nutzer am 2026-08-29 über die lokale Picker-Seite geklickt) —
+  mehr Landmarken sind in diesem Bildausschnitt physisch nicht identifizierbar. 4 Fit-Punkte
+  (`goalline_west_north`, `midfield_south`, `midfield_north`, `yardline_5_south`) spannen ein
+  Viereck über Goallinie ↔ Mittellinie und beide Seitenlinien auf.
+- Reprojektionsabweichung (zurückgehaltener Punkt `yardline_5_north`): **0.27 Yards (~0.25 m)**.
+- Anzahl zurückgehaltener Punkte: **1** statt der geplanten 2 — dokumentierte Abweichung, siehe
+  Vokabular-Korrektur oben: das Feld bietet schlicht nicht mehr klickbare Linienkreuzungen.
+- Out-of-Bounds-Anteil: **30.42%** der hp-01-Zeilen (56.515 von 185.776) liegen außerhalb des
+  Spielfelds — dominiert von absichtlich mitgetrackten Randpersonen (Bank/Coaches, siehe
+  Labelling-Konvention in `docs/cv-setup.md`), nicht von Projektionsfehlern; die räumliche
+  Filterung auf Spielfeld-Inhalt ist der vorgesehene nachgelagerte Schritt.
 
 ### hp-02
 
@@ -107,10 +117,17 @@ zwingend die geografische Ausrichtung vor Ort.
   "gezoomt/rotiert" beschriebenen Einstellung), eine Seitenlinie mit Team-Bank und einem orangen
   "40"-Pylon rechts im Bild, weites offenes Spielfeld ohne klar erkennbare zweite Seitenlinie im
   unteren Bildbereich.
-- Punktkorrespondenzen: *ausstehend — Plan 02.1-13 Task 2 (Nutzer-Checkpoint)*.
-- Reprojektionsabweichung (zurückgehaltene Landmarken): *ausstehend*.
-- Anzahl zurückgehaltener Punkte: *ausstehend*.
-- Out-of-Bounds-Anteil (aus `add_field_coordinates`-Notices): *ausstehend*.
+- Punktkorrespondenzen: **4** (vom Nutzer am 2026-08-29 über die lokale Picker-Seite geklickt) —
+  mehr Landmarken sind in diesem Bildausschnitt physisch nicht identifizierbar: `midfield_south`,
+  `midfield_north`, `yardline_45_south`, `yardline_5_north`, alle als Fit-Punkte.
+- Reprojektionsabweichung: **nicht messbar** — mit exakt 4 Punkten ist die Homographie exakt
+  bestimmt (Restfehler 0 per Konstruktion), ein unabhängiger Kontrollpunkt existiert nicht.
+  Die Qualität dieser Homographie wird ausschließlich end-to-end über das Ground-Truth-Set aus
+  Plan 02.1-15 gemessen — genau die Abgrenzung, die dieses Dokument oben zieht.
+- Anzahl zurückgehaltener Punkte: **0** statt der geplanten 2 — dokumentierte Abweichung
+  (Feldrealität, siehe Vokabular-Korrektur oben).
+- Out-of-Bounds-Anteil: **18.61%** der hp-02-Zeilen (28.969 von 155.685), gleiche Interpretation
+  wie bei hp-01 (Randpersonen, kein Projektionsartefakt).
 
 ## Wiederverwendung
 

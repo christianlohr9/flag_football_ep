@@ -136,13 +136,18 @@ def test_load_calibration_missing_file_raises() -> None:
         load_calibration(missing)
 
 
-def test_load_calibration_header_only_checked_in_file_loads_empty() -> None:
+def test_load_calibration_checked_in_file_carries_both_pilot_hover_positions() -> None:
+    """Since plan 02.1-13's user calibration the checked-in CSV is no longer the
+    header-only anchor: it carries the real pilot points -- >=4 use_for_fit rows for
+    each of the session's two hover positions.
+    """
     cfg = _config()
-    with pytest.warns(UserWarning):
-        df = load_calibration(cfg.reference.homography_calibration)
+    df = load_calibration(cfg.reference.homography_calibration)
 
-    assert df.height == 0
     assert tuple(df.columns) == CALIBRATION_COLUMNS
+    for hp in ("hp-01", "hp-02"):
+        fit = df.filter((pl.col("hover_position_id") == hp) & pl.col("use_for_fit"))
+        assert fit.height >= 4, f"{hp} has {fit.height} fit points, need >= 4"
 
 
 def _valid_fit_rows(hover_position_id: str, landmarks: dict[str, tuple[float, float]]) -> list[dict[str, object]]:
