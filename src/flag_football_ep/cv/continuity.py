@@ -203,11 +203,31 @@ def _measure_clip(
     )
 
 
+def _validate_verdicts(df: pl.DataFrame, path: Path) -> None:
+    """Raise `ValueError` on any `verdict` outside `_VALID_VERDICTS` (`pass`/`fail`/
+    empty), naming the CSV and the offending clip numbers. A typo'd verdict (`Pass`,
+    `ok`, `yes`) would otherwise count as *reviewed* while landing in neither the pass
+    nor the fail bucket -- silently deflating `pass_rate` with no error, the exact
+    "quietly wrong headline number" failure mode this module exists to prevent.
+    """
+    bad = df.filter(~pl.col("verdict").fill_null("").is_in(sorted(_VALID_VERDICTS)))
+    if bad.height:
+        bad_pairs = [
+            f"clip {row['clip_number']}: {row['verdict']!r}"
+            for row in bad.iter_rows(named=True)
+        ]
+        raise ValueError(
+            f"invalid verdict(s) in {path} (allowed: 'pass', 'fail', empty): "
+            + "; ".join(bad_pairs)
+        )
+
+
 def _load_existing_human_columns(path: Path) -> dict[int, dict]:
     """Read `verdict`/`id_switches`/`reviewer_note` per clip from a previously written
     review CSV, so a re-run of `measure_continuity` never wipes a human's work
     (T-2.1-35). Returns an empty dict when the file does not exist yet or is
-    header-only.
+    header-only. Raises `ValueError` on a verdict outside `_VALID_VERDICTS` -- a typo
+    must never be silently carried forward into the refreshed CSV.
     """
     if not path.exists():
         return {}
@@ -215,6 +235,8 @@ def _load_existing_human_columns(path: Path) -> dict[int, dict]:
     df = pl.read_csv(path, schema_overrides=_REVIEW_SCHEMA)
     if df.height == 0:
         return {}
+
+    _validate_verdicts(df, path)
 
     preserved: dict[int, dict] = {}
     for row in df.iter_rows(named=True):
@@ -313,9 +335,15 @@ def summarise_review(review_csv: Path) -> dict:
     this function must never manufacture a headline pass rate from a partial review,
     because a shrinking denominator is exactly how a false 90%+ claim gets made
     (D-09, T-2.1-31).
+
+    Raises `ValueError` on any verdict outside `_VALID_VERDICTS` (`pass`/`fail`/empty),
+    naming the offending clips -- a typo'd verdict must fail loudly, never silently
+    skew `pass_rate`.
     """
     review_csv = Path(review_csv)
     df = pl.read_csv(review_csv, schema_overrides=_REVIEW_SCHEMA)
+
+    _validate_verdicts(df, review_csv)
 
     n_clips = df.height
     verdicts = df["verdict"].fill_null("")

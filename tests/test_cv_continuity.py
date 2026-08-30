@@ -372,6 +372,47 @@ def test_summarise_review_returns_exact_ratio_when_fully_reviewed(tmp_path: Path
     assert summary["unreviewed_clips"] == []
 
 
+def test_summarise_review_raises_on_a_typoed_verdict_naming_the_clip(tmp_path: Path) -> None:
+    """A verdict outside pass/fail/empty (a typo like `Pass`) previously counted as
+    *reviewed* while landing in neither bucket -- silently deflating `pass_rate`. It
+    must raise instead.
+    """
+    review_csv = tmp_path / "continuity_review.csv"
+    review_csv.write_text(
+        "clip_number,n_tracks,longest_track_frac,n_fragments,auto_flag,verdict,id_switches,reviewer_note\n"
+        "1,4,1.0,0,ok,pass,0,\n"
+        "2,4,1.0,0,ok,Pass,0,\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        summarise_review(review_csv)
+
+    message = str(exc_info.value)
+    assert "clip 2" in message
+    assert "Pass" in message
+    assert str(review_csv) in message
+
+
+def test_measure_continuity_rerun_raises_instead_of_carrying_a_typoed_verdict_forward(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    session_id = config.cv.pilot_session_id
+    _write_inventory(config, [1], session_id=session_id)
+    tracks = synthetic_tracks(session_id=session_id, n_clips=1, n_frames=10, n_tracks=4)
+
+    first = measure_continuity(tracks, config)
+
+    # a human typos the verdict by hand-editing the review CSV
+    df = pl.read_csv(first.review_csv, schema_overrides=_REVIEW_SCHEMA)
+    df = df.with_columns(pl.lit("ok").alias("verdict"))
+    df.write_csv(first.review_csv)
+
+    with pytest.raises(ValueError, match="invalid verdict"):
+        measure_continuity(tracks, config)
+
+
 # --- schema gate over the committed data/reference/continuity_review.csv artifact -----------
 # mirrors tests/test_capture_artifacts.py's style for video_inventory.csv/video_sync.csv.
 
