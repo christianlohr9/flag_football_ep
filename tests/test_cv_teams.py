@@ -875,3 +875,120 @@ def test_extract_track_crops_raises_missing_clip_error_naming_the_path(
         extract_track_crops(config, "test-session", tracks)
 
     assert str(bad_clip) in str(exc_info.value)
+
+
+# --- `ffep cv teams` CLI wiring (team_id must be reachable without library calls) -----------
+
+
+def test_teams_command_extracts_crops_assigns_teams_and_rewrites_the_parquet_in_place(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The documented command surface must be able to fill `team_id`: `ffep cv teams`
+    drives `extract_track_crops` -> `assign_teams` -> `write_tracking_parquet` exactly
+    like the pilot runs drove the library, defaulting to an in-place rewrite of the
+    input Parquet (mirroring `ffep cv coords`).
+    """
+    from typer.testing import CliRunner
+
+    from test_config import MINIMAL_TOML
+
+    from flag_football_ep.cli import app
+    from flag_football_ep.testing import synthetic_tracks
+
+    config_path = tmp_path / "ffep.toml"
+    config_path.write_text(MINIMAL_TOML, encoding="utf-8")
+
+    tracks_path = tmp_path / "tracks.parquet"
+    tracks_df = synthetic_tracks(n_clips=1, n_frames=4, n_tracks=3)
+    tracks_df.write_parquet(tracks_path)
+
+    calls: dict = {}
+
+    def _fake_extract_track_crops(config, session_id, tracks, **kwargs):
+        calls["extract"] = {"session_id": session_id, "n_rows": tracks.height}
+        return {(1, 1): [np.zeros((4, 4, 3))], (1, 2): [np.zeros((4, 4, 3))]}
+
+    def _fake_assign_teams(tracks, config, *, crops_by_track):
+        calls["assign"] = {"crop_keys": sorted(crops_by_track)}
+        with_teams = tracks.with_columns(
+            pl.when(pl.col("class_name") == "player")
+            .then(pl.col("track_id") % 2)
+            .otherwise(None)
+            .cast(pl.Int32)
+            .alias("team_id")
+        )
+        return TeamAssignmentResult(
+            tracks=conform_tracking(with_teams), notices=["synthetic ambiguity notice"]
+        )
+
+    monkeypatch.setattr(teams_module, "extract_track_crops", _fake_extract_track_crops)
+    monkeypatch.setattr(teams_module, "assign_teams", _fake_assign_teams)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app, ["cv", "teams", "--config", str(config_path), "--tracks", str(tracks_path)]
+    )
+
+    assert result.exit_code == 0, result.output
+    # the session id defaulted from the config and the crops fed the assignment
+    assert calls["extract"]["session_id"] == "2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE"
+    assert calls["extract"]["n_rows"] == tracks_df.height
+    assert calls["assign"]["crop_keys"] == [(1, 1), (1, 2)]
+    # the parquet was rewritten in place with team_id filled for player tracks
+    rewritten = pl.read_parquet(tracks_path)
+    assert rewritten.filter(pl.col("class_name") == "player")["team_id"].null_count() == 0
+    assert rewritten.filter(pl.col("class_name") == "referee")["team_id"].null_count() > 0
+    # echoed summary + notices
+    assert "teams:" in result.output
+    assert "2 tracks assigned" in result.output
+    assert "notice: synthetic ambiguity notice" in result.output
+
+
+def test_teams_command_respects_an_explicit_out_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from typer.testing import CliRunner
+
+    from test_config import MINIMAL_TOML
+
+    from flag_football_ep.cli import app
+    from flag_football_ep.testing import synthetic_tracks
+
+    config_path = tmp_path / "ffep.toml"
+    config_path.write_text(MINIMAL_TOML, encoding="utf-8")
+
+    tracks_path = tmp_path / "tracks.parquet"
+    original_df = synthetic_tracks(n_clips=1, n_frames=4, n_tracks=3)
+    original_df.write_parquet(tracks_path)
+    original_bytes = tracks_path.read_bytes()
+
+    monkeypatch.setattr(
+        teams_module, "extract_track_crops", lambda config, session_id, tracks, **kw: {}
+    )
+    monkeypatch.setattr(
+        teams_module,
+        "assign_teams",
+        lambda tracks, config, *, crops_by_track: TeamAssignmentResult(
+            tracks=conform_tracking(tracks), notices=[]
+        ),
+    )
+
+    out_path = tmp_path / "with_teams.parquet"
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "cv",
+            "teams",
+            "--config",
+            str(config_path),
+            "--tracks",
+            str(tracks_path),
+            "--out",
+            str(out_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert out_path.is_file()
+    assert tracks_path.read_bytes() == original_bytes  # input untouched with --out

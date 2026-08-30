@@ -336,6 +336,55 @@ def track(
 
 
 @cv_app.command()
+def teams(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    tracks: Path = typer.Option(..., "--tracks", help="Input tracking Parquet"),
+    session: Optional[str] = typer.Option(
+        None, "--session", help="Pilot session id (default: cfg.cv.pilot_session_id)"
+    ),
+    out: Optional[Path] = typer.Option(
+        None,
+        "--out",
+        help="Override the output Parquet path (default: rewrite --tracks in place)",
+    ),
+) -> None:
+    """Assign per-track team ids over a tracking Parquet and rewrite it.
+
+    Mirrors exactly how the pilot runs drove the library: `extract_track_crops`
+    (torso-region crops) feeds one session-wide `assign_teams` fit, and the
+    `team_id`-filled frame is written back through `write_tracking_parquet`.
+    """
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    session_id = session or cfg.cv.pilot_session_id
+
+    import polars as pl
+
+    tracks_df = pl.read_parquet(tracks)
+
+    from flag_football_ep.cv.teams import assign_teams, extract_track_crops
+
+    crops_by_track = extract_track_crops(cfg, session_id, tracks_df)
+    result = assign_teams(tracks_df, cfg, crops_by_track=crops_by_track)
+
+    from flag_football_ep.cv.schema import write_tracking_parquet
+
+    out_path = out or tracks
+    written = write_tracking_parquet(result.tracks, out_path)
+
+    n_assigned = (
+        result.tracks.filter(pl.col("team_id").is_not_null())
+        .select(["clip_number", "track_id"])
+        .unique()
+        .height
+    )
+    typer.echo(f"teams: {written} ({n_assigned} tracks assigned)")
+    for notice in result.notices:
+        typer.echo(f"notice: {notice}")
+
+
+@cv_app.command()
 def calibrate(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     clip: int = typer.Option(..., "--clip", help="Clip number to extract a calibration still from"),

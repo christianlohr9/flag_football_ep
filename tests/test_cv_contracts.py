@@ -5,7 +5,7 @@ touching video, weights or network:
 
 1. Lazy-import guard (D-07/D-08): `import flag_football_ep.cli` must never pull in a
    `cv` extras third-party dependency.
-2. Help-surface guard: `ffep cv --help` must list every one of the 17 pilot verbs.
+2. Help-surface guard: `ffep cv --help` must list every one of the 18 pilot verbs.
 3. Signature guard: every contract function/method named in plan 02.1-02's
    `<interfaces>` block must exist on its module with its declared parameter names --
    this is what stops a later plan from silently renaming a parameter another plan
@@ -131,6 +131,7 @@ CV_VERBS: tuple[str, ...] = (
     "train",
     "promote",
     "track",
+    "teams",
     "calibrate",
     "coords",
     "export",
