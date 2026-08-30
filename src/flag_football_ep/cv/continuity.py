@@ -51,12 +51,15 @@ class ContinuityRow:
 @dataclass
 class ContinuityResult:
     """The full continuity measurement: every clip's `ContinuityRow`, the review CSV
-    path flagged clips were written to, and the whole-session summary dict.
+    path flagged clips were written to, the whole-session summary dict, and notices
+    (one per clip whose coverage denominator had to fall back to the last tracked
+    frame because the inventory carries no duration/fps for it).
     """
 
     rows: list[ContinuityRow] = field(default_factory=list)
     review_csv: Path = field(default_factory=Path)
     summary: dict = field(default_factory=dict)
+    notices: list[str] = field(default_factory=list)
 
 
 # Exact column order per this plan's <interfaces> block -- the committed review CSV's
@@ -96,6 +99,55 @@ _EXPECTED_MIN_TRACKS = 3
 
 _VALID_VERDICTS = frozenset({"pass", "fail", ""})
 
+# Mirrors `track.py`'s own private `_INVENTORY_SCHEMA` -- kept as a separate constant
+# rather than importing the private module attribute across module boundaries (same
+# precedent as `detect.py`'s `_IMAGE_SUFFIXES`).
+_INVENTORY_SCHEMA: dict[str, pl.DataType] = {
+    "domain": pl.Utf8,
+    "session_id": pl.Utf8,
+    "game_id": pl.Utf8,
+    "capture_date": pl.Utf8,
+    "resolution": pl.Utf8,
+    "fps": pl.Float64,
+    "duration_seconds": pl.Float64,
+    "local_path": pl.Utf8,
+    "content_sha256": pl.Utf8,
+    "notes": pl.Utf8,
+}
+
+
+def _read_expected_frame_counts(
+    config: Config, session_id: str, clip_numbers: set[int]
+) -> dict[int, int]:
+    """The expected whole-clip frame count per clip -- `round(duration_seconds * fps)`
+    from `video_inventory.csv` (the same source `frames.clip_paths` reads, filtered the
+    same way). This is the coverage denominator D-09 demands: the clip's REAL length,
+    not the last frame the tracker happened to produce output for. A clip absent from
+    the inventory (or with a null/non-positive duration or fps) is simply missing from
+    the returned dict -- the caller falls back to the last tracked frame with a notice.
+    """
+    from flag_football_ep.cv.frames import clip_number as clip_number_of
+
+    inventory_path = config.paths.reference / "video_inventory.csv"
+    if not inventory_path.exists():
+        return {}
+
+    df = pl.read_csv(inventory_path, schema_overrides=_INVENTORY_SCHEMA)
+    rows = df.filter((pl.col("domain") == "drone") & (pl.col("session_id") == session_id))
+
+    expected: dict[int, int] = {}
+    for row in rows.iter_rows(named=True):
+        local_path = row["local_path"]
+        if not local_path:
+            continue
+        n = clip_number_of(Path(local_path))
+        duration = row["duration_seconds"]
+        fps = row["fps"]
+        if n in clip_numbers and duration is not None and fps is not None:
+            if duration > 0 and fps > 0:
+                expected[n] = round(duration * fps)
+    return expected
+
 
 def _clip_flag(n_tracks: int, n_fragments: int) -> str:
     if n_tracks == 0:
@@ -107,7 +159,9 @@ def _clip_flag(n_tracks: int, n_fragments: int) -> str:
     return "ok"
 
 
-def _measure_clip(clip_number: int, clip_tracks: pl.DataFrame) -> ContinuityRow:
+def _measure_clip(
+    clip_number: int, clip_tracks: pl.DataFrame, *, expected_frame_count: int | None = None
+) -> ContinuityRow:
     if clip_tracks.height == 0:
         return ContinuityRow(
             clip_number=clip_number,
@@ -117,7 +171,18 @@ def _measure_clip(clip_number: int, clip_tracks: pl.DataFrame) -> ContinuityRow:
             auto_flag="no-tracks",
         )
 
-    clip_frame_count = int(clip_tracks["frame_index"].max()) + 1
+    # The coverage denominator is the clip's REAL frame count from the inventory, not
+    # the last frame that produced a confirmed track -- if tracking dies partway
+    # through a clip (exactly the failure mode this metric exists to catch), a
+    # tracked-rows-only denominator would overstate `longest_track_frac` (a track
+    # covering frames 0-299 of a 900-frame clip would read as 1.0). The last tracked
+    # frame still floors the denominator so an inventory duration that slightly
+    # under-declares the clip never pushes a fraction above 1.0.
+    last_tracked_frame_count = int(clip_tracks["frame_index"].max()) + 1
+    if expected_frame_count is not None:
+        clip_frame_count = max(expected_frame_count, last_tracked_frame_count)
+    else:
+        clip_frame_count = last_tracked_frame_count
 
     per_track = clip_tracks.group_by("track_id").agg(
         pl.col("frame_index").n_unique().alias("n_frames")
@@ -215,16 +280,27 @@ def measure_continuity(
         for path in frames_module.clip_paths(config, session_id)
     )
 
+    expected_counts = _read_expected_frame_counts(
+        config, session_id, set(session_clip_numbers)
+    )
+
     rows: list[ContinuityRow] = []
+    notices: list[str] = []
     for clip_num in session_clip_numbers:
         clip_tracks = tracks.filter(pl.col("clip_number") == clip_num)
-        rows.append(_measure_clip(clip_num, clip_tracks))
+        expected = expected_counts.get(clip_num)
+        if expected is None and clip_tracks.height > 0:
+            notices.append(
+                f"clip {clip_num}: no inventory duration/fps -- coverage denominator "
+                "falls back to the last tracked frame"
+            )
+        rows.append(_measure_clip(clip_num, clip_tracks, expected_frame_count=expected))
 
     review_path = Path(review_csv) if review_csv is not None else config.reference.continuity_review
     written = _write_review_csv(rows, review_path)
     summary = summarise_review(written)
 
-    return ContinuityResult(rows=rows, review_csv=written, summary=summary)
+    return ContinuityResult(rows=rows, review_csv=written, summary=summary, notices=notices)
 
 
 def summarise_review(review_csv: Path) -> dict:

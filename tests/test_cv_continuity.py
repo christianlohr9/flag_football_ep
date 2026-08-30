@@ -120,9 +120,21 @@ _INVENTORY_HEADER = (
 )
 
 
-def _write_inventory(config: Config, clip_numbers: list[int], *, session_id: str) -> Path:
+def _write_inventory(
+    config: Config,
+    clip_numbers: list[int],
+    *,
+    session_id: str,
+    duration_seconds: str = "10.0",
+    fps: str = "1.0",
+) -> Path:
     """Register `clip_numbers` as drone clips for `session_id`, creating a tiny
     placeholder file per clip (clip_paths only checks existence, never decodes).
+
+    The default `duration_seconds`/`fps` declare a 10-frame clip -- matching
+    `synthetic_tracks(n_frames=10)` -- so the coverage denominator derived from the
+    inventory equals the synthetic tracks' own frame span. Pass empty strings to
+    register a clip without duration/fps metadata (the fallback path).
     """
     fields = (
         "domain",
@@ -149,8 +161,8 @@ def _write_inventory(config: Config, clip_numbers: list[int], *, session_id: str
             "game_id": "",
             "capture_date": "2026-05-16",
             "resolution": "1920x1080",
-            "fps": "30.0",
-            "duration_seconds": "10.0",
+            "fps": fps,
+            "duration_seconds": duration_seconds,
             "local_path": local_path,
             "content_sha256": "",
             "notes": "",
@@ -243,6 +255,48 @@ def test_clip_with_no_rows_yields_zero_tracks_and_no_tracks_flag(tmp_path: Path)
     assert set(rows_by_clip) == {1, 2}
     assert rows_by_clip[2].n_tracks == 0
     assert rows_by_clip[2].auto_flag == "no-tracks"
+
+
+def test_coverage_denominator_is_the_inventory_frame_count_when_tracking_dies_early(
+    tmp_path: Path,
+) -> None:
+    """A track covering every frame the tracker produced output for must NOT read as
+    full coverage when tracking died partway through the clip -- the denominator is
+    the clip's real (inventory-declared) frame count, not the last tracked frame
+    (D-09: the whole clip is the denominator).
+    """
+    config = _make_config(tmp_path)
+    session_id = config.cv.pilot_session_id
+    # Inventory declares a 10-frame clip (10.0s at 1 fps) ...
+    _write_inventory(config, [1], session_id=session_id)
+
+    # ... but tracking only produced rows for the first 5 frames.
+    tracks = synthetic_tracks(session_id=session_id, n_clips=1, n_frames=5, n_tracks=4)
+
+    result = measure_continuity(tracks, config)
+
+    row = result.rows[0]
+    assert row.longest_track_frac == 0.5  # 5 tracked frames / 10 real frames
+    assert result.notices == []  # inventory metadata present -- no fallback notice
+
+
+def test_coverage_denominator_falls_back_to_last_tracked_frame_with_a_notice(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    session_id = config.cv.pilot_session_id
+    # Registered clip with NO duration/fps metadata in the inventory.
+    _write_inventory(config, [1], session_id=session_id, duration_seconds="", fps="")
+
+    tracks = synthetic_tracks(session_id=session_id, n_clips=1, n_frames=10, n_tracks=4)
+
+    result = measure_continuity(tracks, config)
+
+    row = result.rows[0]
+    assert row.longest_track_frac == 1.0  # fallback denominator: last tracked frame + 1
+    assert any("clip 1" in notice and "falls back" in notice for notice in result.notices), (
+        result.notices
+    )
 
 
 def test_rerun_preserves_existing_verdicts_and_notes(tmp_path: Path) -> None:

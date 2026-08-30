@@ -489,6 +489,8 @@ def continuity(
     typer.echo(f"continuity: {result.review_csv} ({len(result.rows)} clips)")
     for key, value in result.summary.items():
         typer.echo(f"  {key}: {value}")
+    for notice in result.notices:
+        typer.echo(f"notice: {notice}")
 
 
 @cv_app.command()
