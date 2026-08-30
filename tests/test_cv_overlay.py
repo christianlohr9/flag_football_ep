@@ -25,6 +25,7 @@ from flag_football_ep.config import (
 )
 from flag_football_ep.cv.detect import MissingClipError
 from flag_football_ep.cv.overlay import NoTracksForClip, draw_frame, render_track_overlay
+from flag_football_ep.cv.palette import TEAM_COLORS
 from flag_football_ep.testing import synthetic_tracks
 
 _CLIP_FPS = 10.0
@@ -172,6 +173,32 @@ def test_two_team_ids_produce_two_different_colours_at_box_borders(tmp_path: Pat
     assert not np.array_equal(pixel_team0, [0, 0, 0])
     assert not np.array_equal(pixel_team1, [0, 0, 0])
     assert not np.array_equal(pixel_team0, pixel_team1)
+
+
+def test_team_zero_draws_red_and_team_one_draws_blue(tmp_path: Path) -> None:
+    """Regression test for the display-colour inversion bug: team_id 0 must always
+    draw as the red-dominant colour (jersey-colour anchoring contract, `cv.teams`),
+    team_id 1 as the blue-dominant colour -- not merely "two distinct colours"
+    (already covered by `test_two_team_ids_produce_two_different_colours_at_box_borders`).
+    """
+    config = _make_config(tmp_path)
+    frame = np.zeros((200, 300, 3), dtype=np.uint8)
+    # y1=110 keeps the box border well clear of the legend text (burnt into roughly
+    # y=[6, 86] of the top-left corner) so the sampled pixel is pure box-border colour,
+    # not anti-aliased text blended into it.
+    rows = [
+        _row(track_id=1, class_name="player", team_id=0, x1=10, y1=110, x2=40, y2=150),
+        _row(track_id=2, class_name="player", team_id=1, x1=100, y1=110, x2=130, y2=150),
+    ]
+
+    annotated = draw_frame(frame, rows, config, clip_number=1, frame_index=0)
+
+    team0_pixel = annotated[110, 10]  # BGR
+    team1_pixel = annotated[110, 100]
+    assert int(team0_pixel[2]) > int(team0_pixel[0]), "team_id 0 must be red-dominant"
+    assert int(team1_pixel[0]) > int(team1_pixel[2]), "team_id 1 must be blue-dominant"
+    assert tuple(int(c) for c in team0_pixel) == TEAM_COLORS[0]
+    assert tuple(int(c) for c in team1_pixel) == TEAM_COLORS[1]
 
 
 def test_referee_and_null_team_rows_each_get_their_own_colour(tmp_path: Path) -> None:

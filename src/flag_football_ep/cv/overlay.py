@@ -25,6 +25,9 @@ from typing import TYPE_CHECKING, Sequence
 import numpy as np
 
 from flag_football_ep.cv import CvError
+from flag_football_ep.cv.palette import NULL_TEAM_COLOR as _NULL_TEAM_COLOR
+from flag_football_ep.cv.palette import REFEREE_COLOR as _REFEREE_COLOR
+from flag_football_ep.cv.palette import TEAM_COLORS as _TEAM_COLORS
 
 if TYPE_CHECKING:
     import polars as pl
@@ -41,15 +44,9 @@ class NoTracksForClip(CvError, ValueError):
     """
 
 
-# BGR (cv2 convention) colours, chosen to be visually distinct from one another and
-# from typical grass/turf green: two team colours, one referee colour, one
-# null-team-id colour.
-_TEAM_COLORS: dict[int, tuple[int, int, int]] = {
-    0: (255, 80, 0),  # blue-ish
-    1: (0, 60, 230),  # red-ish
-}
-_REFEREE_COLOR: tuple[int, int, int] = (0, 220, 255)  # yellow
-_NULL_TEAM_COLOR: tuple[int, int, int] = (170, 170, 170)  # gray
+# Team/referee/null-team colours live in `cv.palette` -- one shared definition for
+# both `overlay.py` and `radar.py` (see that module's docstring for the jersey-colour
+# anchoring contract this palette follows).
 
 _BOX_THICKNESS = 2
 _DOT_RADIUS = 4
@@ -57,8 +54,8 @@ _FONT = 0  # cv2.FONT_HERSHEY_SIMPLEX, hardcoded to avoid an eager `import cv2` 
 _FONT_SCALE = 0.5
 _TEXT_THICKNESS = 1
 _LEGEND_ENTRIES: tuple[tuple[str, tuple[int, int, int]], ...] = (
-    ("team A", _TEAM_COLORS[0]),
-    ("team B", _TEAM_COLORS[1]),
+    ("team 0 (red)", _TEAM_COLORS[0]),
+    ("team 1 (blue)", _TEAM_COLORS[1]),
     ("referee", _REFEREE_COLOR),
     ("no team", _NULL_TEAM_COLOR),
 )
@@ -86,10 +83,12 @@ def draw_frame(
 
     Each row draws: its bounding box (`bbox_x1..y2`), its `track_id` as text above the
     box, and its ground-contact point (`foot_x_px`/`foot_y_px`) as a filled dot.
-    Colour is chosen by `class_name`/`team_id`: two distinct colours for `team_id` 0
-    and 1, a third for `class_name == "referee"`, a fourth for a null `team_id`. A
-    small legend plus the clip number and frame index (when given) is burnt into the
-    top-left corner so a reviewer always knows what they are looking at.
+    Colour is chosen by `class_name`/`team_id` from `cv.palette`'s shared scheme:
+    `team_id` 0 draws red and `team_id` 1 draws blue (matching `teams.assign_teams`'s
+    jersey-colour anchoring -- team_id 0 is always the redder cluster), a third colour
+    for `class_name == "referee"`, a fourth for a null `team_id`. A small legend plus
+    the clip number and frame index (when given) is burnt into the top-left corner so
+    a reviewer always knows what they are looking at.
 
     Never mutates `frame` in place -- returns a new array, so `render_track_overlay`
     can decode into a reusable buffer without corrupting the source frame, and so this

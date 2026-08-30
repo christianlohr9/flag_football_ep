@@ -24,6 +24,7 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
+from flag_football_ep.cv.palette import TEAM_COLORS
 from flag_football_ep.cv.radar import (
     _HEADER_HEIGHT_PX,
     _SEPARATOR_FRAMES,
@@ -256,6 +257,38 @@ def test_two_team_ids_and_referee_and_null_team_produce_four_distinct_marker_col
         x_px, y_px = _yards_to_px(x_yards, 5.0, geometry)
         pixels.append(tuple(int(c) for c in frame[y_px, x_px]))
     assert len(set(pixels)) == 4
+
+
+def test_team_zero_marker_is_red_and_team_one_marker_is_blue(tmp_path: Path) -> None:
+    """Regression test for the display-colour inversion bug, mirroring
+    `test_cv_overlay.test_team_zero_draws_red_and_team_one_draws_blue`: the radar
+    half of the showcase reel must draw the same team_id in the same colour as the
+    tracked-footage half (both import `cv.palette`'s single shared definition).
+    """
+    config = _make_config(tmp_path)
+    tracks_at_frame = pl.DataFrame(
+        {
+            "track_id": [1, 2],
+            "class_name": ["player", "player"],
+            "team_id": [0, 1],
+            "x_yards": [5.0, 15.0],
+            "y_yards": [5.0, 5.0],
+        }
+    )
+    size_wh = (400, 200)
+
+    frame = render_radar_frame(tracks_at_frame, config, size_wh)
+
+    geometry = _pitch_geometry(config, size_wh)
+    x0_px, y0_px = _yards_to_px(5.0, 5.0, geometry)
+    x1_px, y1_px = _yards_to_px(15.0, 5.0, geometry)
+    team0_pixel = tuple(int(c) for c in frame[y0_px, x0_px])  # BGR
+    team1_pixel = tuple(int(c) for c in frame[y1_px, x1_px])
+
+    assert team0_pixel[2] > team0_pixel[0], "team_id 0 must be red-dominant"
+    assert team1_pixel[0] > team1_pixel[2], "team_id 1 must be blue-dominant"
+    assert team0_pixel == TEAM_COLORS[0]
+    assert team1_pixel == TEAM_COLORS[1]
 
 
 def test_rows_with_null_field_coordinates_are_skipped_without_raising(tmp_path: Path) -> None:

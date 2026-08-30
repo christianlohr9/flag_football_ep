@@ -16,12 +16,13 @@ field coordinate convention is D-13: x=0 at the west goal line (drawn on the lef
 x=`field_length_yards` at the east goal line, y=0 at the south sideline (drawn at the
 bottom of the frame), y=`field_width_yards` at the north sideline.
 
-Team/marker colours mirror `overlay.py`'s scheme exactly, so the two halves of the
-showcase reel read as the same event: two team colours for `team_id` 0/1, a third
-colour+shape for `class_name == "referee"`, a fourth for a null `team_id`. Rows with a
-null `x_yards`/`y_yards` are skipped without raising -- `render_showcase_reel`, the
-caller that drives `render_radar_frame` frame by frame, counts and logs how many rows
-it skipped per reel, so a silently thinner radar is reported rather than silently
+Team/marker colours share `cv.palette`'s single definition with `overlay.py`, so the
+two halves of the showcase reel read as the same event: `team_id` 0 draws red and
+`team_id` 1 draws blue (matching `teams.assign_teams`'s jersey-colour anchoring), a
+third colour+shape for `class_name == "referee"`, a fourth for a null `team_id`. Rows
+with a null `x_yards`/`y_yards` are skipped without raising -- `render_showcase_reel`,
+the caller that drives `render_radar_frame` frame by frame, counts and logs how many
+rows it skipped per reel, so a silently thinner radar is reported rather than silently
 misrepresenting the tracking.
 
 No in-repo video-rendering precedent exists (existing charts render static PNGs via
@@ -40,6 +41,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from flag_football_ep.cv import CvError
+from flag_football_ep.cv.palette import NULL_TEAM_COLOR as _NULL_TEAM_COLOR
+from flag_football_ep.cv.palette import REFEREE_COLOR as _REFEREE_COLOR
+from flag_football_ep.cv.palette import TEAM_COLORS as _TEAM_COLORS
 
 if TYPE_CHECKING:
     import polars as pl
@@ -56,14 +60,8 @@ class NoFieldCoordinatesForClip(CvError, ValueError):
     """
 
 
-# BGR (cv2 convention) colours -- mirrors `overlay.py`'s `_TEAM_COLORS`/
-# `_REFEREE_COLOR`/`_NULL_TEAM_COLOR` exactly, so the reel's two halves agree.
-_TEAM_COLORS: dict[int, tuple[int, int, int]] = {
-    0: (255, 80, 0),  # blue-ish
-    1: (0, 60, 230),  # red-ish
-}
-_REFEREE_COLOR: tuple[int, int, int] = (0, 220, 255)  # yellow
-_NULL_TEAM_COLOR: tuple[int, int, int] = (170, 170, 170)  # gray
+# Team/referee/null-team colours live in `cv.palette` -- the same shared definition
+# `overlay.py` imports, so the reel's two halves can never drift out of sync.
 
 _PITCH_COLOR: tuple[int, int, int] = (40, 95, 40)  # dark turf green
 _LINE_COLOR: tuple[int, int, int] = (235, 235, 235)
@@ -219,7 +217,7 @@ def render_radar_frame(tracks_at_frame: "pl.DataFrame", config: "Config", size_w
     Draws the pitch (both goal lines, the sidelines, the end-zone back lines, and yard
     lines every 5 yards with their numbers) from `config.cv.field_length_yards`/
     `field_width_yards`/`endzone_yards`, then plots each row in `tracks_at_frame` at its
-    `(x_yards, y_yards)` position with `overlay.py`'s team colour scheme, the
+    `(x_yards, y_yards)` position with `cv.palette`'s shared team colour scheme, the
     `track_id` next to it, and a distinct marker shape for referees (triangle) and for
     null-`team_id` tracks (square). Rows with a null `x_yards`/`y_yards` are skipped
     without raising.

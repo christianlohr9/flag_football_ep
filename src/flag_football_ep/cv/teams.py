@@ -12,10 +12,19 @@ No jersey-colour HSV thresholding exists anywhere in this module and none should
 added -- RESEARCH explicitly rejects it because the capture protocol already flags
 exposure variance as a domain risk that would poison a colour-based split.
 
-Cluster label 0/1 is arbitrary: which cluster is which real-world team is decided by
-plan 02.1-12 when it joins the labels back to tracks, and must never be assumed stable
-across clips fitted separately (a `TeamClassifier` fitted on one clip's crops has no
-relationship to the label ordering of a `TeamClassifier` fitted on another clip).
+`TeamClassifier.predict`'s own cluster label 0/1 is arbitrary and unstable across
+separate fits (a `TeamClassifier` fitted on one clip's crops has no relationship to the
+label ordering of a `TeamClassifier` fitted on another clip). `assign_teams` re-anchors
+that arbitrary label to a fixed real-world meaning before it ever reaches a track's
+`team_id`: **`team_id` 0 is always the cluster whose sampled crops read as more red**
+(`_redness_score`'s saturation-weighted hue-distance-from-red, median over the
+session's fit crops), `team_id` 1 is the other cluster -- regardless of which arbitrary
+label KMeans happened to assign to which cluster. When neither cluster reads as
+meaningfully more red (ambiguous kit colours -- e.g. two dark/neutral kits), the KMeans
+label order is kept as-is and `assign_teams` emits a notice, since guessing which grey
+kit is "team 0" would be worse than admitting the ambiguity. `overlay.py`/`radar.py`'s
+shared `cv.palette` colour scheme relies on this: `team_id` 0 always draws red,
+`team_id` 1 always draws blue.
 
 `assign_teams` is the pure-transform wrapper (mirroring `features/mutations.py`'s
 stateless transform-over-a-frame convention) that turns per-track crops into a team-id
@@ -92,6 +101,12 @@ _DEFAULT_CROPS_PER_TRACK = 6
 # from imperfect detector boxes), keeping only jersey-coloured pixels.
 _TORSO_WIDTH_FRACTION = 0.6
 _TORSO_HEIGHT_FRACTION = 0.5
+
+# `_anchor_cluster_labels`'s ambiguity threshold: when the two clusters' median
+# `_redness_score`s are within this margin of each other, neither kit reads as
+# meaningfully more red than the other (e.g. two dark/neutral kits) -- the KMeans
+# label order is kept as-is rather than anchoring on a coin flip.
+_AMBIGUOUS_REDNESS_MARGIN = 0.05
 
 __all__ = [
     "ClassifierNotFitted",
@@ -270,9 +285,15 @@ def assign_teams(
     crops never reach the fit or the per-track prediction -- officials belong to no
     team and their crops would pull the clusters.
 
-    Cluster label 0/1 is arbitrary: which integer means which real-world team is read
-    off the radar reel by a human (plan 02.1-16), and nothing downstream may assume a
-    fixed mapping -- not even across two different `assign_teams` calls.
+    Before any per-track majority vote, `_anchor_cluster_labels` remaps
+    `TeamClassifier`'s own arbitrary cluster label (0/1) to a fixed real-world meaning:
+    `team_id` 0 is always the cluster whose fit crops read as more red, `team_id` 1 is
+    the other. This mapping is computed once per session fit and applied to every
+    track's prediction, so `team_id`'s meaning (which colour it draws) is stable
+    session to session, not just track to track within one session. When the fit
+    crops' two clusters are ambiguously coloured (neither reads as meaningfully more
+    red), the KMeans label order is kept as-is and a notice is appended naming the
+    ambiguity.
     """
     import polars as pl
 
@@ -302,6 +323,15 @@ def assign_teams(
     classifier.fit(fit_crops)
 
     notices: list[str] = []
+
+    cluster_to_team_id, ambiguous_colors = _anchor_cluster_labels(classifier, fit_crops)
+    if ambiguous_colors:
+        notices.append(
+            "jersey-colour anchoring: neither cluster's sampled crops read as "
+            "meaningfully more red than the other (ambiguous kit colours) -- keeping "
+            "the arbitrary KMeans cluster order for team_id"
+        )
+
     team_id_by_key: dict[tuple[int, int], int | None] = {}
 
     for key in player_keys:
@@ -312,7 +342,8 @@ def assign_teams(
             continue
 
         predicted = classifier.predict(crops)
-        counts = Counter(int(label) for label in predicted)
+        mapped = [cluster_to_team_id[int(label)] for label in predicted]
+        counts = Counter(mapped)
         majority_label, majority_count = counts.most_common(1)[0]
         share = majority_count / len(predicted)
 
@@ -355,6 +386,81 @@ def assign_teams(
 
     conformed = conform_tracking(joined)
     return TeamAssignmentResult(tracks=conformed, notices=notices)
+
+
+def _crop_median_rgb(crop) -> np.ndarray:
+    """Median R, G, B (0-255) over `crop`'s pixels: robust to a handful of
+    background/edge-bleed pixels within a single torso crop, unlike a plain mean.
+
+    `crop` is treated as an `(..., channels)` array; only the first three channels are
+    used, so this also tolerates a 4-channel (RGBA) crop or a 1-D feature vector of
+    length >= 3 (the latter path only matters for tests that feed `TeamClassifier` a
+    synthetic feature vector directly instead of a real image crop).
+    """
+    import numpy as np
+
+    array = np.asarray(crop, dtype=float)
+    pixels = array.reshape(-1, array.shape[-1])[:, :3]
+    return np.median(pixels, axis=0)
+
+
+def _redness_score(rgb: np.ndarray) -> float:
+    """A saturation-weighted closeness-to-red-hue score in `[0, 1]`, computed from a
+    single median `(R, G, B)` triplet (0-255 range).
+
+    Converts to HSV (`colorsys.rgb_to_hsv`) and scores how close the hue is to red
+    (hue 0/1, wrapping -- `min(h, 1 - h)` is the distance to the nearer of the two),
+    scaled so `0.0` at the red hue itself and `0.0` at the maximum possible distance
+    (hue 0.5, cyan), then weighted by saturation so a low-saturation (grey/white/black)
+    jersey scores near zero regardless of a stray reddish hue reading on a nearly
+    colourless crop. `0.0` = not red at all, `1.0` = fully saturated pure red.
+    """
+    import colorsys
+
+    r, g, b = (float(channel) / 255.0 for channel in rgb[:3])
+    hue, saturation, _value = colorsys.rgb_to_hsv(r, g, b)
+    hue_distance = min(hue, 1.0 - hue)  # 0.0 at red, 0.5 at cyan
+    closeness = max(0.0, 1.0 - hue_distance / 0.5)
+    return saturation * closeness
+
+
+def _anchor_cluster_labels(
+    classifier: TeamClassifier, fit_crops: list
+) -> tuple[dict[int, int], bool]:
+    """Decide which of `TeamClassifier`'s own arbitrary cluster labels (0 or 1) is the
+    redder-jersey cluster, and return the `{cluster_label: team_id}` remap that anchors
+    `team_id` to jersey colour: `team_id` 0 is always the redder cluster, `team_id` 1
+    is the other (this module's docstring's contract).
+
+    Re-predicts `fit_crops` (already used to fit `classifier`, so this is deterministic
+    given the same classifier state) to get each fit crop's own cluster label, computes
+    each crop's `_redness_score` from its `_crop_median_rgb`, then takes the *median*
+    redness score across each cluster's own fit crops -- robust to a handful of outlier
+    crops (odd lighting, a stray non-jersey pixel patch) within one cluster.
+
+    Returns `({0: 0, 1: 1}, True)` (the arbitrary KMeans order, unchanged) when the two
+    clusters' median redness scores are within `_AMBIGUOUS_REDNESS_MARGIN` of each
+    other -- neither kit reads as meaningfully more red than the other (e.g. two
+    dark/neutral kits) -- so the caller can emit a notice rather than silently guessing
+    which grey kit is "team 0". Otherwise returns the anchoring remap and `False`.
+    """
+    import numpy as np
+
+    cluster_labels = classifier.predict(fit_crops)
+    scores_by_cluster: dict[int, list[float]] = {0: [], 1: []}
+    for crop, label in zip(fit_crops, cluster_labels, strict=True):
+        rgb = _crop_median_rgb(crop)
+        scores_by_cluster[int(label)].append(_redness_score(rgb))
+
+    median_0 = float(np.median(scores_by_cluster[0])) if scores_by_cluster[0] else 0.0
+    median_1 = float(np.median(scores_by_cluster[1])) if scores_by_cluster[1] else 0.0
+
+    if abs(median_0 - median_1) < _AMBIGUOUS_REDNESS_MARGIN:
+        return {0: 0, 1: 1}, True
+
+    red_cluster = 0 if median_0 > median_1 else 1
+    other_cluster = 1 - red_cluster
+    return {red_cluster: 0, other_cluster: 1}, False
 
 
 def _sample_frame_indices(n_rows: int, max_crops: int) -> list[int]:
