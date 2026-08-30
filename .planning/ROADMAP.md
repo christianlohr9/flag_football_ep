@@ -306,7 +306,7 @@ Plans:
 
 **Wave 13** *(blocked on Wave 12)*
 
-- [ ] 02.1-17-PLAN.md — Gate document, go/no-go decision checkpoint, HC demo record, REQ-S2-02 closure
+- [x] 02.1-17-PLAN.md — Gate document, go/no-go decision checkpoint, HC demo record, REQ-S2-02 closure
 
 ### Phase 2.2: Dataset Buildout
 
