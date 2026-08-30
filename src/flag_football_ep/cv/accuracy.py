@@ -804,26 +804,34 @@ class AccuracyResult:
 
 def _transform_gt_to_yards(gt_labelled: pl.DataFrame, config: Config) -> pl.DataFrame:
     """Transform every labelled GT row's `(foot_x_px, foot_y_px)` to
-    `(gt_x_yards, gt_y_yards)` through its own hover position's calibration -- the
-    SAME calibration `add_field_coordinates` projects the pipeline's tracks through,
-    so the resulting error isolates pipeline foot-point error from homography error.
+    `(gt_x_yards, gt_y_yards)` through its own hover position's calibration, composed
+    with that row's clip's per-clip alignment homography -- the SAME composition
+    `coordinates.add_field_coordinates` projects the pipeline's tracks through
+    (`coordinates.composed_transformer_for`), so the resulting error isolates pipeline
+    foot-point error from homography error, never mixing in a per-clip-drift
+    discrepancy between how GT and pipeline points were each projected.
     """
-    from flag_football_ep.cv.homography import load_calibration, transformer_for
+    from flag_football_ep.cv.coordinates import composed_transformer_for
+    from flag_football_ep.cv.homography import load_calibration
 
     calibration = load_calibration(config.reference.homography_calibration)
 
     groups: list[pl.DataFrame] = []
     for hover_position_id in gt_labelled["hover_position_id"].unique(maintain_order=True).to_list():
-        transformer = transformer_for(hover_position_id, calibration)
-        group = gt_labelled.filter(pl.col("hover_position_id") == hover_position_id)
-        source = group.select("foot_x_px", "foot_y_px").to_numpy()
-        projected = transformer.transform_points(source)
-        groups.append(
-            group.with_columns(
-                pl.Series("gt_x_yards", projected[:, 0]).cast(pl.Float64),
-                pl.Series("gt_y_yards", projected[:, 1]).cast(pl.Float64),
+        hp_group = gt_labelled.filter(pl.col("hover_position_id") == hover_position_id)
+        for clip_number_value in hp_group["clip_number"].unique(maintain_order=True).to_list():
+            transformer = composed_transformer_for(
+                hover_position_id, clip_number_value, calibration, config
             )
-        )
+            group = hp_group.filter(pl.col("clip_number") == clip_number_value)
+            source = group.select("foot_x_px", "foot_y_px").to_numpy()
+            projected = transformer.transform_points(source)
+            groups.append(
+                group.with_columns(
+                    pl.Series("gt_x_yards", projected[:, 0]).cast(pl.Float64),
+                    pl.Series("gt_y_yards", projected[:, 1]).cast(pl.Float64),
+                )
+            )
 
     return pl.concat(groups, how="vertical")
 

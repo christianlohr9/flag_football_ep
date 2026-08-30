@@ -17,11 +17,14 @@ from flag_football_ep.config import load_config
 from flag_football_ep.reference import MissingReferenceFile
 from flag_football_ep.cv.homography import (
     CALIBRATION_COLUMNS,
+    CLIP_ALIGNMENT_REFERENCE_FRAMES,
     FIELD_LANDMARKS,
     MIN_FIT_POINTS,
     CalibrationError,
     ViewTransformer,
     _append_calibration_rows,
+    clip_alignment,
+    clip_alignment_matrix,
     field_landmarks,
     load_calibration,
     pick_points,
@@ -70,6 +73,25 @@ _SOURCE_PX = np.array(
 def _write_calibration_csv(path: Path, rows: list[dict[str, object]]) -> None:
     df = pl.DataFrame(rows) if rows else pl.DataFrame(schema=list(CALIBRATION_COLUMNS))
     df.write_csv(path)
+
+
+def _make_textured_image(width: int = 640, height: int = 480, seed: int = 0) -> np.ndarray:
+    """A synthetic image rich in ORB-detectable corner features: a mid-gray background
+    with many random-colored filled rectangles at random positions/sizes -- unlike flat
+    noise, sharp rectangle corners survive ORB detection under a small perspective warp,
+    the same way the real pitch's painted lines/lettering do (this module's "Per-clip
+    homography refinement" docstring section).
+    """
+    rng = np.random.default_rng(seed)
+    image = np.full((height, width, 3), 128, dtype=np.uint8)
+    for _ in range(150):
+        x1 = int(rng.integers(0, width - 20))
+        y1 = int(rng.integers(0, height - 20))
+        w = int(rng.integers(8, 40))
+        h = int(rng.integers(8, 40))
+        color = tuple(int(c) for c in rng.integers(0, 255, size=3))
+        cv2.rectangle(image, (x1, y1), (min(width, x1 + w), min(height, y1 + h)), color, -1)
+    return image
 
 
 def _make_synthetic_clip(path: Path, *, width: int = 200, height: int = 150, n_frames: int = 20, fps: float = 10.0) -> Path:
@@ -292,6 +314,103 @@ def test_reprojection_error_yards_nonzero_for_known_perturbation() -> None:
     errors = reprojection_error_yards(vt, _SOURCE_PX, perturbed_target)
     assert np.isclose(errors[0], 0.5, atol=1e-3)
     assert np.allclose(errors[1:], 0.0, atol=1e-3)
+
+
+# --- clip_alignment / clip_alignment_matrix ---------------------------------------
+
+
+def test_clip_alignment_recovers_known_small_homography_from_synthetic_texture() -> None:
+    """Warp a textured image by a known small homography (a real drone's between-clip
+    drift is small, not a wild transform) and confirm `clip_alignment` recovers a
+    matrix that undoes it within a few pixels -- the direct synthetic-recovery test the
+    plan's <action> block calls for.
+    """
+    reference_frame = _make_textured_image(seed=1)
+    height, width = reference_frame.shape[:2]
+
+    # A small, known "reference pixel -> clip pixel" warp: ~12px translation plus a
+    # ~3-degree rotation about the image center -- representative of between-clip
+    # drone drift/rotation, not an extreme transform.
+    center = (width / 2.0, height / 2.0)
+    rotation = cv2.getRotationMatrix2D(center, 3.0, 1.0)
+    known_w = np.vstack([rotation, [0.0, 0.0, 1.0]])
+    known_w[0, 2] += 12.0
+    known_w[1, 2] += 8.0
+
+    clip_frame = cv2.warpPerspective(reference_frame, known_w, (width, height))
+
+    recovered = clip_alignment(clip_frame, reference_frame)
+
+    # recovered maps clip_frame pixels -> reference_frame pixels, i.e. it should undo
+    # known_w: recovered @ known_w =~ identity. Check this on a handful of interior
+    # sample points (corners near the frame edge are the most likely to fall outside
+    # both images after warping and are not a fair check of the recovered matrix).
+    sample_points = np.array(
+        [[160.0, 120.0], [480.0, 120.0], [480.0, 360.0], [160.0, 360.0], [320.0, 240.0]]
+    )
+    warped_then_recovered = _apply_projective_transform(
+        recovered, _apply_projective_transform(known_w, sample_points)
+    )
+
+    assert np.allclose(warped_then_recovered, sample_points, atol=5.0)
+
+
+def test_clip_alignment_falls_back_to_identity_with_notice_for_blank_frames() -> None:
+    """Two flat, featureless frames yield zero ORB keypoints -- `clip_alignment` must
+    fall back to identity (never a garbage transform) and surface a `UserWarning`.
+    """
+    blank_clip = np.full((200, 300, 3), 100, dtype=np.uint8)
+    blank_reference = np.full((200, 300, 3), 100, dtype=np.uint8)
+
+    with pytest.warns(UserWarning, match="falling back to identity"):
+        result = clip_alignment(blank_clip, blank_reference)
+
+    assert np.array_equal(result, np.eye(3))
+
+
+def test_clip_alignment_matrix_identity_for_hover_position_without_reference_frame() -> None:
+    """A hover position absent from `CLIP_ALIGNMENT_REFERENCE_FRAMES` (every synthetic
+    test id, and any real hover position this mapping hasn't been extended to) gets
+    identity with no video access attempted at all.
+    """
+    cfg = _config()
+    assert "hp-does-not-have-a-reference-frame" not in CLIP_ALIGNMENT_REFERENCE_FRAMES
+
+    result = clip_alignment_matrix("hp-does-not-have-a-reference-frame", 999, cfg)
+
+    assert np.array_equal(result, np.eye(3))
+
+
+def test_clip_alignment_matrix_identity_for_the_reference_clip_itself() -> None:
+    """Aligning a hover position's reference clip against itself is a no-op -- short-
+    circuited before any video access is attempted.
+    """
+    cfg = _config()
+    reference_clip_number, _ = CLIP_ALIGNMENT_REFERENCE_FRAMES["hp-01"]
+
+    result = clip_alignment_matrix("hp-01", reference_clip_number, cfg)
+
+    assert np.array_equal(result, np.eye(3))
+
+
+def test_clip_alignment_matrix_unresolvable_clip_falls_back_to_identity_with_notice(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A registered hover position whose clip video cannot be resolved (e.g. no
+    `video_inventory.csv` row) degrades to identity with a notice, never raises.
+    """
+    from flag_football_ep.cv import frames as frames_module
+
+    def _raise_clip_not_found(*args, **kwargs):
+        raise frames_module.ClipNotFound("synthetic: no clips registered")
+
+    monkeypatch.setattr(frames_module, "clip_paths", _raise_clip_not_found)
+
+    cfg = _config()
+    with pytest.warns(UserWarning, match="falling back to identity"):
+        result = clip_alignment_matrix("hp-01", 12345, cfg)
+
+    assert np.array_equal(result, np.eye(3))
 
 
 # --- pick_points / _append_calibration_rows -------------------------------------

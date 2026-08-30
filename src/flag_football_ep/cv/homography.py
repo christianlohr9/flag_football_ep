@@ -50,6 +50,41 @@ and gating the interactive attempt behind an explicit opt-in keeps every automat
 invocation (tests, CI, a first-time `ffep cv calibrate` run) non-blocking by
 construction; when opted in, the pick loop is additionally bounded by a hard
 iteration/time cap so it still cannot hang even in a genuinely broken environment.
+
+## Per-clip homography refinement (drift correction)
+
+A single manual calibration per hover position (above) is only exactly valid for the
+one clip its points were picked on -- `docs/homography-calibration.md`'s "hp-01: Clip
+028", "hp-02: Clip 044". Grid-overlay diagnostics confirmed the drone drifts and
+rotates slightly between clips sharing the same hover position (a hand-flown/hovered
+drone, not a locked-off tripod): the calibrated grid fits its own reference clip
+pixel-perfect but sits tens of pixels off on other clips in the same group.
+
+`clip_alignment(clip_frame, reference_frame)` registers one clip's representative
+frame onto its hover position's calibration reference frame via ORB features +
+ratio-test matching + `cv2.findHomography(..., cv2.RANSAC)`, returning the 3x3
+`H_align` that maps the clip's own pixel space onto the reference clip's pixel space.
+The scene is dominated by the planar pitch (painted lines, large lettering) -- strong,
+static features RANSAC keeps as inliers; moving players are outliers RANSAC rejects
+by construction (a moving object's apparent pixel displacement between two frames of a
+*static* camera scene does not follow the same planar homography as the pitch, so it
+never accumulates enough consistent matches to out-vote the dominant, static-scene
+homography). Guarded: too few ORB features, too few ratio-test matches, or too low an
+inlier count/ratio falls back to identity (never a garbage transform) with a
+`UserWarning` notice naming the failure.
+
+`CLIP_ALIGNMENT_REFERENCE_FRAMES` hard-codes, per hover position, which
+`(clip_number, at_second)` the calibration in `homography_calibration.csv` was
+actually picked on -- the same two facts `docs/homography-calibration.md` already
+records in prose. `clip_alignment_matrix(hover_position_id, clip_number, config)` is
+the orchestration entry point `coordinates.composed_transformer_for` composes with the
+per-hover-position calibrated homography: identity for hover positions with no
+registered reference frame (keeps every pre-existing synthetic-hover-position test
+byte-identical -- composing with identity is a no-op) and identity for the reference
+clip itself (nothing to align against its own reference frame), computed once per
+distinct clip encountered by a caller (never once per row) and never raising -- any
+resolution/registration failure degrades to identity plus a notice rather than
+aborting the whole coordinate projection over one bad clip.
 """
 
 from __future__ import annotations
@@ -75,6 +110,14 @@ class CalibrationError(CvError, ValueError):
     """
 
 
+class ClipAlignmentUnresolvable(CvError, ValueError):
+    """Raised internally by `clip_alignment_matrix` when the clip or its hover
+    position's reference clip cannot be located; always caught within
+    `clip_alignment_matrix` itself and turned into an identity fallback plus a
+    `UserWarning` notice, never propagated to callers.
+    """
+
+
 # Minimum number of `use_for_fit = true` points required to fit a homography.
 MIN_FIT_POINTS = 4
 
@@ -86,6 +129,35 @@ _TARGET_AGREEMENT_TOLERANCE_YARDS = 0.01
 # Fixed landmark-name vocabulary the calibration CSV's `landmark` column must use.
 # Coordinates for these names are computed by `field_landmarks()` from the
 # project's configured field dimensions.
+ClipAlignmentReference = tuple[int, float]
+
+# Per hover position, the `(clip_number, at_second)` its `homography_calibration.csv`
+# rows were actually picked on -- see `docs/homography-calibration.md`'s "hp-01: Clip
+# 028"/"hp-02: Clip 044" sections. Every other clip sharing that hover position is
+# registered (`clip_alignment`) against a frame extracted fresh from THIS clip, never
+# against the annotated `data/labels/calibration/{id}_ref.jpg` (grid lines drawn on it
+# would corrupt feature matching). A hover position absent from this mapping (e.g. a
+# synthetic test id) gets identity alignment -- see `clip_alignment_matrix`.
+CLIP_ALIGNMENT_REFERENCE_FRAMES: dict[str, ClipAlignmentReference] = {
+    "hp-01": (28, 3.0),
+    "hp-02": (44, 3.0),
+}
+
+# `clip_alignment`'s Lowe ratio-test threshold for ORB/BFMatcher knnMatch(k=2) pairs.
+_ALIGNMENT_RATIO_THRESHOLD = 0.75
+
+# `cv2.findHomography(..., cv2.RANSAC, ...)`'s reprojection-error threshold (px) for a
+# correspondence to count as an inlier.
+_ALIGNMENT_RANSAC_REPROJ_THRESHOLD = 5.0
+
+# Below either guard, `clip_alignment` falls back to identity rather than trust a
+# homography fit on too few/too-agreeing-by-chance correspondences.
+_MIN_ALIGNMENT_INLIERS = 15
+_MIN_ALIGNMENT_INLIER_RATIO = 0.2
+
+# Below this many ORB keypoints per frame, matching is not attempted at all.
+_MIN_ALIGNMENT_KEYPOINTS = 4
+
 FIELD_LANDMARKS: tuple[str, ...] = (
     "goalline_west_south",
     "goalline_west_north",
@@ -178,6 +250,19 @@ class ViewTransformer:
                 "duplicate) points"
             )
         self.m = matrix
+
+    @classmethod
+    def from_matrix(cls, matrix: np.ndarray) -> "ViewTransformer":
+        """Build a `ViewTransformer` directly from a precomputed 3x3 projective
+        matrix, bypassing `cv2.findHomography` -- used by
+        `coordinates.composed_transformer_for` to wrap `M_calibration @ H_align`
+        (see this module's "Per-clip homography refinement" docstring section) in the
+        same `transform_points`/`transform_image` interface every other
+        `ViewTransformer` consumer already relies on.
+        """
+        instance = cls.__new__(cls)
+        instance.m = np.asarray(matrix, dtype=np.float64)
+        return instance
 
     def transform_points(self, points: np.ndarray) -> np.ndarray:
         import cv2
@@ -416,18 +501,13 @@ def _append_calibration_rows(
     return out_csv
 
 
-def pick_points(clip: Path, hover_position_id: str, out_csv: Path, *, at_second: float) -> Path:
-    """Extract a still frame from `clip` at `at_second`, always writing an annotated
-    reference-frame JPEG (`data/labels/calibration/{hover_position_id}_ref.jpg`, the
-    documented hand-edit fallback), and, only when `FFEP_CV_CALIBRATE_INTERACTIVE=1`
-    is set, also attempt interactive point picking on that frame. Picked rows (if any)
-    replace `hover_position_id`'s existing rows in `out_csv` (never duplicate),
-    validated before the write is committed. Returns `out_csv`.
+def _read_frame_at(clip: Path, at_second: float) -> "np.ndarray":
+    """Decode and return the single frame nearest `at_second` from `clip`, via
+    `cv2.VideoCapture` -- factored out of `pick_points` so `clip_alignment_matrix` can
+    extract a clean (unannotated) reference frame the exact same way, without seeking
+    through the `_ref.jpg`'s grid-line annotations that would corrupt feature matching.
     """
     import cv2
-
-    clip = Path(clip)
-    out_csv = Path(out_csv)
 
     cap = cv2.VideoCapture(str(clip))
     try:
@@ -442,6 +522,193 @@ def pick_points(clip: Path, hover_position_id: str, out_csv: Path, *, at_second:
 
     if not ok or frame is None:
         raise CalibrationError(f"could not extract a frame at {at_second}s from {clip}")
+
+    return frame
+
+
+def _mid_clip_frame(clip: Path) -> "np.ndarray":
+    """Decode and return the frame at `clip`'s midpoint (by frame count) -- the
+    representative frame `clip_alignment_matrix` registers against a hover position's
+    reference frame. A clip midpoint is a stable, content-agnostic choice: no
+    assumption about where in the clip the field/players are best visible is needed,
+    unlike `at_second`-style fixed timestamps tuned per calibration still.
+    """
+    import cv2
+
+    cap = cv2.VideoCapture(str(clip))
+    try:
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        mid_index = max(0, frame_count // 2)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, mid_index)
+        ok, frame = cap.read()
+    finally:
+        cap.release()
+
+    if not ok or frame is None:
+        raise CalibrationError(f"could not extract a mid-clip frame from {clip}")
+
+    return frame
+
+
+def clip_alignment(clip_frame: "np.ndarray", reference_frame: "np.ndarray") -> np.ndarray:
+    """Register `clip_frame` onto `reference_frame`, returning the 3x3 `H_align` that
+    maps a pixel in `clip_frame`'s space onto the corresponding pixel in
+    `reference_frame`'s space (see this module's "Per-clip homography refinement"
+    docstring section).
+
+    ORB features (`cv2.ORB_create`) + Lowe's-ratio-test `knnMatch` (k=2,
+    `_ALIGNMENT_RATIO_THRESHOLD`) + `cv2.findHomography(..., cv2.RANSAC,
+    _ALIGNMENT_RANSAC_REPROJ_THRESHOLD)`. RANSAC's own inlier/outlier voting is the
+    outlier rejection for moving players -- the planar, static pitch dominates the
+    frame and produces far more mutually-consistent correspondences than any one
+    moving person's apparent displacement, so no separate player mask is needed.
+
+    Falls back to `np.eye(3)` (identity -- never a garbage transform) with a
+    `UserWarning` notice when: either frame yields fewer than
+    `_MIN_ALIGNMENT_KEYPOINTS` ORB keypoints, fewer than 4 correspondences survive the
+    ratio test, `cv2.findHomography` returns no solution, or the RANSAC inlier
+    count/ratio falls below `_MIN_ALIGNMENT_INLIERS`/`_MIN_ALIGNMENT_INLIER_RATIO`.
+    """
+    import cv2
+
+    orb = cv2.ORB_create(nfeatures=4000)
+    keypoints_clip, descriptors_clip = orb.detectAndCompute(clip_frame, None)
+    keypoints_ref, descriptors_ref = orb.detectAndCompute(reference_frame, None)
+
+    if (
+        descriptors_clip is None
+        or descriptors_ref is None
+        or len(keypoints_clip) < _MIN_ALIGNMENT_KEYPOINTS
+        or len(keypoints_ref) < _MIN_ALIGNMENT_KEYPOINTS
+    ):
+        warnings.warn(
+            "clip_alignment: too few ORB keypoints detected "
+            f"(clip={0 if keypoints_clip is None else len(keypoints_clip)}, "
+            f"reference={0 if keypoints_ref is None else len(keypoints_ref)}); "
+            "falling back to identity",
+            stacklevel=2,
+        )
+        return np.eye(3)
+
+    matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
+    knn_matches = matcher.knnMatch(descriptors_clip, descriptors_ref, k=2)
+
+    good_matches = [
+        m
+        for pair in knn_matches
+        if len(pair) == 2
+        for m, n in [pair]
+        if m.distance < _ALIGNMENT_RATIO_THRESHOLD * n.distance
+    ]
+
+    if len(good_matches) < 4:
+        warnings.warn(
+            f"clip_alignment: only {len(good_matches)} ratio-test match(es) survived "
+            "(need >= 4); falling back to identity",
+            stacklevel=2,
+        )
+        return np.eye(3)
+
+    src_pts = np.float32(
+        [keypoints_clip[m.queryIdx].pt for m in good_matches]
+    ).reshape(-1, 1, 2)
+    dst_pts = np.float32(
+        [keypoints_ref[m.trainIdx].pt for m in good_matches]
+    ).reshape(-1, 1, 2)
+
+    matrix, mask = cv2.findHomography(
+        src_pts, dst_pts, cv2.RANSAC, _ALIGNMENT_RANSAC_REPROJ_THRESHOLD
+    )
+    if matrix is None:
+        warnings.warn(
+            "clip_alignment: cv2.findHomography returned no solution; falling back "
+            "to identity",
+            stacklevel=2,
+        )
+        return np.eye(3)
+
+    inlier_count = int(mask.sum()) if mask is not None else 0
+    inlier_ratio = inlier_count / len(good_matches) if good_matches else 0.0
+    if inlier_count < _MIN_ALIGNMENT_INLIERS or inlier_ratio < _MIN_ALIGNMENT_INLIER_RATIO:
+        warnings.warn(
+            f"clip_alignment: only {inlier_count}/{len(good_matches)} RANSAC inliers "
+            f"({inlier_ratio:.0%}, need >= {_MIN_ALIGNMENT_INLIERS} and >= "
+            f"{_MIN_ALIGNMENT_INLIER_RATIO:.0%}); falling back to identity",
+            stacklevel=2,
+        )
+        return np.eye(3)
+
+    return np.asarray(matrix, dtype=np.float64)
+
+
+def clip_alignment_matrix(hover_position_id: str, clip_number: int, config: "Config") -> np.ndarray:
+    """Return the 3x3 `H_align` mapping `clip_number`'s pixel space onto
+    `hover_position_id`'s calibration reference clip's pixel space (see
+    `CLIP_ALIGNMENT_REFERENCE_FRAMES`), computed via `clip_alignment` on a mid-clip
+    frame (`_mid_clip_frame`) against a clean frame extracted fresh from the reference
+    clip (`_read_frame_at`, never the annotated `_ref.jpg`).
+
+    Returns identity, with no computation attempted, when `hover_position_id` has no
+    registered reference frame (a synthetic/test hover position, or a real one this
+    mapping hasn't been extended to yet) or when `clip_number` IS the reference clip
+    itself. Never raises: any failure resolving clip paths or extracting/registering
+    frames is caught and degrades to identity with a `UserWarning` notice naming
+    `clip_number`/`hover_position_id` and the underlying error, so one bad clip can
+    never abort a whole `add_field_coordinates`/`measure_position_error` run.
+    """
+    reference = CLIP_ALIGNMENT_REFERENCE_FRAMES.get(hover_position_id)
+    if reference is None:
+        return np.eye(3)
+
+    reference_clip_number, reference_at_second = reference
+    if clip_number == reference_clip_number:
+        return np.eye(3)
+
+    try:
+        from flag_football_ep.cv.frames import clip_number as clip_number_of
+        from flag_football_ep.cv.frames import clip_paths
+
+        clips_by_number = {
+            clip_number_of(path): path
+            for path in clip_paths(config, config.cv.pilot_session_id)
+        }
+        clip_path = clips_by_number.get(clip_number)
+        reference_clip_path = clips_by_number.get(reference_clip_number)
+        if clip_path is None:
+            raise ClipAlignmentUnresolvable(f"clip {clip_number} not found for registration")
+        if reference_clip_path is None:
+            raise ClipAlignmentUnresolvable(
+                f"reference clip {reference_clip_number} not found for registration"
+            )
+
+        clip_frame = _mid_clip_frame(clip_path)
+        reference_frame = _read_frame_at(reference_clip_path, reference_at_second)
+    except Exception as exc:  # noqa: BLE001 - any resolution failure degrades to identity
+        warnings.warn(
+            f"clip_alignment_matrix: could not resolve/extract frames for clip "
+            f"{clip_number} (hover position {hover_position_id!r}) against reference "
+            f"clip {reference_clip_number}: {exc}; falling back to identity",
+            stacklevel=2,
+        )
+        return np.eye(3)
+
+    return clip_alignment(clip_frame, reference_frame)
+
+
+def pick_points(clip: Path, hover_position_id: str, out_csv: Path, *, at_second: float) -> Path:
+    """Extract a still frame from `clip` at `at_second`, always writing an annotated
+    reference-frame JPEG (`data/labels/calibration/{hover_position_id}_ref.jpg`, the
+    documented hand-edit fallback), and, only when `FFEP_CV_CALIBRATE_INTERACTIVE=1`
+    is set, also attempt interactive point picking on that frame. Picked rows (if any)
+    replace `hover_position_id`'s existing rows in `out_csv` (never duplicate),
+    validated before the write is committed. Returns `out_csv`.
+    """
+    import cv2
+
+    clip = Path(clip)
+    out_csv = Path(out_csv)
+
+    frame = _read_frame_at(clip, at_second)
 
     from flag_football_ep.config import load_config
 
