@@ -447,3 +447,47 @@ def test_render_showcase_reel_raises_named_exception_for_clip_without_field_coor
 
     with pytest.raises(NoFieldCoordinatesForClip, match="clip 1"):
         render_showcase_reel(config, [1], tracks, tmp_path / "out.mp4")
+
+
+# --- `ffep cv radar` CLI default output path (PII placement, T-2.1-01) ----------------------
+
+
+def test_radar_command_default_out_path_is_under_the_gitignored_label_tree(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The reel's left half is rendered player footage (PII) -- the default output
+    must live under `data/labels/<session>/showcase/`, like the overlay videos, never
+    under `data/processed/` (gitignored as regenerable output, not as PII).
+    """
+    from typer.testing import CliRunner
+
+    from test_config import MINIMAL_TOML
+
+    from flag_football_ep.cli import app
+    from flag_football_ep.config import load_config
+    from flag_football_ep.cv import radar as radar_module
+
+    config_path = tmp_path / "ffep.toml"
+    config_path.write_text(MINIMAL_TOML, encoding="utf-8")
+    cfg = load_config(config_path)
+
+    tracks_path = tmp_path / "tracks.parquet"
+    synthetic_tracks(n_clips=1, n_frames=3, n_tracks=2).write_parquet(tracks_path)
+
+    captured: dict = {}
+
+    def _fake_render_showcase_reel(config, clip_numbers, tracks, out_path):
+        captured["out_path"] = Path(out_path)
+        return Path(out_path)
+
+    monkeypatch.setattr(radar_module, "render_showcase_reel", _fake_render_showcase_reel)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app, ["cv", "radar", "--config", str(config_path), "--tracks", str(tracks_path)]
+    )
+
+    assert result.exit_code == 0, result.output
+    expected = cfg.paths.labels / cfg.cv.pilot_session_id / "showcase" / "showcase.mp4"
+    assert captured["out_path"] == expected
+    assert cfg.paths.processed not in captured["out_path"].parents

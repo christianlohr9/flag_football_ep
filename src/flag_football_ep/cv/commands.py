@@ -561,7 +561,13 @@ def radar(
 
     tracks_df = pl.read_parquet(tracks)
     clip_numbers = clip or sorted(tracks_df["clip_number"].unique().to_list())
-    out_path = out or (cfg.paths.processed / "showcase.mp4")
+    # The reel's left half is rendered player footage (PII, T-2.1-01) -- like the
+    # overlay videos it belongs under the gitignored label tree, never under
+    # `reports/` or `data/processed/` (which is ignored as regenerable pipeline
+    # output, not as PII).
+    out_path = out or (
+        cfg.paths.labels / cfg.cv.pilot_session_id / "showcase" / "showcase.mp4"
+    )
 
     from flag_football_ep.cv.radar import render_showcase_reel
 
