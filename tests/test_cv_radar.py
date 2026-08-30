@@ -356,6 +356,37 @@ def test_render_radar_frame_draws_every_marker_shape_before_any_marker_label(
     )
 
 
+def test_on_field_marker_is_drawn_and_off_field_marker_is_skipped(tmp_path: Path) -> None:
+    """Regression test for radar clutter from deliberately-tracked sideline/bench
+    people: a marker inside the pitch + margin must be drawn, a marker well outside it
+    (e.g. someone standing on the bench, off the sideline) must not be.
+    """
+    config = _make_config(tmp_path)
+    tracks_at_frame = pl.DataFrame(
+        {
+            "track_id": [1, 2],
+            "class_name": ["player", "player"],
+            "team_id": [0, 1],
+            "x_yards": [25.0, 25.0],
+            "y_yards": [12.5, 40.0],  # second row is far off the 25-yard-wide pitch
+        }
+    )
+    size_wh = (600, 300)
+
+    frame = render_radar_frame(tracks_at_frame, config, size_wh)
+
+    geometry = _pitch_geometry(config, size_wh)
+    on_field_x, on_field_y = _yards_to_px(25.0, 12.5, geometry)
+    on_field_pixel = tuple(int(c) for c in frame[on_field_y, on_field_x])
+    background = tuple(int(c) for c in frame[0, 0])
+    assert on_field_pixel != background, "on-field marker must be drawn"
+
+    off_field_x, off_field_y = _yards_to_px(25.0, 40.0, geometry)
+    if 0 <= off_field_y < size_wh[1] and 0 <= off_field_x < size_wh[0]:
+        off_field_pixel = tuple(int(c) for c in frame[off_field_y, off_field_x])
+        assert off_field_pixel == background, "off-field marker must not be drawn"
+
+
 def test_rows_with_null_field_coordinates_are_skipped_without_raising(tmp_path: Path) -> None:
     config = _make_config(tmp_path)
     tracks_at_frame = pl.DataFrame(

@@ -819,9 +819,50 @@ Label einer früheren Zeile malen. Fix: `_draw_marker` in `_draw_marker_shape`/
 und danach erst alle Labels in einem zweiten Durchgang -- keine Marker-Form kann mehr
 das Label einer anderen Zeile übermalen, unabhängig von der Zeilenreihenfolge.
 
-**Noch offen (separater Fix, nicht Teil dieses Re-Laufs):** Der Nutzer meldete zusätzlich
-ein gespiegeltes Radar-Feld (Süd-/Nord-Seitenlinie der Kalibrierung gegenüber der
-physischen Realität vertauscht -- eine Spiegelung ist abstandserhaltend, daher fiel das
-keiner Metrik auf). Dieser Fix (Kalibrierungs-y-Achse drehen, `ffep cv coords` erneut
-laufen lassen) ist ein separater Nachlauf; alle 61 Overlays und das Showcase-Reel werden
-danach EINMAL gemeinsam mit diesem Fix neu gerendert, nicht vor diesem Zwischenstand.
+**War offen, jetzt behoben (separater Fix, dann gemeinsam neu gerendert):** Der Nutzer
+meldete zusätzlich ein gespiegeltes Radar-Feld (Süd-/Nord-Seitenlinie der Kalibrierung
+gegenüber der physischen Realität vertauscht -- eine Spiegelung ist abstandserhaltend,
+daher fiel das keiner Metrik auf). Dieser Fix (Kalibrierungs-y-Achse drehen, siehe
+`docs/homography-calibration.md`, `ffep cv coords` erneut gelaufen) ist inzwischen
+gelandet; siehe `#### Finaler kombinierter Re-Render` unten für den Abschlussrender, der
+diesen Fix zusammen mit dem Farb-Anker-Fix oben und einem neuen On-Field-Radarfilter
+zusammenführt.
+
+#### Finaler kombinierter Re-Render: Farbe + Orientierung + On-Field-Filter (2026-08-30, orchestrator-angeordnet)
+
+Alle drei ausstehenden Präsentations-Fixes sind jetzt in einem einzigen Re-Render
+zusammengeführt (kein erneutes Tracking/Team-Zuordnung/Koordinaten-Projektion -- das
+Tracking-Parquet trug die Fixes bereits, siehe oben und `docs/homography-calibration.md`):
+
+1. **Farb-Anker** (`assign_teams`/`cv/palette.py`, siehe oben) -- `team_id` 0 zeichnet
+   rot, `team_id` 1 zeichnet blau, verankert an der tatsächlichen Trikotfarbe.
+2. **Kalibrierungs-Spiegelung behoben** (siehe `docs/homography-calibration.md`) --
+   Radar-Orientierung stimmt jetzt mit der physischen Realität überein.
+3. **Neu in diesem Lauf -- On-Field-Radarfilter** (`cv/radar.py::_is_on_field`):
+   `render_radar_frame` zeichnet nur noch Marker, deren `(x_yards, y_yards)` innerhalb
+   des Spielfelds (inkl. beider Endzonen) plus 1 Yard Toleranz liegt. Seitenlinien-/
+   Bank-Personen werden weiterhin absichtlich getrackt (~25 % der Zeilen, für
+   Kontinuitäts-/Genauigkeits-Metriken) -- sie werden nur aus der Radar-Zeichnung
+   gefiltert, nicht aus den Tracking-Daten selbst.
+
+Alle 61 Overlays (`ffep cv overlay`, ohne `--clip`-Filter) und das Showcase-Reel
+(`ffep cv radar --clip 11 --clip 2 --clip 6 --clip 13 --clip 4`) wurden mit diesem
+Stand neu gerendert.
+
+**Orientierung empirisch verifiziert** (Clip 5, Frame 51 -- `data/processed/experiments/
+orientation_check_c5f51.png`, Footage links / Radar rechts): der Track mit dem kleinsten
+`foot_x_px` im Footage (Track 3, `foot_x_px=184,5` von 1920 px Bildbreite, also nahe am
+LINKEN Bildrand) liegt bei `y_yards=25,56` -- nahe der Nordseitenlinie (`field_width_yards
+=25`), also OBEN im Radar, exakt wie erwartet. Der Track mit dem größten `foot_x_px`
+(Track 14, Schiedsrichter, `foot_x_px=1570,6`, nahe am RECHTEN Bildrand) liegt bei
+`y_yards=0,85` -- nahe der Südseitenlinie, also UNTEN im Radar. Beide Beobachtungen
+bestätigen: Bild-links → Radar-Norden (oben), Bild-rechts → Radar-Süden (unten) -- die
+Spiegelung ist behoben.
+
+Drei stichprobenartig aus dem neu gerenderten Showcase-Reel gezogene Frames (Clip 11
+Frame 30, Clip 2 Frame 138, Clip 13 Frame 76) wurden visuell geprüft: Team-Farben
+korrekt (`team_id` 0 rot, `team_id` 1 blau), Track-Nummern neben jedem Marker lesbar
+(auch bei dicht stehenden Markern, z. B. Schiedsrichter-Dreieck Nr. 5), und die
+Seitenlinien-/Bank-Personencluster am linken Bildrand (deutlich im Footage sichtbar,
+z. B. Clip 2 Frame 138) erscheinen erwartungsgemäß NICHT im Radar -- der On-Field-Filter
+greift.

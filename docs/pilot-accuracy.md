@@ -367,8 +367,26 @@ Track) war von diesen Bugs nicht betroffen und musste beim Re-Lauf nicht geände
 (siehe `docs/cv-setup.md` für die Zähler-Bestätigung) -- nur die Anzeige-Palette und die
 Radar-Zeichenreihenfolge wurden korrigiert.
 
-Alle 61 Overlays und dieses Showcase-Reel bleiben zum jetzigen Zeitpunkt UNVERÄNDERT
-(alter Render, alte Palette) und werden erst neu gerendert, sobald der separate,
-ebenfalls gemeldete Spiegelungs-Bug (Süd-/Nord-Seitenlinie der Kalibrierung vertauscht)
-behoben ist -- beide Fixes werden gemeinsam in einem einzigen Re-Render zusammengeführt,
-um nicht zweimal alle 61 Clips plus das Reel neu zu rendern.
+Alle 61 Overlays und dieses Showcase-Reel blieben zunächst UNVERÄNDERT (alter Render,
+alte Palette) bis der separate, ebenfalls gemeldete Spiegelungs-Bug (Süd-/Nord-Seitenlinie
+der Kalibrierung vertauscht, siehe `docs/homography-calibration.md`) behoben war -- beide
+Fixes wurden dann gemeinsam in einem einzigen Re-Render zusammengeführt, um nicht zweimal
+alle 61 Clips plus das Reel neu zu rendern.
+
+### Finaler kombinierter Re-Render (2026-08-30, orchestrator-angeordnet)
+
+Der ausstehende Re-Render ist jetzt erledigt. Alle 61 Overlays und dieses Showcase-Reel
+wurden mit dem aktuellen Tracking-Parquet-Stand neu gerendert -- korrekte Team-Farben
+(Farb-Anker-Fix), korrekte (nicht mehr gespiegelte) Radar-Orientierung
+(Kalibrierungs-Fix), alle Track-Nummern lesbar, und ein neuer On-Field-Radarfilter
+(`cv/radar.py::_is_on_field`): Seitenlinien-/Bank-Personen (absichtlich getrackt, ~25 %
+der Zeilen) werden aus der Radar-Zeichnung gefiltert, ohne die zugrundeliegenden
+Tracking-Daten zu verändern.
+
+Die Radar-Orientierung wurde empirisch anhand Clip 5, Frame 51 verifiziert (Footage
+neben Radar in `data/processed/experiments/orientation_check_c5f51.png`): der Track
+nahe am LINKEN Bildrand des Footage liegt bei `y_yards≈25,6` (nahe der Nordseitenlinie,
+oben im Radar); der Track nahe am RECHTEN Bildrand liegt bei `y_yards≈0,9` (nahe der
+Südseitenlinie, unten im Radar) -- beide bestätigen die erwartete, nicht mehr
+gespiegelte Orientierung. Details siehe `docs/cv-setup.md`, Abschnitt "Finaler
+kombinierter Re-Render".

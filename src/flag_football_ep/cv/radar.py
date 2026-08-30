@@ -25,6 +25,13 @@ the caller that drives `render_radar_frame` frame by frame, counts and logs how 
 rows it skipped per reel, so a silently thinner radar is reported rather than silently
 misrepresenting the tracking.
 
+Only ON-FIELD positions are drawn: sideline/bench people are deliberately tracked
+(~25% of rows, by design -- see D-13) so continuity and accuracy metrics can account
+for them, but plotting them on the radar clutters a view meant to read as "the play in
+progress." `_is_on_field` (pitch + both end zones + a 1-yard margin) filters them out
+of the radar draw only; the underlying tracking data and every non-radar consumer
+(overlay video, accuracy metrics) is untouched.
+
 No in-repo video-rendering precedent exists (existing charts render static PNGs via
 matplotlib/Agg); this module's actual `cv2.VideoWriter`/compositing logic has no
 in-repo analog and is built directly from scratch by this plan.
@@ -81,6 +88,12 @@ _HEADER_TEXT_COLOR: tuple[int, int, int] = (255, 255, 255)
 # reproducing a per-clip fps-rounding computation in the caller.
 _SEPARATOR_FRAMES = 5
 
+# Margin (in yards) added around the pitch + both end zones for the radar's on-field
+# draw filter (`_is_on_field`) -- generous enough that a player legitimately near the
+# boundary is never clipped, tight enough that sideline/bench people (tracked well off
+# the pitch) still get filtered out.
+_ON_FIELD_MARGIN_YARDS = 1.0
+
 
 def _pitch_geometry(config: "Config", size_wh: tuple[int, int]) -> dict:
     """Compute the single yards-to-pixels scale (identical on both axes) and the pixel
@@ -121,6 +134,29 @@ def _yards_to_px(x_yards: float, y_yards: float, geometry: dict) -> tuple[int, i
     px = geometry["offset_x"] + (x_yards + geometry["endzone_yards"]) * scale
     py = geometry["offset_y"] + (geometry["field_width_yards"] - y_yards) * scale
     return int(round(px)), int(round(py))
+
+
+def _is_on_field(x_yards: float, y_yards: float, config: "Config") -> bool:
+    """True if `(x_yards, y_yards)` lies within the pitch -- including both end zones
+    -- plus a `_ON_FIELD_MARGIN_YARDS` margin (D-13 convention: x=0 at the west goal
+    line, x=`field_length_yards` at the east goal line, y=0 at the south sideline,
+    y=`field_width_yards` at the north sideline).
+
+    Used by `render_radar_frame` to filter its draw to on-field positions only:
+    sideline/bench people are deliberately tracked (by design, not a bug) but would
+    otherwise clutter the radar with markers well outside the pitch.
+    """
+    endzone = config.cv.endzone_yards
+    field_length = config.cv.field_length_yards
+    field_width = config.cv.field_width_yards
+    margin = _ON_FIELD_MARGIN_YARDS
+
+    x_min = -endzone - margin
+    x_max = field_length + endzone + margin
+    y_min = -margin
+    y_max = field_width + margin
+
+    return x_min <= x_yards <= x_max and y_min <= y_yards <= y_max
 
 
 def _draw_pitch(canvas: "np.ndarray", config: "Config", geometry: dict, cv2) -> None:
@@ -239,6 +275,11 @@ def render_radar_frame(tracks_at_frame: "pl.DataFrame", config: "Config", size_w
     null-`team_id` tracks (square). Rows with a null `x_yards`/`y_yards` are skipped
     without raising.
 
+    ON-FIELD FILTER: rows whose `(x_yards, y_yards)` falls outside the pitch (incl.
+    both end zones) plus a 1-yard margin are also skipped -- see `_is_on_field`.
+    Sideline/bench people are deliberately tracked elsewhere in the pipeline; this
+    filter only keeps them off the radar's draw, not out of the tracking data itself.
+
     Draws every row's marker SHAPE first, then every row's track-id LABEL in a
     second, later pass -- not shape-then-label-then-next-row. With real footage,
     players cluster closely enough that a later row's filled marker shape can sit
@@ -257,6 +298,8 @@ def render_radar_frame(tracks_at_frame: "pl.DataFrame", config: "Config", size_w
     positioned_rows: list[tuple[dict, int, int]] = []
     for row in tracks_at_frame.iter_rows(named=True):
         if row.get("x_yards") is None or row.get("y_yards") is None:
+            continue
+        if not _is_on_field(row["x_yards"], row["y_yards"], config):
             continue
         x_px, y_px = _yards_to_px(row["x_yards"], row["y_yards"], geometry)
         positioned_rows.append((row, x_px, y_px))
