@@ -172,7 +172,17 @@ def _marker_color(row: dict) -> tuple[int, int, int]:
     return _TEAM_COLORS[int(team_id) % 2]
 
 
-def _draw_marker(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv2) -> None:
+def _draw_marker_shape(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv2) -> None:
+    """Draw `row`'s marker SHAPE only (no track-id label) at `(x_px, y_px)`: an
+    upward-pointing triangle for `class_name == "referee"`, a filled square for a
+    null `team_id`, otherwise a filled circle.
+
+    Split out from label drawing (`_draw_marker_label`) so `render_radar_frame` can
+    draw every marker's shape in one pass and every marker's label in a second, later
+    pass -- see that function's docstring for why (a dense cluster of markers used to
+    let a later-drawn marker's filled shape silently paint over an earlier marker's
+    already-drawn label).
+    """
     color = _marker_color(row)
     if row.get("class_name") == "referee":
         # Upward-pointing triangle -- visually distinct from the player dot/square.
@@ -198,6 +208,13 @@ def _draw_marker(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv2) -> 
     else:
         cv2.circle(canvas, (x_px, y_px), _MARKER_RADIUS, color, -1)
 
+
+def _draw_marker_label(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv2) -> None:
+    """Draw `row`'s `track_id` label only, at its fixed offset from `(x_px, y_px)` --
+    the counterpart to `_draw_marker_shape`, always called in a later pass over the
+    whole frame so no marker's shape can ever paint over another marker's label.
+    """
+    color = _marker_color(row)
     cv2.putText(
         canvas,
         str(row["track_id"]),
@@ -221,6 +238,13 @@ def render_radar_frame(tracks_at_frame: "pl.DataFrame", config: "Config", size_w
     `track_id` next to it, and a distinct marker shape for referees (triangle) and for
     null-`team_id` tracks (square). Rows with a null `x_yards`/`y_yards` are skipped
     without raising.
+
+    Draws every row's marker SHAPE first, then every row's track-id LABEL in a
+    second, later pass -- not shape-then-label-then-next-row. With real footage,
+    players cluster closely enough that a later row's filled marker shape can sit
+    right on top of an earlier row's already-drawn label; drawing every label only
+    after every shape guarantees no marker can ever paint over another marker's
+    number, regardless of which row happens to come first in `tracks_at_frame`.
     """
     import cv2
 
@@ -230,11 +254,17 @@ def render_radar_frame(tracks_at_frame: "pl.DataFrame", config: "Config", size_w
     geometry = _pitch_geometry(config, size_wh)
     _draw_pitch(canvas, config, geometry, cv2)
 
+    positioned_rows: list[tuple[dict, int, int]] = []
     for row in tracks_at_frame.iter_rows(named=True):
         if row.get("x_yards") is None or row.get("y_yards") is None:
             continue
         x_px, y_px = _yards_to_px(row["x_yards"], row["y_yards"], geometry)
-        _draw_marker(canvas, row, x_px, y_px, cv2)
+        positioned_rows.append((row, x_px, y_px))
+
+    for row, x_px, y_px in positioned_rows:
+        _draw_marker_shape(canvas, row, x_px, y_px, cv2)
+    for row, x_px, y_px in positioned_rows:
+        _draw_marker_label(canvas, row, x_px, y_px, cv2)
 
     return canvas
 
