@@ -450,6 +450,35 @@ def test_track_session_persists_stage_timings_json_sibling(
     # that would multiply the real frame count.
     for stage in ("decode", "detect", "track", "write"):
         assert by_stage[stage]["frames"] == n_frames
+    # footage_seconds is the inventory-declared clip duration, not frames / 30.0.
+    assert payload["footage_seconds"] == pytest.approx(n_frames / _CLIP_FPS)
+    assert result.footage_seconds == pytest.approx(n_frames / _CLIP_FPS)
+
+
+def test_footage_seconds_falls_back_to_measured_fps_with_a_notice_when_duration_absent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A clip registered without an inventory `duration_seconds` still contributes real
+    footage time -- decoded frames over the clip's MEASURED fps, never a hardcoded
+    30.0 -- and the fallback is named in a notice rather than silently applied.
+    """
+    config = _make_config(tmp_path)
+    n_frames = 4
+    _write_synthetic_clip(config.paths.video / "Wide - Clip 001.mp4", n_frames)
+    row = _inventory_row("data/video/Wide - Clip 001.mp4", duration_seconds=1.0)
+    row["duration_seconds"] = ""  # inventory row with no declared duration
+    _write_inventory(config, [row])
+
+    model = _FakeModel(_moving_player_box)
+    _install_fake_model(monkeypatch, model)
+
+    result = track_session(config, "test-session", run_id="deadbeef00")
+
+    # Fallback is decoded frames / measured fps (the clip was written at _CLIP_FPS).
+    assert result.footage_seconds == pytest.approx(n_frames / _CLIP_FPS)
+    assert any("footage" in notice and "fall back" in notice for notice in result.notices), (
+        result.notices
+    )
 
 
 def test_late_spawning_track_needs_the_tuned_confirmation_window_before_appearing(

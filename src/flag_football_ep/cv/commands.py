@@ -601,9 +601,19 @@ def benchmark(
         )
         for entry in payload["stages"]
     )
-    footage_seconds = sum(stage.frames for stage in stages) / 30.0
+    # The artifact's own footage_seconds: the sum of the session clips' real
+    # (inventory-declared) durations, persisted by `track_session` -- never a
+    # per-stage frame sum divided by a hardcoded fps (every stage covers the same
+    # frames, so summing them would inflate the denominator ~4x and understate the
+    # extrapolated runtime in exactly the direction that flatters the gate).
+    footage_seconds = payload.get("footage_seconds")
+    if not isinstance(footage_seconds, (int, float)) or footage_seconds <= 0:
+        raise typer.BadParameter(
+            f"{timings} carries no positive footage_seconds -- re-run `ffep cv track` "
+            "to regenerate the stage-timings artifact"
+        )
 
-    result = extrapolate_game_runtime(stages, footage_seconds, game_minutes * 60.0)
+    result = extrapolate_game_runtime(stages, float(footage_seconds), game_minutes * 60.0)
 
     typer.echo(f"extrapolated: {result.extrapolated_game_minutes:.2f} min/game")
     typer.echo(f"formula: {result.formula}")

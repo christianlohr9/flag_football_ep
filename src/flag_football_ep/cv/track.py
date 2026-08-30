@@ -126,6 +126,7 @@ class TrackResult:
     notices: list[str] = field(default_factory=list)
     stage_seconds: dict[str, float] = field(default_factory=dict)
     timings_path: Path | None = None
+    footage_seconds: float = 0.0
 
 
 def _timestamp() -> str:
@@ -154,7 +155,7 @@ def _read_declared_durations(
         if not local_path:
             continue
         n = clip_number_of(Path(local_path))
-        if n in clip_numbers:
+        if n in clip_numbers and row["duration_seconds"] is not None:
             durations[n] = float(row["duration_seconds"])
     return durations
 
@@ -187,6 +188,7 @@ def _write_stage_timings(
     tracked_at: str,
     stage_seconds: dict[str, float],
     stage_frames: dict[str, int],
+    footage_seconds: float,
 ) -> Path:
     """Persist the session's per-stage timings as a small JSON sibling of the tracking
     Parquet -- the artifact `ffep cv benchmark --timings` reads. Written atomically
@@ -198,6 +200,11 @@ def _write_stage_timings(
     payload = {
         "session_id": session_id,
         "tracked_at": tracked_at,
+        # The REAL footage duration the timings cover: the sum of the session clips'
+        # inventory-declared `duration_seconds` (with a measured-fps fallback per clip,
+        # noticed) -- NEVER a per-stage frame sum divided by a hardcoded fps, which
+        # would inflate the denominator ~4x and silently flatter the C-09 gate.
+        "footage_seconds": footage_seconds,
         "stages": [
             {
                 "stage": stage,
@@ -298,6 +305,7 @@ def track_session(
     # all run per frame) -- each stage's frame counter therefore advances by the clip's
     # decoded frame count exactly once per clip, never summed across stages.
     stage_frames: dict[str, int] = {name: 0 for name in _STAGE_NAMES}
+    footage_seconds = 0.0
     notices: list[str] = []
     rows: list[dict] = []
     tracked_at = _timestamp()
@@ -391,6 +399,18 @@ def track_session(
                 notices.append(f"clip {clip_num}: produced zero tracks")
 
             declared = declared_durations.get(clip_num)
+            # Footage seconds for the C-09 extrapolation: the inventory-declared clip
+            # duration, falling back to decoded frames over the MEASURED fps (never a
+            # hardcoded one) when the inventory carries no duration for this clip.
+            if declared is not None:
+                footage_seconds += declared
+            elif fps > 0:
+                footage_seconds += frame_count / fps
+                notices.append(
+                    f"clip {clip_num}: no inventory-declared duration -- footage "
+                    f"seconds fall back to decoded {frame_count} frames / measured "
+                    f"{fps} fps"
+                )
             if declared is not None:
                 expected_frames = round(declared * fps)
                 if abs(frame_count - expected_frames) > _FRAME_COUNT_TOLERANCE:
@@ -424,6 +444,7 @@ def track_session(
         tracked_at=tracked_at,
         stage_seconds=stage_seconds,
         stage_frames=stage_frames,
+        footage_seconds=footage_seconds,
     )
 
     return TrackResult(
@@ -433,4 +454,5 @@ def track_session(
         notices=notices,
         stage_seconds=stage_seconds,
         timings_path=timings_path,
+        footage_seconds=footage_seconds,
     )

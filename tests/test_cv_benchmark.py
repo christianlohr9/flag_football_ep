@@ -91,7 +91,9 @@ def test_machine_identifier_appears_in_the_result() -> None:
 # --- `ffep cv benchmark` CLI: reads the stage-timings JSON `track_session` persists ---------
 
 
-def _write_timings_json(path, stages: tuple[StageTiming, ...]) -> None:
+def _write_timings_json(
+    path, stages: tuple[StageTiming, ...], *, footage_seconds: float | None = 630.0
+) -> None:
     import json
 
     payload = {
@@ -102,14 +104,12 @@ def _write_timings_json(path, stages: tuple[StageTiming, ...]) -> None:
             for stage in stages
         ],
     }
+    if footage_seconds is not None:
+        payload["footage_seconds"] = footage_seconds
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
-def test_benchmark_command_reads_the_persisted_stage_timings_artifact(tmp_path) -> None:
-    """`ffep cv benchmark --timings` must run against exactly the artifact
-    `track_session` writes -- the previous `--tracks` option pointed at the canonical
-    tracking Parquet, which carries no stage/seconds/frames columns at all.
-    """
+def _invoke_benchmark(tmp_path, timings_path):
     from typer.testing import CliRunner
 
     from test_config import MINIMAL_TOML
@@ -119,16 +119,54 @@ def test_benchmark_command_reads_the_persisted_stage_timings_artifact(tmp_path) 
     config_path = tmp_path / "ffep.toml"
     config_path.write_text(MINIMAL_TOML, encoding="utf-8")
 
-    timings_path = tmp_path / "test-session_stage_timings.json"
-    _write_timings_json(timings_path, _stages())
-
     runner = CliRunner()
-    result = runner.invoke(
+    return runner.invoke(
         app,
         ["cv", "benchmark", "--config", str(config_path), "--timings", str(timings_path)],
     )
+
+
+def test_benchmark_command_reads_the_persisted_stage_timings_artifact(tmp_path) -> None:
+    """`ffep cv benchmark --timings` must run against exactly the artifact
+    `track_session` writes -- the previous `--tracks` option pointed at the canonical
+    tracking Parquet, which carries no stage/seconds/frames columns at all.
+    """
+    timings_path = tmp_path / "test-session_stage_timings.json"
+    _write_timings_json(timings_path, _stages())
+
+    result = _invoke_benchmark(tmp_path, timings_path)
 
     assert result.exit_code == 0, result.output
     assert "extrapolated:" in result.output
     assert "min/game" in result.output
     assert "formula:" in result.output
+
+
+def test_benchmark_command_uses_the_artifacts_footage_seconds_not_frames_over_30(
+    tmp_path,
+) -> None:
+    """The extrapolation denominator is the artifact's real footage duration.
+    The old formula summed every stage's frame count (each stage covers the SAME
+    frames, so a ~3x inflation here) and divided by a hardcoded 30 fps -- with these
+    stages that would yield footage of 1890/30 = 63s instead of the real 630s, i.e.
+    a 10x-too-small extrapolation flattering the C-09 gate.
+    """
+    timings_path = tmp_path / "test-session_stage_timings.json"
+    _write_timings_json(timings_path, _stages(), footage_seconds=630.0)
+
+    result = _invoke_benchmark(tmp_path, timings_path)
+
+    assert result.exit_code == 0, result.output
+    # total factor = (6.3 + 63.0 + 0.63) / 630.0 = 0.111x; * 3000s game / 60 = 5.55 min
+    assert "extrapolated: 5.55 min/game" in result.output
+    assert "630.0" in result.output  # the real footage duration appears in the formula
+
+
+def test_benchmark_command_refuses_an_artifact_without_footage_seconds(tmp_path) -> None:
+    timings_path = tmp_path / "test-session_stage_timings.json"
+    _write_timings_json(timings_path, _stages(), footage_seconds=None)
+
+    result = _invoke_benchmark(tmp_path, timings_path)
+
+    assert result.exit_code != 0
+    assert "footage_seconds" in result.output
