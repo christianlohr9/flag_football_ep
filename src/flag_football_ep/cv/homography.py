@@ -61,7 +61,7 @@ drone, not a locked-off tripod): the calibrated grid fits its own reference clip
 pixel-perfect but sits tens of pixels off on other clips in the same group.
 
 `clip_alignment(clip_frame, reference_frame)` registers one clip's representative
-frame onto its hover position's calibration reference frame via ORB features +
+frame onto its hover position's calibration reference frame via SIFT features +
 ratio-test matching + `cv2.findHomography(..., cv2.RANSAC)`, returning the 3x3
 `H_align` that maps the clip's own pixel space onto the reference clip's pixel space.
 The scene is dominated by the planar pitch (painted lines, large lettering) -- strong,
@@ -89,6 +89,7 @@ aborting the whole coordinate projection over one bad clip.
 
 from __future__ import annotations
 
+import math
 import os
 import warnings
 from pathlib import Path
@@ -126,9 +127,6 @@ MIN_FIT_POINTS = 4
 # same landmark name -- the CSV must not silently redefine the field (D-13).
 _TARGET_AGREEMENT_TOLERANCE_YARDS = 0.01
 
-# Fixed landmark-name vocabulary the calibration CSV's `landmark` column must use.
-# Coordinates for these names are computed by `field_landmarks()` from the
-# project's configured field dimensions.
 ClipAlignmentReference = tuple[int, float]
 
 # Per hover position, the `(clip_number, at_second)` its `homography_calibration.csv`
@@ -143,20 +141,49 @@ CLIP_ALIGNMENT_REFERENCE_FRAMES: dict[str, ClipAlignmentReference] = {
     "hp-02": (44, 3.0),
 }
 
-# `clip_alignment`'s Lowe ratio-test threshold for ORB/BFMatcher knnMatch(k=2) pairs.
-_ALIGNMENT_RATIO_THRESHOLD = 0.75
+# `clip_alignment` uses SIFT (not ORB): empirically, on this session's real footage,
+# SIFT's scale-space keypoint detection recovers far more genuine correspondences than
+# ORB's fixed pyramid under the pitch's repetitive grass texture (verified during this
+# fix's implementation -- ORB with default params found 4/15 inliers on a pair SIFT
+# resolves with >20 plausible inliers). `cv2.SIFT_create` ships in stock
+# `opencv-python`/`opencv-python-headless` (patent expired 2020), no `opencv-contrib`
+# dependency needed.
+_ALIGNMENT_SIFT_CONTRAST_THRESHOLD = 0.02
+_ALIGNMENT_SIFT_EDGE_THRESHOLD = 10
+
+# `clip_alignment` sweeps this small set of Lowe ratio-test thresholds (not just one)
+# and keeps the best PLAUSIBLE candidate (see `_is_plausible_alignment` below) with the
+# highest inlier count -- a single fixed ratio sometimes lands on a spurious, highly-
+# self-consistent-looking cluster of matches at one threshold while a different
+# threshold recovers the genuine correspondence set; trying a few and filtering by
+# plausibility is far more robust on real footage than committing to one value.
+_ALIGNMENT_RATIO_THRESHOLDS: tuple[float, ...] = (0.7, 0.75, 0.8)
 
 # `cv2.findHomography(..., cv2.RANSAC, ...)`'s reprojection-error threshold (px) for a
 # correspondence to count as an inlier.
 _ALIGNMENT_RANSAC_REPROJ_THRESHOLD = 5.0
 
-# Below either guard, `clip_alignment` falls back to identity rather than trust a
-# homography fit on too few/too-agreeing-by-chance correspondences.
-_MIN_ALIGNMENT_INLIERS = 15
-_MIN_ALIGNMENT_INLIER_RATIO = 0.2
+# Below either guard, a candidate homography is discarded rather than trusted as a fit
+# on too few/too-agreeing-by-chance correspondences.
+_MIN_ALIGNMENT_INLIERS = 10
+_MIN_ALIGNMENT_INLIER_RATIO = 0.15
 
-# Below this many ORB keypoints per frame, matching is not attempted at all.
+# Below this many SIFT keypoints per frame, matching is not attempted at all.
 _MIN_ALIGNMENT_KEYPOINTS = 4
+
+# `_is_plausible_alignment`'s sanity bounds on a candidate homography's linear (2x2)
+# part, decomposed after normalizing by the matrix's [2, 2] entry: a real between-clip
+# drone drift/rezoom is a MODEST rotation and a scale factor within roughly 0.4x-2.5x
+# (`_MIN_ALIGNMENT_DETERMINANT`/`_MAX_ALIGNMENT_DETERMINANT` bound the determinant,
+# i.e. squared scale, so the linear scale range is roughly sqrt(0.16)=0.4 to
+# sqrt(6.25)=2.5), never a near-180-degree rotation or a near-singular/negative-
+# determinant (mirrored) transform -- RANSAC can occasionally converge on exactly such
+# a degenerate fit when the true inlier set is thin and the outlier pool (repetitive
+# grass texture) is large, and a plausible-looking inlier COUNT alone does not rule
+# that out (empirically observed during this fix's implementation on real footage).
+_MIN_ALIGNMENT_DETERMINANT = 0.16
+_MAX_ALIGNMENT_DETERMINANT = 6.25
+_MAX_ALIGNMENT_ROTATION_DEG = 30.0
 
 FIELD_LANDMARKS: tuple[str, ...] = (
     "goalline_west_south",
@@ -550,30 +577,59 @@ def _mid_clip_frame(clip: Path) -> "np.ndarray":
     return frame
 
 
+def _is_plausible_alignment(matrix: np.ndarray) -> bool:
+    """True when `matrix`'s linear (2x2) part, after normalizing by `matrix[2, 2]`,
+    decomposes to a determinant and rotation within `_MIN_ALIGNMENT_DETERMINANT`/
+    `_MAX_ALIGNMENT_DETERMINANT`/`_MAX_ALIGNMENT_ROTATION_DEG` -- see those constants'
+    definitions for why a real between-clip drone drift/rezoom never produces a
+    near-180-degree rotation or a near-singular/negative-determinant fit, even though
+    RANSAC can occasionally converge on exactly such a degenerate solution when the
+    true inlier set is thin (this module's "Per-clip homography refinement" section).
+    """
+    normalized = matrix / matrix[2, 2]
+    linear = normalized[:2, :2]
+    determinant = np.linalg.det(linear)
+    if not (_MIN_ALIGNMENT_DETERMINANT <= determinant <= _MAX_ALIGNMENT_DETERMINANT):
+        return False
+
+    rotation_deg = math.degrees(
+        math.atan2(linear[1, 0] - linear[0, 1], linear[0, 0] + linear[1, 1])
+    )
+    return abs(rotation_deg) <= _MAX_ALIGNMENT_ROTATION_DEG
+
+
 def clip_alignment(clip_frame: "np.ndarray", reference_frame: "np.ndarray") -> np.ndarray:
     """Register `clip_frame` onto `reference_frame`, returning the 3x3 `H_align` that
     maps a pixel in `clip_frame`'s space onto the corresponding pixel in
     `reference_frame`'s space (see this module's "Per-clip homography refinement"
     docstring section).
 
-    ORB features (`cv2.ORB_create`) + Lowe's-ratio-test `knnMatch` (k=2,
-    `_ALIGNMENT_RATIO_THRESHOLD`) + `cv2.findHomography(..., cv2.RANSAC,
+    SIFT features (`cv2.SIFT_create`) + Lowe's-ratio-test `knnMatch` (k=2, swept over
+    `_ALIGNMENT_RATIO_THRESHOLDS`) + `cv2.findHomography(..., cv2.RANSAC,
     _ALIGNMENT_RANSAC_REPROJ_THRESHOLD)`. RANSAC's own inlier/outlier voting is the
     outlier rejection for moving players -- the planar, static pitch dominates the
     frame and produces far more mutually-consistent correspondences than any one
-    moving person's apparent displacement, so no separate player mask is needed.
+    moving person's apparent displacement, so no separate player mask is needed. Each
+    ratio threshold's RANSAC result is additionally checked by
+    `_is_plausible_alignment`; among the thresholds that produce a plausible fit with
+    enough inliers, the one with the most inliers wins.
 
     Falls back to `np.eye(3)` (identity -- never a garbage transform) with a
     `UserWarning` notice when: either frame yields fewer than
-    `_MIN_ALIGNMENT_KEYPOINTS` ORB keypoints, fewer than 4 correspondences survive the
-    ratio test, `cv2.findHomography` returns no solution, or the RANSAC inlier
-    count/ratio falls below `_MIN_ALIGNMENT_INLIERS`/`_MIN_ALIGNMENT_INLIER_RATIO`.
+    `_MIN_ALIGNMENT_KEYPOINTS` SIFT keypoints, or no ratio threshold in
+    `_ALIGNMENT_RATIO_THRESHOLDS` produces a `cv2.findHomography` solution that is
+    BOTH plausible (`_is_plausible_alignment`) AND clears
+    `_MIN_ALIGNMENT_INLIERS`/`_MIN_ALIGNMENT_INLIER_RATIO`.
     """
     import cv2
 
-    orb = cv2.ORB_create(nfeatures=4000)
-    keypoints_clip, descriptors_clip = orb.detectAndCompute(clip_frame, None)
-    keypoints_ref, descriptors_ref = orb.detectAndCompute(reference_frame, None)
+    sift = cv2.SIFT_create(
+        nfeatures=0,
+        contrastThreshold=_ALIGNMENT_SIFT_CONTRAST_THRESHOLD,
+        edgeThreshold=_ALIGNMENT_SIFT_EDGE_THRESHOLD,
+    )
+    keypoints_clip, descriptors_clip = sift.detectAndCompute(clip_frame, None)
+    keypoints_ref, descriptors_ref = sift.detectAndCompute(reference_frame, None)
 
     if (
         descriptors_clip is None
@@ -582,7 +638,7 @@ def clip_alignment(clip_frame: "np.ndarray", reference_frame: "np.ndarray") -> n
         or len(keypoints_ref) < _MIN_ALIGNMENT_KEYPOINTS
     ):
         warnings.warn(
-            "clip_alignment: too few ORB keypoints detected "
+            "clip_alignment: too few SIFT keypoints detected "
             f"(clip={0 if keypoints_clip is None else len(keypoints_clip)}, "
             f"reference={0 if keypoints_ref is None else len(keypoints_ref)}); "
             "falling back to identity",
@@ -590,55 +646,64 @@ def clip_alignment(clip_frame: "np.ndarray", reference_frame: "np.ndarray") -> n
         )
         return np.eye(3)
 
-    matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
+    matcher = cv2.BFMatcher(cv2.NORM_L2)
     knn_matches = matcher.knnMatch(descriptors_clip, descriptors_ref, k=2)
 
-    good_matches = [
-        m
-        for pair in knn_matches
-        if len(pair) == 2
-        for m, n in [pair]
-        if m.distance < _ALIGNMENT_RATIO_THRESHOLD * n.distance
-    ]
+    best: tuple[int, np.ndarray] | None = None
+    best_report = ""
+    best_report_inliers = -1
+    for ratio_threshold in _ALIGNMENT_RATIO_THRESHOLDS:
+        good_matches = [
+            m
+            for pair in knn_matches
+            if len(pair) == 2
+            for m, n in [pair]
+            if m.distance < ratio_threshold * n.distance
+        ]
+        if len(good_matches) < 4:
+            continue
 
-    if len(good_matches) < 4:
+        src_pts = np.float32(
+            [keypoints_clip[m.queryIdx].pt for m in good_matches]
+        ).reshape(-1, 1, 2)
+        dst_pts = np.float32(
+            [keypoints_ref[m.trainIdx].pt for m in good_matches]
+        ).reshape(-1, 1, 2)
+
+        matrix, mask = cv2.findHomography(
+            src_pts, dst_pts, cv2.RANSAC, _ALIGNMENT_RANSAC_REPROJ_THRESHOLD
+        )
+        if matrix is None:
+            continue
+
+        inlier_count = int(mask.sum()) if mask is not None else 0
+        inlier_ratio = inlier_count / len(good_matches) if good_matches else 0.0
+        plausible = _is_plausible_alignment(matrix)
+        if (
+            inlier_count >= _MIN_ALIGNMENT_INLIERS
+            and inlier_ratio >= _MIN_ALIGNMENT_INLIER_RATIO
+            and plausible
+            and (best is None or inlier_count > best[0])
+        ):
+            best = (inlier_count, np.asarray(matrix, dtype=np.float64))
+        if inlier_count > best_report_inliers:
+            best_report_inliers = inlier_count
+            best_report = (
+                f"ratio={ratio_threshold} inliers={inlier_count}/{len(good_matches)} "
+                f"({inlier_ratio:.0%}) plausible={plausible}"
+            )
+
+    if best is None:
         warnings.warn(
-            f"clip_alignment: only {len(good_matches)} ratio-test match(es) survived "
-            "(need >= 4); falling back to identity",
+            f"clip_alignment: no ratio threshold in {_ALIGNMENT_RATIO_THRESHOLDS} "
+            f"produced a plausible fit clearing >= {_MIN_ALIGNMENT_INLIERS} inliers "
+            f"and >= {_MIN_ALIGNMENT_INLIER_RATIO:.0%} inlier ratio (best attempt: "
+            f"{best_report}); falling back to identity",
             stacklevel=2,
         )
         return np.eye(3)
 
-    src_pts = np.float32(
-        [keypoints_clip[m.queryIdx].pt for m in good_matches]
-    ).reshape(-1, 1, 2)
-    dst_pts = np.float32(
-        [keypoints_ref[m.trainIdx].pt for m in good_matches]
-    ).reshape(-1, 1, 2)
-
-    matrix, mask = cv2.findHomography(
-        src_pts, dst_pts, cv2.RANSAC, _ALIGNMENT_RANSAC_REPROJ_THRESHOLD
-    )
-    if matrix is None:
-        warnings.warn(
-            "clip_alignment: cv2.findHomography returned no solution; falling back "
-            "to identity",
-            stacklevel=2,
-        )
-        return np.eye(3)
-
-    inlier_count = int(mask.sum()) if mask is not None else 0
-    inlier_ratio = inlier_count / len(good_matches) if good_matches else 0.0
-    if inlier_count < _MIN_ALIGNMENT_INLIERS or inlier_ratio < _MIN_ALIGNMENT_INLIER_RATIO:
-        warnings.warn(
-            f"clip_alignment: only {inlier_count}/{len(good_matches)} RANSAC inliers "
-            f"({inlier_ratio:.0%}, need >= {_MIN_ALIGNMENT_INLIERS} and >= "
-            f"{_MIN_ALIGNMENT_INLIER_RATIO:.0%}); falling back to identity",
-            stacklevel=2,
-        )
-        return np.eye(3)
-
-    return np.asarray(matrix, dtype=np.float64)
+    return best[1]
 
 
 def clip_alignment_matrix(hover_position_id: str, clip_number: int, config: "Config") -> np.ndarray:
