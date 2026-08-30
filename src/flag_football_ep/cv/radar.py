@@ -16,12 +16,13 @@ field coordinate convention is D-13: x=0 at the west goal line (drawn on the lef
 x=`field_length_yards` at the east goal line, y=0 at the south sideline (drawn at the
 bottom of the frame), y=`field_width_yards` at the north sideline.
 
-Team/marker colours mirror `overlay.py`'s scheme exactly, so the two halves of the
-showcase reel read as the same event: two team colours for `team_id` 0/1, a third
-colour+shape for `class_name == "referee"`, a fourth for a null `team_id`. Rows with a
-null `x_yards`/`y_yards` are skipped without raising -- `render_showcase_reel`, the
-caller that drives `render_radar_frame` frame by frame, counts and logs how many rows
-it skipped per reel, so a silently thinner radar is reported rather than silently
+Team/marker colours share `cv.palette`'s single definition with `overlay.py`, so the
+two halves of the showcase reel read as the same event: `team_id` 0 draws red and
+`team_id` 1 draws blue (matching `teams.assign_teams`'s jersey-colour anchoring), a
+third colour+shape for `class_name == "referee"`, a fourth for a null `team_id`. Rows
+with a null `x_yards`/`y_yards` are skipped without raising -- `render_showcase_reel`,
+the caller that drives `render_radar_frame` frame by frame, counts and logs how many
+rows it skipped per reel, so a silently thinner radar is reported rather than silently
 misrepresenting the tracking.
 
 No in-repo video-rendering precedent exists (existing charts render static PNGs via
@@ -40,6 +41,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from flag_football_ep.cv import CvError
+from flag_football_ep.cv.palette import NULL_TEAM_COLOR as _NULL_TEAM_COLOR
+from flag_football_ep.cv.palette import REFEREE_COLOR as _REFEREE_COLOR
+from flag_football_ep.cv.palette import TEAM_COLORS as _TEAM_COLORS
 
 if TYPE_CHECKING:
     import polars as pl
@@ -56,14 +60,8 @@ class NoFieldCoordinatesForClip(CvError, ValueError):
     """
 
 
-# BGR (cv2 convention) colours -- mirrors `overlay.py`'s `_TEAM_COLORS`/
-# `_REFEREE_COLOR`/`_NULL_TEAM_COLOR` exactly, so the reel's two halves agree.
-_TEAM_COLORS: dict[int, tuple[int, int, int]] = {
-    0: (255, 80, 0),  # blue-ish
-    1: (0, 60, 230),  # red-ish
-}
-_REFEREE_COLOR: tuple[int, int, int] = (0, 220, 255)  # yellow
-_NULL_TEAM_COLOR: tuple[int, int, int] = (170, 170, 170)  # gray
+# Team/referee/null-team colours live in `cv.palette` -- the same shared definition
+# `overlay.py` imports, so the reel's two halves can never drift out of sync.
 
 _PITCH_COLOR: tuple[int, int, int] = (40, 95, 40)  # dark turf green
 _LINE_COLOR: tuple[int, int, int] = (235, 235, 235)
@@ -174,7 +172,17 @@ def _marker_color(row: dict) -> tuple[int, int, int]:
     return _TEAM_COLORS[int(team_id) % 2]
 
 
-def _draw_marker(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv2) -> None:
+def _draw_marker_shape(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv2) -> None:
+    """Draw `row`'s marker SHAPE only (no track-id label) at `(x_px, y_px)`: an
+    upward-pointing triangle for `class_name == "referee"`, a filled square for a
+    null `team_id`, otherwise a filled circle.
+
+    Split out from label drawing (`_draw_marker_label`) so `render_radar_frame` can
+    draw every marker's shape in one pass and every marker's label in a second, later
+    pass -- see that function's docstring for why (a dense cluster of markers used to
+    let a later-drawn marker's filled shape silently paint over an earlier marker's
+    already-drawn label).
+    """
     color = _marker_color(row)
     if row.get("class_name") == "referee":
         # Upward-pointing triangle -- visually distinct from the player dot/square.
@@ -200,6 +208,13 @@ def _draw_marker(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv2) -> 
     else:
         cv2.circle(canvas, (x_px, y_px), _MARKER_RADIUS, color, -1)
 
+
+def _draw_marker_label(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv2) -> None:
+    """Draw `row`'s `track_id` label only, at its fixed offset from `(x_px, y_px)` --
+    the counterpart to `_draw_marker_shape`, always called in a later pass over the
+    whole frame so no marker's shape can ever paint over another marker's label.
+    """
+    color = _marker_color(row)
     cv2.putText(
         canvas,
         str(row["track_id"]),
@@ -219,10 +234,17 @@ def render_radar_frame(tracks_at_frame: "pl.DataFrame", config: "Config", size_w
     Draws the pitch (both goal lines, the sidelines, the end-zone back lines, and yard
     lines every 5 yards with their numbers) from `config.cv.field_length_yards`/
     `field_width_yards`/`endzone_yards`, then plots each row in `tracks_at_frame` at its
-    `(x_yards, y_yards)` position with `overlay.py`'s team colour scheme, the
+    `(x_yards, y_yards)` position with `cv.palette`'s shared team colour scheme, the
     `track_id` next to it, and a distinct marker shape for referees (triangle) and for
     null-`team_id` tracks (square). Rows with a null `x_yards`/`y_yards` are skipped
     without raising.
+
+    Draws every row's marker SHAPE first, then every row's track-id LABEL in a
+    second, later pass -- not shape-then-label-then-next-row. With real footage,
+    players cluster closely enough that a later row's filled marker shape can sit
+    right on top of an earlier row's already-drawn label; drawing every label only
+    after every shape guarantees no marker can ever paint over another marker's
+    number, regardless of which row happens to come first in `tracks_at_frame`.
     """
     import cv2
 
@@ -232,11 +254,17 @@ def render_radar_frame(tracks_at_frame: "pl.DataFrame", config: "Config", size_w
     geometry = _pitch_geometry(config, size_wh)
     _draw_pitch(canvas, config, geometry, cv2)
 
+    positioned_rows: list[tuple[dict, int, int]] = []
     for row in tracks_at_frame.iter_rows(named=True):
         if row.get("x_yards") is None or row.get("y_yards") is None:
             continue
         x_px, y_px = _yards_to_px(row["x_yards"], row["y_yards"], geometry)
-        _draw_marker(canvas, row, x_px, y_px, cv2)
+        positioned_rows.append((row, x_px, y_px))
+
+    for row, x_px, y_px in positioned_rows:
+        _draw_marker_shape(canvas, row, x_px, y_px, cv2)
+    for row, x_px, y_px in positioned_rows:
+        _draw_marker_label(canvas, row, x_px, y_px, cv2)
 
     return canvas
 

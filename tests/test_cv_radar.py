@@ -24,6 +24,7 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
+from flag_football_ep.cv.palette import TEAM_COLORS
 from flag_football_ep.cv.radar import (
     _HEADER_HEIGHT_PX,
     _SEPARATOR_FRAMES,
@@ -256,6 +257,103 @@ def test_two_team_ids_and_referee_and_null_team_produce_four_distinct_marker_col
         x_px, y_px = _yards_to_px(x_yards, 5.0, geometry)
         pixels.append(tuple(int(c) for c in frame[y_px, x_px]))
     assert len(set(pixels)) == 4
+
+
+def test_team_zero_marker_is_red_and_team_one_marker_is_blue(tmp_path: Path) -> None:
+    """Regression test for the display-colour inversion bug, mirroring
+    `test_cv_overlay.test_team_zero_draws_red_and_team_one_draws_blue`: the radar
+    half of the showcase reel must draw the same team_id in the same colour as the
+    tracked-footage half (both import `cv.palette`'s single shared definition).
+    """
+    config = _make_config(tmp_path)
+    tracks_at_frame = pl.DataFrame(
+        {
+            "track_id": [1, 2],
+            "class_name": ["player", "player"],
+            "team_id": [0, 1],
+            "x_yards": [5.0, 15.0],
+            "y_yards": [5.0, 5.0],
+        }
+    )
+    size_wh = (400, 200)
+
+    frame = render_radar_frame(tracks_at_frame, config, size_wh)
+
+    geometry = _pitch_geometry(config, size_wh)
+    x0_px, y0_px = _yards_to_px(5.0, 5.0, geometry)
+    x1_px, y1_px = _yards_to_px(15.0, 5.0, geometry)
+    team0_pixel = tuple(int(c) for c in frame[y0_px, x0_px])  # BGR
+    team1_pixel = tuple(int(c) for c in frame[y1_px, x1_px])
+
+    assert team0_pixel[2] > team0_pixel[0], "team_id 0 must be red-dominant"
+    assert team1_pixel[0] > team1_pixel[2], "team_id 1 must be blue-dominant"
+    assert team0_pixel == TEAM_COLORS[0]
+    assert team1_pixel == TEAM_COLORS[1]
+
+
+def test_render_radar_frame_draws_every_marker_shape_before_any_marker_label(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Regression test for the "one team's numbers are missing" display bug:
+    `render_radar_frame` must draw every row's marker SHAPE before drawing ANY row's
+    track-id LABEL. A single-pass "shape then label, one row at a time" order would
+    let a later row's filled marker shape paint directly over an earlier row's
+    already-drawn label whenever the two positions sit close together -- normal for
+    real footage, where players cluster.
+
+    Verified by recording the actual `cv2` draw-call order rather than by pixel
+    inspection: at `_FONT_SCALE`'s size, `cv2.LINE_AA` anti-aliases every text pixel,
+    so no pixel ever exactly equals the marker's own colour -- pixel-equality would
+    not reliably detect the label at all, let alone whether it got painted over.
+    """
+    import cv2 as real_cv2
+
+    config = _make_config(tmp_path)
+    tracks_at_frame = pl.DataFrame(
+        {
+            "track_id": [1, 2, 3],
+            "class_name": ["player", "player", "referee"],
+            "team_id": [0, 1, None],
+            "x_yards": [5.0, 15.0, 25.0],
+            "y_yards": [5.0, 5.0, 5.0],
+        }
+    )
+
+    call_order: list[str] = []
+    for shape_name in ("rectangle", "circle", "fillPoly"):
+        original = getattr(real_cv2, shape_name)
+
+        def _shape_spy(*args, _name=shape_name, _original=original, **kwargs):
+            call_order.append(f"shape:{_name}")
+            return _original(*args, **kwargs)
+
+        monkeypatch.setattr(real_cv2, shape_name, _shape_spy)
+
+    original_put_text = real_cv2.putText
+
+    def _put_text_spy(*args, **kwargs):
+        call_order.append("label:putText")
+        return original_put_text(*args, **kwargs)
+
+    monkeypatch.setattr(real_cv2, "putText", _put_text_spy)
+
+    render_radar_frame(tracks_at_frame, config, (400, 200))
+
+    # `_draw_pitch` also calls `putText` (the yard-line numbers), always before any
+    # marker is drawn -- start from the first marker shape call (guaranteed to exist:
+    # track 1 is a player with a known team_id, so it always takes the circle branch)
+    # to drop those unrelated pitch-label calls from the ordering check below.
+    first_shape_index = call_order.index("shape:circle")
+    marker_calls = call_order[first_shape_index:]
+    shape_indices = [i for i, c in enumerate(marker_calls) if c.startswith("shape:")]
+    label_indices = [i for i, c in enumerate(marker_calls) if c == "label:putText"]
+
+    assert len(shape_indices) == 3, "expected one shape draw per of the 3 markers"
+    assert len(label_indices) == 3, "expected one label draw per of the 3 markers"
+    assert max(shape_indices) < min(label_indices), (
+        "every marker shape must be drawn before any marker label, so a later "
+        "marker's shape can never paint over an earlier marker's own label"
+    )
 
 
 def test_rows_with_null_field_coordinates_are_skipped_without_raising(tmp_path: Path) -> None:

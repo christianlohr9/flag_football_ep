@@ -353,3 +353,22 @@ hoch; an den Clip-Grenzen liegt jeweils ein kurzer schwarzer Trenn-Abschnitt.
 Leistungsmessung — die gemessenen Zahlen stehen in `## Gemessener Positionsfehler (v1)`/`### Gemessener
 Positionsfehler (v2)` oben und in `data/reference/continuity_review.csv` (61-Clip-Kontinuitäts-Review,
 Plan 02.1-14: nur 6 von 20 reviewten Clips bestehen, konservative Ober­schranke 77 % < 90 %-Zielwert).**
+
+### Präsentations-Fix (nach diesem Lauf, orchestrator-angeordnet)
+
+Der oben beschriebene Render (46,1 s, Frame-Stichprobe geprüft) stammt aus VOR dem
+Präsentations-Fix in `docs/cv-setup.md`s `#### Präsentations-Fix: Team-Farb-Anker +
+Radar-Label-Z-Order` und weist beide dort beschriebenen Bugs auf: die Anzeige-Palette
+zeichnete `team_id` 1 rot / `team_id` 0 blau (ohne Garantie, dass das die tatsächliche
+Trikotfarbe traf), und bei eng beieinander stehenden Markern im Radar konnte eine später
+gezeichnete Marker-Form die Track-Nummer eines früher gezeichneten Markers übermalen
+("blau hat keine Zahlen"). `assign_teams`s Team-Zuordnung selbst (`team_id`-Werte je
+Track) war von diesen Bugs nicht betroffen und musste beim Re-Lauf nicht geändert werden
+(siehe `docs/cv-setup.md` für die Zähler-Bestätigung) -- nur die Anzeige-Palette und die
+Radar-Zeichenreihenfolge wurden korrigiert.
+
+Alle 61 Overlays und dieses Showcase-Reel bleiben zum jetzigen Zeitpunkt UNVERÄNDERT
+(alter Render, alte Palette) und werden erst neu gerendert, sobald der separate,
+ebenfalls gemeldete Spiegelungs-Bug (Süd-/Nord-Seitenlinie der Kalibrierung vertauscht)
+behoben ist -- beide Fixes werden gemeinsam in einem einzigen Re-Render zusammengeführt,
+um nicht zweimal alle 61 Clips plus das Reel neu zu rendern.

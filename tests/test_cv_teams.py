@@ -461,6 +461,149 @@ def test_assign_teams_output_passes_conform_tracking(monkeypatch: pytest.MonkeyP
     assert reconformed.height == result.tracks.height
 
 
+# --- jersey-colour anchoring coverage (display-colour inversion fix) -------------------------
+#
+# The clustering itself was already correct; the bug was that the display palette drew
+# whichever cluster KMeans happened to call "1" as red, with no guarantee that was the
+# actually-red jersey cluster. These tests cover `assign_teams`'s new anchoring step
+# (`_anchor_cluster_labels`/`_redness_score`/`_crop_median_rgb`), which fixes that by
+# re-labelling cluster ids so `team_id` 0 is always the redder cluster.
+
+
+def test_redness_score_ranks_pure_red_above_pure_blue_above_grey() -> None:
+    red = teams_module._redness_score(np.array([220.0, 20.0, 20.0]))
+    blue = teams_module._redness_score(np.array([20.0, 20.0, 220.0]))
+    grey = teams_module._redness_score(np.array([120.0, 120.0, 120.0]))
+
+    assert red > blue
+    assert red > grey
+    assert blue > grey  # blue is still a colour (nonzero saturation); grey has none
+
+
+def test_crop_median_rgb_ignores_a_minority_of_outlier_pixels() -> None:
+    crop = np.full((10, 10, 3), (200.0, 20.0, 20.0))
+    # Corrupt a small corner with wildly different (background-bleed-like) pixels --
+    # a minority of the crop's pixels, so the median should ignore them entirely.
+    crop[:2, :2] = (0.0, 0.0, 0.0)
+
+    median_rgb = teams_module._crop_median_rgb(crop)
+
+    assert np.allclose(median_rgb, [200.0, 20.0, 20.0])
+
+
+class _FixedClassifier:
+    """A stub exposing only the `.predict` surface `_anchor_cluster_labels` needs, so
+    the anchoring logic itself is testable without a real KMeans/UMAP fit.
+    """
+
+    def __init__(self, labels: np.ndarray) -> None:
+        self._labels = labels
+
+    def predict(self, crops) -> np.ndarray:
+        return self._labels
+
+
+def test_anchor_cluster_labels_keeps_order_when_redder_cluster_is_already_label_zero() -> None:
+    # Cluster 0's crops are red, cluster 1's are blue -- team_id should follow colour,
+    # which here happens to already match the raw KMeans label order.
+    crops = [np.full((4, 4, 3), (200.0, 20.0, 20.0))] * 10 + [
+        np.full((4, 4, 3), (20.0, 20.0, 200.0))
+    ] * 10
+    labels = np.array([0] * 10 + [1] * 10)
+    classifier = _FixedClassifier(labels)
+
+    mapping, ambiguous = teams_module._anchor_cluster_labels(classifier, crops)
+
+    assert ambiguous is False
+    assert mapping == {0: 0, 1: 1}
+
+
+def test_anchor_cluster_labels_swaps_when_the_redder_cluster_is_kmeans_label_one() -> None:
+    # Same colours, but this time KMeans happened to call the blue crops "0" and the
+    # red crops "1" (the exact scenario the display bug shipped with) -- team_id must
+    # still anchor to jersey colour, so the mapping flips relative to the above test.
+    crops = [np.full((4, 4, 3), (20.0, 20.0, 200.0))] * 10 + [
+        np.full((4, 4, 3), (200.0, 20.0, 20.0))
+    ] * 10
+    labels = np.array([0] * 10 + [1] * 10)
+    classifier = _FixedClassifier(labels)
+
+    mapping, ambiguous = teams_module._anchor_cluster_labels(classifier, crops)
+
+    assert ambiguous is False
+    assert mapping == {0: 1, 1: 0}
+
+
+def test_anchor_cluster_labels_reports_ambiguous_when_neither_cluster_reads_as_red() -> None:
+    # Both clusters are near-greyscale (zero saturation): neither reads as "more red",
+    # so the arbitrary KMeans order is kept and the ambiguity is reported.
+    crops = [np.full((4, 4, 3), (180.0, 180.0, 180.0))] * 10 + [
+        np.full((4, 4, 3), (40.0, 40.0, 40.0))
+    ] * 10
+    labels = np.array([0] * 10 + [1] * 10)
+    classifier = _FixedClassifier(labels)
+
+    mapping, ambiguous = teams_module._anchor_cluster_labels(classifier, crops)
+
+    assert ambiguous is True
+    assert mapping == {0: 0, 1: 1}
+
+
+def _color_blob(rgb_mean: tuple[float, float, float], n: int, *, seed: int) -> list[np.ndarray]:
+    """`n` feature vectors clustered around `rgb_mean`, doubling as both the
+    clustering feature (fed through `_identity_embedder`) and the crop `assign_teams`
+    reads its jersey colour from (`_crop_median_rgb` treats a 1-D length-3 vector as
+    its own `(R, G, B)` reading).
+    """
+    rng = np.random.default_rng(seed)
+    return [rng.normal(loc=np.array(rgb_mean), scale=3.0, size=3) for _ in range(n)]
+
+
+def test_assign_teams_anchors_team_id_to_jersey_colour_end_to_end(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    spec = [
+        (1, 1, "player"),  # red jersey crops
+        (1, 2, "player"),  # blue jersey crops
+    ]
+    tracks = _make_tracks(spec)
+    crops_by_track = {
+        (1, 1): _color_blob((210.0, 20.0, 20.0), 25, seed=11),
+        (1, 2): _color_blob((20.0, 20.0, 210.0), 25, seed=12),
+    }
+
+    seen_crops: list = []
+    _install_identity_classifier(monkeypatch, seen_crops)
+
+    result = assign_teams(tracks, _make_config(), crops_by_track=crops_by_track)
+
+    red_team_ids = set(result.tracks.filter(pl.col("track_id") == 1)["team_id"].to_list())
+    blue_team_ids = set(result.tracks.filter(pl.col("track_id") == 2)["team_id"].to_list())
+    assert red_team_ids == {0}, "red-jersey track must anchor to team_id 0"
+    assert blue_team_ids == {1}, "blue-jersey track must anchor to team_id 1"
+
+
+def test_assign_teams_emits_notice_for_ambiguous_kit_colours(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    spec = [
+        (1, 1, "player"),
+        (1, 2, "player"),
+    ]
+    tracks = _make_tracks(spec)
+    crops_by_track = {
+        (1, 1): _color_blob((180.0, 180.0, 180.0), 25, seed=21),
+        (1, 2): _color_blob((40.0, 40.0, 40.0), 25, seed=22),
+    }
+
+    seen_crops: list = []
+    _install_identity_classifier(monkeypatch, seen_crops)
+
+    result = assign_teams(tracks, _make_config(), crops_by_track=crops_by_track)
+
+    assert any("ambiguous" in notice for notice in result.notices), result.notices
+
+
 # --- extract_track_crops coverage (gap-fix iteration) -----------------------------------------
 
 
