@@ -69,9 +69,41 @@ static features RANSAC keeps as inliers; moving players are outliers RANSAC reje
 by construction (a moving object's apparent pixel displacement between two frames of a
 *static* camera scene does not follow the same planar homography as the pitch, so it
 never accumulates enough consistent matches to out-vote the dominant, static-scene
-homography). Guarded: too few ORB features, too few ratio-test matches, or too low an
-inlier count/ratio falls back to identity (never a garbage transform) with a
-`UserWarning` notice naming the failure.
+homography). Guarded: too few SIFT features, too few ratio-test matches, or too low an
+inlier count/ratio/implausible fit falls back to a SECOND registration stage rather
+than straight to identity (see below).
+
+### ECC second-stage fallback (2026-08-30 follow-up)
+
+28 of 59 non-reference clips (47%) fell back to identity under SIFT/RANSAC alone --
+including clip 11, confirmed by manual template matching to have a real, modest
+transform (scale ~0.85, near-zero rotation) that SIFT/RANSAC's sparse-feature search
+simply never found enough support for (clip 11 and its hp-01 reference clip 28 share
+only a narrow overlap dominated by repetitive grass texture). `_ecc_align(clip_frame,
+reference_frame)` is the second stage `clip_alignment` attempts whenever the SIFT/RANSAC
+sweep above produces no plausible, well-supported candidate: `cv2.findTransformECC`, an
+area-based (not sparse-feature) registration that directly maximizes intensity
+correlation between the two frames, so it does not need a minimum count of discrete
+matched keypoints the way SIFT/RANSAC does. Both frames are downscaled by
+`_ECC_DOWNSCALE_FACTOR` first (cheaper, and a slightly softened image is if anything
+easier for ECC's gradient-descent optimizer). `MOTION_EUCLIDEAN` (rotation+translation,
+no independent scale/shear degrees of freedom) is tried first, initialized from
+identity -- physically the right model for a hovering drone's between-clip drift, which
+is dominated by position/orientation, not a material zoom change -- then optionally
+refined by a second `MOTION_HOMOGRAPHY` pass seeded from the Euclidean result, kept only
+if it also converges. The final warp is rescaled back to full resolution and accepted
+only when its correlation coefficient clears `_ECC_MIN_CORRELATION` AND it passes the
+SAME `_is_plausible_alignment` sanity guard SIFT/RANSAC candidates are held to.
+`_ECC_MIN_CORRELATION` was tuned empirically (see `docs/homography-calibration.md`'s ECC
+follow-up section and `_ECC_MIN_CORRELATION`'s own definition below for the full
+calibration data) -- comparing max corner-pixel disagreement between ECC-only and SIFT
+results turned out to be a misleading signal on this footage's extreme-perspective
+homographies (tiny parameter differences blow up at the frame corners, far outside any
+region real correspondences support); a direct visual check -- alpha-blending the
+ECC-warped clip against its reference frame and looking for feature overlap -- is what
+the threshold actually reflects. ECC failing to converge, or converging to a low-
+correlation/implausible fit, still falls back to identity plus a `UserWarning` notice,
+same guarantee as before: never a garbage transform.
 
 `CLIP_ALIGNMENT_REFERENCE_FRAMES` hard-codes, per hover position, which
 `(clip_number, at_second)` the calibration in `homography_calibration.csv` was
@@ -184,6 +216,43 @@ _MIN_ALIGNMENT_KEYPOINTS = 4
 _MIN_ALIGNMENT_DETERMINANT = 0.16
 _MAX_ALIGNMENT_DETERMINANT = 6.25
 _MAX_ALIGNMENT_ROTATION_DEG = 30.0
+
+# `_ecc_align`'s downscale factor for both frames before `cv2.findTransformECC` -- area-
+# based ECC is far more expensive per-pixel than SIFT's sparse features, and a slightly
+# softened/downsampled image is if anything easier for ECC's gradient-descent optimizer
+# to converge on, not harder (see this module's "ECC second-stage fallback" docstring
+# section). The recovered warp is rescaled back to full resolution before being returned.
+_ECC_DOWNSCALE_FACTOR = 0.5
+
+# `cv2.findTransformECC`'s termination criteria: stop after `_ECC_MAX_ITERATIONS`
+# iterations or once the correlation-coefficient increment between iterations drops
+# below `_ECC_TERMINATION_EPS`, whichever comes first.
+_ECC_MAX_ITERATIONS = 5000
+_ECC_TERMINATION_EPS = 1e-6
+
+# `cv2.findTransformECC`'s optional Gaussian-blur pre-filter size (odd, pixels) -- the
+# library's own default, kept explicit here rather than relying on the function's
+# default value.
+_ECC_GAUSS_FILT_SIZE = 5
+
+# The minimum ECC correlation coefficient (`cv2.findTransformECC`'s own return value, in
+# [-1, 1], "1" being a perfect match) a candidate ECC warp must clear to be trusted --
+# tuned empirically against real footage; see `docs/homography-calibration.md`'s ECC
+# fallback section for the full calibration data. Two independent checks were used, not
+# just one: (1) max corner-pixel disagreement between an ECC-only result and SIFT's own
+# result on clips SIFT ALSO aligns -- this turned out to be a MISLEADING metric on this
+# footage's extreme-perspective homographies (tiny parameter differences blow up into
+# thousands of pixels when extrapolated to the frame corners, which sit far outside the
+# region any correspondence actually supports) and was discarded as the tuning signal;
+# (2) a direct visual check -- warp the clip through the candidate H_align and alpha-
+# blend it against the reference frame (green=reference, red=warped clip; overlap reads
+# yellow) -- which is what this threshold is actually tuned against. Confirmed BAD
+# (double-vision features, no real overlap) at correlation 0.336/0.384; confirmed GOOD
+# (features overlap closely) from 0.440 upward, including the clip 11 case this fallback
+# exists for. A correlation below this is not distinguishable from two frames that
+# simply don't share enough overlapping, stable content for area-based registration to
+# lock onto.
+_ECC_MIN_CORRELATION = 0.42
 
 FIELD_LANDMARKS: tuple[str, ...] = (
     "goalline_west_south",
@@ -598,6 +667,112 @@ def _is_plausible_alignment(matrix: np.ndarray) -> bool:
     return abs(rotation_deg) <= _MAX_ALIGNMENT_ROTATION_DEG
 
 
+def _to_grayscale(frame: "np.ndarray") -> "np.ndarray":
+    """Single-channel view of `frame` for `cv2.findTransformECC`, which requires a
+    single-channel image -- a no-op if `frame` is already single-channel (the tiny
+    synthetic test frames this module's tests build sometimes are).
+    """
+    import cv2
+
+    if frame.ndim == 3:
+        return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    return frame
+
+
+def _ecc_align(
+    clip_frame: "np.ndarray", reference_frame: "np.ndarray"
+) -> tuple[np.ndarray, float] | None:
+    """Second-stage registration attempted by `clip_alignment` when the SIFT/RANSAC
+    sweep finds no plausible, well-supported fit (this module's "ECC second-stage
+    fallback" docstring section). Returns `(H_align, correlation_coefficient)` with
+    `H_align` already rescaled back to `clip_frame`'s/`reference_frame`'s full
+    resolution (both were downscaled by `_ECC_DOWNSCALE_FACTOR` internally for speed),
+    or `None` if `cv2.findTransformECC` fails to converge at every motion model
+    attempted (raises `cv2.error` -- e.g. two frames with no shared gradient structure
+    to lock onto at all).
+
+    `MOTION_EUCLIDEAN` (rotation+translation only) is tried first, initialized from
+    identity -- the physically appropriate model for a hovering drone's between-clip
+    drift -- then a second `MOTION_HOMOGRAPHY` pass, seeded from the Euclidean result,
+    attempts to additionally recover any residual perspective/zoom; kept only if it
+    also converges, otherwise the Euclidean-only result is returned. The caller
+    (`clip_alignment`) is responsible for the correlation-coefficient and plausibility
+    acceptance gates -- this function reports what ECC found, it does not judge it.
+    """
+    import cv2
+
+    clip_gray = _to_grayscale(clip_frame)
+    reference_gray = _to_grayscale(reference_frame)
+
+    clip_small = cv2.resize(
+        clip_gray,
+        None,
+        fx=_ECC_DOWNSCALE_FACTOR,
+        fy=_ECC_DOWNSCALE_FACTOR,
+        interpolation=cv2.INTER_AREA,
+    )
+    reference_small = cv2.resize(
+        reference_gray,
+        None,
+        fx=_ECC_DOWNSCALE_FACTOR,
+        fy=_ECC_DOWNSCALE_FACTOR,
+        interpolation=cv2.INTER_AREA,
+    )
+
+    criteria = (
+        cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT,
+        _ECC_MAX_ITERATIONS,
+        _ECC_TERMINATION_EPS,
+    )
+
+    # `cv2.findTransformECC(templateImage, inputImage, ...)` returns a warpMatrix W
+    # such that a templateImage point maps onto its corresponding inputImage point:
+    # p_input = W @ p_template. Passing clip_small as the template and reference_small
+    # as the input therefore yields W mapping clip pixels -> reference pixels directly
+    # -- exactly `clip_alignment`'s own H_align contract, matching the SIFT/RANSAC path
+    # above (`cv2.findHomography(src_pts=clip keypoints, dst_pts=reference keypoints)`).
+    warp_euclidean = np.eye(2, 3, dtype=np.float32)
+    try:
+        cc, warp_euclidean = cv2.findTransformECC(
+            clip_small,
+            reference_small,
+            warp_euclidean,
+            cv2.MOTION_EUCLIDEAN,
+            criteria,
+            None,
+            _ECC_GAUSS_FILT_SIZE,
+        )
+    except cv2.error:
+        return None
+
+    best_warp = np.vstack([warp_euclidean, [0.0, 0.0, 1.0]]).astype(np.float32)
+    best_cc = float(cc)
+
+    try:
+        cc_h, warp_homography = cv2.findTransformECC(
+            clip_small,
+            reference_small,
+            best_warp.copy(),
+            cv2.MOTION_HOMOGRAPHY,
+            criteria,
+            None,
+            _ECC_GAUSS_FILT_SIZE,
+        )
+        best_warp = np.asarray(warp_homography, dtype=np.float32)
+        best_cc = float(cc_h)
+    except cv2.error:
+        pass  # keep the Euclidean-only result; the homography refinement didn't converge
+
+    # Rescale the downscaled-space warp back to full resolution: a full-res point p is
+    # first scaled down (S @ p), warped in downscaled space, then scaled back up
+    # (S^-1 @ ...) -- H_full = S^-1 @ W_small @ S.
+    scale = np.diag([_ECC_DOWNSCALE_FACTOR, _ECC_DOWNSCALE_FACTOR, 1.0])
+    scale_inv = np.diag([1.0 / _ECC_DOWNSCALE_FACTOR, 1.0 / _ECC_DOWNSCALE_FACTOR, 1.0])
+    h_full = scale_inv @ np.asarray(best_warp, dtype=np.float64) @ scale
+
+    return h_full, best_cc
+
+
 def clip_alignment(clip_frame: "np.ndarray", reference_frame: "np.ndarray") -> np.ndarray:
     """Register `clip_frame` onto `reference_frame`, returning the 3x3 `H_align` that
     maps a pixel in `clip_frame`'s space onto the corresponding pixel in
@@ -615,11 +790,16 @@ def clip_alignment(clip_frame: "np.ndarray", reference_frame: "np.ndarray") -> n
     enough inliers, the one with the most inliers wins.
 
     Falls back to `np.eye(3)` (identity -- never a garbage transform) with a
-    `UserWarning` notice when: either frame yields fewer than
-    `_MIN_ALIGNMENT_KEYPOINTS` SIFT keypoints, or no ratio threshold in
-    `_ALIGNMENT_RATIO_THRESHOLDS` produces a `cv2.findHomography` solution that is
-    BOTH plausible (`_is_plausible_alignment`) AND clears
-    `_MIN_ALIGNMENT_INLIERS`/`_MIN_ALIGNMENT_INLIER_RATIO`.
+    `UserWarning` notice when either frame yields fewer than
+    `_MIN_ALIGNMENT_KEYPOINTS` SIFT keypoints (ECC is not attempted in this case either
+    -- a frame with essentially no detectable structure at all is equally unpromising
+    for area-based registration), or BOTH: no ratio threshold in
+    `_ALIGNMENT_RATIO_THRESHOLDS` produces a `cv2.findHomography` solution that is BOTH
+    plausible (`_is_plausible_alignment`) AND clears
+    `_MIN_ALIGNMENT_INLIERS`/`_MIN_ALIGNMENT_INLIER_RATIO`, AND the `_ecc_align` second
+    stage (this module's "ECC second-stage fallback" docstring section) also fails to
+    converge, or converges to a fit below `_ECC_MIN_CORRELATION` or failing
+    `_is_plausible_alignment`.
     """
     import cv2
 
@@ -694,11 +874,34 @@ def clip_alignment(clip_frame: "np.ndarray", reference_frame: "np.ndarray") -> n
             )
 
     if best is None:
+        sift_failure = (
+            f"no ratio threshold in {_ALIGNMENT_RATIO_THRESHOLDS} produced a plausible "
+            f"fit clearing >= {_MIN_ALIGNMENT_INLIERS} inliers and >= "
+            f"{_MIN_ALIGNMENT_INLIER_RATIO:.0%} inlier ratio (best attempt: {best_report})"
+        )
+
+        ecc_result = _ecc_align(clip_frame, reference_frame)
+        if ecc_result is not None:
+            ecc_matrix, ecc_cc = ecc_result
+            if ecc_cc >= _ECC_MIN_CORRELATION and _is_plausible_alignment(ecc_matrix):
+                warnings.warn(
+                    f"clip_alignment: {sift_failure}; ECC second-stage fallback "
+                    f"succeeded (correlation={ecc_cc:.3f} >= {_ECC_MIN_CORRELATION})",
+                    stacklevel=2,
+                )
+                return ecc_matrix
+
+            warnings.warn(
+                f"clip_alignment: {sift_failure}; ECC second-stage fallback also "
+                f"insufficient (correlation={ecc_cc:.3f}, plausible="
+                f"{_is_plausible_alignment(ecc_matrix)}); falling back to identity",
+                stacklevel=2,
+            )
+            return np.eye(3)
+
         warnings.warn(
-            f"clip_alignment: no ratio threshold in {_ALIGNMENT_RATIO_THRESHOLDS} "
-            f"produced a plausible fit clearing >= {_MIN_ALIGNMENT_INLIERS} inliers "
-            f"and >= {_MIN_ALIGNMENT_INLIER_RATIO:.0%} inlier ratio (best attempt: "
-            f"{best_report}); falling back to identity",
+            f"clip_alignment: {sift_failure}; ECC second-stage fallback did not "
+            "converge either; falling back to identity",
             stacklevel=2,
         )
         return np.eye(3)

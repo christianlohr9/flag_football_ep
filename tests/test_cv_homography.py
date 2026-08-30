@@ -368,6 +368,83 @@ def test_clip_alignment_falls_back_to_identity_with_notice_for_blank_frames() ->
     assert np.array_equal(result, np.eye(3))
 
 
+def test_clip_alignment_ecc_fallback_recovers_known_small_euclidean_warp(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """When SIFT/RANSAC's own acceptance gate can never be cleared -- monkeypatched here
+    via `_MIN_ALIGNMENT_INLIERS` set unreachably high, simulating the real failure mode
+    28/59 non-reference clips hit before this ECC follow-up (too few RANSAC-supported
+    correspondences) -- `clip_alignment` still recovers a known small Euclidean warp
+    (~12px translation, ~3deg rotation, the same between-clip-drift-representative
+    transform `test_clip_alignment_recovers_known_small_homography_from_synthetic_texture`
+    uses) via the `_ecc_align` second stage, on the SAME rich, SIFT-friendly synthetic
+    texture -- proving the ECC path itself works correctly, independent of whether SIFT
+    happens to succeed on any given real pair.
+    """
+    from flag_football_ep.cv import homography as homography_module
+
+    monkeypatch.setattr(homography_module, "_MIN_ALIGNMENT_INLIERS", 10_000)
+
+    reference_frame = _make_textured_image(seed=1)
+    height, width = reference_frame.shape[:2]
+
+    center = (width / 2.0, height / 2.0)
+    rotation = cv2.getRotationMatrix2D(center, 3.0, 1.0)
+    known_w = np.vstack([rotation, [0.0, 0.0, 1.0]])
+    known_w[0, 2] += 12.0
+    known_w[1, 2] += 8.0
+
+    clip_frame = cv2.warpPerspective(reference_frame, known_w, (width, height))
+
+    with pytest.warns(UserWarning, match="ECC second-stage fallback succeeded"):
+        recovered = clip_alignment(clip_frame, reference_frame)
+
+    assert not np.array_equal(recovered, np.eye(3))
+
+    sample_points = np.array(
+        [[160.0, 120.0], [480.0, 120.0], [480.0, 360.0], [160.0, 360.0], [320.0, 240.0]]
+    )
+    warped_then_recovered = _apply_projective_transform(
+        recovered, _apply_projective_transform(known_w, sample_points)
+    )
+
+    assert np.allclose(warped_then_recovered, sample_points, atol=5.0)
+
+
+def test_clip_alignment_ecc_fallback_rejected_below_correlation_threshold(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An ECC candidate that converges but scores below `_ECC_MIN_CORRELATION` is
+    rejected -- `clip_alignment` falls all the way back to identity (never trusts a
+    low-confidence area-based fit), with a `UserWarning` naming both the SIFT failure
+    and the ECC rejection. `_ecc_align` itself is monkeypatched to return a fixed,
+    otherwise-plausible matrix at a correlation just below threshold, isolating the
+    accept/reject GATE logic in `clip_alignment` from `_ecc_align`'s own (separately
+    tested) convergence behavior.
+    """
+    from flag_football_ep.cv import homography as homography_module
+
+    monkeypatch.setattr(homography_module, "_MIN_ALIGNMENT_INLIERS", 10_000)
+
+    low_confidence_matrix = np.array(
+        [[1.0, 0.0, 5.0], [0.0, 1.0, -5.0], [0.0, 0.0, 1.0]]
+    )
+    below_threshold_cc = homography_module._ECC_MIN_CORRELATION - 0.05
+    monkeypatch.setattr(
+        homography_module,
+        "_ecc_align",
+        lambda clip_frame, reference_frame: (low_confidence_matrix, below_threshold_cc),
+    )
+
+    reference_frame = _make_textured_image(seed=5)
+    clip_frame = _make_textured_image(seed=6)
+
+    with pytest.warns(UserWarning, match="falling back to identity"):
+        result = clip_alignment(clip_frame, reference_frame)
+
+    assert np.array_equal(result, np.eye(3))
+
+
 def test_clip_alignment_matrix_identity_for_hover_position_without_reference_frame() -> None:
     """A hover position absent from `CLIP_ALIGNMENT_REFERENCE_FRAMES` (every synthetic
     test id, and any real hover position this mapping hasn't been extended to) gets
