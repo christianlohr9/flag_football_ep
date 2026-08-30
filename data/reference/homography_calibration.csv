@@ -1,10 +1,10 @@
 hover_position_id,landmark,source_x_px,source_y_px,target_x_yards,target_y_yards,use_for_fit,notes
-hp-01,goalline_west_north,1740.9,748.3,0.0,25.0,true,
-hp-01,midfield_north,1344.3,73.7,25.0,25.0,true,
-hp-01,midfield_south,437.1,88.8,25.0,0.0,true,
-hp-01,yardline_5_north,1603.0,513.6,5.0,25.0,false,einziger Held-out: nur 5 Landmarken im Bild identifizierbar
-hp-01,yardline_5_south,111.9,530.1,5.0,0.0,true,zum Fit umgewidmet (Feld traegt keine weiteren Linien)
-hp-02,midfield_north,1378.6,173.6,25.0,25.0,true,zum Fit umgewidmet: nur 4 Landmarken im Bild identifizierbar
-hp-02,midfield_south,330.1,207.2,25.0,0.0,true,zum Fit umgewidmet: nur 4 Landmarken im Bild identifizierbar
-hp-02,yardline_45_south,507.1,11.0,45.0,0.0,true,
-hp-02,yardline_5_north,1905.6,708.1,5.0,25.0,true,
+hp-01,goalline_west_south,1740.9,748.3,0.0,0.0,true,Sued/Nord-Tausch 2026-08-30: im Bild rechts = physisch Sued (Spiegel-Fix)
+hp-01,midfield_south,1344.3,73.7,25.0,0.0,true,Sued/Nord-Tausch 2026-08-30
+hp-01,midfield_north,437.1,88.8,25.0,25.0,true,Sued/Nord-Tausch 2026-08-30
+hp-01,yardline_5_south,1603.0,513.6,5.0,0.0,false,einziger Held-out: nur 5 Landmarken im Bild identifizierbar (Sued/Nord-Tausch 2026-08-30)
+hp-01,yardline_5_north,111.9,530.1,5.0,25.0,true,zum Fit umgewidmet (Sued/Nord-Tausch 2026-08-30)
+hp-02,midfield_south,1378.6,173.6,25.0,0.0,true,zum Fit umgewidmet (Sued/Nord-Tausch 2026-08-30)
+hp-02,midfield_north,330.1,207.2,25.0,25.0,true,zum Fit umgewidmet (Sued/Nord-Tausch 2026-08-30)
+hp-02,yardline_45_north,507.1,11.0,45.0,25.0,true,Sued/Nord-Tausch 2026-08-30
+hp-02,yardline_5_south,1905.6,708.1,5.0,0.0,true,Sued/Nord-Tausch 2026-08-30

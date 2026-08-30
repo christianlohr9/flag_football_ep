@@ -37,6 +37,15 @@ Endzone); **y = 0** an der Südseitenlinie, **y = 25** an der Nordseitenlinie. "
 "West"/"Ost" sind hier reine Konventionsnamen für die beiden Seitenlinien bzw. Spielfeldenden, nicht
 zwingend die geografische Ausrichtung vor Ort.
 
+**Orientierungs-Korrektur (2026-08-30, Spiegel-Fix):** Die ursprüngliche Kalibrierung hatte
+"links im Bild = Süd" gesetzt; der visuelle Abgleich des Showcase-Reels mit dem Originalmaterial
+zeigte, dass das gesamte Radar dadurch spiegelverkehrt war. Eine Spiegelung ist abstandserhaltend —
+weder die Held-out-Reprojektion (0.27 yd) noch die GT-Positionsfehlermessung konnten sie erkennen;
+nur der Mensch am Side-by-Side-Vergleich. Die Süd/Nord-Zuordnung aller Kalibrierungspunkte wurde
+getauscht (Bild-rechts = Süd), die Homographien neu gefittet und alle Feldkoordinaten neu berechnet.
+Nachweislich unverändert danach: Held-out 0.27 yd, Positionsfehler Median 0.171 yd / p90 0.422 yd /
+Match 99.6% (Spiegelinvarianz bestätigt).
+
 | Landmarke | x (Yards) | y (Yards) |
 |---|---|---|
 | `goalline_west_south` | 0.0 | 0.0 |
