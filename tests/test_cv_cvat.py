@@ -267,7 +267,52 @@ def test_create_cvat_task_credential_absent_from_error_on_401(
 
     assert _SECRET_PASSWORD not in str(exc_info.value)
     assert "401" in str(exc_info.value)
+    # The exception TYPE name is diagnostic (auth vs DNS vs SDK bug) and carries no
+    # credential -- it must survive the sanitization.
+    assert "_FakeApiError" in str(exc_info.value)
     assert fake_client.closed
+
+
+def test_create_cvat_task_names_exception_type_for_a_statusless_connection_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A CVAT container that is simply not running raises a `ConnectionError` with no
+    `.status` -- the most common local-Docker failure. The operator must be able to
+    tell it apart from a bad password: the error names the exception class instead of
+    collapsing everything to 'HTTP unknown' alone.
+    """
+    coco_dir = _make_coco_dir(tmp_path)
+    config = _make_config(tmp_path)
+
+    fake_client = _FakeClient(login_error=ConnectionError("connection refused"))
+    monkeypatch.setattr(dataset, "_build_client", lambda host: fake_client)
+
+    with pytest.raises(DatasetError) as exc_info:
+        create_cvat_task(config, coco_dir, name="pilot-task")
+
+    message = str(exc_info.value)
+    assert "ConnectionError" in message
+    assert "HTTP unknown" in message  # no .status on the exception -- honestly unknown
+    assert fake_client.closed
+
+
+def test_export_cvat_task_names_exception_type_and_status(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out_dir = tmp_path / "export"
+    config = _make_config(tmp_path)
+
+    login_error = _FakeApiError(401, f"Unauthorized: password={_SECRET_PASSWORD}")
+    fake_client = _FakeClient(login_error=login_error)
+    monkeypatch.setattr(dataset, "_build_client", lambda host: fake_client)
+
+    with pytest.raises(DatasetError) as exc_info:
+        export_cvat_task(config, 7, out_dir)
+
+    message = str(exc_info.value)
+    assert _SECRET_PASSWORD not in message
+    assert "_FakeApiError" in message
+    assert "401" in message
 
 
 def test_create_cvat_task_missing_instances_json_raises_named_path(tmp_path: Path) -> None:

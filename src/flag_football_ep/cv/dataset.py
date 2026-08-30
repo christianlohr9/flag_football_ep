@@ -362,9 +362,14 @@ def create_cvat_task(config: Config, coco_dir: Path, *, name: str) -> int:
         )
         return task.id
     except Exception as exc:
+        # The exception TYPE carries no credentials and is what lets the operator
+        # tell "start Docker" (ConnectionError) from "wrong password" (a 401 status)
+        # from "malformed COCO" (an SDK validation error). The raw message is still
+        # withheld (`from None`) -- an auth failure body could echo the username.
         status = getattr(exc, "status", "unknown")
         raise DatasetError(
-            f"CVAT task creation failed against {config.cv.cvat_host} (HTTP {status})"
+            f"CVAT task creation failed against {config.cv.cvat_host} "
+            f"({type(exc).__name__}, HTTP {status})"
         ) from None
     finally:
         if client is not None:
@@ -395,10 +400,12 @@ def export_cvat_task(config: Config, task_id: int, out_dir: Path) -> Path:
         task = client.tasks.retrieve(task_id)
         task.export_dataset("COCO 1.0", archive_path, include_images=True)
     except Exception as exc:
+        # Exception type included for diagnosis, raw message withheld -- see
+        # `create_cvat_task`'s matching handler for the rationale.
         status = getattr(exc, "status", "unknown")
         raise DatasetError(
             f"CVAT export failed for task {task_id} against {config.cv.cvat_host} "
-            f"(HTTP {status})"
+            f"({type(exc).__name__}, HTTP {status})"
         ) from None
     finally:
         if client is not None:
