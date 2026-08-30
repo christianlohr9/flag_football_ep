@@ -245,3 +245,102 @@ Regression -- "Richtwert, kein Messprotokoll" gilt hier ausdrücklich auch für 
 **Reproduzierbarkeit:** `uv run python scripts/clip_alignment_diagnostics.py {drift|intra-clip|grid}`
 (siehe Skript-Docstring). `data/processed/experiments/*.csv`/`*.jpg` sind gitignored (regenerierbare
 Diagnose-Artefakte, keine Referenzdaten).
+
+## ECC-Zweitstufe (Follow-up, 2026-08-30)
+
+**Befund:** 28 von 59 Nicht-Referenzclips (47%) fielen auf Identität zurück, weil SIFT/RANSAC im
+schmalen, vom Rasentexturmuster dominierten Überlappungsbereich schlicht zu wenig gestützte
+Korrespondenzen fand -- darunter Clip 11, die erste Szene des Showcase-Reels. Manuelles
+Template-Matching auf dem gemeinsam sichtbaren "PANAMA"-Sternlogo bestätigte, dass für Clip 11 eine
+reale, moderate Transformation existiert; die automatische Suche fand dafür nur keine ausreichend
+gestützte Lösung.
+
+**Fix:** `homography._ecc_align(clip_frame, reference_frame)` ist eine zweite Registrierungsstufe,
+die `clip_alignment` genau dann versucht, wenn die SIFT/RANSAC-Schwellenwert-Sweep keinen
+plausiblen, gut gestützten Kandidaten liefert. Anders als SIFT/RANSAC (spärliche Merkmalspunkte,
+braucht eine Mindestanzahl diskreter Korrespondenzen) ist ECC (`cv2.findTransformECC`) flächenbasiert
+-- es maximiert direkt die Intensitätskorrelation zwischen beiden Frames und funktioniert daher auch
+dort, wo zu wenige diskrete Merkmalspunkte für eine SIFT-Lösung übrig bleiben. Beide Frames werden
+zunächst um `_ECC_DOWNSCALE_FACTOR` (0.5) verkleinert; zuerst wird `MOTION_EUCLIDEAN`
+(Rotation+Translation, keine unabhängigen Skalierungs-/Scherfreiheitsgrade) ab Identität initialisiert
+versucht -- physikalisch das passende Modell für die Drift eines hovernden Drohnen zwischen Clips,
+die von Position/Orientierung dominiert wird, nicht von einer materiellen Zoomänderung --, danach
+optional verfeinert durch einen zweiten `MOTION_HOMOGRAPHY`-Durchlauf, ab dem Euklidisch-Ergebnis
+initialisiert, nur übernommen wenn er ebenfalls konvergiert. Der finale Warp wird auf Vollauflösung
+zurückskaliert und nur akzeptiert, wenn sein Korrelationskoeffizient `_ECC_MIN_CORRELATION`
+überschreitet UND er denselben `_is_plausible_alignment`-Plausibilitätsfilter besteht wie
+SIFT/RANSAC-Kandidaten. Konvergiert ECC nicht oder liegt der Korrelationskoeffizient/die
+Plausibilität unter der Schwelle, bleibt der Sicherheits-Fallback auf Identität + Warnung bestehen --
+nie eine Ratewerttransformation, dieselbe Garantie wie zuvor.
+
+**Schwellenwert-Kalibrierung (`_ECC_MIN_CORRELATION`):** ursprünglich mit 0.6 als Ausgangswert
+angesetzt, dann empirisch nachjustiert -- mit einem ehrlichen Zwischenbefund, der dokumentiert
+gehört. Der erste Kalibrierungsansatz (`scripts/clip_alignment_diagnostics.py ecc-check`: maximaler
+Eckpixel-Versatz zwischen einem ECC-Ergebnis und SIFTs eigenem Ergebnis auf 31 Clips, wo SIFT selbst
+einen plausiblen Fit fand) erwies sich als IRREFÜHRENDES Signal auf diesem Filmmaterial: die
+Homographien tragen wegen der extremen Kameraperspektive (Blickwinkel fast entlang der Feldebene,
+`cv2.findHomography` extrapoliert bis weit über den tatsächlich von Korrespondenzen gestützten
+Bereich hinaus) so viel perspektivische Verzerrung, dass winzige Parameterunterschiede an den
+Bildecken -- die weit ausserhalb jedes real gestützten Bereichs liegen -- zu Tausenden Pixeln
+Scheindifferenz aufblähen (z.B. Clip 13: 14.747px "Versatz" trotz visuell nahezu perfekter
+Registrierung). Der tatsächlich verwendete Kalibrierungs-Check ist direkter und ehrlicher: den Clip
+mit der Kandidatenmatrix auf den Referenzframe warpen und beide Frames alpha-blenden (Referenz im
+Grünkanal, gewarpter Clip im Rotkanal -- Überlappung erscheint gelb, Versatz als Rot/Grün-Fransen).
+An diesem direkten Test bestätigt: Korrelation 0.336/0.384 zeigt echtes Doppelbild (keine reale
+Übereinstimmung), Korrelation ab 0.440 zeigt sichtbar enge Überlappung der Stern-/Text-Merkmale --
+einschliesslich Clip 11 selbst (Korrelation 0.440), dem Anlassfall dieses Fixes. Endgültiger Wert:
+**`_ECC_MIN_CORRELATION = 0.42`** -- knapp unter Clip 11s eigener Korrelation, komfortabel über den
+bestätigt schlechten Fällen (0.336/0.384).
+
+**Neue Verteilung** (`scripts/clip_alignment_diagnostics.py drift`, alle 59 Nicht-Referenzclips,
+`data/processed/experiments/clip_alignment_drift_with_ecc.csv`): **38 von 59 Clips (64%) erhalten
+jetzt eine plausible Korrektur** (vorher 31/59, 53%) -- 21 Clips (36%) fallen weiterhin sicher auf
+Identität zurück (keine Verschlechterung, nur keine Korrektur). Die 7 neu gewonnenen Clips: **11, 17,
+18, 24, 33, 48, 61**. Unter allen 38 korrigierten Clips (SIFT + ECC zusammen): Translation Median
+191px / p90 379px / Max 891px; Rotation (absolut) Median 4.7° / p90 9.5° / Max 21.6° -- die
+Verteilung verschiebt sich leicht nach unten (mehr korrigierte Clips mit typischerweise kleinerer
+Drift, da ECC gerade auf den Clips greift, die SIFT wegen geringerer/schwerer zu findender
+Verschiebung nicht sicher genug lösen konnte).
+
+**Clip-11-Akzeptanztest:** `data/processed/experiments/grid_check2_clip{N}.jpg` für Clip 11 sowie vier
+weitere neu gewonnene Clips (17, 18, 24, 48). Das zusammengesetzte Mehrlinien-Raster (dieselbe
+Konvention wie `grid_check_clip{N}.jpg` aus dem SIFT-Fix) ist bei dieser Kameraperspektive (fast
+entlang der Feldebene, siehe oben) für die meisten Linien schwer eindeutig zu lesen -- die meisten
+gezeichneten Linien liegen ausserhalb des tatsächlich sichtbaren Bereichs oder werden stark
+extrapoliert, genau das Problem, das den Eckpixel-Check oben irreführend machte. Der aussagekräftigere,
+tatsächlich für die 0.42-Schwelle verwendete Beleg ist der direkte Warp-Overlay-Test: für Clip 11
+zeigt der ECC-korrigierte, auf den Referenzframe (Clip 28) gewarpte Frame eine deutlich engere
+Überlappung des Sternlogos und der angrenzenden Rasenkante als die unkorrigierte Identität (die
+Buchstaben weiter aussen zeigen weiterhin einen Restversatz -- die Korrektur ist real und in die
+richtige Richtung, aber keine pixelgenaue Lösung). Ehrlich eingeordnet: kein perfektes Ergebnis, aber
+eine echte, gerichtete Verbesserung gegenüber der vorherigen Identität -- genau das, was diese
+Zweitstufe leisten soll.
+
+**Genauigkeitsmessung, SIFT-only vs. SIFT+ECC** (`ffep cv accuracy`, dieselben 250 GT-Punkte,
+faire Vergleichsbasis ist hier NICHT die ursprüngliche Einzelhomographie ohne jede Clip-Ausrichtung,
+sondern der unmittelbare Vorzustand dieses Fixes -- SIFT-only-`clip_alignment`, bereits mit
+Per-Clip-Korrektur, nur ohne ECC-Zweitstufe):
+
+| Metrik | SIFT-only | SIFT+ECC |
+|---|---|---|
+| Median | 0.189 yd | 0.190 yd |
+| p90 | 0.467 yd | 0.467 yd |
+| Max | 2.808 yd | 2.172 yd |
+| Match-Rate | 96.4% (241/250) | **99.6% (249/250)** |
+| Unmatched | 9 | **1** |
+
+Median/p90 bleiben strukturell unverändert -- dieselbe Begründung wie oben (lokaler
+GT-zu-Track-Vergleich innerhalb desselben Clips kürzt einen clip-konstanten Kalibrierungsfehler
+heraus). Match-Rate verbessert sich klar (96.4% -> 99.6%, 8 vormals unmatched GT-Punkte finden jetzt
+einen Track im 3-Yard-Suchradius) UND Max sinkt (2.808 -> 2.172 yd) -- beides direkte Folgen der
+7 neu korrigierten Clips, deren GT-Punkte vorher oft komplett ausserhalb des Suchradius lagen (siehe
+`c61f216p2`: vorher unmatched, jetzt bei 2.172 yd gematcht -- der neue Max-Wert, aber ein Match statt
+gar keinem). Massstabs-Paare unverändert (keiner der Paar-Clips 1/2/5/6/8 liegt unter den 7 neu
+gewonnenen Clips).
+
+**Reproduzierbarkeit:** `uv run python scripts/clip_alignment_diagnostics.py ecc-check --clip {N...}`
+(Kalibrierungs-Diagnose, vergleicht ECC-only gegen SIFT auf Clips, die SIFT bereits löst) und
+`uv run python scripts/clip_alignment_diagnostics.py grid --clip {N...} --out-prefix grid_check2_clip`
+(Akzeptanz-Raster). `data/processed/experiments/clip_alignment_drift_with_ecc.csv` und
+`clip_alignment_drift_baseline_sift_only.csv` sind die vorher/nachher-Rohdaten dieses Fixes
+(gitignored, regenerierbar).

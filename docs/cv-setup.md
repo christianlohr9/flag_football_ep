@@ -39,6 +39,8 @@ Diese Abweichung ändert nichts an einer technischen Entscheidung dieses Dokumen
 
 **Nachtrag (Per-Clip-Homographie-Verfeinerung, 2026-08-30):** `homography.clip_alignment` nutzt zusätzlich `cv2.SIFT_create` (ORB-Alternative, siehe `docs/homography-calibration.md`) aus demselben bereits installierten `opencv-python`-Paket — SIFT liegt seit Patentablauf 2020 im Standard-`opencv-python`/`opencv-python-headless`, kein `opencv-contrib`-Zusatzpaket nötig, keine neue Zeile in obiger Tabelle.
 
+**Nachtrag (ECC-Zweitstufe, 2026-08-30 Follow-up):** `homography._ecc_align` nutzt zusätzlich `cv2.findTransformECC` — ebenfalls Teil des Standard-`opencv-python`-Pakets, kein neues Paket, keine neue Zeile in obiger Tabelle. Siehe `docs/homography-calibration.md`s "ECC-Zweitstufe"-Abschnitt für das Design und die empirische Schwellenwert-Kalibrierung.
+
 **Ausdrücklich nicht installiert:** `boxmot` — AGPL-3.0-lizenziert (verifiziert über die eigene `LICENSE`-Datei des Projekts und die GitHub-API, Stand 2026-08-24), verletzt C-06. `trackers` (roboflow, Apache-2.0) implementiert OC-SORT nativ und ersetzt es vollständig — siehe `tests/test_cv_dependencies.py` für den automatisierten Guard.
 
 ## MPS/CPU-Verfügbarkeit auf der Primärmaschine
@@ -868,3 +870,29 @@ korrekt (`team_id` 0 rot, `team_id` 1 blau), Track-Nummern neben jedem Marker le
 Seitenlinien-/Bank-Personencluster am linken Bildrand (deutlich im Footage sichtbar,
 z. B. Clip 2 Frame 138) erscheinen erwartungsgemäß NICHT im Radar -- der On-Field-Filter
 greift.
+
+## ECC-Zweitstufe: Koordinaten-Re-Projektion + Showcase-Re-Render (2026-08-30 Follow-up)
+
+Nach `homography._ecc_align`s Ergänzung (siehe `docs/homography-calibration.md`s
+"ECC-Zweitstufe"-Abschnitt für Design und Schwellenwert-Kalibrierung) wurden Koordinaten-Projektion,
+Genauigkeitsmessung und Showcase-Reel neu gelaufen (kein erneutes Tracking/Team-Zuordnung --
+`track_session`/`assign_teams` liefen nicht erneut, nur die Homographie-Projektionsschicht ändert
+sich):
+
+1. `ffep cv coords --tracks .../..._tracks.parquet` erneut gelaufen -- 354.404 Zeilen, atomar
+   zurückgeschrieben. Backup des Vor-Fix-Stands unter
+   `data/processed/tracking/pre_ecc_fallback_backup_tracks.parquet` (gitignored).
+2. `ffep cv accuracy --measure` erneut gelaufen -- siehe `docs/homography-calibration.md`s
+   Genauigkeits-Vergleichstabelle (SIFT-only vs. SIFT+ECC): Match-Rate 96,4% → **99,6%**, Max-Fehler
+   2,808 → **2,172 yd**, Median/p90 strukturell unverändert (dieselbe lokale-Vergleich-Begründung wie
+   beim ursprünglichen Fix).
+3. Showcase-Reel (`ffep cv radar --clip 11 --clip 2 --clip 6 --clip 13 --clip 4`) neu gerendert.
+   Backup des Vor-Fix-Stands unter
+   `data/labels/.../showcase/showcase_pre_ecc_backup.mp4` (gitignored, PII). Frame 50 (Clip 11,
+   "play 1/5") visuell geprüft: Footage links zeigt dieselbe Szene wie zuvor (Team-Boxen,
+   Track-IDs, Schiedsrichter-Box), Radar rechts zeigt jetzt eine plausible Cluster-Verteilung nahe
+   der Westgoallinie statt der zuvor unkorrigierten (aber wegen des lokalen Charakters des
+   Positionsfehlermasses ohnehin nicht sichtbar falschen) Projektion.
+4. Die 61 Overlay-Videos (`ffep cv overlay`) wurden für diesen Follow-up NICHT neu gerendert -- sie
+   sind reine Footage-Annotationen ohne Radar-Halbbild und damit von der Homographie-Projektion
+   unberührt (Overlay zeichnet Boxen/IDs direkt in Pixelkoordinaten, keine Feld-Yard-Projektion).
