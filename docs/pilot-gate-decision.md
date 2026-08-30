@@ -1,6 +1,6 @@
 # CV-Tracking-Piloten-Gate — Go/No-Go-Entscheid (2026-05-16-Session)
 
-**Status: Entscheidung offen — Entwurf vom 2026-08-29**
+**Status: Entscheidung TEILWEISE vom 2026-08-30**
 
 Maschinenlesbare Grundlagen: `data/reference/continuity_review.csv` (Kontinuitäts-Review),
 `data/reference/gt_positions.csv` (Positionsfehler-GT), `docs/pilot-accuracy.md`,
@@ -46,9 +46,9 @@ Ergebnis an der Pipeline oder am Filmmaterial liegt.
 
 | Kriterium (C-09) | Zielwert | Gemessen | Datenbasis | Erfüllt? |
 |---|---|---|---|---|
-| 1. Track-Kontinuität | >= 90 % der Plays ohne ID-Switch | Review gestoppt bei 20/61 Clips (6 pass / 14 fail); konservative obere Schranke über alle 61 Clips (alle 41 ungeprüften Clips als "pass" gezählt) = **47/61 = 77.0 % < 90 %-Ziel** — das Kriterium ist bereits am oberen Rand des Möglichen verfehlt | `data/reference/continuity_review.csv` | _(Task 2)_ |
-| 2. Positionsfehler | ~<= 1 m (1,094 Yards) | Median **0,171 Yards (0,156 m)**, p90 **0,422 Yards (0,386 m)**, n = 250 GT-Punkte, Match-Rate 99,6 % (249/250) — v2-Messung gegen den BoT-SORT-/Torso-Crop-Gap-Fix | `docs/pilot-accuracy.md` (`### Gemessener Positionsfehler (v2)`) | _(Task 2)_ |
-| 3. Inferenz pro Spiel | < 1 h | **47,83 Minuten** extrapoliert für ein 50-minütiges Spiel (v2, BoT-SORT) | `docs/cv-setup.md` (`### v2 (BoT-SORT-Tracker, Torso-Crops)`) | _(Task 2)_ |
+| 1. Track-Kontinuität | >= 90 % der Plays ohne ID-Switch | Review gestoppt bei 20/61 Clips (6 pass / 14 fail); konservative obere Schranke über alle 61 Clips (alle 41 ungeprüften Clips als "pass" gezählt) = **47/61 = 77.0 % < 90 %-Ziel** — das Kriterium ist bereits am oberen Rand des Möglichen verfehlt | `data/reference/continuity_review.csv` | **NEIN** |
+| 2. Positionsfehler | ~<= 1 m (1,094 Yards) | Median **0,171 Yards (0,156 m)**, p90 **0,422 Yards (0,386 m)**, n = 250 GT-Punkte, Match-Rate 99,6 % (249/250) — v2-Messung gegen den BoT-SORT-/Torso-Crop-Gap-Fix | `docs/pilot-accuracy.md` (`### Gemessener Positionsfehler (v2)`) | **JA** |
+| 3. Inferenz pro Spiel | < 1 h | **47,83 Minuten** extrapoliert für ein 50-minütiges Spiel (v2, BoT-SORT) | `docs/cv-setup.md` (`### v2 (BoT-SORT-Tracker, Torso-Crops)`) | **JA** |
 
 **Kriterium 1 im Detail.** Das menschliche Kontinuitäts-Review (Plan 02.1-14) prüfte 20 von 61
 Clips von Hand gegen die v2-Tracking-Overlays: 6 bestehen, 14 scheitern. Ab diesem Punkt wurde das
@@ -166,12 +166,35 @@ für den Positionsfehler) oder benennt explizit, welcher Teil noch fehlt.
 
 ## Entscheidung
 
-_Wird in Task 2/3 nach dem menschlichen Go/No-Go-Verdikt ausgefüllt._
+**Verdikt: TEILWEISE**, entschieden vom Nutzer am 2026-08-30, der Einschätzung des Orchestrators
+folgend, gegen die oben stehende, unveränderte Kriterien-Tabelle.
 
-**AWAITING: Verdikt (GO / NO-GO / TEILWEISE)**
-**AWAITING: Datum**
-**AWAITING: Begründung / Datenbezug**
-**AWAITING: bei TEILWEISE — benanntes gescheitertes Kriterium, gewünschte Aufnahme-Setup-Änderung, Re-Trigger-Bedingung**
+**Begründung / Datenbezug:** Kriterien 2 (Positionsfehler, Median 0,171 Yards) und 3 (Inferenz,
+47,83 min) sind klar bestanden und werden unverändert übernommen. Kriterium 1 (Track-Kontinuität)
+ist verfehlt — selbst unter der großzügigsten möglichen Annahme (obere Schranke 47/61 = 77,0 %)
+bleibt es unter dem 90-%-Ziel; das Review musste nicht auf 61/61 fortgesetzt werden, weil das
+Ergebnis ab 20/61 bereits mathematisch entschieden war (`## Gate-Kriterien und Messung`,
+Kriterium 1 im Detail).
+
+**Verfehltes Kriterium:** 1 — Track-Kontinuität (obere Schranke 77 % < 90 %-Ziel; dominanter
+Fehlermodus: ID-Switches bei Verdeckungen, inhärent im schrägen Kamerawinkel dieser Aufnahme).
+
+**Angeforderte Capture-Setup-Änderung:** ein steilerer, senkrechterer Drohnen-Hover-Winkel bei
+der nächsten Aufnahme-Session — reduziert Verdeckungen mechanisch (weniger Spielerinnen
+überlappen sich aus einem steileren Blickwinkel) und behebt zugleich zwei weitere,
+in `## Gate-Kriterien und Messung` bereits dokumentierte Capture-Befunde nebenbei: die Ost-Endzone
+war in dieser Session nie im Bild, und Clip 14 enthält einen In-Clip-Kameraschnitt. Routing nach
+Phase 2.0 (Aufnahme-Setup) per D-06 — ausdrücklich **nicht** über mehr Trainingslabels. Als
+paralleler technischer Pfad (keine Gate-Bedingung, kann unabhängig vom neuen Capture verfolgt
+werden): appearance-basierte Re-Identifikation (ReID-Embedding in der Tracker-Assoziation oder
+Post-hoc-Track-Merge), die zweite in `## Gate-Kriterien und Messung` genannte Remediation.
+
+**Re-Trigger-Bedingung:** Das Gate wird erneut durchlaufen, sobald **entweder** eine neue Session
+mit steilerem Hover-Winkel aufgenommen **oder** appearance-basierte ReID implementiert ist —
+danach läuft das Tracking neu und die 61-Clip-Continuity-Review wird wiederholt (volles Review,
+kein verkürzter Denominator). Kriterien 2 und 3 gelten bei diesem Re-Trigger als bereits
+bestanden und werden nur stichprobenartig re-validiert, nicht vollständig neu vermessen — nur
+Kriterium 1 (Track-Kontinuität) erzwingt eine vollständige neue 61-Clip-Review.
 
 ## Konsequenzen
 
@@ -191,4 +214,18 @@ Festgelegt **vor** dem Verdikt, damit er im Nachhinein nicht abgeschwächt werde
 
 ## Demo
 
-_Wird in Task 3 ausgefüllt: HC-Demo-Versand-Record und DEFERRED-ANALYST-Block._
+**HC-Demo (Showcase-Reel):** Status **vorbereitet, Versand ausstehend** (Stand 2026-08-30). Das
+5-Play-Showcase-Reel (`data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/showcase/showcase.mp4`,
+46,1 s, Clips 11/2/6/13/4 — Auswahlregel und Frame-für-Frame-Verifikation in
+`docs/pilot-accuracy.md` `## Showcase-Reel`, Plan 02.1-16) ist gerendert und geprüft, aber **noch
+nicht an den HC verschickt**. Ein Mail-Entwurf liegt bereits neben dem Reel
+(`data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/showcase/hc-mail-entwurf.md`,
+gitignored, PII-angrenzend). Versand erfolgt asynchron durch den Nutzer (D-12: die Demo ist
+Evidenz, die an diesen Entscheid angehängt wird, nicht eine Gate-Bedingung — der Gate-Entscheid
+selbst wartet nicht auf den Versand). Owner: Nutzer.
+
+> DEFERRED-ANALYST: Analysten-Demo des Radar-Reels auf unbestimmte Zeit verschoben (Videoanalyst
+> aktuell nicht verfügbar, siehe `.planning/STATE.md` Blockers/Concerns). Owner: Nutzer.
+> Follow-up-Trigger: sobald der Videoanalyst wieder verfügbar ist, spätestens vor dem nächsten
+> Filmtausch. Der Gate-Entscheid wartet nicht auf diese Demo — die Demo ist Evidenz, die an den
+> Entscheid angehängt wird, nicht eine Gate-Bedingung (D-12).
