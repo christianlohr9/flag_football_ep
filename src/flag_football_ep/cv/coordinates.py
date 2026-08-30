@@ -13,6 +13,20 @@ every track row's foot point (already computed as `foot_x_px`/`foot_y_px` by
 join key between raw pixel-space tracking output and everything downstream
 (`accuracy.measure_position_error`, `radar.render_radar_frame`).
 
+`composed_transformer_for(hover_position_id, clip_number, calibration, config)`
+composes that per-hover-position calibrated homography with
+`homography.clip_alignment_matrix`'s per-clip drift-correction homography
+(`M_total = M_calibration @ H_align`): a clip's own pixel first maps onto its hover
+position's calibration reference clip's pixel space, then through the calibrated
+homography into field yards -- see `homography.py`'s "Per-clip homography refinement"
+docstring section for why this composition exists. `add_field_coordinates` groups
+every hover-position group further by `clip_number` and builds one composed
+transformer per distinct clip present (never per row -- `clip_alignment_matrix` itself
+is the expensive step, ORB feature extraction over two decoded video frames).
+`accuracy._transform_gt_to_yards` composes the SAME way, so the pipeline's tracks and
+the ground-truth points they are measured against are never projected through
+different corrections.
+
 `add_field_coordinates`'s return type is locked to a bare `pl.DataFrame` by
 `02.1-02-PLAN.md`'s interfaces table and by `cv.commands.coords` (not touched by this
 plan -- see its own docstring: "plans 03-16 ... never have to edit it"), which passes
@@ -35,7 +49,7 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 
-from flag_football_ep.cv.homography import transformer_for
+from flag_football_ep.cv.homography import ViewTransformer, transformer_for
 from flag_football_ep.cv.schema import conform_tracking
 
 if TYPE_CHECKING:
@@ -50,6 +64,24 @@ _OUT_OF_BOUNDS_MARGIN_YARDS = 5.0
 # Internal-only column name for the row-order-preserving index used to reassemble the
 # per-hover-position groups back into their original row order after transforming.
 _ROW_INDEX_COLUMN = "_ffep_coordinates_row_index"
+
+
+def composed_transformer_for(
+    hover_position_id: str, clip_number: int, calibration: pl.DataFrame, config: "Config"
+) -> ViewTransformer:
+    """Compose `homography.transformer_for(hover_position_id, calibration)` with
+    `homography.clip_alignment_matrix(hover_position_id, clip_number, config)`: `M_total
+    = M_calibration @ H_align`. `clip_alignment_matrix` returns identity for hover
+    positions with no registered reference frame and for the reference clip itself
+    (see that function's docstring), so this composition is byte-identical to plain
+    `transformer_for` in both of those cases -- calling it for every hover
+    position/clip pair (real or synthetic/test) is always safe.
+    """
+    from flag_football_ep.cv.homography import clip_alignment_matrix
+
+    transformer = transformer_for(hover_position_id, calibration)
+    h_align = clip_alignment_matrix(hover_position_id, clip_number, config)
+    return ViewTransformer.from_matrix(transformer.m @ h_align)
 
 
 def foot_point(xyxy) -> tuple[float, float]:
@@ -100,18 +132,42 @@ def add_field_coordinates(tracks: pl.DataFrame, config: Config, calibration: pl.
 
     projected_groups: list[pl.DataFrame] = []
     for hover_position_id in hover_position_ids:
-        transformer = transformer_for(hover_position_id, calibration)
-
         group = indexed.filter(pl.col("hover_position_id") == hover_position_id)
-        source = group.select("foot_x_px", "foot_y_px").to_numpy()
-        projected = transformer.transform_points(source)
 
-        group = group.with_columns(
-            [
-                pl.Series("x_yards", projected[:, 0]).cast(pl.Float64),
-                pl.Series("y_yards", projected[:, 1]).cast(pl.Float64),
-            ]
+        # Per-clip homography refinement (see module docstring): compose the
+        # hover position's calibrated homography with one clip_alignment_matrix per
+        # DISTINCT clip present in this group, never per row -- clip_alignment_matrix
+        # is the expensive step (ORB feature extraction over two decoded video
+        # frames), and every row of the same clip shares the exact same composed
+        # transformer.
+        clip_numbers_in_group = (
+            group.filter(pl.col("clip_number").is_not_null())["clip_number"]
+            .unique(maintain_order=True)
+            .to_list()
         )
+
+        clip_groups: list[pl.DataFrame] = []
+        for clip_number_value in clip_numbers_in_group:
+            composed = composed_transformer_for(
+                hover_position_id, clip_number_value, calibration, config
+            )
+            clip_group = group.filter(pl.col("clip_number") == clip_number_value)
+            source = clip_group.select("foot_x_px", "foot_y_px").to_numpy()
+            projected = composed.transform_points(source)
+            clip_groups.append(
+                clip_group.with_columns(
+                    [
+                        pl.Series("x_yards", projected[:, 0]).cast(pl.Float64),
+                        pl.Series("y_yards", projected[:, 1]).cast(pl.Float64),
+                    ]
+                )
+            )
+
+        null_clip_group = group.filter(pl.col("clip_number").is_null())
+        if null_clip_group.height:
+            clip_groups.append(null_clip_group)
+
+        group = pl.concat(clip_groups, how="vertical").sort(_ROW_INDEX_COLUMN)
 
         out_of_bounds = group.filter(
             (pl.col("x_yards") < x_min)
