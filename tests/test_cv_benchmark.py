@@ -86,3 +86,49 @@ def test_machine_identifier_appears_in_the_result() -> None:
     machine = platform.node()
     assert result.machine == machine
     assert machine in result.formula
+
+
+# --- `ffep cv benchmark` CLI: reads the stage-timings JSON `track_session` persists ---------
+
+
+def _write_timings_json(path, stages: tuple[StageTiming, ...]) -> None:
+    import json
+
+    payload = {
+        "session_id": "test-session",
+        "tracked_at": "20260516T120000Z",
+        "stages": [
+            {"stage": stage.stage, "seconds": stage.seconds, "frames": stage.frames}
+            for stage in stages
+        ],
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_benchmark_command_reads_the_persisted_stage_timings_artifact(tmp_path) -> None:
+    """`ffep cv benchmark --timings` must run against exactly the artifact
+    `track_session` writes -- the previous `--tracks` option pointed at the canonical
+    tracking Parquet, which carries no stage/seconds/frames columns at all.
+    """
+    from typer.testing import CliRunner
+
+    from test_config import MINIMAL_TOML
+
+    from flag_football_ep.cli import app
+
+    config_path = tmp_path / "ffep.toml"
+    config_path.write_text(MINIMAL_TOML, encoding="utf-8")
+
+    timings_path = tmp_path / "test-session_stage_timings.json"
+    _write_timings_json(timings_path, _stages())
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        ["cv", "benchmark", "--config", str(config_path), "--timings", str(timings_path)],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "extrapolated:" in result.output
+    assert "min/game" in result.output
+    assert "formula:" in result.output

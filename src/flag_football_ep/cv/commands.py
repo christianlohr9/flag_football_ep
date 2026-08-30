@@ -330,6 +330,7 @@ def track(
     )
 
     typer.echo(f"tracks: {result.parquet_path} ({result.n_clips} clips, {result.n_tracks} tracks)")
+    typer.echo(f"stage timings: {result.timings_path}")
     for notice in result.notices:
         typer.echo(f"notice: {notice}")
 
@@ -570,8 +571,13 @@ def radar(
 @cv_app.command()
 def benchmark(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
-    tracks: Path = typer.Option(
-        ..., "--tracks", help="Input tracking Parquet (carries per-stage timing metadata)"
+    timings: Path = typer.Option(
+        ...,
+        "--timings",
+        help=(
+            "Stage-timings JSON written by `ffep cv track` (the "
+            "`<session>_stage_timings.json` sibling of the tracking Parquet)"
+        ),
     ),
     game_minutes: float = typer.Option(
         50.0, "--game-minutes", help="Full-game duration in minutes to extrapolate to"
@@ -583,15 +589,17 @@ def benchmark(
 
     load_config(config)
 
-    import polars as pl
+    import json
 
-    tracks_df = pl.read_parquet(tracks)
+    payload = json.loads(timings.read_text(encoding="utf-8"))
 
     from flag_football_ep.cv.benchmark import StageTiming, extrapolate_game_runtime
 
     stages = tuple(
-        StageTiming(stage=row["stage"], seconds=row["seconds"], frames=row["frames"])
-        for row in tracks_df.iter_rows(named=True)
+        StageTiming(
+            stage=entry["stage"], seconds=entry["seconds"], frames=entry["frames"]
+        )
+        for entry in payload["stages"]
     )
     footage_seconds = sum(stage.frames for stage in stages) / 30.0
 

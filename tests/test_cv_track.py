@@ -411,6 +411,47 @@ def test_stage_seconds_contains_all_four_stages_with_nonnegative_values(
         assert value >= 0.0
 
 
+def test_track_session_persists_stage_timings_json_sibling(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The C-09 runtime gate metric is measured by `ffep cv benchmark` from a persisted
+    stage-timings artifact -- `track_session` must actually write it (before this
+    coverage existed, `stage_seconds` was computed and dropped, leaving the benchmark
+    command with no input any code path ever produced).
+    """
+    import json
+
+    config = _make_config(tmp_path)
+    n_frames = 3
+    _write_synthetic_clip(config.paths.video / "Wide - Clip 001.mp4", n_frames)
+    _write_inventory(
+        config,
+        [_inventory_row("data/video/Wide - Clip 001.mp4", duration_seconds=n_frames / _CLIP_FPS)],
+    )
+
+    model = _FakeModel(_moving_player_box)
+    _install_fake_model(monkeypatch, model)
+
+    result = track_session(config, "test-session", run_id="deadbeef00")
+
+    assert result.timings_path is not None
+    assert result.timings_path.is_file()
+    assert result.timings_path.parent == result.parquet_path.parent
+    assert result.timings_path.name == "test-session_stage_timings.json"
+
+    payload = json.loads(result.timings_path.read_text(encoding="utf-8"))
+    assert payload["session_id"] == "test-session"
+    by_stage = {entry["stage"]: entry for entry in payload["stages"]}
+    assert set(by_stage) == {"decode", "detect", "track", "write"}
+    for stage, entry in by_stage.items():
+        assert entry["seconds"] >= 0.0
+        assert entry["seconds"] == pytest.approx(result.stage_seconds[stage])
+    # Every stage covers the SAME decoded frames exactly once -- never a per-stage sum
+    # that would multiply the real frame count.
+    for stage in ("decode", "detect", "track", "write"):
+        assert by_stage[stage]["frames"] == n_frames
+
+
 def test_late_spawning_track_needs_the_tuned_confirmation_window_before_appearing(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -44,6 +44,8 @@ review found systematic ID-fragmentation and camera-pan cascades.
 
 from __future__ import annotations
 
+import json
+import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -113,8 +115,9 @@ _HOVER_POSITIONS_SCHEMA: dict[str, pl.DataType] = {
 @dataclass
 class TrackResult:
     """One `track_session` run's output: the written tracking-Parquet path, the
-    number of clips/tracks produced, per-clip notices, and per-stage timing (the raw
-    input to `benchmark.extrapolate_game_runtime`).
+    number of clips/tracks produced, per-clip notices, per-stage timing (the raw
+    input to `benchmark.extrapolate_game_runtime`), and the path of the persisted
+    stage-timings JSON (`ffep cv benchmark --timings` reads that artifact).
     """
 
     parquet_path: Path
@@ -122,6 +125,7 @@ class TrackResult:
     n_tracks: int
     notices: list[str] = field(default_factory=list)
     stage_seconds: dict[str, float] = field(default_factory=dict)
+    timings_path: Path | None = None
 
 
 def _timestamp() -> str:
@@ -174,6 +178,44 @@ def _read_hover_position_ids(config: Config, clip_numbers: set[int]) -> dict[int
         for row in df.iter_rows(named=True)
         if int(row["clip_number"]) in clip_numbers
     }
+
+
+def _write_stage_timings(
+    path: Path,
+    *,
+    session_id: str,
+    tracked_at: str,
+    stage_seconds: dict[str, float],
+    stage_frames: dict[str, int],
+) -> Path:
+    """Persist the session's per-stage timings as a small JSON sibling of the tracking
+    Parquet -- the artifact `ffep cv benchmark --timings` reads. Written atomically
+    (`.tmp` sibling + `os.replace`), matching `schema.write_tracking_parquet`'s
+    discipline (D-14). Before this artifact existed, `track_session` computed
+    `stage_seconds` and dropped it, leaving the C-09 runtime gate metric unreachable
+    through the documented CLI.
+    """
+    payload = {
+        "session_id": session_id,
+        "tracked_at": tracked_at,
+        "stages": [
+            {
+                "stage": stage,
+                "seconds": stage_seconds[stage],
+                "frames": stage_frames[stage],
+            }
+            for stage in _STAGE_NAMES
+        ],
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    try:
+        tmp_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        os.replace(tmp_path, path)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+    return path
 
 
 def _probe_fps(clip: Path) -> float:
@@ -252,6 +294,10 @@ def track_session(
     hover_ids = _read_hover_position_ids(config, clip_numbers)
 
     stage_seconds: dict[str, float] = {name: 0.0 for name in _STAGE_NAMES}
+    # Every stage covers the SAME decoded frames once (decode, detect, track and write
+    # all run per frame) -- each stage's frame counter therefore advances by the clip's
+    # decoded frame count exactly once per clip, never summed across stages.
+    stage_frames: dict[str, int] = {name: 0 for name in _STAGE_NAMES}
     notices: list[str] = []
     rows: list[dict] = []
     tracked_at = _timestamp()
@@ -331,10 +377,15 @@ def track_session(
             for timing in detection_run.timings():
                 if timing.stage == "decode":
                     stage_seconds["decode"] += timing.seconds
+                    stage_frames["decode"] += timing.frames
                 elif timing.stage == "detect":
                     stage_seconds["detect"] += timing.seconds
+                    stage_frames["detect"] += timing.frames
                 elif timing.stage == "postprocess":
                     stage_seconds["track"] += timing.seconds
+            # BoT-SORT update + postprocess both cover the clip's decoded frames once.
+            stage_frames["track"] += frame_count
+            stage_frames["write"] += frame_count
 
             if not clip_track_ids:
                 notices.append(f"clip {clip_num}: produced zero tracks")
@@ -367,10 +418,19 @@ def track_session(
     written_path = schema.write_tracking_parquet(tracks_df, resolved_out_path)
     stage_seconds["write"] += time.perf_counter() - write_start
 
+    timings_path = _write_stage_timings(
+        written_path.parent / f"{session_id}_stage_timings.json",
+        session_id=session_id,
+        tracked_at=tracked_at,
+        stage_seconds=stage_seconds,
+        stage_frames=stage_frames,
+    )
+
     return TrackResult(
         parquet_path=written_path,
         n_clips=n_clips,
         n_tracks=distinct_tracks,
         notices=notices,
         stage_seconds=stage_seconds,
+        timings_path=timings_path,
     )
