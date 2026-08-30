@@ -769,3 +769,59 @@ Teil dieses Commits). `render_track_overlay`/`measure_continuity` selbst wurden 
 Re-Lauf aus dem pausierten Plan-02.1-14-Zweig übernommen (Commits `ff027bc`/`47acf56`,
 unverändert) -- das menschliche Kontinuitäts-Review (Plan 02.1-14 Task 3) bleibt auf jenem
 Zweig offen und ist nicht Teil dieses Re-Laufs.
+
+#### Präsentations-Fix: Team-Farb-Anker + Radar-Label-Z-Order (nach v2, orchestrator-angeordnet)
+
+Zwei rein darstellungsbezogene Bugs im Showcase-Reel wurden gefunden und behoben, ohne
+erneutes Tracking (`track_session` selbst lief nicht erneut):
+
+**1. Invertierte Anzeigefarbe (Team-Clustering selbst war korrekt):** Das Team-Clustering
+(`assign_teams`) war schon in v1/v2 inhaltlich richtig -- 97 % konsistent mit den
+menschlichen Team-Hinweisen aus dem GT-Datensatz (208 gematchte GT-Punkte). Der Bug lag
+ausschliesslich in der Anzeige-Palette (`cv/overlay.py`, `cv/radar.py`): sie zeichnete
+`team_id` 1 rot und `team_id` 0 blau, ohne jede Garantie, dass das die tatsächlich rote
+Cluster-Seite war -- auf dem Side-by-Side-Showcase-Reel sah dadurch jeder Punkt
+farblich verkehrt aus. Fix, in zwei Teilen:
+
+- `cv/teams.py::assign_teams` verankert `team_id` jetzt nach dem Fit an der tatsächlichen
+  Trikotfarbe (neue private Hilfsfunktionen `_crop_median_rgb`/`_redness_score`/
+  `_anchor_cluster_labels`): **`team_id` 0 ist immer das Cluster, dessen Fit-Crops am
+  röstesten wirken** (sättigungsgewichtete Rot-Farbton-Distanz, Median über die
+  Fit-Crops), `team_id` 1 das andere. Bei mehrdeutigen Trikotfarben (kein Cluster
+  merklich röter) bleibt die arbiträre KMeans-Reihenfolge erhalten und ein Hinweis wird
+  erzeugt statt zu raten.
+- `cv/overlay.py` und `cv/radar.py` importieren jetzt beide dieselbe Palette aus dem
+  neuen Modul `cv/palette.py` (vorher zwei unabhängige, aber identische Kopien) --
+  `team_id` 0 zeichnet rot, `team_id` 1 zeichnet blau, passend zum Anker-Vertrag.
+
+Team-Zuordnung wurde NUR neu berechnet (kein erneutes Tracking): `extract_track_crops`
+(Torso-Crops, unverändert) lief erneut in denselben vier Clip-Bereichen (~30 s
+Wall-Clock, rein Decode/Crop) und `assign_teams` (jetzt inklusive Farb-Anker) lief einmal
+für die gesamte Session (766,5 s Wall-Clock -- die zusätzliche `_anchor_cluster_labels`-
+Runde embedded die Fit-Crops ein drittes Mal, daher länger als der ursprüngliche
+Team-Zuordnungs-Schritt). Ergebnis: identische `team_id`-Zähler wie vor dem Fix
+(112.568 × `team_id=0`, 197.672 × `team_id=1`, 44.164 × `null`, dieselben 17
+ambivalenten Tracks wie oben) -- das KMeans-Cluster, das schon vorher zufällig als
+`0` beschriftet war, ist tatsächlich das rötere; der Anker musste in diesem Lauf also
+nichts vertauschen, garantiert die Zuordnung aber jetzt strukturell statt zufällig.
+`x_yards`/`y_yards`/`hover_position_id` und alle übrigen Spalten blieben unverändert
+(354.404 Zeilen, atomar über `schema.write_tracking_parquet` zurückgeschrieben). Ein
+Backup des Vor-Fix-Stands liegt unter
+`data/processed/tracking/v2_pre_color_anchor_fix_tracks.parquet` (gitignored).
+
+**2. Fehlende Track-Nummern im Radar (`cv/radar.py::_draw_marker`):** Nutzer-Meldung
+("blau hat keine Zahlen") beim Betrachten des zuvor gerenderten Showcase-Reels. Ursache:
+`render_radar_frame` zeichnete pro Zeile SHAPE dann LABEL, eine Zeile nach der anderen --
+bei eng beieinander stehenden Spielern (normal bei echtem Filmmaterial) konnte die
+gefüllte Marker-Form einer später gezeichneten Zeile direkt über das bereits gezeichnete
+Label einer früheren Zeile malen. Fix: `_draw_marker` in `_draw_marker_shape`/
+`_draw_marker_label` aufgeteilt, `render_radar_frame` zeichnet jetzt zuerst alle Formen
+und danach erst alle Labels in einem zweiten Durchgang -- keine Marker-Form kann mehr
+das Label einer anderen Zeile übermalen, unabhängig von der Zeilenreihenfolge.
+
+**Noch offen (separater Fix, nicht Teil dieses Re-Laufs):** Der Nutzer meldete zusätzlich
+ein gespiegeltes Radar-Feld (Süd-/Nord-Seitenlinie der Kalibrierung gegenüber der
+physischen Realität vertauscht -- eine Spiegelung ist abstandserhaltend, daher fiel das
+keiner Metrik auf). Dieser Fix (Kalibrierungs-y-Achse drehen, `ffep cv coords` erneut
+laufen lassen) ist ein separater Nachlauf; alle 61 Overlays und das Showcase-Reel werden
+danach EINMAL gemeinsam mit diesem Fix neu gerendert, nicht vor diesem Zwischenstand.
