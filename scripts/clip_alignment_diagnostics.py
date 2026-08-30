@@ -5,7 +5,7 @@ its outputs (a drift-distribution CSV/report and per-clip grid-overlay JPEGs) ar
 one-off validation artifacts for this fix, not something the pipeline needs at
 runtime.
 
-Three subcommands:
+Four subcommands:
 
 `drift` -- computes `homography.clip_alignment_matrix` for every clip registered
 against its hover position's reference clip in `data/reference/hover_positions.csv`
@@ -22,8 +22,18 @@ and reported, not acted on unless it exceeds ~15px.
 
 `grid` -- projects the calibrated + per-clip-aligned field-yard grid onto a
 representative frame of each requested clip and writes
-`data/processed/experiments/grid_check_clip{N}.jpg`, the visual proof the fix lands the
-grid on the painted lines for clips OTHER than the two calibration reference clips.
+`data/processed/experiments/{--out-prefix}{N}.jpg` (`--out-prefix` defaults to
+`grid_check_clip`; the ECC-follow-up validation run uses `grid_check2_clip`), the
+visual proof the fix lands the grid on the painted lines for clips OTHER than the two
+calibration reference clips.
+
+`ecc-check` -- the ECC-fallback threshold calibration tool (`docs/homography-
+calibration.md`'s ECC follow-up section): for each requested clip that SIFT/RANSAC
+ALREADY aligns (skipped otherwise -- no ground truth to compare against), runs
+`homography._ecc_align` independently on the SAME (clip_frame, reference_frame) pair
+and reports ECC's own correlation coefficient plus the max corner-pixel disagreement
+between the ECC-only result and SIFT's result across the full frame -- the empirical
+basis `_ECC_MIN_CORRELATION` was tuned against.
 """
 
 from __future__ import annotations
@@ -50,6 +60,9 @@ def _load():
     from flag_football_ep.cv.frames import clip_paths
     from flag_football_ep.cv.homography import (
         CLIP_ALIGNMENT_REFERENCE_FRAMES,
+        _ecc_align,
+        _mid_clip_frame,
+        _read_frame_at,
         clip_alignment,
         clip_alignment_matrix,
         load_calibration,
@@ -64,6 +77,9 @@ def _load():
         "clip_alignment": clip_alignment,
         "clip_alignment_matrix": clip_alignment_matrix,
         "load_calibration": load_calibration,
+        "_ecc_align": _ecc_align,
+        "_mid_clip_frame": _mid_clip_frame,
+        "_read_frame_at": _read_frame_at,
     }
 
 
@@ -310,9 +326,84 @@ def cmd_grid(args: argparse.Namespace) -> None:
             cv2.LINE_AA,
         )
 
-        out_path = out_dir / f"grid_check_clip{clip_num}.jpg"
+        out_path = out_dir / f"{args.out_prefix}{clip_num}.jpg"
         cv2.imwrite(str(out_path), annotated)
         print(f"wrote {out_path}")
+
+
+def cmd_ecc_check(args: argparse.Namespace) -> None:
+    """For each requested clip, run `_ecc_align` INDEPENDENTLY of `clip_alignment`'s own
+    SIFT-first logic (which would just return SIFT's own matrix for a clip SIFT already
+    aligns) and compare the ECC-only result against SIFT/RANSAC's result on the SAME
+    (clip_frame, reference_frame) pair -- max corner-pixel disagreement across the frame
+    is the trust signal `_ECC_MIN_CORRELATION` was tuned against (this module's/
+    `docs/homography-calibration.md`'s ECC fallback sections). Intended for clips SIFT
+    ALREADY aligns (skips a clip if SIFT itself falls back to identity -- no ground
+    truth to compare ECC against in that case).
+    """
+    mods = _load()
+    cfg = mods["load_config"](REPO_ROOT / "ffep.toml")
+
+    hover_path = cfg.paths.reference / "hover_positions.csv"
+    hover_df = pl.read_csv(
+        hover_path, schema_overrides={"clip_number": pl.Int64, "hover_position_id": pl.Utf8}
+    )
+    hover_by_clip = {
+        int(row["clip_number"]): row["hover_position_id"] for row in hover_df.iter_rows(named=True)
+    }
+
+    clips_by_number = {
+        mods["clip_number_of"](p): p for p in mods["clip_paths"](cfg, cfg.cv.pilot_session_id)
+    }
+
+    def _apply(matrix: np.ndarray, points: np.ndarray) -> np.ndarray:
+        homogeneous = np.hstack([points, np.ones((points.shape[0], 1))])
+        transformed = homogeneous @ matrix.T
+        return transformed[:, :2] / transformed[:, [2]]
+
+    for clip_num in args.clip:
+        hover_id = hover_by_clip.get(clip_num)
+        if hover_id is None or hover_id not in mods["CLIP_ALIGNMENT_REFERENCE_FRAMES"]:
+            print(f"clip {clip_num}: no registered reference frame, skipping")
+            continue
+
+        ref_clip_num, ref_at_second = mods["CLIP_ALIGNMENT_REFERENCE_FRAMES"][hover_id]
+        if clip_num == ref_clip_num:
+            print(f"clip {clip_num}: is the reference clip itself, skipping")
+            continue
+
+        clip_path = clips_by_number.get(clip_num)
+        ref_clip_path = clips_by_number.get(ref_clip_num)
+        if clip_path is None or ref_clip_path is None:
+            print(f"clip {clip_num}: clip or reference clip video not found, skipping")
+            continue
+
+        clip_frame = mods["_mid_clip_frame"](clip_path)
+        reference_frame = mods["_read_frame_at"](ref_clip_path, ref_at_second)
+
+        sift_matrix = mods["clip_alignment"](clip_frame, reference_frame)
+        if np.array_equal(sift_matrix, np.eye(3)):
+            print(f"clip {clip_num}: SIFT itself falls back to identity, no ground truth to compare -- skipping")
+            continue
+
+        ecc_result = mods["_ecc_align"](clip_frame, reference_frame)
+        if ecc_result is None:
+            print(f"clip {clip_num} ({hover_id}): ECC did not converge at all")
+            continue
+        ecc_matrix, ecc_cc = ecc_result
+
+        height, width = clip_frame.shape[:2]
+        corners = np.array(
+            [[0.0, 0.0], [width, 0.0], [width, height], [0.0, height]], dtype=np.float64
+        )
+        sift_corners = _apply(sift_matrix, corners)
+        ecc_corners = _apply(ecc_matrix, corners)
+        max_disagreement = float(np.max(np.linalg.norm(sift_corners - ecc_corners, axis=1)))
+
+        print(
+            f"clip {clip_num:>3} ({hover_id}): ECC correlation={ecc_cc:.4f} "
+            f"max_corner_disagreement_vs_SIFT={max_disagreement:6.2f}px"
+        )
 
 
 def main() -> None:
@@ -328,7 +419,19 @@ def main() -> None:
 
     grid_parser = subparsers.add_parser("grid", help="render composed-grid overlay JPEGs")
     grid_parser.add_argument("--clip", type=int, nargs="+", required=True)
+    grid_parser.add_argument(
+        "--out-prefix",
+        default="grid_check_clip",
+        help="output filename prefix under data/processed/experiments/ (default: grid_check_clip)",
+    )
     grid_parser.set_defaults(func=cmd_grid)
+
+    ecc_check_parser = subparsers.add_parser(
+        "ecc-check",
+        help="compare ECC-only vs SIFT/RANSAC on clips SIFT already aligns (threshold calibration)",
+    )
+    ecc_check_parser.add_argument("--clip", type=int, nargs="+", required=True)
+    ecc_check_parser.set_defaults(func=cmd_ecc_check)
 
     args = parser.parse_args()
     args.func(args)
