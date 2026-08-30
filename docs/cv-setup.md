@@ -37,6 +37,8 @@ Diese Abweichung ändert nichts an einer technischen Entscheidung dieses Dokumen
 
 `scikit-learn` (bereits Core-Dependency, `>=1.5.1`) liefert `KMeans` für den letzten Team-Clustering-Schritt — kein zusätzliches Paket nötig.
 
+**Nachtrag (Per-Clip-Homographie-Verfeinerung, 2026-08-30):** `homography.clip_alignment` nutzt zusätzlich `cv2.SIFT_create` (ORB-Alternative, siehe `docs/homography-calibration.md`) aus demselben bereits installierten `opencv-python`-Paket — SIFT liegt seit Patentablauf 2020 im Standard-`opencv-python`/`opencv-python-headless`, kein `opencv-contrib`-Zusatzpaket nötig, keine neue Zeile in obiger Tabelle.
+
 **Ausdrücklich nicht installiert:** `boxmot` — AGPL-3.0-lizenziert (verifiziert über die eigene `LICENSE`-Datei des Projekts und die GitHub-API, Stand 2026-08-24), verletzt C-06. `trackers` (roboflow, Apache-2.0) implementiert OC-SORT nativ und ersetzt es vollständig — siehe `tests/test_cv_dependencies.py` für den automatisierten Guard.
 
 ## MPS/CPU-Verfügbarkeit auf der Primärmaschine
