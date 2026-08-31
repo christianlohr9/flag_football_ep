@@ -146,6 +146,17 @@ daran hängt:
 | Dev-Set (öffentlich) | Pilotspiel, 61 Clips, alle Artefakte der Phase 2.1 | Kontinuitäts-Urteile für alle 61 Clips, 250 GT-Fußpunkte, Flag-Pull-Ereignisse | Entwicklung, Tuning, Zwischenstände |
 | Test-Set (privat) | zweites Drohnenspiel, identisch aufbereitet (Detektionen, Baseline-Tracks, Overlays) | Kontinuitäts-Urteile + Flag-Pull-Ereignisse, **zurückgehalten** | Endwertung, verhindert Overfitting auf die 61 bekannten Clips |
 | Transfer-Set | 60 GoPro- + 51 TV-Clips mit Detektionen | Kontinuitäts-Urteile auf einer Stichprobe (optional, falls Zeit) | Transfer-Wertung |
+| Transfer-Set 2 (geplant, verdeckt) | Bundeswehr-Inszenierung: 5 Uniformierte, Drohne schräg von oben (30–60 m Hover, Personen ~30–50 px), 10–20 Takes à 20–40 s | Ground Truth per Drehbuch (Reihenfolge rein/raus je Take) + diskretes, aus der Luft unsichtbares Merkmal zum Nachprüfen | Beweis der Übertragbarkeit auf den eigentlichen Anwendungsfall; als Überraschungs-Testset am letzten Tag |
+
+**Szenenliste Transfer-Set 2 (bewusst schwer):** (1) fünf gehen als A-B-C-D-E hinter ein Gebäude
+und kommen in vertauschter Reihenfolge wieder heraus, Verdeckungsdauern 2 s / 10 s / 30 s;
+(2) Teilverdeckung und Kreuzung zweier Gruppen hinter Fahrzeugen/Vegetation; (3) „5 rein, 5 raus,
+aber andere 5": einer bleibt zurück, ein anderer kommt dazu; (4) gleiche Perspektive wie das
+Sportmaterial, damit nur die Domäne wechselt, nicht die Geometrie. Voraussetzungen: Freigabe
+der Bundeswehr für Drohnenflug auf dem Übungsplatz und Verwendung des Materials
+(Persönlichkeitsrechte der Soldaten, Geheimschutz — bei gestellten Szenen voraussichtlich
+unkritisch, vorher klären). Ankündigung erst nach der Einreichung, damit niemand darauf
+optimiert.
 
 **Kern-Metrik:** Anteil der Spielzüge mit `pass` („≥ 90 % des Plays ohne Identitätswechsel"),
 gemessen von Menschen an gerenderten Overlays — dieselbe Definition wie im Gate-Dokument
