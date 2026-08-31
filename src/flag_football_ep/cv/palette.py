@@ -24,6 +24,6 @@ TEAM_COLORS: dict[int, tuple[int, int, int]] = {
     1: (255, 80, 0),  # blue -- team_id 1
 }
 REFEREE_COLOR: tuple[int, int, int] = (0, 220, 255)  # yellow
-NULL_TEAM_COLOR: tuple[int, int, int] = (170, 170, 170)  # gray
+NULL_TEAM_COLOR: tuple[int, int, int] = (110, 110, 110)  # mid-dark gray -- legible on both turf (overlay) and the radar's light surface
 
 __all__ = ["TEAM_COLORS", "REFEREE_COLOR", "NULL_TEAM_COLOR"]

@@ -320,7 +320,7 @@ def test_render_radar_frame_draws_every_marker_shape_before_any_marker_label(
     )
 
     call_order: list[str] = []
-    for shape_name in ("rectangle", "circle", "fillPoly"):
+    for shape_name in ("rectangle", "circle", "fillPoly", "polylines"):
         original = getattr(real_cv2, shape_name)
 
         def _shape_spy(*args, _name=shape_name, _original=original, **kwargs):
@@ -348,7 +348,8 @@ def test_render_radar_frame_draws_every_marker_shape_before_any_marker_label(
     shape_indices = [i for i, c in enumerate(marker_calls) if c.startswith("shape:")]
     label_indices = [i for i, c in enumerate(marker_calls) if c == "label:putText"]
 
-    assert len(shape_indices) == 3, "expected one shape draw per of the 3 markers"
+    # Every marker is a filled shape plus its 1px dark outline ring (two draw calls).
+    assert len(shape_indices) == 6, "expected fill + outline draw per of the 3 markers"
     assert len(label_indices) == 3, "expected one label draw per of the 3 markers"
     assert max(shape_indices) < min(label_indices), (
         "every marker shape must be drawn before any marker label, so a later "

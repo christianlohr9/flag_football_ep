@@ -70,8 +70,16 @@ class NoFieldCoordinatesForClip(CvError, ValueError):
 # Team/referee/null-team colours live in `cv.palette` -- the same shared definition
 # `overlay.py` imports, so the reel's two halves can never drift out of sync.
 
-_PITCH_COLOR: tuple[int, int, int] = (40, 95, 40)  # dark turf green
-_LINE_COLOR: tuple[int, int, int] = (235, 235, 235)
+# Light warm-neutral surface (beige, #F1EDE3) instead of turf green: a chart surface,
+# not a rasen imitation -- the nflplotR/sportyR "light field" convention, chosen so the
+# blue and red team markers keep >= 3:1 contrast (validated with the dataviz palette
+# checker). Lines are recessive mid-gray; labels wear a dark text colour, never the
+# series colour; every marker carries a 1px dark ring so even the shared yellow
+# referee colour (kept for the video overlay) reads on the light surface.
+_PITCH_COLOR: tuple[int, int, int] = (227, 237, 241)  # BGR of #F1EDE3
+_LINE_COLOR: tuple[int, int, int] = (150, 150, 150)
+_LABEL_COLOR: tuple[int, int, int] = (40, 40, 40)
+_MARKER_OUTLINE: tuple[int, int, int] = (30, 30, 30)
 _YARD_LINE_EVERY = 5
 _MARKER_RADIUS = 5
 _MARKER_HALF_SIZE = 5
@@ -192,7 +200,7 @@ def _draw_pitch(canvas: "np.ndarray", config: "Config", geometry: dict, cv2) -> 
             (x_px - 8, south_y + 14),
             _FONT,
             _FONT_SCALE,
-            _LINE_COLOR,
+            _LABEL_COLOR,
             _TEXT_THICKNESS,
             cv2.LINE_AA,
         )
@@ -231,26 +239,27 @@ def _draw_marker_shape(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv
             dtype=np.int32,
         )
         cv2.fillPoly(canvas, [points], color)
+        cv2.polylines(canvas, [points], True, _MARKER_OUTLINE, 1, cv2.LINE_AA)
     elif row.get("team_id") is None:
         # Filled square -- a null-team track, distinct from both the referee triangle
         # and the two team dots.
-        cv2.rectangle(
-            canvas,
-            (x_px - _MARKER_HALF_SIZE, y_px - _MARKER_HALF_SIZE),
-            (x_px + _MARKER_HALF_SIZE, y_px + _MARKER_HALF_SIZE),
-            color,
-            -1,
-        )
+        top_left = (x_px - _MARKER_HALF_SIZE, y_px - _MARKER_HALF_SIZE)
+        bottom_right = (x_px + _MARKER_HALF_SIZE, y_px + _MARKER_HALF_SIZE)
+        cv2.rectangle(canvas, top_left, bottom_right, color, -1)
+        cv2.rectangle(canvas, top_left, bottom_right, _MARKER_OUTLINE, 1)
     else:
         cv2.circle(canvas, (x_px, y_px), _MARKER_RADIUS, color, -1)
+        cv2.circle(canvas, (x_px, y_px), _MARKER_RADIUS, _MARKER_OUTLINE, 1, cv2.LINE_AA)
 
 
 def _draw_marker_label(canvas: "np.ndarray", row: dict, x_px: int, y_px: int, cv2) -> None:
     """Draw `row`'s `track_id` label only, at its fixed offset from `(x_px, y_px)` --
     the counterpart to `_draw_marker_shape`, always called in a later pass over the
     whole frame so no marker's shape can ever paint over another marker's label.
+    Labels wear the dark text colour (not the series colour) so they stay legible on
+    the light surface; the marker shape beside them carries the team identity.
     """
-    color = _marker_color(row)
+    color = _LABEL_COLOR
     cv2.putText(
         canvas,
         str(row["track_id"]),
