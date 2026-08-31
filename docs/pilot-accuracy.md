@@ -313,11 +313,17 @@ aus `data/reference/continuity_review.csv` (dem Kontinuitäts-Review aus Plan 02
 Von 61 Clips erfüllen 6 `verdict = pass` und `id_switches = 0` (Clips 1, 2, 4, 6, 11, 13). Die Regel
 wählt daraus 5; Clip 1 fällt als letztplatzierter (11 Fragmente, die meisten der Pass-Gruppe) heraus.
 
+**Nachträglicher Austausch (2026-08-31, Nutzer-Review):** Clip 11 wurde nach Sichtprüfung des
+gerenderten Reels wieder ausgeschlossen — seine Clip-Ausrichtung stammt aus dem ECC-Fallback
+(Korrelation 0.44, knapp über der Schwelle) und zeigt sichtbaren Rest-Versatz der Feldposition.
+Clip 1 (Continuity `pass`, starke SIFT-Ausrichtung ohne Fallback) rückt nach; die Auswahlregel
+erhält damit die Zusatzklausel: nur Clips, deren Drift-Korrektur NICHT aus dem Fallback stammt.
+
 ### Gewählte Clips
 
 | Clip | Hover-Position | `longest_track_frac` | `n_fragments` | `n_tracks` |
 |---|---|---|---|---|
-| 11 | hp-01 | 1,0 | 2 | 18 |
+| 1  | hp-01 | 1,0 | 11 | 31 |
 | 2  | hp-01 | 1,0 | 3 | 28 |
 | 6  | hp-02 | 1,0 | 7 | 27 |
 | 13 | hp-02 | 1,0 | 9 | 20 |
@@ -330,7 +336,7 @@ Beide Hover-Positionen sind vertreten (hp-01: 2 Clips, hp-02: 3 Clips).
 ```
 ffep cv radar \
   --tracks data/processed/tracking/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE_tracks.parquet \
-  --clip 11 --clip 2 --clip 6 --clip 13 --clip 4 \
+  --clip 1 --clip 2 --clip 6 --clip 13 --clip 4 \
   --out data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/showcase/showcase.mp4
 ```
 
@@ -346,7 +352,7 @@ End-to-end per Frame-Stichprobe geprüft (Frame 0, 50, 200, 360, 700, 1000, 1382
 Segmente zeigt links das annotierte Drohnen-Footage (Team-Boxen, Track-IDs, Schiedsrichter-Box gelb),
 rechts synchron die Radar-Ansicht (Feldlinien alle 5 Yards, dieselben Team-Farben/Marker-Formen —
 Kreis für Spielerinnen, Dreieck für Schiedsrichter, Quadrat für Tracks ohne Team-Zuordnung); die
-Kopfzeile zählt Clip-Nummer und Play-Index (`clip 11 -- play 1/5` ... `clip 4 -- play 5/5`) korrekt
+Kopfzeile zählt Clip-Nummer und Play-Index (`clip 1 -- play 1/5` ... `clip 4 -- play 5/5`) korrekt
 hoch; an den Clip-Grenzen liegt jeweils ein kurzer schwarzer Trenn-Abschnitt.
 
 **Dieses Reel zeigt die BESTEN Plays der Pipeline und ist damit Demonstrations-Evidenz, keine
