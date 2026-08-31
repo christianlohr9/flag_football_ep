@@ -87,9 +87,12 @@ Datenputzen.
 
 ### Technische oder organisatorische Einschränkungen
 
-- Keine AGPL-Komponenten (z. B. Ultralytics YOLO, boxmot) — die Ergebnisse sollen im
-  Verbandsumfeld nutzbar bleiben. Erlaubt: alles unter Apache/MIT/BSD (RF-DETR, `trackers`,
-  `supervision`, torch, transformers …).
+- Der Detektor ist vorgegeben und seine Detektionen liegen bereit — ihr braucht kein YOLO. Für
+  Tracking-/ReID-Komponenten bitte permissive Lizenzen (Apache/MIT/BSD) bevorzugen; `trackers`,
+  `supervision`, `torchreid` und `gta-link` decken alles ab, was `boxmot`/Ultralytics könnten.
+  AGPL-Komponenten sind kein Ausschlusskriterium für die Bewertung, aber ein Ergebnis damit
+  könnte der Verband nicht übernehmen — und darum geht es. (Lizenzhinweise zu einzelnen
+  Forschungs-Repos in `## Teil 4`.)
 - Python-Pipeline; Schnittstellen sind definiert (Detektionen rein, Tracks im festen Schema raus).
 - Keine Cloud-Uploads des Materials; Arbeit auf bereitgestellter Infrastruktur/Laptops.
 - Bewertung ausschließlich mit den bereitgestellten Skripten (Kontinuitäts-Metrik, Flag-Pull-Metrik),
@@ -198,3 +201,51 @@ die Freigabe muss das ausdrücklich abdecken.
 - Infrastruktur beim Hackathon (GPU-Zugang, Datenablage ohne Cloud-Upload).
 - Einordnung in die Roadmap: Challenge **vor** Phase 2.3 (Coaching-Kennzahlen brauchen stabile
   Identitäten); Phase 2.2 (Dataset Buildout) läuft unabhängig davon.
+- Prüfen, welche `trackers`-Version installiert ist: die stabile BoT-SORT-Implementierung enthält
+  laut README **keinen** Erscheinungs-/ReID-Zweig (nur Bewegung + Kamerakompensation); ein
+  `ReIDModel` existiert in den Develop-Docs. Für die Baseline-Beschreibung relevant.
+
+---
+
+## Teil 4 — Stand der Technik (Recherche 2026-08-31): existiert das schon?
+
+Geprüft: SoccerNet 2022–2026, SoccerTrack/TeamTrack, SportsMOT, DanceTrack, die NFL-Kaggle-
+Wettbewerbe und der Big Data Bowl, Sport-ReID- und tracklet-selbstüberwachte ReID-Literatur,
+Luftbild-ReID, kommerzielle Systeme, Flag Football. Lizenzen wo möglich per GitHub-API verifiziert.
+
+**Urteil: nicht gelöst.** Kein gefundenes System hält Identitäten für gleich gekleidete,
+nummernlose, ~30-px-Spielerinnen aus Drohnen- oder TV-Sicht ohne Identitäts-Labels stabil.
+Jedes starke Sportsystem löst Identität über **Rückennummern** auf Broadcast-Crops (SoccerNet-
+GSR-Sieger 2024/2025 per Jersey-OCR bzw. Vision-LLM, TrackID3x3, SoccerTrack-Challenge 2025)
+plus **überwachtes** ReID auf gelabelten Datensätzen. American Football: die einzige
+videobasierte Identitätsarbeit (Kaggle Helmet Assignment 2021, Player Contact 2023) beruht auf
+**RFID-Sensordaten** (Next Gen Stats); der Big Data Bowl ist Sensor-, nicht Videodaten. Hudl IQ
+sagt öffentlich, dass Menschen im Loop die Tracks „bei den richtigen Spielern halten". Flag
+Football: keinerlei Datensatz, Paper oder Produkt gefunden (Pixellot/Veo filmen nur automatisch).
+Direkter Beleg für die Lücke: ein MMSports'25-Beitrag mit **exakt unserem Stack** (RF-DETR +
+BoT-SORT + GTA + CLIP/PRT-ReID) erreichte auf statischem Vollfeld-Fußball HOTA 0,55 bei einer
+Assoziationsgüte (AssA) von nur 0,43.
+
+**Startpunkte, die die Challenge den Teams nennen sollte:**
+
+| Ressource | Was | Lizenz | Nutzen |
+|---|---|---|---|
+| TeamTrack (CVPRW 2024) | Drohnen-Top-View 4K Fußball/Basketball + Fisheye, 4,37 M Boxen, persistente IDs; ByteTrack HOTA nur 53,7 aus der Luft | CC BY 4.0 | bestes Eval-/Pretraining-Analogon zu unserem Material |
+| gta-link (GTA, Nov 2024) | Tracklet-Splitter (DBSCAN auf Embeddings) + -Connector (Clustering + Raum-Zeit-Constraints), +6,7 IDF1 auf SportsMOT | MIT | direkt hinter BoT-SORT einsteckbar |
+| Kalisteo (SoccerNet-Tracking-Sieger 2023) | ReID-Modell per Triplet-Loss auf **eigenen Tracklets** nachtrainiert, dann Tracklet-Merging | Paper | genau die „ohne Labels"-Rezeptur |
+| TSSL / UTAL / SSR-C | tracklet-basiertes unüberwachtes ReID (Fußgänger) | Paper / Code | Methode übertragbar |
+| DanceTrack + MOTIP | gleich gekleidete Ziele, gelernte In-Context-ID-Zuordnung (HOTA 69,6) | Daten NC / Code Apache | Assoziationsideen |
+| OC-SORT, Hybrid-SORT, torchreid (OSNet) | bewegungsbasierte Assoziation, ReID-Backbones | MIT | Bausteine |
+| Golovkin 2025 / lianyou 2025 / Mori 2025 | 4-stufige Tracklet-Nachverarbeitung; Eindeutigkeits-Constraint (max. N Identitäten — bei uns 5 pro Team); Uniformfarben/GK-Merkmale zur Switch-Korrektur | Paper | Priors für 5v5 |
+| PRAI-1581 | Luftbild-Personen-ReID bei 30–150 px (verschiedene Kleidung) | Forschung | belegt: ReID bei 30 px ist möglich, wenn Kleidung differiert |
+
+**Lizenz-Warnungen für die Teams:** Deep-EIoU und GTATrack haben **keine LICENSE-Datei**
+(GTATrack bündelt zudem AGPL-Ultralytics); PRTreID/BPBreID stehen unter Hippocratic License;
+sn-gamestate/sn-reid unter GPL-3; SportsMOT, DanceTrack und der Handheld-AF-MOT-Datensatz sind
+non-commercial (nur zur Evaluation nutzbar).
+
+**Genuin offen (das ist die Challenge):** Erscheinungs-ReID für identische Trikots bei ~30 px
+aus schräger Drohnensicht, selbstüberwacht aus den Tracklets des Trackers; Kombination mit
+Bewegungs-/Formations-Priors und dem harten 5v5-Constraint; Identität über Kamerasichten
+(Drohne + TV desselben Plays) ohne Labels; Evaluation der Kontinuität ohne
+Identitäts-Ground-Truth.
