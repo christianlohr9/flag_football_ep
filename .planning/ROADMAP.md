@@ -323,7 +323,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 02.2-01-PLAN.md — Gate reconciliation, capture Wunschzettel and federation-approval documentation (D-01/D-03/D-06)
+- [x] 02.2-01-PLAN.md — Gate reconciliation, capture Wunschzettel and federation-approval documentation (D-01/D-03/D-06) (completed 2026-08-31)
 - [ ] 02.2-02-PLAN.md — Sighting pass over sideline and broadcast material, inventory refresh, D-11 stop checkpoint
 - [ ] 02.2-03-PLAN.md — Hackathon benchmark labelling A+B (continuity verdicts 21-61, flag-pull events)
 - [ ] 02.2-04-PLAN.md — DVC/OTC config surface, dependency and RF-DETR licence gates, local-remote smoke test

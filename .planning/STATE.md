@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-08-31T20:21:43.829Z"
+last_updated: "2026-08-31T20:55:29.978Z"
 last_activity: 2026-08-31 -- Phase 02.2 execution started
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 92
-  completed_plans: 72
+  completed_plans: 73
   percent: 60
 ---
 
@@ -86,6 +86,6 @@ GroupKFold by game_id, Strand-1 non-goals (no live tooling, no CV dependency).
 
 ## Session Continuity
 
-Last session: 2026-08-31T20:20:18.524Z
-Stopped at: Phase 2.2 planned (20 plans, verified) — starting execution
-Resume file: .planning/phases/02.2-dataset-buildout/02.2-01-PLAN.md
+Last session: 2026-08-31T20:55:29.973Z
+Stopped at: Phase 2.2 wave 1: plan 01 complete; plans 02/03/04 at human gates (footage missing, labelling, dvc-s3 verify)
+Resume file: .planning/phases/02.2-dataset-buildout/02.2-02-PLAN.md
