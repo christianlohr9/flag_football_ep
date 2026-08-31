@@ -29,11 +29,11 @@ Before the next national-team camp/tournament, the HC has an auto-generated tend
 - [x] Win-probability review chart per game with synthetic-clock disclosure (REQ-S1-15) — Validated in Phase 1.4: Coaching Products
 - [x] `ffep report`: raw exports → complete report set in 25s measured (< 10 min budget) for every group opponent (REQ-S1-16) — Validated in Phase 1.4: Coaching Products
 - [x] Material inventory + drone capture protocol + legal clearance + sync convention — 172 per-play clips registered and hashed across three domains; all four docs human-approved (wish list not forwarded for now by user decision) (REQ-S2-01) — Validated in Phase 2.0: Capture Protocol & Material Inventory
+- [x] CV pilot on one scrimmage with explicit go/no-go gate — full drone → RF-DETR → BoT-SORT → homography → XY pipeline run on the 61-clip pilot session; gate verdict **teilweise** (position error and runtime pass, track continuity fails at a 77% upper bound vs 90%; routes to a steeper drone angle and/or ReID, never more training labels per D-06); showcase reel sent to the HC 2026-08-31 (REQ-S2-02) — Validated in Phase 2.1: CV Tracking Pilot (Go/No-Go Gate)
 
 ### Active
 
 **Strand 2 — CV object detection & player tracking**
-- [ ] CV pilot on one scrimmage with explicit go/no-go gate (REQ-S2-02)
 - [ ] Dataset buildout to 1,500–3,000 verified frames, 60/40 domain mix (REQ-S2-03)
 - [ ] Coaching metrics on XY tracks: snap detection, routes, separation, spacing, PBP join (REQ-S2-04)
 - [ ] Player identity via manual tracklet assignment, automation only if needed (REQ-S2-05)
@@ -86,4 +86,4 @@ All eight decisions below are **locked** (synthesized from docs/plan-1-analytics
 </decisions>
 
 ---
-*Last updated: 2026-08-24 after Phase 2.0 completion (capture protocol, legal note, material inventory, and sync convention approved by the user; 172 per-play clips — 61 drone friendly, 60 GoPro WC GER-MEX, 51 TV WC USA-AUS — probed, hashed, and registered in data/reference/video_inventory.csv; Phase 2.1 pilot material available)*
+*Last updated: 2026-08-31 after Phase 2.1 completion (CV tracking pilot executed end to end on the 61-clip drone session; gate verdict "teilweise" recorded in docs/pilot-gate-decision.md — position error ~0.17 yd median and 48-min-per-game runtime pass, track continuity misses at a 77% upper bound; drone drift between clips, mirror orientation and jersey-colour anchoring found and fixed only through human review of the rendered reel; showcase reel sent to the HC; Milestone 1's Strand-2 half closed, Phase 2.2 "only after passed pilot" now needs an explicit decision given the partial verdict)*

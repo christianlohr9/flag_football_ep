@@ -214,15 +214,17 @@ Festgelegt **vor** dem Verdikt, damit er im Nachhinein nicht abgeschwächt werde
 
 ## Demo
 
-**HC-Demo (Showcase-Reel):** Status **vorbereitet, Versand ausstehend** (Stand 2026-08-30). Das
-5-Play-Showcase-Reel (`data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/showcase/showcase.mp4`,
-46,1 s, Clips 11/2/6/13/4 — Auswahlregel und Frame-für-Frame-Verifikation in
-`docs/pilot-accuracy.md` `## Showcase-Reel`, Plan 02.1-16) ist gerendert und geprüft, aber **noch
-nicht an den HC verschickt**. Ein Mail-Entwurf liegt bereits neben dem Reel
-(`data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/showcase/hc-mail-entwurf.md`,
-gitignored, PII-angrenzend). Versand erfolgt asynchron durch den Nutzer (D-12: die Demo ist
-Evidenz, die an diesen Entscheid angehängt wird, nicht eine Gate-Bedingung — der Gate-Entscheid
-selbst wartet nicht auf den Versand). Owner: Nutzer.
+**HC-Demo (Showcase-Reel):** Status **versendet am 2026-08-31** durch den Nutzer an den Head Coach
+(per Mail, Anhang `showcase_h264_1080p.mp4` — die H.264-Transkodierung des 5-Play-Reels,
+12 MB, 1920×560, damit es auf Telefon und in jedem Mailclient abspielt). Reel-Stand beim Versand:
+Clips 1/2/6/13/4 (Clip 11 nach Nutzer-Review ausgetauscht), Team-Farben am Trikot verankert,
+Radar entspiegelt und pro Clip drift-korrigiert, helle Radar-Fläche mit umrandeten Markern
+(Auswahlregel und Verifikation in `docs/pilot-accuracy.md` `## Showcase-Reel`). Die Mail
+präsentiert Ergebnis und Nutzen, ordnet den Pilotstatus ehrlich ein (Verdeckungs-Schwäche,
+steilerer Drohnenwinkel als Hebel, Ball wird bewusst nicht getrackt) und bietet die Abstimmung
+der Drohneneinstellung mit dem Videoanalysten an. Reaktion des HC: ausstehend — wird hier
+nachgetragen. (D-12: die Demo ist Evidenz, die an diesen Entscheid angehängt wird, nicht eine
+Gate-Bedingung.) Owner: Nutzer.
 
 > DEFERRED-ANALYST: Analysten-Demo des Radar-Reels auf unbestimmte Zeit verschoben (Videoanalyst
 > aktuell nicht verfügbar, siehe `.planning/STATE.md` Blockers/Concerns). Owner: Nutzer.
