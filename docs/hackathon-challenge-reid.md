@@ -260,3 +260,19 @@ aus schräger Drohnensicht, selbstüberwacht aus den Tracklets des Trackers; Kom
 Bewegungs-/Formations-Priors und dem harten 5v5-Constraint; Identität über Kamerasichten
 (Drohne + TV desselben Plays) ohne Labels; Evaluation der Kontinuität ohne
 Identitäts-Ground-Truth.
+
+---
+
+## Teil 5 — Vorbereitungs-Checkliste bis November
+
+### Organisatorisch (Nutzer)
+
+- [ ] Verbands-Freigabe für das Spielmaterial (blockiert die Einreichung)
+- [ ] Formular absenden (`docs/hackathon-challenge-reid-formular.md`; Datenschutz-Satz und Kontakt ausfüllen)
+- [ ] Bundeswehr-Freigabe für Transfer-Set 2 (optional; Drohnenflug Übungsplatz + Materialnutzung)
+- [ ] Mit BWI klären: eine GPU pro Team (24 GB-Klasse reicht, L40/48 GB komfortabel), lokale NVMe (~100 GB), ≥8 Kerne / 32 GB RAM, und ob Hugging-Face-Zugriff aus dem Netz möglich ist (sonst Weights-Cache ins Image — siehe Projekt-Aufgaben)
+
+### Labelling (Nutzer, gesamt ~4 h — es ist WENIGER, als es aussieht)
+
+Ausdrücklich NICHT nötig: neue Spieler-Boxen (der Detektor ist fertig und wird nicht Teil der
+Challenge), neue Trainingslabels jeglicher Art, Ball,
