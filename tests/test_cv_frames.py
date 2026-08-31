@@ -177,6 +177,63 @@ def test_clip_paths_raises_when_registered_file_missing(tmp_path: Path, cfg: Con
         clip_paths(cfg, "sess-1")
 
 
+# --- domain parameterisation (plan 02.2-02 Task 1) --------------------------------
+
+
+def test_clip_paths_resolves_sideline_domain(tmp_path: Path, cfg: Config) -> None:
+    _touch(tmp_path, "data/video/sess-1/Wide - Clip 001.mp4")
+    _touch(tmp_path, "data/video/sess-1/Side - Clip 001.mp4")
+    _write_inventory(
+        tmp_path,
+        [
+            _row("data/video/sess-1/Wide - Clip 001.mp4", domain="drone"),
+            _row("data/video/sess-1/Side - Clip 001.mp4", domain="sideline"),
+        ],
+    )
+
+    paths = clip_paths(cfg, "sess-1", domain="sideline")
+
+    assert [p.name for p in paths] == ["Side - Clip 001.mp4"]
+
+
+def test_clip_paths_resolves_broadcast_domain(tmp_path: Path, cfg: Config) -> None:
+    _touch(tmp_path, "data/video/sess-1/TV - Clip 001.mp4")
+    _write_inventory(
+        tmp_path, [_row("data/video/sess-1/TV - Clip 001.mp4", domain="broadcast")]
+    )
+
+    paths = clip_paths(cfg, "sess-1", domain="broadcast")
+
+    assert [p.name for p in paths] == ["TV - Clip 001.mp4"]
+
+
+def test_clip_paths_default_domain_still_drone(tmp_path: Path, cfg: Config) -> None:
+    """Regression: leaving `domain` at its default must keep resolving only drone
+    clips, byte-for-byte the plan 02.1-03 behaviour.
+    """
+    _touch(tmp_path, "data/video/sess-1/Wide - Clip 001.mp4")
+    _touch(tmp_path, "data/video/sess-1/Side - Clip 001.mp4")
+    _write_inventory(
+        tmp_path,
+        [
+            _row("data/video/sess-1/Wide - Clip 001.mp4", domain="drone"),
+            _row("data/video/sess-1/Side - Clip 001.mp4", domain="sideline"),
+        ],
+    )
+
+    paths = clip_paths(cfg, "sess-1")
+
+    assert [p.name for p in paths] == ["Wide - Clip 001.mp4"]
+
+
+def test_clip_paths_raises_for_unknown_domain(tmp_path: Path, cfg: Config) -> None:
+    _touch(tmp_path, "data/video/sess-1/Wide - Clip 001.mp4")
+    _write_inventory(tmp_path, [_row("data/video/sess-1/Wide - Clip 001.mp4")])
+
+    with pytest.raises(ClipNotFound, match="tv"):
+        clip_paths(cfg, "sess-1", domain="tv")
+
+
 def test_clip_number_round_trips_hudl_pattern() -> None:
     assert clip_number(Path("Wide - Clip 001.mp4")) == 1
     assert clip_number(Path("Wide - Clip 061.mp4")) == 61
@@ -223,13 +280,19 @@ _SAMPLE_N_CLIPS = 8
 
 
 def _make_sample_session(
-    tmp_path: Path, session_id: str, n_clips: int, *, duration: float = 2.0, fps: int = 24
+    tmp_path: Path,
+    session_id: str,
+    n_clips: int,
+    *,
+    duration: float = 2.0,
+    fps: int = 24,
+    domain: str = "drone",
 ) -> None:
     rows = []
     for i in range(1, n_clips + 1):
         rel_path = f"data/video/{session_id}/Wide - Clip {i:03d}.mp4"
         _make_synthetic_clip(tmp_path / rel_path, duration=duration, fps=fps)
-        row = _row(rel_path, session_id=session_id)
+        row = _row(rel_path, session_id=session_id, domain=domain)
         row["duration_seconds"] = str(duration)
         row["fps"] = str(float(fps))
         rows.append(row)
@@ -414,3 +477,43 @@ def test_read_manifest_raises_for_non_integer_seed(tmp_path: Path) -> None:
 
     with pytest.raises(ManifestError, match="non-integer"):
         read_manifest(path)
+
+
+# --- domain parameterisation (plan 02.2-02 Task 1) --------------------------------
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_training_frames_resolves_sideline_domain(tmp_path: Path, cfg: Config) -> None:
+    session_id = "sess-sideline"
+    _make_sample_session(tmp_path, session_id, 4, domain="sideline")
+    out_dir = tmp_path / "out"
+
+    manifest = sample_training_frames(
+        cfg, session_id, target=12, seed=1, out_dir=out_dir, domain="sideline"
+    )
+
+    assert manifest.frames
+    counts = Counter(frame.clip_number for frame in manifest.frames)
+    assert set(counts) == {1, 2, 3, 4}
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_training_frames_no_hover_positions_falls_back_to_single_bucket(
+    tmp_path: Path, cfg: Config
+) -> None:
+    """Non-drone domains without a `hover_positions.csv` entry group under the single
+    `"all"` bucket -- the existing `hover_ids.get(n, "all")` fallback, not a new code
+    path.
+    """
+    session_id = "sess-broadcast"
+    _make_sample_session(tmp_path, session_id, 4, domain="broadcast")
+    out_dir = tmp_path / "out"
+    assert not (tmp_path / "data" / "reference" / "hover_positions.csv").exists()
+
+    manifest = sample_training_frames(
+        cfg, session_id, target=12, seed=1, out_dir=out_dir, domain="broadcast"
+    )
+
+    assert manifest.frames
+    counts = Counter(frame.clip_number for frame in manifest.frames)
+    assert set(counts) == {1, 2, 3, 4}
