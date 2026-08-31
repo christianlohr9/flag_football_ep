@@ -319,7 +319,7 @@ Plans:
   2. One detector is trained across all domains, with per-domain eval splits reported and per-domain inference settings (resolution, SAHI tiling) configured (D-04)
   3. The dataset is cleanly versioned (Roboflow Universe or DVC), and the option to publish it as the first public flag-football detection dataset has been assessed
 
-**Plans**: 19 plans in 11 waves (hackathon strand front-loaded per the 23.-27.11.2026 deadline)
+**Plans**: 20 plans in 11 waves (hackathon strand front-loaded per the 23.-27.11.2026 deadline)
 Plans:
 **Wave 1**
 
@@ -354,12 +354,13 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6)*
 
-- [ ] 02.2-14-PLAN.md — OTC OBS delivery and DVC remote validation with local fallback
+- [ ] 02.2-14-PLAN.md — OTC OBS bundle delivery and participant delivery docs (independent of the AL strand)
 - [ ] 02.2-15-PLAN.md — AL iteration 1: retrain and per-domain evaluation against the stopping rule
 
 **Wave 8** *(blocked on Wave 7)*
 
 - [ ] 02.2-16-PLAN.md — AL iteration 2: selection and prelabelled CVAT push
+- [ ] 02.2-20-PLAN.md — DVC remote resolution, dataset v1 push and the OTC OBS A1 finding
 
 **Wave 9** *(blocked on Wave 8)*
 
