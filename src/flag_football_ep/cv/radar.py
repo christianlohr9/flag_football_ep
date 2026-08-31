@@ -81,10 +81,12 @@ _LINE_COLOR: tuple[int, int, int] = (150, 150, 150)
 _LABEL_COLOR: tuple[int, int, int] = (40, 40, 40)
 _MARKER_OUTLINE: tuple[int, int, int] = (30, 30, 30)
 _YARD_LINE_EVERY = 5
-_MARKER_RADIUS = 5
-_MARKER_HALF_SIZE = 5
+# Marker size sized for the reel's half-width panel AND a phone-scale (1080p) transcode
+# of it: 8 px radius at full resolution keeps the >= 8 px marker rule after a 2x downscale.
+_MARKER_RADIUS = 8
+_MARKER_HALF_SIZE = 8
 _FONT = 0  # cv2.FONT_HERSHEY_SIMPLEX, hardcoded to avoid an eager `import cv2` here
-_FONT_SCALE = 0.4
+_FONT_SCALE = 0.55
 _TEXT_THICKNESS = 1
 
 _HEADER_HEIGHT_PX = 40
