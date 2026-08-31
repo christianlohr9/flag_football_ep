@@ -1,0 +1,23 @@
+{
+  "source_path": "/Users/clohr/Documents/flag_football_ep/.claude/worktrees/planning-docs/docs/research-notes.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Rechercheergebnisse: Video-Analytics & Computer Vision im (Flag) Football",
+  "summary": "German research summary (Aug 2026) on the state of video analytics and computer vision in flag football, with key findings and open-source resource links.",
+  "scope": [
+    "flag football player tracking",
+    "computer vision pipeline (detection, tracking, team clustering, homography)",
+    "labeling and fine-tuning tooling (CVAT, SAM2, autodistill)",
+    "detector model licensing (RF-DETR, D-FINE, RT-DETR vs Ultralytics AGPL)",
+    "drone vs broadcast camera domains",
+    "jersey number OCR",
+    "manual play-by-play charting",
+    "datasets (SoccerTrack/TeamTrack, SportsMOT, VisDrone, SkillCorner)",
+    "IFAF Flag Football World Championship 2026 / LA28 context"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

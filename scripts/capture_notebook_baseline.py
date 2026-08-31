@@ -1,0 +1,335 @@
+"""Freeze the current notebook EP/WP training frames as regression fixtures.
+
+This is a standalone script, NOT part of the installed `flag_football_ep`
+package: it imports directly from `Python/`, which the porting plans in this
+phase delete once the package absorbs that logic. Its only job is to
+reproduce models/ep_model.ipynb cells 1+3 and models/wp_model.ipynb cells 1+3
+byte-for-byte, using the current (unmodified) `Python/` helpers, so later
+porting work has a ground truth to diff against (tests/test_migration_equivalence.py,
+plan 16).
+
+Re-run this script any time you need to regenerate the baseline fixtures from
+the same inputs — with unchanged inputs and unmodified `Python/` helpers, the
+two Parquet frames are byte-identical across runs (`equals()` is True) and the
+manifest is identical apart from `captured_at`.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import platform
+import sys
+import traceback
+from datetime import datetime, timezone
+from pathlib import Path
+
+import polars as pl
+
+EP_SELECTED_COLUMNS = [
+    "label",
+    "yardline_50",
+    "yards_to_go",
+    "down0",
+    "down1",
+    "down2",
+    "down3",
+    "down4",
+    "Total_W_Scaled",
+]
+
+WP_SELECTED_COLUMNS = [
+    "label",
+    "receive_2h_ko",
+    "half_seconds_remaining",
+    "game_seconds_remaining",
+    "Diff_Time_Ratio",
+    "score_differential",
+    "down",
+    "yards_to_go",
+    "yardline_50",
+]
+
+EP_EXCLUDED_GAME_ID = 37
+WP_EXCLUDED_GAME_ID = 35
+
+WC24_SCHEMA_OVERRIDES = {
+    "posteam": pl.String,
+    "posteam_after": pl.String,
+    "defteam": pl.String,
+    "defteam_after": pl.String,
+    "home_team": pl.String,
+    "home_team_after": pl.String,
+    "away_team": pl.String,
+    "away_team_after": pl.String,
+    "scoring_play_team": pl.String,
+    "penalty": pl.Int32,
+}
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--legacy-csv",
+        default="data_raw.csv",
+        help="Path to the legacy Hudl export (default: data_raw.csv, falling back "
+        "to data/raw/legacy/data_raw.csv if the default is absent)",
+    )
+    parser.add_argument(
+        "--wc24-csv",
+        default="data/wc24_pbp.csv",
+        help="Path to the pre-mutated WC24 pbp CSV (default: data/wc24_pbp.csv)",
+    )
+    parser.add_argument(
+        "--out-dir",
+        default="tests/fixtures",
+        help="Directory to write baseline fixtures into (default: tests/fixtures)",
+    )
+    return parser.parse_args(argv)
+
+
+def resolve_legacy_csv(raw_arg: str) -> Path:
+    """Resolve --legacy-csv, falling back to data/raw/legacy/data_raw.csv."""
+    primary = Path(raw_arg)
+    if primary.exists():
+        return primary
+    fallback = Path("data/raw/legacy/data_raw.csv")
+    if fallback.exists():
+        return fallback
+    # Neither exists — return the primary path so downstream code raises a
+    # clear "file not found" error rather than silently picking nothing.
+    return primary
+
+
+def sha256_of_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+# The commit before this phase deleted Python/ (plan 01.2-17, task 2). Regenerate the
+# fixtures by checking out that commit into a throwaway worktree and re-running this
+# script from there -- see the message _require_python_dir() prints below.
+PRE_MIGRATION_COMMIT = "3726d89"
+
+
+def _require_python_dir() -> None:
+    """Fail fast with regeneration instructions when Python/ is absent.
+
+    Python/ was deleted in plan 01.2-17 once its logic was fully ported into
+    src/flag_football_ep (features/mutations.py, model/score.py). This script's whole
+    point is to reproduce the *unmodified* Python/ helpers' output, so it cannot run
+    against the package port -- it must run against the pre-migration tree instead.
+    """
+    if Path("Python").is_dir():
+        return
+    print(
+        "Python/ is absent -- this script cannot run against the current tree.\n"
+        "\n"
+        "It exists only to regenerate tests/fixtures/baseline_{ep,wp}_model_data.parquet "
+        "and baseline_manifest.json from the ORIGINAL, unmodified Python/ helpers -- the "
+        "ground truth tests/test_migration_equivalence.py compares the ported package "
+        f"against. Python/ was deleted at (or after) commit {PRE_MIGRATION_COMMIT} "
+        "(plan 01.2-17, task 2).\n"
+        "\n"
+        "To regenerate the fixtures:\n"
+        f"  git worktree add /tmp/ffep-pre-migration {PRE_MIGRATION_COMMIT}\n"
+        "  cd /tmp/ffep-pre-migration\n"
+        "  uv run python scripts/capture_notebook_baseline.py\n"
+        "  cp tests/fixtures/baseline_*.{parquet,json} <this-worktree>/tests/fixtures/\n"
+        "  git worktree remove /tmp/ffep-pre-migration\n",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+
+def import_helpers():
+    """Import the exact, unmodified Python/ helper functions being frozen."""
+    _require_python_dir()
+    sys.path.insert(0, "Python")
+    from helper_add_hudl_mutations import (  # noqa: E402
+        make_hudl_mutations,
+        prepare_ep_data,
+        prepare_wp_data,
+    )
+    from helper_add_model_mutations import (  # noqa: E402
+        make_ep_model_mutations,
+        make_wp_model_mutations,
+    )
+
+    return (
+        make_hudl_mutations,
+        prepare_ep_data,
+        prepare_wp_data,
+        make_ep_model_mutations,
+        make_wp_model_mutations,
+    )
+
+
+def build_ep_frame(legacy_csv: Path, wc24_csv: Path, helpers) -> pl.DataFrame:
+    make_hudl_mutations, prepare_ep_data, _prepare_wp_data, make_ep_model_mutations, _ = helpers
+
+    df = pl.read_csv(legacy_csv, separator=";", infer_schema_length=0)
+    df = make_hudl_mutations(df)
+    df = df.with_columns(pl.col(pl.UInt32).cast(pl.Int32).name.keep())
+    df_wc = pl.read_csv(
+        wc24_csv,
+        separator=",",
+        schema_overrides=WC24_SCHEMA_OVERRIDES,
+    ).with_columns(pl.col(pl.Int64).cast(pl.Int32).name.keep())
+    df = pl.concat([df, df_wc], how="diagonal")
+    df2 = prepare_ep_data(df)
+    ep_data = make_ep_model_mutations(
+        df2.filter(pl.col("game_id") != EP_EXCLUDED_GAME_ID), EP_SELECTED_COLUMNS
+    )
+    return ep_data
+
+
+def build_wp_frame(legacy_csv: Path, helpers) -> pl.DataFrame:
+    make_hudl_mutations, _prepare_ep_data, prepare_wp_data, _, make_wp_model_mutations = helpers
+
+    df1 = make_hudl_mutations(pl.read_csv(legacy_csv, separator=";", infer_schema_length=0))
+    df2 = prepare_wp_data(df1)
+    wp_data = make_wp_model_mutations(
+        df2.filter(pl.col("game_id") != WP_EXCLUDED_GAME_ID), WP_SELECTED_COLUMNS
+    )
+    return wp_data
+
+
+def print_frame_stats(name: str, df: pl.DataFrame) -> None:
+    print(f"\n{name}: {df.height} rows, {df.width} columns")
+    null_counts = df.null_count()
+    for col in df.columns:
+        print(f"  {col}: null_count={null_counts[col][0]}")
+
+
+def column_float_stats(df: pl.DataFrame, col: str) -> dict:
+    """min/max/mean/n_nan/n_null for a float column, guarding null-only frames.
+
+    n_nan is computed with is_nan() restricted to non-null values, because
+    is_nan() on a null returns null (not True/False) in polars — summing it
+    directly over a column with nulls would silently undercount.
+    """
+    series = df[col]
+    n_null = int(series.is_null().sum())
+    non_null = series.drop_nulls()
+    if non_null.len() == 0:
+        return {"min": None, "max": None, "mean": None, "n_nan": 0, "n_null": n_null}
+    n_nan = int(non_null.is_nan().sum())
+    non_nan = non_null.filter(~non_null.is_nan())
+    return {
+        "min": float(non_nan.min()) if non_nan.len() > 0 else None,
+        "max": float(non_nan.max()) if non_nan.len() > 0 else None,
+        "mean": float(non_nan.mean()) if non_nan.len() > 0 else None,
+        "n_nan": n_nan,
+        "n_null": n_null,
+    }
+
+
+def label_distribution(df: pl.DataFrame, col: str = "label") -> dict:
+    """Value counts keyed by string label, "null" bucket included.
+
+    value_counts() row order is not guaranteed stable across runs, so the
+    dict is rebuilt in sorted key order (numeric labels ascending, "null"
+    last) to keep re-runs producing an identical manifest apart from
+    captured_at.
+    """
+    counts = df[col].value_counts()
+    raw: dict[str, int] = {}
+    for row in counts.iter_rows(named=True):
+        key = row[col]
+        raw["null" if key is None else str(key)] = int(row["count"])
+    raw.setdefault("null", 0)
+    sorted_keys = sorted(raw, key=lambda k: (k == "null", int(k) if k != "null" else 0))
+    return {k: raw[k] for k in sorted_keys}
+
+
+def frame_manifest_section(df: pl.DataFrame, weight_col: str, manifest_key: str) -> dict:
+    null_counts = df.null_count()
+    return {
+        "n_rows": df.height,
+        "columns": list(df.columns),
+        "dtypes": {col: str(dtype) for col, dtype in zip(df.columns, df.dtypes)},
+        "null_counts": {col: int(null_counts[col][0]) for col in df.columns},
+        "label_distribution": label_distribution(df),
+        manifest_key: column_float_stats(df, weight_col),
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+
+    legacy_csv = resolve_legacy_csv(args.legacy_csv)
+    wc24_csv = Path(args.wc24_csv)
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        helpers = import_helpers()
+    except Exception:
+        print("Failed to import Python/ helpers:", file=sys.stderr)
+        traceback.print_exc()
+        return 1
+
+    try:
+        ep_data = build_ep_frame(legacy_csv, wc24_csv, helpers)
+        wp_data = build_wp_frame(legacy_csv, helpers)
+    except (AttributeError, TypeError):
+        # Signals a polars API drift (e.g. get_games()'s .melt/.pivot calls,
+        # RESEARCH Pitfall 5). Do NOT patch Python/ helpers to work around
+        # this — the baseline must come from unmodified helper code.
+        print(
+            "get_games()/mutation chain raised AttributeError or TypeError — "
+            "likely a polars API drift in Python/helper_add_hudl_mutations.py "
+            "(.melt/.pivot signature). Not patching Python/ helpers; baseline "
+            "capture aborted.",
+            file=sys.stderr,
+        )
+        traceback.print_exc()
+        return 1
+
+    ep_path = out_dir / "baseline_ep_model_data.parquet"
+    wp_path = out_dir / "baseline_wp_model_data.parquet"
+    ep_data.write_parquet(ep_path)
+    wp_data.write_parquet(wp_path)
+
+    print_frame_stats("EP model data", ep_data)
+    print_frame_stats("WP model data", wp_data)
+
+    manifest = {
+        "captured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "polars_version": pl.__version__,
+        "python_version": platform.python_version(),
+        "inputs": {
+            "legacy_csv": str(legacy_csv),
+            "legacy_csv_sha256": sha256_of_file(legacy_csv),
+            "wc24_csv": str(wc24_csv),
+            "wc24_csv_sha256": sha256_of_file(wc24_csv),
+        },
+        "ep_model_data": frame_manifest_section(ep_data, "Total_W_Scaled", "total_w_scaled"),
+        "wp_model_data": frame_manifest_section(
+            wp_data, "half_seconds_remaining", "half_seconds_remaining"
+        ),
+        "excluded_games": {"ep": EP_EXCLUDED_GAME_ID, "wp": WP_EXCLUDED_GAME_ID},
+        "notes": (
+            "These frames were produced by unmodified Python/ helpers "
+            "(helper_add_hudl_mutations.py, helper_add_model_mutations.py) "
+            "before the src/flag_football_ep package port. They are the "
+            "ground truth for tests/test_migration_equivalence.py (plan 16)."
+        ),
+    }
+    manifest_path = out_dir / "baseline_manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=False) + "\n")
+
+    print(f"\nWrote {ep_path}")
+    print(f"Wrote {wp_path}")
+    print(f"Wrote {manifest_path}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,15 @@
+{
+  "series": {
+    "id": 42,
+    "region": "TestCup",
+    "level": "Group",
+    "seasonName": "2026",
+    "phase": "Group stage",
+    "groupId": 7,
+    "groupName": "Group A"
+  },
+  "streams": [{"url": "https://example.test/stream"}],
+  "home": {"id": "101"},
+  "away": {"id": "102"},
+  "result": {"details": {"points_total_home": 6, "points_total_away": 0}}
+}

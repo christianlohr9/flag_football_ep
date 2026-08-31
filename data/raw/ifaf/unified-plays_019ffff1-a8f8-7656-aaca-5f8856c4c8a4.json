@@ -1,0 +1,5579 @@
+[
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-usa-p16"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #7 Maci Joncich",
+      "text": "COMPLETE PASS #29 Akemi Higa → #7 Maci Joncich",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Maci Joncich",
+        "number": "7",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p16/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0048b-cc59-72cd-a7c3-73534bf647e4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c2-7319-ae4a-5912e201303a"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 2,
+    "context": {
+      "gameClockMs": 1160253,
+      "half": 1,
+      "down": 2,
+      "ballOn": 16,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p17"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #32 Ashlea Klam",
+      "text": "COMPLETE PASS #29 Akemi Higa → #32 Ashlea Klam",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Ashlea Klam",
+        "number": "32",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p17/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "32"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0048c-6935-724e-a6cf-540d0a5f438a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c3-73bc-89c6-6939a376e6ed"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1159088,
+      "half": 1,
+      "down": 3,
+      "ballOn": 24,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13"
+      },
+      {
+        "action": "INTERCEPTION",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "23",
+        "playerId": "w-usa-p9"
+      }
+    ],
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#29 Akemi Higa → #82 Zoe Song",
+      "text": "INTERCEPTION #29 Akemi Higa → #82 Zoe Song",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Zoe Song",
+        "number": "82",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p19/thumb.png"
+      }
+    },
+    "players": {
+      "interceptedBy": {
+        "number": "82"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0048c-d9e9-72ad-a2d3-ca80eda6e8bb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c4-7319-9a0c-de9c78213a63"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1097745,
+      "half": 1,
+      "down": 1,
+      "ballOn": 36,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "PASS_INTERFERENCE"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "f1435bab-a36e-48ee-b974-976f548d9fed",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c4-7319-9a0c-e185cf4673ec"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 5,
+    "context": {
+      "gameClockMs": 1057117,
+      "half": 1,
+      "down": 1,
+      "ballOn": 43,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_BLITZER_SIGNAL"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0048d-fb1c-71bc-8612-a35f008b6ce8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c5-7768-850a-c0a6dc8c975f"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 976719,
+      "half": 1,
+      "down": 1,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-ger-p4",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#14 Carla Törner (6 pts)",
+      "text": "TOUCHDOWN #14 Carla Törner (6 pts)",
+      "from": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0048f-971c-742c-b48c-5098f421a78d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.347Z",
+    "updatedAt": "2026-08-16T12:15:21.347Z",
+    "id": "01a00a7f-78c5-7768-850a-c4da5cf5d0ab"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 928242,
+      "half": 1,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "TRY",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00490-4c44-740b-bf97-83f118302398",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-c960f71b4926"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 8,
+    "context": {
+      "gameClockMs": 886655,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "5",
+        "playerId": "w-usa-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #5 Madison Fulford",
+      "text": "COMPLETE PASS #29 Akemi Higa → #5 Madison Fulford",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Madison Fulford",
+        "number": "5",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "5"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "c0f94411-0b68-4160-bea5-2e4153c32b43",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-cc4ef5e47146"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 9,
+    "context": {
+      "gameClockMs": 859051,
+      "half": 1,
+      "down": 2,
+      "ballOn": 15,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #24 Kennedy Foster",
+      "text": "COMPLETE PASS #29 Akemi Higa → #24 Kennedy Foster",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Kennedy Foster",
+        "number": "24",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p7/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "24"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "2fd59b1a-5eef-4534-8826-30ee918d1ec2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-d0b1308b0cdc"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 10,
+    "context": {
+      "gameClockMs": 886655,
+      "half": 1,
+      "down": 3,
+      "ballOn": 24,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-usa-p16"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "7",
+        "playerId": "w-usa-p16"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#7 Maci Joncich (6 pts)",
+      "text": "TOUCHDOWN #7 Maci Joncich (6 pts)",
+      "from": {
+        "name": "Maci Joncich",
+        "number": "7",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p16/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00490-f12f-764f-9572-ddd2733b30d6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-d479182f7a83"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 11,
+    "context": {
+      "gameClockMs": 816511,
+      "half": 1,
+      "ballOn": 45,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 6,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      },
+      {
+        "action": "TRY",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#24 Kennedy Foster (1 pt)",
+      "text": "TRY #24 Kennedy Foster (1 pt)",
+      "from": {
+        "name": "Kennedy Foster",
+        "number": "24",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p7/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "receiver": {
+        "number": "24"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00492-3f7e-748c-8582-d25cb6565e78",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-d8fea49dd2c5"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 12,
+    "context": {
+      "gameClockMs": 735695,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_BLITZER_SIGNAL"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00493-2ba4-7029-b74e-93ae615ce9f7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-dc5ac27b9728"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 707723,
+      "half": 1,
+      "down": 1,
+      "ballOn": 10,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p16"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p16"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00493-a1ea-7585-a6f4-8e2357c4bcd9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-e15e4da8b1d5"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 669722,
+      "half": 1,
+      "down": 2,
+      "ballOn": 10,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00494-13f9-72bf-8c9b-9a3f9955c21a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-e5a211be0978"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 15,
+    "context": {
+      "gameClockMs": 666272,
+      "half": 1,
+      "down": 3,
+      "ballOn": 24,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p16"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p16"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00494-ac15-72e8-94d0-5af802bd3591",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-ebe10e39634d"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 16,
+    "context": {
+      "gameClockMs": 589222,
+      "half": 1,
+      "down": 4,
+      "ballOn": 24,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "22",
+        "playerId": "w-usa-p18"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "22"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00495-5a3a-76e1-a4e6-99231ee01f29",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c5-7768-850a-ed2fc3ea3f3a"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 587228,
+      "half": 1,
+      "down": 1,
+      "ballOn": 26,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "SACK",
+        "player": "0",
+        "playerId": "w-usa-p14"
+      }
+    ],
+    "outcome": {
+      "type": "SACK",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "SACK",
+      "label": "SACK",
+      "detail": "by #0 Brooklin Hill",
+      "text": "SACK by #0 Brooklin Hill",
+      "from": {
+        "name": "Brooklin Hill",
+        "number": "0",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p14/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00495-e171-76bb-aaaa-cad4fa9a30fa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c6-7279-a00f-56e619eb81ec"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 18,
+    "context": {
+      "gameClockMs": 546919,
+      "half": 1,
+      "down": 2,
+      "ballOn": 19,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "13",
+        "playerId": "w-usa-p1"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00496-962d-72c7-8f4e-3ea127b813bf",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c7-7134-8d49-ce3ef437a584"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 19,
+    "context": {
+      "gameClockMs": 502011,
+      "half": 1,
+      "down": 3,
+      "ballOn": 31,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "23",
+        "playerId": "w-usa-p9"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00497-3978-770d-91e4-a9122e897764",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c7-7134-8d49-d161190731bc"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 411324,
+      "half": 1,
+      "down": 4,
+      "ballOn": 49,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "PASS_INTERFERENCE"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00498-2320-74c8-aadd-94e555c4bb6e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c7-7134-8d49-d5ae5edfa24e"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 21,
+    "context": {
+      "gameClockMs": 411324,
+      "half": 1,
+      "down": 1,
+      "ballOn": 49,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00498-8994-73ee-ae2a-986aeb1d51ff",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c7-7134-8d49-daa65d173282"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 22,
+    "context": {
+      "gameClockMs": 364322,
+      "half": 1,
+      "down": 1,
+      "ballOn": 49,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "OTHER"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00499-23af-755e-b386-041e68ccb29f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c7-7134-8d49-df8af23af03d"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 23,
+    "context": {
+      "gameClockMs": 306115,
+      "half": 1,
+      "down": 1,
+      "ballOn": 49,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a00499-e6f0-769f-8e6e-99022bc3a844",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c7-7134-8d49-e37dd056aa7a"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 24,
+    "context": {
+      "gameClockMs": 286020,
+      "half": 1,
+      "down": 2,
+      "ballOn": 39,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "18",
+        "playerId": "w-ger-p9",
+        "intendedReceiverId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#18 Nora Cermak",
+      "text": "INCOMPLETE PASS #18 Nora Cermak",
+      "from": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0049a-4256-70d8-8774-fc4ae3d7732a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c7-7134-8d49-e5c9c2c7d3e4"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 25,
+    "context": {
+      "gameClockMs": 261789,
+      "half": 1,
+      "down": 3,
+      "ballOn": 39,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0049a-ea75-767b-8617-1350193feebe",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.348Z",
+    "updatedAt": "2026-08-16T12:15:21.348Z",
+    "id": "01a00a7f-78c8-70c8-b15d-5aa3555f02c7"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 26,
+    "context": {
+      "gameClockMs": 219291,
+      "half": 1,
+      "down": 4,
+      "ballOn": 39,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0049b-c283-7430-ae79-8439dfaefd84",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c8-70c8-b15d-5e854361237a"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 27,
+    "context": {
+      "gameClockMs": 160435,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p17"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #32 Ashlea Klam",
+      "text": "COMPLETE PASS #29 Akemi Higa → #32 Ashlea Klam",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Ashlea Klam",
+        "number": "32",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p17/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "32"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0049c-449f-75fc-b707-0ff9fa69a887",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c8-70c8-b15d-60d3ab295d8c"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 28,
+    "context": {
+      "gameClockMs": 120997,
+      "half": 1,
+      "down": 2,
+      "ballOn": 13,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p17"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #32 Ashlea Klam",
+      "text": "COMPLETE PASS #29 Akemi Higa → #32 Ashlea Klam",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Ashlea Klam",
+        "number": "32",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p17/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "32"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0049c-ebe0-745f-8f49-45f19784de00",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c8-70c8-b15d-642796fa952b"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 29,
+    "context": {
+      "gameClockMs": 109297,
+      "half": 1,
+      "down": 3,
+      "ballOn": 21,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p17"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #32 Ashlea Klam",
+      "text": "COMPLETE PASS #29 Akemi Higa → #32 Ashlea Klam",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Ashlea Klam",
+        "number": "32",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p17/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "32"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0049d-7848-76dd-9f59-e71ec366eb40",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c8-70c8-b15d-6b34668e7121"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 30,
+    "context": {
+      "gameClockMs": 64725,
+      "half": 1,
+      "down": 1,
+      "ballOn": 33,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "7",
+        "playerId": "w-usa-p16"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#7 Maci Joncich",
+      "text": "RUN #7 Maci Joncich",
+      "from": {
+        "name": "Maci Joncich",
+        "number": "7",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p16/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0049e-61b4-70f5-aeb0-1a91f6087007",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c8-70c8-b15d-6f2a1abb3297"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 31,
+    "context": {
+      "gameClockMs": 66000,
+      "half": 1,
+      "down": 2,
+      "ballOn": 34,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p17"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #32 Ashlea Klam",
+      "text": "COMPLETE PASS #29 Akemi Higa → #32 Ashlea Klam",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Ashlea Klam",
+        "number": "32",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p17/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "32"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a0049f-5e89-740c-820f-fa1a5805bedc",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c8-70c8-b15d-701515677246"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 32,
+    "context": {
+      "gameClockMs": 60000,
+      "half": 1,
+      "down": 3,
+      "ballOn": 40,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 7,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#24 Kennedy Foster (6 pts)",
+      "text": "TOUCHDOWN #24 Kennedy Foster (6 pts)",
+      "from": {
+        "name": "Kennedy Foster",
+        "number": "24",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p7/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "24"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a0-693a-71da-86d9-bab96317c5c3",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-589ba6ea526c"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 33,
+    "context": {
+      "gameClockMs": 55257,
+      "half": 1,
+      "ballOn": 45,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      },
+      {
+        "action": "TRY",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#24 Kennedy Foster (1 pt)",
+      "text": "TRY #24 Kennedy Foster (1 pt)",
+      "from": {
+        "name": "Kennedy Foster",
+        "number": "24",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p7/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "receiver": {
+        "number": "24"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a1-0414-754f-abd1-09ca80f50a54",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-5c95d3598675"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 34,
+    "context": {
+      "gameClockMs": 55257,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 14,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "21",
+        "playerId": "w-usa-p3"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      },
+      "flagPulledBy": {
+        "number": "21"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a1-9ffb-77fe-b684-a53e99ff285a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-63afd1e03cb7"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 35,
+    "context": {
+      "gameClockMs": 43971,
+      "half": 1,
+      "down": 2,
+      "ballOn": 15,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 14,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "13",
+        "playerId": "w-usa-p1"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      },
+      "flagPulledBy": {
+        "number": "13"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a2-3497-7294-9181-54d658b0c12c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-671f58efc2cc"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 36,
+    "context": {
+      "gameClockMs": 44000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 27,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 14,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "22",
+        "playerId": "w-usa-p18"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      },
+      "flagPulledBy": {
+        "number": "22"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a2-e0be-745d-b540-6aad7642fa2e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-6a817af2df9f"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 37,
+    "context": {
+      "gameClockMs": 19152,
+      "half": 1,
+      "down": 2,
+      "ballOn": 39,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 14,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a3-5518-7334-97f3-202e20eee5c1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-6c97a2f01fbb"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 38,
+    "context": {
+      "gameClockMs": 21000,
+      "half": 1,
+      "down": 3,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 14,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#14 Carla Törner (6 pts)",
+      "text": "TOUCHDOWN #14 Carla Törner (6 pts)",
+      "from": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a3-b866-7228-996f-85adb73d76b0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-71908b2f6b2a"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 39,
+    "context": {
+      "gameClockMs": 18487,
+      "half": 1,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 14,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p16"
+      },
+      {
+        "action": "TRY",
+        "player": "33",
+        "playerId": "w-ger-p16"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a4-6849-7609-afa0-d0795ba081a7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-76c76a346d2c"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 40,
+    "context": {
+      "gameClockMs": 18487,
+      "half": 1,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 14,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p8"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p8"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#29 Akemi Higa",
+      "text": "INCOMPLETE PASS #29 Akemi Higa",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a4-f83f-71dd-b25e-62740f872868",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-7ab9e84f9b62"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 41,
+    "context": {
+      "gameClockMs": 5926,
+      "half": 1,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 14,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #24 Kennedy Foster",
+      "text": "COMPLETE PASS #29 Akemi Higa → #24 Kennedy Foster",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Kennedy Foster",
+        "number": "24",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p7/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "24"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a5-8f88-74fa-b811-63d638dc0af4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-7d33376df525"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 42,
+    "context": {
+      "gameClockMs": 6000,
+      "half": 1,
+      "down": 1,
+      "ballOn": 42,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 14,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p17"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "9",
+        "playerId": "w-ger-p6"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #32 Ashlea Klam",
+      "text": "COMPLETE PASS #29 Akemi Higa → #32 Ashlea Klam",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Ashlea Klam",
+        "number": "32",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p17/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "32"
+      },
+      "flagPulledBy": {
+        "number": "9"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a7-0ce7-77fd-bb2a-4cbb58bc9016",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-82c49b3043eb"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 43,
+    "context": {
+      "gameClockMs": 3000,
+      "half": 1,
+      "down": 2,
+      "ballOn": 48,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 14,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#24 Kennedy Foster (6 pts)",
+      "text": "TOUCHDOWN #24 Kennedy Foster (6 pts)",
+      "from": {
+        "name": "Kennedy Foster",
+        "number": "24",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p7/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "24"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a7-f99f-7393-9a1e-4b5449ce56f2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-86a1fc013d9c"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 44,
+    "context": {
+      "gameClockMs": 0,
+      "half": 1,
+      "ballOn": 45,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "5",
+        "playerId": "w-usa-p8"
+      },
+      {
+        "action": "TRY",
+        "player": "5",
+        "playerId": "w-usa-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#5 Madison Fulford (1 pt)",
+      "text": "TRY #5 Madison Fulford (1 pt)",
+      "from": {
+        "name": "Madison Fulford",
+        "number": "5",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p8/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "receiver": {
+        "number": "5"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004a8-a6ca-72db-b7ba-845ee63b793a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-8a4728a84b8c"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 45,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "22",
+        "playerId": "w-usa-p18"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      },
+      "flagPulledBy": {
+        "number": "22"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ab-75ef-7370-a544-97c7c2ee11f0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-8c0de1ffb3ef"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 46,
+    "context": {
+      "gameClockMs": 1186892,
+      "half": 2,
+      "down": 2,
+      "ballOn": 14,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ab-e88d-72bf-971c-b2922d50201b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-937203009d47"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 47,
+    "context": {
+      "gameClockMs": 1157042,
+      "half": 2,
+      "down": 3,
+      "ballOn": 24,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "22",
+        "playerId": "w-usa-p18"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#7 Kyra Fischer",
+      "text": "RUN #7 Kyra Fischer",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "22"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ac-87f9-7479-a063-85753ef6aef5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-9747c38eb742"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 48,
+    "context": {
+      "gameClockMs": 1115996,
+      "half": 2,
+      "down": 1,
+      "ballOn": 35,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-ger-p4",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-ger-p4",
+        "intendedReceiverId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Kyra Fischer",
+      "text": "INCOMPLETE PASS #7 Kyra Fischer",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ad-28ab-75fd-acff-e4e2d7420d72",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-9a35fd16eb5b"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 49,
+    "context": {
+      "gameClockMs": 1066833,
+      "half": 2,
+      "down": 2,
+      "ballOn": 35,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "21",
+        "playerId": "w-usa-p3"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      },
+      "flagPulledBy": {
+        "number": "21"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ae-4455-76f1-be53-3ca5d6d5e7d6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.349Z",
+    "updatedAt": "2026-08-16T12:15:21.349Z",
+    "id": "01a00a7f-78c9-7382-8996-9ca9a3047274"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 50,
+    "context": {
+      "gameClockMs": 1026563,
+      "half": 2,
+      "down": 3,
+      "ballOn": 45,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#14 Carla Törner (6 pts)",
+      "text": "TOUCHDOWN #14 Carla Törner (6 pts)",
+      "from": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ae-d5ca-7647-b578-77f5c08a33db",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-a284aa3fb1ef"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 51,
+    "context": {
+      "gameClockMs": 988654,
+      "half": 2,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "7",
+        "playerId": "w-ger-p4",
+        "intendedReceiverId": "w-ger-p9"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "7",
+        "playerId": "w-ger-p4",
+        "intendedReceiverId": "w-ger-p9"
+      },
+      {
+        "action": "TRY",
+        "player": "18",
+        "playerId": "w-ger-p9"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY_NO_GOOD",
+      "label": "TRY",
+      "detail": "no good",
+      "text": "TRY no good"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004af-96d8-72dd-8c9e-6436f450437d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-a6f5f08b48fb"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 52,
+    "context": {
+      "gameClockMs": 948738,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-usa-p16"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "27",
+        "playerId": "w-ger-p14"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #7 Maci Joncich",
+      "text": "COMPLETE PASS #29 Akemi Higa → #7 Maci Joncich",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Maci Joncich",
+        "number": "7",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p16/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "27"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b3-2b6d-741a-9ba5-246de341e1d9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-a8a4bbdbe296"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 53,
+    "context": {
+      "gameClockMs": 926788,
+      "half": 2,
+      "down": 2,
+      "ballOn": 17,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p16"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p16"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#29 Akemi Higa",
+      "text": "INCOMPLETE PASS #29 Akemi Higa",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b3-9eb6-74a7-88f8-4dcdd0ae04fc",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-aec8f32f9e64"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 54,
+    "context": {
+      "gameClockMs": 901173,
+      "half": 2,
+      "down": 3,
+      "ballOn": 17,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p17"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #32 Ashlea Klam",
+      "text": "COMPLETE PASS #29 Akemi Higa → #32 Ashlea Klam",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Ashlea Klam",
+        "number": "32",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p17/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "32"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b4-2e5b-771e-9097-0196a8b9243b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-b329dc4b6323"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 55,
+    "context": {
+      "gameClockMs": 835525,
+      "half": 2,
+      "down": 4,
+      "ballOn": 23,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#29 Akemi Higa",
+      "text": "INCOMPLETE PASS #29 Akemi Higa",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b4-b560-7181-9014-081c7a1c780b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-b4b7dbf29857"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 56,
+    "context": {
+      "gameClockMs": 832962,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b5-6657-717d-8113-b6095ecb1979",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-bbeffa5f5359"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 57,
+    "context": {
+      "gameClockMs": 766456,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b5-bfd9-7520-96ef-aea8c35f0212",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-bcd51fe87894"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 58,
+    "context": {
+      "gameClockMs": 766456,
+      "half": 2,
+      "down": 1,
+      "ballOn": 15,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "22",
+        "playerId": "w-usa-p18"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "22"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b6-0c6d-713e-8b02-1d3b4e8a1ef1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-c30d220e62f5"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 59,
+    "context": {
+      "gameClockMs": 698722,
+      "half": 2,
+      "down": 2,
+      "ballOn": 23,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "23",
+        "playerId": "w-usa-p9"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b6-ccc5-737f-9e2a-9a091a264e36",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-c7740292d12f"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 60,
+    "context": {
+      "gameClockMs": 673068,
+      "half": 2,
+      "down": 2,
+      "ballOn": 48,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "ILLEGAL_CONTACT"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b7-210a-72a5-864d-c939e8346c7b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-cac36b3ba663"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 61,
+    "context": {
+      "gameClockMs": 673068,
+      "half": 2,
+      "down": 1,
+      "ballOn": 49,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b7-82b4-772a-9aa1-d1dee35fba3f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-cc5106e35f72"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 62,
+    "context": {
+      "gameClockMs": 644747,
+      "half": 2,
+      "down": 2,
+      "ballOn": 49,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 18
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#14 Carla Törner (6 pts)",
+      "text": "TOUCHDOWN #14 Carla Törner (6 pts)",
+      "from": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b8-1067-7759-ac99-96b00e447a9b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-d09405937c0a"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 63,
+    "context": {
+      "gameClockMs": 601597,
+      "half": 2,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 24
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      },
+      {
+        "action": "TRY",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#14 Carla Törner (2 pts)",
+      "text": "TRY #14 Carla Törner (2 pts)",
+      "from": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      },
+      "points": 2
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b8-c824-7039-b275-059ef4432916",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-d462a049c330"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 64,
+    "context": {
+      "gameClockMs": 556835,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 21,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "5",
+        "playerId": "w-usa-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "9",
+        "playerId": "w-ger-p6"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #5 Madison Fulford",
+      "text": "COMPLETE PASS #29 Akemi Higa → #5 Madison Fulford",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Madison Fulford",
+        "number": "5",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "5"
+      },
+      "flagPulledBy": {
+        "number": "9"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b9-3f3b-7309-9551-61f8296ff6e5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-daf79fb9d89d"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 65,
+    "context": {
+      "gameClockMs": 530412,
+      "half": 2,
+      "down": 2,
+      "ballOn": 16,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 21,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #24 Kennedy Foster",
+      "text": "COMPLETE PASS #29 Akemi Higa → #24 Kennedy Foster",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Kennedy Foster",
+        "number": "24",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p7/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "24"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004b9-c947-70f1-a80d-37fa80250365",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-dcc66689eca5"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 66,
+    "context": {
+      "gameClockMs": 493752,
+      "half": 2,
+      "down": 1,
+      "ballOn": 30,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 21,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #24 Kennedy Foster",
+      "text": "COMPLETE PASS #29 Akemi Higa → #24 Kennedy Foster",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Kennedy Foster",
+        "number": "24",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p7/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "24"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ba-3cbe-712f-94ac-2800d148d769",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-e08ab3905895"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 67,
+    "context": {
+      "gameClockMs": 461668,
+      "half": 2,
+      "down": 2,
+      "ballOn": 40,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 21,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p17"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#32 Ashlea Klam (6 pts)",
+      "text": "TOUCHDOWN #32 Ashlea Klam (6 pts)",
+      "from": {
+        "name": "Ashlea Klam",
+        "number": "32",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p17/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "32"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ba-bf1e-77bf-9d43-a72635e4d4fd",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78c9-7382-8996-e5f2092cbc71"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 68,
+    "context": {
+      "gameClockMs": 424539,
+      "half": 2,
+      "ballOn": 45,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 27,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p16"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-usa-p16"
+      },
+      {
+        "action": "TRY",
+        "player": "7",
+        "playerId": "w-usa-p16"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#7 Maci Joncich (1 pt)",
+      "text": "TRY #7 Maci Joncich (1 pt)",
+      "from": {
+        "name": "Maci Joncich",
+        "number": "7",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p16/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004bb-4d77-73e3-8fc2-4a2f8685ce86",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78ca-73b9-820a-17b9a9e889e6"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 69,
+    "context": {
+      "gameClockMs": 391782,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 28,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004bb-f985-713b-b7aa-b2251aed591e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78ca-73b9-820a-19563949e642"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 70,
+    "context": {
+      "gameClockMs": 350062,
+      "half": 2,
+      "down": 2,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 28,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "22",
+        "playerId": "w-usa-p18"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "22"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004bc-63fe-718b-b4fe-24e81c4992ce",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78ca-73b9-820a-1ce0fb5fb141"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 71,
+    "context": {
+      "gameClockMs": 321581,
+      "half": 2,
+      "down": 3,
+      "ballOn": 12,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 28,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004bc-f9a3-7488-a9f5-ac134ac6aeaf",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78ca-73b9-820a-23bdb9561c6e"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 72,
+    "context": {
+      "gameClockMs": 288320,
+      "half": 2,
+      "down": 4,
+      "ballOn": 12,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 28,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "14",
+        "playerId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "14"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004bd-b068-7618-8772-c5f74a9d9da6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78ca-73b9-820a-263e8307e4c8"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 73,
+    "context": {
+      "gameClockMs": 200388,
+      "half": 2,
+      "down": 1,
+      "ballOn": 26,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 28,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p8"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004be-a220-723a-a43a-744320320dc2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.350Z",
+    "updatedAt": "2026-08-16T12:15:21.350Z",
+    "id": "01a00a7f-78ca-73b9-820a-29e36d80a896"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 74,
+    "context": {
+      "gameClockMs": 200388,
+      "half": 2,
+      "down": 1,
+      "ballOn": 26,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 28,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PENALTY",
+        "penaltyType": "PASS_INTERFERENCE"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "0a6a4d4a-36f0-416f-8708-e3e2be875223",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-2c8a4521bf9f"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 75,
+    "context": {
+      "gameClockMs": 183287,
+      "half": 2,
+      "down": 1,
+      "ballOn": 36,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 28,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "22",
+        "playerId": "w-usa-p18"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      },
+      "flagPulledBy": {
+        "number": "22"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004bf-0ecd-723a-a29f-50c7c701e70a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-31b1bbf7917a"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 76,
+    "context": {
+      "gameClockMs": 120874,
+      "half": 2,
+      "down": 2,
+      "ballOn": 42,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 28,
+        "away": 26
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "7",
+        "playerId": "w-ger-p4"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#7 Kyra Fischer (6 pts)",
+      "text": "TOUCHDOWN #7 Kyra Fischer (6 pts)",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c0-507e-700f-a1da-261fd96f73a0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-37fed0919805"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 77,
+    "context": {
+      "gameClockMs": 113806,
+      "half": 2,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 28,
+        "away": 32
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      },
+      {
+        "action": "TRY",
+        "player": "21",
+        "playerId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#21 Ellen Riess (2 pts)",
+      "text": "TRY #21 Ellen Riess (2 pts)",
+      "from": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      },
+      "points": 2
+    },
+    "players": {
+      "receiver": {
+        "number": "21"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c1-1ca8-7139-b785-252d14d83ab0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-3933f716d73e"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 78,
+    "context": {
+      "gameClockMs": 105189,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 28,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p7"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "24",
+        "playerId": "w-usa-p7"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #24 Kennedy Foster",
+      "text": "COMPLETE PASS #29 Akemi Higa → #24 Kennedy Foster",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Kennedy Foster",
+        "number": "24",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p7/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "24"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c1-c39c-70c0-84c1-d0dfcfc20849",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-3feb32b0e911"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 79,
+    "context": {
+      "gameClockMs": 102187,
+      "half": 2,
+      "down": 2,
+      "ballOn": 14,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 28,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p17"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "32",
+        "playerId": "w-usa-p17"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "82",
+        "playerId": "w-ger-p19"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #32 Ashlea Klam",
+      "text": "COMPLETE PASS #29 Akemi Higa → #32 Ashlea Klam",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Ashlea Klam",
+        "number": "32",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p17/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "32"
+      },
+      "flagPulledBy": {
+        "number": "82"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c2-6842-7109-9029-2e45fc7cc864",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-42ac5987d9bf"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 80,
+    "context": {
+      "gameClockMs": 39049,
+      "half": 2,
+      "down": 3,
+      "ballOn": 19,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 28,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "23",
+        "playerId": "w-usa-p9"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #23 Isabella Geraci",
+      "text": "COMPLETE PASS #29 Akemi Higa → #23 Isabella Geraci",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Isabella Geraci",
+        "number": "23",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "23"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c2-f9d1-740c-a2bf-ca18249fe5dd",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-44eec10029e3"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 81,
+    "context": {
+      "gameClockMs": 39049,
+      "half": 2,
+      "down": 1,
+      "ballOn": 27,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 28,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "5",
+        "playerId": "w-usa-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "9",
+        "playerId": "w-ger-p6"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #5 Madison Fulford",
+      "text": "COMPLETE PASS #29 Akemi Higa → #5 Madison Fulford",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Madison Fulford",
+        "number": "5",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "5"
+      },
+      "flagPulledBy": {
+        "number": "9"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c3-725b-707c-8de5-c8ed5024b948",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-49a0e12d23b0"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 82,
+    "context": {
+      "gameClockMs": 33000,
+      "half": 2,
+      "down": 2,
+      "ballOn": 34,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 28,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "5",
+        "playerId": "w-usa-p8"
+      },
+      {
+        "action": "FLAG_PULL",
+        "player": "11",
+        "playerId": "w-ger-p7"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#29 Akemi Higa → #5 Madison Fulford",
+      "text": "COMPLETE PASS #29 Akemi Higa → #5 Madison Fulford",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      },
+      "to": {
+        "name": "Madison Fulford",
+        "number": "5",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p8/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "5"
+      },
+      "flagPulledBy": {
+        "number": "11"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c4-57c8-70f8-a433-4816c7e8f3bb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-4e744ee10e44"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 83,
+    "context": {
+      "gameClockMs": 28184,
+      "half": 2,
+      "down": 3,
+      "ballOn": 40,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 28,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p8"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "5",
+        "playerId": "w-usa-p8"
+      },
+      {
+        "action": "TOUCHDOWN",
+        "player": "5",
+        "playerId": "w-usa-p8"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#5 Madison Fulford (6 pts)",
+      "text": "TOUCHDOWN #5 Madison Fulford (6 pts)",
+      "from": {
+        "name": "Madison Fulford",
+        "number": "5",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p8/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "receiver": {
+        "number": "5"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c5-4b99-729a-aa8c-9068b3c5a359",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-51037677efb3"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 84,
+    "context": {
+      "gameClockMs": 25000,
+      "half": 2,
+      "ballOn": 45,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 34,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "29",
+        "playerId": "w-usa-p13",
+        "intendedReceiverId": "w-usa-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "23",
+        "playerId": "w-usa-p9"
+      },
+      {
+        "action": "TRY",
+        "player": "23",
+        "playerId": "w-usa-p9"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#23 Isabella Geraci (1 pt)",
+      "text": "TRY #23 Isabella Geraci (1 pt)",
+      "from": {
+        "name": "Isabella Geraci",
+        "number": "23",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p9/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "receiver": {
+        "number": "23"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c7-1e22-77c9-a861-d5b3bd2de5f7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-563a6cddcd9c"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 85,
+    "context": {
+      "gameClockMs": 21424,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 35,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p9"
+      },
+      {
+        "action": "COMPLETE",
+        "player": "18",
+        "playerId": "w-ger-p9"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #18 Nora Cermak",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #18 Nora Cermak",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      }
+    },
+    "players": {
+      "receiver": {
+        "number": "18"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c7-b785-70b3-af3e-4bd1db71115e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-5a8010ea98fa"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 86,
+    "context": {
+      "gameClockMs": 21424,
+      "half": 2,
+      "down": 2,
+      "ballOn": 8,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 35,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p11"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c8-390a-725d-ab85-99909272cbb7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-5eef915a0cf0"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 87,
+    "context": {
+      "gameClockMs": 11295,
+      "half": 2,
+      "down": 3,
+      "ballOn": 8,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 35,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15",
+        "intendedReceiverId": "w-ger-p4"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c8-e6ad-70d1-99a0-65d0095c6d89",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-604fd7456d6c"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 88,
+    "context": {
+      "gameClockMs": 6733,
+      "half": 2,
+      "down": 4,
+      "ballOn": 8,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 35,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "PASS",
+        "player": "30",
+        "playerId": "w-ger-p15"
+      },
+      {
+        "action": "INCOMPLETE_PASS",
+        "player": "30",
+        "playerId": "w-ger-p15"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004c9-b6eb-70db-bc23-4fd213ada035",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.351Z",
+    "updatedAt": "2026-08-16T12:15:21.351Z",
+    "id": "01a00a7f-78ca-73b9-820a-65d7d223b9ea"
+  },
+  {
+    "gameId": "019ffff1-a8f8-7656-aaca-5f8856c4c8a4",
+    "playNumber": 89,
+    "context": {
+      "gameClockMs": 6733,
+      "half": 2,
+      "down": 1,
+      "ballOn": 5,
+      "possessionTeamId": "w-usa",
+      "score": {
+        "home": 35,
+        "away": 34
+      }
+    },
+    "sequence": [
+      {
+        "action": "RUSH",
+        "player": "29",
+        "playerId": "w-usa-p13"
+      }
+    ],
+    "outcome": {
+      "type": "RUN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#29 Akemi Higa",
+      "text": "RUN #29 Akemi Higa",
+      "from": {
+        "name": "Akemi Higa",
+        "number": "29",
+        "teamId": "w-usa",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-usa-p13/thumb.png"
+      }
+    },
+    "players": {
+      "ballCarrier": {
+        "number": "29"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "capturedPlayId": "01a004ca-734d-70dc-a70f-6bb5e6fecea5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": true,
+    "createdAt": "2026-08-16T12:15:21.352Z",
+    "updatedAt": "2026-08-16T12:15:21.352Z",
+    "id": "01a00a7f-78ca-73b9-820a-6bcf0a7eaa73"
+  }
+]

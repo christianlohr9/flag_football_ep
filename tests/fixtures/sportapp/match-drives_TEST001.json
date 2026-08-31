@@ -1,0 +1,95 @@
+{
+  "drives": [
+    {
+      "num": 0,
+      "drives": [
+        {
+          "team": {"id": "101", "threeLetters": "HOM"},
+          "yards": 30,
+          "timeOfPossession": "3:10",
+          "eventGroups": [
+            {
+              "summary": "#5 Jane Doe rush for 5 yards",
+              "actionTitle": "Rush",
+              "down": 1,
+              "downLabel": "1st",
+              "nextDown": 2,
+              "nextDownLabel": "2nd",
+              "target": 10,
+              "nextTarget": 10,
+              "startYardLine": {"yardLine": 20, "team": "101"},
+              "endYardLine": {"yardLine": 25, "team": "101"}
+            },
+            {
+              "summary": "#7 John Smith pass incomplete to #9 Amy Lee",
+              "actionTitle": "Pass incomplete",
+              "down": 2,
+              "downLabel": "2nd",
+              "nextDown": 3,
+              "nextDownLabel": "3rd",
+              "target": 5,
+              "nextTarget": 5,
+              "startYardLine": {"yardLine": 25, "team": "101"},
+              "endYardLine": {"yardLine": 25, "team": "101"}
+            },
+            {
+              "summary": "#7 John Smith pass complete to #9 Amy Lee for 15 yards",
+              "actionTitle": "Pass complete",
+              "down": 1,
+              "downLabel": "1st",
+              "nextDown": 1,
+              "nextDownLabel": "1st",
+              "target": 10,
+              "nextTarget": 10,
+              "startYardLine": {"yardLine": 25, "team": "101"},
+              "endYardLine": {"yardLine": 40, "team": "101"}
+            },
+            {
+              "summary": "#7 John Smith pass complete to #9 Amy Lee touchdown",
+              "actionTitle": "Touchdown",
+              "down": 2,
+              "downLabel": "2nd",
+              "nextDown": 0,
+              "nextDownLabel": "",
+              "target": 10,
+              "nextTarget": 0,
+              "startYardLine": {"yardLine": 40, "team": "101"},
+              "endYardLine": {"yardLine": 50, "team": "101"}
+            }
+          ]
+        },
+        {
+          "team": {"id": "101", "threeLetters": "HOM"},
+          "yards": 0,
+          "timeOfPossession": "0:20",
+          "eventGroups": [
+            {
+              "summary": "Point after attempt good",
+              "actionTitle": "PAT Good",
+              "down": 1,
+              "downLabel": "PAT 5 yards",
+              "nextDown": 0,
+              "nextDownLabel": "",
+              "target": "G",
+              "nextTarget": 0,
+              "startYardLine": {"yardLine": 5, "team": "101"},
+              "endYardLine": {"yardLine": 5, "team": "101"}
+            },
+            {
+              "summary": "Kickoff to the 20",
+              "actionTitle": "Kickoff",
+              "down": 1,
+              "downLabel": "1st",
+              "nextDown": 1,
+              "nextDownLabel": "1st",
+              "target": 20,
+              "nextTarget": 20,
+              "startYardLine": {"yardLine": 25, "team": "101"},
+              "endYardLine": {"yardLine": 25, "team": "101"}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

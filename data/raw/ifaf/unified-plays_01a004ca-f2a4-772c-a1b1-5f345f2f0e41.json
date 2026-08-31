@@ -1,0 +1,7108 @@
+[
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "3 Leslie Del Cid",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "3 Leslie Del Cid",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005e3-c1da-715e-9165-46f8e2c9080b"
+      ],
+      "playAnalysisId": "01a005e4-1fad-7181-8559-f8904b2d3c30",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.185Z",
+    "updatedAt": "2026-08-15T15:44:55.185Z",
+    "id": "01a00618-f8b8-7448-ae3a-1200eeb49d12"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 2,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Maria Elisa Baloy Galeano",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "11 Hannah Charlotte Bahn",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #33 Maria Galeano",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #33 Maria Galeano",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Maria Galeano",
+        "number": "33",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "33 Maria Elisa Baloy Galeano"
+      },
+      "flagPulledBy": {
+        "name": "11 Hannah Charlotte Bahn"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005e3-c311-705e-8c8b-5deb8ac2e821",
+        "01a005e3-efe0-72cf-a43e-5a5f0d50bee1",
+        "01a005e4-1ab7-77bb-a001-4016cfbde5dc",
+        "01a005e4-6380-72a8-85ed-2997edfd181b",
+        "01a005e4-8054-740b-a97b-54dc30b5cb38",
+        "01a005e4-80fc-76a3-98d5-3b7f2feb05b3",
+        "01a005e4-83ab-70cb-8fd5-ab40e2faf48a",
+        "01a005e4-fabd-7279-8c89-267fc9219a6f",
+        "01a005e5-17fe-71f7-bfba-2f7f453682f6"
+      ],
+      "playAnalysisId": "01a005e4-7f4d-77ad-b158-3b5e5812b4b1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8b9-723b-abf4-ddd6614b3873"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1162102,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "3 Leslie Del Cid",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Leslie Del Cid",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "82 Zoe Kwandae Song",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #3 Leslie Cid",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #3 Leslie Cid",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "3 Leslie Del Cid"
+      },
+      "flagPulledBy": {
+        "name": "82 Zoe Kwandae Song"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005e5-1c3d-761c-8e6b-97edd4594a3b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8b9-723b-abf4-e047b05c9cc2"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1104174,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 20,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Carolina Esther Ojo Atencio",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Saskia Macharia",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #13 Carolina Atencio",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #13 Carolina Atencio",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "13 Carolina Esther Ojo Atencio"
+      },
+      "flagPulledBy": {
+        "name": "9 Saskia Macharia"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005e5-6638-72b8-ab93-7b553a9be868",
+        "01a005e5-8912-72da-b623-26a2d7dfb536",
+        "01a005e5-89ba-753a-ac62-bf02973b9dcc",
+        "01a005e5-d49b-7639-a832-4d1ecf7f9e4d",
+        "01a005e6-5cce-7679-b956-c390502a38c7",
+        "01a005e6-773c-708f-815e-808dbc600f74",
+        "01a005e6-7aae-7339-93ac-58441c5a8e7d",
+        "01a005e6-d38c-72cd-806c-37be6e914ddb",
+        "01a005e7-7505-7114-aa26-c6041a119b21",
+        "01a005e7-8b2b-7647-9fac-3d283adc4615",
+        "01a005e8-7326-74d4-81d2-5c70297a22fc"
+      ],
+      "playAnalysisId": "01a005e5-97d7-724e-af25-11e7ea19f802",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8b9-723b-abf4-e4fa7ac99987"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 5,
+    "context": {
+      "gameClockMs": 1075928,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "note": "First down on the 20 yard line",
+        "role": "Statistician",
+        "team": "Panama"
+      },
+      {
+        "id": 2,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005e5-effa-72fd-b307-b04153a9de4b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8b9-723b-abf4-ea74a66dfbce"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 1075928,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "11 Hannah Charlotte Bahn",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "80 Clarisse Marie Castillo Escobar"
+      },
+      "flagPulledBy": {
+        "name": "11 Hannah Charlotte Bahn"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005e6-7fd3-759c-981b-db7fd05572b0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8b9-723b-abf4-ef2b9d0be454"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 1010636,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "note": "deflection Number 27 White"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005e7-0112-7707-821e-b1432928eb5f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8b9-723b-abf4-f02349c9e62c"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 8,
+    "context": {
+      "gameClockMs": 955315,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 35,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "PASS",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "9 Saskia Macharia",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      },
+      {
+        "id": 6,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#6 Angelina Janon → #9 Saskia Macharia",
+      "text": "INTERCEPTION #6 Angelina Janon → #9 Saskia Macharia",
+      "from": {
+        "name": "Angelina Janon",
+        "number": "6",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p6/thumb.png"
+      },
+      "to": {
+        "name": "Saskia Macharia",
+        "number": "9",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "interceptedBy": {
+        "name": "9 Saskia Macharia"
+      },
+      "flagPulledBy": {
+        "name": "80 Clarisse Marie Castillo Escobar"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005e8-ab2b-7580-85b3-5f7eeecf9995"
+      ],
+      "playAnalysisId": "01a005e8-cbab-7228-b59d-c714509c708d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8ba-7752-b142-eaacbe0cd799"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 9,
+    "context": {
+      "gameClockMs": 954590,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 35,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "30 Saskia Nühse",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005e8-ada3-749f-b302-a3d62db12202",
+        "01a005e8-b7ba-72dd-8405-e63138e73133",
+        "01a005e8-b837-707f-9d1b-8cf2086fb5ed",
+        "01a005e9-143c-7548-a5c3-1c7d8eb8ba23",
+        "01a005e9-960a-70c6-9927-6714f3847c85",
+        "01a005e9-aca7-76fe-9116-c844a8108e2e",
+        "01a005ea-1960-70f1-b3ee-4a1e4fe248dc"
+      ],
+      "playAnalysisId": "01a005e9-3b50-71cd-a7c6-91d7d2d929ba",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8ba-7752-b142-ee9a605372ca"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 10,
+    "context": {
+      "gameClockMs": 895171,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 White",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 White",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 White",
+        "action": "PASS",
+        "intendedReceiver": "14 White",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "14 White",
+        "action": "COMPLETE",
+        "note": "on the 10-yard line",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Defense",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 White"
+      },
+      "receiver": {
+        "name": "14 White"
+      },
+      "flagPulledBy": {
+        "name": "Defense"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005e9-c178-713f-8f3f-53d40fd5ff83",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8ba-7752-b142-f068affa8895"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 11,
+    "context": {
+      "gameClockMs": 889425,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "18 Nora Cermak",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "30 Saskia Nühse",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "18 Nora Cermak",
+        "note": "incomplete pass"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005ea-3b5e-73ee-a232-21f596554099",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8ba-7752-b142-f5b94ad5fc13"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 12,
+    "context": {
+      "gameClockMs": 814481,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 10,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "30 Saskia Nühse",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Panama"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ea-d12e-76de-be88-47d18440b3c0"
+      ],
+      "playAnalysisId": "01a005ea-f395-73e9-a779-e68aa0fc8cbb",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8ba-7752-b142-f892300ab5ed"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 813890,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 10,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ea-d342-757f-aab4-2d50c6130dbd",
+        "01a005ea-dee9-7641-96d3-42a214c55e34",
+        "01a005eb-9d73-71c8-a345-eaa831ed9157",
+        "01a005eb-d31f-760d-badf-fadff8f32c22"
+      ],
+      "playAnalysisId": "01a005eb-60d8-71c9-a430-c028fcc4fcdd",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8ba-7752-b142-ffecdebc406d"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 762183,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "3 Leslie Del Cid",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Leslie Del Cid",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "82 Zoe Kwandae Song",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #3 Leslie Cid",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #3 Leslie Cid",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "3 Leslie Del Cid"
+      },
+      "flagPulledBy": {
+        "name": "82 Zoe Kwandae Song"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005eb-d80b-748f-956b-7b7d507f79e0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.186Z",
+    "updatedAt": "2026-08-15T15:44:55.186Z",
+    "id": "01a00618-f8bc-709e-93b6-f32c064dce52"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 15,
+    "context": {
+      "gameClockMs": 715456,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 11,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Maria Elisa Baloy Galeano",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "11 Hannah Charlotte Bahn",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #33 Maria Galeano",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #33 Maria Galeano",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Maria Galeano",
+        "number": "33",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "33 Maria Elisa Baloy Galeano"
+      },
+      "flagPulledBy": {
+        "name": "11 Hannah Charlotte Bahn"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ec-53f5-74ee-b3db-3de4009c6a73",
+        "01a005ec-801e-77b8-ba02-7c6e1dcce86f",
+        "01a005ec-80ee-7258-8020-c64a1859e95e",
+        "01a005ec-c8e9-71ac-bb02-9e268cdcfeb9",
+        "01a005ec-d7da-751a-822b-2dd1289ab27f",
+        "01a005ed-30d6-770e-b5d4-8fc0547c6d4f"
+      ],
+      "playAnalysisId": "01a005ec-6ef5-717b-a5f0-ce3099b6c03c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.187Z",
+    "updatedAt": "2026-08-15T15:44:55.187Z",
+    "id": "01a00618-f8bc-709e-93b6-f47028ba431c"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 16,
+    "context": {
+      "gameClockMs": 703885,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "3 Leslie Del Cid",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "3 Leslie Del Cid",
+        "action": "PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "FLAG_PULL",
+        "note": "by the defense",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#3 Leslie Cid → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #3 Leslie Cid → #80 Clarisse Escobar",
+      "from": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "3 Leslie Del Cid"
+      },
+      "receiver": {
+        "name": "80 Clarisse Marie Castillo Escobar"
+      },
+      "flagPulledBy": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005ec-f232-736f-8fb8-3b312a292aac",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.187Z",
+    "updatedAt": "2026-08-15T15:44:55.187Z",
+    "id": "01a00618-f8bc-709e-93b6-f93362b81e2e"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 658916,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005ed-484e-7099-9a29-31e29dec62dc",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.187Z",
+    "updatedAt": "2026-08-15T15:44:55.187Z",
+    "id": "01a00618-f8bc-709e-93b6-ff2311a54541"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 18,
+    "context": {
+      "gameClockMs": 611812,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Maria Elisa Baloy Galeano",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "33 Maria Elisa Baloy Galeano",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#33 Maria Galeano (6 pts)",
+      "text": "TOUCHDOWN #33 Maria Galeano (6 pts)",
+      "from": {
+        "name": "Maria Galeano",
+        "number": "33",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p10/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "33 Maria Elisa Baloy Galeano"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ed-e8da-746f-88da-6e6095b0e4ed",
+        "01a005ed-f766-72da-9559-95c6651f0fdc"
+      ],
+      "playAnalysisId": "01a005ed-f998-733a-a4fb-bfed1829717d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.187Z",
+    "updatedAt": "2026-08-15T15:44:55.187Z",
+    "id": "01a00618-f8bd-762d-be88-650bdfe65365"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 19,
+    "context": {
+      "gameClockMs": 582692,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "role": "Quarterback",
+        "team": "Panama"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ee-5a56-761d-8865-14a0a3fe5610",
+        "01a005ee-5c66-753f-8298-01ffb3337f02",
+        "01a005ee-63e6-711f-9776-5f522923c0d1",
+        "01a005ee-64aa-7376-915d-0a1c39fc23eb"
+      ],
+      "playAnalysisId": "01a005ee-7785-76a4-bc0e-b1b9b34eaf12",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.187Z",
+    "updatedAt": "2026-08-15T15:44:55.187Z",
+    "id": "01a00618-f8bd-762d-be88-6a9a4eebffcd"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 537454,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 0,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "14 Carla Charlotte Törner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "14 Carla Charlotte Törner",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#14 Carla Törner (6 pts)",
+      "text": "TOUCHDOWN #14 Carla Törner (6 pts)",
+      "from": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "14 Carla Charlotte Törner"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ef-0b55-7079-839d-7477867e9c79",
+        "01a005ef-1732-7757-9b58-d06b9c303015"
+      ],
+      "playAnalysisId": "01a005ee-fba6-768e-9a2c-c57c5cd8595d",
+      "penaltyAnalysisIds": [
+        "01a005ef-cbc2-711e-bf6b-aa90704952fd"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.187Z",
+    "updatedAt": "2026-08-15T15:44:55.187Z",
+    "id": "01a00618-f8bd-762d-be88-6ee7c74e04dd"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 21,
+    "context": {
+      "gameClockMs": 454422,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 6,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "14 Carla Charlotte Törner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "14 Carla Charlotte Törner",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#14 Carla Törner (2 pts)",
+      "text": "TRY #14 Carla Törner (2 pts)",
+      "from": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      },
+      "points": 2
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "14 Carla Charlotte Törner"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f0-500e-7128-a89a-04a5c85f7585",
+        "01a005f0-508d-76da-b87e-45da61394196"
+      ],
+      "playAnalysisId": "01a005f0-6337-7137-af0b-e9707efeccec",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.187Z",
+    "updatedAt": "2026-08-15T15:44:55.187Z",
+    "id": "01a00618-f8be-70be-842a-231aaad7147f"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 22,
+    "context": {
+      "gameClockMs": 450908,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "note": "First down",
+        "role": "Statistician",
+        "team": "Panama"
+      },
+      {
+        "id": 2,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "passDirection": "LEFT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "11 Hannah Charlotte Bahn",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "80 Clarisse Marie Castillo Escobar"
+      },
+      "flagPulledBy": {
+        "name": "11 Hannah Charlotte Bahn"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f0-5d32-733a-91d2-e64aa167fe83",
+        "01a005f0-731b-7226-b3ea-3572530d3ff0",
+        "01a005f0-b901-7768-a2f7-7d2cdb1e1b69",
+        "01a005f0-ce31-76d8-8ec6-c9fd198a7039",
+        "01a005f0-d30e-73a0-a8a7-bc7965308852",
+        "01a005f1-2c90-77c9-85d3-a58a0fc04325",
+        "01a005f1-d0ed-7162-a8d1-fc42a78146d9"
+      ],
+      "playAnalysisId": "01a005f0-cd49-773b-9ce3-ba418bddc806",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.187Z",
+    "updatedAt": "2026-08-15T15:44:55.187Z",
+    "id": "01a00618-f8be-70be-842a-26652b6865c6"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 23,
+    "context": {
+      "gameClockMs": 397859,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f1-42de-743f-b9c3-7c05f1585462",
+      "penaltyAnalysisIds": [
+        "01a005f1-f61f-72b1-99a5-90fadac64b9e"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.187Z",
+    "updatedAt": "2026-08-15T15:44:55.187Z",
+    "id": "01a00618-f8be-70be-842a-2af2b2e24d44"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 24,
+    "context": {
+      "gameClockMs": 354921,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 17,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Maria Elisa Baloy Galeano",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "11 Hannah Charlotte Bahn",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #33 Maria Galeano",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #33 Maria Galeano",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Maria Galeano",
+        "number": "33",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "33 Maria Elisa Baloy Galeano"
+      },
+      "flagPulledBy": {
+        "name": "11 Hannah Charlotte Bahn"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f1-d495-7398-91fc-2f0d479a1a04",
+        "01a005f1-e5de-71a8-bade-a567ed1ff517",
+        "01a005f1-e695-72ef-92cf-6426e9ea37c0",
+        "01a005f1-eeab-70ea-941e-672fe33ee40b",
+        "01a005f1-f266-7208-899e-b9d9a918f204",
+        "01a005f2-2180-74fd-a0e1-e371b3c76b85",
+        "01a005f2-4470-75d9-99de-902eb1de66be",
+        "01a005f2-48ef-74ee-9a18-874ad004d985",
+        "01a005f2-4d73-728e-bcde-c8ce3a4fcb72",
+        "01a005f2-b1f6-700e-b762-4b609126b636",
+        "01a005f2-cb2e-71da-aef2-7428b68fc2a3",
+        "01a005f2-d0b7-74dc-88c1-1370a007c0e8",
+        "01a005f3-33c9-746a-b721-c23a54619eea"
+      ],
+      "playAnalysisId": "01a005f2-3d0d-70a0-baa0-905266a703e2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.188Z",
+    "updatedAt": "2026-08-15T15:44:55.188Z",
+    "id": "01a00618-f8be-70be-842a-2e6cec49d6f3"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 25,
+    "context": {
+      "gameClockMs": 323876,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "8 Red",
+        "action": "LATERAL",
+        "note": "Quick backward pass"
+      },
+      {
+        "id": 4,
+        "player": "8 Red",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "13 Carolina Esther Ojo Atencio",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "27 Dora Jung",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#8 → #13 Carolina Atencio",
+      "text": "COMPLETE PASS #8 → #13 Carolina Atencio",
+      "from": {
+        "number": "8"
+      },
+      "to": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "13 Carolina Esther Ojo Atencio"
+      },
+      "flagPulledBy": {
+        "name": "27 Dora Jung"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f2-d45f-734b-9c5b-04dc41da783b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.234Z",
+    "updatedAt": "2026-08-15T15:44:55.234Z",
+    "id": "01a00618-f8bf-7142-b8cf-a44dd88445b1"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 26,
+    "context": {
+      "gameClockMs": 290368,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "LEFT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f3-4b4c-71ee-9f59-0d4aaee32775",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.235Z",
+    "updatedAt": "2026-08-15T15:44:55.235Z",
+    "id": "01a00618-f8bf-7142-b8cf-aa0d85f804d6"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 27,
+    "context": {
+      "gameClockMs": 221817,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 44,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "6 Angelina Isabel Jurado De Janon",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #6 Angelina Janon",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #6 Angelina Janon",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Angelina Janon",
+        "number": "6",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "6 Angelina Isabel Jurado De Janon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f3-dc4f-76e1-b5ed-69e2f63c31b3"
+      ],
+      "playAnalysisId": "01a005f3-f804-7353-b3a4-ecc83aa79d10",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.235Z",
+    "updatedAt": "2026-08-15T15:44:55.235Z",
+    "id": "01a00618-f8bf-7142-b8cf-adfee19602b2"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 28,
+    "context": {
+      "gameClockMs": 221167,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 44,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "7 Kyra Fischer",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Kyra Fischer",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Ana Patricia Vincensini",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "7 Kyra Fischer"
+      },
+      "flagPulledBy": {
+        "name": "23 Ana Patricia Vincensini"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f3-de94-710c-8545-424b2efbdd07",
+        "01a005f4-4484-73df-b510-764c75ce560a",
+        "01a005f4-64c6-759d-93e5-dc2e16a5af0c",
+        "01a005f4-6542-7750-8044-858d8c61dc8d",
+        "01a005f4-6b65-7365-b067-ab8477fd237a",
+        "01a005f4-ec2f-70a1-be5a-2316a3e26e43",
+        "01a005f5-78b3-73e8-925e-e54838a726f2",
+        "01a005f5-82f2-7078-a66b-9ea1a936621e",
+        "01a005f5-8917-7336-9228-f8e919c39b5b",
+        "01a005f5-8a4f-756b-a12e-190d772a5a36",
+        "01a005f5-8ba0-70b0-b587-d96d4deb7a98",
+        "01a005f5-8cef-7469-b9f7-6320c57675eb",
+        "01a005f5-8e18-70b2-bbf8-3fbe906ba6b2",
+        "01a005f5-8fac-700a-a240-69c903d07b84",
+        "01a005f5-91f4-730d-bb16-d4a9553e3ed2",
+        "01a005f5-eb03-711a-ba23-e1a1f0a17853"
+      ],
+      "playAnalysisId": "01a005f4-61a1-7033-9af0-f182eaeadf02",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.235Z",
+    "updatedAt": "2026-08-15T15:44:55.235Z",
+    "id": "01a00618-f8bf-7142-b8cf-b21cf83b07db"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 29,
+    "context": {
+      "gameClockMs": 185120,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 White",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "13 White",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "13 White",
+        "action": "PASS",
+        "intendedReceiver": "21 White",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 White",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "21 White",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#13 Carolina Atencio",
+      "text": "INCOMPLETE PASS #13 Carolina Atencio",
+      "from": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "13 White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f4-e68f-779e-96f1-8f5455038e5d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.236Z",
+    "updatedAt": "2026-08-15T15:44:55.236Z",
+    "id": "01a00618-f8bf-7142-b8cf-b54ce52f0edb"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 30,
+    "context": {
+      "gameClockMs": 152227,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 White",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 White",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 White",
+        "action": "PASS",
+        "intendedReceiver": "21 White",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 White",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "50 Red",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 White"
+      },
+      "receiver": {
+        "name": "21 White"
+      },
+      "flagPulledBy": {
+        "name": "50 Red"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f5-9709-77c5-9c22-450c1fcfbe8e",
+      "penaltyAnalysisIds": [
+        "01a005f5-ed3a-74f2-91ee-4c0b97559d1d"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.236Z",
+    "updatedAt": "2026-08-15T15:44:55.236Z",
+    "id": "01a00618-f8bf-7142-b8cf-b8ca876d3a5e"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 31,
+    "context": {
+      "gameClockMs": 120680,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 12,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte T%C3%B6rner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia N%C3%BChse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia N%C3%BChse",
+        "action": "INCOMPLETE_PASS",
+        "note": "no intended receiver"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia N%C3%BChse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f5-ef81-7462-800b-b0b28afd6a8a",
+        "01a005f6-109f-775a-9fd8-05d20e420222",
+        "01a005f6-113d-75de-a45d-c1260553c659",
+        "01a005f6-18ab-7170-aabc-a1b32c957a3e",
+        "01a005f6-1db4-748e-819e-684ac75751f6",
+        "01a005f6-2c72-7528-b325-797935a31b17",
+        "01a005f6-4672-76f8-b8cf-4237d3cec02a",
+        "01a005f6-ac08-7238-9f27-4749af0f6ea9",
+        "01a005f6-e19c-7365-a12f-701b2c6bcc8f",
+        "01a005f6-f6d5-743a-bbb2-0fac144a1939",
+        "01a005f6-fa91-744f-ad8f-94614510760e",
+        "01a005f6-ff04-702e-a2bd-48a83d6177b8",
+        "01a005f7-76a6-71f6-a720-fe344fc1ecf6"
+      ],
+      "playAnalysisId": "01a005f6-53e3-75d9-ae52-f9ad926dc524",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.236Z",
+    "updatedAt": "2026-08-15T15:44:55.236Z",
+    "id": "01a00618-f8bf-7142-b8cf-bc4e725b4726"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 32,
+    "context": {
+      "gameClockMs": 117380,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "18 Nora Cermak",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "30 Saskia Nühse",
+        "action": "LATERAL"
+      },
+      {
+        "id": 5,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "21 Ellen Riess",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "21 Ellen Riess",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 7,
+        "player": "50 Karla Carolina Holder Quintero",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "21 Ellen Riess"
+      },
+      "flagPulledBy": {
+        "name": "50 Karla Carolina Holder Quintero"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f6-f301-72d8-bf3f-eaafabcbac81",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.237Z",
+    "updatedAt": "2026-08-15T15:44:55.237Z",
+    "id": "01a00618-f8c0-7028-a985-6e0665a07f38"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 33,
+    "context": {
+      "gameClockMs": 65842,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 44,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 8,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Kyra Fischer",
+        "action": "HAND_OFF",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 4,
+        "player": "7 Kyra Fischer",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#7 Kyra Fischer (6 pts)",
+      "text": "TOUCHDOWN #7 Kyra Fischer (6 pts)",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f7-9ade-7267-94c5-1e10aa1fe4eb"
+      ],
+      "playAnalysisId": "01a005f7-93a0-75fc-9567-8cbb9a14e39a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.237Z",
+    "updatedAt": "2026-08-15T15:44:55.237Z",
+    "id": "01a00618-f8c0-7028-a985-7328097c9b67"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 34,
+    "context": {
+      "gameClockMs": 65842,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 44,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 14,
+        "away": 6
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f7-a652-75aa-800f-9f906344e4c0",
+        "01a005f7-ad2d-737d-b232-c45b34ab3263"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.237Z",
+    "updatedAt": "2026-08-15T15:44:55.237Z",
+    "id": "01a00618-f8c0-7028-a985-7701bdceb5e5"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 35,
+    "context": {
+      "gameClockMs": 65842,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 14,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "21 Ellen Riess",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ellen Riess",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "21 Ellen Riess",
+        "action": "TOUCHDOWN",
+        "note": "Extra point Germany is good",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#21 Ellen Riess (1 pt)",
+      "text": "TRY #21 Ellen Riess (1 pt)",
+      "from": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "21 Ellen Riess"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f8-3112-73c7-9fbc-548990e6f841",
+        "01a005f8-3191-740a-abcd-f53168e882a6"
+      ],
+      "playAnalysisId": "01a005f8-4f6e-766b-b85c-0b5a2f3ceb06",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.237Z",
+    "updatedAt": "2026-08-15T15:44:55.237Z",
+    "id": "01a00618-f8c0-7028-a985-7affe9eb7d36"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 36,
+    "context": {
+      "gameClockMs": 65842,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 15,
+        "away": 6
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005f8-3da3-7678-b65e-a9d791bf4f02",
+        "01a005f8-5c2d-754e-b44a-6e4dad482436",
+        "01a005f8-5cf9-7482-ad3c-dd4e856cdb96",
+        "01a005f8-5e2c-71ec-af1f-bb3cb70ce59a",
+        "01a005f8-5f4b-7529-90d4-930d12c30196",
+        "01a005f8-6114-71b6-8770-28fd103811a9",
+        "01a005f8-7e47-7555-a257-3707601a2547",
+        "01a005f8-7ef1-72cb-a391-1cbed40f1bf3",
+        "01a005f8-9671-7431-9713-9ad55644fdbb",
+        "01a005f8-b11b-7428-abc1-b3ea3f83e63b",
+        "01a005f8-bac5-71fc-895b-0f2a43f67aa7",
+        "01a005f8-e204-725f-b144-994ff87e5da3",
+        "01a005f8-e5df-71cc-a70d-25f807214b0e",
+        "01a005f9-4806-72f2-b587-43dc0c1211e8",
+        "01a005f9-96c3-75a8-a096-9ca7951c6272",
+        "01a005f9-a30e-734a-b406-ea7e8f72d0e3",
+        "01a005f9-ad67-76cb-b4a3-0dc0caa974f6",
+        "01a005f9-bb46-70ef-875a-63f287e8684c",
+        "01a005f9-db1e-728a-bee2-4c89561c0eef",
+        "01a005fa-4e06-773e-8b90-a2eeb31d8fa8"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.237Z",
+    "updatedAt": "2026-08-15T15:44:55.237Z",
+    "id": "01a00618-f8c0-7028-a985-7cf0c5efb305"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 37,
+    "context": {
+      "gameClockMs": 64292,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 15,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "27 Dora Jung",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "80 Clarisse Marie Castillo Escobar"
+      },
+      "flagPulledBy": {
+        "name": "27 Dora Jung"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f9-8236-77d8-bc3a-89a7042c89ae",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.237Z",
+    "updatedAt": "2026-08-15T15:44:55.237Z",
+    "id": "01a00618-f8c0-7028-a985-83fdb191b17d"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 38,
+    "context": {
+      "gameClockMs": 41147,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 15,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005f9-caa7-731e-a6ab-a8f93906fde0",
+      "penaltyAnalysisIds": [
+        "01a005fa-7737-7766-8eb1-6935e948efed"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.237Z",
+    "updatedAt": "2026-08-15T15:44:55.237Z",
+    "id": "01a00618-f8c0-7028-a985-865a50e8bf2d"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 39,
+    "context": {
+      "gameClockMs": 41147,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 10,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 15,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Carolina Esther Ojo Atencio",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "27 Dora Jung",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #13 Carolina Atencio",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #13 Carolina Atencio",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "13 Carolina Esther Ojo Atencio"
+      },
+      "flagPulledBy": {
+        "name": "27 Dora Jung"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005fa-5243-7458-9131-bedfa5640245",
+        "01a005fa-65a8-71a8-add6-725727663532",
+        "01a005fa-663f-72c0-9b7f-31117e75ffe1",
+        "01a005fa-6f1b-712a-8c21-37f304f6103f",
+        "01a005fa-75fc-74ed-8ff0-3c997c811e7a",
+        "01a005fa-90fc-70fc-ab32-a10ddc6d905b",
+        "01a005fa-e028-718e-a672-d0f340cc2546",
+        "01a005fa-ec2d-71fb-a38c-afcffa9feb79",
+        "01a005fb-0830-754d-af37-f009701c50b9",
+        "01a005fb-52ce-738c-a61b-bc1dfe93e985",
+        "01a005fb-f39f-7539-9221-cbea28583ef2",
+        "01a005fc-05f7-73cd-be40-ce2d5a4ea1bf"
+      ],
+      "playAnalysisId": "01a005fa-c3c0-7741-8531-c6a524573fd0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c0-7028-a985-8923da4f9057"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 40,
+    "context": {
+      "gameClockMs": 41147,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 15,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Saskia Macharia",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "80 Clarisse Marie Castillo Escobar"
+      },
+      "flagPulledBy": {
+        "name": "9 Saskia Macharia"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005fa-fdd6-7275-b2e9-5fd891ec13ac",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c0-7028-a985-8face08269ef"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 41,
+    "context": {
+      "gameClockMs": 16947,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 15,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Red",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Red",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Red",
+        "action": "PASS",
+        "intendedReceiver": "13 Red",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Red",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "13 Red",
+        "action": "TOUCHDOWN",
+        "note": "Panama Touchdown",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Carolina Atencio (6 pts)",
+      "text": "TOUCHDOWN #13 Carolina Atencio (6 pts)",
+      "from": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Red"
+      },
+      "receiver": {
+        "name": "13 Red"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005fc-2026-753d-bb81-c821c19e32f2",
+        "01a005fc-3d71-765e-a864-4147bc19949f"
+      ],
+      "playAnalysisId": "01a005fc-3049-7739-93aa-46b5d064da62",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c0-7028-a985-90170fdba4d7"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 42,
+    "context": {
+      "gameClockMs": 16947,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 15,
+        "away": 12
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP2",
+      "scoringPlay": true,
+      "pointsScored": 2,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005fc-a4f5-749f-a86c-8965fd63513e",
+        "01a005fc-a56a-726e-9537-cccc0a439a5b"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c0-7028-a985-97ca89cc9a2d"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 43,
+    "context": {
+      "gameClockMs": 16947,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 15,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 White",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 White",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 White",
+        "action": "PASS",
+        "intendedReceiver": "18 White",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 White",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #18 Nora Cermak",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #18 Nora Cermak",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 White"
+      },
+      "receiver": {
+        "name": "18 White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005fc-aee6-7346-8a6a-8716d20ef1e0",
+        "01a005fc-b751-74ae-aa4d-4c240640aca9",
+        "01a005fc-b7bb-714e-9f38-377492d9b1c6",
+        "01a005fd-0a5c-728f-a7ab-1b87481a629a",
+        "01a005fd-1b18-71cd-b975-51d6967f9717",
+        "01a005fd-2480-725c-b57a-38026ec22802",
+        "01a005fd-3aa3-7172-9157-9a580f4b52e1",
+        "01a005fd-8f24-742e-bd1e-535f7f552636",
+        "01a005fd-a52d-773c-aa7c-a494aed03886"
+      ],
+      "playAnalysisId": "01a005fd-4bae-708e-b568-75c722333ef3",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c0-7028-a985-9b2bc1b7a7d3"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 44,
+    "context": {
+      "gameClockMs": 7558,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 15,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "21 Ellen Riess",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ellen Riess",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Ana Patricia Vincensini",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "21 Ellen Riess"
+      },
+      "flagPulledBy": {
+        "name": "23 Ana Patricia Vincensini"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005fd-aef0-75ab-92cf-d9a8c3c849f4",
+        "01a005fd-cc95-772f-a3db-16c79f5c037c",
+        "01a005fd-cd1f-70bb-9977-309731976710",
+        "01a005fe-2de6-7614-b520-0ef6005aa933",
+        "01a005fe-3fe3-70da-a155-d65162147b5f",
+        "01a005fe-7026-7499-98c5-6a0e6dba4e2e",
+        "01a005fe-a37f-77bb-a39d-778076301f27",
+        "01a005fe-a6e6-75e0-b7db-4faa4529fe29",
+        "01a005fe-aa24-7498-a512-ebc5571b1afd",
+        "01a005fe-ae7b-751c-9742-bae0daf64173",
+        "01a005fe-fe10-7698-953d-2124387fae16"
+      ],
+      "playAnalysisId": "01a005fd-d93e-75ea-9160-6cc9593f2df8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c1-7489-a54d-30911de92d2b"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 45,
+    "context": {
+      "gameClockMs": 3254,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 15,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "21 Ellen Riess",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ellen Riess",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Kaja Bins",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "21 Ellen Riess"
+      },
+      "flagPulledBy": {
+        "name": "5 Kaja Bins"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a005fe-6aa3-70db-a836-f6572aa66295",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c1-7489-a54d-37d38bc4f510"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 46,
+    "context": {
+      "gameClockMs": 0,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 38,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 15,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "7 Kyra Fischer",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Kyra Fischer",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "7 Kyra Fischer",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#7 Kyra Fischer (6 pts)",
+      "text": "TOUCHDOWN #7 Kyra Fischer (6 pts)",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "7 Kyra Fischer"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a005ff-3718-7318-8981-bcb54e0ee1c1",
+        "01a005ff-5589-74bb-908a-ac97928781cb",
+        "01a005ff-ee12-754c-965e-54d63190e036",
+        "01a005ff-ee85-71de-a550-f04498c8e77b"
+      ],
+      "playAnalysisId": "01a005ff-3d4e-70bc-9072-575d3d72dfc5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c1-7489-a54d-3af2e662e227"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 47,
+    "context": {
+      "gameClockMs": 0,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "30 Saskia Nühse",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00600-024f-764e-92e0-c1682b4241fe",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c2-74fa-9b54-c64bcb0120c6"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 48,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "18 Nora Cermak",
+        "note": "Backward pass",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "18 Nora Cermak",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "30 Saskia Nühse",
+        "action": "LATERAL",
+        "note": "Backward pass"
+      },
+      {
+        "id": 6,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 7,
+        "player": "14 Carla Charlotte Törner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 8,
+        "player": "50 Karla Carolina Holder Quintero",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #18 Nora Cermak",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #18 Nora Cermak",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "18 Nora Cermak"
+      },
+      "flagPulledBy": {
+        "name": "50 Karla Carolina Holder Quintero"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00602-8138-72ee-b72d-35ecefb7c79d",
+        "01a00602-81bf-75ac-b905-5d085a8cf33d",
+        "01a00602-8a2e-779c-9aa4-70be31cf82ea",
+        "01a00602-8ac7-72bf-b310-63fd5b6c6d87",
+        "01a00602-a8f2-73f5-8f35-9cab9f46ef86",
+        "01a00602-e400-7324-9f98-2576777f350d",
+        "01a00602-e69f-76b3-8d52-b044a9acb43d",
+        "01a00602-ec49-74cf-8650-24cd80d8c481",
+        "01a00602-ecc3-748c-b334-72d3fdaf7a3d",
+        "01a00602-fc59-71de-98ca-4da0fb4b81bf",
+        "01a00603-5eea-728a-9fec-fb4c4c8e2d53",
+        "01a00603-8c6e-77f8-8826-ec5ffa3a7d1f",
+        "01a00603-8fb4-7738-93e5-d1f5891ed83d",
+        "01a00603-9429-719d-a9c9-ee74af8ac86a",
+        "01a00603-97fc-703f-818e-053952c05050",
+        "01a00603-dea9-702c-9582-6c98b8f1853b",
+        "01a00604-0451-721e-8963-92485910353d",
+        "01a00604-0866-72aa-af1a-27cbdd1caf6b"
+      ],
+      "playAnalysisId": "01a00602-efae-71f9-b411-6acb60590003",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c2-74fa-9b54-caefbd69125b"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 49,
+    "context": {
+      "gameClockMs": 1178722,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "21 Ellen Riess",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ellen Riess",
+        "action": "COMPLETE",
+        "note": "Steps out of bounds at the 8 yard line",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "21 Ellen Riess"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00603-8097-7301-9761-7039c8efeb94",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c2-74fa-9b54-cd6cc609c88b"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 50,
+    "context": {
+      "gameClockMs": 1138730,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "18 Nora Cermak",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "18 Nora Cermak",
+        "action": "PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "passDirection": "RIGHT",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "14 Carla Charlotte Törner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#18 Nora Cermak → #14 Carla Törner",
+      "text": "COMPLETE PASS #18 Nora Cermak → #14 Carla Törner",
+      "from": {
+        "name": "Nora Cermak",
+        "number": "18",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p9/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "18 Nora Cermak"
+      },
+      "receiver": {
+        "name": "14 Carla Charlotte Törner"
+      },
+      "flagPulledBy": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00604-0ec4-74b8-8f06-80cfe66eb2b4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c2-74fa-9b54-d2f8b735cd4b"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 51,
+    "context": {
+      "gameClockMs": 1067153,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 47,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 21,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "18 Nora Cermak",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "LATERAL",
+        "note": "received lateral"
+      },
+      {
+        "id": 4,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "7 Kyra Fischer",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "7 Kyra Fischer",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "7 Kyra Fischer",
+        "action": "TOUCHDOWN",
+        "note": "Germany touchdown",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#7 Kyra Fischer (6 pts)",
+      "text": "TOUCHDOWN #7 Kyra Fischer (6 pts)",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "18 Nora Cermak"
+      },
+      "receiver": {
+        "name": "7 Kyra Fischer"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00604-afe8-76e9-bd7d-4b085a49dd6c",
+        "01a00604-c7ea-77dd-ba1c-e8dd0e69c4cd"
+      ],
+      "playAnalysisId": "01a00604-ad90-7389-ba78-b2b483df4398",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c2-74fa-9b54-d44f219abed8"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 52,
+    "context": {
+      "gameClockMs": 1026775,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Carolina Esther Ojo Atencio",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "9 Saskia Macharia",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #13 Carolina Atencio",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #13 Carolina Atencio",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "13 Carolina Esther Ojo Atencio"
+      },
+      "flagPulledBy": {
+        "name": "9 Saskia Macharia"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00605-4d20-7271-9fdd-5ff12551deb1",
+        "01a00605-4da7-761d-b233-e337bef01518",
+        "01a00605-5617-71ea-ae55-f8f307714dd1",
+        "01a00605-56a9-71ed-a6ae-7a2d87372e6c",
+        "01a00605-b330-7078-a4cf-5d7c8b6a84f5",
+        "01a00605-d62c-70fc-a381-0a77a41bb1f3",
+        "01a00605-da19-769d-852e-c456ca4ccf5e",
+        "01a00606-3778-7412-8f6c-74a6d7164ec1",
+        "01a00606-f862-7638-84ff-843bc575df7a"
+      ],
+      "playAnalysisId": "01a00605-d453-739c-89fb-5d631989581f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c2-74fa-9b54-d97d4b045e43"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 53,
+    "context": {
+      "gameClockMs": 966894,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00606-d639-726f-b5d3-edf93d96d759",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c2-74fa-9b54-dea9fe6923bc"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 54,
+    "context": {
+      "gameClockMs": 888906,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "note": "Incomplete pass",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00607-67db-712a-a7a2-5ccfbc487439"
+      ],
+      "playAnalysisId": "01a00607-7b5a-76ff-81b4-ac4f10fc8c4b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.238Z",
+    "updatedAt": "2026-08-15T15:44:55.238Z",
+    "id": "01a00618-f8c3-75be-bab6-3ca1aaac347f"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 55,
+    "context": {
+      "gameClockMs": 888455,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 White",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 White",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 White",
+        "action": "PASS",
+        "intendedReceiver": "21 White",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "30 White",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "21 White",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 White"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00607-6977-75dd-b8f5-3c4f6dfe701c",
+        "01a00607-7545-75ec-9f14-bbfb4c2f930c",
+        "01a00607-f576-728c-8820-ba4b27131be2",
+        "01a00608-9e0c-77fe-aaaf-69b9f901b4d6",
+        "01a00609-37dc-77c8-a50e-4ed7ea01a924",
+        "01a00609-491c-752e-84a6-1866e3159422",
+        "01a00609-4d47-7554-88a7-78c54874b22d",
+        "01a00609-691d-7117-9eb9-23fffa772de2",
+        "01a00609-6d16-774a-9d50-ee050e4ddfcf",
+        "01a00609-dcf4-717a-a038-7ffdee21e125",
+        "01a00609-e15a-772a-a6c7-eefaa26919ac",
+        "01a0060a-11b8-76fb-9a1a-8c3cfbd3f2cf",
+        "01a0060a-28f4-75a1-b989-3de2500ff16c"
+      ],
+      "playAnalysisId": "01a00608-1805-76ca-bb4e-d7522e1c6b25",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c3-75be-bab6-42e2d8537f16"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 56,
+    "context": {
+      "gameClockMs": 852664,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Kyra Fischer",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "30 Saskia Nühse",
+        "action": "LATERAL"
+      },
+      {
+        "id": 5,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "21 Ellen Riess",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "30 Saskia Nühse",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "21 Ellen Riess",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#30 Saskia Nühse",
+      "text": "INCOMPLETE PASS #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00608-bd61-73b8-bdbe-ad34cc4975a3",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c3-75be-bab6-46f3536ef9a4"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 57,
+    "context": {
+      "gameClockMs": 809561,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "7 Kyra Fischer",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Kyra Fischer",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Ana Patricia Vincensini",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "7 Kyra Fischer"
+      },
+      "flagPulledBy": {
+        "name": "23 Ana Patricia Vincensini"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00609-639e-7794-8697-d79390bfa9f2",
+      "penaltyAnalysisIds": [
+        "01a0060a-161a-733b-bfd8-92d2bb2b535b"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c3-75be-bab6-4ac8ef1f6d01"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 58,
+    "context": {
+      "gameClockMs": 676905,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 8,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 White",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 White",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "18 White",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "30 White",
+        "action": "LATERAL"
+      },
+      {
+        "id": 5,
+        "player": "7 White",
+        "action": "LATERAL"
+      },
+      {
+        "id": 6,
+        "player": "10",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      },
+      {
+        "id": 7,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Panama"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 White"
+      },
+      "flagPulledBy": {
+        "number": "10"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0060a-a403-763b-a2e9-4629811c1735"
+      ],
+      "playAnalysisId": "01a0060a-d8e7-76ba-a224-1851cc4cb32e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c3-75be-bab6-4d7a3351870a"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 59,
+    "context": {
+      "gameClockMs": 676469,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 8,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "80 Clarisse Marie Castillo Escobar",
+        "passDirection": "RIGHT",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "27 Dora Jung",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Orlanda Castro → #80 Clarisse Escobar",
+      "text": "COMPLETE PASS #7 Orlanda Castro → #80 Clarisse Escobar",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      },
+      "to": {
+        "name": "Clarisse Escobar",
+        "number": "80",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      },
+      "receiver": {
+        "name": "80 Clarisse Marie Castillo Escobar"
+      },
+      "flagPulledBy": {
+        "name": "27 Dora Jung"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0060a-a5a6-7537-854a-867c0217bd0e",
+        "01a0060a-adbd-717e-903b-3ab0e77b8607",
+        "01a0060b-133d-721e-b05e-bb9edd84fec1",
+        "01a0060b-2a75-76f2-9725-0fe10a49c73e",
+        "01a0060b-2f73-7109-b6f1-2d28bbeae5c1",
+        "01a0060b-763f-73fe-88be-3777cb12f2cf",
+        "01a0060b-79f4-7775-9a42-940cd9286f5e",
+        "01a0060b-8585-7058-aa9a-274c8034fe87",
+        "01a0060b-e0e7-77fa-bc6c-419b146e5a55",
+        "01a0060c-002a-768b-81d4-70db670f611d",
+        "01a0060c-39b3-7129-b718-75d93222bc37",
+        "01a0060c-867e-705b-b8b2-7a5f0b5ad52a"
+      ],
+      "playAnalysisId": "01a0060b-37b5-7455-aa0b-3ba864819477",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c4-7669-9ccf-b069f518f01c"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 60,
+    "context": {
+      "gameClockMs": 623088,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Carolina Esther Ojo Atencio",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "27 Dora Jung",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#6 Angelina Janon → #13 Carolina Atencio",
+      "text": "COMPLETE PASS #6 Angelina Janon → #13 Carolina Atencio",
+      "from": {
+        "name": "Angelina Janon",
+        "number": "6",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p6/thumb.png"
+      },
+      "to": {
+        "name": "Carolina Atencio",
+        "number": "13",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "6 Angelina Isabel Jurado De Janon"
+      },
+      "receiver": {
+        "name": "13 Carolina Esther Ojo Atencio"
+      },
+      "flagPulledBy": {
+        "name": "27 Dora Jung"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0060b-8f5f-72cd-a1ce-0a952debf69f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c4-7669-9ccf-b56a4bb3e448"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 61,
+    "context": {
+      "gameClockMs": 619129,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#6 Angelina Janon",
+      "text": "INCOMPLETE PASS #6 Angelina Janon",
+      "from": {
+        "name": "Angelina Janon",
+        "number": "6",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "6 Angelina Isabel Jurado De Janon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0060b-f13d-73c8-937a-6985d1c8fee8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c4-7669-9ccf-ba6e7251562b"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 62,
+    "context": {
+      "gameClockMs": 578428,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Orlanda Castro",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Orlanda Castro",
+        "action": "PASS",
+        "intendedReceiver": "3 Leslie Del Cid",
+        "passDirection": "CENTER",
+        "passDistance": "SHORT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Orlanda Castro",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "3 Leslie Del Cid"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "SHORT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Orlanda Castro",
+      "text": "INCOMPLETE PASS #7 Orlanda Castro",
+      "from": {
+        "name": "Orlanda Castro",
+        "number": "7",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Orlanda Castro"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0060c-ac67-71c8-a874-dbc0856fdd41",
+        "01a0060c-d671-7588-9921-bfbc40942d17",
+        "01a0060d-74a1-73bb-a4c9-b747f3a50a44",
+        "01a0060d-85ed-759a-aacb-60ab9cdd69bb",
+        "01a0060d-8f49-7163-8b5c-42fe20694b1b",
+        "01a0060d-9fe2-723c-804c-c483dbb5a3b0"
+      ],
+      "playAnalysisId": "01a0060c-cad8-77da-a13e-2824fc49fa36",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c4-7669-9ccf-bd47742f10a4"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 63,
+    "context": {
+      "gameClockMs": 527130,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "21 Ellen Riess",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "21 Ellen Riess",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "44 Ana Paula De León Beckford",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #21 Ellen Riess",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #21 Ellen Riess",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Ellen Riess",
+        "number": "21",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p11/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "21 Ellen Riess"
+      },
+      "flagPulledBy": {
+        "name": "44 Ana Paula De León Beckford"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0060d-92ea-779c-9375-7f3741dde6c8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c4-7669-9ccf-c2cb5d649ac7"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 64,
+    "context": {
+      "gameClockMs": 484794,
+      "half": 2,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Kyra Fischer",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "14 Carla Charlotte Törner",
+        "action": "COMPLETE",
+        "note": "Steps out of bounds at the 15 yard line",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "14 Carla Charlotte Törner"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0060e-1a15-75f8-a61d-637107c15721"
+      ],
+      "playAnalysisId": "01a0060e-3653-715e-9331-be893fbdd79b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c4-7669-9ccf-c6be11469c67"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 65,
+    "context": {
+      "gameClockMs": 483849,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Kyra Fischer",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Kyra Fischer",
+        "action": "PASS",
+        "intendedReceiver": "30 Saskia Nühse",
+        "note": "backward pass",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Kyra Fischer",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "30 Saskia Nühse",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Kyra Fischer",
+      "text": "INCOMPLETE PASS #7 Kyra Fischer",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Kyra Fischer"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a0060e-1d83-724b-a6cd-c435024e41c2",
+        "01a0060e-65e3-71a9-8ecd-2e1e6f910861",
+        "01a0060e-670a-7075-962a-eb4f2f37dad9",
+        "01a0060e-72ff-728c-93dd-c95f2b5ecc09",
+        "01a0060e-83c3-73e5-b4d0-89c2ea217c70",
+        "01a0060e-c6b1-7709-b153-06851dda8657",
+        "01a0060f-6ff0-765c-83c8-9977d4d37bae",
+        "01a0060f-903d-754e-9d4b-7086de01ef30",
+        "01a00610-1498-722f-9519-6128b3619b73",
+        "01a00610-2abf-757a-a24d-97d44efac75d",
+        "01a00610-2e53-7474-ba82-2dc4100c8fc0"
+      ],
+      "playAnalysisId": "01a0060e-e785-71fe-b1a6-3ca1214513f9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c5-7424-b4e9-837daf355caf"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 66,
+    "context": {
+      "gameClockMs": 440666,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "14 Carla Charlotte Törner",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "14 Carla Charlotte Törner",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "44 Ana Paula De León Beckford",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #14 Carla Törner",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #14 Carla Törner",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Carla Törner",
+        "number": "14",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p8/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "14 Carla Charlotte Törner"
+      },
+      "flagPulledBy": {
+        "name": "44 Ana Paula De León Beckford"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a0060f-8607-7415-a271-b5a350bdccc1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c5-7424-b4e9-868c4b6e7aa6"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 67,
+    "context": {
+      "gameClockMs": 389050,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "PASS",
+        "intendedReceiver": "7 Kyra Fischer",
+        "passDirection": "CENTER",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Kyra Fischer",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "44 Ana Paula De León Beckford",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDirection": "CENTER",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#30 Saskia Nühse → #7 Kyra Fischer",
+      "text": "COMPLETE PASS #30 Saskia Nühse → #7 Kyra Fischer",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      },
+      "to": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "receiver": {
+        "name": "7 Kyra Fischer"
+      },
+      "flagPulledBy": {
+        "name": "44 Ana Paula De León Beckford"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00610-34b9-712b-94e8-f157c6bc8d04",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c5-7424-b4e9-8824759124a8"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 68,
+    "context": {
+      "gameClockMs": 313714,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 49,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 27,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte T%C3%B6rner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia N%C3%BChse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia N%C3%BChse",
+        "action": "PASS",
+        "intendedReceiver": "7 Kyra Fischer",
+        "passDirection": "LEFT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Kyra Fischer",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "7 Kyra Fischer",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "LEFT",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#7 Kyra Fischer (6 pts)",
+      "text": "TOUCHDOWN #7 Kyra Fischer (6 pts)",
+      "from": {
+        "name": "Kyra Fischer",
+        "number": "7",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p4/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia N%C3%BChse"
+      },
+      "receiver": {
+        "name": "7 Kyra Fischer"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00610-b677-766e-8ebb-f90f1bf9f17c",
+        "01a00610-dcfe-7459-bd7b-48182f34c848"
+      ],
+      "playAnalysisId": "01a00610-d503-7540-8e19-b6ae06c19c38",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c5-7424-b4e9-8db71576ee57"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 69,
+    "context": {
+      "gameClockMs": 265330,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "PASS",
+        "intendedReceiver": "33 Maria Elisa Baloy Galeano",
+        "passDirection": "CENTER",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Maria Elisa Baloy Galeano",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#6 Angelina Janon → #33 Maria Galeano",
+      "text": "COMPLETE PASS #6 Angelina Janon → #33 Maria Galeano",
+      "from": {
+        "name": "Angelina Janon",
+        "number": "6",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p6/thumb.png"
+      },
+      "to": {
+        "name": "Maria Galeano",
+        "number": "33",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "6 Angelina Isabel Jurado De Janon"
+      },
+      "receiver": {
+        "name": "33 Maria Elisa Baloy Galeano"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00611-7325-760d-9daf-47fe802ef6bd",
+        "01a00611-73d5-710b-bcc7-ebbbf8b5290c",
+        "01a00611-85f0-7354-84da-a9cb6685ba6b",
+        "01a00611-8674-765a-8216-aba3c3e3e8ec",
+        "01a00611-cc9b-7165-aa6e-312cd0c31552",
+        "01a00611-d369-74bd-92fb-b61d0b77fdf3",
+        "01a00611-de05-75d4-a7f6-fb8591e39a7a",
+        "01a00612-3b3c-719f-b571-3159c323a1a3",
+        "01a00612-9853-74cb-8c18-2f76bf4433da"
+      ],
+      "playAnalysisId": "01a00611-e933-7068-aa00-f1e782534e62",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c5-7424-b4e9-912ab865867f"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 70,
+    "context": {
+      "gameClockMs": 237953,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "LEFT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "note": "Pass to the left side",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "LEFT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#6 Angelina Janon",
+      "text": "INCOMPLETE PASS #6 Angelina Janon",
+      "from": {
+        "name": "Angelina Janon",
+        "number": "6",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "6 Angelina Isabel Jurado De Janon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00612-4615-7549-a85d-6f2a7a034c23",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.239Z",
+    "updatedAt": "2026-08-15T15:44:55.239Z",
+    "id": "01a00618-f8c5-7424-b4e9-95ae570c5ce5"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 71,
+    "context": {
+      "gameClockMs": 190455,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "80 Clarisse Marie Castillo Escobar",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "5 Kaja Bins",
+        "action": "SACK",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "SACK",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "SACK",
+      "label": "SACK",
+      "detail": "by #5 Kaja Bins",
+      "text": "SACK by #5 Kaja Bins",
+      "from": {
+        "name": "Kaja Bins",
+        "number": "5",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "6 Angelina Isabel Jurado De Janon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00612-b433-72f6-bdbb-4bbc05f3ee75",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.240Z",
+    "updatedAt": "2026-08-15T15:44:55.240Z",
+    "id": "01a00618-f8c5-7424-b4e9-9868608a6f16"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 72,
+    "context": {
+      "gameClockMs": 147925,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 11,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Leslie Del Cid",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "3 Leslie Del Cid",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "3 Leslie Del Cid",
+        "action": "PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "passDirection": "CENTER",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "3 Leslie Del Cid",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Carolina Esther Ojo Atencio",
+        "note": "Deflection Germany number 27",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "CENTER",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#3 Leslie Cid",
+      "text": "INCOMPLETE PASS #3 Leslie Cid",
+      "from": {
+        "name": "Leslie Cid",
+        "number": "3",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "6 Angelina Isabel Jurado De Janon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00613-3de1-762f-9a63-125f710bcda1"
+      ],
+      "playAnalysisId": "01a00613-6470-73e8-a1e7-6d21735cc9ac",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.240Z",
+    "updatedAt": "2026-08-15T15:44:55.240Z",
+    "id": "01a00618-f8c5-7424-b4e9-9e8c79952f35"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 73,
+    "context": {
+      "gameClockMs": 147489,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 11,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00613-3f68-776b-a670-fef86740e59b",
+        "01a00613-45ff-751a-b634-31b8a4ee3b53",
+        "01a00613-aaf9-734b-b7d1-229096e0c7d7",
+        "01a00613-fb04-71b4-849e-ab752cc650b9",
+        "01a00614-fac7-760f-8ff0-59728f2b973b",
+        "01a00615-3a32-70ce-84a7-eb06933d6518",
+        "01a00615-9aef-75f7-8f3b-f01958963cb4",
+        "01a00615-acfe-7159-bcdb-572ab55b51d8",
+        "01a00615-b5be-75e9-88fa-1ed6744b7863",
+        "01a00616-3690-771c-bca9-ea7f37f51359",
+        "01a00616-522a-7688-9ea9-065171dbcb84"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.241Z",
+    "updatedAt": "2026-08-15T15:44:55.241Z",
+    "id": "01a00618-f8c5-7424-b4e9-a27ff178d30e"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 74,
+    "context": {
+      "gameClockMs": 120517,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "14 Denise Isabella Guerra Vasquez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "flagPulledBy": {
+        "name": "14 Denise Isabella Guerra Vasquez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00614-314e-77cd-8f16-a9c800b0bd71",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.241Z",
+    "updatedAt": "2026-08-15T15:44:55.241Z",
+    "id": "01a00618-f8c6-715e-b34d-83ec14f63cd8"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 75,
+    "context": {
+      "gameClockMs": 120517,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "RUSH",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#30 Saskia Nühse",
+      "text": "RUN #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "ballCarrier": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00614-e53d-730b-ac73-601367b9c535",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.241Z",
+    "updatedAt": "2026-08-15T15:44:55.241Z",
+    "id": "01a00618-f8c6-715e-b34d-87401c4c9587"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 76,
+    "context": {
+      "gameClockMs": 50923,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "40",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00615-cff5-7578-b86c-05ae39e25bd7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.241Z",
+    "updatedAt": "2026-08-15T15:44:55.241Z",
+    "id": "01a00618-f8c6-715e-b34d-8b8e644ea304"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 77,
+    "context": {
+      "gameClockMs": 44363,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "RUSH",
+        "note": "Takes a knee",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "TURNOVER",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#30 Saskia Nühse",
+      "text": "RUN #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "ballCarrier": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00616-857b-773e-a949-a9f9bfb75cbd",
+        "01a00616-abc4-7749-9026-4419f15f85ce",
+        "01a00616-c9b2-76c5-8cb4-6707ef7dd371"
+      ],
+      "playAnalysisId": "01a00616-6e38-70a8-8bf4-27c8a1c2448c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.241Z",
+    "updatedAt": "2026-08-15T15:44:55.241Z",
+    "id": "01a00618-f8c6-715e-b34d-8ee9720e4f80"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 78,
+    "context": {
+      "gameClockMs": 37034,
+      "half": 2,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-pan",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Carolina Esther Ojo Atencio",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "PASS",
+        "passDistance": "MEDIUM",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "9 Saskia Macharia",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      },
+      {
+        "id": 5,
+        "player": "6 Angelina Isabel Jurado De Janon",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "MEDIUM",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#6 Angelina Janon → #9 Saskia Macharia",
+      "text": "INTERCEPTION #6 Angelina Janon → #9 Saskia Macharia",
+      "from": {
+        "name": "Angelina Janon",
+        "number": "6",
+        "teamId": "w-pan",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-pan-p6/thumb.png"
+      },
+      "to": {
+        "name": "Saskia Macharia",
+        "number": "9",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "6 Angelina Isabel Jurado De Janon"
+      },
+      "interceptedBy": {
+        "name": "9 Saskia Macharia"
+      },
+      "flagPulledBy": {
+        "name": "6 Angelina Isabel Jurado De Janon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00616-ffc0-70cd-950d-8a400aba23cf",
+        "01a00617-1f18-7155-ae80-39d044de4ff1",
+        "01a00617-1fee-75e8-899d-3ba2e241c76d",
+        "01a00617-6389-773c-99c4-d3ea5eb3a053",
+        "01a00617-7ae3-765e-832d-24523cbcca30",
+        "01a00617-e97d-706a-9171-59d83d8049e4",
+        "01a00618-06a2-7759-a3b7-499b32b6e2c5",
+        "01a00618-443d-726f-8bb6-fefcb3057efa",
+        "01a00618-5f1b-772d-bab2-e4b912a180fd",
+        "01a00618-f7f0-76d4-93f8-e01a16a1f239"
+      ],
+      "playAnalysisId": "01a00616-ecce-764f-a3df-0da038f35342",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.241Z",
+    "updatedAt": "2026-08-15T15:44:55.241Z",
+    "id": "01a00618-f8c6-715e-b34d-93109229b400"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 79,
+    "context": {
+      "gameClockMs": 37034,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "82 Zoe Kwandae Song",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Anne Streil",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Anne Streil",
+        "action": "PASS",
+        "intendedReceiver": "27 Dora Jung",
+        "passDirection": "RIGHT",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Anne Streil",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "27 Dora Jung",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Anne Streil",
+      "text": "INCOMPLETE PASS #2 Anne Streil",
+      "from": {
+        "name": "Anne Streil",
+        "number": "2",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Anne Streil"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00617-9f55-70af-85a2-c180a3a32cc0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.241Z",
+    "updatedAt": "2026-08-15T15:44:55.241Z",
+    "id": "01a00618-f8c6-715e-b34d-9627e76be981"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 80,
+    "context": {
+      "gameClockMs": 31209,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "82 Zoe Kwandae Song",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "2 Anne Streil",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "2 Anne Streil",
+        "action": "PASS",
+        "passDirection": "RIGHT",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "2 Anne Streil",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "82 Zoe Kwandae Song",
+        "role": "Quarterback"
+      }
+    ],
+    "passDirection": "RIGHT",
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#2 Anne Streil",
+      "text": "INCOMPLETE PASS #2 Anne Streil",
+      "from": {
+        "name": "Anne Streil",
+        "number": "2",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p1/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "2 Anne Streil"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00618-2030-770a-ba68-0129d8a2388d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.241Z",
+    "updatedAt": "2026-08-15T15:44:55.241Z",
+    "id": "01a00618-f8c6-715e-b34d-9adec0a6705a"
+  },
+  {
+    "gameId": "01a004ca-f2a4-772c-a1b1-5f345f2f0e41",
+    "playNumber": 81,
+    "context": {
+      "gameClockMs": 24133,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 46,
+      "possessionTeamId": "w-ger",
+      "score": {
+        "home": 33,
+        "away": 14
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "14 Carla Charlotte Törner",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "30 Saskia Nühse",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "30 Saskia Nühse",
+        "action": "RUSH",
+        "note": "Took a knee",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#30 Saskia Nühse",
+      "text": "RUN #30 Saskia Nühse",
+      "from": {
+        "name": "Saskia Nühse",
+        "number": "30",
+        "teamId": "w-ger",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-ger-p15/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "30 Saskia Nühse"
+      },
+      "ballCarrier": {
+        "name": "30 Saskia Nühse"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00618-83da-715a-beb8-a50bee32864f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-15T15:44:55.241Z",
+    "updatedAt": "2026-08-15T15:44:55.241Z",
+    "id": "01a00618-f8c6-715e-b34d-9e8e3a175da9"
+  }
+]

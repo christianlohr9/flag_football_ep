@@ -1,0 +1,6670 @@
+[
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 1,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "TURNOVER",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a60-056c-7648-a1f8-766d7902cd1b"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.319Z",
+    "updatedAt": "2026-08-16T13:11:04.319Z",
+    "id": "01a00ab2-7a16-7419-8389-761ba34796de"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 2,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a60-07ae-71ed-aabe-51fa56ad8831",
+        "01a00a61-7d6a-7171-ab22-63b4846692c5",
+        "01a00a61-7d6d-71db-83ca-917e4d1a7b64",
+        "01a00a61-7d6b-7799-8707-e8a20a9469ec",
+        "01a00a61-7d6f-73d8-a034-8ca6b4940e57",
+        "01a00a61-8123-716e-8e84-b201d2d6f69a",
+        "01a00a61-9bdb-7251-b372-c15ad41c32f7",
+        "01a00a61-ce5d-760f-ae74-fa0defad0d3a",
+        "01a00a61-f145-729e-b2cd-5febea5eb271",
+        "01a00a61-ff51-7299-9b1f-6e39262edfc9",
+        "01a00a62-033b-742d-a4c1-0ffd92c9ef4d",
+        "01a00a62-059b-73bb-a288-5ed295d102d4",
+        "01a00a62-06cd-726d-96ea-fe1d54defcff",
+        "01a00a62-2271-730d-9e94-0d13ebe1b1c7",
+        "01a00a63-8082-7261-8634-98161943cfb0"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.319Z",
+    "updatedAt": "2026-08-16T13:11:04.319Z",
+    "id": "01a00ab2-7a16-7419-8389-7beb29a2fd7c"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 3,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "note": "Mexico first down at the minus 5",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez"
+      },
+      {
+        "id": 4,
+        "player": "13 Andy Martinez",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Grace Conway",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #13 Andy Martinez",
+      "text": "COMPLETE PASS #31 Tania Rincon → #13 Andy Martinez",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "13 Andy Martinez"
+      },
+      "flagPulledBy": {
+        "name": "5 Grace Conway"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a61-902a-7419-8e03-2c8f1fef2034",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.320Z",
+    "updatedAt": "2026-08-16T13:11:04.320Z",
+    "id": "01a00ab2-7a16-7419-8389-7ca2ebc1926e"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 4,
+    "context": {
+      "gameClockMs": 1687453,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "4 Monica Rangel",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Monica Rangel",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #4 Monica Rangel",
+      "text": "COMPLETE PASS #31 Tania Rincon → #4 Monica Rangel",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Monica Rangel",
+        "number": "4",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p11/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "4 Monica Rangel"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a62-1fbe-76de-9c44-9cee7466404f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.320Z",
+    "updatedAt": "2026-08-16T13:11:04.320Z",
+    "id": "01a00ab2-7a16-7419-8389-80615080f233"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 5,
+    "context": {
+      "gameClockMs": 1680718,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Diana Flores",
+        "action": "PASS",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "31 Diana Flores",
+        "action": "INCOMPLETE_PASS",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "22 Hannah Elliott",
+        "action": "FLAG_PULL",
+        "note": "pass defense",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#31 Tania Rincon",
+      "text": "INCOMPLETE PASS #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Diana Flores"
+      },
+      "flagPulledBy": {
+        "name": "22 Hannah Elliott"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a62-7dcb-7269-8215-6dcceafe73ca",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.320Z",
+    "updatedAt": "2026-08-16T13:11:04.320Z",
+    "id": "01a00ab2-7a16-7419-8389-84e6b9b394c5"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 6,
+    "context": {
+      "gameClockMs": 1680718,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "4 Monica Rangel",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Monica Rangel",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "16 Phoebe Schecter",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #4 Monica Rangel",
+      "text": "COMPLETE PASS #31 Tania Rincon → #4 Monica Rangel",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Monica Rangel",
+        "number": "4",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p11/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "4 Monica Rangel"
+      },
+      "flagPulledBy": {
+        "name": "16 Phoebe Schecter"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a63-0f55-756a-97f3-3a59054f2bf1",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.320Z",
+    "updatedAt": "2026-08-16T13:11:04.320Z",
+    "id": "01a00ab2-7a16-7419-8389-8be03d7c1936"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 7,
+    "context": {
+      "gameClockMs": 1680718,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Grace Conway",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #31 Tania Rincon → #3 Silvia Contreras",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      },
+      "flagPulledBy": {
+        "name": "5 Grace Conway"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a63-8d3b-70be-8ea5-fc7584df73df",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a16-7419-8389-8e643bf91d63"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 8,
+    "context": {
+      "gameClockMs": 1047606,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 18,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "31 Tania Rincon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "33 Diana Flores",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "33 Diana Flores",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#33 Diana Flores (6 pts)",
+      "text": "TOUCHDOWN #33 Diana Flores (6 pts)",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "33 Diana Flores"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a64-0234-721b-bfda-5e108226ab6b",
+        "01a00a64-1272-742a-8fc8-1c87d05005c2",
+        "01a00a64-1334-7782-a5b2-7e58c3f26319",
+        "01a00a64-13cf-704b-814c-28324980917c",
+        "01a00a64-1433-732e-a25c-b75a2188289e",
+        "01a00a64-39bb-7126-bd70-cca1fc378c09",
+        "01a00a64-4768-7693-87ad-3d812451244d"
+      ],
+      "playAnalysisId": "01a00a64-03c0-725a-a7fe-9d63f03a0515",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a16-7419-8389-9256cbf1cea9"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 9,
+    "context": {
+      "gameClockMs": 999951,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 6,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "note": "One point attempt by Team Mexico",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Andy Martinez",
+        "action": "COMPLETE",
+        "note": "Extra point good",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#13 Andy Martinez (1 pt)",
+      "text": "TRY #13 Andy Martinez (1 pt)",
+      "from": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "13 Andy Martinez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a64-b73f-72ac-b114-da8364374b3d",
+        "01a00a64-b8b1-7545-8521-dd918ba9bc39"
+      ],
+      "playAnalysisId": "01a00a64-c41c-74f3-88ae-d5d9e75d3d9e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a16-7419-8389-951577c9a89f"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 10,
+    "context": {
+      "gameClockMs": 997881,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a64-bf39-727b-a3f8-fbbd91d1b279",
+        "01a00a64-d752-771b-bc6f-7187ff8d430d",
+        "01a00a64-dfe1-70a9-818b-c9a422fd7566",
+        "01a00a64-e1fa-7049-93f1-e2d8b2745e32",
+        "01a00a65-02f6-70ae-8acb-3efa7d8cc815",
+        "01a00a65-21b1-717e-bedf-4af1ca1e46a6",
+        "01a00a65-2209-7078-9000-79fbb1b79aeb",
+        "01a00a65-22a1-7077-851e-642752e5d557",
+        "01a00a65-2304-706a-97e8-3d7cdb4431f4",
+        "01a00a65-2403-76b7-93d7-8b3f2dce19a2",
+        "01a00a65-2444-7390-bc84-84e268ad6fc2",
+        "01a00a65-24ae-77d6-8956-56df90fcfb56",
+        "01a00a65-251b-70de-a9ce-b0c8cae22e2a",
+        "01a00a65-25db-7435-b4d9-f281243eb68d",
+        "01a00a65-2660-7481-8074-a95131bf094c",
+        "01a00a65-26eb-770a-977c-c790ab2b13cc",
+        "01a00a65-275d-701f-b3be-3583e1677d4a",
+        "01a00a65-2808-744a-978a-78c8094d33e6",
+        "01a00a65-2f27-733c-8864-ca5a2c974b71",
+        "01a00a65-2f7a-7009-acee-0bb35ef9f58d",
+        "01a00a65-3066-770c-bff7-002a759e2b88",
+        "01a00a65-30d7-7319-b008-843d1d8aea1c",
+        "01a00a65-3190-712f-bed4-490c744045d5",
+        "01a00a65-3214-753a-862e-e98eab7d1764",
+        "01a00a65-32d4-7519-91e6-87662ec7bd93",
+        "01a00a65-3365-7665-ad4b-37d40524cd2b",
+        "01a00a65-3456-76e8-8009-8548274ae89a",
+        "01a00a65-34b6-7301-a4a9-e65964ac7928",
+        "01a00a65-3598-7458-a97e-6b784de9d78f",
+        "01a00a65-35fe-731e-be1b-503b81536030",
+        "01a00a65-3c90-7522-90bf-f054a714bc2c",
+        "01a00a65-3d2e-77f8-8c51-ed1762a258d2",
+        "01a00a65-5c11-73cd-89df-0e0435ea6a66",
+        "01a00a65-88f0-71fc-b996-0df8faf4898f",
+        "01a00a65-ff57-76fc-8eee-e7446c446f36",
+        "01a00a66-0d87-7454-8b1d-ebe8ba249585"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a16-7419-8389-9ae1121d81b3"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 11,
+    "context": {
+      "gameClockMs": 958907,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "15 Emily Kemp",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #15 Emily Kemp",
+      "text": "COMPLETE PASS #7 Jessica Allen → #15 Emily Kemp",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Emily Kemp",
+        "number": "15",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "15 Emily Kemp"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a65-741a-7455-b8d6-89db44932eb2",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a16-7419-8389-9ed418456e58"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 12,
+    "context": {
+      "gameClockMs": 947532,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "White 4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "White 7",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "White 7",
+        "action": "PASS",
+        "intendedReceiver": "White 4",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "White 4",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Red 99",
+        "action": "FLAG_PULL",
+        "note": "at the minus 24",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #4 Angelica Tait",
+      "text": "COMPLETE PASS #7 Jessica Allen → #4 Angelica Tait",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Angelica Tait",
+        "number": "4",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "White 7"
+      },
+      "receiver": {
+        "name": "White 4"
+      },
+      "flagPulledBy": {
+        "name": "Red 99"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a66-0b16-73ac-8136-23486e333eb9",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a17-733e-8580-bdb8edfb0fae"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 13,
+    "context": {
+      "gameClockMs": 872827,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 24,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "Red 12",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INTERCEPTION",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#7 Jessica Allen → #12 Jessica Anderson",
+      "text": "INTERCEPTION #7 Jessica Allen → #12 Jessica Anderson",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Jessica Anderson",
+        "number": "12",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "interceptedBy": {
+        "name": "Red 12"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a66-ac5a-7389-aa74-e8cead687ed6"
+      ],
+      "playAnalysisId": "01a00a66-af55-773e-8971-cfed35be30e0",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a17-733e-8580-c3034b8c1c88"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 14,
+    "context": {
+      "gameClockMs": 872085,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 24,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "88 Jochebed Frimpong",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #31 Tania Rincon → #3 Silvia Contreras",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      },
+      "flagPulledBy": {
+        "name": "88 Jochebed Frimpong"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a66-af31-73d8-9ec6-c34fb872f5ce",
+        "01a00a66-eb55-713a-947d-8f53a0990eb8",
+        "01a00a67-3b72-735a-a3f2-6e917ed86dd2",
+        "01a00a67-4c51-748a-84d4-d601edd5864e",
+        "01a00a67-ae31-71ca-956d-a7a20f3d21ad",
+        "01a00a67-b84c-7359-b0a3-40657bb91354",
+        "01a00a68-3b2e-701c-bf0d-ee1fbf52c124",
+        "01a00a68-510c-752e-8a9c-dd69d5c455a7"
+      ],
+      "playAnalysisId": "01a00a67-42a1-761a-a106-187e8fcdd807",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a17-733e-8580-c43d4782ca2c"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 15,
+    "context": {
+      "gameClockMs": 831843,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "4 Monica Rangel",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Monica Rangel",
+        "note": "overthrown",
+        "role": "Quarterback"
+      }
+    ],
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#31 Tania Rincon",
+      "text": "INCOMPLETE PASS #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a67-b457-735a-a107-13d631a6c813",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a17-733e-8580-cb5c188d7ae0"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 16,
+    "context": {
+      "gameClockMs": 804198,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Andy Martinez",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #13 Andy Martinez",
+      "text": "COMPLETE PASS #31 Tania Rincon → #13 Andy Martinez",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "13 Andy Martinez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a68-3d33-750f-bda6-74bcbcd589a7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a17-733e-8580-ce98e96e702b"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 17,
+    "context": {
+      "gameClockMs": 735239,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 18,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "21 Ximena Cuate",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "10 Abi Snelson",
+        "action": "SACK",
+        "role": "Defense",
+        "team": "Great Britain"
+      }
+    ],
+    "outcome": {
+      "type": "SACK",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "SACK",
+      "label": "SACK",
+      "detail": "by #10 Abi Snelson",
+      "text": "SACK by #10 Abi Snelson",
+      "from": {
+        "name": "Abi Snelson",
+        "number": "10",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p2/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a68-c5e6-75a4-8304-2791d66d9b8e"
+      ],
+      "playAnalysisId": "01a00a68-c837-70b9-8ec8-d3dfc940c4a6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a17-733e-8580-d163736abbc5"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 18,
+    "context": {
+      "gameClockMs": 734547,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 18,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Jessica Allen",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a68-c93d-7124-a2fe-04e3e38c875d",
+        "01a00a68-d046-70b3-b21e-33fb176d12a3",
+        "01a00a68-d555-711e-bf88-cf3790d09751",
+        "01a00a69-6591-76bd-8590-e0696ee3b757",
+        "01a00a69-6f5c-7599-9fa0-d9a95d62057e",
+        "01a00a69-cb5e-738d-9433-8bc360143d58",
+        "01a00a69-d0e8-7437-9f69-c4ffc2fa2ff2",
+        "01a00a6a-655e-71de-beea-a15b662abc15",
+        "01a00a6a-6c34-74dc-bdd8-1e5f0c07dec5"
+      ],
+      "playAnalysisId": "01a00a69-562e-733c-a5bb-b544f21be691",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a17-733e-8580-d529e80640ea"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 19,
+    "context": {
+      "gameClockMs": 691791,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Jessica Allen",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a69-cedf-76cf-bb21-9e3bfb50f888",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a17-733e-8580-db2dc9f06e64"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 20,
+    "context": {
+      "gameClockMs": 666812,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Jessica Allen",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a6a-645e-7401-aded-d629f6d57d3e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.321Z",
+    "updatedAt": "2026-08-16T13:11:04.321Z",
+    "id": "01a00ab2-7a17-733e-8580-dea36bc94916"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 21,
+    "context": {
+      "gameClockMs": 582859,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Emily Kemp",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "PASS",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "2 Victoria Chavez Lopez",
+        "action": "INTERCEPTION",
+        "role": "Defense"
+      },
+      {
+        "id": 6,
+        "player": "4 Angelica Tait",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      },
+      {
+        "id": 7,
+        "player": "Unknown",
+        "action": "PENALTY"
+      }
+    ],
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "FLAG_PULL",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INTERCEPTION",
+      "label": "INTERCEPTION",
+      "detail": "#15 Emily Kemp → #2 Victoria Lopez",
+      "text": "INTERCEPTION #15 Emily Kemp → #2 Victoria Lopez",
+      "from": {
+        "name": "Emily Kemp",
+        "number": "15",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p6/thumb.png"
+      },
+      "to": {
+        "name": "Victoria Lopez",
+        "number": "2",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p17/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "interceptedBy": {
+        "name": "2 Victoria Chavez Lopez"
+      },
+      "flagPulledBy": {
+        "name": "4 Angelica Tait"
+      },
+      "penaltyOn": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a6b-1907-774d-a45b-ca84850a802e"
+      ],
+      "playAnalysisId": "01a00a6b-3274-73e8-8f3b-c81365812f5d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8580-e075160fde9a"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 22,
+    "context": {
+      "gameClockMs": 581877,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 5,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a6b-1d35-7522-8829-d635937c1f81",
+        "01a00a6b-3669-77fc-b436-7bf11e331961",
+        "01a00a6b-39b8-77a1-8e08-91403048b4ad",
+        "01a00a6b-4e90-741a-807a-720f1340435a"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8580-e7b97e1a282b"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 23,
+    "context": {
+      "gameClockMs": 536541,
+      "half": 1,
+      "down": 1,
+      "yardsToGo": 10,
+      "ballOn": 23,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 7,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Statistician",
+        "action": "POSSESSION_CHANGE",
+        "role": "Statistician",
+        "team": "Mexico"
+      },
+      {
+        "id": 2,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "13 Andy Martinez",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "13 Andy Martinez",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#13 Andy Martinez (6 pts)",
+      "text": "TOUCHDOWN #13 Andy Martinez (6 pts)",
+      "from": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "13 Andy Martinez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a6b-cde1-74ff-9d4e-16b8156a9ae3",
+        "01a00a6b-e52b-71ea-81ad-16e7c0255bc4",
+        "01a00a6b-fc02-77b0-bad5-15e180b0b2a8",
+        "01a00a6b-fc79-7398-854d-ef074e252fa0",
+        "01a00a6c-6bdf-7648-81a3-2c45a8e49381",
+        "01a00a6c-8467-72bb-9d5e-9b09e1ebc2d5",
+        "01a00a6c-928b-77be-a03e-370a0d9e1c59"
+      ],
+      "playAnalysisId": "01a00a6b-c28a-708e-b0ca-9c2d00beed11",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8580-ea4e21e78fa8"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 24,
+    "context": {
+      "gameClockMs": 463013,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a6c-ed0d-766d-bbb6-39c2f723cebf",
+        "01a00a6c-ed75-7260-a0db-45c632b558aa",
+        "01a00a6c-f959-716f-b296-5eddcb7224a7",
+        "01a00a6c-fb50-7381-a31a-69ab5c97e191",
+        "01a00a6c-ff2f-72f7-aa66-40701f16bbe3",
+        "01a00a6d-8837-769d-bc98-1b20e300bc42",
+        "01a00a6d-8e3c-757c-abfe-ecf61f4ad642",
+        "01a00a6e-1d6b-730b-bfc4-2f2e3f9392a7",
+        "01a00a6e-2f40-7071-80c3-70657a2531c9",
+        "01a00a6e-3896-701f-86f7-4a2df94477e8",
+        "01a00a6e-dec9-77bc-a5ec-89c5bdb95432",
+        "01a00a6f-01ac-7397-a15c-9d8095450e71",
+        "01a00a6f-0865-779e-974b-f1f39513032d"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8580-ec237ad5ace2"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 25,
+    "context": {
+      "gameClockMs": 458642,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "role": "Quarterback",
+        "team": "Great Britain"
+      },
+      {
+        "id": 4,
+        "player": "7 Jessica Allen",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "15 Emily Kemp",
+        "team": "Great Britain"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a6d-b61b-7144-8d5e-633f788d1e50",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8580-f098716f8af0"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 26,
+    "context": {
+      "gameClockMs": 421740,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "White 4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "White 7",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "White 7",
+        "action": "PASS",
+        "intendedReceiver": "White 5",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "White 5",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #5 Grace Conway",
+      "text": "COMPLETE PASS #7 Jessica Allen → #5 Grace Conway",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Grace Conway",
+        "number": "5",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "White 7"
+      },
+      "receiver": {
+        "name": "White 5"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a6e-229e-75c8-b391-934abd1f448b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8580-f67aea0f04b1"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 27,
+    "context": {
+      "gameClockMs": 378207,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Emily Kemp",
+        "action": "HAND_OFF",
+        "role": "Rusher"
+      },
+      {
+        "id": 4,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a6e-d550-70ff-9d4b-e71948b8de7a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8580-f9535221152c"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 28,
+    "context": {
+      "gameClockMs": 295425,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 22,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "5 Grace Conway",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "5 Grace Conway",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "2 Victoria Chavez Lopez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #5 Grace Conway",
+      "text": "COMPLETE PASS #7 Jessica Allen → #5 Grace Conway",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Grace Conway",
+        "number": "5",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "5 Grace Conway"
+      },
+      "flagPulledBy": {
+        "name": "2 Victoria Chavez Lopez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a6f-7bd0-7716-9b63-1193ba119c22",
+        "01a00a6f-91a6-774f-b16d-ed6ce8042919",
+        "01a00a6f-9224-7298-8119-298ba77d7d59",
+        "01a00a70-26d6-73e3-8963-593cacecba23",
+        "01a00a70-2e51-7314-8b60-92f01527099d",
+        "01a00a70-e1e3-77af-b252-84b9c6f02ad0",
+        "01a00a71-068f-71fb-80c3-0340239a15d9",
+        "01a00a71-74b6-742f-bbc8-41ed9c14ab65",
+        "01a00a71-bd6d-709d-847e-996cfe1cae40",
+        "01a00a71-c101-705e-9fca-c0395a40ae70",
+        "01a00a72-2830-76c8-bcc6-4f3dab7e1e2b",
+        "01a00a72-6b6e-7449-9fc9-4d17c86bf6c1",
+        "01a00a72-7cc6-73ff-a913-1c2715302a14"
+      ],
+      "playAnalysisId": "01a00a6f-93ae-729e-9e61-0d4abf8baf77",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8580-fe619f9868d3"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 29,
+    "context": {
+      "gameClockMs": 289665,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "22 Hannah Elliott",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Jessica Allen",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "22 Hannah Elliott",
+        "role": "Quarterback"
+      }
+    ],
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a70-2c34-752e-8fce-f6e1a529ab99",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8581-02892a089079"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 30,
+    "context": {
+      "gameClockMs": 249707,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Emily Kemp",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "PASS",
+        "intendedReceiver": "5 Grace Conway",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "5 Grace Conway",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 6,
+        "player": "12 Red",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#15 Emily Kemp → #5 Grace Conway",
+      "text": "COMPLETE PASS #15 Emily Kemp → #5 Grace Conway",
+      "from": {
+        "name": "Emily Kemp",
+        "number": "15",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p6/thumb.png"
+      },
+      "to": {
+        "name": "Grace Conway",
+        "number": "5",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p9/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "5 Grace Conway"
+      },
+      "flagPulledBy": {
+        "name": "12 Red"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a70-e22e-71b8-958b-eaa24e281fb4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8581-0705ac529eca"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 31,
+    "context": {
+      "gameClockMs": 194498,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "5 Grace Conway",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Jessica Allen",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "5 Grace Conway"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "PENALTY",
+        "note": "We have flags"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "penalty": true,
+    "penaltyCount": 1,
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "penaltyOn": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a71-8370-75c4-80e6-4decebe539c5",
+      "penaltyAnalysisIds": [
+        "01a00a71-e948-7598-a9cd-28f6a4cf21b6"
+      ]
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8581-084b0eda640b"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 32,
+    "context": {
+      "gameClockMs": 115957,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 13,
+        "away": 0
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Angelica Tait",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "4 Angelica Tait",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#4 Angelica Tait (6 pts)",
+      "text": "TOUCHDOWN #4 Angelica Tait (6 pts)",
+      "from": {
+        "name": "Angelica Tait",
+        "number": "4",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p3/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "4 Angelica Tait"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a72-97b8-77ea-af57-146be59a395f",
+        "01a00a72-b66a-7689-aee9-8180dfad8792",
+        "01a00a72-c12e-7368-b207-1c1497d77b96",
+        "01a00a72-d8aa-738f-a6bb-ae8cdf4ad68a",
+        "01a00a73-29cd-70ab-892b-509aad358999"
+      ],
+      "playAnalysisId": "01a00a72-8d79-7444-9769-35558c34869a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a17-733e-8581-0fe547d52c85"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 33,
+    "context": {
+      "gameClockMs": 116957,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Andy Martinez",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "88 Jochebed Frimpong",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #13 Andy Martinez",
+      "text": "COMPLETE PASS #31 Tania Rincon → #13 Andy Martinez",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "13 Andy Martinez"
+      },
+      "flagPulledBy": {
+        "name": "88 Jochebed Frimpong"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a73-30b1-727c-9d3c-f1e194bbf7b0",
+        "01a00a73-36e2-7292-bd53-405dc0126430",
+        "01a00a73-379a-7519-aed6-6c6fc9049644",
+        "01a00a73-3bb4-7238-861f-a27d40afdafa",
+        "01a00a73-92b8-72df-810b-1f149cfa13b7",
+        "01a00a73-a5ac-7613-a9a4-7c664c8c61fe",
+        "01a00a73-b90f-779c-86b8-a63ea048dbce",
+        "01a00a73-d0ba-7482-bd31-16cb472e7cc3",
+        "01a00a73-fdd0-778b-8243-7d75cf3f50d5",
+        "01a00a74-13c2-7285-a73d-02eb6fcd7e34",
+        "01a00a74-289f-720e-8c37-a7ce67031fb1",
+        "01a00a74-2d49-75cc-aba1-d5a44770a35b",
+        "01a00a74-6561-7109-99ba-8df3fa8c60dc",
+        "01a00a74-6ce8-76df-9c09-b99ce9c848c4",
+        "01a00a74-8ccb-75c8-b58b-02d1be5f3984",
+        "01a00a74-a6fd-7787-b01d-e09040ca2630",
+        "01a00a74-b8d9-7289-b024-2e0cd5078cf3",
+        "01a00a74-c89d-776d-b074-b232d034509c",
+        "01a00a75-a164-70ba-b6b3-ba641a4cbdcb",
+        "01a00a75-bc3f-745f-9ae8-d6b9945d34e9"
+      ],
+      "playAnalysisId": "01a00a73-be66-767b-b9a9-651191306d7f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.322Z",
+    "updatedAt": "2026-08-16T13:11:04.322Z",
+    "id": "01a00ab2-7a18-770e-975b-3866fd767d12"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 34,
+    "context": {
+      "gameClockMs": 106933,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "33 Diana Flores",
+        "note": "Pass defended by White 5",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#31 Tania Rincon",
+      "text": "INCOMPLETE PASS #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a74-2f2a-753d-a84d-4069a3aa944a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-3f56b56d5213"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 35,
+    "context": {
+      "gameClockMs": 107933,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "22 Hannah Elliott",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #31 Tania Rincon → #3 Silvia Contreras",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      },
+      "flagPulledBy": {
+        "name": "22 Hannah Elliott"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a74-9e81-71b9-b354-fa6f13f1cca4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-421fef2c2494"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 36,
+    "context": {
+      "gameClockMs": 93314,
+      "half": 1,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 21,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "31 Tania Rincon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "RUSH",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#33 Diana Flores",
+      "text": "RUN #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "ballCarrier": {
+        "name": "33 Diana Flores"
+      },
+      "flagPulledBy": {
+        "name": "15 Emily Kemp"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a75-d55e-7256-82a9-0f5d01ee2872",
+        "01a00a75-e3a1-754a-b800-1008174c56dd",
+        "01a00a75-e439-741f-a754-6532f5cb174c",
+        "01a00a75-fc0d-7770-a2f1-8539a9897002",
+        "01a00a76-2fbe-728e-a383-8ff9ec21f2c1",
+        "01a00a76-4502-7156-a149-388b72eb164d",
+        "01a00a76-5af1-7639-886d-bc2018f64369",
+        "01a00a76-61c3-776c-a847-f3eb6ba7f461",
+        "01a00a76-b7bb-709b-8b3d-ca9621cbf351",
+        "01a00a76-e598-7079-a61a-40aae9019753"
+      ],
+      "playAnalysisId": "01a00a75-d982-71cb-9751-c5ef7f10c8b5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-452e36f5786a"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 37,
+    "context": {
+      "gameClockMs": 88202,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "27 Allison Salazar",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "27 Allison Salazar",
+        "role": "Quarterback"
+      }
+    ],
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#31 Tania Rincon",
+      "text": "INCOMPLETE PASS #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a76-60ea-7407-975f-a819e855cc45",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-4a2ee77172e5"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 38,
+    "context": {
+      "gameClockMs": 76575,
+      "half": 1,
+      "down": 2,
+      "yardsToGo": 10,
+      "ballOn": 26,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 13,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "LATERAL"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "LATERAL"
+      },
+      {
+        "id": 5,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 6,
+        "player": "1 Yaritza Morales",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 7,
+        "player": "1 Yaritza Morales",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "passDistance": "LONG",
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#1 Yaritza Morales (6 pts)",
+      "text": "TOUCHDOWN #1 Yaritza Morales (6 pts)",
+      "from": {
+        "name": "Yaritza Morales",
+        "number": "1",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p10/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "1 Yaritza Morales"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a76-fdfa-7068-b371-86097e0ad82a",
+        "01a00a77-1991-72a7-8500-546c180d8e4e",
+        "01a00a77-2231-766e-b927-56c701e7e794"
+      ],
+      "playAnalysisId": "01a00a77-03ce-73fa-b896-89fdc993741f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-4f1231ed4da8"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 39,
+    "context": {
+      "gameClockMs": 76575,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 19,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Yaritza Morales",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TRY",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TRY",
+      "label": "TRY",
+      "detail": "#1 Yaritza Morales (1 pt)",
+      "text": "TRY #1 Yaritza Morales (1 pt)",
+      "from": {
+        "name": "Yaritza Morales",
+        "number": "1",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p10/thumb.png"
+      },
+      "points": 1
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "1 Yaritza Morales"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a77-a0a1-7062-bdac-34adc97c8d45",
+        "01a00a77-a15f-766e-b631-641c45c224d2"
+      ],
+      "playAnalysisId": "01a00a77-ac51-764e-b31b-2ade15abbf4f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-50a89fda7170"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 40,
+    "context": {
+      "gameClockMs": 76575,
+      "half": 1,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a77-ac90-74a6-8ae9-855bbad93966",
+        "01a00a77-bbd7-7774-b891-6db9886ecbc0",
+        "01a00a77-bcad-7080-be98-e78fcfc2761d",
+        "01a00a77-c328-74f9-949b-a34364c13437",
+        "01a00a78-26f8-7463-a6d3-f8fd3192e41a",
+        "01a00a78-5524-71ca-a04e-799c1a9a2f09",
+        "01a00a78-6753-7195-a061-98958a861b43",
+        "01a00a78-9287-713c-ab29-067fb8979d45",
+        "01a00a78-a7af-70cc-a91c-158d2f83319f",
+        "01a00a78-c04e-7548-acfd-604122023593",
+        "01a00a79-05eb-77ca-b0b0-9b126498b79e",
+        "01a00a79-1520-754b-bef9-1c39af1bd630"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-54506302c6b4"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 41,
+    "context": {
+      "gameClockMs": 76575,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "22 Hannah Elliott",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "22 Hannah Elliott",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "23 Haniel Reza Martinez",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #22 Hannah Elliott",
+      "text": "COMPLETE PASS #7 Jessica Allen → #22 Hannah Elliott",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Hannah Elliott",
+        "number": "22",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "22 Hannah Elliott"
+      },
+      "flagPulledBy": {
+        "name": "23 Haniel Reza Martinez"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a78-5ab8-724b-8be9-d641ec95b4de",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-5abb6fb8198c"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 42,
+    "context": {
+      "gameClockMs": 60065,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "15 Emily Kemp",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "COMPLETE",
+        "note": "out of bounds at the 20",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #15 Emily Kemp",
+      "text": "COMPLETE PASS #7 Jessica Allen → #15 Emily Kemp",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Emily Kemp",
+        "number": "15",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "15 Emily Kemp"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a78-aa89-76f6-a8fa-79cff73e3f9e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-5c755566990b"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 43,
+    "context": {
+      "gameClockMs": 45788,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 20,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "White 4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "White 7",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "White 7",
+        "action": "PASS",
+        "intendedReceiver": "White 4",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "White 4",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Red 12",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #4 Angelica Tait",
+      "text": "COMPLETE PASS #7 Jessica Allen → #4 Angelica Tait",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Angelica Tait",
+        "number": "4",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "White 7"
+      },
+      "receiver": {
+        "name": "White 4"
+      },
+      "flagPulledBy": {
+        "name": "Red 12"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a79-2517-77fe-8759-6cf006d8e6a1",
+        "01a00a79-3fbb-7478-9ff5-bcd70533cb94",
+        "01a00a79-4062-7390-89fc-ff41ac43cf0f",
+        "01a00a79-7f3a-74db-8396-e2979ea533d4",
+        "01a00a79-91c7-7168-a212-5614968dfb54",
+        "01a00a79-b6b2-717f-81c4-39849c6ee084",
+        "01a00a79-bb33-70e5-b192-a9df376d3e7b",
+        "01a00a7a-040d-7779-a065-79f2bc526875",
+        "01a00a7a-3cd9-73ab-a911-7b5a19fae82d",
+        "01a00a7a-575d-77ac-bc19-d2bb102a0a86",
+        "01a00a7a-a00d-7288-b832-c118b7f96a11",
+        "01a00a7a-c4e8-71cf-a630-215e953ee47a",
+        "01a00a7c-3a2d-7011-9438-2fb9e3ea356f",
+        "01a00a7c-3b02-773a-88ea-883d5f8156b6"
+      ],
+      "playAnalysisId": "01a00a79-2e02-7684-bbad-31200929d09a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-607832d12525"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 44,
+    "context": {
+      "gameClockMs": 45788,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "5 Grace Conway",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Jessica Allen",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "5 Grace Conway",
+        "note": "Initially called complete, then corrected to incomplete",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a79-bd86-764e-84c4-4abc07623a71",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-66826a480846"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 45,
+    "context": {
+      "gameClockMs": 41217,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "22 Hannah Elliott",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "22 Hannah Elliott",
+        "action": "COMPLETE",
+        "note": "ball's caught at the ten",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #22 Hannah Elliott",
+      "text": "COMPLETE PASS #7 Jessica Allen → #22 Hannah Elliott",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Hannah Elliott",
+        "number": "22",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "22 Hannah Elliott"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a7a-3802-702d-8c80-b73b637c242d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a18-770e-975b-68ddffc07885"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 46,
+    "context": {
+      "gameClockMs": 19893,
+      "half": 1,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "7 Jessica Allen",
+        "action": "SNAP",
+        "role": "Quarterback"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "15 Emily Kemp",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "note": "Adam tag by Red 99 on the run",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #15 Emily Kemp",
+      "text": "COMPLETE PASS #7 Jessica Allen → #15 Emily Kemp",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Emily Kemp",
+        "number": "15",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "15 Emily Kemp"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a7a-c9bc-711f-a608-7f38ad87fae5",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a19-740e-a876-134da1800689"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 47,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a7c-63ac-7138-88a6-1e6943902d41",
+        "01a00a7c-7917-708f-be85-0bbc56cef939",
+        "01a00a7c-797b-7058-ace5-3e212e2d11a9",
+        "01a00a7c-7e47-773e-a441-f7ff3aeda4bf",
+        "01a00a7e-1660-71f3-9890-45551b4b473f",
+        "01a00a7e-3399-774e-9e44-6fca56bd2824",
+        "01a00a7e-3a79-750c-89c6-d9ce8c9d5ee1",
+        "01a00a7e-b457-7241-935e-6efae6dddc3a",
+        "01a00a7e-b9df-771c-8846-b4b498bafde8",
+        "01a00a7e-c273-75b1-a71a-9088a54b4ca5",
+        "01a00a7f-7603-74c4-bcb8-1e1610f48877",
+        "01a00a7f-8a4a-763a-b855-a205550d900d",
+        "01a00a80-34fa-733d-ae4a-46ebf4e59a5a"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a19-740e-a876-167ce407b440"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 48,
+    "context": {
+      "gameClockMs": 1200000,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "5 Grace Conway",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Jessica Allen",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "5 Grace Conway",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a7e-4b6f-738a-b0ec-9d525251544b",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a19-740e-a876-188b0df5d568"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 49,
+    "context": {
+      "gameClockMs": 1190606,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "7 Jessica Allen",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "note": "Intended for White 4",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a7e-b980-7128-9ec8-cf39905f9b08",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a19-740e-a876-1e054e2c0025"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 50,
+    "context": {
+      "gameClockMs": 1155795,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Angelica Tait",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "12 Jessica Anderson",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #4 Angelica Tait",
+      "text": "COMPLETE PASS #7 Jessica Allen → #4 Angelica Tait",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Angelica Tait",
+        "number": "4",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "4 Angelica Tait"
+      },
+      "flagPulledBy": {
+        "name": "12 Jessica Anderson"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a7f-6d9c-778a-8a10-1c92ed447b39",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.323Z",
+    "updatedAt": "2026-08-16T13:11:04.323Z",
+    "id": "01a00ab2-7a19-740e-a876-23d82df5e379"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 51,
+    "context": {
+      "gameClockMs": 1043832,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 13,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "15 Emily Kemp",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "PASS",
+        "intendedReceiver": "22 Hannah Elliott",
+        "passDistance": "LONG",
+        "role": "Quarterback"
+      },
+      {
+        "id": 5,
+        "player": "27 Allison Salazar",
+        "action": "PENALTY",
+        "note": "pass interference",
+        "role": "Defense"
+      }
+    ],
+    "passDistance": "LONG",
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "penaltyOn": {
+        "name": "27 Allison Salazar"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a80-77f7-7188-a090-3d21b9c346b0",
+        "01a00a80-8d2e-73a5-bddd-07eff48125d0",
+        "01a00a80-8fa8-71fd-b533-32db194af29b",
+        "01a00a81-1928-75af-939b-a043a0ef3633",
+        "01a00a81-2033-74cf-825d-1345df370d36",
+        "01a00a81-cc9f-770e-8681-78a8d2a61f6d",
+        "01a00a81-d270-73ad-8f03-e7af467e5987",
+        "01a00a82-5ddc-752e-bdb3-bbd1460309c9",
+        "01a00a82-b857-7319-a6e4-472c553f3fea"
+      ],
+      "playAnalysisId": "01a00a80-4eab-74fe-b8ce-b859df4fba6d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-26315cf2aecb"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 52,
+    "context": {
+      "gameClockMs": 1037723,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "White 4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "White 7",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "White 7",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "White 4",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "White 7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a81-26ef-773d-843f-df1ef277e1b4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-288b99d972ca"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 53,
+    "context": {
+      "gameClockMs": 1000738,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "White 4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "White 7",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "White 7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a81-df49-7339-bfd6-886cd3928241",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-2c721916e2ef"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 54,
+    "context": {
+      "gameClockMs": 955098,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Angelica Tait",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "27 Allison Salazar",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      },
+      {
+        "id": 6,
+        "player": "Unknown",
+        "action": "PENALTY",
+        "note": "a plus a flag"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "4 Angelica Tait"
+      },
+      "flagPulledBy": {
+        "name": "27 Allison Salazar"
+      },
+      "penaltyOn": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a82-75af-7292-b783-280ec0e5bf55",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-3107fb5658f6"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 55,
+    "context": {
+      "gameClockMs": 895192,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 23,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "White 4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "White 7",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "White 7",
+        "action": "RUSH",
+        "note": "Dropped the ball during an attempted hand-off.",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#7 Jessica Allen",
+      "text": "RUN #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "White 7"
+      },
+      "ballCarrier": {
+        "name": "White 7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a82-bce3-735f-a348-30227a0e061e",
+        "01a00a82-d926-7675-9935-5e209528a2b4",
+        "01a00a82-d9b5-72bf-a230-463b03ba553e",
+        "01a00a83-2ac5-76df-8ebb-c504e706b862",
+        "01a00a83-4717-725b-b5f0-60d8d341f479",
+        "01a00a83-b947-7678-839b-7ab45275da25",
+        "01a00a83-e23f-73ec-bc11-4ccf578b1a6a",
+        "01a00a84-6640-737f-9f64-b1535e0222a8",
+        "01a00a84-6c9f-710a-a1c1-6eadf6bc9409"
+      ],
+      "playAnalysisId": "01a00a83-3557-7664-9d57-57c58164c5e7",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-34604f8da42c"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 56,
+    "context": {
+      "gameClockMs": 859746,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Great Britain Center",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "Grace Conway",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "Emily Kemp",
+        "action": "LATERAL",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 4,
+        "player": "Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "role": "Defense",
+        "team": "Mexico"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "Grace Conway"
+      },
+      "flagPulledBy": {
+        "name": "Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a83-ca15-778c-be23-3a5a91af9a95",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-3b153dae4172"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 57,
+    "context": {
+      "gameClockMs": 820017,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "White 4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "White 7",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "White 7",
+        "action": "PASS",
+        "intendedReceiver": "White 5",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "White 7",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "White 5"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#7 Jessica Allen",
+      "text": "INCOMPLETE PASS #7 Jessica Allen",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "White 7"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a84-6781-707e-a8df-7269361a2cad",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-3fb2f718b22a"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 58,
+    "context": {
+      "gameClockMs": 736642,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 6
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "15 Emily Kemp",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "15 Emily Kemp",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#15 Emily Kemp (6 pts)",
+      "text": "TOUCHDOWN #15 Emily Kemp (6 pts)",
+      "from": {
+        "name": "Emily Kemp",
+        "number": "15",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p6/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "15 Emily Kemp"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a85-29d2-75ae-85f2-a3d5f35fafda",
+        "01a00a85-4356-71b6-92fe-bfb916996f1c",
+        "01a00a85-4b8a-76fb-8003-23251e085d53"
+      ],
+      "playAnalysisId": "01a00a85-187a-70f4-b15c-083e2bb10f3f",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-43d592169f5b"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 59,
+    "context": {
+      "gameClockMs": 693860,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "INCOMPLETE_PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "note": "Out of bounds, White 88 nearby",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#33 Diana Flores",
+      "text": "INCOMPLETE PASS #33 Diana Flores",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a85-cee1-71ca-9f87-b810cf8a85f4",
+        "01a00a85-d00b-778c-88ca-fbd6180b64fb",
+        "01a00a85-d44d-73b7-a839-9ee731e846d0",
+        "01a00a85-d4c5-7349-8810-d44abd0001f1",
+        "01a00a85-d8fe-7169-85f8-ef3145864cf0",
+        "01a00a86-1e56-767f-ad6f-c7b9a6c60025",
+        "01a00a86-3c1a-70ad-8238-0fee12257f54",
+        "01a00a86-848e-711a-b82e-2ff44931438d",
+        "01a00a86-a0f5-75a1-94fe-284b16cf00e1"
+      ],
+      "playAnalysisId": "01a00a86-3139-7429-b9bf-5345e9f61c54",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-45c2b3577c51"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 60,
+    "context": {
+      "gameClockMs": 673607,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "88 Jochebed Frimpong",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #33 Diana Flores",
+      "text": "COMPLETE PASS #31 Tania Rincon → #33 Diana Flores",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "33 Diana Flores"
+      },
+      "flagPulledBy": {
+        "name": "88 Jochebed Frimpong"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a86-72bb-769a-b68f-cd4dcc2ecaaa",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-480aeefa3e77"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 61,
+    "context": {
+      "gameClockMs": 622811,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 15,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "88 Jochebed Frimpong",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #31 Tania Rincon → #3 Silvia Contreras",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      },
+      "flagPulledBy": {
+        "name": "88 Jochebed Frimpong"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a86-e4f0-724c-9be9-0916d50b2e53",
+        "01a00a87-0643-765b-b1e4-16f5552252c9",
+        "01a00a87-06df-7208-a847-a5ec77f8fe09",
+        "01a00a87-8067-7485-ae92-32a620c29a22",
+        "01a00a87-9e03-7009-adee-50618c694d99",
+        "01a00a87-fded-7645-a764-18ee0261c09a",
+        "01a00a88-1750-720d-933c-faaf13561e76",
+        "01a00a88-a992-767a-9881-440d4fbc7e3a",
+        "01a00a88-bb3c-744d-a2cf-1cd4d4d4bb94"
+      ],
+      "playAnalysisId": "01a00a86-fbb7-7183-a518-1cb6d7f4bff8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a19-740e-a876-4c25bcbbb00b"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 62,
+    "context": {
+      "gameClockMs": 614011,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "note": "Mexico first down at the 14",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "HAND_OFF",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 4,
+        "player": "10 Abi Snelson",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "flagPulledBy": {
+        "name": "10 Abi Snelson"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a87-8f96-77fb-84d7-a8674847c51c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a1a-717f-87e0-efcb20b2cbc4"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 63,
+    "context": {
+      "gameClockMs": 575384,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "31 Tania Rincon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "33 Diana Flores",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "10 Abi Snelson",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #33 Diana Flores",
+      "text": "COMPLETE PASS #31 Tania Rincon → #33 Diana Flores",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "33 Diana Flores"
+      },
+      "flagPulledBy": {
+        "name": "10 Abi Snelson"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a87-fe94-775d-a116-2134054e73d8",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a1a-717f-87e0-f3d9512b04b3"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 64,
+    "context": {
+      "gameClockMs": 544424,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "1 Yaritza Morales",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "1 Yaritza Morales",
+        "action": "COMPLETE",
+        "note": "Pass defense by 16 Phoebe Schecter",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #1 Yaritza Morales",
+      "text": "COMPLETE PASS #31 Tania Rincon → #1 Yaritza Morales",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Yaritza Morales",
+        "number": "1",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "1 Yaritza Morales"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a88-c10e-73c5-b1a9-076cc57a01b4",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a1a-717f-87e0-f68e0db75f2b"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 65,
+    "context": {
+      "gameClockMs": 471003,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "INCOMPLETE_PASS",
+        "note": "defended by 88 Jochebed Frimpong",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "INCOMPLETE_PASS",
+      "turnover": true,
+      "scoringPlay": false
+    },
+    "description": {
+      "kind": "INCOMPLETE_PASS",
+      "label": "INCOMPLETE PASS",
+      "detail": "#31 Tania Rincon",
+      "text": "INCOMPLETE PASS #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a89-35b9-74c4-befe-44a1ab642e2d"
+      ],
+      "playAnalysisId": "01a00a89-4c0a-74f2-b365-d768a09d9954",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a1a-717f-87e0-fade02d0ece2"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 66,
+    "context": {
+      "gameClockMs": 469755,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 48,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "MIDDLE_LINE",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a89-3a60-70e8-872e-50f4b14d81fd",
+        "01a00a89-4256-731f-b3bf-1a06d4f89c61",
+        "01a00a89-431c-72da-8272-61fae3e22c7c",
+        "01a00a89-46b6-71fa-80ce-0a58ea304a01",
+        "01a00a89-febc-705e-8914-91ee263af4b1",
+        "01a00a8a-32a5-732e-9a95-a9827739aa67",
+        "01a00a8a-925f-765b-bffe-ed0a90460fef",
+        "01a00a8a-af59-7079-a9b8-f4cd8968fdc9",
+        "01a00a8b-1f86-750e-9523-6ad21f710dcf",
+        "01a00a8b-67b4-71f9-9dd5-2e9a30b7a11d",
+        "01a00a8b-e20b-71ad-aee1-e1cd36c164fa",
+        "01a00a8b-f1af-7147-9ba8-1ee12b1465ae",
+        "01a00a8b-fc7f-765e-8dd2-09f4819e3ce9"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a1a-717f-87e0-fcb454f0cfd9"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 67,
+    "context": {
+      "gameClockMs": 466587,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Angelica Tait",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #4 Angelica Tait",
+      "text": "COMPLETE PASS #7 Jessica Allen → #4 Angelica Tait",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Angelica Tait",
+        "number": "4",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "4 Angelica Tait"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a8a-08d7-71cc-bd96-d5ff35bfee49",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a1a-717f-87e1-01d2302fb6be"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 68,
+    "context": {
+      "gameClockMs": 406251,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "15 Emily Kemp",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "99 Angela Funes Fresan",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #15 Emily Kemp",
+      "text": "COMPLETE PASS #7 Jessica Allen → #15 Emily Kemp",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Emily Kemp",
+        "number": "15",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p6/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "15 Emily Kemp"
+      },
+      "flagPulledBy": {
+        "name": "99 Angela Funes Fresan"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a8a-8e14-732f-96f6-4e785c5957a6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a1a-717f-87e1-04c07b0096e7"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 69,
+    "context": {
+      "gameClockMs": 374408,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "15 Emily Kemp",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "15 Emily Kemp",
+        "action": "COMPLETE",
+        "note": "out of bounds",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "PENALTY",
+        "note": "A flag was thrown"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "PENALTY",
+      "label": "PENALTY",
+      "detail": "",
+      "text": "PENALTY"
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "15 Emily Kemp"
+      },
+      "penaltyOn": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a8b-2f25-76eb-a2c6-760428507b16",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a1a-717f-87e1-08ccd9811842"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 70,
+    "context": {
+      "gameClockMs": 297964,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 17,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "4 Angelica Tait",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "22 Hannah Elliott",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "22 Hannah Elliott",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "27 Allison Salazar",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #22 Hannah Elliott",
+      "text": "COMPLETE PASS #7 Jessica Allen → #22 Hannah Elliott",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Hannah Elliott",
+        "number": "22",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p10/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "22 Hannah Elliott"
+      },
+      "flagPulledBy": {
+        "name": "27 Allison Salazar"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a8c-651d-77ec-8874-3cb8a11cfa52",
+        "01a00a8c-8257-743d-95ea-a3b8763d3d8f",
+        "01a00a8c-82da-7736-9086-e040f4d8f887",
+        "01a00a8c-f817-711c-b638-77dd3a739b47",
+        "01a00a8d-0e2e-75ff-921e-948dbd9ccd9d",
+        "01a00a8d-a625-7249-8f45-0091ca8c48f1",
+        "01a00a8d-c2c8-77d3-9657-d13e5e57b919"
+      ],
+      "playAnalysisId": "01a00a8c-6787-72ca-9cd7-0ac9de2c191d",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.324Z",
+    "updatedAt": "2026-08-16T13:11:04.324Z",
+    "id": "01a00ab2-7a1a-717f-87e1-0e7f958d7e51"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 71,
+    "context": {
+      "gameClockMs": 290249,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "intendedReceiver": "4 Angelica Tait",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "4 Angelica Tait",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "COMPLETE_PASS",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#7 Jessica Allen → #4 Angelica Tait",
+      "text": "COMPLETE PASS #7 Jessica Allen → #4 Angelica Tait",
+      "from": {
+        "name": "Jessica Allen",
+        "number": "7",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p13/thumb.png"
+      },
+      "to": {
+        "name": "Angelica Tait",
+        "number": "4",
+        "teamId": "w-gbr",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-gbr-p3/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "4 Angelica Tait"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a8d-04b1-70cb-8d66-f7c34a8c2d7e",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1a-717f-87e1-13d630a6a288"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 72,
+    "context": {
+      "gameClockMs": 254696,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "White 4",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "White 7",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "White 15",
+        "action": "HAND_OFF"
+      },
+      {
+        "id": 4,
+        "player": "Red 12",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "players": {
+      "quarterback": {
+        "name": "White 7"
+      },
+      "flagPulledBy": {
+        "name": "Red 12"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a8d-a1c5-7785-9798-d701596cc90c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1a-717f-87e1-17019a108d03"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 73,
+    "context": {
+      "gameClockMs": 174317,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 42,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 12
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "7 Jessica Allen",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "7 Jessica Allen",
+        "action": "PASS",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "Unknown",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "Unknown",
+        "action": "TOUCHDOWN",
+        "role": "Wide receiver"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": true,
+      "pointsScored": 6,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": " (6 pts)",
+      "text": "TOUCHDOWN  (6 pts)",
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "7 Jessica Allen"
+      },
+      "receiver": {
+        "name": "Unknown"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a8e-489b-7408-9052-a58c9a9e555c",
+        "01a00a8e-8b17-71ca-bcb1-e2cc2d665329",
+        "01a00a8e-9232-700b-bc45-b984cc0a4301",
+        "01a00a8e-a3f7-7538-8111-5c101abd6296",
+        "01a00a8e-b033-73ce-85fb-6ba8fa5b97e4"
+      ],
+      "playAnalysisId": "01a00a8e-5269-75d3-839b-11d63a8178ca",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1a-717f-87e1-1ad7e103bc62"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 74,
+    "context": {
+      "gameClockMs": 150871,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 45,
+      "possessionTeamId": "w-gbr",
+      "score": {
+        "home": 20,
+        "away": 18
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "type": "XP1",
+      "scoringPlay": true,
+      "pointsScored": 1,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a8f-373d-70bf-8bd0-367c71ced575",
+        "01a00a8f-37aa-77e8-9cad-b962d60fec39",
+        "01a00a8f-75c3-7498-a178-c60ef074eac2",
+        "01a00a8f-7c74-71fd-b81a-0c69bf441cd1",
+        "01a00a8f-e805-72ba-863c-2dc749977675",
+        "01a00a8f-e846-77ed-aa62-665472bf6f8c",
+        "01a00a8f-e924-708f-93f3-76de80fcf630",
+        "01a00a8f-e957-741e-af27-0680e7c4f22f",
+        "01a00a8f-ea64-7129-8bb7-e5d21bb49cc7",
+        "01a00a8f-ea81-7421-854a-6d9b0b821a23",
+        "01a00a8f-eb36-7054-ba17-db4a3b278086",
+        "01a00a8f-ec68-76df-9f52-76e5e58a4354",
+        "01a00a8f-ec5a-77fa-80a5-03e5b480208c",
+        "01a00a8f-ee3c-76d9-b6e9-f3c9a245d818",
+        "01a00a8f-eec0-7114-9741-278164e46d98",
+        "01a00a8f-ef63-73d7-b35d-1b915845729a",
+        "01a00a8f-ef7b-7569-80c2-1123fd2062c9",
+        "01a00a8f-efe6-70fd-beac-dee7a8fb4fca",
+        "01a00a8f-efef-73b9-825c-868d0f156982",
+        "01a00a8f-f0f8-720d-8cef-6c33eaa4cb02",
+        "01a00a8f-f158-723c-925b-442b859f2fec",
+        "01a00a8f-f2d7-775c-b9d2-c90097794a75",
+        "01a00a8f-f368-75fa-a777-05a2bba1e554",
+        "01a00a8f-f3a2-71af-ae42-896f0835b8fb",
+        "01a00a8f-f433-746e-931b-f406829cb656",
+        "01a00a8f-f537-775e-a0eb-e89211bc9e85",
+        "01a00a8f-f5a7-71be-806c-991240bb5fd4",
+        "01a00a8f-f623-72ce-a92c-b42e74feb2e4",
+        "01a00a8f-f6d7-7412-8d8b-ec4bcf1264b4",
+        "01a00a8f-f760-76fe-b42f-f53a96b7426d",
+        "01a00a8f-f7b8-70ae-86bf-33d43cdc9354",
+        "01a00a8f-f807-7789-a6b2-0a8b96862116",
+        "01a00a8f-f805-749a-8b25-0df68e6473d7",
+        "01a00a8f-f92e-75b9-b7ad-13ef02b58c32",
+        "01a00a8f-f943-7502-9320-afa1b0aba9ac",
+        "01a00a8f-fb80-76fb-8e28-7d46aa923638",
+        "01a00a8f-fc7e-73be-90cb-b11345a6b6e3",
+        "01a00a8f-fec1-7108-812a-f56e02bbaf1f",
+        "01a00a8f-feff-7071-8d37-c59236c29398",
+        "01a00a8f-ff63-7212-bc87-097747d11856",
+        "01a00a8f-ffc0-728e-8866-b5e9d608e6d4",
+        "01a00a90-0076-703d-8425-3249c8e3cdae",
+        "01a00a90-00ec-717b-b1ce-7e87f1e85093",
+        "01a00a90-00f0-76a5-a925-df386559f2b6",
+        "01a00a90-0112-716a-aa5a-fd35a8f7ca9d",
+        "01a00a90-01dc-7692-b5c4-a3d594da4a8a",
+        "01a00a90-024e-73a0-b721-901ee2b14cec",
+        "01a00a90-038b-74dd-b05d-1e6efcbd06a9",
+        "01a00a90-0466-733e-ad2b-8491fee7986e",
+        "01a00a90-04a9-72d6-9e6c-c943696d5090",
+        "01a00a90-049d-721f-b6da-3ed558062c08",
+        "01a00a90-04b2-758a-8673-cdf4b9db398b",
+        "01a00a90-0592-703e-a617-931306003580",
+        "01a00a90-05b8-7557-a15f-16d854c7e454",
+        "01a00a90-05e5-7545-a1af-c6d405de59cf",
+        "01a00a90-071a-76f4-ab1a-70aab707620f",
+        "01a00a90-085b-70a8-a902-c83a4d852076",
+        "01a00a90-0b4c-75ea-9b04-4778555c09a1",
+        "01a00a90-0e74-7391-abed-e08fe8872936",
+        "01a00a90-1007-70f9-8d7e-f9f290bf192d",
+        "01a00a90-1063-7367-aed7-9ceefb68b065",
+        "01a00a90-1179-75bd-8003-eb6259b711ed",
+        "01a00a90-159c-729f-ab0b-faf85a8c478a",
+        "01a00a90-1822-770e-8198-0855a3de559a",
+        "01a00a90-1a17-737b-8114-e911457a9c2f",
+        "01a00a90-1ba2-718e-9235-aec1ca9093ac",
+        "01a00a90-1d6c-77da-90bb-28e0ccea160d",
+        "01a00a90-1ec5-75c7-a54e-ede7d38a36fb",
+        "01a00a90-20fb-71bc-bcd3-752b3ebf984c",
+        "01a00a90-2567-760b-93a8-5d9c71e8c9ca",
+        "01a00a90-282f-7091-bd92-e698711cee91",
+        "01a00a90-2fe4-70c8-9f92-024d0351d919",
+        "01a00a90-308f-759a-854a-f193fbabf079",
+        "01a00a90-3216-7328-85fe-16450acf302f",
+        "01a00a90-34e1-701e-bd2b-68ab9625df4d",
+        "01a00a90-3762-73e8-8aa5-e0c2d9a4d527"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1a-717f-87e1-1cb450b157e9"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 75,
+    "context": {
+      "gameClockMs": 120871,
+      "half": 2,
+      "down": 0,
+      "yardsToGo": 10,
+      "ballOn": 40,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Andy Martinez",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Grace Conway",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #13 Andy Martinez",
+      "text": "COMPLETE PASS #33 Diana Flores → #13 Andy Martinez",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "13 Andy Martinez"
+      },
+      "flagPulledBy": {
+        "name": "5 Grace Conway"
+      }
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a90-46aa-70ac-89cc-440e43b53dc0",
+        "01a00a90-4767-7052-8110-a0db4ef75972",
+        "01a00a90-4b8a-756d-a09a-fdbc44f515f2",
+        "01a00a90-4c13-71c8-b9c0-fac8b65dd683",
+        "01a00a90-5ab1-732a-9853-0a9dca084aae",
+        "01a00a90-7a96-7528-a804-9036793a1921",
+        "01a00a90-9914-766c-9b7e-f641f6943f48",
+        "01a00a90-a17f-7729-8775-b79082c6114d",
+        "01a00a90-b40c-7078-bc65-f072df629546",
+        "01a00a90-cc85-7719-9511-72f89e8137a4",
+        "01a00a90-d2c0-764a-9d02-6c41ce411640",
+        "01a00a91-a5ff-766c-861f-3030c948dcc8",
+        "01a00a91-b9be-7779-b74d-34890b18b4e0",
+        "01a00a91-cad9-73ef-966b-38a4c193cb10",
+        "01a00a91-f128-7393-a5aa-fa7109e0d40a",
+        "01a00a92-10a9-734f-a3b1-fc73d839e247",
+        "01a00a92-243c-73e1-abc3-d458adfaf4ca",
+        "01a00a92-5067-723d-8ba0-e79be9526c7a",
+        "01a00a92-54a8-7244-ba5b-4790dd8abf3b",
+        "01a00a92-8630-7294-9cb6-5e33bdf0683e",
+        "01a00a92-b629-75e8-8320-4a07563531ac",
+        "01a00a93-2621-702e-b9aa-762445a2a397",
+        "01a00a93-40b2-77c9-bf9a-6bf61ea0cb75",
+        "01a00a93-4be9-72ab-bdc6-c7efb47e63aa",
+        "01a00a93-7189-76ce-acf1-a1930e273b23"
+      ],
+      "playAnalysisId": "01a00a90-8f99-768b-adb4-75dde5d6ea90",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1a-717f-87e1-21c6f2b4dc92"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 76,
+    "context": {
+      "gameClockMs": 114003,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "31 Tania Rincon",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "33 Diana Flores",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "33 Diana Flores",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "5 Grace Conway",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #33 Diana Flores",
+      "text": "COMPLETE PASS #31 Tania Rincon → #33 Diana Flores",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "33 Diana Flores"
+      },
+      "flagPulledBy": {
+        "name": "5 Grace Conway"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a91-d5ee-7359-a44f-9f792bc81b4c",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1b-77cc-8f23-f7d912422126"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 77,
+    "context": {
+      "gameClockMs": 109192,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "33 Diana Flores",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "33 Diana Flores",
+        "action": "PASS",
+        "intendedReceiver": "3 Silvia Contreras",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "3 Silvia Contreras",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "15 Emily Kemp",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#33 Diana Flores → #3 Silvia Contreras",
+      "text": "COMPLETE PASS #33 Diana Flores → #3 Silvia Contreras",
+      "from": {
+        "name": "Diana Flores",
+        "number": "33",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p7/thumb.png"
+      },
+      "to": {
+        "name": "Silvia Contreras",
+        "number": "3",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p14/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "33 Diana Flores"
+      },
+      "receiver": {
+        "name": "3 Silvia Contreras"
+      },
+      "flagPulledBy": {
+        "name": "15 Emily Kemp"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a92-3c5c-7224-992e-b15148f30acf",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1b-77cc-8f23-faa70c608c30"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 78,
+    "context": {
+      "gameClockMs": 99268,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "13 Andy Martinez",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "PASS",
+        "intendedReceiver": "13 Andy Martinez",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "13 Andy Martinez",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "88 Jochebed Frimpong",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": "#31 Tania Rincon → #13 Andy Martinez",
+      "text": "COMPLETE PASS #31 Tania Rincon → #13 Andy Martinez",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "to": {
+        "name": "Andy Martinez",
+        "number": "13",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p5/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "receiver": {
+        "name": "13 Andy Martinez"
+      },
+      "flagPulledBy": {
+        "name": "88 Jochebed Frimpong"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a93-5e3a-776b-99bf-18dbdf0c4265",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1b-77cc-8f23-ff90fe9a87b8"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 79,
+    "context": {
+      "gameClockMs": 99268,
+      "half": 2,
+      "down": 4,
+      "yardsToGo": 10,
+      "ballOn": 24,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 19
+      }
+    },
+    "sequence": [],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "sources": {
+      "gameEventIds": [
+        "01a00a93-e7de-71ac-b54b-af040b467191",
+        "01a00a94-0680-723a-8cd2-840ba989b945",
+        "01a00a94-071b-74fb-8d1f-41679dacf4d3",
+        "01a00a94-0741-74c9-8e85-71853ae29435",
+        "01a00a94-1acd-773b-b3d8-b63c242ed0d2",
+        "01a00a94-1e1f-768c-8204-8db8ee6c979d",
+        "01a00a94-2147-779f-a85e-23e32da3077a",
+        "01a00a95-7f40-75ac-a4f5-8a1a25f481a8",
+        "01a00a95-a518-775b-807b-d78313bcb08a",
+        "01a00a95-be0d-7604-af4c-f6a7a03edf98",
+        "01a00a96-1f5a-742a-9cee-4bff6b1150c4",
+        "01a00a96-37b6-7356-8bcb-a3cbcab8fd55",
+        "01a00a96-a7f1-75e4-9739-e8c41959b55d",
+        "01a00a96-bffc-74c8-874a-84ce8d4ab141",
+        "01a00a96-d17e-7236-9db0-d9ea00a398c1",
+        "01a00a96-d23b-730d-abab-90eabdb25d66",
+        "01a00a96-ddba-773c-855d-36d904e62094",
+        "01a00a97-5070-707d-a260-a635bcfddabd",
+        "01a00a98-1f35-77fa-9fb4-7d708f5e5975"
+      ],
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1b-77cc-8f24-0201b42f5fe8"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 80,
+    "context": {
+      "gameClockMs": 96268,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "Unknown",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "Unknown",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "Unknown",
+        "action": "PASS",
+        "intendedReceiver": "31 Tania Rincon",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "COMPLETE",
+        "role": "Wide receiver"
+      },
+      {
+        "id": 5,
+        "player": "10 Abi Snelson",
+        "action": "FLAG_PULL",
+        "role": "Defense"
+      }
+    ],
+    "outcome": {
+      "type": "FLAG_PULL",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "COMPLETE_PASS",
+      "label": "COMPLETE PASS",
+      "detail": " → #31 Tania Rincon",
+      "text": "COMPLETE PASS  → #31 Tania Rincon",
+      "to": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "Unknown"
+      },
+      "receiver": {
+        "name": "31 Tania Rincon"
+      },
+      "flagPulledBy": {
+        "name": "10 Abi Snelson"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a95-c657-77ec-85e5-05e6e00b1486",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.325Z",
+    "updatedAt": "2026-08-16T13:11:04.325Z",
+    "id": "01a00ab2-7a1b-77cc-8f24-0509479e6a69"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 81,
+    "context": {
+      "gameClockMs": 80134,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "RUSH",
+        "note": "Loss of yard",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "RUN",
+      "label": "RUN",
+      "detail": "#31 Tania Rincon",
+      "text": "RUN #31 Tania Rincon",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      }
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "ballCarrier": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a96-2e28-760f-9981-7c8f9af9e10a",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.326Z",
+    "updatedAt": "2026-08-16T13:11:04.326Z",
+    "id": "01a00ab2-7a1b-77cc-8f24-0b9e978b9370"
+  },
+  {
+    "gameId": "01a0062b-6782-7353-902b-08bba8fea5ab",
+    "playNumber": 82,
+    "context": {
+      "gameClockMs": 23445,
+      "half": 2,
+      "down": 3,
+      "yardsToGo": 10,
+      "ballOn": 43,
+      "possessionTeamId": "w-mex",
+      "score": {
+        "home": 20,
+        "away": 19
+      }
+    },
+    "sequence": [
+      {
+        "id": 1,
+        "player": "3 Silvia Contreras",
+        "action": "SNAP",
+        "role": "Center"
+      },
+      {
+        "id": 2,
+        "player": "31 Tania Rincon",
+        "action": "QB_SET",
+        "role": "Quarterback"
+      },
+      {
+        "id": 3,
+        "player": "31 Tania Rincon",
+        "action": "RUSH",
+        "role": "Quarterback"
+      },
+      {
+        "id": 4,
+        "player": "31 Tania Rincon",
+        "action": "TOUCHDOWN",
+        "role": "Quarterback"
+      }
+    ],
+    "outcome": {
+      "type": "TOUCHDOWN",
+      "scoringPlay": false,
+      "turnover": false
+    },
+    "description": {
+      "kind": "TOUCHDOWN",
+      "label": "TOUCHDOWN",
+      "detail": "#31 Tania Rincon (6 pts)",
+      "text": "TOUCHDOWN #31 Tania Rincon (6 pts)",
+      "from": {
+        "name": "Tania Rincon",
+        "number": "31",
+        "teamId": "w-mex",
+        "photoUrl": "https://storage.googleapis.com/ifaf-play-public-pictures/players/w-mex-p16/thumb.png"
+      },
+      "points": 6
+    },
+    "players": {
+      "quarterback": {
+        "name": "31 Tania Rincon"
+      },
+      "ballCarrier": {
+        "name": "31 Tania Rincon"
+      }
+    },
+    "sources": {
+      "gameEventIds": [],
+      "playAnalysisId": "01a00a97-c619-704b-9d82-9d779a2d8ee6",
+      "penaltyAnalysisIds": []
+    },
+    "corrected": false,
+    "createdAt": "2026-08-16T13:11:04.326Z",
+    "updatedAt": "2026-08-16T13:11:04.326Z",
+    "id": "01a00ab2-7a1b-77cc-8f24-0f6b1eb664ab"
+  }
+]

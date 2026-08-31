@@ -1,0 +1,533 @@
+"""Coverage for `flag_football_ep.model.score`: run resolution, model loading and
+scoring against a temporary local MLflow store.
+
+Every test builds a config pointing `mlruns`/`models` at `tmp_path` (never the real repo
+`mlruns/`) and a synthetic canonical corpus via
+`flag_football_ep.testing.canonical_plays_with_scores`, matching the pattern in
+`tests/test_model_train.py`. Models are produced by actually calling `train_ep`/`train_wp`
+against the temporary store, then resolved/loaded/scored -- a real train-then-score round
+trip, not a mocked one.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import mlflow
+import polars as pl
+import pytest
+
+from flag_football_ep.config import (
+    Config,
+    CvSettings,
+    IfafSource,
+    Paths,
+    ReferenceFiles,
+    ReportSettings,
+    Sources,
+    SportappSource,
+    TrainSettings,
+)
+from flag_football_ep.model import mlflow_store, registry
+from flag_football_ep.model.hyperparams import EP_PROB_LABELS
+from flag_football_ep.model.registry import RegistryError
+from flag_football_ep.model.score import RunNotFound, load_model, resolve_run, score_plays
+from flag_football_ep.model.train import train_ep, train_wp
+from flag_football_ep.testing import canonical_plays_with_scores
+
+# --- shared test config/corpus helpers ---------------------------------------------------
+
+
+def _make_config(
+    tmp_path: Path,
+    exclude_games_ep: list[str] | None = None,
+    exclude_games_wp: list[str] | None = None,
+) -> Config:
+    """A fully-populated Config pointing every path at `tmp_path` -- never the real repo."""
+    paths = Paths(
+        data_root=tmp_path / "data",
+        raw_hudl=tmp_path / "data" / "raw" / "hudl",
+        raw_sportapp=tmp_path / "data" / "raw" / "sportapp",
+        raw_ifaf=tmp_path / "data" / "raw" / "ifaf",
+        raw_legacy=tmp_path / "data" / "raw" / "legacy",
+        processed=tmp_path / "data" / "processed",
+        reference=tmp_path / "data" / "reference",
+        models=tmp_path / "models",
+        mlruns=tmp_path / "mlruns",
+        contract=tmp_path / "docs" / "data-contract.schema.json",
+        reports=tmp_path / "reports",
+        video=tmp_path / "data" / "video",
+        labels=tmp_path / "data" / "labels",
+        tracking=tmp_path / "data" / "processed" / "tracking",
+    )
+    reference = ReferenceFiles(
+        half_boundaries=tmp_path / "data" / "reference" / "half_boundaries.csv",
+        final_scores=tmp_path / "data" / "reference" / "final_scores.csv",
+        team_mapping=tmp_path / "data" / "reference" / "team_mapping.csv",
+        sportapp_games=tmp_path / "data" / "reference" / "sportapp_games.csv",
+        competition_tier=tmp_path / "data" / "reference" / "competition_tier.csv",
+        player_mapping=tmp_path / "data" / "reference" / "player_mapping.csv",
+        group_opponents=tmp_path / "data" / "reference" / "group_opponents.csv",
+        hover_positions=tmp_path / "data" / "reference" / "hover_positions.csv",
+        homography_calibration=tmp_path / "data" / "reference" / "homography_calibration.csv",
+        gt_positions=tmp_path / "data" / "reference" / "gt_positions.csv",
+        continuity_review=tmp_path / "data" / "reference" / "continuity_review.csv",
+    )
+    # REQ-S1-09 adoption (plan 01.3-09): `train_ep`/`train_wp` now call
+    # `_build_competition_tier` unconditionally, which reads this file.
+    # `canonical_plays_with_scores` always sets `competition="TEST"` for its default
+    # `source="hudl"`.
+    reference.competition_tier.parent.mkdir(parents=True, exist_ok=True)
+    reference.competition_tier.write_text(
+        "source,competition,tier\nhudl,TEST,womens-international\n"
+    )
+    sources = Sources(
+        sportapp=SportappSource(
+            base_url="https://example.invalid/api/v1/public", api_key_env="SPORTAPP_API_KEY"
+        ),
+        ifaf=IfafSource(
+            base_url="https://example.invalid/v1",
+            tournament="test-tournament",
+            api_key_env="CPX_API_KEY",
+        ),
+    )
+    train = TrainSettings(
+        ep_experiment="ep_model_test",
+        wp_experiment="wp_model_test",
+        exclude_games_ep=exclude_games_ep or [],
+        exclude_games_wp=exclude_games_wp or [],
+    )
+    report = ReportSettings(own_team="HOME", cycle_start_season=2026)
+    cv = CvSettings(
+        pilot_session_id="test-session",
+        detector_model="cv_detector_model_test",
+        detector_experiment="cv_detector_test",
+        resolution=672,
+        sahi=False,
+        sahi_slice=640,
+        sahi_overlap=0.2,
+        train_epochs=1,
+        train_batch_size=4,
+        train_grad_accum=4,
+        device="cpu",
+        label_frame_target=10,
+        cvat_host="http://localhost:8080",
+        cvat_username_env="CVAT_USERNAME",
+        cvat_password_env="CVAT_PASSWORD",
+        field_length_yards=50.0,
+        field_width_yards=25.0,
+        endzone_yards=10.0,
+    )
+    return Config(
+        paths=paths, reference=reference, sources=sources, train=train, report=report, cv=cv
+    )
+
+
+def _training_corpus(n_games: int = 12, plays_per_game: int = 16) -> pl.DataFrame:
+    """A multi-game canonical frame with enough scoring variation for EP/WP training.
+
+    Mirrors `tests/test_model_train.py`'s `_ep_training_corpus`: a mid-half touchdown
+    repeated across many games so both EP's sample-weight computation and WP's win label
+    have enough variety for a real (if tiny) XGBoost fit with an 80/20 split.
+
+    Play 7 of every game is overridden to a 1-pt PAT attempt (`down=0`, `yards_to_go=3`) and
+    play 8 to a 2-pt PAT attempt (`down=0`, `yards_to_go=8`), alternating success/failure by
+    game index, so `estimate_pat_baselines` (REQ-S1-10) has a nonzero attempt count for both
+    types -- `score_plays` now estimates PAT baselines from the full input frame before
+    scoring and raises `InsufficientPatAttempts` if either type has zero attempts.
+    """
+    touchdown = [0] * plays_per_game
+    touchdown[5] = 1  # mid-half, second drive of the half
+
+    down = [((i % plays_per_game) - 1) % 4 + 1 for i in range(plays_per_game)]
+    yards_to_go = [5 + ((i % plays_per_game) % 16) for i in range(plays_per_game)]
+    one_point_conv_success = [0] * plays_per_game
+    two_point_conv_success = [0] * plays_per_game
+    # play_id 7 (index 6): 1-pt PAT try; play_id 8 (index 7): 2-pt PAT try.
+    down[6] = 0
+    yards_to_go[6] = 3
+    down[7] = 0
+    yards_to_go[7] = 8
+
+    all_down: list[int] = []
+    all_yards_to_go: list[int] = []
+    all_one_point: list[int] = []
+    all_two_point: list[int] = []
+    for game_idx in range(n_games):
+        game_one_point = list(one_point_conv_success)
+        game_two_point = list(two_point_conv_success)
+        game_one_point[6] = 1 if game_idx % 2 == 0 else 0
+        game_two_point[7] = 1 if game_idx % 2 == 0 else 0
+        all_down.extend(down)
+        all_yards_to_go.extend(yards_to_go)
+        all_one_point.extend(game_one_point)
+        all_two_point.extend(game_two_point)
+
+    overrides = {
+        "touchdown": touchdown * n_games,
+        "down": all_down,
+        "yards_to_go": all_yards_to_go,
+        "one_point_conv_success": all_one_point,
+        "two_point_conv_success": all_two_point,
+    }
+    return canonical_plays_with_scores(
+        n_games=n_games, plays_per_game=plays_per_game, overrides=overrides
+    )
+
+
+def _trained_config(tmp_path: Path) -> tuple[Config, str, str]:
+    """A config with one real EP run and one real WP run already logged."""
+    config = _make_config(tmp_path)
+    plays = _training_corpus()
+    ep_run_id = train_ep(plays, config)
+    wp_run_id = train_wp(plays, config)
+    return config, ep_run_id, wp_run_id
+
+
+def _register_run(config: Config, run_id: str, model_prefix: str = "ep") -> str:
+    """Register `run_id`'s already-logged model as a version of `model_prefix`'s registered
+    model name. `train_ep`/`train_wp` do not call `registered_model_name=` themselves (that
+    wiring lands in plan 01.3-05) -- tests exercising `registry.promote` against a real
+    training run must register a version explicitly first, exactly like
+    `tests/test_model_registry.py::test_register_production_model_from_real_train_ep_run`.
+    """
+    name = registry.registered_model_name(model_prefix)
+    mlflow_store.configure(config)
+    with mlflow.start_run(run_id=run_id):
+        model = load_model(run_id, config)
+        registry.register_production_model(model, name, config)
+    return name
+
+
+# --- Task 1: run resolution and model loading ---------------------------------------------
+
+
+def test_resolve_run_with_explicit_id_returns_it_unchanged(tmp_path: Path) -> None:
+    config, ep_run_id, _wp_run_id = _trained_config(tmp_path)
+
+    resolved = resolve_run(config.train.ep_experiment, config, run_id=ep_run_id, model_prefix="ep")
+
+    assert resolved == ep_run_id
+
+
+def test_resolve_run_explicit_id_raises_run_not_found_when_missing(tmp_path: Path) -> None:
+    config, _ep_run_id, _wp_run_id = _trained_config(tmp_path)
+
+    with pytest.raises(RunNotFound):
+        resolve_run(config.train.ep_experiment, config, run_id="0" * 32, model_prefix="ep")
+
+
+def test_resolve_run_without_id_returns_champion_not_latest(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _training_corpus()
+
+    first_run_id = train_ep(plays, config)
+    name = _register_run(config, first_run_id, "ep")
+    registry.promote(name, first_run_id, config)
+    second_run_id = train_ep(plays, config)
+    _register_run(config, second_run_id, "ep")
+    assert second_run_id != first_run_id
+
+    resolved = resolve_run(config.train.ep_experiment, config, model_prefix="ep")
+
+    assert resolved == first_run_id
+    assert resolved != second_run_id
+
+
+def test_resolve_run_without_id_and_no_champion_promoted_raises_registry_error(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _training_corpus()
+    run_id = train_ep(plays, config)
+    _register_run(config, run_id, "ep")  # registered, but never promoted
+
+    with pytest.raises(RegistryError) as exc_info:
+        resolve_run(config.train.ep_experiment, config, model_prefix="ep")
+
+    message = str(exc_info.value)
+    assert "ep_model" in message
+    assert "ffep promote" in message
+
+
+def test_resolve_run_rejects_path_fragment_run_id(tmp_path: Path) -> None:
+    config, _ep_run_id, _wp_run_id = _trained_config(tmp_path)
+
+    with pytest.raises(ValueError):
+        resolve_run(config.train.ep_experiment, config, run_id="../../etc", model_prefix="ep")
+
+
+def test_load_model_booster_feature_names_match_training_features(tmp_path: Path) -> None:
+    config, ep_run_id, _wp_run_id = _trained_config(tmp_path)
+
+    from flag_football_ep.model.hyperparams import EP_FEATURES
+
+    model = load_model(ep_run_id, config)
+
+    assert model.get_booster().feature_names == list(EP_FEATURES)
+
+
+def test_load_model_sets_tracking_uri_from_config(tmp_path: Path) -> None:
+    config, ep_run_id, _wp_run_id = _trained_config(tmp_path)
+
+    # Point the ambient tracking uri somewhere else first -- load_model must still resolve
+    # against config.paths.mlruns, not whatever uri happens to be set beforehand.
+    mlflow.set_tracking_uri("sqlite:///" + str(tmp_path / "somewhere-else" / "mlflow.db"))
+
+    model = load_model(ep_run_id, config)
+
+    assert model is not None
+    assert mlflow.get_tracking_uri() == mlflow_store.tracking_uri(config)
+
+
+def test_load_model_rejects_non_hex_run_id(tmp_path: Path) -> None:
+    config, _ep_run_id, _wp_run_id = _trained_config(tmp_path)
+
+    with pytest.raises(ValueError):
+        load_model("../../etc/passwd", config)
+
+
+def test_score_module_never_uses_pickle_load() -> None:
+    import pathlib
+
+    source = pathlib.Path("src/flag_football_ep/model/score.py").read_text(encoding="utf-8")
+    assert "pickle.load" not in source
+
+
+def test_no_production_code_uses_legacy_notebook_baselines() -> None:
+    """Guards T-1.3-21: no `src/flag_football_ep/` module other than `features/mutations.py`
+    itself may reference `PatBaselines.legacy_notebook()` -- a silent reversion to the
+    pre-REQ-S1-10 hard-coded 0.5/0.92 PAT rates must fail this test, not slip through
+    unnoticed."""
+    import pathlib
+
+    src_root = pathlib.Path("src/flag_football_ep")
+    mutations_file = src_root / "features" / "mutations.py"
+    offending = []
+    for path in src_root.rglob("*.py"):
+        if path == mutations_file:
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "legacy_notebook" in text:
+            offending.append(str(path))
+
+    assert not offending, (
+        f"legacy_notebook referenced outside features/mutations.py: {offending}"
+    )
+
+
+# --- Task 2: score_plays producing EPA and WPA columns -------------------------------------
+
+
+_EXTRA_SCORE_COLUMNS = ["ExpPts", "ep", "epa", "wp", "home_wp", "away_wp", "wpa"]
+
+
+def test_score_plays_returns_probability_and_epa_wpa_columns(tmp_path: Path) -> None:
+    config, ep_run_id, wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+
+    scored = score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    for column in [*EP_PROB_LABELS, *_EXTRA_SCORE_COLUMNS]:
+        assert column in scored.columns, f"missing expected scored column: {column}"
+
+
+def test_score_plays_probability_columns_match_ep_prob_labels_order(tmp_path: Path) -> None:
+    config, ep_run_id, wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+
+    scored = score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    positions = [scored.columns.index(label) for label in EP_PROB_LABELS]
+    assert positions == sorted(positions)
+
+
+def test_score_plays_ep_probabilities_sum_to_one(tmp_path: Path) -> None:
+    config, ep_run_id, wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+
+    scored = score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    complete = scored.drop_nulls(subset=list(EP_PROB_LABELS))
+    totals = complete.select(pl.sum_horizontal(list(EP_PROB_LABELS)).alias("total"))["total"]
+    assert (totals.to_numpy() - 1.0 < 1e-6).all()
+    assert (1.0 - totals.to_numpy() < 1e-6).all()
+
+
+def test_score_plays_exp_pts_within_bounds(tmp_path: Path) -> None:
+    config, ep_run_id, wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+
+    scored = score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    exp_pts = scored.drop_nulls(subset=["ExpPts"])["ExpPts"].to_numpy()
+    assert (exp_pts >= -6).all()
+    assert (exp_pts <= 6).all()
+
+
+def test_score_plays_preserves_row_count_with_null_feature_rows(tmp_path: Path) -> None:
+    config, ep_run_id, wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+    target_game_id = plays["game_id"].unique().sort()[0]
+    plays = plays.with_columns(
+        pl.when((pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3))
+        .then(pl.lit(None))
+        .otherwise(pl.col("yardline_50"))
+        .alias("yardline_50")
+    )
+
+    scored = score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    assert scored.height == plays.height
+
+    null_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3)
+    )
+    assert null_row.height == 1
+    for label in EP_PROB_LABELS:
+        assert null_row[label][0] is None
+
+
+def test_score_plays_raises_on_missing_feature_column(tmp_path: Path) -> None:
+    from flag_football_ep.model.score import MissingScoreColumns
+
+    config, ep_run_id, wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus().drop("yardline_50")
+
+    with pytest.raises(MissingScoreColumns):
+        score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+
+def test_score_plays_is_deterministic(tmp_path: Path) -> None:
+    config, ep_run_id, wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+
+    first = score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+    second = score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    assert first.equals(second)
+
+
+def test_score_module_never_imports_pandas() -> None:
+    import pathlib
+
+    source = pathlib.Path("src/flag_football_ep/model/score.py").read_text(encoding="utf-8")
+    assert "import pandas" not in source
+
+
+# --- CR-01 regression: _score_probabilities must preserve input row order ------------------
+#
+# These tests deliberately do NOT assert that a null-adjacent row's epa on the mixed frame
+# equals its epa on a fully-complete frame -- that equality does not hold even with the fix.
+# On the fully-complete frame the preceding row's home_ep_after is the null row's OWN
+# prediction; on the mixed (fixed) frame it is the backward-filled value from the following
+# play. Test 2/3 below (EP/WP backfill) are the correct, discriminating form of "the null
+# row's neighbours are computed against the right play": they assert the null row itself
+# inherits the NEXT play's ep/wp via backward_fill, which is only possible if
+# _score_probabilities kept it in chronological position instead of relocating it to the
+# frame's tail. Test 4 is the correct form of "unaffected rows are unchanged".
+
+
+def test_score_probabilities_returns_rows_in_row_id_order(tmp_path: Path) -> None:
+    from flag_football_ep import reference
+    from flag_football_ep.features.mutations import add_competition_tier_features
+    from flag_football_ep.model.score import (
+        _ROW_ID_COLUMN,
+        _prepare_ep_features,
+        _score_probabilities,
+    )
+    from flag_football_ep.model.hyperparams import EP_FEATURES
+
+    config, ep_run_id, _wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+    target_game_id = plays["game_id"].unique().sort()[0]
+    plays = plays.with_columns(
+        pl.when((pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3))
+        .then(pl.lit(None))
+        .otherwise(pl.col("yardline_50"))
+        .alias("yardline_50")
+    )
+    plays = plays.with_row_index(name=_ROW_ID_COLUMN, offset=0)
+    # REQ-S1-09 adoption (plan 01.3-09): EP_FEATURES now includes the tier one-hot columns
+    # `score_plays` builds via `add_competition_tier_features` -- this test drives
+    # `_prepare_ep_features`/`_score_probabilities` directly (bypassing `score_plays`), so it
+    # must build them itself, the same way.
+    tier_mapping = reference.load_competition_tier(config.reference.competition_tier)
+    plays, _tier_features = add_competition_tier_features(plays, tier_mapping)
+    ep_prepared = _prepare_ep_features(plays)
+    ep_model = load_model(ep_run_id, config)
+
+    scored = _score_probabilities(ep_prepared, ep_model, EP_FEATURES, EP_PROB_LABELS)
+
+    row_ids = scored[_ROW_ID_COLUMN]
+    assert row_ids.to_list() == row_ids.sort().to_list()
+
+
+def _scored_with_null_yardline_50(tmp_path: Path) -> tuple[pl.DataFrame, pl.DataFrame, object]:
+    """Score the untouched corpus (`baseline`) and the same corpus with `yardline_50` nulled
+    on play 3 of the first game id (`scored`). Reused by Tests 2-4."""
+    config, ep_run_id, wp_run_id = _trained_config(tmp_path)
+    plays = _training_corpus()
+    target_game_id = plays["game_id"].unique().sort()[0]
+
+    baseline = score_plays(plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    nulled_plays = plays.with_columns(
+        pl.when((pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3))
+        .then(pl.lit(None))
+        .otherwise(pl.col("yardline_50"))
+        .alias("yardline_50")
+    )
+    scored = score_plays(nulled_plays, config, ep_run=ep_run_id, wp_run=wp_run_id)
+
+    return baseline, scored, target_game_id
+
+
+def test_score_plays_backfills_ep_on_null_feature_row_from_next_play(tmp_path: Path) -> None:
+    _baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
+
+    null_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3)
+    )
+    next_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 4)
+    )
+    assert null_row.height == 1
+    assert next_row.height == 1
+
+    null_ep = null_row["ep"][0]
+    next_exp_pts = next_row["ExpPts"][0]
+    assert null_ep is not None
+    assert null_ep == pytest.approx(next_exp_pts, abs=1e-9)
+
+
+def test_score_plays_backfills_wp_on_null_feature_row_from_next_play(tmp_path: Path) -> None:
+    _baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
+
+    null_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3)
+    )
+    next_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 4)
+    )
+    assert null_row.height == 1
+    assert next_row.height == 1
+
+    null_wp = null_row["wp"][0]
+    next_wp = next_row["wp"][0]
+    assert null_wp is not None
+    assert null_wp == pytest.approx(next_wp, abs=1e-9)
+
+
+def test_score_plays_unaffected_games_match_fully_complete_scoring(tmp_path: Path) -> None:
+    baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
+
+    baseline_other = baseline.filter(pl.col("game_id") != target_game_id).sort(
+        ["game_id", "play_id"]
+    )
+    scored_other = scored.filter(pl.col("game_id") != target_game_id).sort(
+        ["game_id", "play_id"]
+    )
+
+    assert baseline_other["epa"].eq_missing(scored_other["epa"]).all()
+    assert baseline_other["wpa"].eq_missing(scored_other["wpa"]).all()

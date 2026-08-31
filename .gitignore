@@ -1,0 +1,50 @@
+# Hudl sample exports contain player names (PII) — never commit (T-1.1-03)
+data/samples/
+
+# secrets never committed (T-1.2-01)
+.env
+
+# new-format Hudl exports carry player names and BLITZ person names, same
+# PII policy as data/samples/ above (T-1.2-02)
+# NOTE: ignore contents (data/raw/hudl/*), not the directory itself — git
+# cannot re-include a file inside a wholesale-excluded directory.
+data/raw/hudl/*
+!data/raw/hudl/.gitkeep
+
+# regenerable pipeline output, rebuilt atomically per ingest
+data/processed/*
+!data/processed/.gitkeep
+
+# local MLflow tracking store
+mlruns/
+
+# own-team efficiency report renders player names (PII), same policy as
+# data/raw/hudl/* above; every report is regenerable from `ffep report`.
+# Anchored to the repo root (`ffep.toml`'s `reports = "reports"` output dir) --
+# an unanchored `reports/` also matches src/flag_football_ep/reports/, the
+# source package every Phase 1.4 report builder lives in, which must stay
+# tracked.
+/reports/
+
+# drone/side-camera sample clips show players' faces (PII), same policy as
+# data/raw/hudl/* above (Phase 2.0, REQ-S2-01, T-2.0-01)
+# NOTE: ignore contents (data/video/*), not the directory itself — git
+# cannot re-include a file inside a wholesale-excluded directory.
+data/video/*
+!data/video/.gitkeep
+
+# labeled frames are extracted player images (PII), same policy as
+# data/video/* above (Phase 2.1, REQ-S2-02, T-2.1-01)
+# NOTE: ignore contents (data/labels/*), not the directory itself — git
+# cannot re-include a file inside a wholesale-excluded directory.
+data/labels/*
+!data/labels/.gitkeep
+
+# data/raw/legacy/, data/raw/sportapp/, data/raw/ifaf/ and data/reference/
+# are intentionally NOT ignored: the legacy CSV is the bulk of the training
+# corpus, the raw JSON snapshots make fetch reproducible offline, and the
+# maintained reference CSVs are what make the pipeline reproducible.
+
+__pycache__/
+*.pyc
+.venv/

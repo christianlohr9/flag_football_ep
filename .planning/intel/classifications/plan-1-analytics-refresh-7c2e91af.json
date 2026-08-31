@@ -1,0 +1,24 @@
+{
+  "source_path": "/Users/clohr/Documents/flag_football_ep/.claude/worktrees/planning-docs/docs/plan-1-analytics-refresh.md",
+  "type": "PRD",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Plan 1: Hudl-Jahresexport, EP/WP-Retraining und Scouting-Produkte",
+  "summary": "Phased implementation plan (strand 1 of 2) to turn the Hudl yearly export into a reproducible data pipeline, retrain EP/WP models, and generate scouting/coaching reports.",
+  "scope": [
+    "Hudl yearly export / data contract with video analyst",
+    "data ingest pipeline (src/flag_football_ep package, ingest CLI, canonical Parquet)",
+    "data validation checks (RESULT vocabulary, downs, yardline_50, drive IDs, score reconstruction)",
+    "EP/WP model retraining (GroupKFold split, calibration, feature candidates, model versioning)",
+    "PAT baselines and break-even charts",
+    "coaching products (opponent tendency reports, own-efficiency EPA reports, decision charts, WP charts)",
+    "sportapp.fi / IFAF tournament data merge"
+  ],
+  "cross_refs": [
+    "plan-2-cv-tracking.md",
+    "README.md"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": "German-language phased plan, no frontmatter or filename convention. Dominant signals are PRD-like: goals, explicit Nicht-Ziele (non-goals), success criterion (report generation < 10 min before tournaments), prioritized product list. Competing signals: SPEC-like contract details (RESULT tagging vocabulary, validation ranges, schema fields) and DOC-like prose/roadmap structure. Resolved to PRD per ambiguity rule since requirements/scope framing dominates; extraction should still capture the Phase 1.1/1.2 data-contract constraints as technical requirements."
+}

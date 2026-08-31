@@ -1,0 +1,76 @@
+{% extends "base.html.j2" %}
+
+{% block title %}Gegner-Report — {{ team_name }} ({{ team }}){% endblock %}
+
+{% block subtitle %}{{ generated_on.isoformat() }} · {{ overall_basis.text }}{% endblock %}
+
+{% block content %}
+<div class="summary-block">
+<ul>
+{% for sentence in summary_sentences %}
+<li>{{ sentence }}</li>
+{% endfor %}
+</ul>
+</div>
+
+{% if notices %}
+<div class="warning-block">
+<ul>
+{% for notice in notices %}
+<li>{{ notice }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+{% set ns = namespace(legend_shown=false) %}
+{% for section in sections %}
+<h2>{{ section.heading }}</h2>
+<p class="section-basis">{{ section.basis_text }}</p>
+{% if section.chart_data_uri %}
+<div class="chart-block">
+<img class="chart-img" src="{{ section.chart_data_uri }}" alt="{{ section.heading }}">
+</div>
+{% endif %}
+{% if section.empty_notice %}
+<p class="warning-block">{{ section.empty_notice }}</p>
+{% else %}
+<table>
+<thead>
+<tr>
+{% for header in section.headers %}
+<th>{{ header }}</th>
+{% endfor %}
+</tr>
+</thead>
+<tbody>
+{% for row in section.rows %}
+<tr>
+{% for cell in row.cells %}
+<td{% if row.muted %} class="muted-cell"{% endif %}>{{ cell }}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% if not ns.legend_shown %}
+<p class="section-basis">Grau hinterlegte Zeilen: Stichprobe unter n={{ muted_min_n }} (Muting-Schwellenwert) — angezeigt, nie ausgeblendet.</p>
+{% set ns.legend_shown = true %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block footnotes %}
+<p>
+Feldzonen (yardline_50, Distanz zur gegnerischen Torlinie):
+{% for label, low, high in field_zones %}
+{{ label }} ({{ low }}–{{ high }}){% if not loop.last %}, {% endif %}
+{% endfor %}.
+Score State: „Ausgeglichen" bei einem Score-Differential von ±6 oder weniger (ein Touchdown plus PAT-Wert),
+sonst „Führung" bzw. „Rückstand".
+Konfidenzintervalle nach Clopper-Pearson.
+Formation- und Routen-Auswertungen basieren ausschließlich auf Hudl-Charting-Spielen;
+Down/Distance-, Play-Call-, 4th-Down- und PAT-Auswertungen nutzen alle verfügbaren Datenquellen.
+</p>
+{% endblock %}

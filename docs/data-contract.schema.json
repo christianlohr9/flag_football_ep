@@ -1,0 +1,221 @@
+{
+  "contract_version": "1.1",
+  "status": "provisional",
+  "status_note": "unilaterally adopted 2026-08-17 (user decision, analyst conversation postponed indefinitely); analyst ratification pending — see deferred_ratification. v1.1 amendment 2026-08-17: core-plus-optional column model replaces the fixed 19-column preset assumption (evidence: seven real exports with seven distinct headers, 12/13/26/33/39/43/45 columns)",
+  "deferred_ratification": {
+    "marker": "DEFERRED-ANALYST",
+    "record": "DEFERRED-ANALYST: Gespräch auf unbestimmte Zeit verschoben (User-Entscheid 2026-08-17). Owner: Nutzer. Follow-up-Trigger: sobald der Videoanalyst wieder verfügbar ist, spätestens vor dem nächsten Filmtausch. Zu ratifizieren: (a) TEAM1/posteam-Regel, (b) RESULT-Pflicht + Fumble-Semantik, (c) Defense-Vokabular inkl. der sechs Sichtungs-Fragen.",
+    "owner": "Nutzer",
+    "follow_up_trigger": "sobald der Videoanalyst wieder verfügbar ist, spätestens vor dem nächsten Filmtausch",
+    "items": [
+      "TEAM1/posteam-Regel",
+      "RESULT-Pflicht + Fumble-Semantik",
+      "Defense-Vokabular inkl. der sechs Sichtungs-Fragen"
+    ]
+  },
+  "contract_model": {
+    "type": "core-plus-optional",
+    "adopted": "v1.1 amendment 2026-08-17 — no fixed Hudl export preset exists; seven sighted real exports all differ (12/13/26/33/39/43/45 columns)",
+    "core_columns": ["PLAY #", "ODK", "DN", "DIST", "YARD LN", "PLAY TYPE", "RESULT", "GN/LS"],
+    "core_rule": "core columns were present in all seven sighted exports; ingest MUST fail hard if any core column is missing from a file's header",
+    "optional_rule": "optional canonical columns are validated when present; when absent, ingest materializes them as null columns",
+    "unknown_rule": "header columns not in the canonical set (e.g. TARGET ROUTE, MOTION, SERIES, BF ACTION, TACKLE, comment columns) are ignored with a log notice — contract-neutral, not a violation",
+    "header_matching": "exact column-name equality"
+  },
+  "file_format": {
+    "type": "csv",
+    "delimiter": ";",
+    "encoding": "utf-8-sig",
+    "filename_pattern": "YYYY-MM-DD_{TEAM1}-vs-{TEAM2}_{COMP}.csv",
+    "filename_example": "2026-06-14_GER-vs-AUT_EM-QUALI.csv",
+    "filename_fallback_pattern": "YYYY_{TEAM1}-vs-{TEAM2}[_{COMP}][_n].csv",
+    "filename_fallback_note": "reduced year-only form allowed when the exact date is not reconstructable ('_n' = ordinal on collisions). Export metadata carries NO year (verified 2026-08-17: the only date-bearing field is a tournament label like 'FF - European Championship, Paris - 23.-28.09.' without a year) — the year must travel in the filename",
+    "filename_rules": "ISO date first for chronological sort; '_' separates fields, '-' joins tokens within a field; uppercase 3-letter IFAF team codes",
+    "filename_semantics": "TEAM1 = Charting-Perspektive-Team im Dateinamen; posteam = TEAM1 wenn ODK == 'O', sonst TEAM2 (einseitig festgelegt 2026-08-17; ratification deferred, see deferred_ratification)",
+    "files": "one export file per game"
+  },
+  "columns": [
+    {
+      "name": "PLAY #",
+      "dtype": "int",
+      "presence": "core",
+      "required": true,
+      "note": "identity source of play_id; contiguous 1..N per game"
+    },
+    {
+      "name": "ODK",
+      "dtype": "str",
+      "presence": "core",
+      "required": true,
+      "values": ["O", "D", "K"],
+      "note": "forward-only hardening; legacy ODK is polluted (team names, formation strings) and takes the grandfathered ingest path"
+    },
+    {
+      "name": "DN",
+      "dtype": "int",
+      "presence": "core",
+      "required": true,
+      "range": [0, 4],
+      "note": "0 = PAT play"
+    },
+    {
+      "name": "DIST",
+      "dtype": "int",
+      "presence": "core",
+      "required": true
+    },
+    {
+      "name": "HASH",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "note": "semantics sighting deferred to Phase 1.2"
+    },
+    {
+      "name": "YARD LN",
+      "dtype": "int",
+      "presence": "core",
+      "required": true,
+      "range": [-50, 50],
+      "note": "signed convention: negative = own territory, positive = yards to opponent goal"
+    },
+    {
+      "name": "PLAY TYPE",
+      "dtype": "str",
+      "presence": "core",
+      "required": false,
+      "note": "column present in all seven sighted exports (hence core presence), values optional; semantics sighting deferred to Phase 1.2"
+    },
+    {
+      "name": "RESULT",
+      "dtype": "str",
+      "presence": "core",
+      "required": true,
+      "base_tokens": ["Rush", "KNEEL", "Sack", "Interception", "Complete", "Incomplete", "Good", "No Good", "Fumble", "Penalty"],
+      "modifier_tokens": ["TD", "Def TD", "Safety", "Penalty"],
+      "separator": ", ",
+      "matching": "exact token match after split on separator, case-sensitive",
+      "note": "non-empty forward-only (23% of legacy plays are empty and silently become 'pass') — confirmed as unilateral working decision 2026-08-17. C-07 amendment: 'No Good' and 'Fumble' added to the C-07 token list; working Fumble semantics: Fumble = charted ball loss tag; possession-change semantics to be confirmed at ratification (see deferred_ratification). Replaces the fragile str.contains substring semantics."
+    },
+    {
+      "name": "GN/LS",
+      "dtype": "int",
+      "presence": "core",
+      "required": false,
+      "note": "column present in all seven sighted exports (hence core presence); informational, non-authoritative — yards gained are derived from yardline_50 deltas"
+    },
+    {
+      "name": "OFF FORM",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "note": "semantics sighting deferred to Phase 1.2"
+    },
+    {
+      "name": "OFF PLAY",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "note": "semantics sighting deferred to Phase 1.2"
+    },
+    {
+      "name": "OFF STR",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "note": "semantics sighting deferred to Phase 1.2"
+    },
+    {
+      "name": "PLAY DIR",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "note": "semantics sighting deferred to Phase 1.2"
+    },
+    {
+      "name": "GAP",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "note": "semantics sighting deferred to Phase 1.2"
+    },
+    {
+      "name": "PASS ZONE",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "note": "semantics sighting deferred to Phase 1.2"
+    },
+    {
+      "name": "DEF FRONT",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "values": ["LINE 5", "LINE 7", "LINE 5 --> 7", "ALL GL", "ALL FIRST", "S Dia", "BOX 4/7", "LINE 5 POST BOX 4/7", "5-5-7-6", "5-6-6-5", "5-6-6-6", "5-6-7-6", "5-7-7-5", "6-6-6-5", "6-6-6-6", "6-7-7-6", "7-7-7-7", "7-7-13-7", "7-8-8-7", "8-8-8-8", "10-10-13-10"],
+      "values_open": true,
+      "normalization": "uppercase LINE tokens ('Line 5 --> 7' -> 'LINE 5 --> 7')",
+      "note": "sighted 2026-08-17 from 7 sample exports (2 tranches). Three notation families whose boundary does NOT follow own/scouting (v1.1 correction: GER vs. PAN / GER vs. PUE are own games using LINE notation; tuples appeared only in the two EM-Paris films): LINE notation (incl. one transition value 'LINE 5 --> 7'), numeric tuples matching ^\\d+(-\\d+){3}$ plus 'ALL GL'/'ALL FIRST', and structure calls 'S Dia'/'BOX 4/7'/'LINE 5 POST BOX 4/7' (meaning unknown). Enumeration is open, not closed; column entirely absent in several exports. Vocabulary adopted unilaterally 2026-08-17; notation unification remains an open sighting question, queued for ratification (see deferred_ratification)"
+    },
+    {
+      "name": "COVERAGE",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "values": ["WHITE", "O WHITE", "BLACK", "BLUE", "GRAY", "YELLOW", "MONEY", "POOR", "QUARTERS", "0-4", "1-2", "1-3", "3-1", "F 1-2-1", "SC 1-2-1"],
+      "values_open": true,
+      "normalization": "collapse whitespace around hyphens in numeric shells ('F 1 -2-1' -> 'F 1-2-1', 'SC 1 - 2 -1' -> 'SC 1-2-1'); uppercase; typo fix 'YELLOE' -> 'YELLOW' (3x sighted in GER vs. PAN)",
+      "note": "sighted 2026-08-17 from 7 sample exports: three mixed name spaces — team call colors (incl. prefixed variant 'O WHITE', prefix meaning unknown), numeric zone shells, textbook term 'QUARTERS' (1x in scouting film). Vocabulary adopted unilaterally 2026-08-17; relationship of color calls vs shells and meaning of 'F'/'SC'/'O' prefixes remains an open sighting question, queued for ratification (see deferred_ratification)"
+    },
+    {
+      "name": "BLITZ",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "values": ["<BLITZERIN-NAME>"],
+      "values_open": true,
+      "note": "sighted 2026-08-17, confirmed in all 5 exports carrying the column: observed values are exclusively person names (blitzer identified by first or last name), not tactical terms — names are PII and deliberately not enumerated here. '<BLITZERIN-NAME>' is a semantic placeholder, not a literal value. Free-text person reference adopted unilaterally 2026-08-17; forward decision (keep name-based charting = PII column like RECEIVED BY, or switch to a tactical vocabulary) remains an open sighting question, queued for ratification (see deferred_ratification)"
+    },
+    {
+      "name": "QTR",
+      "dtype": "str",
+      "presence": "optional",
+      "required": false,
+      "note": "essentially never filled; not consumed by the pipeline"
+    }
+  ],
+  "derived_fields": {
+    "play_id": {
+      "source": "PLAY #",
+      "rule": "identity",
+      "dtype": "Int32"
+    },
+    "yardline_50": {
+      "source": "YARD LN",
+      "rule": "-x if x < 0 else 50 - x",
+      "dtype": "Int32",
+      "verified": "3656/3658 legacy rows (99.95%)"
+    },
+    "drive_id": {
+      "source": "ODK + RESULT",
+      "rule": "increment on O/D possession flip; scoring/turnover RESULT (TD, Def TD, Safety, Interception, Fumble-if-turnover) also closes a drive",
+      "dtype": "Int32"
+    },
+    "half": {
+      "source": "data/half_boundaries.csv",
+      "rule": "1 if PLAY # < half2_first_play else 2",
+      "dtype": "Int32"
+    },
+    "game_id": {
+      "source": "filename",
+      "rule": "parsed from filename_pattern; assigned by ingest from parsed filename",
+      "dtype": "Int32-or-str per Phase 1.2 choice"
+    },
+    "posteam": {
+      "source": "filename + ODK",
+      "rule": "TEAM1 = Charting-Perspektive-Team im Dateinamen; posteam = TEAM1 wenn ODK == 'O', sonst TEAM2",
+      "adopted": "einseitig festgelegt 2026-08-17; analyst ratification queued (see deferred_ratification)",
+      "caveat": "get_games() currently assumes the team with the first drive is 'home_team' (only relevant for scores/differential)",
+      "dtype": "str"
+    }
+  }
+}
