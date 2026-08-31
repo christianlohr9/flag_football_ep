@@ -79,6 +79,13 @@ _TIER_IDEAL = "Ideal"
 _TIER_BRAUCHBAR = "Brauchbar"
 _TIER_UNBRAUCHBAR = "Unbrauchbar"
 
+# The registered capture domains (tests/test_capture_artifacts.py asserts this same
+# vocabulary against video_inventory.csv's `domain` column). Plan 02.2-02 parameterises
+# the sighting/frame-selection pipeline by domain instead of the plan 02.1-03 hard-coded
+# `domain == "drone"` filter -- every caller that accepts a `domain` argument validates
+# it against this set.
+DOMAIN_VOCABULARY = frozenset({"drone", "sideline", "broadcast"})
+
 # Mirrors tests/test_capture_artifacts.py::INVENTORY_SCHEMA's `resolution` column --
 # video_inventory.csv is not one of Config.reference's declared ReferenceFiles, so it is
 # addressed relative to config.paths.reference, matching cv/frames.py::clip_paths.
@@ -127,19 +134,23 @@ class SightingResult:
     csv_path: Path = field(default_factory=Path)
 
 
-def _read_inventory_rows(config: Config, session_id: str) -> pl.DataFrame:
+def _read_inventory_rows(config: Config, session_id: str, *, domain: str = "drone") -> pl.DataFrame:
+    if domain not in DOMAIN_VOCABULARY:
+        raise SightingError(
+            f"unknown domain {domain!r}; must be one of {sorted(DOMAIN_VOCABULARY)}"
+        )
     inventory_path = config.paths.reference / "video_inventory.csv"
     if not inventory_path.exists():
         raise SightingError(f"video inventory not found: {inventory_path}")
     df = pl.read_csv(inventory_path, schema_overrides=_INVENTORY_SCHEMA)
-    return df.filter((pl.col("domain") == "drone") & (pl.col("session_id") == session_id))
+    return df.filter((pl.col("domain") == domain) & (pl.col("session_id") == session_id))
 
 
-def _inventory_resolutions(config: Config, session_id: str) -> dict[int, str]:
+def _inventory_resolutions(config: Config, session_id: str, *, domain: str = "drone") -> dict[int, str]:
     from flag_football_ep.cv.frames import clip_number
 
     resolutions: dict[int, str] = {}
-    for row in _read_inventory_rows(config, session_id).iter_rows(named=True):
+    for row in _read_inventory_rows(config, session_id, domain=domain).iter_rows(named=True):
         local_path = row["local_path"]
         if not local_path:
             continue
@@ -423,16 +434,35 @@ def _write_hover_positions_csv(rows: list[ClipSighting], path: Path) -> None:
             tmp_path.unlink()
 
 
-def sight_session(config: Config, session_id: str, *, out_csv: Path | None = None) -> SightingResult:
-    """Run the sighting pass over every clip registered for `session_id`, writing one
-    `ClipSighting` row per clip to `out_csv` (defaulting to a config-derived path).
+def sight_session(
+    config: Config,
+    session_id: str,
+    *,
+    out_csv: Path | None = None,
+    domain: str = "drone",
+) -> SightingResult:
+    """Run the sighting pass over every clip registered for `session_id` in `domain`,
+    writing one `ClipSighting` row per clip to `out_csv` (defaulting to a
+    config-derived path).
+
+    For the default `domain="drone"` the output defaults to
+    `config.reference.hover_positions` (that file is keyed by `clip_number` alone and
+    belongs to the pilot drone session, byte-for-byte the plan 02.1-03 behaviour). Any
+    other domain defaults instead to `config.paths.reference / f"sighting_{session_id}.csv"`,
+    written with the identical header (including the `hover_position_id` column name,
+    which carries the camera-position group id for these domains too).
     """
     from flag_football_ep.cv.frames import clip_number, clip_paths
 
-    clips = clip_paths(config, session_id)
-    out_path = out_csv or config.reference.hover_positions
+    clips = clip_paths(config, session_id, domain=domain)
+    if out_csv is not None:
+        out_path = out_csv
+    elif domain == "drone":
+        out_path = config.reference.hover_positions
+    else:
+        out_path = config.paths.reference / f"sighting_{session_id}.csv"
     repo_root = config.paths.data_root.parent.resolve()
-    resolutions = _inventory_resolutions(config, session_id)
+    resolutions = _inventory_resolutions(config, session_id, domain=domain)
 
     notices: list[str] = [
         f"hover-position grouping used a normalized cross-correlation threshold of "

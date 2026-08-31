@@ -128,13 +128,13 @@ class FrameSampleManifest:
     split: dict[int, str]
 
 
-def clip_paths(config: Config, session_id: str) -> list[Path]:
-    """List every clip video file registered for `session_id` under `config.paths.video`,
-    in clip-number order.
+def clip_paths(config: Config, session_id: str, *, domain: str = "drone") -> list[Path]:
+    """List every clip video file registered for `session_id` and `domain` under
+    `config.paths.video`, in clip-number order.
 
     Reads `data/reference/video_inventory.csv` (the Phase-2.0 source of truth, never a
     hard-coded glob) with the same typed `schema_overrides` discipline as
-    `reference._read_reference_csv`, filters `domain == "drone"` and the requested
+    `reference._read_reference_csv`, filters `domain == domain` and the requested
     `session_id`, and resolves every `local_path` against the repo root
     (`config.paths.data_root.parent`).
 
@@ -148,10 +148,10 @@ def clip_paths(config: Config, session_id: str) -> list[Path]:
         raise ClipNotFound(f"video inventory not found: {inventory_path}")
 
     df = pl.read_csv(inventory_path, schema_overrides=_INVENTORY_SCHEMA)
-    rows = df.filter((pl.col("domain") == "drone") & (pl.col("session_id") == session_id))
+    rows = df.filter((pl.col("domain") == domain) & (pl.col("session_id") == session_id))
     if rows.height == 0:
         raise ClipNotFound(
-            f"no drone clips found for session_id {session_id!r} in {inventory_path}"
+            f"no {domain} clips found for session_id {session_id!r} in {inventory_path}"
         )
 
     repo_root = config.paths.data_root.parent.resolve()
@@ -274,13 +274,15 @@ def extract_frames(clip: Path, out_dir: Path, at_seconds: list[float]) -> list[P
     return written
 
 
-def _read_clip_durations(config: Config, session_id: str, clip_numbers: set[int]) -> dict[int, float]:
+def _read_clip_durations(
+    config: Config, session_id: str, clip_numbers: set[int], *, domain: str = "drone"
+) -> dict[int, float]:
     """Read `duration_seconds` for every clip in `clip_numbers` from
     `video_inventory.csv` (the same source `clip_paths` reads, filtered the same way).
     """
     inventory_path = config.paths.reference / "video_inventory.csv"
     df = pl.read_csv(inventory_path, schema_overrides=_INVENTORY_SCHEMA)
-    rows = df.filter((pl.col("domain") == "drone") & (pl.col("session_id") == session_id))
+    rows = df.filter((pl.col("domain") == domain) & (pl.col("session_id") == session_id))
 
     durations: dict[int, float] = {}
     for row in rows.iter_rows(named=True):
@@ -346,21 +348,25 @@ def sample_training_frames(
     target: int,
     seed: int,
     out_dir: Path,
+    domain: str = "drone",
 ) -> FrameSampleManifest:
-    """Draw the stratified `target`-frame labeling sample for `session_id`, split
-    train/val, extract the sampled frames into `out_dir`, and return the manifest.
+    """Draw the stratified `target`-frame labeling sample for `session_id` in `domain`,
+    split train/val, extract the sampled frames into `out_dir`, and return the manifest.
 
     The frame budget is allocated proportionally to clip duration, first across hover
     positions (when `data/reference/hover_positions.csv` names more than one for this
     session's clips -- every camera regime must be represented) and then within each
     hover position across its clips, with a floor of `_MIN_FRAMES_PER_CLIP` and a
-    ceiling of `_MAX_FRAMES_PER_CLIP` per clip. Within a clip, timestamps sit on an
-    evenly spaced grid over `[0.5s, duration - 0.5s]` (cell-centered, so no two clips'
-    grids overlap at the boundary) and are jittered by up to `_JITTER_FRACTION` of the
-    grid-cell width using a `random.Random(f"{seed}:{clip_number}")` generator --
-    deriving the per-clip generator from `(seed, clip_number)` keeps every clip's jitter sequence
-    independent of how many other clips were sampled, so a later run that adds/removes
-    an unrelated clip does not silently reshuffle every other clip's frames.
+    ceiling of `_MAX_FRAMES_PER_CLIP` per clip. For non-drone domains without hover
+    positions registered, the grouping key falls back to the single bucket `"all"`
+    (`hover_ids.get(n, "all")` below), exactly as it already does for drone clips that
+    predate a sighting pass. Within a clip, timestamps sit on an evenly spaced grid over
+    `[0.5s, duration - 0.5s]` (cell-centered, so no two clips' grids overlap at the
+    boundary) and are jittered by up to `_JITTER_FRACTION` of the grid-cell width using
+    a `random.Random(f"{seed}:{clip_number}")` generator -- deriving the per-clip
+    generator from `(seed, clip_number)` keeps every clip's jitter sequence independent
+    of how many other clips were sampled, so a later run that adds/removes an unrelated
+    clip does not silently reshuffle every other clip's frames.
 
     The train/val split is decided at the CLIP level (never per frame): frame-level
     splitting would leak a validation clip's near-duplicate neighbouring frames into
@@ -370,11 +376,11 @@ def sample_training_frames(
     itself uses (not `video_inventory.csv`'s declared fps, which can round
     differently), so a manifest entry always matches the file `extract_frames` writes.
     """
-    clips = clip_paths(config, session_id)
+    clips = clip_paths(config, session_id, domain=domain)
     clip_by_number = {clip_number(path): path for path in clips}
     all_numbers = set(clip_by_number)
 
-    durations = _read_clip_durations(config, session_id, all_numbers)
+    durations = _read_clip_durations(config, session_id, all_numbers, domain=domain)
     hover_ids = _read_hover_position_ids(config, all_numbers)
 
     groups: dict[str, list[int]] = {}

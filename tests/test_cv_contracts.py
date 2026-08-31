@@ -175,13 +175,17 @@ def test_ffep_help_lists_cv_subcommand() -> None:
 
 # (module, function_name, declared parameter names, in declared order)
 FUNCTION_CONTRACTS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
-    ("frames", "clip_paths", ("config", "session_id")),
+    ("frames", "clip_paths", ("config", "session_id", "domain")),
     ("frames", "clip_number", ("path",)),
     ("frames", "extract_frames", ("clip", "out_dir", "at_seconds")),
-    ("frames", "sample_training_frames", ("config", "session_id", "target", "seed", "out_dir")),
+    (
+        "frames",
+        "sample_training_frames",
+        ("config", "session_id", "target", "seed", "out_dir", "domain"),
+    ),
     ("frames", "write_manifest", ("manifest", "path")),
     ("frames", "read_manifest", ("path",)),
-    ("sighting", "sight_session", ("config", "session_id", "out_csv")),
+    ("sighting", "sight_session", ("config", "session_id", "out_csv", "domain")),
     ("sighting", "recommend_inference_settings", ("rows", "config")),
     ("prelabel", "prelabel_frames", ("config", "frames_dir", "out_dir", "force")),
     ("dataset", "validate_coco", ("coco_dir", "manifest")),

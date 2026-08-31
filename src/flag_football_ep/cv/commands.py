@@ -37,6 +37,9 @@ def sight(
     out: Optional[Path] = typer.Option(
         None, "--out", help="Override the hover-positions CSV output path"
     ),
+    domain: str = typer.Option(
+        "drone", "--domain", help="Capture domain to sight (drone, sideline, broadcast)"
+    ),
 ) -> None:
     """Run the sighting pass over every clip in a session."""
     from flag_football_ep.config import load_config
@@ -46,7 +49,7 @@ def sight(
 
     from flag_football_ep.cv.sighting import sight_session
 
-    result = sight_session(cfg, session_id, out_csv=out)
+    result = sight_session(cfg, session_id, out_csv=out, domain=domain)
 
     typer.echo(f"sighting: {result.csv_path} ({len(result.rows)} clips)")
     for notice in result.notices:
@@ -66,6 +69,9 @@ def sample(
     out: Optional[Path] = typer.Option(
         None, "--out", help="Override the sampled-frames output directory"
     ),
+    domain: str = typer.Option(
+        "drone", "--domain", help="Capture domain to sample from (drone, sideline, broadcast)"
+    ),
 ) -> None:
     """Draw the stratified training-frame sample for labeling."""
     from flag_football_ep.config import load_config
@@ -78,7 +84,7 @@ def sample(
     from flag_football_ep.cv.frames import sample_training_frames, write_manifest
 
     manifest = sample_training_frames(
-        cfg, session_id, target=target_count, seed=seed, out_dir=out_dir
+        cfg, session_id, target=target_count, seed=seed, out_dir=out_dir, domain=domain
     )
     manifest_path = write_manifest(manifest, out_dir / "manifest.json")
 

@@ -18,14 +18,17 @@ cv2 = pytest.importorskip("cv2")
 
 from flag_football_ep.config import Config, load_config
 from flag_football_ep.cv.sighting import (
+    DOMAIN_VOCABULARY,
     ClipSighting,
     InferenceRecommendation,
+    SightingError,
     SightingResult,
     _apparent_player_heights,
     _classify_tier,
     _framing_fingerprint,
     _group_by_framing,
     _normalized_cross_correlation,
+    _read_inventory_rows,
     recommend_inference_settings,
     sight_session,
 )
@@ -56,9 +59,15 @@ def cfg(tmp_path: Path) -> Config:
     return load_config(config_path)
 
 
-def _row(local_path: str, *, session_id: str = "sess-1", resolution: str = "1920x1080") -> dict[str, str]:
+def _row(
+    local_path: str,
+    *,
+    session_id: str = "sess-1",
+    resolution: str = "1920x1080",
+    domain: str = "drone",
+) -> dict[str, str]:
     return {
-        "domain": "drone",
+        "domain": domain,
         "session_id": session_id,
         "game_id": "",
         "capture_date": "2026-05-16",
@@ -357,3 +366,106 @@ def test_sight_session_groups_clips_by_framing(tmp_path: Path, cfg: Config) -> N
     by_number = {r.clip_number: r for r in result.rows}
     assert by_number[1].hover_position_id == by_number[2].hover_position_id
     assert by_number[1].hover_position_id != by_number[3].hover_position_id
+
+
+# --- domain parameterisation (plan 02.2-02 Task 1) --------------------------------
+
+
+def test_read_inventory_rows_rejects_unknown_domain(tmp_path: Path, cfg: Config) -> None:
+    _write_inventory(tmp_path, [_row("data/video/sess-1/Wide - Clip 001.mp4")])
+
+    with pytest.raises(SightingError) as exc_info:
+        _read_inventory_rows(cfg, "sess-1", domain="tv")
+
+    message = str(exc_info.value)
+    assert "tv" in message
+    assert "sideline" in message
+    assert "broadcast" in message
+
+
+def test_domain_vocabulary_matches_registered_capture_domains() -> None:
+    assert DOMAIN_VOCABULARY == {"drone", "sideline", "broadcast"}
+
+
+def test_read_inventory_rows_filters_by_domain(tmp_path: Path, cfg: Config) -> None:
+    _write_inventory(
+        tmp_path,
+        [
+            _row("data/video/sess-1/Wide - Clip 001.mp4", domain="drone"),
+            _row("data/video/sess-1/Side - Clip 001.mp4", domain="sideline"),
+        ],
+    )
+
+    rows = _read_inventory_rows(cfg, "sess-1", domain="sideline")
+
+    assert rows.height == 1
+    assert rows["local_path"][0] == "data/video/sess-1/Side - Clip 001.mp4"
+
+
+def test_sight_session_sideline_domain_writes_sighting_csv_not_hover_positions(
+    tmp_path: Path, cfg: Config
+) -> None:
+    clip1 = tmp_path / "data" / "video" / "sess-1" / "Side - Clip 001.mp4"
+    clip2 = tmp_path / "data" / "video" / "sess-1" / "Side - Clip 002.mp4"
+    _write_static_clip(clip1, seed=41, n_frames=6)
+    _write_static_clip(clip2, seed=42, n_frames=6)
+    _write_inventory(
+        tmp_path,
+        [
+            _row("data/video/sess-1/Side - Clip 001.mp4", domain="sideline"),
+            _row("data/video/sess-1/Side - Clip 002.mp4", domain="sideline"),
+        ],
+    )
+
+    result = sight_session(cfg, "sess-1", domain="sideline")
+
+    assert result.csv_path == cfg.paths.reference / "sighting_sess-1.csv"
+    assert result.csv_path != cfg.reference.hover_positions
+    assert not cfg.reference.hover_positions.exists()
+    content = result.csv_path.read_text(encoding="utf-8")
+    lines = content.splitlines()
+    assert lines[0] == (
+        "clip_number,clip_path,hover_position_id,apparent_player_px_p10,"
+        "apparent_player_px_p50,tier,notes"
+    )
+    assert len(result.rows) == 2
+
+
+def test_sight_session_broadcast_domain_ignores_drone_clips(tmp_path: Path, cfg: Config) -> None:
+    drone_clip = tmp_path / "data" / "video" / "sess-1" / "Wide - Clip 001.mp4"
+    tv_clip = tmp_path / "data" / "video" / "sess-1" / "TV - Clip 001.mp4"
+    _write_static_clip(drone_clip, seed=51, n_frames=6)
+    _write_static_clip(tv_clip, seed=52, n_frames=6)
+    _write_inventory(
+        tmp_path,
+        [
+            _row("data/video/sess-1/Wide - Clip 001.mp4", domain="drone"),
+            _row("data/video/sess-1/TV - Clip 001.mp4", domain="broadcast"),
+        ],
+    )
+
+    result = sight_session(cfg, "sess-1", domain="broadcast")
+
+    assert len(result.rows) == 1
+    assert result.rows[0].clip_path.endswith("TV - Clip 001.mp4")
+
+
+def test_sight_session_default_drone_domain_unchanged(tmp_path: Path, cfg: Config) -> None:
+    """Regression: the default `domain="drone"` path must keep writing to
+    `config.reference.hover_positions`, byte-for-byte the plan 02.1-03 behaviour.
+    """
+    clip1 = tmp_path / "data" / "video" / "sess-1" / "Wide - Clip 001.mp4"
+    clip2 = tmp_path / "data" / "video" / "sess-1" / "Wide - Clip 002.mp4"
+    _write_static_clip(clip1, seed=61, n_frames=6)
+    _write_static_clip(clip2, seed=62, n_frames=6)
+    _write_inventory(
+        tmp_path,
+        [
+            _row("data/video/sess-1/Wide - Clip 001.mp4"),
+            _row("data/video/sess-1/Wide - Clip 002.mp4"),
+        ],
+    )
+
+    result = sight_session(cfg, "sess-1")
+
+    assert result.csv_path == cfg.reference.hover_positions
