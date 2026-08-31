@@ -118,6 +118,38 @@ Die Höhen- und Abstandswerte dieser Domäne sind ausdrücklich als [ASSUMED] ge
 
 Material, das keiner der drei Stufen sauber zuzuordnen ist, wird trotzdem in `data/reference/video_inventory.csv` registriert, mit einem entsprechenden Hinweis im `notes`-Feld, damit der Bestand vollständig bleibt. Es wird nur nicht automatisch als Pilotmaterial für Phase 2.1 ausgewählt.
 
+## Nachtrag 2026-08-31 — Wünsche aus dem Piloten-Gate (nur Drohne)
+
+Der CV-Tracking-Pilot (`docs/pilot-gate-decision.md`) hat auf einer einzigen Session drei
+konkrete Aufnahme-Befunde erzeugt. Wie der Rest dieses Dokuments sind das Bitten, kein
+Pflichtenheft — "so wäre es für die nächste Session ideal, falls machbar":
+
+1. **Steilerer, stärker senkrechter Hover-Winkel.** Der dominante Fehlermodus im
+   Kontinuitäts-Review (14 von 20 geprüften Clips) waren ID-Switches bei
+   Spielerinnen-Verdeckungen — Kreuzungen, Coverage, Flag-Pulls. Ein flacherer Winkel maximiert
+   genau diese gegenseitige Verdeckung; ein steilerer, überkopfigerer Winkel reduziert sie
+   mechanisch, weil sich Spielerinnen aus einem senkrechteren Blickwinkel seltener überlappen.
+   Das bleibt innerhalb der bestehenden Hover-Position-&-Winkel-Tabelle oben (`Ideal`
+   30–45° gegen die Senkrechte) — dieser Nachtrag verschiebt die Präferenz innerhalb der Stufe
+   `Ideal` in Richtung des steileren Endes, ohne die Tabelle selbst zu ändern.
+2. **Abdeckung der Ost-Endzone.** In der gesamten Piloten-Session wurde die Ost-Endzone nie
+   erreicht — kein Track-Punkt (von 341.461 Zeilen, beide Hover-Positionen) projizierte je über
+   x = 44,2 Yards auf einem 50-Yards-Feld. Beide Hover-Positionen dieser Session endeten nah an
+   derselben Stelle. Das ist ein konkreter Feldabdeckungs-Befund für die nächste Session, keine
+   neue Anforderung — die bestehende Feldabdeckungs-Tabelle oben deckt den Fall bereits ab
+   (`Ideal`: ganzes Feld inklusive beider Endzonen).
+3. **Keine Kameraschnitte innerhalb eines Clips.** Ein Clip der Piloten-Session (Clip 14) enthielt
+   einen Kamera-Schnitt mitten im Play — ein Aufnahme-Artefakt, kein Pipeline-Defekt, aber es
+   bricht die Kontinuitäts-Annahme, auf der Tracking und Sync aufbauen. Die bestehende
+   Aufnahmedauer-&-Akku-Wechsel-Tabelle oben verlangt bereits einen durchgehenden Clip pro
+   Drive-Block; dieser Punkt bestätigt aus konkreter Erfahrung, warum das wichtig ist.
+
+Diese drei Punkte sind reine Wünsche für die nächste Aufnahme-Session, keine Voraussetzung dafür,
+mit vorhandenem Material zu arbeiten — passend zur `## Zweck & Ton`-Rahmung oben. Dieser Nachtrag
+betrifft ausschließlich Domäne 1 (Drohne) und ergänzt keine zusätzliche Kameraposition
+(Nutzer-Entscheidung, siehe `.planning/phases/02.2-dataset-buildout/02.2-CONTEXT.md`
+§Deferred Ideas).
+
 ## Ratifizierungs-Block
 
 > DEFERRED-ANALYST: Gespräch auf unbestimmte Zeit verschoben. Owner: Nutzer. Follow-up-Trigger: sobald der Videoanalyst wieder verfügbar ist, spätestens vor dem nächsten Filmtausch. Zu ratifizieren: (a) ob der Wunschzettel insgesamt praktikabel ist, (b) Machbarkeit des Akku-Wechsel-Timings zwischen Drives, (c) die Zielwerte der Zweitdomäne (Höhe/Standpunkt), die bislang geschätzt sind.

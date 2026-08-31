@@ -9,9 +9,9 @@ Formulartext: `docs/hackathon-challenge-reid-formular.md`.
 
 ## 1. Freigaben und Organisation (blockiert alles Weitere)
 
-- [ ] **[NUTZER] Verbands-Freigabe** für die Nutzung des Spielmaterials im Hackathon (intern,
-  zweckgebunden, keine Weitergabe, Löschung danach). Ohne diese Freigabe darf die Challenge nicht
-  eingereicht werden (Formular schließt fremde personenbezogene Daten aus).
+- [x] **[NUTZER] Verbands-Freigabe** für die Nutzung des Spielmaterials im Hackathon (intern,
+  zweckgebunden, keine Weitergabe, Löschung danach) — erteilt am 2026-08-31 (siehe
+  `docs/capture-legal.md` Nachtrag 2026-08-31).
 - [ ] **[NUTZER] Bundeswehr-Freigabe** für Transfer-Set 2 (gestellte Drohnenszene mit Soldaten) —
   Drohnenflug auf dem Übungsplatz + Verwendung des Materials. Optional, aber der stärkste
   Praxisbeweis. Kann auch nach der Einreichung kommen (Überraschungs-Testset).

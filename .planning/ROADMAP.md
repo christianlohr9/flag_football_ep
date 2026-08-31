@@ -18,7 +18,7 @@ This roadmap uses `strand.phase` numbering intentionally (1.1–1.4 = Strand 1, 
 - [x] **Phase 1.4: Coaching Products** - Opponent tendency reports, own-efficiency report, decision charts, WP review charts, <10 min turnaround (completed 2026-08-22)
 - [x] **Phase 2.0: Capture Protocol & Material Inventory** - Analyst conversation, drone protocol, legal clearance, sync convention (parallel, no code) (completed 2026-08-24)
 - [x] **Phase 2.1: CV Tracking Pilot (Go/No-Go Gate)** - One scrimmage: label → fine-tune RF-DETR → track → homography → XY CSV + radar demo; explicit gate decision (completed 2026-08-31)
-- [ ] **Phase 2.2: Dataset Buildout** - 1,500–3,000 verified frames, 60/40 domain mix, per-domain eval, versioned dataset (only after passed pilot)
+- [ ] **Phase 2.2: Dataset Buildout** - 1,500–3,000 verified frames, 60/40 domain mix, per-domain eval, versioned dataset (started 2026-08-31 on the TEILWEISE verdict — detection robustness only, see docs/pilot-gate-decision.md Nachtrag 2026-08-31)
 - [ ] **Phase 2.3: Tracks to Coaching Metrics** - Snap detection, route classification vs TARGET ROUTE, separation/speeds/spacing, PBP join
 - [ ] **Phase 2.4: Player Identity** - Manual tracklet assignment first; jersey OCR / VLM only if needed
 - [ ] **Phase 2.5: Broadcast Footage (STRETCH, deferred)** - Third domain + field-keypoint model; only when 2.1–2.3 are in operation
@@ -311,7 +311,7 @@ Plans:
 ### Phase 2.2: Dataset Buildout
 
 **Goal**: A versioned multi-domain detection dataset robust enough for regular use — built only after the pilot passed its gate
-**Depends on**: Phase 2.1 (gate PASSED)
+**Depends on**: Phase 2.1 (gate TEILWEISE; released for detection robustness per D-01, 2026-08-31)
 **Requirements**: REQ-S2-03
 **Success Criteria** (what must be TRUE):
 

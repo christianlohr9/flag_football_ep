@@ -26,3 +26,17 @@ Praktisch im Repo: Rohmaterial liegt unter `data/video/` und ist per `.gitignore
 - Keine eigene Einverständniserklärung
 - Keine namentliche Erfassung einzelner Einverständnisse
 - Keine Rechtsberatung
+
+## Nachtrag 2026-08-31 — Freigabe des Verbands
+
+Der Verband hat am 2026-08-31 gegenüber dem Nutzer die Freigabe bestätigt (Nutzer-Aussage,
+wörtlich): "die Anfrage ist positiv, wir haben alle Befugnisse." Diese Freigabe deckt drei
+Nutzungen ab: die Hackathon-Challenge (`docs/hackathon-challenge-reid.md`), die Weitergabe des
+TV-Sendematerials, und die Veröffentlichung des Datensatzes.
+
+Diese Angabe ist eine datierte Nutzer-Zusicherung, keine eigene Rechtseinschätzung dieses
+Projekts — die Zuständigkeit für die DSGVO-Einwilligung bleibt beim Verband (siehe
+`## DSGVO — Einverständnis liegt beim Verband` oben). Der Satz „Verwendungs-Scope: interne
+Analyse, keine Veröffentlichung" oben bleibt als bisherige Grundregel bestehen; mit dieser
+Freigabe ist Veröffentlichung nun grundsätzlich abgedeckt, wird aber bewusst bis nach dem
+Hackathon zurückgestellt (D-19, `.planning/phases/02.2-dataset-buildout/02.2-CONTEXT.md`).

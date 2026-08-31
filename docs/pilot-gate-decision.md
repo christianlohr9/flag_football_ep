@@ -231,3 +231,36 @@ Gate-Bedingung.) Owner: Nutzer.
 > Follow-up-Trigger: sobald der Videoanalyst wieder verfügbar ist, spätestens vor dem nächsten
 > Filmtausch. Der Gate-Entscheid wartet nicht auf diese Demo — die Demo ist Evidenz, die an den
 > Entscheid angehängt wird, nicht eine Gate-Bedingung (D-12).
+
+## Nachtrag 2026-08-31 — Phase 2.2 trotz TEILWEISE freigegeben
+
+Phase 2.2 (Datensatz-Buildout) startet ab heute, ohne auf den Re-Trigger dieses Gates zu warten.
+Das ist keine nachträgliche Abschwächung des TEILWEISE-Verdikts oben — die Kriterien-Tabelle und
+die Konsequenzen-Liste bleiben unverändert stehen. Vier Punkte halten fest, warum das konsistent
+ist:
+
+**(a) Freigegeben für Detektions-Robustheit, nicht für Kontinuität.** Kriterium 2
+(Positionsfehler, Median 0,171 Yards) und Kriterium 3 (Inferenz, 47,83 min) sind **bestanden**.
+Phase 2.2 baut einen versionierten Multi-Domain-Detektionsdatensatz und verbessert damit exakt die
+Fähigkeit, die diese beiden bestandenen Kriterien tragen — Detektions-Robustheit über Domänen
+hinweg. Kriterium 1 (Track-Kontinuität, obere Schranke 77 % < 90 %-Ziel) bleibt verfehlt; Phase
+2.2 beantwortet dieses Kriterium nicht und behauptet das auch nicht.
+
+**(b) D-06 wird dadurch nicht verletzt.** D-06 aus `.planning/PROJECT.md` sagt: ein klarer
+Fehlschlag routet zurück zu Aufnahme-Setup, niemals zu mehr Trainings-Labels. Die
+Track-Kontinuität ist der klare Fehlschlag hier — aber die Datensatz-Labels aus Phase 2.2 sind
+keine Antwort auf diesen Fehlschlag, sie verbessern die bereits bestandene Detektion. D-06 verbietet
+mehr Labels **als Antwort auf** einen Kontinuitäts-Fehlschlag; es verbietet nicht Labels für ein
+unabhängig bestandenes Kriterium.
+
+**(c) Die beiden Kontinuitäts-Remediationspfade laufen unverändert parallel weiter.** Der
+steilere, senkrechtere Drohnen-Hover-Winkel (Wunschzettel-Eintrag in `docs/capture-protocol.md`,
+Nachtrag 2026-08-31) und die appearance-basierte Re-Identifikation (BWI-Hackathon-Challenge,
+`docs/hackathon-challenge-reid.md`) bleiben beide offen und werden von Phase 2.2 nicht ersetzt oder
+vorweggenommen.
+
+**(d) Der Gate-Re-Run ist explizit NICHT Teil von Phase 2.2.** Der erneute Durchlauf des Gates
+(neues Tracking plus vollständiges 61-Clip-Kontinuitäts-Review) findet gemäß der oben stehenden
+Re-Trigger-Bedingung erst statt, sobald entweder eine neue Session mit steilerem Hover-Winkel
+aufgenommen oder appearance-basierte ReID implementiert ist — als eigener Schritt nach dem
+Hackathon, nicht als Teil des Datensatz-Buildouts.
