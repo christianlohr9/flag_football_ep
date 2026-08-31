@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_plan
-last_updated: 2026-08-31T10:22:45.887Z
-last_activity: 2026-08-24 -- Phase 02.1 execution started
+status: planning
+last_updated: "2026-08-31T19:13:05.135Z"
+last_activity: 2026-08-31
 progress:
   total_phases: 10
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 72
   completed_plans: 72
-  percent: 50
-stopped_at: Phase 02.1 complete (17/17) — ready to discuss Phase 2.2
+  percent: 60
 ---
 
 # Project State
@@ -87,6 +86,6 @@ GroupKFold by game_id, Strand-1 non-goals (no live tooling, no CV dependency).
 
 ## Session Continuity
 
-Last session: 2026-08-24T09:53:48.040Z
-Stopped at: Phase 2.1 context gathered
-Resume file: .planning/phases/02.1-cv-tracking-pilot-go-no-go-gate/02.1-CONTEXT.md
+Last session: 2026-08-31T19:13:05.129Z
+Stopped at: Phase 2.2 context gathered
+Resume file: .planning/phases/02.2-dataset-buildout/02.2-CONTEXT.md
