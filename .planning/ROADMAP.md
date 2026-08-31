@@ -319,7 +319,59 @@ Plans:
   2. One detector is trained across all domains, with per-domain eval splits reported and per-domain inference settings (resolution, SAHI tiling) configured (D-04)
   3. The dataset is cleanly versioned (Roboflow Universe or DVC), and the option to publish it as the first public flag-football detection dataset has been assessed
 
-**Plans**: TBD
+**Plans**: 19 plans in 11 waves (hackathon strand front-loaded per the 23.-27.11.2026 deadline)
+Plans:
+**Wave 1**
+
+- [ ] 02.2-01-PLAN.md — Gate reconciliation, capture Wunschzettel and federation-approval documentation (D-01/D-03/D-06)
+- [ ] 02.2-02-PLAN.md — Sighting pass over sideline and broadcast material, inventory refresh, D-11 stop checkpoint
+- [ ] 02.2-03-PLAN.md — Hackathon benchmark labelling A+B (continuity verdicts 21-61, flag-pull events)
+- [ ] 02.2-04-PLAN.md — DVC/OTC config surface, dependency and RF-DETR licence gates, local-remote smoke test
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 02.2-05-PLAN.md — Contract skeleton and CLI wiring for freeze/bundle/active-learn/eval-split/detections/crops/deliver/eval-domains
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 02.2-06-PLAN.md — Domain mix, frozen eval split + private test set, pre-committed mAP stopping rule, seed-set check
+- [ ] 02.2-07-PLAN.md — Frozen hackathon detector alias, pin file and anti-drift guards (D-05)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 02.2-08-PLAN.md — Frozen-baseline artifact exports: detections Parquet and torso crops
+- [ ] 02.2-09-PLAN.md — Active-learning infrastructure: uncertainty+diversity selection, fine-tuned prelabel backend, multi-domain validation
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 02.2-10-PLAN.md — Bundle builder, shared scoring script, dev-set bundle (German docs)
+- [ ] 02.2-11-PLAN.md — AL iteration 1: selection and prelabelled CVAT push
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 02.2-12-PLAN.md — Private test-set and transfer-set bundles with the label vault
+- [ ] 02.2-13-PLAN.md — AL iteration 1: correction weekend, merge, validation, dataset v1 under DVC
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 02.2-14-PLAN.md — OTC OBS delivery and DVC remote validation with local fallback
+- [ ] 02.2-15-PLAN.md — AL iteration 1: retrain and per-domain evaluation against the stopping rule
+
+**Wave 8** *(blocked on Wave 7)*
+
+- [ ] 02.2-16-PLAN.md — AL iteration 2: selection and prelabelled CVAT push
+
+**Wave 9** *(blocked on Wave 8)*
+
+- [ ] 02.2-17-PLAN.md — AL iteration 2: correction weekend, merge, dataset v2 under DVC
+
+**Wave 10** *(blocked on Wave 9)*
+
+- [ ] 02.2-18-PLAN.md — AL iteration 2: retrain, three-way per-domain comparison, final labelling verdict
+
+**Wave 11** *(blocked on Wave 10)*
+
+- [ ] 02.2-19-PLAN.md — Publication assessment, dataset card, licence decision and phase closing record
 
 ### Phase 2.3: Tracks to Coaching Metrics
 
