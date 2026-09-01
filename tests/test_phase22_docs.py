@@ -25,6 +25,7 @@ HACKATHON_PREP = REPO_ROOT / "docs" / "hackathon-challenge-prep.md"
 ROADMAP_MD = REPO_ROOT / ".planning" / "ROADMAP.md"
 REQUIREMENTS_MD = REPO_ROOT / ".planning" / "REQUIREMENTS.md"
 DATASET_PLAN = REPO_ROOT / "docs" / "dataset-plan.md"
+DATASET_BUILDOUT = REPO_ROOT / "docs" / "dataset-buildout.md"
 
 NACHTRAG_HEADING = "## Nachtrag 2026-08-31"
 
@@ -145,4 +146,21 @@ def test_dataset_plan_states_stopping_rule_threshold() -> None:
     )
     assert "mAP_50_95" in text, (
         "docs/dataset-plan.md's stopping rule does not name mAP_50_95 as the metric"
+    )
+
+
+def test_dataset_buildout_doc_exists_and_names_iteration_1() -> None:
+    """Plan 02.2-11's hand-off artifact: the German running record of the AL
+    iteration-1 selection/prelabel/CVAT-push must exist and name the iteration it
+    documents, so plan 02.2-13's checkpoint can point the user at a document.
+    """
+    assert DATASET_BUILDOUT.exists(), (
+        "docs/dataset-buildout.md is missing -- plan 02.2-11 Task 3 must create it"
+    )
+    text = _read(DATASET_BUILDOUT)
+    assert "## Iteration 1" in text, (
+        "docs/dataset-buildout.md does not name Iteration 1 as its own section"
+    )
+    assert "Labelling-Anleitung Iteration 1" in text, (
+        "docs/dataset-buildout.md is missing the Labelling-Anleitung Iteration 1 subsection"
     )
