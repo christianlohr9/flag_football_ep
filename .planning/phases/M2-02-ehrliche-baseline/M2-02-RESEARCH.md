@@ -326,22 +326,25 @@ uv run python scripts/hackathon/score_tracks.py \
 | A4 | No `gta-link` version tags exist to pin against (only commit SHAs) — verify the tag list before the planner writes an exact pin | Standard Stack | If tags do exist, pinning to a moving branch (`main`) instead of a tag/SHA would be a reproducibility gap — low risk, easily checked by the planner with `git ls-remote --tags` before writing the exact install command |
 | A5 | `gta-link`'s vendored `reid/` subfolder (matching `deep-person-reid`'s file layout) is in fact the unmodified official repo and not a divergent fork with the same file names | Standard Stack | If it diverges, the "reuse gta-link's vendored copy" shortcut in Alternatives Considered wouldn't be safe — the planner should diff a few files or just install `deep-person-reid` directly (git-source, not the risky PyPI name) as the safer default rather than relying on this assumption |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Exact commit SHA to pin `gta-link` and `deep-person-reid` at**
    - What we know: both repos exist, are actively maintained, MIT-licensed, confirmed via GitHub API.
    - What's unclear: this research did not fetch the exact HEAD commit SHA at research time (repos may have moved between research and planning).
    - Recommendation: the planner/implementer should `git ls-remote` both repos immediately before writing the pin into a plan, not reuse any SHA implied by this document.
+   - RESOLVED (plan M2-02-02, Task 1): the plan pins via a live `git ls-remote` at execution time and records the SHAs in `vendor/README.md`.
 
 2. **Whether the generic OSNet checkpoint produces a GTA result different enough from raw BoT-SORT to be worth reporting**
    - What we know: GTA is model-agnostic post-processing; its whole value proposition depends on embedding quality.
    - What's unclear: whether a non-sports-finetuned OSNet gives GTA enough signal on this specific 5v5 flag-football footage (small, fast-moving, similarly-dressed players) to meaningfully split/merge tracklets.
    - Recommendation: measure it and report honestly either way — a null result ("GTA measured, no meaningful change from the generic checkpoint") is itself a valid, useful BASE-01 outcome, and should not be suppressed or spun.
+   - RESOLVED (plan M2-02-02, Task 3): measured with the generic checkpoint, mandatory caveat text in the result row, null result reported honestly; the untraceable sports checkpoint stays forbidden.
 
 3. **Whether the planner should also measure an unlabeled "CBIoU" row as a bonus (Deep-EIoU's closest permissively-licensed cousin already in `trackers`)**
    - What we know: `trackers.CBIoUTracker` implements a buffered/cascaded IoU strategy conceptually adjacent to Deep-EIoU's Expansion-IoU idea, Apache-2.0, zero extra install.
    - What's unclear: whether this is worth the extra row given it's explicitly NOT Deep-EIoU and BASE-01 doesn't ask for it.
    - Recommendation: Claude's Discretion territory — the planner can offer this as an optional 5th row explicitly labeled "not Deep-EIoU, included for context" rather than working around the Deep-EIoU gap by substitution.
+   - RESOLVED (plan M2-02-01): CBIoU is measured and labelled "closest permissive cousin, NOT Deep-EIoU" throughout, incl. in plan M2-02-03's result table.
 
 ## Environment Availability
 
