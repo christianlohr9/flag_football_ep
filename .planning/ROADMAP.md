@@ -334,8 +334,8 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 02.2-06-PLAN.md — Domain mix, frozen eval split + private test set, pre-committed mAP stopping rule, seed-set check
-- [ ] 02.2-07-PLAN.md — Frozen hackathon detector alias, pin file and anti-drift guards (D-05)
+- [x] 02.2-06-PLAN.md — Domain mix, frozen eval split + private test set, pre-committed mAP stopping rule, seed-set check (completed 2026-09-01)
+- [x] 02.2-07-PLAN.md — Frozen hackathon detector alias, pin file and anti-drift guards (D-05) (completed 2026-09-01)
 
 **Wave 4** *(blocked on Wave 3)*
 
