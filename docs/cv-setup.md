@@ -975,3 +975,109 @@ sich):
 4. Die 61 Overlay-Videos (`ffep cv overlay`) wurden für diesen Follow-up NICHT neu gerendert -- sie
    sind reine Footage-Annotationen ohne Radar-Halbbild und damit von der Homographie-Projektion
    unberührt (Overlay zeichnet Boxen/IDs direkt in Pixelkoordinaten, keine Feld-Yard-Projektion).
+
+## Bundle-Eingaben (Hackathon)
+
+`src/flag_football_ep/cv/export.py::export_detections_parquet`/`export_track_crops`,
+Plan 02.2-08. Erzeugt die zwei Artefakte, die `docs/hackathon-challenge-reid.md`s
+"Verfügbare Daten"-Abschnitt verspricht und die Phase 2.1 nie persistiert hat: eine
+Pro-Frame-Detektionen-Parquet (kein Team muss selbst einen Detektor laufen lassen) und
+Torso-Crops (Trainingsmaterial für Erscheinungsmodelle) — beide an den eingefrorenen
+Detektor-Lauf gepinnt (`data/reference/hackathon_freeze.json`, Plan 02.2-07).
+
+**Session:** `2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE` (61 Drohnen-Clips, alle
+registriert in `video_inventory.csv`). **Detector Run ID:**
+`87a8a5222f7a472787875e974d089c44` (`cv_detector_model` v1, aufgelöst über
+`freeze.read_freeze_pin` gegen den Freeze-Pin, **nicht** über `resolve_champion` --
+T-2.2-24). **Dataset-Hash:**
+`ab3a9673d61bc348d37ce298ba12d18b76395d1ade82a735c5b3d82d2e46aec0` (aus dem Pin).
+
+### Detektionen (`bundle-inputs/detections.parquet`)
+
+```
+uv run --extra cv ffep cv detections --session 2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE \
+  --domain drone \
+  --out data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/bundle-inputs/detections.parquet
+```
+
+(kein `--run` -- der Freeze-Pin wird verwendet.)
+
+| Metrik | Wert |
+|---|---|
+| Pfad | `data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/bundle-inputs/crops` bzw. `.../detections.parquet` (gitignored, PII) |
+| Zeilen (Detektionen) | 384.689 |
+| Clips abgedeckt | 61 / 61 |
+| `class_name`-Verteilung | 346.573 `player`, 38.116 `referee` |
+| `detector_run_id` (jede Zeile) | `87a8a5222f7a472787875e974d089c44` (einheitlich, per polars-Check verifiziert) |
+| `detected_at` (jede Zeile) | ein einziger Zeitstempel (Export ist diffbar bei erneutem Lauf) |
+| Auflösung/SAHI | `resolution=896`, `sahi=false` (aus `[cv]` in `ffep.toml`, deckt alle drei Domänen laut `## 4` in `docs/dataset-plan.md`) |
+| Wall-Clock | ~11 min (12:17:41--12:28:29, Primärmaschine) -- deutlich unter der Stunde, die `## Inferenz-Durchsatz`s Drei-Clip-Hochrechnung für einen vollen Lauf mit Tracking nahelegt, weil dieser Export (anders als `track_session`) jeden Clip nur **einmal** dekodiert statt zweimal (kein CMC-Zweitdecode, kein BoT-SORT) |
+
+Verifiziert (`detector_run_id` == Pin-Run-ID auf jeder Zeile):
+
+```
+uv run --extra cv python3 -c "
+import polars as pl
+df = pl.read_parquet('data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/bundle-inputs/detections.parquet')
+print(df['detector_run_id'].unique().to_list())
+"
+# -> ['87a8a5222f7a472787875e974d089c44']
+```
+
+### Crops (`bundle-inputs/crops/`)
+
+```
+uv run --extra cv ffep cv crops --session 2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE \
+  --tracks data/processed/tracking/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE_tracks.parquet \
+  --out-dir data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/bundle-inputs/crops
+```
+
+| Metrik | Wert |
+|---|---|
+| Crops geschrieben (tatsächlich) | **17.059** -- nahe an, aber nicht identisch mit der in `docs/hackathon-challenge-reid.md` versprochenen ~17.000-Schätzung (das ist die tatsächliche Zahl, nicht die versprochene) |
+| Layout | `crops/clip_XXX/track_YYYY/frame_ZZZZZ.jpg` |
+| Index | `crops/index.csv`, 17.059 Datenzeilen (+ Header), eine Zeile pro geschriebenem JPEG |
+| Referee-Zeilen im Index | 0 (siehe "Gefundener Bug" unten) |
+| Cap pro Track | 12 Samples/Track (interne Konstante `export._EXPORT_MAX_CROPS_PER_TRACK`, nicht Teil der eingefrorenen Signatur -- siehe Plan 02.2-07s "`force` ist CLI-only"-Präzedenzfall für dieselbe Einschränkung), gemessen gegen die reale v2-Tracking-Parquet so gewählt, dass sie die ~17k-Zielzahl reproduziert (1.508 `player`-Tracks, Cap 12 → 17.638 Ober-Schranke vor dem Referee-Filter) |
+| Provenienz | `crops/crops_meta.json`: `max_crops_per_track`, `n_crops`, `detector_run_ids` (aus den Tracking-Zeilen, hier `["87a8a5222f7a472787875e974d089c44"]`), `generated_at` |
+| Wall-Clock | < 2 min (kein Detektor-Inferenz-Schritt, nur Video-Dekodierung + JPEG-Schreiben) |
+
+**Gefundener Bug (Rule 1, während dieses Laufs behoben):** Der erste Lauf gegen die
+echten Session-Tracks lieferte 17.174 Crops mit **115 `referee`-Zeilen** im Index, obwohl
+`export_track_crops`s eigene `<behavior>`-Vorgabe null verlangt. Ursache: die
+Track-Ebenen-Prüfung (`class_name` der ersten, frame-sortierten Zeile) lässt einen Track
+durch, dessen erste Zeile `player` ist -- aber ~55 Tracks in der Session wechseln
+`class_name` mitten im Track (bekanntes Detektor-Rauschen, siehe `## Tracking-Lauf` oben),
+sodass einzelne der bis zu 12 gesampelten Frames trotzdem `referee` sein können. Fix:
+zusätzlich zur Track-Ebenen-Prüfung wird jede einzelne gesampelte Zeile geprüft und bei
+`class_name != "player"` übersprungen, nicht nur die erste. Regressionstest
+`test_export_track_crops_skips_referee_labeled_rows_within_a_flip_noise_player_track` in
+`tests/test_cv_export.py` deckt das jetzt ab. Der zweite (korrigierte) Lauf lieferte die
+oben stehenden 17.059 Crops, 0 `referee`-Zeilen.
+
+### PII und Git-Grenze
+
+Beide Artefakte liegen unter dem gitignorierten `data/labels/`-Baum (`data/labels/*` in
+`.gitignore`, wie `data/video/*`) und **treten nie in git ein** -- die Crops sind
+identifizierbare Personenbilder (T-2.2-22). Verifiziert:
+
+```
+git status --porcelain data/labels
+# -> (leer)
+```
+
+### Hinweis für Plan 02.2-10 (Bundle-Builder)
+
+`bundle-inputs/` enthält absichtlich **alle** 61 Drohnen-Clips, einschließlich der 18
+`role = frozen_eval`/`private_test = true`-Clips aus `data/reference/frozen_eval_clips.csv`
+(D-07: dieselben 18 Clips sind das private Hackathon-Testset). Das ist richtig so für
+diesen Export-Schritt -- Plan 02.2-15s `evaluate_per_domain` braucht Detektionen für
+genau diese Clips, und ein zweiter, gefilterter Export wäre redundant. **Der eigentliche
+`role = pool`-Filter gehört in `cv/bundle.py::build_bundle` (Plan 02.2-10), nicht hierher:**
+`build_bundle` darf `bundle-inputs/` niemals ungefiltert in ein dev-facing Paket kopieren,
+sondern muss `data/reference/frozen_eval_clips.csv` gegen jede `clip_number` in
+`detections.parquet`/`crops/index.csv` joinen und nur `role = pool`-Zeilen/Crops
+übernehmen -- exakt die "Bindende Regel für alle nachgelagerten Pläne" aus
+`docs/dataset-plan.md`s `## 8`, dort für die Active-Learning-Auswahl formuliert, hier
+sinngemäß auf die Bundle-Auslieferung übertragen, damit kein privates Testset-Material in
+ein dev-facing Artefakt gelangt.
