@@ -1,0 +1,5 @@
+# Third-party research code is vendored here at pinned commits per vendor/README.md's
+# reproduction commands. The trees themselves are never committed -- only the pin
+# record (README.md) is, so clone+checkout reproduces byte-identical vendor content.
+gta-link/
+deep-person-reid/
