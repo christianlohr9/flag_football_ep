@@ -536,3 +536,52 @@ def read_manifest(path: Path) -> FrameSampleManifest:
     return FrameSampleManifest(
         session_id=data["session_id"], seed=seed, target=target, frames=frames, split=split
     )
+
+
+# --- Frozen eval-clip split (Phase 2.2, D-04/D-13) --------------------------------
+#
+# One level up from sample_training_frames's clip-level split discipline (this
+# plan's <interfaces> block): freezes which clips, per domain, are held out for
+# detector evaluation *before* any active-learning selection touches the remaining
+# pool, so the per-domain mAP a training run reports (cv.detect.evaluate_per_domain,
+# plan 02.2-15) is always measured against the identical held-out clips.
+
+
+class EvalSplitError(CvError, ValueError):
+    """Raised when an eval-clip split manifest cannot be read: the path does not
+    exist, is not valid JSON, or does not match the `EvalSplit` schema.
+    """
+
+
+@dataclass(frozen=True)
+class EvalSplit:
+    """The frozen per-domain evaluation-clip split: which clip numbers, grouped by
+    domain, are held out for detector evaluation, the fraction/seed used to draw
+    them, and when the freeze happened.
+    """
+
+    clips_by_domain: dict[str, list[int]]
+    fraction: float
+    seed: int
+    frozen_at: str
+
+
+def freeze_eval_clips(
+    config: Config, domains: list[str], fraction: float, seed: int, out_csv: Path
+) -> EvalSplit:
+    """Freeze the held-out per-domain evaluation-clip split before any
+    active-learning selection touches the training pool (D-04/D-13): draws
+    `fraction` of each domain's clips at `seed`, persists the split to `out_csv`,
+    and returns it as an `EvalSplit`.
+
+    Implemented by plan 02.2-06.
+    """
+    raise NotImplementedError("implemented by plan 02.2-06")
+
+
+def read_eval_split(path: Path) -> EvalSplit:
+    """Load an `EvalSplit` previously written by `freeze_eval_clips`.
+
+    Implemented by plan 02.2-06.
+    """
+    raise NotImplementedError("implemented by plan 02.2-06")
