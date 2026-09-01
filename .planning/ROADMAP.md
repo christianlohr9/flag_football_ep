@@ -324,9 +324,9 @@ Plans:
 **Wave 1**
 
 - [x] 02.2-01-PLAN.md — Gate reconciliation, capture Wunschzettel and federation-approval documentation (D-01/D-03/D-06) (completed 2026-08-31)
-- [ ] 02.2-02-PLAN.md — Sighting pass over sideline and broadcast material, inventory refresh, D-11 stop checkpoint
-- [ ] 02.2-03-PLAN.md — Hackathon benchmark labelling A+B (continuity verdicts 21-61, flag-pull events)
-- [ ] 02.2-04-PLAN.md — DVC/OTC config surface, dependency and RF-DETR licence gates, local-remote smoke test
+- [x] 02.2-02-PLAN.md — Sighting pass over sideline and broadcast material, inventory refresh, D-11 stop checkpoint (completed 2026-09-01)
+- [x] 02.2-03-PLAN.md — Hackathon benchmark labelling A+B (continuity verdicts 21-61, flag-pull events) (completed 2026-09-01)
+- [x] 02.2-04-PLAN.md — DVC/OTC config surface, dependency and RF-DETR licence gates, local-remote smoke test (completed 2026-09-01)
 
 **Wave 2** *(blocked on Wave 1)*
 
