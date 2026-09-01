@@ -40,3 +40,17 @@ Projekts — die Zuständigkeit für die DSGVO-Einwilligung bleibt beim Verband 
 Analyse, keine Veröffentlichung" oben bleibt als bisherige Grundregel bestehen; mit dieser
 Freigabe ist Veröffentlichung nun grundsätzlich abgedeckt, wird aber bewusst bis nach dem
 Hackathon zurückgestellt (D-19, `.planning/phases/02.2-dataset-buildout/02.2-CONTEXT.md`).
+
+## Nachtrag 2026-09-01 — Schriftliche Freigabe (Vorlage)
+
+Die mündliche, pauschale Freigabe vom 2026-08-31 (siehe Nachtrag oben) war eine allgemeine
+Zusicherung ohne Aufschlüsselung nach Materialklasse. Für die Weitergabe von Spielmaterial an
+die Teams des BWI Data Analytics Hackathons wird sie deshalb auf eine schriftliche,
+unterschriebene Freigabe aufgestuft, die Dev-, Test- und Transfer-Set einzeln benennt und
+einen Löschweg festlegt (RECHT-01, RECHT-03). Das signierbare Dokument ist
+`docs/freigabe-vorlage.md`.
+
+Bis zur Unterschrift gilt das Material als nicht ausgeliefert; das Signaturdatum wird bis
+dahin als der wörtliche Platzhalter-Token `SIGNATUR-DATUM-TBD` geführt (siehe Marker-Zeile in
+`docs/freigabe-vorlage.md`). Die Zuständigkeit für die DSGVO-Einwilligung bleibt unverändert
+beim Verband (siehe `## DSGVO — Einverständnis liegt beim Verband` oben).

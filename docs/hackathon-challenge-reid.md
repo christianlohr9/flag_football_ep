@@ -2,7 +2,9 @@
 
 **Status: Entwurf vom 2026-08-31 für den BWI Data Analytics Hackathon (23.–27. November 2026,
 Einreichung über https://hackathon.bwi.de/challenges/). Freigabe des Verbands/Teams für die
-Nutzung des Spielmaterials am 2026-08-31 erteilt (siehe `## Datenschutz`). Owner: Nutzer.**
+Nutzung des Spielmaterials am 2026-08-31 mündlich erteilt, schriftlich fixiert in
+`docs/freigabe-vorlage.md` (Signaturdatum: SIGNATUR-DATUM-TBD, siehe `## Datenschutz`).
+Owner: Nutzer.**
 
 Dieses Dokument ist die Arbeitsgrundlage: Teil 1 folgt den sieben Formularfeldern der
 BWI-Einreichung, Teil 2 hält das Benchmark-Design und den Labelling-Plan fest, Teil 3 die
@@ -198,13 +200,16 @@ Das Material zeigt identifizierbare Personen (Gesichter, Rückennummern). Projek
 verlassen den Projektkontext nicht. Der Verband hat die Freigabe für eine interne,
 zweckgebundene Nutzung im Hackathon am 2026-08-31 erteilt (Nutzer-Aussage, wörtlich: "die
 Anfrage ist positiv, wir haben alle Befugnisse"; datierte Nutzer-Zusicherung, vollständige
-Fassung in `docs/capture-legal.md` Nachtrag 2026-08-31). Die operativen Regeln gelten
-unverändert: keine Cloud-Uploads des Materials (Arbeit auf bereitgestellter
-Infrastruktur/Laptops, siehe `## Teil 1 — Technische oder organisatorische Einschränkungen`);
-Teilnehmende akzeptieren eine Nutzungsvereinbarung; Rückgabe/Löschung nach dem Event. Gesichter
-sind bei ~30 px Körperhöhe nicht erkennbar, die Rechtslage hängt aber nicht an der Pixelzahl.
-Das Formular fordert den Ausschluss sensibler/fremder personenbezogener Daten — die Freigabe
-deckt das ausdrücklich ab.
+Fassung in `docs/capture-legal.md` Nachtrag 2026-08-31). Die schriftliche, unterschriebene
+Freigabe, die Dev-, Test- und Transfer-Set einzeln benennt und den Löschweg festlegt, ist
+`docs/freigabe-vorlage.md`, signiert am SIGNATUR-DATUM-TBD. Die Löschfrist für alle drei
+Materialklassen ist 2026-12-11; die team-seitige Löschung bestätigt BWI in Textform. Die
+operativen Regeln gelten unverändert: keine Cloud-Uploads des Materials (Arbeit auf
+bereitgestellter Infrastruktur/Laptops, siehe
+`## Teil 1 — Technische oder organisatorische Einschränkungen`); Teilnehmende akzeptieren eine
+Nutzungsvereinbarung; Rückgabe/Löschung nach dem Event. Gesichter sind bei ~30 px Körperhöhe
+nicht erkennbar, die Rechtslage hängt aber nicht an der Pixelzahl. Das Formular fordert den
+Ausschluss sensibler/fremder personenbezogener Daten — die Freigabe deckt das ausdrücklich ab.
 
 ---
 
