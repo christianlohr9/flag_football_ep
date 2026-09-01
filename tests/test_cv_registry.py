@@ -59,13 +59,17 @@ def _make_config(tmp_path: Path) -> Config:
         player_mapping=tmp_path / "data" / "reference" / "player_mapping.csv",
         group_opponents=tmp_path / "data" / "reference" / "group_opponents.csv",
         hover_positions=tmp_path / "data" / "reference" / "hover_positions.csv",
-        homography_calibration=tmp_path / "data" / "reference" / "homography_calibration.csv",
+        homography_calibration=tmp_path
+        / "data"
+        / "reference"
+        / "homography_calibration.csv",
         gt_positions=tmp_path / "data" / "reference" / "gt_positions.csv",
         continuity_review=tmp_path / "data" / "reference" / "continuity_review.csv",
     )
     sources = Sources(
         sportapp=SportappSource(
-            base_url="https://example.invalid/api/v1/public", api_key_env="SPORTAPP_API_KEY"
+            base_url="https://example.invalid/api/v1/public",
+            api_key_env="SPORTAPP_API_KEY",
         ),
         ifaf=IfafSource(
             base_url="https://example.invalid/v1",
@@ -106,7 +110,12 @@ def _make_config(tmp_path: Path) -> Config:
         otc_obs_secret_key_env="OTC_OBS_SECRET_ACCESS_KEY",
     )
     return Config(
-        paths=paths, reference=reference, sources=sources, train=train, report=report, cv=cv
+        paths=paths,
+        reference=reference,
+        sources=sources,
+        train=train,
+        report=report,
+        cv=cv,
     )
 
 
@@ -168,7 +177,9 @@ def test_register_detector_model_returns_parseable_version(tmp_path: Path) -> No
     config = _make_config(tmp_path)
     checkpoint = tmp_path / "checkpoint.pth"
 
-    _run_id, version = _register_trivial_version(config, "cv_detector_model_test", checkpoint)
+    _run_id, version = _register_trivial_version(
+        config, "cv_detector_model_test", checkpoint
+    )
 
     assert int(version) >= 1
 
@@ -221,7 +232,9 @@ def test_register_detector_model_missing_checkpoint_raises_before_mlflow_call(
 def test_promote_sets_champion_alias_to_run_version(tmp_path: Path) -> None:
     config = _make_config(tmp_path)
     checkpoint = tmp_path / "checkpoint.pth"
-    run_id, version = _register_trivial_version(config, "cv_detector_model_test", checkpoint)
+    run_id, version = _register_trivial_version(
+        config, "cv_detector_model_test", checkpoint
+    )
 
     returned_version = registry.promote("cv_detector_model_test", run_id, config)
 
@@ -285,7 +298,9 @@ def test_promote_rejects_non_hex_run_id(tmp_path: Path) -> None:
 def test_resolve_champion_returns_run_id(tmp_path: Path) -> None:
     config = _make_config(tmp_path)
     checkpoint = tmp_path / "checkpoint.pth"
-    run_id, _version = _register_trivial_version(config, "cv_detector_model_test", checkpoint)
+    run_id, _version = _register_trivial_version(
+        config, "cv_detector_model_test", checkpoint
+    )
     registry.promote("cv_detector_model_test", run_id, config)
 
     assert registry.resolve_champion("cv_detector_model_test", config) == run_id
@@ -296,7 +311,9 @@ def test_resolve_champion_no_alias_raises_registry_error_naming_model_and_ffep_c
 ) -> None:
     config = _make_config(tmp_path)
     checkpoint = tmp_path / "checkpoint.pth"
-    _register_trivial_version(config, "cv_detector_model_test", checkpoint)  # never promoted
+    _register_trivial_version(
+        config, "cv_detector_model_test", checkpoint
+    )  # never promoted
 
     with pytest.raises(RegistryError) as exc_info:
         registry.resolve_champion("cv_detector_model_test", config)
@@ -309,13 +326,19 @@ def test_resolve_champion_no_alias_raises_registry_error_naming_model_and_ffep_c
 # --- store isolation: every public function reconfigures the tracking uri from config -------
 
 
-def test_resolve_champion_ignores_a_differently_set_ambient_tracking_uri(tmp_path: Path) -> None:
+def test_resolve_champion_ignores_a_differently_set_ambient_tracking_uri(
+    tmp_path: Path,
+) -> None:
     config = _make_config(tmp_path)
     checkpoint = tmp_path / "checkpoint.pth"
-    run_id, _version = _register_trivial_version(config, "cv_detector_model_test", checkpoint)
+    run_id, _version = _register_trivial_version(
+        config, "cv_detector_model_test", checkpoint
+    )
     registry.promote("cv_detector_model_test", run_id, config)
 
-    mlflow.set_tracking_uri("sqlite:///" + str(tmp_path / "somewhere-else" / "mlflow.db"))
+    mlflow.set_tracking_uri(
+        "sqlite:///" + str(tmp_path / "somewhere-else" / "mlflow.db")
+    )
 
     assert registry.resolve_champion("cv_detector_model_test", config) == run_id
     assert mlflow.get_tracking_uri() == mlflow_store.tracking_uri(config)
@@ -324,9 +347,13 @@ def test_resolve_champion_ignores_a_differently_set_ambient_tracking_uri(tmp_pat
 def test_promote_ignores_a_differently_set_ambient_tracking_uri(tmp_path: Path) -> None:
     config = _make_config(tmp_path)
     checkpoint = tmp_path / "checkpoint.pth"
-    run_id, version = _register_trivial_version(config, "cv_detector_model_test", checkpoint)
+    run_id, version = _register_trivial_version(
+        config, "cv_detector_model_test", checkpoint
+    )
 
-    mlflow.set_tracking_uri("sqlite:///" + str(tmp_path / "somewhere-else" / "mlflow.db"))
+    mlflow.set_tracking_uri(
+        "sqlite:///" + str(tmp_path / "somewhere-else" / "mlflow.db")
+    )
 
     returned_version = registry.promote("cv_detector_model_test", run_id, config)
 
@@ -342,3 +369,16 @@ def test_registry_module_does_not_import_cv_detect_at_module_level() -> None:
     assert "from flag_football_ep.cv.detect import" not in source
     assert "from flag_football_ep.cv import detect" not in source
     assert "import flag_football_ep.cv.detect" not in source
+
+
+# --- anti-drift guard (T-2.2-19): promote() never touches the frozen alias ------------------
+
+
+def test_promote_never_references_frozen_alias() -> None:
+    """`promote()` moves only `CHAMPION_ALIAS` -- it must never reference `FROZEN_ALIAS`
+    (imported or interpolated), so a future edit cannot make an active-learning
+    promotion accidentally move the hackathon-frozen baseline too (RESEARCH Pitfall 5).
+    """
+    source = Path("src/flag_football_ep/cv/registry.py").read_text(encoding="utf-8")
+    assert "FROZEN_ALIAS" not in source
+    assert CHAMPION_ALIAS != "hackathon-frozen"

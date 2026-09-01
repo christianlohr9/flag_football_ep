@@ -1,11 +1,15 @@
 """Coverage for `flag_football_ep.cv.freeze`: the `hackathon-frozen` alias round trip
 and the freeze-pin file round trip, both against a `tmp_path` SQLite MLflow store
-(mirroring `tests/test_cv_registry.py`).
+(mirroring `tests/test_cv_registry.py`), plus the anti-drift guards (T-2.2-19) that
+stop a later edit from silently re-pointing the bundle builder at the rolling
+`champion` alias.
 
-Every test builds a config pointing `mlruns` (and every other path) at `tmp_path`,
-never the real repo `mlruns/`. `RFDETRWrapper.load_context` is monkeypatched to load
-a stub object with a `.predict()` -- no real RF-DETR weights, no network, no `rfdetr`
-import at test time. These tests never assert on detector quality.
+Every round-trip test builds a config pointing `mlruns` (and every other path) at
+`tmp_path`, never the real repo `mlruns/`. `RFDETRWrapper.load_context` is
+monkeypatched to load a stub object with a `.predict()` -- no real RF-DETR weights,
+no network, no `rfdetr` import at test time. These tests never assert on detector
+quality. The anti-drift guards at the bottom of this module are source/file gates
+that do not need the monkeypatch.
 """
 
 from __future__ import annotations
@@ -25,9 +29,11 @@ from flag_football_ep.config import (
     Sources,
     SportappSource,
     TrainSettings,
+    load_config,
 )
 from flag_football_ep.cv import registry
 from flag_football_ep.cv.freeze import (
+    FROZEN_ALIAS,
     FreezeError,
     FreezePin,
     freeze,
@@ -35,9 +41,13 @@ from flag_football_ep.cv.freeze import (
     resolve_frozen,
     write_freeze_pin,
 )
-from flag_football_ep.cv.registry import RFDETRWrapper
+from flag_football_ep.cv.registry import CHAMPION_ALIAS, RFDETRWrapper
 from flag_football_ep.model import mlflow_store
 from flag_football_ep.model.registry import RegistryError
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+BUNDLE_PATH = REPO_ROOT / "src" / "flag_football_ep" / "cv" / "bundle.py"
+FREEZE_PIN_PATH = REPO_ROOT / "data" / "reference" / "hackathon_freeze.json"
 
 # --- shared test config helper -------------------------------------------------------------
 
@@ -376,3 +386,67 @@ def test_resolve_frozen_ignores_a_differently_set_ambient_tracking_uri(
 
     assert resolve_frozen("cv_detector_model_test", config) == run_id
     assert mlflow.get_tracking_uri() == mlflow_store.tracking_uri(config)
+
+
+# --- anti-drift guards (T-2.2-19): a later edit cannot silently move the bundle -------------
+# builder from the frozen detector back onto the rolling `champion` alias.
+
+
+def test_bundle_module_never_references_resolve_champion() -> None:
+    """RESEARCH Pitfall 5 (02.2-RESEARCH.md): `cv/bundle.py` must resolve the frozen
+    detector via `read_freeze_pin`/`resolve_frozen`, never `cv.registry.resolve_champion`
+    directly -- a `resolve_champion` call here would silently drift the hackathon
+    deliverable onto whatever active-learning retraining most recently promoted.
+
+    Comment lines and docstring blocks are stripped before counting, so this module's
+    own design-intent documentation (which names `resolve_champion` explaining why it
+    must never be called) cannot trip its own guard.
+    """
+    offenders: list[str] = []
+    in_docstring = False
+    for lineno, raw_line in enumerate(
+        BUNDLE_PATH.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        stripped = raw_line.strip()
+        if stripped.startswith('"""') or stripped.startswith("'''"):
+            quote = stripped[:3]
+            if stripped.count(quote) % 2 == 1:
+                in_docstring = not in_docstring
+            continue
+        if in_docstring or stripped.startswith("#"):
+            continue
+        code_part = raw_line.split("#", 1)[0]
+        if "resolve_champion" in code_part:
+            offenders.append(f"{BUNDLE_PATH.name}:{lineno}: {raw_line.strip()}")
+
+    assert not offenders, (
+        "cv/bundle.py references resolve_champion -- forbidden (RESEARCH Pitfall 5, "
+        "T-2.2-19): the bundle builder must resolve the frozen detector via "
+        f"read_freeze_pin/resolve_frozen, never the rolling champion alias: {offenders}"
+    )
+
+
+def test_tracked_pin_file_run_id_matches_resolve_frozen_when_store_available() -> None:
+    """The tracked pin (`data/reference/hackathon_freeze.json`) must parse and its
+    `run_id` must match what `resolve_frozen` resolves against the real MLflow store
+    -- skipped cleanly (not failed) when that store does not have the alias set
+    (e.g. a fresh worktree checkout without the persistent `mlruns/` store, T-2.2-19).
+    """
+    if not FREEZE_PIN_PATH.exists():
+        pytest.skip(f"tracked pin file not present: {FREEZE_PIN_PATH}")
+
+    pin = read_freeze_pin(FREEZE_PIN_PATH)
+
+    config = load_config(REPO_ROOT / "ffep.toml")
+    name = registry.detector_model_name(config)
+    try:
+        resolved_run_id = resolve_frozen(name, config)
+    except FreezeError as exc:
+        pytest.skip(f"no MLflow store with {FROZEN_ALIAS!r} alias available: {exc}")
+
+    assert resolved_run_id == pin.run_id
+
+
+def test_frozen_alias_is_distinct_from_champion_alias() -> None:
+    assert FROZEN_ALIAS != CHAMPION_ALIAS
+    assert FROZEN_ALIAS == "hackathon-frozen"
