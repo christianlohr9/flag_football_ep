@@ -15,10 +15,14 @@ Implemented by plan 02.1-05, alongside `cv/schema.py`.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import polars as pl
 
 from flag_football_ep.cv.schema import TRACKING_COLUMNS, conform_tracking
+
+if TYPE_CHECKING:
+    from flag_football_ep.config import Config
 
 _CSV_FLOAT_PRECISION = 4
 
@@ -50,3 +54,31 @@ def export_tracking_csv(parquet_path: Path, csv_path: Path) -> Path:
 
     assert df.columns == list(TRACKING_COLUMNS)
     return csv_path
+
+
+# --- Detection/crop export (Phase 2.2, REQ-S2-03) ----------------------------------
+#
+# Contract stubs only (this plan is the interface freeze) -- the real per-frame
+# detection run and crop-writing logic is implemented by plan 02.2-08.
+
+
+def export_detections_parquet(
+    config: Config, session_id: str, domain: str, run_id: str, out_path: Path
+) -> Path:
+    """Run the named detector run over `session_id`'s `domain` clips and write the
+    raw per-frame detections (pre-tracking) to `out_path` as a
+    `schema.DETECTION_*`-conformed Parquet.
+
+    Implemented by plan 02.2-08.
+    """
+    raise NotImplementedError("implemented by plan 02.2-08")
+
+
+def export_track_crops(config: Config, session_id: str, tracks: pl.DataFrame, out_dir: Path) -> int:
+    """Write one image crop per tracked box in `tracks` to `out_dir` (the same
+    torso-region crop convention `teams.extract_track_crops` already uses),
+    returning the number of crops written.
+
+    Implemented by plan 02.2-08.
+    """
+    raise NotImplementedError("implemented by plan 02.2-08")

@@ -632,6 +632,225 @@ def radar(
 
 
 @cv_app.command()
+def freeze(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    run: str = typer.Option(..., "--run", help="MLflow detector run id to freeze"),
+    dataset_hash: Optional[str] = typer.Option(
+        None, "--dataset-hash", help="Content hash of the dataset the run was trained on"
+    ),
+) -> None:
+    """Pin a detector run as the hackathon-frozen baseline (distinct from champion)."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    from flag_football_ep.cv import registry
+    from flag_football_ep.cv.freeze import freeze as freeze_run
+    from flag_football_ep.cv.freeze import write_freeze_pin
+
+    name = registry.detector_model_name(cfg)
+    version = freeze_run(name, run, cfg)
+    pin_path = write_freeze_pin(
+        cfg, run, dataset_hash or "", cfg.paths.processed / "freeze_pin.json"
+    )
+
+    typer.echo(f"frozen: {name} v{version} (run={run})")
+    typer.echo(f"pin: {pin_path}")
+
+
+@cv_app.command()
+def bundle(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    kind: str = typer.Option(
+        ..., "--kind", help="Bundle kind: dev, test, or transfer (cv.bundle.BUNDLE_KINDS)"
+    ),
+    out: Optional[Path] = typer.Option(
+        None, "--out", help="Override the bundle output directory"
+    ),
+) -> None:
+    """Build a dev/test/transfer deliverable bundle from the frozen detector."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    from flag_football_ep.cv.bundle import build_bundle
+    from flag_football_ep.cv.freeze import read_freeze_pin
+
+    pin = read_freeze_pin(cfg.paths.processed / "freeze_pin.json")
+    out_dir = out or (cfg.paths.processed / "bundles" / kind)
+
+    result = build_bundle(cfg, kind, pin, out_dir)
+
+    typer.echo(f"bundle: {result.archive_path} ({result.n_files} files, {result.content_sha256})")
+
+
+@cv_app.command()
+def deliver(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    archive: Path = typer.Option(..., "--archive", help="Bundle archive path to deliver"),
+    remote: str = typer.Option(..., "--remote", help="Remote URI to deliver the bundle to"),
+) -> None:
+    """Deliver a built bundle archive to a remote location (e.g. the OTC OBS bucket)."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    from flag_football_ep.cv.bundle import deliver_bundle
+
+    # T-2.2-13: echo the remote URI only -- never a credential value.
+    remote_uri = deliver_bundle(cfg, archive, remote)
+
+    typer.echo(f"delivered: {remote_uri}")
+
+
+@cv_app.command(name="active-learn")
+def active_learn(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    iteration: int = typer.Option(..., "--iteration", help="Active-learning iteration number"),
+    target: int = typer.Option(..., "--target", help="Target frame count for this iteration"),
+    seed: int = typer.Option(20260516, "--seed", help="Random seed for the selection"),
+    session: List[str] = typer.Option(
+        [],
+        "--session",
+        help="Session id(s) to draw from (repeatable); default: cfg.cv.pilot_session_id",
+    ),
+    out_dir: Optional[Path] = typer.Option(
+        None, "--out-dir", help="Override the AL selection output directory"
+    ),
+) -> None:
+    """Select the next active-learning iteration's frames by uncertainty + diversity."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    session_ids = session or [cfg.cv.pilot_session_id]
+    out_directory = out_dir or (cfg.paths.labels / "active-learning" / f"iteration-{iteration}")
+
+    from flag_football_ep.cv.active_learning import select_al_frames
+
+    selection = select_al_frames(cfg, session_ids, iteration, target, seed, out_directory)
+
+    typer.echo(f"selection: {out_directory} ({len(selection.frames)} frames)")
+
+
+@cv_app.command(name="eval-split")
+def eval_split(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    domain: List[str] = typer.Option(
+        [],
+        "--domain",
+        help="Capture domain(s) to include (repeatable); default: drone, sideline, broadcast",
+    ),
+    fraction: float = typer.Option(
+        0.2, "--fraction", help="Fraction of each domain's clips to hold out"
+    ),
+    seed: int = typer.Option(20260516, "--seed", help="Random seed for the eval-clip split"),
+    out: Optional[Path] = typer.Option(
+        None, "--out", help="Override the eval-split CSV output path"
+    ),
+) -> None:
+    """Freeze the per-domain held-out evaluation-clip split (D-04/D-13)."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    domains = domain or ["drone", "sideline", "broadcast"]
+    out_csv = out or (cfg.paths.reference / "eval_split.csv")
+
+    from flag_football_ep.cv.frames import freeze_eval_clips
+
+    split = freeze_eval_clips(cfg, domains, fraction, seed, out_csv)
+
+    n_clips = sum(len(clips) for clips in split.clips_by_domain.values())
+    typer.echo(f"eval split: {out_csv} ({n_clips} clips)")
+
+
+@cv_app.command()
+def detections(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    session: Optional[str] = typer.Option(
+        None, "--session", help="Pilot session id (default: cfg.cv.pilot_session_id)"
+    ),
+    domain: str = typer.Option(
+        "drone", "--domain", help="Capture domain to export detections for"
+    ),
+    run: Optional[str] = typer.Option(
+        None, "--run", help="Detector MLflow run id (default: champion alias)"
+    ),
+    out: Optional[Path] = typer.Option(
+        None, "--out", help="Override the detections Parquet output path"
+    ),
+) -> None:
+    """Run the detector over a session/domain and export raw per-frame detections."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    session_id = session or cfg.cv.pilot_session_id
+    out_path = out or (cfg.paths.processed / f"{session_id}_{domain}_detections.parquet")
+
+    from flag_football_ep.cv.export import export_detections_parquet
+
+    written = export_detections_parquet(cfg, session_id, domain, run, out_path)
+
+    typer.echo(f"detections: {written}")
+
+
+@cv_app.command()
+def crops(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    session: Optional[str] = typer.Option(
+        None, "--session", help="Pilot session id (default: cfg.cv.pilot_session_id)"
+    ),
+    tracks: Path = typer.Option(..., "--tracks", help="Input tracking Parquet"),
+    out_dir: Optional[Path] = typer.Option(
+        None, "--out-dir", help="Override the crop image output directory"
+    ),
+) -> None:
+    """Write one image crop per tracked box to a directory."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    session_id = session or cfg.cv.pilot_session_id
+
+    import polars as pl
+
+    tracks_df = pl.read_parquet(tracks)
+    out_directory = out_dir or (cfg.paths.labels / session_id / "crops")
+
+    from flag_football_ep.cv.export import export_track_crops
+
+    n_crops = export_track_crops(cfg, session_id, tracks_df, out_directory)
+
+    typer.echo(f"crops: {out_directory} ({n_crops} crops)")
+
+
+@cv_app.command(name="eval-domains")
+def eval_domains(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    run: str = typer.Option(..., "--run", help="Detector MLflow run id to evaluate"),
+    split: Optional[Path] = typer.Option(
+        None,
+        "--split",
+        help="Eval-clip split CSV (default: cfg.reference eval_split.csv)",
+    ),
+    out: Optional[Path] = typer.Option(
+        None, "--out", help="Override the per-domain metrics output path"
+    ),
+) -> None:
+    """Evaluate a detector run per domain against the frozen eval-clip split (C-05/D-04)."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    split_path = split or (cfg.paths.reference / "eval_split.csv")
+    out_path = out or (cfg.paths.reports / f"eval_domains_{run}.json")
+
+    from flag_football_ep.cv.detect import evaluate_per_domain
+
+    metrics = evaluate_per_domain(cfg, run, split_path, out_path)
+
+    for domain_name, domain_metrics in metrics.items():
+        typer.echo(f"{domain_name}: {domain_metrics}")
+
+
+@cv_app.command()
 def benchmark(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     timings: Path = typer.Option(

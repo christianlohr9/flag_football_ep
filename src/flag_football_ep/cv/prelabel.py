@@ -180,13 +180,31 @@ def _load_transformers_backend(device: str) -> Callable[[Path], list[Detection]]
     return detect
 
 
+def _load_finetuned_backend(
+    device: str, config: Config, run_id: str | None
+) -> Callable[[Path], list[Detection]]:
+    """Explicit-selection-only backend (never in `_BACKEND_ORDER`): wraps the
+    fine-tuned RF-DETR checkpoint resolved via `detect.load_detector` instead of a
+    zero-shot open-vocabulary model, for active-learning iterations that always have
+    a fine-tuned checkpoint available (RESEARCH Pitfall 1) and must never silently
+    fall back to zero-shot Grounding DINO.
+
+    Implemented by plan 02.2-09.
+    """
+    raise NotImplementedError("implemented by plan 02.2-09")
+
+
 # Explicit backend selection (this plan's `<action>` block): a name -> loader mapping
 # and an attempt order, tried in sequence until one imports cleanly. Tests monkeypatch
 # both module attributes with a fake loader so no weights are downloaded and no network
-# is touched.
-_BACKENDS: dict[str, Callable[[str], Callable[[Path], list[Detection]]]] = {
+# is touched. `"finetuned"` is registered in `_BACKENDS` but deliberately excluded
+# from `_BACKEND_ORDER` -- it is selected explicitly via `prelabel_frames(backend=...)`,
+# never attempted-and-fallen-back-from by `_resolve_backend`'s ordered chain, and its
+# loader takes extra arguments (`config`, `run_id`) the other two backends don't need.
+_BACKENDS: dict[str, Callable[..., Callable[[Path], list[Detection]]]] = {
     "autodistill": _load_autodistill_backend,
     "transformers": _load_transformers_backend,
+    "finetuned": _load_finetuned_backend,
 }
 _BACKEND_ORDER: tuple[str, ...] = ("autodistill", "transformers")
 
@@ -230,7 +248,12 @@ def _resolve_backend(device: str) -> tuple[str, Callable[[Path], list[Detection]
 
 
 def prelabel_frames(
-    config: Config, frames_dir: Path, out_dir: Path, *, force: bool = False
+    config: Config,
+    frames_dir: Path,
+    out_dir: Path,
+    *,
+    force: bool = False,
+    backend: str | None = None,
 ) -> PrelabelResult:
     """Run zero-shot pre-labeling over every frame in `frames_dir`, writing a COCO
     package to `out_dir`. Frames already pre-labeled on disk are skipped unless `force`.
@@ -242,6 +265,15 @@ def prelabel_frames(
     hardlinked (falling back to a copy across filesystems) into `out_dir` so the
     directory is a self-contained CVAT import package, and every frame appears in
     `images` even with zero detections -- an honest empty result, not a dropped row.
+
+    `backend`, when given, selects a `_BACKENDS` entry directly and bypasses
+    `_resolve_backend`'s ordered fallback chain -- used by active-learning
+    iterations (plan 02.2-09) to force the fine-tuned detector backend, which must
+    never be silently attempted-and-fallen-back-from like the zero-shot backends.
+    Raises `PrelabelBackendUnavailable` naming the valid backend keys
+    (`sorted(_BACKENDS)`) when `backend` names an unregistered backend. `None` (the
+    default) preserves prior behaviour exactly: `_resolve_backend`'s ordered
+    fallback chain, which never includes `"finetuned"`.
     """
     from flag_football_ep.cv.dataset import CLASS_NAMES
     from flag_football_ep.cv.frames import read_manifest
@@ -262,7 +294,17 @@ def prelabel_frames(
         )
 
     device = _resolve_device(config)
-    backend_name, detect = _resolve_backend(device)
+    if backend is not None:
+        if backend not in _BACKENDS:
+            raise PrelabelBackendUnavailable(
+                f"unknown pre-labeling backend {backend!r} -- valid backends: "
+                f"{sorted(_BACKENDS)}"
+            )
+        loader = _BACKENDS[backend]
+        detect = loader(device, config, None) if backend == "finetuned" else loader(device)
+        backend_name = backend
+    else:
+        backend_name, detect = _resolve_backend(device)
 
     out_dir.mkdir(parents=True, exist_ok=True)
 

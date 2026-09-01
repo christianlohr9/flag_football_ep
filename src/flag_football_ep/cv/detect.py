@@ -821,3 +821,15 @@ def detect_video(
         config, capture, model, resolution=resolution, sahi=sahi, stage_totals=stage_totals
     )
     return DetectionRun(frames, stage_totals)
+
+
+def evaluate_per_domain(config: Config, run_id: str, eval_split_path: Path, out_path: Path) -> dict:
+    """Run the detector at `run_id` over every clip named in the frozen eval split at
+    `eval_split_path` (`frames.EvalSplit`, written by `frames.freeze_eval_clips`),
+    returning per-domain metrics --
+    `{domain: {mAP_50, mAP_50_95, AP_player, AP_referee, n_images, n_boxes}}`, never a
+    pooled number alone (C-05/D-04). Also writes the same result to `out_path`.
+
+    Implemented by plan 02.2-15.
+    """
+    raise NotImplementedError("implemented by plan 02.2-15")
