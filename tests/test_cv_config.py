@@ -10,6 +10,7 @@ missing-key `ConfigError` case.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import polars as pl
@@ -68,6 +69,31 @@ def test_new_paths_and_reference_files_are_absolute_under_repo_root(tmp_path: Pa
     )
 
 
+def test_checked_in_config_has_dvc_versioning_fields(repo_root: Path) -> None:
+    cfg = load_config(repo_root / "ffep.toml")
+
+    assert cfg.cv.dvc_remote_name == "otc-obs"
+    assert cfg.cv.dvc_remote_url.startswith("s3://")
+    assert cfg.cv.dvc_remote_endpoint == "https://obs.eu-de.otc.t-systems.com"
+    assert cfg.cv.otc_obs_access_key_env == "OTC_OBS_ACCESS_KEY_ID"
+    assert cfg.cv.otc_obs_secret_key_env == "OTC_OBS_SECRET_ACCESS_KEY"
+
+
+def test_checked_in_config_has_no_literal_key_material(repo_root: Path) -> None:
+    text = (repo_root / "ffep.toml").read_text(encoding="utf-8")
+
+    # AWS/OTC access keys are shaped `AKIA...` (20 uppercase alnum chars) or
+    # appear via a literal `access_key`/`secret_key` assignment -- neither
+    # should ever appear in the checked-in TOML, only env-var *names*.
+    assert "AKIA" not in text, "ffep.toml appears to contain a literal AWS/OTC access key"
+    assert not re.search(r"\baccess_key\s*=", text), (
+        "ffep.toml assigns access_key directly instead of referencing an env-var name"
+    )
+    assert not re.search(r"\bsecret_key\s*=", text), (
+        "ffep.toml assigns secret_key directly instead of referencing an env-var name"
+    )
+
+
 def test_missing_cv_table_raises_configerror_naming_it(tmp_path: Path) -> None:
     incomplete = MINIMAL_TOML[: MINIMAL_TOML.index("[cv]")]
     config_path = tmp_path / "ffep.toml"
@@ -100,6 +126,11 @@ def test_missing_cv_table_raises_configerror_naming_it(tmp_path: Path) -> None:
         "field_length_yards",
         "field_width_yards",
         "endzone_yards",
+        "dvc_remote_name",
+        "dvc_remote_url",
+        "dvc_remote_endpoint",
+        "otc_obs_access_key_env",
+        "otc_obs_secret_key_env",
     ],
 )
 def test_missing_cv_key_raises_configerror_naming_it(tmp_path: Path, key: str) -> None:
