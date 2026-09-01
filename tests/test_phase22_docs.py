@@ -24,6 +24,7 @@ HACKATHON_REID = REPO_ROOT / "docs" / "hackathon-challenge-reid.md"
 HACKATHON_PREP = REPO_ROOT / "docs" / "hackathon-challenge-prep.md"
 ROADMAP_MD = REPO_ROOT / ".planning" / "ROADMAP.md"
 REQUIREMENTS_MD = REPO_ROOT / ".planning" / "REQUIREMENTS.md"
+DATASET_PLAN = REPO_ROOT / "docs" / "dataset-plan.md"
 
 NACHTRAG_HEADING = "## Nachtrag 2026-08-31"
 
@@ -130,4 +131,18 @@ def test_hackathon_prep_verbandsfreigabe_checked() -> None:
     assert lines, "docs/hackathon-challenge-prep.md has no Verbands-Freigabe line"
     assert lines[0].startswith("- [x]"), (
         f"Verbands-Freigabe checklist item is not checked off: {lines[0]!r}"
+    )
+
+
+def test_dataset_plan_states_stopping_rule_threshold() -> None:
+    """RESEARCH Open Question 3 / D-12: the numeric mAP-improvement threshold that
+    ends labelling must be pre-committed in writing before the first AL iteration --
+    guards against the threshold being silently loosened after seeing results.
+    """
+    text = _read(DATASET_PLAN)
+    assert "+0.010" in text, (
+        "docs/dataset-plan.md is missing the pre-committed +0.010 stopping-rule threshold"
+    )
+    assert "mAP_50_95" in text, (
+        "docs/dataset-plan.md's stopping rule does not name mAP_50_95 as the metric"
     )
