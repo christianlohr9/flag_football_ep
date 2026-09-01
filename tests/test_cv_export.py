@@ -27,7 +27,7 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
-from flag_football_ep.cv import detect, frames, registry, schema
+from flag_football_ep.cv import detect, frames, registry, schema, teams
 from flag_football_ep.cv.export import (
     TrackingParquetNotFound,
     export_detections_parquet,
@@ -492,3 +492,47 @@ def test_export_track_crops_rerun_is_idempotent(
 
     assert n1 == n2
     assert first_index == second_index
+
+
+def test_export_track_crops_skips_referee_labeled_rows_within_a_flip_noise_player_track(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Regression test (found running Task 3's real export against the pilot session
+    tracking Parquet): a track whose FIRST row is `class_name="player"` still needs
+    every individual sampled row checked, because a handful of tracks flip class
+    mid-track (known detector noise, ~55 tracks session-wide per docs/cv-setup.md).
+    The track-level check alone let 115 referee-labeled rows reach the real index.csv
+    before this per-row guard was added.
+    """
+    config = _make_config(tmp_path)
+    tracks = synthetic_tracks(
+        n_clips=1, n_frames=20, n_tracks=2, session_id="test-session", with_teams=True
+    )
+    sampled_positions = teams._sample_frame_indices(20, 12)
+    # Exclude position 0 -- track 1's first row must stay "player" so the track-level
+    # first-row screen still passes and this test actually exercises the per-row check.
+    flipped_frames = set(sampled_positions[1:3])
+    assert flipped_frames, "expected at least two non-zero sampled positions for n_rows=20"
+
+    tracks = tracks.with_columns(
+        pl.when(
+            (pl.col("track_id") == 1) & (pl.col("frame_index").is_in(list(flipped_frames)))
+        )
+        .then(pl.lit("referee"))
+        .otherwise(pl.col("class_name"))
+        .alias("class_name")
+    )
+
+    clip = _write_synthetic_clip(tmp_path / "video" / "clip_001.mp4", n_frames=20)
+    monkeypatch.setattr(frames, "clip_paths", lambda *a, **k: [clip])
+
+    out_dir = tmp_path / "crops"
+    export_track_crops(config, "test-session", tracks, out_dir)
+
+    index = pl.read_csv(out_dir / "index.csv")
+    assert "referee" not in index["class_name"].to_list()
+
+    track_1_frames = set(
+        index.filter(pl.col("track_id") == 1)["frame_index"].to_list()
+    )
+    assert not (track_1_frames & flipped_frames)

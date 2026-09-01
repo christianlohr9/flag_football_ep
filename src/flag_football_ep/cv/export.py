@@ -189,13 +189,15 @@ def export_track_crops(config: Config, session_id: str, tracks: pl.DataFrame, ou
     (not inventing a second crop definition) is the only way to keep both the crop
     pixels and their provenance without duplicating `_crop_row`'s math.
 
-    Only `class_name == "player"` tracks are cropped (a track's class is read off its
-    first frame-sorted row, matching `docs/cv-setup.md`'s own team-assignment counting
-    convention for the rare detector-noise tracks that flip class mid-track);
-    referees are skipped entirely. Re-running overwrites every crop file
-    deterministically (same clip/track/frame always maps to the same path) and
-    rewrites `index.csv` from scratch each call, so a rerun over the same `tracks`
-    input is idempotent.
+    Only `class_name == "player"` rows are cropped. A track's first frame-sorted row
+    (`docs/cv-setup.md`'s own team-assignment counting convention) screens out a
+    wholly-referee track cheaply, but a handful of tracks flip class mid-track (known
+    detector noise, ~55 tracks session-wide per `docs/cv-setup.md`) -- every sampled
+    row is checked individually before it is queued for cropping, so a flip-noise
+    track's referee-labeled frames are skipped too, never reaching `index.csv`.
+    Re-running overwrites every crop file deterministically (same clip/track/frame
+    always maps to the same path) and rewrites `index.csv` from scratch each call, so
+    a rerun over the same `tracks` input is idempotent.
     """
     import cv2
 
@@ -226,6 +228,13 @@ def export_track_crops(config: Config, session_id: str, tracks: pl.DataFrame, ou
                 continue  # referees skipped entirely
             for i in teams._sample_frame_indices(ordered.height, _EXPORT_MAX_CROPS_PER_TRACK):
                 row = ordered.row(i, named=True)
+                if row["class_name"] != "player":
+                    # A track's class can flip mid-track (known detector noise,
+                    # docs/cv-setup.md's ~55-track figure) -- the track-level check
+                    # above only screens out wholly-referee tracks; this per-sample
+                    # check is what actually guarantees no referee row ever reaches
+                    # index.csv.
+                    continue
                 frame_to_rows.setdefault(int(row["frame_index"]), []).append(row)
         if not frame_to_rows:
             continue
