@@ -197,3 +197,73 @@ Privat-Test-Aufteilung:
 `role = pool` in `frozen_eval_clips.csv`. Kein Frame aus einem `role = frozen_eval`-Clip
 darf in einen Trainings- oder AL-Auswahlschritt einfließen — das würde sowohl den
 Eval-Split als auch (für die Drohnen-Domäne) das private Hackathon-Testset kontaminieren.
+
+## Seed-Set-Prüfung (Pilot, 304 Frames)
+
+**Verdikt: `nicht übernommen`**
+
+**Wichtiger Vorbehalt zur Methode dieser Prüfung:** Diese Prüfung lief in einem parallelen
+Ausführungs-Worktree (Wave 3, dieser Plan lief neben Plan 02.2-07 in einer isolierten
+Git-Worktree-Kopie). In dieser Isolation sind gitignorierte Datenverzeichnisse
+(`data/labels/*`, `data/video/*`) **nicht sichtbar** — nur `.gitkeep` existiert unter
+`data/labels/`, die eigentliche COCO-Exportdatei
+`data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/corrected/instances.json`
+(304 Bilder, PII-Spielerinnen-Aufnahmen) ist in diesem Ausführungskontext nicht
+erreichbar. Das im Plan geforderte **programmatische** Spot-Check — Box-Geometrie-
+Statistiken (Median-Höhe/-Breite, Seitenverhältnis, Grenzverletzungen, Pro-Klasse-Zählung,
+Anteil annotationsloser Bilder) getrennt für den Polygon-Bereich (Frames bis ca. 103) und
+den Rechteck-Bereich (Frames 104–304), plus eine 15-Bild-Stichprobe gegen die
+Labeling-Konvention — konnte **nicht ausgeführt werden**. Dies ist eine ehrliche
+Einschränkung dieser Ausführung, keine verschwiegene Lücke: fehlender Datenzugriff ist
+kein Ersatz für eine tatsächliche Messung, und diese Prüfung erfindet keine Zahlen, die
+nicht tatsächlich gemessen wurden.
+
+**Was stattdessen aus bereits verfolgtem/dokumentiertem Material einsehbar war**
+(`docs/cv-setup.md` Abschnitt `### Datensatz`, aus Phase 2.1, als der reale COCO-Export
+noch zugänglich war):
+
+| Kennzahl (Gesamtdatensatz, nicht nach Bereich getrennt) | Wert |
+|---|---|
+| `n_images` | 304 |
+| `player`-Boxen | 5962 |
+| `referee`-Boxen | 652 |
+| Bilder ohne Annotation (`_empty_images`) | 0 |
+| Grenzverletzungen (max. gemessene Abweichung) | 0,26 px (Toleranz `_BBOX_BOUNDS_EPSILON_PX = 1.0`, `validate_coco` bestand) |
+| `content_sha256` | `ab3a9673d61bc348d37ce298ba12d18b76395d1ade82a735c5b3d82d2e46aec0` |
+
+Diese Zahlen sind bereits das Ergebnis von `validate_coco` (Plan 02.1-09), decken aber nur
+den **gesamten** Datensatz ab, nicht die vom aktuellen Plan geforderte **Bereichstrennung**
+Polygon- vs. Rechteck-Annotation. `docs/cv-setup.md`s eigener Text benennt den
+Polygon-zu-Box-Übergang bei Frame ~103 und die daraus resultierende Sub-Pixel-Toleranz
+bereits, ohne selbst eine getrennte Statistik pro Bereich zu liefern — dieselbe Lücke, die
+dieser Plan schließen sollte und aus dem oben genannten Grund nicht schließen konnte.
+
+**Warum `nicht übernommen` trotz unauffälliger Gesamtwerte:** Die Aggregatzahlen (0 leere
+Bilder, Grenzverletzung weit innerhalb der Toleranz, ein bereits 2.1 erfolgreich damit
+trainierter Detektor mit `mAP_50 = 0.9571`) sprechen nicht gegen die Datenqualität — aber
+sie beantworten nicht die eigentliche Frage dieses Tasks: ob sich die Box-Geometrie
+zwischen dem Polygon-abgeleiteten und dem direkt-rechteckigen Bereich systematisch
+unterscheidet. Ohne diese Messung gilt die im Plan festgehaltene Vorsichtsregel: eine
+Abkürzung ("wahrscheinlich passt schon") widerspricht genau der in
+`.planning/phases/02.2-dataset-buildout/02.2-CONTEXT.md` festgehaltenen Vorgabe, wonach
+die Übernahme des Piloten-Seeds auf einer tatsächlichen Prüfung beruhen muss, nicht auf
+Bequemlichkeit. Fehlender Messwert ist kein Nachweis für Eignung.
+
+**Konsequenz für die Frame-Ziele (Plan-Vorgabe bei `nicht übernommen`):** Bereits erfüllt,
+keine nachträgliche Anpassung nötig — die Drohnen-Frame-Zielzahl in `## 1` (900 Frames)
+zählt den Piloten-Seed von vornherein **nicht** mit; der 1.500-Floor in `## 2` wird
+vollständig aus neu zu labelnden AL-Frames erreicht, unabhängig vom Ausgang dieser Prüfung.
+
+**GT-Positionsset bleibt unverändert eval-only:** `data/reference/gt_positions.csv` (251
+Zeilen, Foot-Positionen für die Pilotgenauigkeitsmessung, Phase 2.1) ist von diesem
+Verdikt nicht betroffen und bleibt strikt eval-only — das war bereits vor dieser Phase
+festgelegt (Pilot-Gate) und wird hier nicht neu verhandelt.
+
+**Offener Folgeschritt (kein Blocker für diesen Plan, aber für eine spätere
+Seed-Übernahme-Entscheidung relevant):** Sollte der Piloten-Seed zu einem späteren
+Zeitpunkt doch als v0 in Betracht gezogen werden, muss die hier beschriebene
+Bereichstrennungs-Prüfung in einem Ausführungskontext mit echtem Zugriff auf
+`data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/corrected/instances.json`
+nachgeholt werden (z. B. eine reguläre, nicht-parallele Ausführung auf der
+Primärmaschine) — dieser Plan schließt diese Möglichkeit nicht aus, trifft aber jetzt
+keine unbelegte Entscheidung dafür.
