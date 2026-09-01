@@ -1,15 +1,15 @@
-"""Contract guard tests for the Phase 2.1 CV tracking pilot subpackage skeleton.
+"""Contract guard tests for the Phase 2.1/2.2 CV tracking pilot subpackage skeleton.
 
 Four guard groups, all runnable without the `cv` extras group installed and without
 touching video, weights or network:
 
 1. Lazy-import guard (D-07/D-08): `import flag_football_ep.cli` must never pull in a
    `cv` extras third-party dependency.
-2. Help-surface guard: `ffep cv --help` must list every one of the 18 pilot verbs.
-3. Signature guard: every contract function/method named in plan 02.1-02's
-   `<interfaces>` block must exist on its module with its declared parameter names --
-   this is what stops a later plan from silently renaming a parameter another plan
-   already calls.
+2. Help-surface guard: `ffep cv --help` must list every one of the 26 pilot verbs.
+3. Signature guard: every contract function/method named in plan 02.1-02's or plan
+   02.2-05's `<interfaces>` block must exist on its module with its declared
+   parameter names -- this is what stops a later plan from silently renaming a
+   parameter another plan already calls.
 4. Delegation guard: `cv/commands.py` must import nothing from `flag_football_ep` at
    module level, and `cli.py` must wire `cv_app` in exactly once.
 """
@@ -64,6 +64,9 @@ CV_CONTRACT_MODULES: tuple[str, ...] = (
     "accuracy",
     "radar",
     "benchmark",
+    "freeze",
+    "bundle",
+    "active_learning",
 )
 
 
@@ -140,6 +143,14 @@ CV_VERBS: tuple[str, ...] = (
     "accuracy",
     "radar",
     "benchmark",
+    "freeze",
+    "bundle",
+    "deliver",
+    "active-learn",
+    "eval-split",
+    "detections",
+    "crops",
+    "eval-domains",
 )
 
 
@@ -187,7 +198,11 @@ FUNCTION_CONTRACTS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     ("frames", "read_manifest", ("path",)),
     ("sighting", "sight_session", ("config", "session_id", "out_csv", "domain")),
     ("sighting", "recommend_inference_settings", ("rows", "config")),
-    ("prelabel", "prelabel_frames", ("config", "frames_dir", "out_dir", "force")),
+    (
+        "prelabel",
+        "prelabel_frames",
+        ("config", "frames_dir", "out_dir", "force", "backend"),
+    ),
     ("dataset", "validate_coco", ("coco_dir", "manifest")),
     ("dataset", "dataset_hash", ("root",)),
     ("dataset", "create_cvat_task", ("config", "coco_dir", "name")),
@@ -240,6 +255,39 @@ FUNCTION_CONTRACTS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     ("radar", "render_radar_frame", ("tracks_at_frame", "config", "size_wh")),
     ("radar", "render_showcase_reel", ("config", "clip_numbers", "tracks", "out_path")),
     ("benchmark", "extrapolate_game_runtime", ("stages", "footage_seconds", "game_seconds")),
+    # Phase 2.2 (plan 02.2-05 <interfaces> block)
+    ("freeze", "freeze", ("name", "run_id", "config")),
+    ("freeze", "resolve_frozen", ("name", "config")),
+    ("freeze", "write_freeze_pin", ("config", "run_id", "dataset_hash", "path")),
+    ("freeze", "read_freeze_pin", ("path",)),
+    ("bundle", "build_bundle", ("config", "kind", "pin", "out_dir")),
+    ("bundle", "bundle_manifest", ("root",)),
+    ("bundle", "deliver_bundle", ("config", "archive", "remote")),
+    ("active_learning", "frame_uncertainty_score", ("detections",)),
+    ("active_learning", "diversity_key", ("row",)),
+    (
+        "active_learning",
+        "select_al_frames",
+        ("config", "session_ids", "iteration", "target", "seed", "out_dir"),
+    ),
+    ("active_learning", "write_selection_manifest", ("manifest", "path")),
+    ("active_learning", "read_selection_manifest", ("path",)),
+    ("frames", "freeze_eval_clips", ("config", "domains", "fraction", "seed", "out_csv")),
+    ("frames", "read_eval_split", ("path",)),
+    ("schema", "empty_detection_frame", ()),
+    ("schema", "conform_detections", ("df",)),
+    ("schema", "write_detections_parquet", ("df", "path")),
+    (
+        "export",
+        "export_detections_parquet",
+        ("config", "session_id", "domain", "run_id", "out_path"),
+    ),
+    ("export", "export_track_crops", ("config", "session_id", "tracks", "out_dir")),
+    (
+        "detect",
+        "evaluate_per_domain",
+        ("config", "run_id", "eval_split_path", "out_path"),
+    ),
 )
 
 # (module, class_name, method_name, declared parameter names, in declared order)
