@@ -86,4 +86,11 @@ All eight decisions below are **locked** (synthesized from docs/plan-1-analytics
 </decisions>
 
 ---
-*Last updated: 2026-08-31 after Phase 2.1 completion (CV tracking pilot executed end to end on the 61-clip drone session; gate verdict "teilweise" recorded in docs/pilot-gate-decision.md — position error ~0.17 yd median and 48-min-per-game runtime pass, track continuity misses at a 77% upper bound; drone drift between clips, mirror orientation and jersey-colour anchoring found and fixed only through human review of the rendered reel; showcase reel sent to the HC; Milestone 1's Strand-2 half closed, Phase 2.2 "only after passed pilot" now needs an explicit decision given the partial verdict)*
+## Milestone 2: Challenge-Härtung Re-Identifikation
+
+The BWI hackathon challenge ("Wer ist wer nach der Verdeckung?") was submitted and **accepted**; hackathon 23.–27.11.2026, material to teams by **16.11.2026**. Milestone 2 hardens the challenge for handover: signed federation release with deletion commitment, honest multi-tracker baseline (real baseline 15/61 = 24.6%, not the earlier 77% upper bound), identity-labelled multi-game benchmark split by game, a continuous metric alongside the threshold, and a 30-minute starter package. Five phases M2-1..M2-5 (project_code `reid`), imported 2026-09-01 from the user's draft — source and reconciliation: `.planning/imported/challenge-haertung/` (ABGLEICH.md). M2 work interleaves with the remaining 2.2 waves where files do not collide.
+
+---
+*Last updated: 2026-09-01 during Phase 2.2 execution (waves 1–6 largely complete: D-11 verdict ratified — GoPro is a Hinterfeld/endzone view, TV the side view, both admitted as training domains under a mAP ablation; real continuity baseline 15/61 = 24.6% from the full human review; all three hackathon bundles built and leak-checked; Milestone 2 "Challenge-Härtung" imported after challenge acceptance)*
+
+*Prior update: 2026-08-31 after Phase 2.1 completion (gate verdict "teilweise" in docs/pilot-gate-decision.md — position error and runtime pass, track continuity 77% upper bound at n=20/61; Phase 2.2 released for detection robustness per the dated addendum)*

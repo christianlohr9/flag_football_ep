@@ -49,6 +49,38 @@ Mapped to a deferred roadmap phase; not part of the v1 gate.
 
 - **REQ-S2-06** (stretch-broadcast): TV/side view as third domain + field-keypoint model for moving cameras (roboflow/sports recipe, PnLCalib). Explicitly out of scope until 2.1–2.3 are in operation; scouting need is covered by Strand 1.
 
+## Milestone 2: Challenge-Härtung Re-Identifikation
+
+Imported 2026-09-01 (`.planning/imported/challenge-haertung/`, reconciliation in
+`ABGLEICH.md`). The BWI hackathon challenge is accepted; deadline 2026-11-16.
+IDs kept verbatim from the draft; facts reconciled (real baseline 15/61 = 24.6%,
+chain already AGPL-free per D-02).
+
+- [ ] **RECHT-01**: Die schriftliche Datenfreigabe des Verbands liegt vor und nennt ausdrücklich Dev-, Test- und Transfermaterial (verschärft die dokumentierte pauschale Freigabe vom 2026-08-31; Nutzer-seitig)
+- [ ] **RECHT-02**: Der Platzhalter für das Freigabedatum in der Challenge-Beschreibung ist durch das echte Datum ersetzt
+- [ ] **RECHT-03**: Löschweg und -frist nach dem Hackathon stehen schriftlich fest, inkl. wer bestätigt
+- [ ] **RECHT-04**: Lizenz jeder bereitgestellten Komponente benannt (Inventur; eigene Kette ist AGPL-frei — rfdetr/trackers/supervision)
+- [ ] **BASE-01**: BoT-SORT, ByteTrack, Deep-EIoU und Global Tracklet Association je einmal auf dem Prüfsatz gemessen (Lizenz-Gate je Kandidat vor Install, D-02)
+- [ ] **BASE-02**: Messwerte stehen in der Challenge-Beschreibung
+- [ ] **BASE-03**: Startbefehl je Verfahren dokumentiert und lauffähig
+- [ ] **BASE-04**: Schlägt ein fertiges Verfahren die reale Baseline (24,6%) deutlich, wird die 90%-Zielmarke angepasst und begründet
+- [ ] **DATA-01**: Prüfsatz umfasst ≥3 Spiele mit je ≥40 Spielzügen (Multi-TB-Rohmaterial sichten + registrieren)
+- [ ] **DATA-02**: Spiele unterscheiden sich in Tageszeit, Flughöhe oder Gegner
+- [ ] **DATA-03**: Identitäts-Labels je Spielerin pro Spielzug (Prüfsatz-Arbeit, nicht ReID-Lösung)
+- [ ] **DATA-04**: Dev/Test nach SPIEL getrennt — ersetzt bei Erfolg das Clip-Split-Test-Set aus 2.2 (Re-Bundle; siehe ABGLEICH.md Konflikt 1)
+- [ ] **DATA-05**: Labeln als Spurkorrektur, nicht Kästen-Neuzeichnen (CVAT-Kandidat)
+- [ ] **METR-01**: Stetige Kennzahl neben der Schwellenmetrik
+- [ ] **METR-02**: `score_tracks.py` gibt beide Kennzahlen in einem Lauf aus, getrennt nach Dev/Test
+- [ ] **METR-03**: Challenge benennt Abnahmekriterium vs. Zielrichtung
+- [ ] **METR-04**: Vergleichslauf zeigt einen Unterschied, den die Schwellenmetrik verschluckt
+- [ ] **PACK-01**: ~30s-Fehlerclip (Kandidaten: die 14 dokumentierten Continuity-Fails)
+- [ ] **PACK-02**: Baseline-Ausgabe zum selben Clip daneben
+- [ ] **PACK-03**: Nutzbare Randbedingungen als Liste in der Challenge
+- [ ] **PACK-04**: Verwertung nach dem Hackathon benannt
+- [ ] **PACK-05**: Clone-zu-erster-Messung < 30 min, an fremder Person nachgewiesen
+
+**M2 v2 (nach dem Hackathon):** TRANS-01 (Transfer-Messung Sideline/TV — Detektionen existieren bereits), TRANS-02 (Flag-Pull aus Trajektorien), OPS-01 (AGPL-freie Kette — **bereits erfüllt**), OPS-02 (Labeln als wiederholbarer Ablauf).
+
 ## Out of Scope
 
 | Feature | Reason |
@@ -85,6 +117,11 @@ Mapped to a deferred roadmap phase; not part of the v1 gate.
 | REQ-S2-04 | Phase 2.3 | Pending (gated on 2.1) |
 | REQ-S2-05 | Phase 2.4 | Pending (only if needed) |
 | REQ-S2-06 | Phase 2.5 | Deferred (stretch) |
+| RECHT-01..04 | Phase M2-1 | Pending |
+| BASE-01..04 | Phase M2-2 | Pending |
+| DATA-01..05 | Phase M2-3 | Pending |
+| METR-01..04 | Phase M2-4 | Pending |
+| PACK-01..05 | Phase M2-5 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total (+ 1 stretch)
