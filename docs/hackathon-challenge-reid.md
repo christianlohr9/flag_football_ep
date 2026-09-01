@@ -169,9 +169,12 @@ abgeleitet werden — Design offen (siehe Teil 3).
 Ort innerhalb ~2 Yards des gelabelten Ereignisses liegt; Precision/Recall über alle Clips mit
 `outcome = pull`.
 
-**Baseline-Zahlen (Pilot, Stand 2026-08-31):** BoT-SORT mit CMC, Torso-Crop-Team-Zuordnung, pro-Clip-
-Drift-Korrektur; 20/61 Clips bewertet, 6 `pass`, obere Schranke 47/61 = 77 %. Dominanter
-Fehlermodus: Identitätswechsel bei Verdeckung; sekundär vereinzelte Team-Fehlzuordnungen.
+**Baseline-Zahlen (Pilot, gemessen 2026-09-01, ersetzt die vormalige 77-%-Obergrenze über
+n=20):** BoT-SORT mit CMC, Torso-Crop-Team-Zuordnung, pro-Clip-Drift-Korrektur; alle 61
+Clips bewertet, **15 `pass` = 15/61 = 24,59 %** — der ungünstigere, aber gemessene (nicht
+mehr hochgerechnete) Wert (`docs/hackathon-benchmark-labels.md` `## Ergebnis 2026-09-01`).
+Dominanter Fehlermodus: Identitätswechsel bei Spieler-Überlagerung (39/46 Fails, ~85 %);
+sekundär vereinzelte Team-Fehlzuordnungen (6/46 Fails, ~13 %).
 
 ### Labelling-Plan (Nutzer, ~3,5 h gesamt)
 
