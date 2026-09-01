@@ -6,11 +6,9 @@ Phase 2.0 capture CSVs.
 Three gates, mirroring the plan's `<action>` spec:
 
 1. `continuity_review.csv` has exactly 61 rows with unique `clip_number` 1..61.
-2. Every `verdict` is in `{"pass", "fail", ""}` (the pre-checkpoint state legitimately
-   carries empty strings for unreviewed clips -- see `test_cv_continuity.py` /
-   `test_cv_gate_artifacts.py` for the "never manufacture a headline rate from a partial
-   review" contract this file does not duplicate). `test_n_reviewed_count_is_explicit`
-   asserts and prints the exact `n_reviewed` count the plan's SUMMARY quotes.
+2. Every `verdict` is in `{"pass", "fail", ""}`. `test_n_reviewed_count_is_explicit`
+   asserts full completeness (`n_reviewed == 61`) post-checkpoint and prints the exact
+   `n_reviewed`/`n_pass`/`n_fail` counts the plan's SUMMARY quotes.
 3. `flag_pull_events.csv` has 61 unique `clip_number` rows; every non-empty `outcome` is
    in the fixed vocabulary; `pull_time_s` parses as a float; every `outcome == "pull"` row
    carries a non-empty `pull_time_s`.
@@ -18,10 +16,18 @@ Three gates, mirroring the plan's `<action>` spec:
 T-2.2-07 (Information Disclosure, threat register): `reviewer_note`/`notes` must never
 contain a roster player name -- mirrors
 `test_capture_artifacts.py::test_capture_artifacts_contain_no_roster_names`.
+
+Dialect note: the user's spreadsheet tool round-tripped both CSVs through a `;`-delimited,
+CRLF dialect during the labelling session (the same "Hudl-export dialect" pattern
+`test_cv_continuity.py::test_continuity_review_csv_uses_comma_dialect` already guards
+against for `continuity_review.csv`). Both files were normalised back to the project's
+`,`/LF dialect before this plan's Task 2 commit -- see `test_*_csv_uses_comma_dialect`
+below, which extends that guard to `flag_pull_events.csv` too.
 """
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import polars as pl
@@ -62,12 +68,33 @@ _FLAG_PULL_SCHEMA: dict[str, pl.DataType] = {
     "outcome": pl.Utf8,
     "pull_time_s": pl.Float64,
     "carrier_track_id": pl.Int32,
-    "puller_track_id": pl.Int32,
+    # Utf8, not Int32: a pull can involve more than one puller (clip 33, "13/8") --
+    # see the multi-ID convention documented in docs/hackathon-benchmark-labels.md.
+    "puller_track_id": pl.Utf8,
     "notes": pl.Utf8,
 }
 
 _VALID_VERDICTS = frozenset({"pass", "fail", ""})
-_OUTCOME_VOCABULARY = frozenset({"pull", "incomplete", "out_of_bounds", "touchdown", "other"})
+_OUTCOME_VOCABULARY = frozenset(
+    {
+        "pull",
+        "incomplete",
+        "out_of_bounds",
+        "touchdown",
+        "other",
+        # Added post-labelling (plan 02.2-03 Task 2 resume) to match how the user
+        # actually labelled the 61 clips -- documented in
+        # docs/hackathon-benchmark-labels.md's Outcome-Vokabular table.
+        "completion",
+        "interception",
+        "unknown",
+    }
+)
+
+# Single track id, or multiple ids joined with "/" (clip 33: two players pulled the
+# flag together -> "13/8"). Semicolons are disallowed inside the value since they
+# collide with the field separator.
+_PULLER_TRACK_ID_PATTERN = re.compile(r"^\d+(/\d+)*$")
 
 
 def _continuity_df() -> pl.DataFrame:
@@ -87,6 +114,11 @@ def test_continuity_review_csv_has_exact_header() -> None:
     first_line = raw.decode("utf-8").splitlines()[0]
     actual = tuple(first_line.split(","))
     assert actual == REVIEW_COLUMNS, f"{CONTINUITY_CSV} header is {actual!r}"
+
+
+def test_continuity_review_csv_uses_comma_dialect() -> None:
+    raw = CONTINUITY_CSV.read_text(encoding="utf-8")
+    assert ";" not in raw, f"{CONTINUITY_CSV} contains ';' -- Hudl-export dialect must not leak here"
 
 
 def test_continuity_review_csv_has_61_unique_clip_numbers() -> None:
@@ -110,7 +142,7 @@ def test_continuity_review_csv_has_61_unique_clip_numbers() -> None:
 
 
 def test_continuity_review_verdict_vocabulary() -> None:
-    """Tolerates empty strings pre-checkpoint -- completeness is a separate assertion
+    """Tolerates empty strings -- completeness is a separate assertion
     (`test_n_reviewed_count_is_explicit`), not conflated with vocabulary validity.
     """
     df = _continuity_df()
@@ -121,17 +153,22 @@ def test_continuity_review_verdict_vocabulary() -> None:
 def test_n_reviewed_count_is_explicit() -> None:
     """Asserts and surfaces the exact `n_reviewed` count the plan's SUMMARY quotes.
 
-    Pre-checkpoint this legitimately reports a partial count (20/61 at plan start); the
-    assertion only pins the *shape* of the summary dict, not full completeness -- Task 2
-    (the human-verify checkpoint) is what drives `n_reviewed` to 61.
+    Post-checkpoint (Task 2 complete) this requires full completeness: all 61 clips
+    carry a `pass`/`fail` verdict and `pass_rate` is a real, non-`None` fraction --
+    `summarise_review` only returns a fraction once `unreviewed_clips` is empty (D-09).
     """
     summary = summarise_review(CONTINUITY_CSV)
     assert summary["n_clips"] == N_CLIPS
-    assert 0 <= summary["n_reviewed"] <= N_CLIPS
+    assert summary["n_reviewed"] == N_CLIPS, (
+        f"expected all {N_CLIPS} clips reviewed, found {summary['n_reviewed']}: "
+        f"unreviewed={summary['unreviewed_clips']}"
+    )
     assert summary["n_reviewed"] == summary["n_pass"] + summary["n_fail"]
+    assert summary["pass_rate"] is not None
     print(
         f"n_reviewed={summary['n_reviewed']}/{N_CLIPS} "
-        f"(n_pass={summary['n_pass']}, n_fail={summary['n_fail']})"
+        f"(n_pass={summary['n_pass']}, n_fail={summary['n_fail']}, "
+        f"pass_rate={summary['pass_rate']:.4f})"
     )
 
 
@@ -155,6 +192,11 @@ def test_flag_pull_events_csv_has_exact_header() -> None:
     first_line = raw.decode("utf-8").splitlines()[0]
     actual = tuple(first_line.split(","))
     assert actual == FLAG_PULL_COLUMNS, f"{FLAG_PULL_CSV} header is {actual!r}"
+
+
+def test_flag_pull_events_csv_uses_comma_dialect() -> None:
+    raw = FLAG_PULL_CSV.read_text(encoding="utf-8")
+    assert ";" not in raw, f"{FLAG_PULL_CSV} contains ';' -- Hudl-export dialect must not leak here"
 
 
 def test_flag_pull_events_csv_has_61_unique_clip_numbers() -> None:
@@ -200,6 +242,17 @@ def test_flag_pull_events_pull_outcome_has_pull_time_s() -> None:
     )
 
 
+def test_puller_track_id_is_single_int_or_slash_separated_ints() -> None:
+    """`puller_track_id` may name more than one player (clip 33: `"13/8"`, two players
+    involved in the pull). Values are a single int or multiple ints joined with `/` --
+    never `;`, which collides with the field separator.
+    """
+    df = _flag_pull_df()
+    values = df["puller_track_id"].fill_null("").to_list()
+    bad = [v for v in values if v.strip() and not _PULLER_TRACK_ID_PATTERN.match(v.strip())]
+    assert not bad, f"puller_track_id values not int or '/'-separated ints: {bad}"
+
+
 # --- T-2.2-07: no roster names in free-text label columns -------------------------
 
 
@@ -214,7 +267,8 @@ def test_label_notes_contain_no_roster_names() -> None:
         (CONTINUITY_CSV, "reviewer_note"),
         (FLAG_PULL_CSV, "notes"),
     ):
-        df = pl.read_csv(path, schema_overrides=_REVIEW_SCHEMA if path == CONTINUITY_CSV else _FLAG_PULL_SCHEMA)
+        schema = _REVIEW_SCHEMA if path == CONTINUITY_CSV else _FLAG_PULL_SCHEMA
+        df = pl.read_csv(path, schema_overrides=schema)
         text = " ".join(df[column].fill_null("").to_list()).lower()
         for name in names:
             assert name.lower() not in text, f"{path} column {column!r} contains roster name {name!r}"

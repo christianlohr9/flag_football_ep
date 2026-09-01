@@ -1,6 +1,6 @@
-# Hackathon-Benchmark-Labels — Session-Arbeitsblatt (Stand: 2026-08-31)
+# Hackathon-Benchmark-Labels — Session-Arbeitsblatt (Stand: 2026-09-01)
 
-**Status: Labelling ausstehend (A + B offen, 0/41 bzw. 0/61 erledigt)**
+**Status: Labelling abgeschlossen (A: 61/61 Kontinuitäts-Urteile, B: 61/61 Flag-Pull-Events, Bonus nicht gestrichen)**
 
 Arbeitsblatt für die "wichtigste Stunde" der Hackathon-Vorbereitung
 (`docs/hackathon-challenge-prep.md` §2): die restlichen 41 Kontinuitäts-Urteile (A) und die
@@ -33,10 +33,8 @@ anlegen, nicht strenger oder lockerer werden.
 
 ## A — Kontinuitäts-Urteile (~1 h, Pflicht)
 
-**Bereits bewertet:** Clips 1–20 (6 `pass`, 14 `fail`).
-
-**Noch zu bewerten (41 Clips):** 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
-37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61
+**Abgeschlossen (2026-09-01):** alle 61 Clips bewertet (15 `pass`, 46 `fail`). Siehe
+`## Ergebnis` unten für die vollständige Auswertung.
 
 ### Overlay-Pfad
 
@@ -51,9 +49,9 @@ ersten 20 Clips.
 **Verifikationsstatus dieser Ausführungsumgebung:** Der Overlay-Ordner existiert in diesem
 Ausführungskontext (Git-Worktree) nicht — Videos sind PII, gitignored und liegen laut
 `docs/capture-legal.md` ausschließlich lokal auf Nutzer-Rechnern. Keiner der 61 Clip-Pfade
-(`clip_001.mp4` … `clip_061.mp4`) konnte von hier aus verifiziert werden. **Vor Beginn der
-Session bitte lokal prüfen**, dass alle 61 Dateien unter obigem Pfad vorhanden sind; fehlende
-Clips hier oder in der SUMMARY nachtragen, statt stillschweigend zu überspringen.
+(`clip_001.mp4` … `clip_061.mp4`) konnte von hier aus verifiziert werden. **Update
+2026-09-01:** Session vom Nutzer lokal durchgeführt und abgeschlossen; alle 61 Clips waren
+demnach vorhanden — kein Clip fehlte in der Meldung nach der Session.
 
 ### Spalten in `data/reference/continuity_review.csv`
 
@@ -80,6 +78,15 @@ knapp, auf Deutsch, ohne Umlaute (ASCII-Notizen wie die bestehenden 20).
 Team-Farben verwenden (`rot 3`, `blau 7`), niemals Namen aus `data/reference/roster.csv`. Ein
 Test (`tests/test_cv_benchmark_labels.py`) prüft das automatisch (T-2.2-07).
 
+**Datei-Dialekt:** Beide CSVs kamen aus der Tabellenkalkulation des Nutzers zunächst mit
+Semikolon (`;`) als Feldtrenner und CRLF-Zeilenenden zurück — demselben "Hudl-Export-Dialekt",
+den `tests/test_cv_continuity.py::test_continuity_review_csv_uses_comma_dialect` für
+`continuity_review.csv` bereits verbietet. Beide Dateien wurden vor dem Task-2-Commit auf den
+Projekt-Dialekt (Komma, LF) zurücknormalisiert, ohne Werte zu verändern; `puller_track_id`
+`13/8` (Clip 33) und die Umlaut-Korrektur in Clip 56 sind aus dem Semikolon-Stand übernommen.
+`tests/test_cv_benchmark_labels.py` prüft den Komma-Dialekt jetzt für beide Tabellen
+(`test_*_csv_uses_comma_dialect`).
+
 ---
 
 ## B — Flag-Pull-Ereignisse (~1 h, nur nötig falls der Bonus im Challenge-Scope bleibt)
@@ -95,6 +102,16 @@ Vorlage: `data/reference/flag_pull_events.csv` (61 Zeilen vorbefüllt, alle Wert
 | `out_of_bounds` | Ballträgerin verlässt das Spielfeld |
 | `touchdown` | Spielzug endet mit Touchdown (kein Pull nötig) |
 | `other` | Keiner der obigen Fälle (z. B. Turnover, abgebrochener Spielzug) |
+| `completion` | Play endete mit gefangenem Pass, aber ohne registrierten Flag-Pull — deckt sowohl Out of Bounds als auch Sich-Aufgeben ab (Knie/Ellenbogen/Po auf dem Boden) |
+| `interception` | Turnover durch Interception (z. B. Clip 7, `notes`: "id 24") |
+| `unknown` | Ausgang aus dem Overlay nicht sicher bestimmbar (z. B. Clip 21) |
+
+Die letzten drei Werte (`completion`, `interception`, `unknown`) wurden während der
+Labelling-Session ergänzt, weil die tatsächlich beobachteten Spielzug-Ausgänge feiner
+unterschieden werden mussten, als das ursprüngliche fünfwertige Vokabular abdeckte.
+`completion` überschneidet sich bewusst mit `out_of_bounds`/Sich-Aufgeben — beide alten
+Werte bleiben gültig, wurden vom Nutzer für die 61 Clips aber durchgängig als
+`completion` gelabelt.
 
 ### Spalten in `data/reference/flag_pull_events.csv`
 
@@ -104,13 +121,17 @@ Vorlage: `data/reference/flag_pull_events.csv` (61 Zeilen vorbefüllt, alle Wert
 | `outcome` | Ein Wert aus obigem Vokabular |
 | `pull_time_s` | Nur bei `outcome = pull`: Timecode im Player in Sekunden, ±0,5 s reicht |
 | `carrier_track_id` | Track-Nummer der Ballträgerin aus dem Overlay-Video |
-| `puller_track_id` | Track-Nummer der ziehenden Spielerin aus dem Overlay-Video |
+| `puller_track_id` | Track-Nummer(n) der ziehenden Spielerin(nen) aus dem Overlay-Video |
 | `notes` | Optionale Kurznotiz (gleicher Stil wie `reviewer_note`, keine Namen) |
 
-**Bonus-Entscheidung:** Falls der Aufwand für B zu groß wird, kann der Flag-Pull-Bonus aus der
-Challenge gestrichen werden — dann bleibt `flag_pull_events.csv` leer und die Bonus-Metrik wird
-aus dem Bundle-Scoring-Skript entfernt, statt halb gefüllt ausgeliefert zu werden. Diese
-Entscheidung wird hier und in der Plan-SUMMARY festgehalten, sobald getroffen.
+**Mehrere Puller (`puller_track_id`):** Wenn mehr als eine Spielerin am Pull beteiligt
+war, mehrere Track-Nummern mit `/` getrennt eintragen, z. B. `13/8` (Clip 33: zwei
+Spielerinnen am Pull beteiligt). Kein Semikolon verwenden — das kollidiert mit dem
+Feldtrenner der Tabelle.
+
+**Bonus-Entscheidung (2026-09-01):** Nicht gestrichen. Der Nutzer hat B vollständig gelabelt
+(61/61 `outcome`-Werte, alle `pull`-Zeilen mit `pull_time_s` + `carrier_track_id`) — der
+Flag-Pull-Bonus bleibt im Challenge-Scope.
 
 ---
 
