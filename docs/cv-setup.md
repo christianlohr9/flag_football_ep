@@ -55,6 +55,37 @@ Torch erkennt die Apple-Silicon-GPU (Metal) auf der Primärmaschine. Für rechen
 
 Eine `pyproject.toml`, zwei Umgebungen: die Primärmaschine (M4 Max, siehe Namensabweichung oben) installiert das MPS-fähige `torch`-Wheel; der Dell-Rechner (8 GB CUDA-GPU, D-05) braucht ein CUDA-fähiges `torch`-Wheel, das zur installierten CUDA-Toolkit-Version passt. **Eine `uv.lock`-Auflösung bedient nicht automatisch beide Maschinen identisch** — vor dem RF-DETR-Fine-Tune auf dem Dell-Rechner muss dort separat synchronisiert und die tatsächlich installierte `torch`-Variante geprüft werden (`torch.cuda.is_available()`), nicht die hier dokumentierte MPS-Version angenommen werden.
 
+## Dataset-Versionierung (DVC)
+
+Phase 2.2 (D-18) führt Datensatz-Versionierung mit DVC ein, in einer eigenen Extras-Gruppe getrennt von `cv`:
+
+```
+uv sync --extra versioning
+```
+
+**Warum eine eigene Gruppe:** `dvc`/`dvc-s3` sind reine CLI/Storage-Tools ohne Bezug zu `torch`/`rfdetr`. Eine separate Gruppe erlaubt einen `dvc pull`-only-Workflow (z. B. auf einer reinen Labeling-Maschine) ohne den Multi-GB-Torch-Stack der `cv`-Gruppe zu installieren. Beide Pakete sind Apache-2.0 (C-06); Legitimität gegen pypi.org/project/dvc und pypi.org/project/dvc-s3 geprüft per menschlichem Checkpoint am 2026-09-01 (Plan 02.2-04, Task 1) — `dvc`s Quellcode liegt seit der lakeFS-Übernahme im November 2025 unter `github.com/treeverse/dvc`, `dvc-s3` weiterhin unter `github.com/iterative/dvc-s3`.
+
+**Layout-Entscheidung (RESEARCH Open Question 1, Planner-Entscheidung):** ein einziges, wachsendes DVC-getracktes Datensatz-Verzeichnis `data/labels/dataset/`, nicht pro-AL-Iteration getrennte Verzeichnisse. Der Freeze-Punkt für ein Hackathon-Bundle (D-05) wird als DVC/Git-Commit-Hash + MLflow-`run_id`-Paar festgehalten, nicht als eigenes Verzeichnis — einfacher, und passt zum "ein Detector über alle Domänen"-Framing (D-04).
+
+**Verhältnis zu `dataset_hash()`:** `cv/dataset.py::dataset_hash()` berechnet bereits einen reproduzierbaren SHA-256-Content-Hash über ein COCO-Paket (Bild-Bytes + kanonisches `instances.json`). DVCs eigener MD5-Hash pro getrackter Datei ist ein separater Mechanismus mit anderem Zweck (Content-Addressierung für Push/Pull/Cache) — **beide bleiben nebeneinander bestehen, keiner ersetzt den anderen.** `dataset_hash()` ist die projekt-interne Reproduzierbarkeits-Prüfsumme (z. B. für Trainings-Provenienz-Logging); DVCs MD5 ist DVCs interne Storage-Buchhaltung.
+
+**Remote (OTC OBS, Platzhalter-Bucket):** `.dvc/config` konfiguriert den Remote `otc-obs` ausschließlich über Endpoint/Region — keine Zugangsdaten im Repo:
+
+```
+[core]
+    remote = otc-obs
+['remote "otc-obs"']
+    url = s3://ffep-datasets-PLACEHOLDER/flag-football-datasets
+    endpointurl = https://obs.eu-de.otc.t-systems.com
+    region = eu-de
+```
+
+Der Bucket-Name ist ein **Platzhalter** (`ffep-datasets-PLACEHOLDER`) — Plan 02.2-14 provisioniert den echten OTC-OBS-Bucket, Plan 02.2-20 ersetzt den Platzhalter durch den echten Namen. Zugangsdaten (`OTC_OBS_ACCESS_KEY_ID`/`OTC_OBS_SECRET_ACCESS_KEY`) werden nie literal in `ffep.toml` oder `.dvc/config` geschrieben, sondern ausschließlich über `secret(config.cv.otc_obs_access_key_env)` aus der Umgebung/`.env` aufgelöst — dasselbe Muster wie `cvat_username_env`/`cvat_password_env`.
+
+**Unverifiziert in dieser Umgebung (RESEARCH Pitfall 3):** der eigentliche `dvc push`/`dvc pull` gegen den echten OTC-OBS-Endpunkt wurde noch nicht getestet (keine Credentials, kein Test-Bucket in dieser Session). `tests/test_dvc_layout.py` beweist die DVC-Mechanik gegen einen lokalen Verzeichnis-Remote — der OTC-OBS-Endpunkt selbst bleibt die einzige noch offene Variable, sobald echte Credentials existieren (behandelt als Checkpoint-würdiger erster Versuch, nicht als Annahme).
+
+**Pro-Maschine-`uv sync`-Falle gilt auch hier:** wie beim `cv`-Extra oben (siehe "Pro-Maschine-torch-Falle") muss `uv sync --extra versioning` auf jeder Maschine separat laufen, die DVC nutzt — es gibt keine automatische Übertragung des installierten Zustands zwischen Primärmaschine und Dell-Rechner.
+
 ## Grounding-DINO-Backend
 
 RESEARCH Open Question 2 fragte, ob `autodistill-grounding-dino` auf der Primärmaschine sauber installiert. Das Ergebnis der Installationsprobe:
