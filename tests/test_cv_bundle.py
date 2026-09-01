@@ -1,11 +1,14 @@
 """Coverage for `cv.bundle.build_bundle`/`bundle_manifest`: content-hash determinism,
-the `role = pool` leak guard (D-07/T-2.2-29), the test-kind label-refusal guard
-(T-2.2-28), and manifest/README structure -- all against a synthetic tmp_path fixture
-that mirrors the real bundle-inputs layout `export.py`/`freeze.py` produce.
+the `role = pool` leak guard (D-07/T-2.2-29), the private-test-set content table and
+its label vault/column-level leak guard (T-2.2-28, plan 02.2-12), the transfer-set
+per-domain content table (D-11, plan 02.2-12), and manifest/README structure -- all
+against a synthetic tmp_path fixture that mirrors the real bundle-inputs layout
+`export.py`/`freeze.py` produce.
 """
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -345,6 +348,89 @@ def _pin() -> FreezePin:
     )
 
 
+# --- transfer-domain fixture (mirrors cv.bundle._TRANSFER_DOMAINS exactly) ----------
+
+SIDELINE_SESSION_ID = "2026-08-14_WC-GER-vs-MEX-GOPRO"
+BROADCAST_SESSION_ID = "2026-08-14_WC-USA-vs-AUS-TV"
+SIDELINE_CLIPS = (1, 2, 3)
+BROADCAST_CLIPS = (1, 2)
+
+
+def _populate_transfer_fixture(config: Config) -> None:
+    """Add sideline (GoPro)/broadcast (TV) rows to the video inventory this fixture
+    already wrote for the drone domain, plus each domain's own bundle-inputs
+    detections Parquet -- exactly the two `(domain, session_id)` pairs
+    `cv.bundle._TRANSFER_DOMAINS` hardcodes.
+    """
+    inventory_schema = {
+        "domain": pl.Utf8,
+        "session_id": pl.Utf8,
+        "game_id": pl.Utf8,
+        "capture_date": pl.Utf8,
+        "resolution": pl.Utf8,
+        "fps": pl.Float64,
+        "duration_seconds": pl.Float64,
+        "local_path": pl.Utf8,
+        "content_sha256": pl.Utf8,
+        "notes": pl.Utf8,
+    }
+    inventory_path = config.paths.reference / "video_inventory.csv"
+    existing = pl.read_csv(inventory_path, schema_overrides=inventory_schema)
+
+    new_rows = []
+    for domain, session_id, clip_numbers in (
+        ("sideline", SIDELINE_SESSION_ID, SIDELINE_CLIPS),
+        ("broadcast", BROADCAST_SESSION_ID, BROADCAST_CLIPS),
+    ):
+        video_dir = config.paths.video / session_id
+        video_dir.mkdir(parents=True, exist_ok=True)
+        for n in clip_numbers:
+            clip_path = video_dir / f"clip_{n:03d}.mp4"
+            clip_path.write_bytes(f"fake-{domain}-bytes-clip-{n}".encode("utf-8"))
+            new_rows.append(
+                {
+                    "domain": domain,
+                    "session_id": session_id,
+                    "game_id": "",
+                    "capture_date": "2026-08-14",
+                    "resolution": "1920x1080",
+                    "fps": 30.0,
+                    "duration_seconds": 9.0,
+                    "local_path": f"data/video/{session_id}/clip_{n:03d}.mp4",
+                    "content_sha256": "0" * 64,
+                    "notes": "",
+                }
+            )
+
+        detections_rows = [
+            {
+                "session_id": session_id,
+                "clip_number": n,
+                "frame_index": 0,
+                "timestamp_s": 0.0,
+                "det_index": 0,
+                "class_name": "player",
+                "confidence": 0.9,
+                "bbox_x1": 10.0,
+                "bbox_y1": 20.0,
+                "bbox_x2": 30.0,
+                "bbox_y2": 90.0,
+                "detector_run_id": RUN_ID,
+                "detected_at": "2026-09-01T00:00:00+00:00",
+            }
+            for n in clip_numbers
+        ]
+        bundle_inputs_dir = config.paths.labels / session_id / "bundle-inputs"
+        bundle_inputs_dir.mkdir(parents=True, exist_ok=True)
+        write_detections_parquet(
+            pl.DataFrame(detections_rows).select(list(DETECTION_COLUMNS)),
+            bundle_inputs_dir / "detections.parquet",
+        )
+
+    combined = pl.concat([existing, pl.DataFrame(new_rows, schema=inventory_schema)])
+    combined.write_csv(inventory_path)
+
+
 # --- tests ----------------------------------------------------------------------
 
 
@@ -429,17 +515,148 @@ def test_build_bundle_stale_pin_object_raises(tmp_path: Path) -> None:
         build_bundle(config, "dev", stale_pin, tmp_path / "out")
 
 
-def test_build_bundle_test_kind_refuses_label_bearing_file(tmp_path: Path) -> None:
+def test_build_bundle_test_kind_creates_archive_with_only_private_test_clips(
+    tmp_path: Path,
+) -> None:
+    config = _populate_fixture(tmp_path)
+    out_dir = tmp_path / "out"
+
+    result = build_bundle(config, "test", _pin(), out_dir)
+
+    staging_root = out_dir / "test-set"
+    shipped_clip_files = {p.name for p in (staging_root / "data" / "clips").glob("*.mp4")}
+    assert shipped_clip_files == {f"clip_{n:03d}.mp4" for n in PRIVATE_TEST_CLIPS}
+
+    detections = pl.read_parquet(staging_root / "data" / "detections.parquet")
+    assert set(detections["clip_number"].to_list()) == set(PRIVATE_TEST_CLIPS)
+
+    tracks = pl.read_parquet(staging_root / "data" / "tracks.parquet")
+    assert set(tracks["clip_number"].to_list()) == set(PRIVATE_TEST_CLIPS)
+
+    assert (staging_root / "data" / "homography_calibration.csv").exists()
+    assert result.n_files > 0
+
+
+def test_build_bundle_test_kind_never_ships_label_or_gt_files(tmp_path: Path) -> None:
+    config = _populate_fixture(tmp_path)
+    out_dir = tmp_path / "out"
+
+    build_bundle(config, "test", _pin(), out_dir)
+
+    staging_root = out_dir / "test-set"
+    all_names = {p.name for p in staging_root.rglob("*") if p.is_file()}
+    assert "continuity_review.csv" not in all_names
+    assert "flag_pull_events.csv" not in all_names
+    assert "gt_positions.csv" not in all_names
+
+
+def test_build_bundle_test_kind_vaults_exactly_the_withheld_rows(tmp_path: Path) -> None:
     config = _populate_fixture(tmp_path)
 
-    with pytest.raises(BundleError, match="continuity_review.csv"):
-        build_bundle(config, "test", _pin(), tmp_path / "out")
+    build_bundle(config, "test", _pin(), tmp_path / "out")
+
+    vault_dir = config.paths.data_root / "private" / "test-labels"
+    continuity = pl.read_csv(vault_dir / "continuity_review.csv")
+    flag_pulls = pl.read_csv(vault_dir / "flag_pull_events.csv")
+
+    assert set(continuity["clip_number"].to_list()) == set(PRIVATE_TEST_CLIPS)
+    assert set(flag_pulls["clip_number"].to_list()) == set(PRIVATE_TEST_CLIPS)
+    # the vault must never receive pool-clip rows
+    assert set(continuity["clip_number"].to_list()).isdisjoint(POOL_CLIPS)
 
 
-def test_build_bundle_transfer_kind_not_implemented(tmp_path: Path) -> None:
+def test_dev_and_test_clip_lists_are_disjoint(tmp_path: Path) -> None:
     config = _populate_fixture(tmp_path)
 
-    with pytest.raises(BundleError, match="02.2-12"):
+    dev_result = build_bundle(config, "dev", _pin(), tmp_path / "out-dev")
+    test_result = build_bundle(config, "test", _pin(), tmp_path / "out-test")
+
+    dev_clips = {
+        p.name for p in (tmp_path / "out-dev" / "dev-set" / "data" / "clips").glob("*.mp4")
+    }
+    test_clips = {
+        p.name for p in (tmp_path / "out-test" / "test-set" / "data" / "clips").glob("*.mp4")
+    }
+
+    assert dev_clips.isdisjoint(test_clips)
+    assert dev_result.content_sha256 != test_result.content_sha256
+
+
+def test_assert_no_label_leak_in_tree_catches_renamed_label_file(tmp_path: Path) -> None:
+    """The column-level leak guard must catch a label file even when it is renamed to
+    something innocuous -- a basename-only check would miss this (T-2.2-28).
+    """
+    from flag_football_ep.cv.bundle import _assert_no_label_leak_in_tree
+
+    staging_root = tmp_path / "test-set"
+    (staging_root / "data").mkdir(parents=True)
+
+    # A continuity_review.csv row set, renamed to `notes.csv` -- basename gives no hint.
+    renamed_label_path = staging_root / "data" / "notes.csv"
+    with renamed_label_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(
+            ["clip_number", "n_tracks", "longest_track_frac", "n_fragments", "verdict"]
+        )
+        writer.writerow([3, 4, 1.0, 0, "fail"])
+
+    with pytest.raises(BundleError, match="notes.csv"):
+        _assert_no_label_leak_in_tree(staging_root)
+
+
+def test_assert_no_label_leak_in_tree_passes_clean_tree(tmp_path: Path) -> None:
+    from flag_football_ep.cv.bundle import _assert_no_label_leak_in_tree
+
+    staging_root = tmp_path / "test-set"
+    (staging_root / "data").mkdir(parents=True)
+    clean_path = staging_root / "data" / "homography_calibration.csv"
+    with clean_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["hover_position_id", "landmark", "source_x_px"])
+        writer.writerow(["hp-01", "goalline_west_south", 1740.9])
+
+    _assert_no_label_leak_in_tree(staging_root)  # must not raise
+
+
+def test_build_bundle_transfer_creates_archive_with_per_domain_detections(
+    tmp_path: Path,
+) -> None:
+    config = _populate_fixture(tmp_path)
+    _populate_transfer_fixture(config)
+    out_dir = tmp_path / "out"
+
+    result = build_bundle(config, "transfer", _pin(), out_dir)
+
+    staging_root = out_dir / "transfer-set"
+    sideline_clips = {
+        p.name for p in (staging_root / "data" / "sideline" / "clips").glob("*.mp4")
+    }
+    broadcast_clips = {
+        p.name for p in (staging_root / "data" / "broadcast" / "clips").glob("*.mp4")
+    }
+    assert sideline_clips == {f"clip_{n:03d}.mp4" for n in SIDELINE_CLIPS}
+    assert broadcast_clips == {f"clip_{n:03d}.mp4" for n in BROADCAST_CLIPS}
+
+    sideline_detections = pl.read_parquet(staging_root / "data" / "sideline" / "detections.parquet")
+    broadcast_detections = pl.read_parquet(
+        staging_root / "data" / "broadcast" / "detections.parquet"
+    )
+    assert set(sideline_detections["clip_number"].to_list()) == set(SIDELINE_CLIPS)
+    assert set(broadcast_detections["clip_number"].to_list()) == set(BROADCAST_CLIPS)
+    assert set(sideline_detections["detector_run_id"].to_list()) == {RUN_ID}
+    assert result.n_files > 0
+
+    readme_text = (staging_root / "README.md").read_text(encoding="utf-8")
+    assert "sideline" in readme_text
+    assert "broadcast" in readme_text
+
+
+def test_build_bundle_transfer_missing_domain_detections_raises(tmp_path: Path) -> None:
+    config = _populate_fixture(tmp_path)
+    # deliberately do NOT populate the transfer fixture -- no sideline/broadcast
+    # inventory rows or bundle-inputs exist yet.
+
+    with pytest.raises(BundleError):
         build_bundle(config, "transfer", _pin(), tmp_path / "out")
 
 
