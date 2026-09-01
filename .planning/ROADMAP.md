@@ -330,7 +330,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 02.2-05-PLAN.md — Contract skeleton and CLI wiring for freeze/bundle/active-learn/eval-split/detections/crops/deliver/eval-domains
+- [x] 02.2-05-PLAN.md — Contract skeleton and CLI wiring for freeze/bundle/active-learn/eval-split/detections/crops/deliver/eval-domains (completed 2026-09-01)
 
 **Wave 3** *(blocked on Wave 2)*
 
