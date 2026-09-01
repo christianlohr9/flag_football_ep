@@ -107,8 +107,18 @@ def prelabel(
         "--force/--no-force",
         help="Re-run pre-labeling even if pre-annotations already exist on disk",
     ),
+    backend: Optional[str] = typer.Option(
+        None,
+        "--backend",
+        help=(
+            "Force a specific pre-labeling backend by name (e.g. 'finetuned' for "
+            "active-learning iterations, which must never silently fall back to a "
+            "zero-shot backend); default: auto-resolve the zero-shot fallback chain"
+        ),
+    ),
 ) -> None:
-    """Zero-shot pre-label sampled frames via Grounding DINO."""
+    """Pre-label sampled frames -- zero-shot via Grounding DINO by default, or a
+    forced backend (e.g. the fine-tuned detector) when `--backend` is given."""
     from flag_football_ep.config import load_config
 
     cfg = load_config(config)
@@ -116,7 +126,7 @@ def prelabel(
 
     from flag_football_ep.cv.prelabel import prelabel_frames
 
-    result = prelabel_frames(cfg, frames, out_dir, force=force)
+    result = prelabel_frames(cfg, frames, out_dir, force=force, backend=backend)
 
     typer.echo(
         f"coco: {result.coco_path} ({result.n_frames} frames, {result.n_boxes} boxes)"
@@ -132,17 +142,43 @@ def cvat_push(
         ..., "--coco", help="Prelabel COCO package directory to push"
     ),
     name: str = typer.Option(..., "--name", help="CVAT task name"),
+    max_images: Optional[int] = typer.Option(
+        None,
+        "--max-images",
+        help=(
+            "Split into multiple <= N-image tasks first (weekend-sized labelling "
+            "sessions), named '<name>-<index>' (1-based); default: push the whole "
+            "directory as one task"
+        ),
+    ),
 ) -> None:
-    """Push a pre-labeled COCO package to CVAT as a new task."""
+    """Push a pre-labeled COCO package to CVAT as a new task (or several, split by
+    `--max-images`)."""
     from flag_football_ep.config import load_config
 
     cfg = load_config(config)
 
     from flag_football_ep.cv.dataset import create_cvat_task
 
-    task_id = create_cvat_task(cfg, coco, name=name)
+    if max_images is None:
+        task_id = create_cvat_task(cfg, coco, name=name)
+        typer.echo(f"cvat task: {task_id} ({name})")
+        return
 
-    typer.echo(f"cvat task: {task_id} ({name})")
+    import json
+    import tempfile
+
+    from flag_football_ep.cv.dataset import split_coco_for_task_upload
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        chunk_dirs = split_coco_for_task_upload(coco, Path(tmp_dir), max_images=max_images)
+        for index, chunk_dir in enumerate(chunk_dirs, start=1):
+            chunk_name = f"{name}-{index}"
+            n_frames = len(
+                json.loads((chunk_dir / "instances.json").read_text(encoding="utf-8"))["images"]
+            )
+            task_id = create_cvat_task(cfg, chunk_dir, name=chunk_name)
+            typer.echo(f"cvat task: {task_id} ({chunk_name}, {n_frames} frames)")
 
 
 @cv_app.command(name="cvat-pull")

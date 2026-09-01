@@ -397,6 +397,68 @@ def _find_coco_annotations(extract_dir: Path, task_id: int) -> Path:
     return direct
 
 
+def split_coco_for_task_upload(
+    coco_dir: Path, out_root: Path, *, max_images: int
+) -> list[Path]:
+    """Split the COCO package at `coco_dir` into `<= max_images`-image sub-packages
+    under `out_root/part-NN/`, each a self-contained CVAT-importable directory
+    (hardlinked images -- falling back to a copy across filesystems, mirroring
+    `prelabel.prelabel_frames`'s own hardlink discipline -- plus an `instances.json`
+    filtered to that chunk's `images`/`annotations` only).
+
+    Not part of this plan's frozen `<interfaces>` contract -- required glue for its
+    own "at most 300 frames per CVAT task" acceptance criterion, since
+    `create_cvat_task` pushes exactly the directory it's given as a single task, with
+    no chunking of its own. Images stay in their original `instances.json` order,
+    sliced contiguously (`images[i*max_images:(i+1)*max_images]`), so which frames
+    land in which task is fully determined by the input COCO package, not randomised.
+    Always returns at least one chunk directory, even when `coco_dir` already fits
+    within `max_images` -- no special-casing at the call site.
+    """
+    import os
+    import shutil
+
+    coco_dir = Path(coco_dir)
+    out_root = Path(out_root)
+    data = json.loads((coco_dir / "instances.json").read_text(encoding="utf-8"))
+    images = data["images"]
+    categories = data["categories"]
+
+    annotations_by_image: dict[int, list[dict]] = {}
+    for annotation in data["annotations"]:
+        annotations_by_image.setdefault(annotation["image_id"], []).append(annotation)
+
+    n_parts = max(1, -(-len(images) // max_images))  # ceil division, no chunk empty
+    chunk_dirs: list[Path] = []
+    for part_index in range(n_parts):
+        part_images = images[part_index * max_images : (part_index + 1) * max_images]
+        part_dir = out_root / f"part-{part_index + 1:02d}"
+        part_dir.mkdir(parents=True, exist_ok=True)
+
+        part_annotations: list[dict] = []
+        for image in part_images:
+            source_path = coco_dir / image["file_name"]
+            dest_path = part_dir / image["file_name"]
+            if not dest_path.exists():
+                try:
+                    os.link(source_path, dest_path)
+                except OSError:
+                    shutil.copy2(source_path, dest_path)
+            part_annotations.extend(annotations_by_image.get(image["id"], []))
+
+        part_data = {
+            "images": part_images,
+            "annotations": part_annotations,
+            "categories": categories,
+        }
+        (part_dir / "instances.json").write_text(
+            json.dumps(part_data, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        chunk_dirs.append(part_dir)
+
+    return chunk_dirs
+
+
 def create_cvat_task(config: Config, coco_dir: Path, *, name: str) -> int:
     """Push the COCO package at `coco_dir` to CVAT as a new task named `name`,
     returning the created task id.

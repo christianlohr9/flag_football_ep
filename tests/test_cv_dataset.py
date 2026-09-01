@@ -539,3 +539,58 @@ def test_grep_min_images_constant_still_present_unmodified() -> None:
         cwd=Path(__file__).resolve().parent.parent,
     )
     assert result.stdout.strip() == "1"
+
+
+# --- split_coco_for_task_upload (plan 02.2-11: weekend-sized CVAT tasks) ---------------
+
+
+def _write_split_source(coco_dir: Path, n_images: int) -> None:
+    images = [{"id": i, "file_name": f"frame_{i:04d}.jpg", "width": 4, "height": 4} for i in range(n_images)]
+    annotations = [
+        {"id": i, "image_id": i, "category_id": 1, "bbox": [0, 0, 1, 1]} for i in range(n_images)
+    ]
+    _write_coco(coco_dir, categories=_default_categories(), images=images, annotations=annotations)
+    for image in images:
+        _write_fake_image(coco_dir, image["file_name"])
+
+
+def test_split_coco_for_task_upload_caps_every_chunk_at_max_images(tmp_path: Path) -> None:
+    coco_dir = tmp_path / "coco"
+    _write_split_source(coco_dir, n_images=7)
+
+    chunks = dataset.split_coco_for_task_upload(coco_dir, tmp_path / "out", max_images=3)
+
+    assert len(chunks) == 3  # ceil(7 / 3)
+    total_images = 0
+    for chunk_dir in chunks:
+        data = json.loads((chunk_dir / "instances.json").read_text(encoding="utf-8"))
+        assert len(data["images"]) <= 3
+        total_images += len(data["images"])
+        for image in data["images"]:
+            assert (chunk_dir / image["file_name"]).exists()
+        image_ids = {image["id"] for image in data["images"]}
+        assert all(ann["image_id"] in image_ids for ann in data["annotations"])
+    assert total_images == 7
+
+
+def test_split_coco_for_task_upload_single_chunk_when_already_under_max(tmp_path: Path) -> None:
+    coco_dir = tmp_path / "coco"
+    _write_split_source(coco_dir, n_images=2)
+
+    chunks = dataset.split_coco_for_task_upload(coco_dir, tmp_path / "out", max_images=300)
+
+    assert len(chunks) == 1
+    data = json.loads((chunks[0] / "instances.json").read_text(encoding="utf-8"))
+    assert len(data["images"]) == 2
+    assert len(data["annotations"]) == 2
+
+
+def test_split_coco_for_task_upload_preserves_categories(tmp_path: Path) -> None:
+    coco_dir = tmp_path / "coco"
+    _write_split_source(coco_dir, n_images=4)
+
+    chunks = dataset.split_coco_for_task_upload(coco_dir, tmp_path / "out", max_images=2)
+
+    for chunk_dir in chunks:
+        data = json.loads((chunk_dir / "instances.json").read_text(encoding="utf-8"))
+        assert data["categories"] == _default_categories()
