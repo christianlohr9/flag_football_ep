@@ -65,12 +65,16 @@ def sample(
     target: Optional[int] = typer.Option(
         None, "--target", help="Target frame count (default: cfg.cv.label_frame_target)"
     ),
-    seed: int = typer.Option(20260516, "--seed", help="Random seed for the stratified sample"),
+    seed: int = typer.Option(
+        20260516, "--seed", help="Random seed for the stratified sample"
+    ),
     out: Optional[Path] = typer.Option(
         None, "--out", help="Override the sampled-frames output directory"
     ),
     domain: str = typer.Option(
-        "drone", "--domain", help="Capture domain to sample from (drone, sideline, broadcast)"
+        "drone",
+        "--domain",
+        help="Capture domain to sample from (drone, sideline, broadcast)",
     ),
 ) -> None:
     """Draw the stratified training-frame sample for labeling."""
@@ -114,7 +118,9 @@ def prelabel(
 
     result = prelabel_frames(cfg, frames, out_dir, force=force)
 
-    typer.echo(f"coco: {result.coco_path} ({result.n_frames} frames, {result.n_boxes} boxes)")
+    typer.echo(
+        f"coco: {result.coco_path} ({result.n_frames} frames, {result.n_boxes} boxes)"
+    )
     for notice in result.notices:
         typer.echo(f"notice: {notice}")
 
@@ -122,7 +128,9 @@ def prelabel(
 @cv_app.command(name="cvat-push")
 def cvat_push(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
-    coco: Path = typer.Option(..., "--coco", help="Prelabel COCO package directory to push"),
+    coco: Path = typer.Option(
+        ..., "--coco", help="Prelabel COCO package directory to push"
+    ),
     name: str = typer.Option(..., "--name", help="CVAT task name"),
 ) -> None:
     """Push a pre-labeled COCO package to CVAT as a new task."""
@@ -162,7 +170,9 @@ def cvat_pull(
 def dataset(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     coco: Path = typer.Option(..., "--coco", help="COCO export directory to validate"),
-    manifest: Path = typer.Option(..., "--manifest", help="Sample manifest to validate against"),
+    manifest: Path = typer.Option(
+        ..., "--manifest", help="Sample manifest to validate against"
+    ),
 ) -> None:
     """Validate a COCO export against its sample manifest and report dataset stats."""
     from flag_football_ep.config import load_config
@@ -202,7 +212,9 @@ def train(
     resolution: Optional[int] = typer.Option(
         None, "--resolution", help="Override cfg.cv.resolution"
     ),
-    device: Optional[str] = typer.Option(None, "--device", help="Override cfg.cv.device"),
+    device: Optional[str] = typer.Option(
+        None, "--device", help="Override cfg.cv.device"
+    ),
     out: Optional[Path] = typer.Option(None, "--out", help="Artifact output directory"),
     register: bool = typer.Option(
         True,
@@ -231,7 +243,9 @@ def train(
 ) -> None:
     """Train the RF-DETR player/referee detector."""
     if from_artifacts is None and dataset is None:
-        raise typer.BadParameter("--dataset is required unless --from-artifacts is given")
+        raise typer.BadParameter(
+            "--dataset is required unless --from-artifacts is given"
+        )
 
     from flag_football_ep.config import load_config
 
@@ -335,7 +349,9 @@ def track(
         cfg, session_id, run_id=run, resolution=resolution, sahi=sahi, out_path=out
     )
 
-    typer.echo(f"tracks: {result.parquet_path} ({result.n_clips} clips, {result.n_tracks} tracks)")
+    typer.echo(
+        f"tracks: {result.parquet_path} ({result.n_clips} clips, {result.n_tracks} tracks)"
+    )
     typer.echo(f"stage timings: {result.timings_path}")
     for notice in result.notices:
         typer.echo(f"notice: {notice}")
@@ -393,10 +409,16 @@ def teams(
 @cv_app.command()
 def calibrate(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
-    clip: int = typer.Option(..., "--clip", help="Clip number to extract a calibration still from"),
-    hover_position: str = typer.Option(..., "--hover-position", help="Hover position id"),
+    clip: int = typer.Option(
+        ..., "--clip", help="Clip number to extract a calibration still from"
+    ),
+    hover_position: str = typer.Option(
+        ..., "--hover-position", help="Hover position id"
+    ),
     at_second: float = typer.Option(
-        0.0, "--at-second", help="Timestamp (seconds) to extract the calibration still from"
+        0.0,
+        "--at-second",
+        help="Timestamp (seconds) to extract the calibration still from",
     ),
     out: Optional[Path] = typer.Option(
         None, "--out", help="Override the calibration CSV output path"
@@ -411,7 +433,9 @@ def calibrate(
     from flag_football_ep.cv.frames import clip_paths
 
     matches = [
-        path for path in clip_paths(cfg, cfg.cv.pilot_session_id) if clip_number_of(path) == clip
+        path
+        for path in clip_paths(cfg, cfg.cv.pilot_session_id)
+        if clip_number_of(path) == clip
     ]
     if not matches:
         raise typer.BadParameter(
@@ -553,7 +577,9 @@ def accuracy(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     tracks: Path = typer.Option(..., "--tracks", help="Input tracking Parquet"),
     gt: Optional[Path] = typer.Option(
-        None, "--gt", help="Ground-truth positions CSV (default: cfg.reference.gt_positions)"
+        None,
+        "--gt",
+        help="Ground-truth positions CSV (default: cfg.reference.gt_positions)",
     ),
     prepare: bool = typer.Option(
         False,
@@ -636,7 +662,17 @@ def freeze(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     run: str = typer.Option(..., "--run", help="MLflow detector run id to freeze"),
     dataset_hash: Optional[str] = typer.Option(
-        None, "--dataset-hash", help="Content hash of the dataset the run was trained on"
+        None,
+        "--dataset-hash",
+        help="Content hash of the dataset the run was trained on",
+    ),
+    out: Optional[Path] = typer.Option(
+        None, "--out", help="Override the tracked pin file path"
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force/--no-force",
+        help="Re-pin over an existing pin for a different run id (a re-freeze is a decision)",
     ),
 ) -> None:
     """Pin a detector run as the hackathon-frozen baseline (distinct from champion)."""
@@ -650,9 +686,12 @@ def freeze(
 
     name = registry.detector_model_name(cfg)
     version = freeze_run(name, run, cfg)
-    pin_path = write_freeze_pin(
-        cfg, run, dataset_hash or "", cfg.paths.processed / "freeze_pin.json"
-    )
+    # Tracked, no-PII pin path (data/reference/, not the gitignored data/processed/) --
+    # bundle reproducibility must survive a clean checkout.
+    pin_path = out or (cfg.paths.reference / "hackathon_freeze.json")
+    if force and pin_path.exists():
+        pin_path.unlink()
+    pin_path = write_freeze_pin(cfg, run, dataset_hash or "", pin_path)
 
     typer.echo(f"frozen: {name} v{version} (run={run})")
     typer.echo(f"pin: {pin_path}")
@@ -662,7 +701,9 @@ def freeze(
 def bundle(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     kind: str = typer.Option(
-        ..., "--kind", help="Bundle kind: dev, test, or transfer (cv.bundle.BUNDLE_KINDS)"
+        ...,
+        "--kind",
+        help="Bundle kind: dev, test, or transfer (cv.bundle.BUNDLE_KINDS)",
     ),
     out: Optional[Path] = typer.Option(
         None, "--out", help="Override the bundle output directory"
@@ -676,19 +717,25 @@ def bundle(
     from flag_football_ep.cv.bundle import build_bundle
     from flag_football_ep.cv.freeze import read_freeze_pin
 
-    pin = read_freeze_pin(cfg.paths.processed / "freeze_pin.json")
+    pin = read_freeze_pin(cfg.paths.reference / "hackathon_freeze.json")
     out_dir = out or (cfg.paths.processed / "bundles" / kind)
 
     result = build_bundle(cfg, kind, pin, out_dir)
 
-    typer.echo(f"bundle: {result.archive_path} ({result.n_files} files, {result.content_sha256})")
+    typer.echo(
+        f"bundle: {result.archive_path} ({result.n_files} files, {result.content_sha256})"
+    )
 
 
 @cv_app.command()
 def deliver(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
-    archive: Path = typer.Option(..., "--archive", help="Bundle archive path to deliver"),
-    remote: str = typer.Option(..., "--remote", help="Remote URI to deliver the bundle to"),
+    archive: Path = typer.Option(
+        ..., "--archive", help="Bundle archive path to deliver"
+    ),
+    remote: str = typer.Option(
+        ..., "--remote", help="Remote URI to deliver the bundle to"
+    ),
 ) -> None:
     """Deliver a built bundle archive to a remote location (e.g. the OTC OBS bucket)."""
     from flag_football_ep.config import load_config
@@ -706,8 +753,12 @@ def deliver(
 @cv_app.command(name="active-learn")
 def active_learn(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
-    iteration: int = typer.Option(..., "--iteration", help="Active-learning iteration number"),
-    target: int = typer.Option(..., "--target", help="Target frame count for this iteration"),
+    iteration: int = typer.Option(
+        ..., "--iteration", help="Active-learning iteration number"
+    ),
+    target: int = typer.Option(
+        ..., "--target", help="Target frame count for this iteration"
+    ),
     seed: int = typer.Option(20260516, "--seed", help="Random seed for the selection"),
     session: List[str] = typer.Option(
         [],
@@ -723,11 +774,15 @@ def active_learn(
 
     cfg = load_config(config)
     session_ids = session or [cfg.cv.pilot_session_id]
-    out_directory = out_dir or (cfg.paths.labels / "active-learning" / f"iteration-{iteration}")
+    out_directory = out_dir or (
+        cfg.paths.labels / "active-learning" / f"iteration-{iteration}"
+    )
 
     from flag_football_ep.cv.active_learning import select_al_frames
 
-    selection = select_al_frames(cfg, session_ids, iteration, target, seed, out_directory)
+    selection = select_al_frames(
+        cfg, session_ids, iteration, target, seed, out_directory
+    )
 
     typer.echo(f"selection: {out_directory} ({len(selection.frames)} frames)")
 
@@ -743,7 +798,9 @@ def eval_split(
     fraction: float = typer.Option(
         0.2, "--fraction", help="Fraction of each domain's clips to hold out"
     ),
-    seed: int = typer.Option(20260516, "--seed", help="Random seed for the eval-clip split"),
+    seed: int = typer.Option(
+        20260516, "--seed", help="Random seed for the eval-clip split"
+    ),
     out: Optional[Path] = typer.Option(
         None, "--out", help="Override the eval-split CSV output path"
     ),
@@ -784,7 +841,9 @@ def detections(
 
     cfg = load_config(config)
     session_id = session or cfg.cv.pilot_session_id
-    out_path = out or (cfg.paths.processed / f"{session_id}_{domain}_detections.parquet")
+    out_path = out or (
+        cfg.paths.processed / f"{session_id}_{domain}_detections.parquet"
+    )
 
     from flag_football_ep.cv.export import export_detections_parquet
 
@@ -895,7 +954,9 @@ def benchmark(
             "to regenerate the stage-timings artifact"
         )
 
-    result = extrapolate_game_runtime(stages, float(footage_seconds), game_minutes * 60.0)
+    result = extrapolate_game_runtime(
+        stages, float(footage_seconds), game_minutes * 60.0
+    )
 
     typer.echo(f"extrapolated: {result.extrapolated_game_minutes:.2f} min/game")
     typer.echo(f"formula: {result.formula}")

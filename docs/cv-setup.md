@@ -471,6 +471,54 @@ für diese Klasse, nicht ein Modellfehler. Die eigentlichen Gate-Kriterien (C-09
 Tracking-Kontinuität, Positionsfehler und Inferenzzeit -- **nicht** mAP; dieser Abschnitt
 ist Kontext für die Gate-Entscheidung (Plan 02.1-17), kein Gate-Kriterium selbst.
 
+## Hackathon-Freeze (D-05)
+
+`src/flag_football_ep/cv/freeze.py`, Plan 02.2-07. Macht die Hackathon-Baseline zu einem
+bewussten, versionierten Artefakt statt "was `champion` gerade zufällig am Build-Tag
+auflöst" (RESEARCH Pitfall 5, Phase 02.2) -- Strand 2 dieser Phase (aktives Nachtrainieren
+gegen den Champion-Alias) und der Hackathon-Bundle-Build laufen in derselben Phase, ohne
+expliziten Freeze würde der Detektor unter den Teilnehmern jederzeit unbemerkt wechseln.
+
+**Zwei getrennte MLflow-Aliase auf `cv_detector_model`:**
+
+| Alias | Bewegt sich | Zweck |
+|---|---|---|
+| `champion` (`cv.registry.CHAMPION_ALIAS`) | Bei jeder Active-Learning-Nachtrainings-Iteration dieser Phase | Interner Rolling-Stand, den `cv.detect.load_detector` standardmässig auflöst |
+| `hackathon-frozen` (`cv.freeze.FROZEN_ALIAS`) | Nur durch einen expliziten erneuten `ffep cv freeze`-Aufruf | Der Stand, gegen den die Hackathon-Bundles (`ffep cv bundle`) gebaut werden |
+
+**Gefrorener Lauf:** `87a8a5222f7a472787875e974d089c44` (`cv_detector_model` Version 1,
+derselbe Phase-2.1-Champion-Lauf aus `## Detector-Training` oben) -- der Detektor, dessen
+Metriken (`mAP_50=0.9571`, `mAP_50_95=0.8112`) die Challenge-Beschreibung zitiert. Ein
+erneuter Freeze auf einen anderen Lauf ist bewusst kein einfacher Retry: `write_freeze_pin`
+verweigert das stille Überschreiben einer bestehenden Pin-Datei mit einem anderen `run_id`
+(`FreezeError`); `ffep cv freeze --force` löscht die bestehende Pin-Datei zuerst, wenn ein
+Re-Freeze tatsächlich gewollt ist.
+
+**Pin-Datei:** `data/reference/hackathon_freeze.json` (getrackt, keine PII -- nur
+Identifier und Hashes, siehe Threat-Register T-2.2-21) statt des git-ignorierten
+`data/processed/`, damit Bundle-Reproduzierbarkeit einen sauberen Checkout übersteht.
+Felder: `run_id`, `dataset_hash` (== `content_sha256` aus `### Datensatz` oben,
+`ab3a9673d61bc348d37ce298ba12d18b76395d1ade82a735c5b3d82d2e46aec0`), `model_version`,
+`frozen_at`.
+
+**Operationale Regel:** `cv/bundle.py::build_bundle` liest ausschliesslich
+`read_freeze_pin`/`resolve_frozen` -- niemals `cv.registry.resolve_champion` direkt. Ein
+mechanischer Source-Gate (`tests/test_cv_freeze.py`) prüft, dass `bundle.py` keinen
+`resolve_champion`-Verweis enthält, damit eine spätere Änderung den Bundle-Builder nicht
+still auf den rollenden Champion umlenkt.
+
+**Ehrliche Einschränkung (Ausführung in einem isolierten Worktree):** Der eigentliche
+`ffep cv freeze --run 87a8a5222f7a472787875e974d089c44 --dataset-hash
+ab3a9673d61bc348d37ce298ba12d18b76395d1ade82a735c5b3d82d2e46aec0`-Aufruf gegen den
+persistenten MLflow-Store (`mlruns/`, git-ignoriert) konnte in diesem Ausführungs-Worktree
+nicht laufen -- `mlruns/` existiert nur im Haupt-Checkout, nicht in der isolierten
+Worktree-Kopie (verifiziert: ein Live-Versuch schlägt sauber mit `FreezeError: run ... has
+no registered version` fehl, statt still falsche Daten zu schreiben). Die oben getrackte
+Pin-Datei enthält deshalb die aus diesem Dokument übernommenen, bereits verifizierten Werte
+(Run-ID, Dataset-Hash, Modellversion); der tatsächliche MLflow-Alias-Set-Aufruf muss einmalig
+im Haupt-Checkout nachgeholt werden, damit `resolve_frozen("cv_detector_model", cfg)` dort
+`87a8a5222f7a472787875e974d089c44` zurückgibt (siehe SUMMARY dieses Plans).
+
 ## Inferenz-Durchsatz
 
 `src/flag_football_ep/cv/detect.py::detect_video` + `src/flag_football_ep/cv/benchmark.py::
