@@ -22,10 +22,13 @@ import pytest
 from flag_football_ep.config import Config, load_config
 from flag_football_ep.cv.frames import (
     ClipNotFound,
+    EvalSplitError,
     ManifestError,
     clip_number,
     clip_paths,
     extract_frames,
+    freeze_eval_clips,
+    read_eval_split,
     read_manifest,
     sample_training_frames,
     write_manifest,
@@ -517,3 +520,186 @@ def test_sample_training_frames_no_hover_positions_falls_back_to_single_bucket(
     assert manifest.frames
     counts = Counter(frame.clip_number for frame in manifest.frames)
     assert set(counts) == {1, 2, 3, 4}
+
+
+# --- freeze_eval_clips / read_eval_split (plan 02.2-06 Task 1, D-04/D-07/D-13) -----
+
+
+def _write_sighting_csv(tmp_path: Path, session_id: str, mapping: dict[int, str]) -> None:
+    """Write a `sighting_{session_id}.csv` (the non-drone stratum source
+    `_read_stratum_ids` reads) with the same header `_write_hover_positions`
+    writes -- both files share the `hover_position_id` column name and schema.
+    """
+    lines = [
+        "clip_number,clip_path,hover_position_id,apparent_player_px_p10,"
+        "apparent_player_px_p50,tier,notes"
+    ]
+    for n, hp in sorted(mapping.items()):
+        lines.append(f"{n},,{hp},0.0,0.0,Brauchbar,")
+    path = tmp_path / "data" / "reference" / f"sighting_{session_id}.csv"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _make_eval_session(
+    tmp_path: Path,
+    session_id: str,
+    n_clips: int,
+    *,
+    domain: str = "drone",
+    existing_rows: list[dict[str, str]] | None = None,
+) -> list[dict[str, str]]:
+    """Register `n_clips` clip files (no ffmpeg needed -- `freeze_eval_clips` never
+    opens the video, only `Path.exists()` via `clip_paths`) for `session_id`/`domain`
+    and write `video_inventory.csv`. Returns the accumulated row list so a test can
+    combine two domains' clips into one inventory file across two calls.
+    """
+    rows = list(existing_rows or [])
+    for i in range(1, n_clips + 1):
+        rel_path = f"data/video/{session_id}/Wide - Clip {i:03d}.mp4"
+        _touch(tmp_path, rel_path)
+        rows.append(_row(rel_path, session_id=session_id, domain=domain))
+    _write_inventory(tmp_path, rows)
+    return rows
+
+
+def test_freeze_eval_clips_stratifies_by_hover_position(tmp_path: Path, cfg: Config) -> None:
+    session_id = "sess-drone"
+    _make_eval_session(tmp_path, session_id, 20, domain="drone")
+    _write_hover_positions(tmp_path, {n: ("hp-01" if n <= 10 else "hp-02") for n in range(1, 21)})
+    out_csv = tmp_path / "frozen_eval_clips.csv"
+
+    split = freeze_eval_clips(cfg, ["drone"], 0.3, 20260516, out_csv)
+
+    assert split.clips_by_domain["drone"]
+    assert len(split.clips_by_domain["drone"]) == 6  # round(10*0.3)*2 strata
+
+    df_rows = out_csv.read_text(encoding="utf-8").splitlines()[1:]
+    eval_rows = [r for r in df_rows if r.split(",")[4] == "frozen_eval"]
+    hp01_eval = sum(1 for r in eval_rows if int(r.split(",")[2]) <= 10)
+    hp02_eval = sum(1 for r in eval_rows if int(r.split(",")[2]) > 10)
+    assert hp01_eval == 3
+    assert hp02_eval == 3
+
+
+def test_freeze_eval_clips_is_deterministic_for_same_seed(tmp_path: Path, cfg: Config) -> None:
+    session_id = "sess-drone"
+    _make_eval_session(tmp_path, session_id, 12, domain="drone")
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
+    out_csv = tmp_path / "frozen_eval_clips.csv"
+
+    freeze_eval_clips(cfg, ["drone"], 0.25, 1, out_csv)
+    first_bytes = out_csv.read_bytes()
+
+    freeze_eval_clips(cfg, ["drone"], 0.25, 1, out_csv)
+    second_bytes = out_csv.read_bytes()
+
+    assert first_bytes == second_bytes
+
+
+def test_freeze_eval_clips_raises_for_seed_mismatch(tmp_path: Path, cfg: Config) -> None:
+    rows = _make_eval_session(tmp_path, "sess-drone", 12, domain="drone")
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
+    _make_eval_session(tmp_path, "sess-sideline", 8, domain="sideline", existing_rows=rows)
+    _write_sighting_csv(tmp_path, "sess-sideline", {n: "hp-01" for n in range(1, 9)})
+    out_csv = tmp_path / "frozen_eval_clips.csv"
+
+    freeze_eval_clips(cfg, ["drone"], 0.3, 1, out_csv)
+
+    with pytest.raises(EvalSplitError, match="different seed"):
+        freeze_eval_clips(cfg, ["sideline"], 0.2, 2, out_csv)
+
+
+def test_freeze_eval_clips_raises_for_too_few_clips(tmp_path: Path, cfg: Config) -> None:
+    _make_eval_session(tmp_path, "sess-tiny", 4, domain="drone")
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 5)})
+    out_csv = tmp_path / "frozen_eval_clips.csv"
+
+    with pytest.raises(EvalSplitError, match="drone.*4"):
+        freeze_eval_clips(cfg, ["drone"], 0.3, 1, out_csv)
+
+
+def test_freeze_eval_clips_pool_and_frozen_eval_partition_domain(
+    tmp_path: Path, cfg: Config
+) -> None:
+    _make_eval_session(tmp_path, "sess-drone", 15, domain="drone")
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 16)})
+    out_csv = tmp_path / "frozen_eval_clips.csv"
+
+    freeze_eval_clips(cfg, ["drone"], 0.3, 1, out_csv)
+
+    lines = out_csv.read_text(encoding="utf-8").splitlines()[1:]
+    clip_numbers = [int(line.split(",")[2]) for line in lines]
+    roles = [line.split(",")[4] for line in lines]
+
+    assert sorted(clip_numbers) == list(range(1, 16))
+    assert len(clip_numbers) == len(set(clip_numbers))  # no clip listed twice
+    assert set(roles) <= {"frozen_eval", "pool"}
+
+
+def test_freeze_eval_clips_second_domain_appends_without_touching_first(
+    tmp_path: Path, cfg: Config
+) -> None:
+    rows = _make_eval_session(tmp_path, "sess-drone", 12, domain="drone")
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
+    _make_eval_session(tmp_path, "sess-sideline", 10, domain="sideline", existing_rows=rows)
+    _write_sighting_csv(tmp_path, "sess-sideline", {n: "hp-01" for n in range(1, 11)})
+    out_csv = tmp_path / "frozen_eval_clips.csv"
+
+    freeze_eval_clips(cfg, ["drone"], 0.3, 20260516, out_csv)
+    drone_bytes_before = out_csv.read_bytes()
+    drone_lines_before = [
+        line for line in drone_bytes_before.decode("utf-8").splitlines() if line.startswith("drone,")
+    ]
+
+    split = freeze_eval_clips(cfg, ["sideline"], 0.2, 20260516, out_csv)
+
+    all_lines = out_csv.read_text(encoding="utf-8").splitlines()
+    drone_lines_after = [line for line in all_lines if line.startswith("drone,")]
+    sideline_lines_after = [line for line in all_lines if line.startswith("sideline,")]
+
+    assert drone_lines_after == drone_lines_before  # first domain's rows untouched
+    assert len(sideline_lines_after) == 10
+    assert split.clips_by_domain == {"sideline": sorted(
+        int(line.split(",")[2])
+        for line in sideline_lines_after
+        if line.split(",")[4] == "frozen_eval"
+    )}
+    assert len(split.clips_by_domain["sideline"]) == 2  # round(10 * 0.2)
+
+
+def test_freeze_eval_clips_private_test_only_on_drone(tmp_path: Path, cfg: Config) -> None:
+    rows = _make_eval_session(tmp_path, "sess-drone", 12, domain="drone")
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
+    _make_eval_session(tmp_path, "sess-sideline", 8, domain="sideline", existing_rows=rows)
+    _write_sighting_csv(tmp_path, "sess-sideline", {n: "hp-01" for n in range(1, 9)})
+    out_csv = tmp_path / "frozen_eval_clips.csv"
+
+    freeze_eval_clips(cfg, ["drone"], 0.3, 1, out_csv)
+    freeze_eval_clips(cfg, ["sideline"], 0.2, 1, out_csv)
+
+    lines = out_csv.read_text(encoding="utf-8").splitlines()[1:]
+    for line in lines:
+        fields = line.split(",")
+        domain, role, private_test = fields[0], fields[4], fields[5]
+        if role == "frozen_eval" and domain == "drone":
+            assert private_test == "true"
+        else:
+            assert private_test == "false"
+
+
+def test_read_eval_split_round_trips(tmp_path: Path, cfg: Config) -> None:
+    _make_eval_session(tmp_path, "sess-drone", 12, domain="drone")
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
+    out_csv = tmp_path / "frozen_eval_clips.csv"
+
+    written = freeze_eval_clips(cfg, ["drone"], 0.25, 1, out_csv)
+    loaded = read_eval_split(out_csv)
+
+    assert loaded.clips_by_domain == written.clips_by_domain
+    assert loaded.seed == written.seed
+
+
+def test_read_eval_split_raises_for_missing_path(tmp_path: Path) -> None:
+    with pytest.raises(EvalSplitError, match="not found"):
+        read_eval_split(tmp_path / "does-not-exist.csv")

@@ -23,6 +23,7 @@ import random
 import re
 import subprocess
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -548,8 +549,11 @@ def read_manifest(path: Path) -> FrameSampleManifest:
 
 
 class EvalSplitError(CvError, ValueError):
-    """Raised when an eval-clip split manifest cannot be read: the path does not
-    exist, is not valid JSON, or does not match the `EvalSplit` schema.
+    """Raised when a frozen eval-clip split cannot be written or read: a domain has
+    fewer than `_MIN_VAL_CLIPS` clips to split, a domain already frozen in `out_csv`
+    is asked to re-freeze under a different seed (the split is frozen by
+    definition -- never silently overwritten), or the CSV at `path` does not exist,
+    is not readable, or does not match the `EvalSplit` schema.
     """
 
 
@@ -558,6 +562,13 @@ class EvalSplit:
     """The frozen per-domain evaluation-clip split: which clip numbers, grouped by
     domain, are held out for detector evaluation, the fraction/seed used to draw
     them, and when the freeze happened.
+
+    `fraction` reflects the call that produced this value: `freeze_eval_clips`
+    returns the fraction it was invoked with; `read_eval_split` returns the
+    *achieved* fraction across every row in the file (n `frozen_eval` rows / n total
+    rows) since a single manifest can accumulate domains frozen at different
+    fractions across multiple `freeze_eval_clips` calls (only `seed` is enforced as
+    a single file-wide invariant, not `fraction`).
     """
 
     clips_by_domain: dict[str, list[int]]
@@ -566,22 +577,301 @@ class EvalSplit:
     frozen_at: str
 
 
+_EVAL_SPLIT_COLUMNS = (
+    "domain",
+    "session_id",
+    "clip_number",
+    "stratum_id",
+    "role",
+    "private_test",
+    "frozen_at",
+    "seed",
+)
+
+_EVAL_SPLIT_SCHEMA: dict[str, pl.DataType] = {
+    "domain": pl.Utf8,
+    "session_id": pl.Utf8,
+    "clip_number": pl.Int64,
+    "stratum_id": pl.Utf8,
+    "role": pl.Utf8,
+    "private_test": pl.Boolean,
+    "frozen_at": pl.Utf8,
+    "seed": pl.Int64,
+}
+
+# D-07: the drone domain's frozen eval clips double as the private hackathon test
+# set -- the only domain whose `frozen_eval` rows carry `private_test = true`.
+_PRIVATE_TEST_DOMAIN = "drone"
+
+
+def _read_domain_session_ids(config: Config, domain: str) -> list[str]:
+    """Every distinct `session_id` registered for `domain` in `video_inventory.csv`,
+    sorted for determinism. Today every domain has exactly one session, but this
+    stays general rather than assuming a singleton.
+    """
+    inventory_path = config.paths.reference / "video_inventory.csv"
+    if not inventory_path.exists():
+        raise EvalSplitError(f"video inventory not found: {inventory_path}")
+
+    df = pl.read_csv(inventory_path, schema_overrides=_INVENTORY_SCHEMA)
+    rows = df.filter(pl.col("domain") == domain)
+    if rows.height == 0:
+        raise EvalSplitError(f"no clips registered for domain {domain!r} in {inventory_path}")
+
+    return sorted(rows.select("session_id").unique().to_series().to_list())
+
+
+def _read_domain_clip_numbers(config: Config, domain: str, session_id: str) -> set[int]:
+    """Clip numbers registered for `session_id`/`domain` in `video_inventory.csv`.
+
+    Deliberately mirrors `_read_clip_durations`'s metadata-only read (filter the
+    inventory, parse `clip_number` out of `local_path`), not `clip_paths`'s: freezing
+    the eval split only needs which clip numbers exist and which stratum/session they
+    belong to, never the video bytes themselves, so it must not require the actual
+    clip file to be present on disk (`clip_paths` enforces that for frame-extraction
+    callers; a stratification/bookkeeping caller like this one must not inherit that
+    requirement).
+    """
+    inventory_path = config.paths.reference / "video_inventory.csv"
+    df = pl.read_csv(inventory_path, schema_overrides=_INVENTORY_SCHEMA)
+    rows = df.filter((pl.col("domain") == domain) & (pl.col("session_id") == session_id))
+
+    numbers: set[int] = set()
+    for row in rows.iter_rows(named=True):
+        local_path = row["local_path"]
+        if local_path:
+            numbers.add(clip_number(Path(local_path)))
+    return numbers
+
+
+def _read_stratum_ids(
+    config: Config, domain: str, session_id: str, clip_numbers: set[int]
+) -> dict[int, str]:
+    """Read `hover_position_id` per clip for `session_id`/`domain` -- the stratum
+    `freeze_eval_clips` allocates the held-out fraction within. The drone domain's
+    strata live in `config.reference.hover_positions` (Plan 02.1-03's file, keyed by
+    `clip_number` alone); every other domain's strata live in the per-session
+    sighting CSV `sighting.py::sight_session` already wrote (Plan 02.2-02), at the
+    same default path `sight_session` itself resolves to for a non-drone domain:
+    `config.paths.reference / f"sighting_{session_id}.csv"`.
+    """
+    if domain == _PRIVATE_TEST_DOMAIN:
+        path = config.reference.hover_positions
+    else:
+        path = config.paths.reference / f"sighting_{session_id}.csv"
+
+    if not path.exists():
+        raise EvalSplitError(
+            f"stratum source for domain {domain!r} session {session_id!r} not found: {path}"
+        )
+
+    df = pl.read_csv(
+        path,
+        schema_overrides=_HOVER_POSITIONS_SCHEMA,
+        columns=["clip_number", "hover_position_id"],
+    )
+    ids = {int(row["clip_number"]): row["hover_position_id"] for row in df.iter_rows(named=True)}
+
+    missing = clip_numbers - set(ids)
+    if missing:
+        raise EvalSplitError(
+            f"{path} is missing hover_position_id for clip(s) {sorted(missing)} "
+            f"(domain {domain!r}, session {session_id!r})"
+        )
+    return {n: ids[n] for n in clip_numbers}
+
+
+def _write_eval_split_csv(rows: list[dict], path: Path) -> None:
+    """Atomically write the frozen eval-clip split CSV: `.tmp` sibling + `os.replace`
+    (T-2.1-10 discipline, matching `write_manifest`/`_write_hover_positions_csv`),
+    sorted by `(domain, clip_number)` so re-running with unchanged inputs produces a
+    byte-identical file.
+    """
+    rows_sorted = sorted(rows, key=lambda r: (r["domain"], r["clip_number"]))
+    df = pl.DataFrame(
+        {col: [row[col] for row in rows_sorted] for col in _EVAL_SPLIT_COLUMNS},
+        schema=_EVAL_SPLIT_SCHEMA,
+    )
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    try:
+        df.write_csv(tmp_path)
+        os.replace(tmp_path, path)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
 def freeze_eval_clips(
     config: Config, domains: list[str], fraction: float, seed: int, out_csv: Path
 ) -> EvalSplit:
     """Freeze the held-out per-domain evaluation-clip split before any
     active-learning selection touches the training pool (D-04/D-13): draws
     `fraction` of each domain's clips at `seed`, persists the split to `out_csv`,
-    and returns it as an `EvalSplit`.
+    and returns it as an `EvalSplit` covering the domains passed in *this* call.
 
-    Implemented by plan 02.2-06.
+    Allocation is stratified: within each domain, clips are grouped by
+    `hover_position_id` (the same stratum `sample_training_frames` groups by), and
+    `round(fraction * len(stratum))` clips are drawn from each stratum via
+    `random.Random(f"{seed}:{domain}:{stratum_id}")` -- independent per
+    `(domain, stratum)` so adding a domain later never reshuffles an already-frozen
+    one. A domain with fewer than `_MIN_VAL_CLIPS` clips total raises
+    `EvalSplitError` naming the domain and its clip count -- too few clips to carve
+    out a meaningful, reproducible eval split.
+
+    `out_csv` accumulates domains across multiple calls (D-04's "one detector across
+    domains" needs every domain's frozen split in one place, and different domains
+    are legitimately frozen at different fractions/times -- e.g. the drone domain's
+    D-07 private-test-set fraction differs from a later-admitted domain's). A domain
+    already present in `out_csv` is treated as already frozen: if this call's `seed`
+    matches the file's recorded seed for that domain, the call is a no-op for it
+    (re-running with the same seed leaves the file byte-identical); if the seed
+    differs, `EvalSplitError` is raised naming both seeds rather than silently
+    overwriting the frozen split -- `seed` is a single file-wide invariant, exactly
+    because the whole point of freezing is that it never moves once written.
+
+    Only the drone domain's `frozen_eval` rows carry `private_test = true` (D-07:
+    the drone eval clips double as the private hackathon test set).
     """
-    raise NotImplementedError("implemented by plan 02.2-06")
+    if not (0.0 < fraction < 1.0):
+        raise EvalSplitError(f"fraction must be strictly between 0 and 1: {fraction!r}")
+    if not domains:
+        raise EvalSplitError("domains must be a non-empty list")
+
+    existing_rows: list[dict] = []
+    if out_csv.exists():
+        existing_df = pl.read_csv(out_csv, schema_overrides=_EVAL_SPLIT_SCHEMA)
+        existing_rows = existing_df.to_dicts()
+
+        existing_seeds = {row["seed"] for row in existing_rows}
+        if existing_seeds and existing_seeds != {seed}:
+            raise EvalSplitError(
+                f"{out_csv} was already frozen with seed(s) {sorted(existing_seeds)}; "
+                f"cannot freeze additional domains with a different seed {seed} "
+                "(the split is frozen by definition)"
+            )
+
+    existing_domains = {row["domain"] for row in existing_rows}
+    frozen_at = datetime.now(timezone.utc).isoformat()
+
+    new_rows: list[dict] = []
+    clips_by_domain: dict[str, list[int]] = {}
+
+    for domain in domains:
+        if domain in existing_domains:
+            # Idempotent no-op: this domain is already frozen under the same seed
+            # (the seed-mismatch case already raised above). Report its existing
+            # frozen_eval clips without touching the file.
+            clips_by_domain[domain] = sorted(
+                row["clip_number"]
+                for row in existing_rows
+                if row["domain"] == domain and row["role"] == "frozen_eval"
+            )
+            continue
+
+        session_ids = _read_domain_session_ids(config, domain)
+        clip_session: dict[int, str] = {}
+        for session_id in session_ids:
+            for n in _read_domain_clip_numbers(config, domain, session_id):
+                clip_session[n] = session_id
+
+        all_clip_numbers = set(clip_session)
+        if len(all_clip_numbers) < _MIN_VAL_CLIPS:
+            raise EvalSplitError(
+                f"domain {domain!r} has only {len(all_clip_numbers)} clip(s), fewer "
+                f"than the minimum {_MIN_VAL_CLIPS} required for a frozen eval split"
+            )
+
+        strata: dict[int, str] = {}
+        for session_id in session_ids:
+            session_clips = {n for n, sid in clip_session.items() if sid == session_id}
+            strata.update(_read_stratum_ids(config, domain, session_id, session_clips))
+
+        groups: dict[str, list[int]] = {}
+        for n in sorted(all_clip_numbers):
+            groups.setdefault(strata[n], []).append(n)
+
+        eval_clip_numbers: set[int] = set()
+        for stratum_id, members in sorted(groups.items()):
+            n_eval = min(len(members), max(0, round(fraction * len(members))))
+            rng = random.Random(f"{seed}:{domain}:{stratum_id}")
+            shuffled = list(members)
+            rng.shuffle(shuffled)
+            eval_clip_numbers.update(shuffled[:n_eval])
+
+        is_private_test = domain == _PRIVATE_TEST_DOMAIN
+        for n in sorted(all_clip_numbers):
+            role = "frozen_eval" if n in eval_clip_numbers else "pool"
+            new_rows.append(
+                {
+                    "domain": domain,
+                    "session_id": clip_session[n],
+                    "clip_number": n,
+                    "stratum_id": strata[n],
+                    "role": role,
+                    "private_test": role == "frozen_eval" and is_private_test,
+                    "frozen_at": frozen_at,
+                    "seed": seed,
+                }
+            )
+        clips_by_domain[domain] = sorted(eval_clip_numbers)
+
+    if new_rows:
+        _write_eval_split_csv(existing_rows + new_rows, out_csv)
+
+    return EvalSplit(
+        clips_by_domain=clips_by_domain, fraction=fraction, seed=seed, frozen_at=frozen_at
+    )
 
 
 def read_eval_split(path: Path) -> EvalSplit:
     """Load an `EvalSplit` previously written by `freeze_eval_clips`.
 
-    Implemented by plan 02.2-06.
+    Raises `EvalSplitError` naming `path` when the file is absent, is not readable
+    as CSV, or is missing one of `_EVAL_SPLIT_COLUMNS`. `seed` must be identical
+    across every row (a file-wide invariant `freeze_eval_clips` itself enforces on
+    write) -- an inconsistent file raises rather than picking one value silently.
+    `fraction` is the *achieved* fraction across the whole file (n `frozen_eval` rows
+    / n total rows), since a file frozen by multiple calls can mix per-domain
+    fractions (see `freeze_eval_clips`'s docstring). `frozen_at` is the latest
+    freeze timestamp recorded in the file.
     """
-    raise NotImplementedError("implemented by plan 02.2-06")
+    if not path.exists():
+        raise EvalSplitError(f"eval split not found: {path}")
+
+    try:
+        df = pl.read_csv(path, schema_overrides=_EVAL_SPLIT_SCHEMA)
+    except Exception as exc:  # noqa: BLE001 -- surfaced as a named EvalSplitError
+        raise EvalSplitError(f"eval split at {path} could not be read: {exc}") from exc
+
+    missing_columns = set(_EVAL_SPLIT_COLUMNS) - set(df.columns)
+    if missing_columns:
+        raise EvalSplitError(f"eval split at {path} is missing column(s) {sorted(missing_columns)}")
+
+    if df.height == 0:
+        raise EvalSplitError(f"eval split at {path} has no rows")
+
+    seeds = df.select("seed").unique().to_series().to_list()
+    if len(seeds) != 1:
+        raise EvalSplitError(f"eval split at {path} carries inconsistent seeds: {sorted(seeds)}")
+
+    eval_rows = df.filter(pl.col("role") == "frozen_eval")
+    clips_by_domain: dict[str, list[int]] = {}
+    for domain in sorted(eval_rows.select("domain").unique().to_series().to_list()):
+        clips_by_domain[domain] = sorted(
+            eval_rows.filter(pl.col("domain") == domain)
+            .select("clip_number")
+            .to_series()
+            .to_list()
+        )
+
+    fraction = eval_rows.height / df.height if df.height else 0.0
+    frozen_at = max(df.select("frozen_at").unique().to_series().to_list())
+
+    return EvalSplit(
+        clips_by_domain=clips_by_domain,
+        fraction=fraction,
+        seed=int(seeds[0]),
+        frozen_at=frozen_at,
+    )
