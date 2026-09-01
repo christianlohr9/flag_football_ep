@@ -40,6 +40,14 @@ data/video/*
 data/labels/*
 !data/labels/.gitkeep
 
+# hackathon re-identification bundles contain extracted frames and crops of
+# players' faces (PII), same policy as data/video/* and data/labels/* above
+# (Phase 2.2, REQ-S2-03)
+# NOTE: ignore contents (data/bundles/*), not the directory itself — git
+# cannot re-include a file inside a wholesale-excluded directory.
+data/bundles/*
+!data/bundles/.gitkeep
+
 # data/raw/legacy/, data/raw/sportapp/, data/raw/ifaf/ and data/reference/
 # are intentionally NOT ignored: the legacy CSV is the bulk of the training
 # corpus, the raw JSON snapshots make fetch reproducible offline, and the

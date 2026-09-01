@@ -39,6 +39,19 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Phase 2.2 dataset-versioning stack (D-18: DVC + the OTC OBS S3-compatible
+# backend). Kept in its own group, separate from `cv`, so a `dvc pull`-only
+# workflow (e.g. a labelling machine that never trains) does not drag in the
+# multi-GB torch stack. Both packages Apache-2.0 (C-06); legitimacy verified
+# against pypi.org/project/dvc and pypi.org/project/dvc-s3 by human checkpoint
+# 2026-09-01 (02.2-04 Task 1) — dvc's source moved to github.com/treeverse/dvc
+# after the November 2025 lakeFS acquisition, dvc-s3 still at
+# github.com/iterative/dvc-s3.
+versioning = [
+    "dvc>=3.67.1",
+    "dvc-s3>=3.3.0",
+]
+
 # Phase 2.1 CV tracking pilot stack (D-07: core install stays lean, opt in via
 # `uv sync --extra cv`). Apache-2.0/MIT only (C-06). The AGPL-3.0-licensed
 # tracking package named in the original source plan docs must never be added

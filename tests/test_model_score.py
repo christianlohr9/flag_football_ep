@@ -117,6 +117,11 @@ def _make_config(
         field_length_yards=50.0,
         field_width_yards=25.0,
         endzone_yards=10.0,
+        dvc_remote_name="otc-obs",
+        dvc_remote_url="s3://test-bucket/flag-football-datasets",
+        dvc_remote_endpoint="https://obs.eu-de.otc.t-systems.com",
+        otc_obs_access_key_env="OTC_OBS_ACCESS_KEY_ID",
+        otc_obs_secret_key_env="OTC_OBS_SECRET_ACCESS_KEY",
     )
     return Config(
         paths=paths, reference=reference, sources=sources, train=train, report=report, cv=cv

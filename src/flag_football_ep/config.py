@@ -110,6 +110,11 @@ class CvSettings:
     field_length_yards: float
     field_width_yards: float
     endzone_yards: float
+    dvc_remote_name: str
+    dvc_remote_url: str
+    dvc_remote_endpoint: str
+    otc_obs_access_key_env: str
+    otc_obs_secret_key_env: str
 
 
 @dataclass(frozen=True)
@@ -174,6 +179,11 @@ _CV_KEYS = (
     "field_length_yards",
     "field_width_yards",
     "endzone_yards",
+    "dvc_remote_name",
+    "dvc_remote_url",
+    "dvc_remote_endpoint",
+    "otc_obs_access_key_env",
+    "otc_obs_secret_key_env",
 )
 
 

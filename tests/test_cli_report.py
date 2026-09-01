@@ -229,6 +229,11 @@ cvat_password_env = "{config.cv.cvat_password_env}"
 field_length_yards = {config.cv.field_length_yards}
 field_width_yards = {config.cv.field_width_yards}
 endzone_yards = {config.cv.endzone_yards}
+dvc_remote_name = "{config.cv.dvc_remote_name}"
+dvc_remote_url = "{config.cv.dvc_remote_url}"
+dvc_remote_endpoint = "{config.cv.dvc_remote_endpoint}"
+otc_obs_access_key_env = "{config.cv.otc_obs_access_key_env}"
+otc_obs_secret_key_env = "{config.cv.otc_obs_secret_key_env}"
 """
 
 
