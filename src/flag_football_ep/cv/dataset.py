@@ -21,7 +21,7 @@ from __future__ import annotations
 import hashlib
 import json
 import zipfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -42,6 +42,15 @@ CLASS_NAMES: tuple[str, ...] = ("player", "referee")
 # (plan 02.1-15, ground-truth positions) is a separate, unrelated budget.
 _MIN_IMAGES = 250
 _MAX_IMAGES = 600
+
+# Phase-2.2's multi-domain REQ-S2-03 floor/ceiling (docs/dataset-plan.md `## 2`):
+# 1,500 verified frames across drone/sideline/broadcast is the binding floor, 3,000
+# the optional ceiling gated by the stopping rule in `## 3`. `validate_coco` accepts
+# these via `min_images`/`max_images` keyword arguments rather than a hard-coded
+# second pair of module constants, so a caller picks the band explicitly instead of
+# this module silently guessing which phase's dataset it is looking at.
+_MIN_IMAGES_MULTIDOMAIN = 1500
+_MAX_IMAGES_MULTIDOMAIN = 3000
 
 # Sub-pixel tolerance for the bbox-in-bounds check: CVAT derives a bbox from a
 # corrected polygon annotation by taking its coordinate extrema, which can land a
@@ -74,25 +83,57 @@ class DatasetStats:
     `n_boxes` is keyed by `CLASS_NAMES` plus a synthetic `"_empty_images"` entry
     counting images with zero annotations -- legal (a frame can genuinely show no
     visible player after correction), so counted rather than rejected.
+
+    `boxes_by_domain` reuses that same `CLASS_NAMES` + `"_empty_images"` shape, one
+    sub-dict per domain present in the manifest -- a second stats shape was
+    deliberately not introduced for this; every consumer that already knows how to
+    read `n_boxes` already knows how to read one of `boxes_by_domain`'s values.
+    Defaults to `{}` for a single-domain manifest predating `FrameSample.domain`
+    (every frame then falls under the shared `"drone"` default and this still
+    populates one entry, `{"drone": {...}}` -- `{}` is only the dataclass default,
+    never `validate_coco`'s actual return value).
     """
 
     n_images: int
     n_boxes: dict[str, int]
     split_counts: dict[str, int]
     content_sha256: str
+    boxes_by_domain: dict[str, dict[str, int]] = field(default_factory=dict)
 
 
-def validate_coco(coco_dir: Path, manifest: FrameSampleManifest) -> DatasetStats:
+def validate_coco(
+    coco_dir: Path,
+    manifest: FrameSampleManifest,
+    *,
+    min_images: int | None = None,
+    max_images: int | None = None,
+) -> DatasetStats:
     """Validate `coco_dir` (a CVAT COCO export) against `manifest`: every sampled
     frame must be present, every category must be exactly `CLASS_NAMES` in order, no
     annotation may reference an unknown image/category, no box may be degenerate or
-    out of bounds, the image count must sit in `[_MIN_IMAGES, _MAX_IMAGES]`, and both
-    the `train` and `val` splits (derived from `manifest.split`) must carry at least
-    one `player` box. Raises `DatasetError` naming the first violation found, with the
-    offending item(s) in the message. Zero-annotation images are legal and counted
-    under the `"_empty_images"` key of `DatasetStats.n_boxes` rather than rejected --
-    a frame can genuinely show no visible player after human correction.
+    out of bounds, the image count must sit in `[min_images, max_images]` (defaults
+    to the Phase-2.1 `[_MIN_IMAGES, _MAX_IMAGES]` band; pass
+    `_MIN_IMAGES_MULTIDOMAIN`/`_MAX_IMAGES_MULTIDOMAIN` for the Phase-2.2 dataset),
+    both the `train` and `val` splits (derived from `manifest.split`) must carry at
+    least one `player` box, and every domain present in `manifest` (`FrameSample.
+    domain`) must carry at least one `player` box across the whole dataset -- a
+    domain that contributes zero player boxes has effectively collapsed and is
+    rejected the same way an empty split is (C-05/D-04: pooled acceptance can hide a
+    domain going to zero). Raises `DatasetError` naming the first violation found,
+    with the offending item(s) in the message. Zero-annotation images are legal and
+    counted under the `"_empty_images"` key of `DatasetStats.n_boxes` (and, per
+    domain, of `DatasetStats.boxes_by_domain[domain]`) rather than rejected -- a
+    frame can genuinely show no visible player after human correction.
     """
+    # Resolved from the module globals at call time (not baked into the parameter
+    # default at def-time) so a test's `monkeypatch.setattr(dataset, "_MIN_IMAGES",
+    # ...)` keeps working exactly as it did before this signature grew `min_images`/
+    # `max_images` -- a `def foo(x=_MIN_IMAGES)` default is evaluated once at import
+    # time and would silently stop tracking a later monkeypatch of the module
+    # attribute.
+    resolved_min_images = min_images if min_images is not None else _MIN_IMAGES
+    resolved_max_images = max_images if max_images is not None else _MAX_IMAGES
+
     coco_dir = Path(coco_dir)
     annotation_path = coco_dir / "instances.json"
     if not annotation_path.is_file():
@@ -126,6 +167,14 @@ def validate_coco(coco_dir: Path, manifest: FrameSampleManifest) -> DatasetStats
             f"{annotation_path} image set does not match manifest {manifest.session_id!r}: "
             f"missing={missing} extra={extra}"
         )
+
+    domains_present = sorted({frame.domain for frame in manifest.frames})
+    boxes_by_domain: dict[str, dict[str, int]] = {
+        domain: {name: 0 for name in CLASS_NAMES} for domain in domains_present
+    }
+    images_with_annotations_by_domain: dict[str, set[int]] = {
+        domain: set() for domain in domains_present
+    }
 
     annotations = data.get("annotations", [])
     n_boxes: dict[str, int] = {name: 0 for name in CLASS_NAMES}
@@ -179,21 +228,38 @@ def validate_coco(coco_dir: Path, manifest: FrameSampleManifest) -> DatasetStats
             split_box_counts.setdefault(split, {name: 0 for name in CLASS_NAMES})
             split_box_counts[split][category_name] += 1
 
+        if frame is not None:
+            boxes_by_domain[frame.domain][category_name] += 1
+            images_with_annotations_by_domain[frame.domain].add(image_id)
+
     n_boxes["_empty_images"] = sum(
         1 for img in images if img["id"] not in images_with_annotations
     )
 
-    n_images = len(images)
-    if n_images < _MIN_IMAGES:
-        raise DatasetError(
-            f"{annotation_path} has {n_images} images, below the {_MIN_IMAGES}-image "
-            f"floor (REQ-S2-02 targets ~300-500 human-corrected training frames)"
+    for domain in domains_present:
+        domain_image_ids = {
+            img["id"]
+            for img in images
+            if (frame := manifest_by_file_name.get(img["file_name"])) is not None
+            and frame.domain == domain
+        }
+        boxes_by_domain[domain]["_empty_images"] = len(
+            domain_image_ids - images_with_annotations_by_domain[domain]
         )
-    if n_images > _MAX_IMAGES:
+
+    n_images = len(images)
+    if n_images < resolved_min_images:
         raise DatasetError(
-            f"{annotation_path} has {n_images} images, above the {_MAX_IMAGES}-image "
-            "ceiling -- D-06: the pilot does not answer a gate miss with more training "
-            "labels; evaluation labeling (plan 02.1-15) is a separate, allowed budget"
+            f"{annotation_path} has {n_images} images, below the "
+            f"{resolved_min_images}-image floor (REQ-S2-02 targets ~300-500 "
+            "human-corrected training frames)"
+        )
+    if n_images > resolved_max_images:
+        raise DatasetError(
+            f"{annotation_path} has {n_images} images, above the "
+            f"{resolved_max_images}-image ceiling -- D-06: the pilot does not answer "
+            "a gate miss with more training labels; evaluation labeling "
+            "(plan 02.1-15) is a separate, allowed budget"
         )
 
     # Per-image (not per-clip) split counts: `manifest.split` maps clip_number -> split,
@@ -212,6 +278,15 @@ def validate_coco(coco_dir: Path, manifest: FrameSampleManifest) -> DatasetStats
                 "with no player annotations cannot train or validate the detector"
             )
 
+    for domain, counts in boxes_by_domain.items():
+        if counts.get("player", 0) == 0:
+            raise DatasetError(
+                f"{annotation_path} domain {domain!r} has zero 'player' boxes across "
+                f"{len(domains_present)} domain(s) in this dataset -- a domain that "
+                "contributes no player annotations has effectively collapsed and "
+                "cannot train or validate a per-domain detector (C-05/D-04)"
+            )
+
     content_sha256 = dataset_hash(coco_dir)
 
     return DatasetStats(
@@ -219,6 +294,7 @@ def validate_coco(coco_dir: Path, manifest: FrameSampleManifest) -> DatasetStats
         n_boxes=n_boxes,
         split_counts=split_counts,
         content_sha256=content_sha256,
+        boxes_by_domain=boxes_by_domain,
     )
 
 
