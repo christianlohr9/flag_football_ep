@@ -339,8 +339,8 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 02.2-08-PLAN.md — Frozen-baseline artifact exports: detections Parquet and torso crops
-- [ ] 02.2-09-PLAN.md — Active-learning infrastructure: uncertainty+diversity selection, fine-tuned prelabel backend, multi-domain validation
+- [x] 02.2-08-PLAN.md — Frozen-baseline artifact exports: detections Parquet and torso crops (completed 2026-09-01)
+- [x] 02.2-09-PLAN.md — Active-learning infrastructure: uncertainty+diversity selection, fine-tuned prelabel backend, multi-domain validation (completed 2026-09-01)
 
 **Wave 5** *(blocked on Wave 4)*
 
