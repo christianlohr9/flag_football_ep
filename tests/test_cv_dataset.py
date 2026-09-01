@@ -25,10 +25,19 @@ from flag_football_ep.cv.frames import FrameSample, FrameSampleManifest
 # --- shared helpers --------------------------------------------------------------------
 
 
-def _manifest(specs: Sequence[tuple[str, str]], session_id: str = "test-session") -> FrameSampleManifest:
+def _manifest(
+    specs: Sequence[tuple[str, str]],
+    session_id: str = "test-session",
+    *,
+    domains: Sequence[str] | None = None,
+) -> FrameSampleManifest:
     """Build a `FrameSampleManifest` whose frames are exactly `specs`
     (`(file_name, split)` pairs) -- `clip_path`/`frame_index`/`timestamp_s` are
     irrelevant to `validate_coco`/`dataset_hash` and filled with placeholder values.
+
+    `domains`, when given, assigns `FrameSample.domain` positionally (one entry per
+    spec); omitted entirely, every frame keeps `FrameSample`'s own `"drone"` default
+    -- the single-domain Phase-2.1 shape every pre-existing test in this file targets.
     """
     frames = [
         FrameSample(
@@ -38,6 +47,7 @@ def _manifest(specs: Sequence[tuple[str, str]], session_id: str = "test-session"
             timestamp_s=float(i),
             image_path=file_name,
             split=split,
+            **({"domain": domains[i]} if domains is not None else {}),
         )
         for i, (file_name, split) in enumerate(specs)
     ]
@@ -376,3 +386,156 @@ def test_dataset_hash_stable_across_directories_and_changes_on_bbox_flip(tmp_pat
     )
     hash_after_flip = dataset.dataset_hash(coco_dir)
     assert hash_after_flip != hash_original
+
+
+# --- validate_coco: multi-domain (plan 02.2-09 Task 3, C-05/D-04) -------------------------
+
+
+def test_validate_coco_two_domains_both_with_player_boxes_passes(
+    tmp_path: Path, small_bounds: None
+) -> None:
+    coco_dir = tmp_path / "coco"
+    specs = [
+        ("frame_drone_1.jpg", "train"),
+        ("frame_drone_2.jpg", "val"),
+        ("frame_sideline_1.jpg", "train"),
+        ("frame_sideline_2.jpg", "val"),
+    ]
+    manifest = _manifest(specs, domains=["drone", "drone", "sideline", "sideline"])
+    images = [
+        {"id": i + 1, "file_name": name, "width": 640, "height": 480}
+        for i, (name, _) in enumerate(specs)
+    ]
+    annotations = [
+        {"id": 1, "image_id": 1, "category_id": 1, "bbox": [10, 10, 50, 100]},  # drone train
+        {"id": 2, "image_id": 2, "category_id": 1, "bbox": [10, 10, 50, 100]},  # drone val
+        {"id": 3, "image_id": 3, "category_id": 1, "bbox": [10, 10, 50, 100]},  # sideline train
+        {"id": 4, "image_id": 4, "category_id": 1, "bbox": [10, 10, 50, 100]},  # sideline val
+    ]
+    _write_coco(coco_dir, categories=_default_categories(), images=images, annotations=annotations)
+
+    stats = dataset.validate_coco(coco_dir, manifest)
+
+    assert set(stats.boxes_by_domain) == {"drone", "sideline"}
+    assert stats.boxes_by_domain["drone"]["player"] == 2
+    assert stats.boxes_by_domain["sideline"]["player"] == 2
+
+
+def test_validate_coco_domain_with_only_referee_boxes_raises_named_domain(
+    tmp_path: Path, small_bounds: None
+) -> None:
+    coco_dir = tmp_path / "coco"
+    specs = [
+        ("frame_drone_1.jpg", "train"),
+        ("frame_drone_2.jpg", "val"),
+        ("frame_sideline_1.jpg", "train"),
+        ("frame_sideline_2.jpg", "val"),
+    ]
+    manifest = _manifest(specs, domains=["drone", "drone", "sideline", "sideline"])
+    images = [
+        {"id": i + 1, "file_name": name, "width": 640, "height": 480}
+        for i, (name, _) in enumerate(specs)
+    ]
+    annotations = [
+        {"id": 1, "image_id": 1, "category_id": 1, "bbox": [10, 10, 50, 100]},  # drone player
+        {"id": 2, "image_id": 2, "category_id": 1, "bbox": [10, 10, 50, 100]},  # drone player
+        # sideline gets referee boxes only -- the domain has collapsed for "player".
+        {"id": 3, "image_id": 3, "category_id": 2, "bbox": [10, 10, 50, 100]},
+        {"id": 4, "image_id": 4, "category_id": 2, "bbox": [10, 10, 50, 100]},
+    ]
+    _write_coco(coco_dir, categories=_default_categories(), images=images, annotations=annotations)
+
+    with pytest.raises(DatasetError) as exc_info:
+        dataset.validate_coco(coco_dir, manifest)
+
+    assert "sideline" in str(exc_info.value)
+
+
+def test_validate_coco_multidomain_band_accepts_1500_rejects_120(tmp_path: Path) -> None:
+    coco_dir = tmp_path / "coco"
+    specs = _bulk_specs(1500)
+    manifest = _manifest(specs, domains=["drone"] * 1500)
+    images = [
+        {"id": i + 1, "file_name": name, "width": 640, "height": 480}
+        for i, (name, _) in enumerate(specs)
+    ]
+    # image_id 1 (index 0) is "val", image_id 2 (index 1) is "train" per _bulk_specs'
+    # own `"train" if i % 5 else "val"` alternation -- one player box in each split
+    # keeps both the split-coverage check and the domain-collapse check satisfied.
+    annotations = [
+        {"id": 1, "image_id": 1, "category_id": 1, "bbox": [0, 0, 10, 10]},
+        {"id": 2, "image_id": 2, "category_id": 1, "bbox": [0, 0, 10, 10]},
+    ]
+    _write_coco(coco_dir, categories=_default_categories(), images=images, annotations=annotations)
+
+    stats = dataset.validate_coco(
+        coco_dir,
+        manifest,
+        min_images=dataset._MIN_IMAGES_MULTIDOMAIN,
+        max_images=dataset._MAX_IMAGES_MULTIDOMAIN,
+    )
+    assert stats.n_images == 1500
+
+    small_specs = _bulk_specs(120)
+    small_manifest = _manifest(small_specs, domains=["drone"] * 120)
+    small_images = [
+        {"id": i + 1, "file_name": name, "width": 640, "height": 480}
+        for i, (name, _) in enumerate(small_specs)
+    ]
+    small_coco_dir = tmp_path / "coco_small"
+    _write_coco(
+        small_coco_dir,
+        categories=_default_categories(),
+        images=small_images,
+        annotations=[{"id": 1, "image_id": 1, "category_id": 1, "bbox": [0, 0, 10, 10]}],
+    )
+
+    with pytest.raises(DatasetError) as exc_info:
+        dataset.validate_coco(
+            small_coco_dir,
+            small_manifest,
+            min_images=dataset._MIN_IMAGES_MULTIDOMAIN,
+            max_images=dataset._MAX_IMAGES_MULTIDOMAIN,
+        )
+    assert "1500" in str(exc_info.value)
+
+
+def test_validate_coco_pilot_single_domain_still_validates_under_default_band(
+    tmp_path: Path, small_bounds: None
+) -> None:
+    """The pilot's single-domain manifest (every frame defaulting to `domain="drone"`,
+    predating this field) still validates under the default `[_MIN_IMAGES,
+    _MAX_IMAGES]` band with no `min_images`/`max_images` passed at all.
+    """
+    coco_dir = tmp_path / "coco"
+    specs = [("frame_a.jpg", "train"), ("frame_b.jpg", "val")]
+    manifest = _manifest(specs)  # no domains= -> every frame defaults to "drone"
+    images = [
+        {"id": 1, "file_name": "frame_a.jpg", "width": 640, "height": 480},
+        {"id": 2, "file_name": "frame_b.jpg", "width": 640, "height": 480},
+    ]
+    annotations = [
+        {"id": 1, "image_id": 1, "category_id": 1, "bbox": [0, 0, 10, 10]},
+        {"id": 2, "image_id": 2, "category_id": 1, "bbox": [0, 0, 10, 10]},
+    ]
+    _write_coco(coco_dir, categories=_default_categories(), images=images, annotations=annotations)
+
+    stats = dataset.validate_coco(coco_dir, manifest)
+
+    assert stats.boxes_by_domain == {"drone": {"player": 2, "referee": 0, "_empty_images": 0}}
+
+
+def test_grep_min_images_constant_still_present_unmodified() -> None:
+    """`_MIN_IMAGES = 250` (the 2.1 band) was parameterised via keyword arguments,
+    not overwritten -- this greps the source file the same way the plan's own
+    acceptance criterion does.
+    """
+    import subprocess
+
+    result = subprocess.run(
+        ["grep", "-c", "_MIN_IMAGES = 250", "src/flag_football_ep/cv/dataset.py"],
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).resolve().parent.parent,
+    )
+    assert result.stdout.strip() == "1"

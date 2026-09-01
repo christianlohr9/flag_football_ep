@@ -104,6 +104,12 @@ class FrameSample:
     """One sampled training frame: which clip it came from, at which index/timestamp,
     where the extracted image was written, and which split (`train`/`val`) its parent
     clip belongs to.
+
+    `domain` defaults to `"drone"` -- every `FrameSample` this module itself
+    constructs (`sample_training_frames`) sets it explicitly from the caller's own
+    `domain` argument; the default only matters for a manifest built by hand (tests,
+    or a manifest written before this field existed) and preserves the single-domain
+    Phase-2.1 convention those predate.
     """
 
     clip_number: int
@@ -112,6 +118,7 @@ class FrameSample:
     timestamp_s: float
     image_path: str
     split: str
+    domain: str = "drone"
 
 
 @dataclass(frozen=True)
@@ -445,6 +452,7 @@ def sample_training_frames(
                     timestamp_s=timestamp,
                     image_path=str(image_path),
                     split=clip_split,
+                    domain=domain,
                 )
             )
 
@@ -476,6 +484,7 @@ def write_manifest(manifest: FrameSampleManifest, path: Path) -> Path:
                 "timestamp_s": frame.timestamp_s,
                 "image_path": frame.image_path,
                 "split": frame.split,
+                "domain": frame.domain,
             }
             for frame in manifest.frames
         ],
@@ -530,6 +539,7 @@ def read_manifest(path: Path) -> FrameSampleManifest:
             timestamp_s=row["timestamp_s"],
             image_path=row["image_path"],
             split=row["split"],
+            domain=row.get("domain", "drone"),
         )
         for row in data["frames"]
     ]
