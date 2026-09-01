@@ -349,7 +349,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5)*
 
-- [ ] 02.2-12-PLAN.md — Private test-set and transfer-set bundles with the label vault
+- [x] 02.2-12-PLAN.md — Private test-set and transfer-set bundles with the label vault (completed 2026-09-01)
 - [ ] 02.2-13-PLAN.md — AL iteration 1: correction weekend, merge, validation, dataset v1 under DVC
 
 **Wave 7** *(blocked on Wave 6)*
