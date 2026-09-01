@@ -489,3 +489,57 @@ def test_select_al_frames_extracts_selected_frames_and_persists_manifest(
     for frame in selection.frames:
         assert Path(frame.image_path).exists()
         assert Path(frame.image_path).parent == out_dir
+
+
+def test_selection_to_frame_manifest_bridges_to_frame_sample_manifest(
+    tmp_path: Path, cfg: Config, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`prelabel.prelabel_frames`/`dataset.validate_coco` both key off a
+    `FrameSampleManifest` at `frames_dir / "manifest.json"` -- this is the adapter
+    plan 02.2-11 added so an AL selection's extracted frames reach that pipeline.
+    """
+    from flag_football_ep.cv.active_learning import selection_to_frame_manifest
+    from flag_football_ep.cv.frames import clip_number, clip_paths
+
+    session_id = "sess-bridge"
+    rel = "data/video/sess-bridge/Wide - Clip 001.mp4"
+    tcf._write_inventory(tmp_path, [tcf._row(rel, session_id=session_id, domain="drone")])
+    _write_color_clip(tmp_path / rel, 3, color=(10, 10, 10))
+    tcf._write_hover_positions(tmp_path, {1: "hp-01"})
+    _write_frozen_eval_csv(
+        tmp_path,
+        [{"domain": "drone", "session_id": session_id, "clip_number": 1, "stratum_id": "hp-01", "role": "pool"}],
+    )
+    monkeypatch.setattr(
+        detect, "load_detector",
+        lambda config, run_id=None: _FakeDetectorModel(lambda _i: _one_detection(2.0, 0.9)),
+    )
+
+    out_dir = tmp_path / "al" / "iteration-1"
+    selection = select_al_frames(cfg, [session_id], 1, 2, 1, out_dir)
+
+    manifest = selection_to_frame_manifest(cfg, selection)
+
+    assert manifest.session_id == session_id
+    assert manifest.seed == selection.seed
+    assert manifest.target == selection.target
+    assert len(manifest.frames) == len(selection.frames)
+
+    expected_clip_path = str(clip_paths(cfg, session_id, domain="drone")[0])
+    for frame_sample, al_frame in zip(manifest.frames, selection.frames):
+        assert frame_sample.image_path == al_frame.image_path
+        assert frame_sample.clip_number == al_frame.clip_number
+        assert frame_sample.clip_path == expected_clip_path
+        assert frame_sample.split == "train"
+        assert frame_sample.domain == "drone"
+        assert manifest.split[frame_sample.clip_number] == "train"
+        assert clip_number(Path(expected_clip_path)) == al_frame.clip_number
+
+
+def test_selection_to_frame_manifest_rejects_multi_session_selection(cfg: Config) -> None:
+    from flag_football_ep.cv.active_learning import selection_to_frame_manifest
+
+    selection = ALSelection(session_ids=["a", "b"], iteration=1, target=0, seed=1, frames=[])
+
+    with pytest.raises(ActiveLearningError, match="single-session"):
+        selection_to_frame_manifest(cfg, selection)

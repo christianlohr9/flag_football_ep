@@ -778,11 +778,19 @@ def active_learn(
         cfg.paths.labels / "active-learning" / f"iteration-{iteration}"
     )
 
-    from flag_football_ep.cv.active_learning import select_al_frames
+    from flag_football_ep.cv.active_learning import select_al_frames, selection_to_frame_manifest
+    from flag_football_ep.cv.frames import write_manifest
 
     selection = select_al_frames(
         cfg, session_ids, iteration, target, seed, out_directory
     )
+
+    # Bridge the AL-native selection manifest into the FrameSampleManifest shape
+    # `ffep cv prelabel`/`ffep cv dataset` expect at `<out_dir>/manifest.json` --
+    # requires a single-session selection (see selection_to_frame_manifest), which
+    # is exactly what this command's own single-session-per-call usage produces.
+    frame_manifest = selection_to_frame_manifest(cfg, selection)
+    write_manifest(frame_manifest, out_directory / "manifest.json")
 
     typer.echo(f"selection: {out_directory} ({len(selection.frames)} frames)")
 

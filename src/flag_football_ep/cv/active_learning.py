@@ -533,3 +533,73 @@ def read_selection_manifest(path: Path) -> ALSelection:
         seed=data["seed"],
         frames=frames,
     )
+
+
+def selection_to_frame_manifest(config: Config, selection: ALSelection):
+    """Adapt `selection` into a `frames.FrameSampleManifest` -- not part of this
+    plan's frozen `<interfaces>` contract, but required glue: `prelabel.prelabel_frames`
+    and `dataset.validate_coco` both key off `frames_dir / "manifest.json"`'s
+    `FrameSampleManifest` shape (a single `session_id` string, a `split` dict keyed by
+    `clip_number`), never `ALSelection`'s own `selection_manifest.json` shape (a
+    `session_ids` list, no `split`/`clip_path` fields at all). Without this adapter an
+    AL selection's extracted frames are unreachable by the existing prelabel/dataset
+    pipeline.
+
+    Requires a single-session `selection` (`len(selection.session_ids) == 1`) --
+    exactly what `ffep cv active-learn` produces when invoked once per session, this
+    plan's own `<interfaces>`-instructed usage (a per-domain target needs a
+    per-session call anyway, since `select_al_frames`'s proportional allocation has no
+    notion of the fixed domain-mix percentages `docs/dataset-plan.md` fixes -- only a
+    per-session call's `target` argument can pin a domain's share exactly). Raises
+    `ActiveLearningError` naming the offending list otherwise.
+
+    Every frame's `split` is fixed to `"train"`: an active-learning iteration only
+    ever adds new labeling material, it never draws a held-out validation slice --
+    that role belongs solely to the frozen eval split (`frames.read_eval_split`),
+    decided once before any AL iteration ever runs, not re-decided per iteration.
+    """
+    from flag_football_ep.cv.frames import (
+        FrameSample,
+        FrameSampleManifest,
+        clip_number,
+        clip_paths,
+    )
+
+    if len(selection.session_ids) != 1:
+        raise ActiveLearningError(
+            "selection_to_frame_manifest requires a single-session ALSelection "
+            f"(got session_ids={selection.session_ids!r}); run one `active-learn` "
+            "call per session, per this plan's own <interfaces> instruction"
+        )
+
+    session_id = selection.session_ids[0]
+    domain = (
+        selection.frames[0].diversity_key[0]
+        if selection.frames
+        else _resolve_domain(config, session_id)
+    )
+    clip_path_by_number = {
+        clip_number(p): str(p) for p in clip_paths(config, session_id, domain=domain)
+    }
+
+    frame_samples = [
+        FrameSample(
+            clip_number=frame.clip_number,
+            clip_path=clip_path_by_number.get(frame.clip_number, ""),
+            frame_index=frame.frame_index,
+            timestamp_s=frame.timestamp_s,
+            image_path=frame.image_path,
+            split="train",
+            domain=frame.diversity_key[0],
+        )
+        for frame in selection.frames
+    ]
+    split = {frame.clip_number: "train" for frame in selection.frames}
+
+    return FrameSampleManifest(
+        session_id=session_id,
+        seed=selection.seed,
+        target=selection.target,
+        frames=frame_samples,
+        split=split,
+    )
