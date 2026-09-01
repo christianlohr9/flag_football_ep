@@ -32,8 +32,9 @@ erfüllen die Zielkriterien.
 Ein Kriterium scheitert: die **Identitäts-Kontinuität**. Sobald sich zwei Spielerinnen im Bild
 überschneiden — Kreuzungsrouten, Coverage, Flag-Pull, im Flag Football ständig — verliert der
 Tracker die Zuordnung und vergibt neue Nummern oder vertauscht sie. Von 61 Spielzügen eines
-Pilotspiels bestehen im besten Fall 77 % das Kriterium „≥ 90 % des Spielzugs ohne
-Identitätswechsel"; Ziel sind 90 %. Ohne stabile Identitäten sind alle darauf aufbauenden
+Pilotspiels bestehen 15 von 61 (24,59 %) das Kriterium „≥ 90 % des Spielzugs ohne
+Identitätswechsel" — gemessen über alle 61 Clips, nicht hochgerechnet; Ziel sind 90 %. Ohne
+stabile Identitäten sind alle darauf aufbauenden
 Coaching-Kennzahlen (Routentiefen, Separation, Spacing) wertlos.
 
 Das Problem ist offen, weil klassische Re-Identification hier versagt: Alle Spielerinnen eines
@@ -50,7 +51,7 @@ Datenputzen.
 
 - **Kernziel (Pflicht):** Ein Tracking-Verfahren (Modell, Nachverarbeitung oder beides), das auf
   dem Drohnen-Benchmark den Anteil der Spielzüge ohne Identitätswechsel gegenüber der Baseline
-  (BoT-SORT, 77 % Obergrenze) messbar erhöht — Zielmarke 90 %. Ergebnis: lauffähiger Prototyp,
+  (BoT-SORT, 15/61 = 24,59 % gemessen) messbar erhöht — Zielmarke 90 %. Ergebnis: lauffähiger Prototyp,
   der die bereitgestellten Detektionen einliest und Tracks ausgibt, plus ein Kurzbericht mit der
   Messung auf Dev- und Test-Set.
 - **Transfer-Wertung:** Dieselbe Methode, angewendet auf Seitenlinien-(GoPro-) und TV-Ausschnitte
@@ -178,6 +179,22 @@ mehr hochgerechnete) Wert (`docs/hackathon-benchmark-labels.md` `## Ergebnis 202
 Dominanter Fehlermodus: Identitätswechsel bei Spieler-Überlagerung (39/46 Fails, ~85 %);
 sekundär vereinzelte Team-Fehlzuordnungen (6/46 Fails, ~13 %).
 
+**Vier fertige Verfahren wurden zusätzlich unter identischen Bedingungen gemessen (Phase M2-2,
+`docs/baseline-messung.md`):** die Human-Zahl 15/61 (24,59 %) gilt ausschließlich für BoT-SORT,
+weil die Urteile an BoT-SORT-Overlays gefällt wurden; die automatische Kontinuitäts-Kennzahl ist
+dagegen gesättigt (misst Trackdauer, keine Identitätswechsel) und daher kein direkter Ersatz für
+eine Human-Skala.
+
+| Verfahren | Automatische Kontinuität (voll 61) | Human-Urteile | Lizenz |
+|---|---|---|---|
+| BoT-SORT | 57/61 (93,44 %) | 15/61 (24,59 %) | Apache-2.0 |
+| ByteTrack (baseline-matched) | 57/61 (93,44 %) | keine Review | Apache-2.0 |
+| CBIoU (baseline-matched, nicht Deep-EIoU) | 58/61 (95,08 %) | keine Review | Apache-2.0 |
+| GTA (generisches Erscheinungsmodell, Überlagerungs-Vorbehalt) | 61/61 (100,00 %) | keine Review | MIT |
+| Deep-EIoU | nicht gemessen — kein LICENSE-File im Referenz-Repo (D-02-Gate) | — | — |
+
+Vollständiges Protokoll, Startbefehle und alle Vorbehalte: `docs/baseline-messung.md`.
+
 ### Labelling-Plan (Nutzer, ~3,5 h gesamt)
 
 - **A — Kontinuitäts-Urteile Clips 21–61 auf den v2-Overlays (~1 h):** `pass`/`fail` + Kurznotiz,
@@ -224,9 +241,9 @@ Ausschluss sensibler/fremder personenbezogener Daten — die Freigabe deckt das 
 - Infrastruktur beim Hackathon (GPU-Zugang, Datenablage ohne Cloud-Upload).
 - Einordnung in die Roadmap: Challenge **vor** Phase 2.3 (Coaching-Kennzahlen brauchen stabile
   Identitäten); Phase 2.2 (Dataset Buildout) läuft unabhängig davon.
-- Prüfen, welche `trackers`-Version installiert ist: die stabile BoT-SORT-Implementierung enthält
-  laut README **keinen** Erscheinungs-/ReID-Zweig (nur Bewegung + Kamerakompensation); ein
-  `ReIDModel` existiert in den Develop-Docs. Für die Baseline-Beschreibung relevant.
+- ~~Prüfen, welche `trackers`-Version installiert ist~~ — geklärt (Phase M2-2): `trackers==2.6.0`,
+  enthält SORT, ByteTrack, BoT-SORT, OC-SORT, CBIoU und McByte; BoT-SORT läuft ohne
+  Erscheinungs-/ReID-Zweig (nur Bewegung + Kamerakompensation), siehe `docs/baseline-messung.md`.
 
 ---
 

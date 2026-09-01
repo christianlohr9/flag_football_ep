@@ -62,6 +62,10 @@ installiert, um Schritt 1 zu ermöglichen.
 | `dvc-s3` | 3.3.0 | Apache-2.0 | S3-kompatibles Backend (OTC OBS) für `dvc pull` | PyPI (2026-09-01) |
 | **Testsuite (`dependency-groups.dev`)** | | | | |
 | `pytest` | 9.1.1 | MIT | ausgelieferte Testsuite | importlib.metadata |
+| **Vendorierte Forschungscode-Kopien (M2-2, nicht in `pyproject.toml`)** | | | | |
+| `gta-link` | kein Release-Tag | MIT | Tracklet-Split/Merge (GTA-Baseline-Messung), vendoriert unter `vendor/gta-link`, gepinnt auf Commit `e4d5cc4065ceb1ec3fa9dc7478455f13a8d7f9ca` | GitHub |
+| `deep-person-reid` (OSNet) | kein separater Klon, in `vendor/gta-link/reid/` enthalten | MIT | Erscheinungs-Encoder-Code für die GTA-Baseline-Messung, gepinnt über denselben `gta-link`-Commit `e4d5cc4065ceb1ec3fa9dc7478455f13a8d7f9ca` | GitHub |
+| OSNet-Checkpoint `osnet_x1_0_market1501.pth` | Market-1501, generisch (nicht sportspezifisch feingetunt) | MIT (Modellcode; Trainingsdaten separat lizenziert) | GTA-Erscheinungs-Backbone, SHA-256 `2809d3227f7d078f6045f7feb874a34d0684f0e0057b264b99adccf7d4519154` | GitHub (Google-Drive-Link aus der MIT-lizenzierten `deep-person-reid`-Quelle) |
 
 ## Modell- und Datenartefakte
 

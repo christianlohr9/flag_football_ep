@@ -14,7 +14,7 @@ Wer ist wer nach der Verdeckung? Re-Identification für automatisches Spielerinn
 
 Die deutsche Flag-Football-Frauennationalmannschaft bereitet sich auf die Olympischen Spiele 2028 vor. Ein ehrenamtliches Analytics-Projekt hat eine Pipeline gebaut, die aus Drohnenaufnahmen automatisch die Positionen aller Spielerinnen auf dem Feld berechnet: nachtrainierter Detektor, Tracker, Team-Zuordnung, Homographie in Feldkoordinaten, Radar-Ansicht. Positionsgenauigkeit (~15 cm) und Laufzeit (ein Spiel in unter einer Stunde) erfüllen die Zielkriterien.
 
-Ein Kriterium scheitert: die Identitäts-Kontinuität. Sobald sich zwei Spielerinnen im Bild überschneiden – Kreuzungsrouten, Coverage, Flag-Pull, im Flag Football ständig – verliert der Tracker die Zuordnung und vergibt neue Nummern oder vertauscht sie. Von 61 Spielzügen eines Pilotspiels bestehen im besten Fall 77 % das Kriterium „mindestens 90 % des Spielzugs ohne Identitätswechsel"; Ziel sind 90 %. Ohne stabile Identitäten sind alle darauf aufbauenden Coaching-Kennzahlen (Routentiefen, Separation, Spacing) wertlos.
+Ein Kriterium scheitert: die Identitäts-Kontinuität. Sobald sich zwei Spielerinnen im Bild überschneiden – Kreuzungsrouten, Coverage, Flag-Pull, im Flag Football ständig – verliert der Tracker die Zuordnung und vergibt neue Nummern oder vertauscht sie. Von 61 Spielzügen eines Pilotspiels bestehen 15 von 61 (24,59 %) das Kriterium „mindestens 90 % des Spielzugs ohne Identitätswechsel" – gemessen über alle 61 Clips, nicht hochgerechnet; Ziel sind 90 %. Ohne stabile Identitäten sind alle darauf aufbauenden Coaching-Kennzahlen (Routentiefen, Separation, Spacing) wertlos.
 
 Das Problem ist offen: Alle Spielerinnen eines Teams tragen dasselbe Trikot, ein Körper ist im Drohnenbild nur etwa 30 Pixel hoch, Rückennummern sind nicht lesbar, und es gibt keine Identitäts-Labels – nur die Tracklets des Trackers und die Spielregeln (5 gegen 5, Team bekannt, niemand erscheint mitten im Feld). Eine Recherche über SoccerNet, die NFL-Wettbewerbe und kommerzielle Anbieter zeigt: Bestehende Systeme lösen Identität über Rückennummern, Sensordaten oder Menschen im Loop – nichts davon ist hier verfügbar.
 
@@ -22,7 +22,7 @@ Gesucht ist ein Verfahren, das nach einer Verdeckung dieselbe Spielerin wieder d
 
 ## Ziel
 
-Kernziel: ein Tracking-Verfahren (Modell, Nachverarbeitung oder beides), das auf dem Drohnen-Benchmark den Anteil der Spielzüge ohne Identitätswechsel gegenüber der Baseline (BoT-SORT, 77 %) messbar erhöht – Zielmarke 90 %. Ergebnis: lauffähiger Prototyp, der die bereitgestellten Detektionen einliest und Tracks im vorgegebenen Schema ausgibt, plus Kurzbericht mit der Messung auf Dev- und Test-Set.
+Kernziel: ein Tracking-Verfahren (Modell, Nachverarbeitung oder beides), das auf dem Drohnen-Benchmark den Anteil der Spielzüge ohne Identitätswechsel gegenüber der Baseline (BoT-SORT, 15/61 = 24,59 % gemessen) messbar erhöht – Zielmarke 90 %. Ergebnis: lauffähiger Prototyp, der die bereitgestellten Detektionen einliest und Tracks im vorgegebenen Schema ausgibt, plus Kurzbericht mit der Messung auf Dev- und Test-Set.
 
 Transfer-Wertung: dieselbe Methode auf Seitenlinien- (GoPro) und TV-Ausschnitte angewendet – wie viel der Verbesserung überlebt den Kamerawechsel? Offizielle Spiele sind nur über TV/Seitenlinie zugänglich (Drohnen sind dort verboten); diese Frage entscheidet über den Praxisnutzen.
 
