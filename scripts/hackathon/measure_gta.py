@@ -657,7 +657,16 @@ def main(argv: list[str] | None = None) -> int:
         f"median Crops/Track={median_crops_per_track:.1f} bei max_crops_per_track=12 "
         "(gesampelte Crop-Menge, nicht jeder Frame eingebettet -- Referenzimplementierung embettet jeden Frame). "
         f"Split-Operationen={total_split_ops}, Merge-Operationen={total_merge_ops}, "
-        f"unveraenderte Partition in {n_unchanged_clips}/{len(clip_numbers)} Clips."
+        f"unveraenderte Partition in {n_unchanged_clips}/{len(clip_numbers)} Clips. "
+        "WICHTIGER VORBEHALT: die automatische Kontinuitaets-Rate ist NICHT durch eine "
+        "menschliche Review bestaetigt (human_pass_k/n bewusst leer) und misst nur "
+        "Track-Laenge, nicht Identitaetskorrektheit; sie ist bekanntermassen saettigend "
+        "(vgl. botsort-existing in derselben Tabelle: auto=93.44% vs. human=24.59%). Bei "
+        "median nur 12 Crops/Track und einem generischen (nicht sportspezifischen) "
+        "Embedding koennten einige der vielen Merge-Operationen Tracks verschiedener "
+        "Spieler faelschlich zusammengefuehrt haben, was die automatische Rate erhoeht, "
+        "ohne dass dies verifiziert waere -- ein hoher Auto-Wert ist hier kein Beleg fuer "
+        "eine tatsaechliche Verbesserung gegenueber der 15/61-Referenz."
     )
 
     summary_row = {
