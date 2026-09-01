@@ -144,7 +144,36 @@ Kurznotizen — niemals Spielerinnen-Namen.
 
 ---
 
-## Ergebnis
+## Ergebnis 2026-09-01
 
-_Wird von Plan 02.2-03 Task 3 nach Abschluss der Labelling-Session ergänzt (Pass-Rate `k/61`,
-per-Verdikt-Zählung, dominante Fehlermodi)._
+**Pass-Rate: 15/61 = 24,59 %** (`summarise_review(data/reference/continuity_review.csv)`:
+`n_clips=61, n_reviewed=61, n_pass=15, n_fail=46, pass_rate=0.2459`).
+
+Das Gate-Dokument (`docs/pilot-gate-decision.md`, §Gate-Kriterien und Messung) nannte 77 % als
+**obere Schranke** über die ersten 20 bewerteten Clips (6 pass, 47/61 als optimistische
+Hochrechnung bei angenommen durchweg passendem Rest). Diese obere Schranke ist jetzt durch eine
+**gemessene Rate über alle 61 Clips ersetzt**: 24,59 % statt der vormals genannten 77 %-Schranke
+— der ungünstigere, aber ehrliche Wert. Die Hackathon-Baseline zitiert **15/61 (24,59 %)**, nicht
+die alte obere Schranke.
+
+**Verdikt-Verteilung:** 15 `pass`, 46 `fail` (von 61 Clips, 0 unbewertet).
+
+**Dominante Fehlermodi (aus `reviewer_note`, 46 `fail`-Zeilen):**
+
+1. **ID-Switch bei Spieler-Überlagerung** — 39/46 Fails (~85 %), z. B. `"Switch bei
+   Ueberlagerung"` (Clips 9, 15, 18–30, 32–35, 37–42, 45, 48–50, 53–55, 57, 58) und
+   `"blau8 und rot5 switchen nach kurzer Ueberlagerung"` (Clip 5). Der weit überwiegende
+   Fehlermodus: der Tracker verliert die Zuordnung, wenn sich zwei Spielerinnen kreuzen oder
+   kurz überlappen.
+2. **Falsche Team-Zuordnung** — 6/46 Fails (~13 %, meist kombiniert mit einem Überlagerungs-
+   Switch), z. B. `"Falsche Teamzugehoerigkeit + Switch bei Ueberlagerung"` (Clips 12, 17, 22,
+   31, 39) und `"Falsche Teamzugehoerigkeit"` (Clip 16). Die Torso-Crop-Team-Zuordnung schlägt
+   gelegentlich unabhängig vom ID-Switch fehl.
+
+Vereinzelte Sonderfälle ohne wiederkehrendes Muster: Kamera-Schnitt-Artefakt (Clip 14), QB-Track
+springt auf gegnerischen Spieler über (Clip 10), Verlust ohne erkennbare Überlagerung (Clip 56),
+sowie ein komplexer Mehrfach-Switch mit Team-Verwechslung (Clip 3).
+
+**Flag-Pull-Ereignisse (B, bonus, 61/61 gelabelt):** 24 `pull`, 23 `incomplete`, 8 `touchdown`,
+4 `completion`, 1 `interception` (Clip 7), 1 `unknown` (Clip 21). Alle 24 `pull`-Zeilen tragen
+`pull_time_s` und `carrier_track_id`; Clip 33 hat zwei `puller_track_id`-Werte (`13/8`).
