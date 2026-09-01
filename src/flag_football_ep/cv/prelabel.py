@@ -189,9 +189,63 @@ def _load_finetuned_backend(
     a fine-tuned checkpoint available (RESEARCH Pitfall 1) and must never silently
     fall back to zero-shot Grounding DINO.
 
-    Implemented by plan 02.2-09.
+    `run_id` resolution mirrors `detect.load_detector`'s own default exactly (an
+    explicit `run_id` wins; `None` resolves the rolling `champion` alias) --
+    deliberately, and unlike `cv.bundle`'s deliverable path, which must instead
+    resolve through the *frozen pin* (`cv.freeze.read_freeze_pin`): the AL loop
+    always wants the newest fine-tuned detector to prelabel with (a stale detector
+    would waste labeling budget correcting mistakes an already-better checkpoint no
+    longer makes), while a shipped bundle must reproduce the exact frozen model a
+    hackathon participant is evaluated against. Raises `PrelabelBackendUnavailable`
+    (not a bare `WeightsNotFound`) naming the resolution failure when no checkpoint
+    can be loaded (e.g. no `champion` alias set yet) -- every other
+    `PrelabelBackendUnavailable` raise path in this module already names its failure
+    the same way, so a caller never has to distinguish "no zero-shot backend
+    importable" from "no fine-tuned checkpoint available" by exception type alone.
+
+    The returned closure reuses `detect.py`'s own confidence-filtered, class-
+    validated single-frame inference path (`detect._detect_full_frame` +
+    `detect._to_detection_batch`) rather than duplicating either: every detection
+    this backend returns has already passed `detect._MODEL_CONFIDENCE_THRESHOLD` and
+    already carries a `class_id` verified to index `dataset.CLASS_NAMES`, so mapping
+    it into this module's `Detection` needs no translation table of its own.
     """
-    raise NotImplementedError("implemented by plan 02.2-09")
+    from flag_football_ep.cv import detect
+    from flag_football_ep.cv.dataset import CLASS_NAMES
+
+    try:
+        model = detect.load_detector(config, run_id)
+    except detect.WeightsNotFound as exc:
+        raise PrelabelBackendUnavailable(
+            f"finetuned pre-labeling backend unavailable -- could not resolve a "
+            f"fine-tuned detector checkpoint (run_id={run_id!r}): {exc}"
+        ) from exc
+
+    def detect_fn(image_path: Path) -> list[Detection]:
+        import numpy as np
+        from PIL import Image
+
+        with Image.open(image_path) as im:
+            image_rgb = np.array(im.convert("RGB"))
+
+        sv_detections = detect._detect_full_frame(
+            model, image_rgb, resolution=config.cv.resolution
+        )
+        batch = detect._to_detection_batch(0, sv_detections)
+
+        detections: list[Detection] = []
+        for xyxy, confidence, class_id in zip(batch.xyxy, batch.confidence, batch.class_id):
+            x0, y0, x1, y1 = (float(v) for v in xyxy)
+            detections.append(
+                Detection(
+                    category=CLASS_NAMES[int(class_id)],
+                    score=float(confidence),
+                    bbox_xyxy=(x0, y0, x1, y1),
+                )
+            )
+        return detections
+
+    return detect_fn
 
 
 # Explicit backend selection (this plan's `<action>` block): a name -> loader mapping
