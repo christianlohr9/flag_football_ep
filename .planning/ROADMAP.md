@@ -344,8 +344,8 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 02.2-10-PLAN.md — Bundle builder, shared scoring script, dev-set bundle (German docs)
-- [ ] 02.2-11-PLAN.md — AL iteration 1: selection and prelabelled CVAT push
+- [x] 02.2-10-PLAN.md — Bundle builder, shared scoring script, dev-set bundle (German docs) (completed 2026-09-01)
+- [x] 02.2-11-PLAN.md — AL iteration 1: selection and prelabelled CVAT push (completed 2026-09-01)
 
 **Wave 6** *(blocked on Wave 5)*
 
