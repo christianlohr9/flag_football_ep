@@ -5,7 +5,10 @@ Maschinenlesbare Gegenstücke: `data/reference/sighting_2026-08-14_WC-GER-vs-MEX
 beide erzeugt mit `ffep cv sight --domain <sideline|broadcast> --session <session_id>`.
 
 **Status: automatisiert erzeugt am 2026-09-01 (`uv run --extra cv ffep cv sight`,
-Korrelationsschwelle 0.05) — Nutzer-Freigabe (D-11) ausstehend, siehe Ratifizierungs-Block.**
+Korrelationsschwelle 0.05) — am 2026-09-01 durch Nutzer-Freigabe (D-11) ratifiziert, siehe
+Ratifizierungs-Block. Geometrie-Korrektur ebenfalls am 2026-09-01 eingearbeitet (siehe unten):
+die `sideline`-Domäne (GoPro) ist keine Seitenansicht, sondern eine Hinterfeld-/Endzone-Ansicht;
+die `broadcast`-Domäne (TV) ist die tatsächliche Seitenansicht.**
 
 ## Zweck & Abgrenzung
 
@@ -23,17 +26,35 @@ liefert die Messgrundlage; die verbindliche D-11-Entscheidung, ob die Seitenkame
 nutzbar ist, folgt am Ende dieses Dokuments als Ratifizierungs-Block, sobald der Nutzer geurteilt
 hat.
 
+**Geometrie-Korrektur (2026-09-01):** Die Domänen-Bezeichnung `sideline` (GoPro) ist irreführend
+benannt und wurde erst bei der menschlichen Sichtung im Rahmen der D-11-Prüfung als solche
+erkannt. Die GoPro-Session ist **keine** Seitenansicht — sie filmt von hinter dem Spielfeld, aus
+einer Hinterfeld-/Endzone-Position (die Kamera steht hinter einer Endzone und blickt das Feld
+entlang). Die TV-Broadcast-Session ist dagegen geometrisch die tatsächliche Seitenansicht — eine
+erhöhte Kamera seitlich des Spielfelds. Damit entspricht `docs/capture-protocol.md`s "Domäne 2
+(erhöhte Seitenkamera)" geometrisch der **TV**-Session, nicht der GoPro-Session, obwohl der
+Inventar-Domänenwert der GoPro-Session `sideline` heißt. Der `domain`-Spaltenwert in
+`data/reference/video_inventory.csv` und der `--domain`-CLI-Parameter bleiben bei `sideline` für
+die GoPro-Session unverändert — nachgelagerter Code (Sichtungs-Pipeline, Mix-Rechnung Plan
+02.2-06) verwendet diesen Wert als Schlüssel, eine Umbenennung wäre eine Breaking Change ohne
+funktionalen Nutzen. Die Korrektur lebt ausschließlich hier in der Dokumentation und in den
+`notes`-Spalten der betroffenen Inventar-Zeilen (Suffix "Perspektive: Hinterfeld-/Endzone-Ansicht
+von hinten, nicht Seitenansicht"). Wo unten von "Seitenkamera (GoPro)" die Rede ist, ist damit die
+Hinterfeld-/Endzone-Ansicht der GoPro-Session gemeint, nicht die Domäne-2-Geometrie aus
+`docs/capture-protocol.md`.
+
 Wichtiger Unterschied zwischen den beiden Domänen, der die Einordnung unten prägt: die
-Seitenkamera-Session zeigt das eigene Team (GER vs. MEX) aus einer erhöhten Seitenposition —
-das ist exakt `docs/capture-protocol.md`s Domäne 2. Die Broadcast-Session zeigt dagegen ein
-fremdes Spiel (USA vs. AUS), also weder das eigene Team noch einen Gegner aus dem eigenen
-Turnierplan — reines Fremdmaterial. `docs/capture-protocol.md` definiert für diese Domäne keine
-eigene Stufentabelle (nur Domäne 1 Drohne und Domäne 2 Seitenkamera); außerdem hält
-`.planning/PROJECT.md` explizit fest, dass CV auf Gegner-/Fremdmaterial kein Fundament dieser
-Phase ist (D-01: Gegneranalyse bleibt PBP-Charting) und dass Broadcast-Material als
-Stretch-Ziel auf Phase 2.5 verschoben ist (REQ-S2-06). Die Messung unten behandelt Broadcast
-trotzdem vollständig — die Sichtungs-Pipeline ist domänen-agnostisch — aber die Einordnung in
-`## Konsequenzen` benennt diesen Scope-Konflikt ausdrücklich, statt ihn zu verschweigen.
+Seitenkamera-Session (GoPro, tatsächlich Hinterfeld-/Endzone-Ansicht, siehe Geometrie-Korrektur
+oben) zeigt das eigene Team (GER vs. MEX). Die Broadcast-Session (TV, geometrisch die
+tatsächliche Seitenansicht) zeigt dagegen ein fremdes Spiel (USA vs. AUS), also weder das eigene
+Team noch einen Gegner aus dem eigenen Turnierplan — reines Fremdmaterial. `docs/capture-protocol.md`
+definiert für diese Domäne keine eigene Stufentabelle (nur Domäne 1 Drohne und Domäne 2
+Seitenkamera); außerdem hält `.planning/PROJECT.md` explizit fest, dass CV auf Gegner-/
+Fremdmaterial kein Fundament dieser Phase ist (D-01: Gegneranalyse bleibt PBP-Charting) und dass
+Broadcast-Material als Stretch-Ziel auf Phase 2.5 verschoben ist (REQ-S2-06). Die Messung unten
+behandelt Broadcast trotzdem vollständig — die Sichtungs-Pipeline ist domänen-agnostisch — aber
+die Einordnung in `## Konsequenzen` benennt diesen Scope-Konflikt ausdrücklich, statt ihn zu
+verschweigen.
 
 ## Kamera-Positionen
 
@@ -41,13 +62,21 @@ trotzdem vollständig — die Sichtungs-Pipeline ist domänen-agnostisch — abe
 normalisierte Kreuzkorrelation eines Framing-Fingerprints (8 über den Clip verteilte Frames,
 grayscale, stark geglättet, auf 64x36 herunterskaliert, gemittelt), Schwelle 0.05.
 
-### Seitenkamera (GoPro, `2026-08-14_WC-GER-vs-MEX-GOPRO`)
+### Seitenkamera (GoPro, `2026-08-14_WC-GER-vs-MEX-GOPRO`, Domänenwert `sideline`)
+
+**Perspektive: Hinterfeld-/Endzone-Ansicht von hinten, nicht Seitenansicht** (siehe
+Geometrie-Korrektur oben) — der Domänenwert `sideline` ist eine irreführende Bezeichnung, die aus
+Code-/Inventar-Kompatibilitätsgründen unverändert bleibt.
 
 **1 Kamera-Position** über alle 60 Clips (`hp-01`, Clip-Bereich 001–060, lückenlos). Das ist
 konsistent mit einer fest montierten Kamera, die über das gesamte Spiel nicht bewegt wurde —
 anders als die Piloten-Drohnensession (2 Positionen) oder die Broadcast-Session unten.
 
-### Broadcast (TV, `2026-08-14_WC-USA-vs-AUS-TV`)
+### Broadcast (TV, `2026-08-14_WC-USA-vs-AUS-TV`, Domänenwert `broadcast`)
+
+**Perspektive: Seitenansicht** — geometrisch die tatsächliche Entsprechung zu
+`docs/capture-protocol.md`s "Domäne 2 (erhöhte Seitenkamera)", trotz des Domänenwerts
+`broadcast` (siehe Geometrie-Korrektur oben).
 
 **2 Kamera-Positionen**, verschachtelt über die Session (kein sauberer Block "erste Hälfte
 Position A, zweite Hälfte Position B"):
@@ -153,3 +182,34 @@ Praktikabilitäts-Hinweis, aber nicht der Hauptgrund für diesen Vorschlag.
 
 Diese Einschätzung ist ein Vorschlag aus der Messung, keine Entscheidung — die verbindliche
 Entscheidung (D-11) folgt unten im Ratifizierungs-Block, sobald der Nutzer geurteilt hat.
+
+## Ratifizierungs-Block
+
+> Ratifiziert am 2026-09-01 durch den Nutzer (D-11, Checkpoint Plan 02.2-02 Task 3). Verbatim-Verdikt:
+>
+> "Grundsätzlich 'mehr ist immer besser' — beide Domänen nehmen. Leidet darunter die Qualität der
+> Modelle, dann nur GoPro. Sollten wir uns damit schlechter stellen, bitte nur GoPro. Sonst
+> beides."
+>
+> **Operationalisierung (mit dem Nutzer abgestimmt):** Beide Domänen — GoPro-Hinterfeld
+> (Domänenwert `sideline`) und TV-Seitenansicht (Domänenwert `broadcast`) — werden als
+> Trainingsdomänen zugelassen. Die Bedingung des Nutzers wird messbar gemacht durch eine
+> Ablationsstudie in den Trainingsläufen: Pro-Domäne-mAP mit vs. ohne den TV-Anteil, gemessen auf
+> den eingefrorenen Pro-Domäne-Eval-Splits (D-04/D-13). Verschlechtert die Aufnahme von TV die
+> Pro-Domäne-mAP von Drohne oder GoPro messbar, fällt TV zurück auf Transfer-Material-Status ("nur
+> GoPro") — exakt der Nutzer-Fallback. Der Worst Case ist damit identisch zum reinen
+> GoPro-Ergebnis, nur mit Evidenz statt Annahme belegt. Nachgelagerte Pläne (Plan 02.2-06
+> Mix/Split, Plan 02.2-09 Active Learning, Plan 02.2-15/02.2-18 Training) konsumieren dieses
+> Ergebnis über diesen Ratifizierungs-Block als bindenden Input.
+>
+> **Scope-Hinweis:** Die Zulassung von TV als Trainingsdomäne betrifft ausschließlich die
+> **Objekt-Detektion** (Domänen-Mix D-10, siehe `## Konsequenzen` oben zu D-01/REQ-S2-06). Der
+> Nutzer lässt TV bewusst als Detektions-Trainingsdomäne unter der oben genannten Ablations-
+> Bedingung zu; Tracking auf bewegten TV-Kameras bleibt unverändert Phase 2.5 (REQ-S2-06,
+> zurückgestellt) — diese Ratifizierung ändert daran nichts.
+>
+> **Geometrie-Korrektur zur Kenntnis genommen:** Die GoPro-Session (`sideline`) ist eine
+> Hinterfeld-/Endzone-Ansicht, keine Seitenansicht; die TV-Session (`broadcast`) ist die
+> tatsächliche Seitenansicht und entspricht geometrisch `docs/capture-protocol.md`s Domäne 2. Die
+> Domänenwerte in Code und Inventar bleiben unverändert (`sideline`/`broadcast`), die Korrektur ist
+> rein dokumentarisch.
