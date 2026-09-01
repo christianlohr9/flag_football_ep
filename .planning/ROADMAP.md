@@ -421,6 +421,9 @@ teams), hackathon 23.–27.11.2026. M2 phases interleave with remaining 2.2 wave
 where `files_modified` do not collide; 2.2 waves 7–11 keep priority on shared files.
 
 - [ ] **Phase M2-1: Freigabe und Lizenzlage** - Signed federation release naming dev/test/transfer material + deletion commitment; per-component license inventory (chain is already AGPL-free per D-02 — inventory documents it) (Requirements: RECHT-01..04; user-side signature work)
+  - **Plans:** 2 plans (both wave 1, no file overlap)
+  - [ ] `M2-01-01-PLAN.md` — signable German release one-pager (Dev-/Test-/Transfer-Set named individually, deletion path + deadline 2026-12-11 + confirmer), wired into `docs/capture-legal.md` and the challenge description via one signature-date marker; ends in the user-side signature checkpoint (RECHT-01/02/03)
+  - [ ] `M2-01-02-PLAN.md` — `docs/lizenz-inventur.md`: verified per-component license table for everything delivered via bundles, scripts and the `ffep` package, plus a coverage test against `pyproject.toml` (RECHT-04)
 - [ ] **Phase M2-2: Ehrliche Baseline** - Measure BoT-SORT, ByteTrack, Deep-EIoU, Global Tracklet Association on the 61-clip benchmark; reference value is the REAL baseline 15/61 = 24.6% (not 77%); adjust the 90% target if a ready-made method beats it clearly (Requirements: BASE-01..04; license-gate every candidate per D-02 before install)
 - [ ] **Phase M2-3: Labels und Prüfsatz** - Sight the multi-TB raw material, register + select ≥3 games (40+ plays, differing conditions), identity labels per player via track correction (CVAT candidate), dev/test split by GAME — supersedes the same-game clip-split test set when achieved (Requirements: DATA-01..05; conflict #1 in ABGLEICH.md)
 - [ ] **Phase M2-4: Messvorschrift** - Continuous metric alongside the threshold in `scripts/hackathon/score_tracks.py`, one run outputs both split by dev/test; comparison run showing a difference the threshold metric swallows (Requirements: METR-01..04)
@@ -447,7 +450,7 @@ where `files_modified` do not collide; 2.2 waves 7–11 keep priority on shared 
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
 | 2.4 Player Identity | 0/TBD | Not started (gated) | - |
 | 2.5 Broadcast Footage | 0/TBD | Deferred (stretch) | - |
-| M2-1 Freigabe und Lizenzlage | 0/2 | Not started | - |
+| M2-1 Freigabe und Lizenzlage | 0/2 | Planned | - |
 | M2-2 Ehrliche Baseline | 0/2 | Not started | - |
 | M2-3 Labels und Prüfsatz | 0/3 | Not started | - |
 | M2-4 Messvorschrift | 0/2 | Not started | - |
