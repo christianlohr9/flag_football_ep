@@ -33,6 +33,7 @@ Implemented by plan 02.2-21.
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -362,3 +363,298 @@ def read_al_excluded_sessions(path: Path) -> dict[str, str]:
 
     df = pl.read_csv(path, schema_overrides=_AL_EXCLUSION_SCHEMA)
     return {row["session_id"]: row["reason"] for row in df.iter_rows(named=True)}
+
+
+# --- Private test-set ground-truth vault tooling (Task 2) ---------------------------
+#
+# `write_continuity_skeleton`/`write_flag_pull_skeleton` pre-fill the two ground-truth
+# tables' automatic columns from a session's own tracks -- exactly the shape the
+# labelling session in `docs/hackathon-benchmark-labels.md` fills in by hand.
+# `validate_test_labels` then gates the filled-in vault against the same
+# vocabulary/dialect/completeness rules `tests/test_cv_benchmark_labels.py` already
+# enforces for the public pilot-session tables (verdict vocabulary, outcome
+# vocabulary, the pull-outcome/pull_time_s pairing, the puller_track_id
+# single-int-or-slash pattern, comma/LF dialect), plus a clip-set match against the
+# private test game's own registered clips.
+
+_FLAG_PULL_SKELETON_COLUMNS: tuple[str, ...] = (
+    "clip_number",
+    "outcome",
+    "pull_time_s",
+    "carrier_track_id",
+    "puller_track_id",
+    "notes",
+)
+
+# Mirrors `cv.bundle`'s own private `_CONTINUITY_REVIEW_SCHEMA`/`_FLAG_PULL_EVENTS_SCHEMA`
+# (in turn mirroring `tests/test_cv_benchmark_labels.py`'s authoritative dtypes) --
+# kept as separate constants here rather than importing another module's private
+# attributes across module boundaries (the established precedent throughout `cv.*`).
+_VAULT_CONTINUITY_SCHEMA: dict[str, pl.DataType] = {
+    "clip_number": pl.Int32,
+    "n_tracks": pl.Int32,
+    "longest_track_frac": pl.Float64,
+    "n_fragments": pl.Int32,
+    "auto_flag": pl.Utf8,
+    "verdict": pl.Utf8,
+    "id_switches": pl.Int32,
+    "reviewer_note": pl.Utf8,
+}
+
+_VAULT_FLAG_PULL_SCHEMA: dict[str, pl.DataType] = {
+    "clip_number": pl.Int32,
+    "outcome": pl.Utf8,
+    "pull_time_s": pl.Float64,
+    "carrier_track_id": pl.Int32,
+    # Utf8, not Int32: a pull can involve more than one puller ("13/8") -- see
+    # `docs/hackathon-benchmark-labels.md`'s multi-puller convention.
+    "puller_track_id": pl.Utf8,
+    "notes": pl.Utf8,
+}
+
+_VALID_TEST_VERDICTS = frozenset({"pass", "fail"})
+_TEST_OUTCOME_VOCABULARY = frozenset(
+    {
+        "pull",
+        "incomplete",
+        "out_of_bounds",
+        "touchdown",
+        "other",
+        "completion",
+        "interception",
+        "unknown",
+    }
+)
+_PULLER_TRACK_ID_PATTERN = re.compile(r"^\d+(/\d+)*$")
+
+
+def _atomic_write_bytes(path: Path, data: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    try:
+        tmp_path.write_bytes(data)
+        os.replace(tmp_path, path)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def write_continuity_skeleton(
+    config: Config, session_id: str, tracks: pl.DataFrame, out_path: Path
+) -> Path:
+    """Pre-fill `out_path` with one `REVIEW_COLUMNS` row per clip registered for
+    `session_id` -- auto columns (`n_tracks`, `longest_track_frac`, `n_fragments`,
+    `auto_flag`) computed from `tracks` exactly like `continuity.measure_continuity`
+    (composing its private per-clip fragment logic directly, `continuity._measure_clip`/
+    `_read_expected_frame_counts`, rather than reimplementing it or widening the
+    frozen `measure_continuity` signature, which is session-locked to
+    `config.cv.pilot_session_id` and exact-matched by `tests/test_cv_contracts.py`).
+    Human columns (`verdict`/`id_switches`/`reviewer_note`) start empty, and any
+    already-filled values from a prior run at `out_path` survive a re-run unchanged
+    (`continuity._write_review_csv`'s own preservation logic, T-2.1-35 precedent) --
+    the labelling session can be interrupted and resumed without losing work.
+    """
+    from flag_football_ep.cv import frames as frames_module
+    from flag_football_ep.cv.continuity import _measure_clip, _read_expected_frame_counts, _write_review_csv
+
+    session_clip_numbers = sorted(
+        frames_module.clip_number(path) for path in frames_module.clip_paths(config, session_id)
+    )
+    expected_counts = _read_expected_frame_counts(config, session_id, set(session_clip_numbers))
+
+    rows = []
+    for clip_num in session_clip_numbers:
+        clip_tracks = tracks.filter(pl.col("clip_number") == clip_num)
+        expected = expected_counts.get(clip_num)
+        rows.append(_measure_clip(clip_num, clip_tracks, expected_frame_count=expected))
+
+    return _write_review_csv(rows, Path(out_path))
+
+
+def _load_existing_flag_pull_columns(path: Path) -> dict[int, dict]:
+    """Mirrors `continuity._load_existing_human_columns`'s re-run-preservation
+    pattern for the flag-pull skeleton: reading `out_path`'s already-filled rows
+    before regenerating it means a `write_flag_pull_skeleton` re-run never wipes
+    labelling work already in progress.
+    """
+    if not path.exists():
+        return {}
+
+    df = pl.read_csv(path, schema_overrides=_VAULT_FLAG_PULL_SCHEMA)
+    if df.height == 0:
+        return {}
+
+    preserved: dict[int, dict] = {}
+    for row in df.iter_rows(named=True):
+        preserved[int(row["clip_number"])] = {
+            "outcome": row["outcome"],
+            "pull_time_s": row["pull_time_s"],
+            "carrier_track_id": row["carrier_track_id"],
+            "puller_track_id": row["puller_track_id"],
+            "notes": row["notes"],
+        }
+    return preserved
+
+
+def write_flag_pull_skeleton(config: Config, session_id: str, out_path: Path) -> Path:
+    """Pre-fill `out_path` with the exact public flag-pull header
+    (`clip_number,outcome,pull_time_s,carrier_track_id,puller_track_id,notes`), one
+    row per clip registered for `session_id`, human columns empty. Already-filled
+    rows from a prior run survive a re-run unchanged (see
+    `_load_existing_flag_pull_columns`) -- symmetric with `write_continuity_skeleton`'s
+    own re-run safety.
+    """
+    from flag_football_ep.cv import frames as frames_module
+
+    clip_numbers = sorted(
+        frames_module.clip_number(path) for path in frames_module.clip_paths(config, session_id)
+    )
+    out_path = Path(out_path)
+    existing = _load_existing_flag_pull_columns(out_path)
+
+    columns: dict[str, list] = {name: [] for name in _FLAG_PULL_SKELETON_COLUMNS}
+    for n in clip_numbers:
+        human = existing.get(
+            n,
+            {
+                "outcome": None,
+                "pull_time_s": None,
+                "carrier_track_id": None,
+                "puller_track_id": None,
+                "notes": None,
+            },
+        )
+        columns["clip_number"].append(n)
+        columns["outcome"].append(human["outcome"])
+        columns["pull_time_s"].append(human["pull_time_s"])
+        columns["carrier_track_id"].append(human["carrier_track_id"])
+        columns["puller_track_id"].append(human["puller_track_id"])
+        columns["notes"].append(human["notes"])
+
+    df = pl.DataFrame(columns, schema=_VAULT_FLAG_PULL_SCHEMA)
+    _atomic_write_bytes(out_path, df.write_csv().encode("utf-8"))
+    return out_path
+
+
+def _assert_comma_dialect(path: Path) -> None:
+    raw = path.read_text(encoding="utf-8")
+    if ";" in raw:
+        raise TestsetError(
+            f"{path} contains ';' -- must be comma/LF dialect, not the Hudl-export dialect"
+        )
+
+
+def validate_test_labels(
+    continuity_csv: Path, flag_pull_csv: Path, expected_clips: list[int]
+) -> dict:
+    """Validate the private test game's filled-in ground-truth vault: both files
+    exist, use the comma/LF dialect, cover exactly `expected_clips` (no missing clip,
+    no extra clip, no wrong-game clip number), every `verdict` is a non-empty
+    `pass`/`fail`, every `outcome` is a non-empty value from the documented
+    vocabulary, every `outcome == "pull"` row carries `pull_time_s`, and every
+    `puller_track_id` is a single int or `/`-separated ints. Raises `TestsetError`
+    naming the offending clips on any gate failure. Returns a summary dict
+    (`n_clips`, `n_pass`, `n_fail`, `pass_rate`, `n_outcomes`) so a caller (the
+    `--validate` CLI path, a plan's SUMMARY) can quote the measured baseline.
+    """
+    continuity_csv = Path(continuity_csv)
+    flag_pull_csv = Path(flag_pull_csv)
+    expected_set = set(expected_clips)
+
+    if not continuity_csv.exists():
+        raise TestsetError(f"continuity review CSV not found: {continuity_csv}")
+    if not flag_pull_csv.exists():
+        raise TestsetError(f"flag-pull events CSV not found: {flag_pull_csv}")
+
+    _assert_comma_dialect(continuity_csv)
+    _assert_comma_dialect(flag_pull_csv)
+
+    continuity_df = pl.read_csv(continuity_csv, schema_overrides=_VAULT_CONTINUITY_SCHEMA)
+    flag_pull_df = pl.read_csv(flag_pull_csv, schema_overrides=_VAULT_FLAG_PULL_SCHEMA)
+
+    continuity_clips = set(continuity_df["clip_number"].to_list())
+    if continuity_clips != expected_set:
+        raise TestsetError(
+            f"{continuity_csv} clip set does not match the expected {len(expected_set)} "
+            f"private-test clips: missing {sorted(expected_set - continuity_clips)}, "
+            f"unexpected {sorted(continuity_clips - expected_set)}"
+        )
+
+    flag_pull_clips = set(flag_pull_df["clip_number"].to_list())
+    if flag_pull_clips != expected_set:
+        raise TestsetError(
+            f"{flag_pull_csv} clip set does not match the expected {len(expected_set)} "
+            f"private-test clips: missing {sorted(expected_set - flag_pull_clips)}, "
+            f"unexpected {sorted(flag_pull_clips - expected_set)}"
+        )
+
+    missing_verdict = (
+        continuity_df.filter(pl.col("verdict").fill_null("").str.strip_chars() == "")[
+            "clip_number"
+        ]
+        .sort()
+        .to_list()
+    )
+    if missing_verdict:
+        raise TestsetError(f"{continuity_csv} missing verdict for clip(s): {missing_verdict}")
+
+    bad_verdict = continuity_df.filter(~pl.col("verdict").is_in(sorted(_VALID_TEST_VERDICTS)))
+    if bad_verdict.height:
+        bad_pairs = [
+            f"clip {row['clip_number']}: {row['verdict']!r}"
+            for row in bad_verdict.iter_rows(named=True)
+        ]
+        raise TestsetError(f"invalid verdict(s) in {continuity_csv}: {'; '.join(bad_pairs)}")
+
+    missing_outcome = (
+        flag_pull_df.filter(pl.col("outcome").fill_null("").str.strip_chars() == "")[
+            "clip_number"
+        ]
+        .sort()
+        .to_list()
+    )
+    if missing_outcome:
+        raise TestsetError(f"{flag_pull_csv} missing outcome for clip(s): {missing_outcome}")
+
+    bad_outcome = flag_pull_df.filter(~pl.col("outcome").is_in(sorted(_TEST_OUTCOME_VOCABULARY)))
+    if bad_outcome.height:
+        bad_pairs = [
+            f"clip {row['clip_number']}: {row['outcome']!r}"
+            for row in bad_outcome.iter_rows(named=True)
+        ]
+        raise TestsetError(f"invalid outcome(s) in {flag_pull_csv}: {'; '.join(bad_pairs)}")
+
+    missing_pull_time = (
+        flag_pull_df.filter((pl.col("outcome") == "pull") & pl.col("pull_time_s").is_null())[
+            "clip_number"
+        ]
+        .sort()
+        .to_list()
+    )
+    if missing_pull_time:
+        raise TestsetError(
+            f"{flag_pull_csv}: outcome == 'pull' without pull_time_s for clip(s): "
+            f"{missing_pull_time}"
+        )
+
+    puller_values = flag_pull_df["puller_track_id"].fill_null("").to_list()
+    bad_puller = [
+        v for v in puller_values if v.strip() and not _PULLER_TRACK_ID_PATTERN.match(v.strip())
+    ]
+    if bad_puller:
+        raise TestsetError(
+            f"{flag_pull_csv}: puller_track_id values not int or '/'-separated ints: {bad_puller}"
+        )
+
+    n_clips = continuity_df.height
+    n_pass = int((continuity_df["verdict"] == "pass").sum())
+    n_fail = int((continuity_df["verdict"] == "fail").sum())
+    pass_rate = (n_pass / n_clips) if n_clips else None
+
+    return {
+        "n_clips": n_clips,
+        "n_pass": n_pass,
+        "n_fail": n_fail,
+        "pass_rate": pass_rate,
+        "n_outcomes": flag_pull_df.height,
+    }

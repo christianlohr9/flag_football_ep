@@ -544,6 +544,9 @@ def export(
 def overlay(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
     tracks: Path = typer.Option(..., "--tracks", help="Input tracking Parquet"),
+    session: Optional[str] = typer.Option(
+        None, "--session", help="Session id (default: cfg.cv.pilot_session_id)"
+    ),
     clip: List[int] = typer.Option(
         [], "--clip", help="Clip number(s) to render (repeatable); default: all clips"
     ),
@@ -555,6 +558,7 @@ def overlay(
     from flag_football_ep.config import load_config
 
     cfg = load_config(config)
+    session_id = session or cfg.cv.pilot_session_id
 
     import polars as pl
 
@@ -562,15 +566,13 @@ def overlay(
     clip_numbers = clip or sorted(tracks_df["clip_number"].unique().to_list())
     # Overlays are rendered player footage (PII, T-2.1-01) -- they belong under the
     # gitignored label tree, never under `reports/` or `data/processed/`.
-    out_directory = out_dir or (cfg.paths.labels / cfg.cv.pilot_session_id / "overlays")
+    out_directory = out_dir or (cfg.paths.labels / session_id / "overlays")
 
     from flag_football_ep.cv.frames import clip_number as clip_number_of
     from flag_football_ep.cv.frames import clip_paths
     from flag_football_ep.cv.overlay import render_track_overlay
 
-    paths_by_number = {
-        clip_number_of(path): path for path in clip_paths(cfg, cfg.cv.pilot_session_id)
-    }
+    paths_by_number = {clip_number_of(path): path for path in clip_paths(cfg, session_id)}
     for number in clip_numbers:
         clip_path = paths_by_number[number]
         clip_tracks = tracks_df.filter(pl.col("clip_number") == number)
@@ -909,6 +911,62 @@ def hackathon_split(
         f"test={len(split.test_clips)} clips)"
     )
     typer.echo(f"al exclusion: {exclusions_csv} ({test_session})")
+
+
+@cv_app.command(name="test-labels")
+def test_labels(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    session: str = typer.Option(..., "--session", help="Private test-set session id"),
+    tracks: Optional[Path] = typer.Option(
+        None, "--tracks", help="Baseline tracking Parquet (required unless --validate)"
+    ),
+    vault: Optional[Path] = typer.Option(
+        None,
+        "--vault",
+        help="Override the vault directory (default: data/private/test-labels/<session>)",
+    ),
+    validate: bool = typer.Option(
+        False,
+        "--validate",
+        help="Validate the vault instead of writing skeletons",
+    ),
+) -> None:
+    """Write the private test-set ground-truth skeletons, or (with --validate) check
+    the user's filled-in vault against the same gates the public benchmark labels use."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    vault_dir = vault or (cfg.paths.data_root / "private" / "test-labels" / session)
+    continuity_path = vault_dir / "continuity_review.csv"
+    flag_pull_path = vault_dir / "flag_pull_events.csv"
+
+    from flag_football_ep.cv.frames import clip_number as clip_number_of
+    from flag_football_ep.cv.frames import clip_paths
+    from flag_football_ep.cv.testset import validate_test_labels
+
+    if validate:
+        expected_clips = sorted(clip_number_of(p) for p in clip_paths(cfg, session))
+        summary = validate_test_labels(continuity_path, flag_pull_path, expected_clips)
+        typer.echo(
+            f"test-labels valid: {summary['n_pass']}/{summary['n_clips']} verdicts pass "
+            f"({summary['n_clips']}/{summary['n_clips']} reviewed), "
+            f"{summary['n_outcomes']}/{summary['n_clips']} outcomes"
+        )
+        return
+
+    if tracks is None:
+        raise typer.BadParameter("--tracks is required unless --validate is set")
+
+    import polars as pl
+
+    from flag_football_ep.cv.testset import write_continuity_skeleton, write_flag_pull_skeleton
+
+    tracks_df = pl.read_parquet(tracks)
+    continuity_written = write_continuity_skeleton(cfg, session, tracks_df, continuity_path)
+    flag_pull_written = write_flag_pull_skeleton(cfg, session, flag_pull_path)
+
+    typer.echo(f"test-labels skeleton: {continuity_written}")
+    typer.echo(f"test-labels skeleton: {flag_pull_written}")
 
 
 @cv_app.command()

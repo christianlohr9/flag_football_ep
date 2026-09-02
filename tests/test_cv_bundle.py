@@ -1,14 +1,19 @@
 """Coverage for `cv.bundle.build_bundle`/`bundle_manifest`: content-hash determinism,
-the `role = pool` leak guard (D-07/T-2.2-29), the private-test-set content table and
-its label vault/column-level leak guard (T-2.2-28, plan 02.2-12), the transfer-set
-per-domain content table (D-11, plan 02.2-12), and manifest/README structure -- all
-against a synthetic tmp_path fixture that mirrors the real bundle-inputs layout
-`export.py`/`freeze.py` produce.
+the hackathon dev/private_test role split (DATA-04/T-2.2-29, plan 02.2-21), the
+private-test-set label-vault verification and its column-level leak guard (T-2.2-28,
+plans 02.2-10/02.2-12/02.2-21), the transfer-set per-domain content table (D-11, plan
+02.2-12), and manifest/README structure -- all against a synthetic tmp_path fixture
+that mirrors the real bundle-inputs layout `export.py`/`freeze.py` produce.
+
+Dev and the private test set are now two DIFFERENT sessions (DATA-04, plan 02.2-21) --
+`DEV_SESSION_ID`/`TEST_SESSION_ID` below deliberately reuse overlapping clip NUMBERS
+(1, 2, 3) the way the real pilot/Puerto-Rico sessions do, so a test proving the two
+archives never cross-contaminate is a real regression guard, not an accident of
+disjoint numbering.
 """
 
 from __future__ import annotations
 
-import csv
 import json
 from pathlib import Path
 
@@ -39,13 +44,18 @@ from flag_football_ep.cv.schema import (
     write_detections_parquet,
     write_tracking_parquet,
 )
+from flag_football_ep.cv.testset import write_hackathon_split
 
-SESSION_ID = "test-session"
+DEV_SESSION_ID = "test-dev-session"
+TEST_SESSION_ID = "test-private-session"
 RUN_ID = "abc123def456abc123def456abc123d"
 DATASET_HASH = "f" * 64
-POOL_CLIPS = (1, 2, 4)
-PRIVATE_TEST_CLIPS = (3,)
-ALL_CLIPS = tuple(sorted(POOL_CLIPS + PRIVATE_TEST_CLIPS))
+DEV_CLIPS = (1, 2, 3, 4)
+# Deliberately overlaps DEV_CLIPS' numbering (1, 2, 3) -- mirrors the real
+# pilot/Puerto-Rico clip-number collision (both drone sessions number their clips
+# 1..N independently). A bundle build must never cross-contaminate the two sessions
+# just because a clip NUMBER matches.
+PRIVATE_CLIPS = (1, 2, 3)
 
 
 # --- shared config helper (mirrors tests/test_cv_export.py::_make_config) -----------
@@ -99,7 +109,7 @@ def _make_config(tmp_path: Path) -> Config:
     )
     report = ReportSettings(own_team="HOME", cycle_start_season=2026)
     cv = CvSettings(
-        pilot_session_id=SESSION_ID,
+        pilot_session_id=DEV_SESSION_ID,
         detector_model="cv_detector_model_test",
         detector_experiment="cv_detector_test",
         resolution=224,
@@ -126,53 +136,153 @@ def _make_config(tmp_path: Path) -> Config:
     return Config(paths=paths, reference=reference, sources=sources, train=train, report=report, cv=cv)
 
 
-def _populate_fixture(tmp_path: Path) -> Config:
-    """Write every input `build_bundle` reads: video inventory + clip files, the
-    frozen eval-clip split, bundle-input detections/crops, baseline tracks, overlays,
-    and the three reference label/GT CSVs -- for `ALL_CLIPS`, split into
-    `POOL_CLIPS`/`PRIVATE_TEST_CLIPS` exactly like the real `frozen_eval_clips.csv`.
-    """
-    config = _make_config(tmp_path)
-
-    video_dir = tmp_path / "data" / "video" / SESSION_ID
-    video_dir.mkdir(parents=True)
-    inventory_rows = []
-    for n in ALL_CLIPS:
+def _write_session_clips_and_inventory(
+    config: Config, existing_rows: list[dict], session_id: str, clip_numbers: tuple[int, ...]
+) -> list[dict]:
+    video_dir = config.paths.video / session_id
+    video_dir.mkdir(parents=True, exist_ok=True)
+    rows = list(existing_rows)
+    for n in clip_numbers:
         clip_path = video_dir / f"Wide - Clip {n:03d}.mp4"
-        clip_path.write_bytes(f"fake-mp4-bytes-clip-{n}".encode("utf-8"))
-        inventory_rows.append(
+        clip_path.write_bytes(f"fake-mp4-bytes-{session_id}-{n}".encode("utf-8"))
+        rows.append(
             {
                 "domain": "drone",
-                "session_id": SESSION_ID,
+                "session_id": session_id,
                 "game_id": "",
                 "capture_date": "2026-05-16",
                 "resolution": "1920x1080",
                 "fps": 30.0,
                 "duration_seconds": 9.0,
-                "local_path": f"data/video/{SESSION_ID}/Wide - Clip {n:03d}.mp4",
+                "local_path": f"data/video/{session_id}/Wide - Clip {n:03d}.mp4",
                 "content_sha256": "0" * 64,
                 "notes": "",
             }
         )
+    return rows
+
+
+def _write_bundle_inputs_detections(config: Config, session_id: str, clip_numbers: tuple[int, ...]) -> None:
+    rows = [
+        {
+            "session_id": session_id,
+            "clip_number": n,
+            "frame_index": 0,
+            "timestamp_s": 0.0,
+            "det_index": 0,
+            "class_name": "player",
+            "confidence": 0.9,
+            "bbox_x1": 10.0,
+            "bbox_y1": 20.0,
+            "bbox_x2": 30.0,
+            "bbox_y2": 90.0,
+            "detector_run_id": RUN_ID,
+            "detected_at": "2026-09-01T00:00:00+00:00",
+        }
+        for n in clip_numbers
+    ]
+    bundle_inputs_dir = config.paths.labels / session_id / "bundle-inputs"
+    bundle_inputs_dir.mkdir(parents=True, exist_ok=True)
+    write_detections_parquet(
+        pl.DataFrame(rows).select(list(DETECTION_COLUMNS)),
+        bundle_inputs_dir / "detections.parquet",
+    )
+
+
+def _write_tracks(config: Config, session_id: str, clip_numbers: tuple[int, ...]) -> None:
+    tracks_df = pl.DataFrame(
+        [
+            {
+                "session_id": session_id,
+                "clip_number": n,
+                "frame_index": 0,
+                "timestamp_s": 0.0,
+                "track_id": 0,
+                "class_name": "player",
+                "confidence": 0.9,
+                "bbox_x1": 10.0,
+                "bbox_y1": 20.0,
+                "bbox_x2": 30.0,
+                "bbox_y2": 90.0,
+                "foot_x_px": 20.0,
+                "foot_y_px": 90.0,
+                "team_id": 0,
+                "hover_position_id": "hp-01",
+                "x_yards": 5.0,
+                "y_yards": 5.0,
+                "game_id": None,
+                "play_id": None,
+                "detector_run_id": RUN_ID,
+                "tracked_at": "2026-09-01T00:00:00+00:00",
+            }
+            for n in clip_numbers
+        ]
+    ).select(list(TRACKING_COLUMNS))
+    write_tracking_parquet(tracks_df, config.paths.tracking / f"{session_id}_tracks.parquet")
+
+
+def _write_overlays(config: Config, session_id: str, clip_numbers: tuple[int, ...]) -> None:
+    overlays_dir = config.paths.labels / session_id / "overlays"
+    overlays_dir.mkdir(parents=True, exist_ok=True)
+    for n in clip_numbers:
+        (overlays_dir / f"clip_{n:03d}.mp4").write_bytes(f"fake-overlay-{session_id}-{n}".encode("utf-8"))
+
+
+def _write_valid_vault(config: Config, session_id: str, clip_numbers: tuple[int, ...]) -> Path:
+    """A vault that satisfies `testset.validate_test_labels` for exactly `clip_numbers`."""
+    vault_dir = config.paths.data_root / "private" / "test-labels" / session_id
+    vault_dir.mkdir(parents=True, exist_ok=True)
+
+    continuity_rows = [
+        {
+            "clip_number": n,
+            "n_tracks": 4,
+            "longest_track_frac": 1.0,
+            "n_fragments": 0,
+            "auto_flag": "ok",
+            "verdict": "pass" if n % 2 == 0 else "fail",
+            "id_switches": 0,
+            "reviewer_note": "" if n % 2 == 0 else "test note",
+        }
+        for n in clip_numbers
+    ]
+    pl.DataFrame(continuity_rows).write_csv(vault_dir / "continuity_review.csv")
+
+    flag_pull_rows = [
+        {
+            "clip_number": n,
+            "outcome": "pull" if n % 2 == 0 else "incomplete",
+            "pull_time_s": 5.0 if n % 2 == 0 else None,
+            "carrier_track_id": 1 if n % 2 == 0 else None,
+            "puller_track_id": "2" if n % 2 == 0 else "",
+            "notes": "",
+        }
+        for n in clip_numbers
+    ]
+    pl.DataFrame(flag_pull_rows).write_csv(vault_dir / "flag_pull_events.csv")
+    return vault_dir
+
+
+def _populate_fixture(tmp_path: Path) -> Config:
+    """Write every input `build_bundle` reads for a "dev"/"test" build: two SEPARATE
+    drone sessions (`DEV_SESSION_ID`/`TEST_SESSION_ID`), the hackathon split naming
+    them, bundle-input detections/tracks/overlays for each, the dev session's public
+    continuity/flag-pull/GT/homography reference tables, and the private test
+    session's label vault.
+    """
+    config = _make_config(tmp_path)
+
+    inventory_rows: list[dict] = []
+    inventory_rows = _write_session_clips_and_inventory(config, inventory_rows, DEV_SESSION_ID, DEV_CLIPS)
+    inventory_rows = _write_session_clips_and_inventory(
+        config, inventory_rows, TEST_SESSION_ID, PRIVATE_CLIPS
+    )
     config.paths.reference.mkdir(parents=True, exist_ok=True)
     pl.DataFrame(inventory_rows).write_csv(config.paths.reference / "video_inventory.csv")
 
-    eval_split_rows = []
-    for n in ALL_CLIPS:
-        is_private = n in PRIVATE_TEST_CLIPS
-        eval_split_rows.append(
-            {
-                "domain": "drone",
-                "session_id": SESSION_ID,
-                "clip_number": n,
-                "stratum_id": "hp-01",
-                "role": "frozen_eval" if is_private else "pool",
-                "private_test": is_private,
-                "frozen_at": "2026-09-01T00:00:00+00:00",
-                "seed": 20260516,
-            }
-        )
-    pl.DataFrame(eval_split_rows).write_csv(config.paths.reference / "frozen_eval_clips.csv")
+    write_hackathon_split(
+        config, DEV_SESSION_ID, TEST_SESSION_ID, config.paths.reference / "hackathon_split.csv"
+    )
 
     freeze_pin_data = {
         "run_id": RUN_ID,
@@ -184,42 +294,19 @@ def _populate_fixture(tmp_path: Path) -> Config:
         json.dumps(freeze_pin_data, indent=2) + "\n", encoding="utf-8"
     )
 
-    detections_rows = []
-    for n in ALL_CLIPS:
-        detections_rows.append(
-            {
-                "session_id": SESSION_ID,
-                "clip_number": n,
-                "frame_index": 0,
-                "timestamp_s": 0.0,
-                "det_index": 0,
-                "class_name": "player",
-                "confidence": 0.9,
-                "bbox_x1": 10.0,
-                "bbox_y1": 20.0,
-                "bbox_x2": 30.0,
-                "bbox_y2": 90.0,
-                "detector_run_id": RUN_ID,
-                "detected_at": "2026-09-01T00:00:00+00:00",
-            }
-        )
-    bundle_inputs_dir = config.paths.labels / SESSION_ID / "bundle-inputs"
-    bundle_inputs_dir.mkdir(parents=True, exist_ok=True)
-    write_detections_parquet(
-        pl.DataFrame(detections_rows).select(list(DETECTION_COLUMNS)),
-        bundle_inputs_dir / "detections.parquet",
-    )
+    _write_bundle_inputs_detections(config, DEV_SESSION_ID, DEV_CLIPS)
+    _write_bundle_inputs_detections(config, TEST_SESSION_ID, PRIVATE_CLIPS)
 
-    crops_dir = bundle_inputs_dir / "crops"
+    crops_dir = config.paths.labels / DEV_SESSION_ID / "bundle-inputs" / "crops"
     crops_index_rows = []
-    for n in ALL_CLIPS:
+    for n in DEV_CLIPS:
         rel_file = f"clip_{n:03d}/track_0000/frame_00000.jpg"
         crop_path = crops_dir / rel_file
         crop_path.parent.mkdir(parents=True, exist_ok=True)
         crop_path.write_bytes(f"fake-jpeg-bytes-clip-{n}".encode("utf-8"))
         crops_index_rows.append(
             {
-                "session_id": SESSION_ID,
+                "session_id": DEV_SESSION_ID,
                 "clip_number": n,
                 "track_id": 0,
                 "frame_index": 0,
@@ -243,40 +330,10 @@ def _populate_fixture(tmp_path: Path) -> Config:
         encoding="utf-8",
     )
 
-    tracks_df = pl.DataFrame(
-        [
-            {
-                "session_id": SESSION_ID,
-                "clip_number": n,
-                "frame_index": 0,
-                "timestamp_s": 0.0,
-                "track_id": 0,
-                "class_name": "player",
-                "confidence": 0.9,
-                "bbox_x1": 10.0,
-                "bbox_y1": 20.0,
-                "bbox_x2": 30.0,
-                "bbox_y2": 90.0,
-                "foot_x_px": 20.0,
-                "foot_y_px": 90.0,
-                "team_id": 0,
-                "hover_position_id": "hp-01",
-                "x_yards": 5.0,
-                "y_yards": 5.0,
-                "game_id": None,
-                "play_id": None,
-                "detector_run_id": RUN_ID,
-                "tracked_at": "2026-09-01T00:00:00+00:00",
-            }
-            for n in ALL_CLIPS
-        ]
-    ).select(list(TRACKING_COLUMNS))
-    write_tracking_parquet(tracks_df, config.paths.tracking / f"{SESSION_ID}_tracks.parquet")
-
-    overlays_dir = config.paths.labels / SESSION_ID / "overlays"
-    overlays_dir.mkdir(parents=True, exist_ok=True)
-    for n in ALL_CLIPS:
-        (overlays_dir / f"clip_{n:03d}.mp4").write_bytes(f"fake-overlay-{n}".encode("utf-8"))
+    _write_tracks(config, DEV_SESSION_ID, DEV_CLIPS)
+    _write_tracks(config, TEST_SESSION_ID, PRIVATE_CLIPS)
+    _write_overlays(config, DEV_SESSION_ID, DEV_CLIPS)
+    _write_overlays(config, TEST_SESSION_ID, PRIVATE_CLIPS)
 
     continuity_rows = [
         {
@@ -289,7 +346,7 @@ def _populate_fixture(tmp_path: Path) -> Config:
             "id_switches": 0,
             "reviewer_note": "",
         }
-        for n in ALL_CLIPS
+        for n in DEV_CLIPS
     ]
     pl.DataFrame(continuity_rows).write_csv(config.paths.reference / "continuity_review.csv")
 
@@ -302,7 +359,7 @@ def _populate_fixture(tmp_path: Path) -> Config:
             "puller_track_id": "",
             "notes": "",
         }
-        for n in ALL_CLIPS
+        for n in DEV_CLIPS
     ]
     pl.DataFrame(flag_pull_rows).write_csv(config.paths.reference / "flag_pull_events.csv")
 
@@ -321,7 +378,7 @@ def _populate_fixture(tmp_path: Path) -> Config:
             "scale_true_yards": 4,
             "notes": "",
         }
-        for n in ALL_CLIPS
+        for n in DEV_CLIPS
     ]
     pl.DataFrame(gt_rows).write_csv(config.paths.reference / "gt_positions.csv")
 
@@ -338,6 +395,8 @@ def _populate_fixture(tmp_path: Path) -> Config:
         }
     ]
     pl.DataFrame(homography_rows).write_csv(config.paths.reference / "homography_calibration.csv")
+
+    _write_valid_vault(config, TEST_SESSION_ID, PRIVATE_CLIPS)
 
     return config
 
@@ -454,7 +513,11 @@ def test_build_bundle_dev_creates_archive_and_manifest(tmp_path: Path) -> None:
     assert (staging_root / "data" / "continuity_review.csv").exists()
 
 
-def test_build_bundle_dev_excludes_private_test_clips(tmp_path: Path) -> None:
+def test_build_bundle_dev_ships_all_registered_clips(tmp_path: Path) -> None:
+    """Since plan 02.2-21, "dev" ships EVERY registered clip of the dev session --
+    no `role = pool` subset any more, because the game-disjoint private test set
+    means there is no reason to withhold any pilot clip.
+    """
     config = _populate_fixture(tmp_path)
     out_dir = tmp_path / "out"
 
@@ -462,16 +525,13 @@ def test_build_bundle_dev_excludes_private_test_clips(tmp_path: Path) -> None:
 
     staging_root = out_dir / "dev-set"
     shipped_clip_files = {p.name for p in (staging_root / "data" / "clips").glob("*.mp4")}
-    private_test_files = {f"clip_{n:03d}.mp4" for n in PRIVATE_TEST_CLIPS}
-
-    assert shipped_clip_files & private_test_files == set()
-    assert shipped_clip_files == {f"clip_{n:03d}.mp4" for n in POOL_CLIPS}
+    assert shipped_clip_files == {f"clip_{n:03d}.mp4" for n in DEV_CLIPS}
 
     detections = pl.read_parquet(staging_root / "data" / "detections.parquet")
-    assert set(detections["clip_number"].to_list()) & set(PRIVATE_TEST_CLIPS) == set()
+    assert set(detections["clip_number"].to_list()) == set(DEV_CLIPS)
 
     continuity = pl.read_csv(staging_root / "data" / "continuity_review.csv")
-    assert set(continuity["clip_number"].to_list()) == set(POOL_CLIPS)
+    assert set(continuity["clip_number"].to_list()) == set(DEV_CLIPS)
 
 
 def test_build_bundle_content_hash_deterministic_across_two_builds(tmp_path: Path) -> None:
@@ -515,6 +575,14 @@ def test_build_bundle_stale_pin_object_raises(tmp_path: Path) -> None:
         build_bundle(config, "dev", stale_pin, tmp_path / "out")
 
 
+def test_build_bundle_missing_hackathon_split_raises(tmp_path: Path) -> None:
+    config = _populate_fixture(tmp_path)
+    (config.paths.reference / "hackathon_split.csv").unlink()
+
+    with pytest.raises(BundleError, match="hackathon-split"):
+        build_bundle(config, "dev", _pin(), tmp_path / "out")
+
+
 def test_build_bundle_test_kind_creates_archive_with_only_private_test_clips(
     tmp_path: Path,
 ) -> None:
@@ -525,19 +593,18 @@ def test_build_bundle_test_kind_creates_archive_with_only_private_test_clips(
 
     staging_root = out_dir / "test-set"
     shipped_clip_files = {p.name for p in (staging_root / "data" / "clips").glob("*.mp4")}
-    assert shipped_clip_files == {f"clip_{n:03d}.mp4" for n in PRIVATE_TEST_CLIPS}
+    assert shipped_clip_files == {f"clip_{n:03d}.mp4" for n in PRIVATE_CLIPS}
 
     detections = pl.read_parquet(staging_root / "data" / "detections.parquet")
-    assert set(detections["clip_number"].to_list()) == set(PRIVATE_TEST_CLIPS)
+    assert set(detections["clip_number"].to_list()) == set(PRIVATE_CLIPS)
+    assert set(detections["session_id"].to_list()) == {TEST_SESSION_ID}
 
     tracks = pl.read_parquet(staging_root / "data" / "tracks.parquet")
-    assert set(tracks["clip_number"].to_list()) == set(PRIVATE_TEST_CLIPS)
-
-    assert (staging_root / "data" / "homography_calibration.csv").exists()
+    assert set(tracks["clip_number"].to_list()) == set(PRIVATE_CLIPS)
     assert result.n_files > 0
 
 
-def test_build_bundle_test_kind_never_ships_label_or_gt_files(tmp_path: Path) -> None:
+def test_build_bundle_test_kind_never_ships_label_gt_or_homography_files(tmp_path: Path) -> None:
     config = _populate_fixture(tmp_path)
     out_dir = tmp_path / "out"
 
@@ -548,44 +615,73 @@ def test_build_bundle_test_kind_never_ships_label_or_gt_files(tmp_path: Path) ->
     assert "continuity_review.csv" not in all_names
     assert "flag_pull_events.csv" not in all_names
     assert "gt_positions.csv" not in all_names
+    assert "homography_calibration.csv" not in all_names
 
 
-def test_build_bundle_test_kind_vaults_exactly_the_withheld_rows(tmp_path: Path) -> None:
+def test_build_bundle_test_kind_missing_vault_raises_named_path(tmp_path: Path) -> None:
     config = _populate_fixture(tmp_path)
+    vault_dir = config.paths.data_root / "private" / "test-labels" / TEST_SESSION_ID
+    import shutil
 
-    build_bundle(config, "test", _pin(), tmp_path / "out")
+    shutil.rmtree(vault_dir)
 
-    vault_dir = config.paths.data_root / "private" / "test-labels"
-    continuity = pl.read_csv(vault_dir / "continuity_review.csv")
-    flag_pulls = pl.read_csv(vault_dir / "flag_pull_events.csv")
-
-    assert set(continuity["clip_number"].to_list()) == set(PRIVATE_TEST_CLIPS)
-    assert set(flag_pulls["clip_number"].to_list()) == set(PRIVATE_TEST_CLIPS)
-    # the vault must never receive pool-clip rows
-    assert set(continuity["clip_number"].to_list()).isdisjoint(POOL_CLIPS)
+    with pytest.raises(BundleError, match=str(vault_dir)):
+        build_bundle(config, "test", _pin(), tmp_path / "out")
 
 
-def test_dev_and_test_clip_lists_are_disjoint(tmp_path: Path) -> None:
+def test_build_bundle_test_kind_vault_with_wrong_clip_set_raises(tmp_path: Path) -> None:
+    config = _populate_fixture(tmp_path)
+    vault_dir = config.paths.data_root / "private" / "test-labels" / TEST_SESSION_ID
+
+    # Overwrite the vault with a clip set that does NOT match PRIVATE_CLIPS.
+    wrong_rows = [
+        {
+            "clip_number": 99,
+            "n_tracks": 4,
+            "longest_track_frac": 1.0,
+            "n_fragments": 0,
+            "auto_flag": "ok",
+            "verdict": "pass",
+            "id_switches": 0,
+            "reviewer_note": "",
+        }
+    ]
+    pl.DataFrame(wrong_rows).write_csv(vault_dir / "continuity_review.csv")
+
+    with pytest.raises(BundleError, match="clip set"):
+        build_bundle(config, "test", _pin(), tmp_path / "out")
+
+
+def test_build_bundle_dev_and_test_never_cross_contaminate_sessions(tmp_path: Path) -> None:
+    """Dev and the private test set share overlapping clip NUMBERS (1, 2, 3) but are
+    different SESSIONS -- proves a build never mixes the two just because a clip
+    number collides.
+    """
     config = _populate_fixture(tmp_path)
 
     dev_result = build_bundle(config, "dev", _pin(), tmp_path / "out-dev")
     test_result = build_bundle(config, "test", _pin(), tmp_path / "out-test")
 
-    dev_clips = {
-        p.name for p in (tmp_path / "out-dev" / "dev-set" / "data" / "clips").glob("*.mp4")
-    }
-    test_clips = {
-        p.name for p in (tmp_path / "out-test" / "test-set" / "data" / "clips").glob("*.mp4")
-    }
+    dev_detections = pl.read_parquet(tmp_path / "out-dev" / "dev-set" / "data" / "detections.parquet")
+    test_detections = pl.read_parquet(tmp_path / "out-test" / "test-set" / "data" / "detections.parquet")
 
-    assert dev_clips.isdisjoint(test_clips)
+    assert set(dev_detections["session_id"].to_list()) == {DEV_SESSION_ID}
+    assert set(test_detections["session_id"].to_list()) == {TEST_SESSION_ID}
     assert dev_result.content_sha256 != test_result.content_sha256
+
+    dev_readme = (tmp_path / "out-dev" / "dev-set" / "README.md").read_text(encoding="utf-8")
+    test_readme = (tmp_path / "out-test" / "test-set" / "README.md").read_text(encoding="utf-8")
+    assert DEV_SESSION_ID in dev_readme
+    assert TEST_SESSION_ID in test_readme
+    assert DEV_SESSION_ID not in test_readme
 
 
 def test_assert_no_label_leak_in_tree_catches_renamed_label_file(tmp_path: Path) -> None:
     """The column-level leak guard must catch a label file even when it is renamed to
     something innocuous -- a basename-only check would miss this (T-2.2-28).
     """
+    import csv
+
     from flag_football_ep.cv.bundle import _assert_no_label_leak_in_tree
 
     staging_root = tmp_path / "test-set"
@@ -605,15 +701,17 @@ def test_assert_no_label_leak_in_tree_catches_renamed_label_file(tmp_path: Path)
 
 
 def test_assert_no_label_leak_in_tree_passes_clean_tree(tmp_path: Path) -> None:
+    import csv
+
     from flag_football_ep.cv.bundle import _assert_no_label_leak_in_tree
 
     staging_root = tmp_path / "test-set"
     (staging_root / "data").mkdir(parents=True)
-    clean_path = staging_root / "data" / "homography_calibration.csv"
+    clean_path = staging_root / "data" / "tracks_summary.csv"
     with clean_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
-        writer.writerow(["hover_position_id", "landmark", "source_x_px"])
-        writer.writerow(["hp-01", "goalline_west_south", 1740.9])
+        writer.writerow(["clip_number", "n_tracks"])
+        writer.writerow([1, 4])
 
     _assert_no_label_leak_in_tree(staging_root)  # must not raise
 
@@ -697,7 +795,7 @@ def test_bundle_manifest_missing_raises(tmp_path: Path) -> None:
         bundle_manifest(tmp_path / "does-not-exist")
 
 
-def test_build_bundle_archive_contains_no_private_test_clip(tmp_path: Path) -> None:
+def test_build_bundle_archive_contains_no_test_session_clip(tmp_path: Path) -> None:
     import zipfile
 
     config = _populate_fixture(tmp_path)
@@ -706,7 +804,8 @@ def test_build_bundle_archive_contains_no_private_test_clip(tmp_path: Path) -> N
     with zipfile.ZipFile(result.archive_path) as archive:
         names = archive.namelist()
 
-    for n in PRIVATE_TEST_CLIPS:
-        assert not any(f"clip_{n:03d}.mp4" in name for name in names), names
-    for n in POOL_CLIPS:
+    for n in DEV_CLIPS:
         assert any(f"data/clips/clip_{n:03d}.mp4" in name for name in names), names
+    # The dev archive's own manifest/README never name the private test session.
+    manifest_text = (tmp_path / "out" / "dev-set" / "manifest.json").read_text(encoding="utf-8")
+    assert TEST_SESSION_ID not in manifest_text

@@ -1,4 +1,6 @@
-"""Package a frozen detector + frozen eval split into a dev/test/transfer deliverable.
+"""Package a frozen detector into a dev/test/transfer deliverable, split by the
+hackathon-role table (`cv.testset.HackathonSplit`), never by the detector's own
+eval-clip split.
 
 Sibling of `cv.dataset`'s content-hashing and `cv.frames`'s atomic-manifest-write
 conventions applied to a new artifact kind: a self-contained, checksummed archive a
@@ -6,24 +8,39 @@ hackathon participant can pull without touching the DVC-tracked training set. De
 on `cv.freeze.read_freeze_pin`/the freeze-pin file -- never `cv.registry.resolve_champion`
 directly, so a bundle always names the frozen (not the rolling-champion) detector.
 
-`build_bundle`/`bundle_manifest` were implemented by plan 02.2-10 for the "dev" kind.
-Plan 02.2-12 (this plan) fills the two remaining content tables:
+`build_bundle`/`bundle_manifest` were implemented by plan 02.2-10 for the "dev" kind,
+filled out for "test"/"transfer" by plan 02.2-12. Plan 02.2-21 (this plan) re-targets
+both "dev" and "test" to `data/reference/hackathon_split.csv`
+(`cv.testset.read_hackathon_split`) instead of the detector's own eval-clip split file:
+the private hackathon test set is now the real second drone game (a different GAME
+from the dev set, DATA-04), not a same-game clip withholding, so "dev" ships ALL of
+the pilot session's registered clips (not just `role = pool`) and "test" resolves an
+entirely different session's clips. The detector's own eval-clip split file keeps
+governing the DETECTOR's own training/eval split -- an unrelated concern this module
+no longer reads at all.
 
-- "test": the 18 `private_test = true` drone clips (D-07 fallback -- no second drone
-  game had materialised by build time). Clips/detections/baseline tracks/overlays/
-  homography only -- never `continuity_review.csv`/`flag_pull_events.csv`/
-  `gt_positions.csv`. The withheld continuity/flag-pull rows for exactly these clips
-  are written to a local, gitignored vault (`data/private/test-labels/`) instead, for
-  post-event grading -- outside every bundle, outside git.
+- "dev": every clip registered for the hackathon split's dev session (today, the
+  pilot session GER vs. Panama Rojo) -- clips/overlays/detections/baseline
+  tracks/crops/labels/GT positions/homography, the full public development package.
+- "test": every clip registered for the hackathon split's private_test session
+  (today, the real second game GER vs. Puerto Rico) -- clips/detections/baseline
+  tracks/overlays only, never `continuity_review.csv`/`flag_pull_events.csv`/
+  `gt_positions.csv`/`homography_calibration.csv` (the calibration is per pilot hover
+  position and would be wrong data for a different game). The withheld
+  continuity/flag-pull ground truth for exactly these clips is authored by the user
+  directly into a local, gitignored, per-session vault
+  (`data/private/test-labels/<session_id>/`, `cv.testset.write_continuity_skeleton`/
+  `write_flag_pull_skeleton`/`validate_test_labels`) -- a "test" build VERIFIES that
+  vault (`_assert_test_labels_vaulted`), it never writes it.
 - "transfer": the sideline (GoPro) and broadcast (TV) material, each with detections
   produced under its own per-domain inference settings (`docs/dataset-plan.md ## 4`).
 
-The "test"-kind label-leak guard (T-2.2-28) was implemented by plan 02.2-10 and is
-exercised here by a real build for the first time: a declarative, name-based
-pre-assembly check (`_assert_no_test_kind_label_leak`) plus a column-level,
-post-assembly guard over the actual staged files (`_assert_no_label_leak_in_tree`) --
-a name-only check alone is too weak, since a renamed label file would slip through.
-`deliver_bundle` (OTC OBS upload) remains a stub -- implemented by plan 02.2-14.
+The "test"-kind label-leak guard (T-2.2-28) was implemented by plan 02.2-10: a
+declarative, name-based pre-assembly check (`_assert_no_test_kind_label_leak`) plus a
+column-level, post-assembly guard over the actual staged files
+(`_assert_no_label_leak_in_tree`) -- a name-only check alone is too weak, since a
+renamed label file would slip through. `deliver_bundle` (OTC OBS upload) remains a
+stub -- implemented by plan 02.2-14.
 """
 
 from __future__ import annotations
@@ -42,7 +59,7 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 
-from flag_football_ep.cv import CvError, frames, schema
+from flag_football_ep.cv import CvError, frames, schema, testset
 from flag_football_ep.cv.freeze import FreezeError, FreezePin, read_freeze_pin
 
 if TYPE_CHECKING:
@@ -71,21 +88,6 @@ class BundleResult:
     content_sha256: str
     n_files: int
 
-
-# --- Eval-clip split (D-07/D-13): the `role = pool` filter every dev-facing bundle
-# must apply. Mirrors `continuity.py`'s own precedent (a separate private schema
-# constant rather than importing another module's private attribute across module
-# boundaries) -- `frames.py`'s own `_EVAL_SPLIT_SCHEMA` stays private to that module.
-_EVAL_SPLIT_CSV_SCHEMA: dict[str, pl.DataType] = {
-    "domain": pl.Utf8,
-    "session_id": pl.Utf8,
-    "clip_number": pl.Int64,
-    "stratum_id": pl.Utf8,
-    "role": pl.Utf8,
-    "private_test": pl.Boolean,
-    "frozen_at": pl.Utf8,
-    "seed": pl.Int64,
-}
 
 # Mirrors `tests/test_cv_benchmark_labels.py`'s `_REVIEW_SCHEMA`/`_FLAG_PULL_SCHEMA`
 # (the authoritative dtypes for these two hand-labelled CSVs).
@@ -149,8 +151,11 @@ _LEAK_COLUMN_NAMES = frozenset(
     }
 )
 
-# The local, gitignored vault a "test" build writes its withheld continuity/flag-pull
-# rows to -- outside every bundle tree, outside git (T-2.2-28).
+# The local, gitignored, per-session vault a "test" build VERIFIES (never writes) the
+# private test game's continuity/flag-pull ground truth in -- outside every bundle
+# tree, outside git (T-2.2-28/T-2.2-67). Authored by the user via
+# `cv.testset.write_continuity_skeleton`/`write_flag_pull_skeleton` + hand labelling,
+# checked via `cv.testset.validate_test_labels`.
 _TEST_LABEL_VAULT_DIRNAME = "test-labels"
 
 # The transfer-set domains (D-11/interfaces): sideline (GoPro) and broadcast (TV)
@@ -261,58 +266,40 @@ def _crops_writer(crops_src_dir: Path, pool_clips: list[int]) -> Callable[[Path]
     return _write
 
 
-def _pool_clip_numbers(config: Config, domain: str, session_id: str) -> list[int]:
-    """Every clip number registered `role = pool` for `domain`/`session_id` in the
-    frozen eval-clip split (D-07/D-13) -- the ONLY clip set any dev-facing bundle may
-    ship. Never `role = frozen_eval` (18 of the drone domain's clips carry
-    `private_test = true`: D-07's private hackathon test set).
+def _read_hackathon_split(config: Config) -> testset.HackathonSplit:
+    """The hackathon dev/private_test role split (`data/reference/hackathon_split.csv`,
+    `cv.testset.read_hackathon_split`) -- the SOLE source of truth for which session is
+    the public dev set and which is the private test set, and each one's clip list.
+    Never the detector's own eval-clip split file (that governs the DETECTOR's own
+    training/eval split, an unrelated concern this module does not read at all).
     """
-    path = config.paths.reference / "frozen_eval_clips.csv"
-    if not path.exists():
+    path = config.paths.reference / "hackathon_split.csv"
+    try:
+        return testset.read_hackathon_split(path)
+    except testset.TestsetError as exc:
         raise BundleError(
-            f"frozen eval-clip split not found: {path} -- run `ffep cv eval-split` "
-            "first (a dev bundle must never ship the private_test clips, D-07)"
-        )
-    df = pl.read_csv(path, schema_overrides=_EVAL_SPLIT_CSV_SCHEMA)
-    rows = df.filter(
-        (pl.col("domain") == domain)
-        & (pl.col("session_id") == session_id)
-        & (pl.col("role") == "pool")
-    )
-    if rows.height == 0:
-        raise BundleError(
-            f"no role=pool clips found for domain={domain!r} session_id={session_id!r} "
-            f"in {path}"
-        )
-    return sorted(rows["clip_number"].to_list())
+            f"hackathon split not found or invalid at {path} -- run "
+            f"`ffep cv hackathon-split` first: {exc}"
+        ) from exc
 
 
-def _private_test_clip_numbers(config: Config, domain: str, session_id: str) -> list[int]:
-    """Every clip number registered `private_test = true` for `domain`/`session_id` in
-    the frozen eval-clip split (D-07) -- the withheld private hackathon test set. A
-    "test" bundle's clip list is ALWAYS resolved from here, never from a hard-coded
-    clip-number list (this plan's own `<behavior>` contract): if a second drone game
-    ever replaces the withheld-clip fallback, re-freezing the eval split for that
-    session is the only change a real test-set build needs -- this module does not
-    have to change.
+def _dev_clip_numbers(config: Config) -> list[int]:
+    """Every clip number registered `hackathon_role = dev` in the hackathon split --
+    the ONLY clip set a "dev" bundle may ship. ALL of the dev session's registered
+    clips (not a `role = pool` subset): with a different GAME as the private test set,
+    there is no reason to withhold any pilot clip from the public dev set (DATA-04).
     """
-    path = config.paths.reference / "frozen_eval_clips.csv"
-    if not path.exists():
-        raise BundleError(
-            f"frozen eval-clip split not found: {path} -- run `ffep cv eval-split` first"
-        )
-    df = pl.read_csv(path, schema_overrides=_EVAL_SPLIT_CSV_SCHEMA)
-    rows = df.filter(
-        (pl.col("domain") == domain)
-        & (pl.col("session_id") == session_id)
-        & (pl.col("private_test"))
-    )
-    if rows.height == 0:
-        raise BundleError(
-            f"no private_test=true clips found for domain={domain!r} session_id={session_id!r} "
-            f"in {path}"
-        )
-    return sorted(rows["clip_number"].to_list())
+    return _read_hackathon_split(config).dev_clips
+
+
+def _test_clip_numbers(config: Config) -> list[int]:
+    """Every clip number registered `hackathon_role = private_test` in the hackathon
+    split -- the private test game's clip set. A "test" bundle's clip list is ALWAYS
+    resolved from here, never from a hard-coded clip-number list: if the private test
+    game is ever replaced, re-running `ffep cv hackathon-split` for the new session is
+    the only change a real test-set build needs -- this module does not have to change.
+    """
+    return _read_hackathon_split(config).test_clips
 
 
 def _dev_items(config: Config, session_id: str, pool_clips: list[int]) -> list[_BundleItem]:
@@ -432,13 +419,23 @@ def _dev_items(config: Config, session_id: str, pool_clips: list[int]) -> list[_
 
 
 def _test_items(config: Config, session_id: str, private_clips: list[int]) -> list[_BundleItem]:
-    """The "test" content table (T-2.2-28/D-07): clips, detections, baseline tracks,
-    overlays and homography calibration for the withheld `private_clips` ONLY --
-    deliberately narrower than `_dev_items`. Never `continuity_review.csv`, never
-    `flag_pull_events.csv` (the withheld labels this build vaults instead, see
-    `_vault_withheld_labels`), and never `gt_positions.csv` (ground-truth foot
-    positions for these clips are exactly what a position-accuracy score would need --
-    they stay withheld everywhere, unlike the dev set's pool-only `gt_positions.csv`).
+    """The "test" content table (T-2.2-28): clips, detections and baseline tracks for
+    the private test game's `private_clips` -- deliberately narrower than `_dev_items`.
+
+    Never `continuity_review.csv`, never `flag_pull_events.csv` (that ground truth is
+    authored directly into the local label vault, verified but never written by this
+    build -- see `_assert_test_labels_vaulted`), and never `gt_positions.csv`
+    (ground-truth foot positions for these clips are exactly what a position-accuracy
+    score would need -- they stay withheld everywhere).
+
+    Never `homography_calibration.csv` either (dropped by plan 02.2-21, unlike the
+    D-07 fallback this replaced): the calibration is per PILOT hover position
+    (`data/reference/homography_calibration.csv` was measured for the pilot session's
+    drone hover geometry) and would be silently wrong data for a different game's own
+    hover positions. No homography and no field coordinates (`x_yards`/`y_yards`) are
+    produced for the private test game by this plan -- continuity/flag-pull scoring
+    stays pixel-space, and `scripts/hackathon/score_tracks.py` already documents its
+    "location-blind match" fallback for exactly this case.
     """
     items: list[_BundleItem] = []
 
@@ -497,17 +494,6 @@ def _test_items(config: Config, session_id: str, private_clips: list[int]) -> li
             )
         )
 
-    homography_src = config.paths.reference / "homography_calibration.csv"
-    _assert_exists(homography_src, "homography calibration CSV")
-    items.append(
-        _BundleItem(
-            dest="data/homography_calibration.csv",
-            source=homography_src,
-            category="data",
-            writer=_copy_writer(homography_src),
-        )
-    )
-
     return items
 
 
@@ -561,30 +547,37 @@ def _transfer_items(config: Config) -> list[_BundleItem]:
     return items
 
 
-def _vault_withheld_labels(config: Config, private_clips: list[int]) -> Path:
-    """Write the withheld continuity/flag-pull rows for `private_clips` to the local,
-    gitignored label vault (`data/private/test-labels/`) -- OUTSIDE every bundle tree,
-    so a "test" build's own withheld labels survive for post-event grading without
-    ever entering the archive `_test_items` assembles. Atomic write, same discipline
-    as the rest of this module (`_atomic_write_bytes`).
+def _assert_test_labels_vaulted(config: Config, session_id: str, private_clips: list[int]) -> Path:
+    """Verify (never write) the private test game's ground-truth vault
+    (`data/private/test-labels/<session_id>/continuity_review.csv` +
+    `flag_pull_events.csv`) exists, is complete, and covers exactly `private_clips`
+    (T-2.2-28/T-2.2-67) -- a "test" build must FAIL CLOSED when the vault is absent,
+    incomplete, or covers the wrong clip set, never silently ship without it and
+    never silently accept a partial or mismatched one.
+
+    The vault is authored by the user directly (`cv.testset.write_continuity_skeleton`/
+    `write_flag_pull_skeleton` + hand labelling) -- unlike the D-07 fallback this
+    replaced, a build no longer derives the vault FROM a public reference table (the
+    public `continuity_review.csv`/`flag_pull_events.csv` describe the DEV game, not
+    the private test game, and are never read by this function at all).
     """
-    vault_dir = config.paths.data_root / "private" / _TEST_LABEL_VAULT_DIRNAME
+    vault_dir = config.paths.data_root / "private" / _TEST_LABEL_VAULT_DIRNAME / session_id
+    continuity_path = vault_dir / "continuity_review.csv"
+    flag_pull_path = vault_dir / "flag_pull_events.csv"
 
-    continuity_src = config.paths.reference / "continuity_review.csv"
-    _assert_exists(continuity_src, "continuity review CSV")
-    continuity_df = pl.read_csv(continuity_src, schema_overrides=_CONTINUITY_REVIEW_SCHEMA)
-    continuity_withheld = continuity_df.filter(pl.col("clip_number").is_in(private_clips))
-    _atomic_write_bytes(
-        vault_dir / "continuity_review.csv", continuity_withheld.write_csv().encode("utf-8")
-    )
+    if not vault_dir.exists():
+        raise BundleError(
+            f"private test-set label vault not found: {vault_dir} -- label the "
+            "continuity/flag-pull ground truth there (cv.testset.write_continuity_skeleton/"
+            "write_flag_pull_skeleton) before a 'test' build can run"
+        )
 
-    flag_pull_src = config.paths.reference / "flag_pull_events.csv"
-    _assert_exists(flag_pull_src, "flag-pull events CSV")
-    flag_pull_df = pl.read_csv(flag_pull_src, schema_overrides=_FLAG_PULL_EVENTS_SCHEMA)
-    flag_pull_withheld = flag_pull_df.filter(pl.col("clip_number").is_in(private_clips))
-    _atomic_write_bytes(
-        vault_dir / "flag_pull_events.csv", flag_pull_withheld.write_csv().encode("utf-8")
-    )
+    try:
+        testset.validate_test_labels(continuity_path, flag_pull_path, private_clips)
+    except testset.TestsetError as exc:
+        raise BundleError(
+            f"private test-set label vault at {vault_dir} is invalid: {exc}"
+        ) from exc
 
     return vault_dir
 
@@ -670,7 +663,8 @@ def _hash_tree(root: Path, *, exclude: frozenset[str]) -> tuple[str, list[tuple[
     return hasher.hexdigest(), entries
 
 
-def _pool_baseline_stats(continuity_review_path: Path) -> dict:
+def _dev_baseline_stats(continuity_review_path: Path) -> dict:
+    """Now measures all 61 dev clips (not the former 43-clip `role = pool` subset)."""
     df = pl.read_csv(continuity_review_path, schema_overrides=_CONTINUITY_REVIEW_SCHEMA)
     n = df.height
     n_pass = int((df["verdict"] == "pass").sum())
@@ -694,16 +688,21 @@ def _render_readme(
 ## Zweck
 
 Dieses Paket ist das öffentliche Dev-Set der Hackathon-Challenge „Wer ist wer nach der
-Verdeckung?" (`docs/hackathon-challenge-reid.md`): {n_clips} Spielzug-Clips des Pilotspiels
-GER vs. Panama Rojo (16.05.2026), auf die `role = pool` in
-`data/reference/frozen_eval_clips.csv` eingeschränkt. Die restlichen 18 Drohnen-Clips dieses
-Spiels sind das private Testset (D-07) und erscheinen in keinem öffentlichen Bundle.
+Verdeckung?" (`docs/hackathon-challenge-reid.md`): alle {n_clips} von {n_clips}
+Spielzug-Clips des Pilotspiels GER vs. Panama Rojo (16.05.2026) --
+`hackathon_role = dev` in `data/reference/hackathon_split.csv`. Das private Testset ist
+ein ANDERES Spiel (GER vs. Puerto Rico, das echte zweite Drohnenspiel), keine
+Teilmenge dieses Spiels mehr -- Dev und Test sind seit Plan 02.2-21 durch das SPIEL
+getrennt, nicht durch eine Clip-Zurückhaltung innerhalb desselben Spiels (DATA-04).
+Deshalb ist keine Clip-Zahl dieses Spiels mehr vom Dev-Set ausgeschlossen: die
+vormalige `role = pool`-Beschränkung betraf ausschließlich unseren eigenen
+Detektor-Trainings-/Eval-Split, nie die ReID-Aufgabe der Teams.
 
 ## Verzeichnisstruktur
 
 ```
 data/
-  clips/clip_NNN.mp4          Rohes Drohnenmaterial, {n_clips} Clips (nur role=pool)
+  clips/clip_NNN.mp4          Rohes Drohnenmaterial, alle {n_clips} Clips
   overlays/clip_NNN.mp4       Boxen + Track-Nummern zur Sichtprüfung
   detections.parquet          Pro-Frame-Detektionen des eingefrorenen Detektors
   tracks.parquet               Baseline-Tracks (BoT-SORT), Team-Zuordnung, Feldkoordinaten
@@ -739,14 +738,14 @@ Bonus (Flag-Pull, optional): `--flag-pulls <eure_pull_events.csv>` zusätzlich a
 die Referenzdatei `data/flag_pull_events.csv` muss im selben Verzeichnis wie `--review`
 liegen.
 
-## Baseline-Zahlen (dieses Bundle, nur die {n_clips} Pool-Clips)
+## Baseline-Zahlen (dieses Bundle, alle {n_clips} Clips)
 
 **Kontinuität (BoT-SORT-Baseline, menschlich bewertet): {baseline["n_pass"]}/{baseline["n"]} =
 {pass_rate_pct} %.** Reproduzierbar über `data/tracks.parquet` +
-`data/continuity_review.csv` und das obige Scoring-Kommando. Diese Zahl ist NICHT die
-Vollspiel-Zahl aus `docs/hackathon-challenge-reid.md` (dort über alle 61 Clips inkl. der
-privaten Testset-Clips) -- sie ist die auf dieses Bundle beschränkte, mit den
-mitgelieferten Daten reproduzierbare Zahl.
+`data/continuity_review.csv` und das obige Scoring-Kommando. Diese Zahl deckt sich mit
+der Vollspiel-Zahl aus `docs/hackathon-challenge-reid.md` (ebenfalls alle {n_clips}
+Clips) -- seit Plan 02.2-21 gibt es keinen kleineren Pool-only-Denominator mehr, weil
+kein Clip dieses Spiels vom Dev-Set ausgeschlossen ist.
 
 ## Nutzungsregeln
 
@@ -762,7 +761,7 @@ mitgelieferten Daten reproduzierbare Zahl.
 
 Radar-Renderings (Top-Down-Feldansicht) sind noch nicht Teil dieses Bundles -- nur die
 Overlay-Videos (Boxen + Track-Nummern über dem Rohmaterial). Grund: es existiert noch
-kein Pro-Clip-Radar-Rendering-Lauf für die {n_clips} Pool-Clips; `cv/radar.py` kann das
+kein Pro-Clip-Radar-Rendering-Lauf für die {n_clips} Clips; `cv/radar.py` kann das
 technisch, aber ein solcher Lauf ist nicht Teil dieses Plans. Nachgereicht, sobald ein
 späterer Plan die Pro-Clip-Radar-Renderings erzeugt.
 """
@@ -781,11 +780,13 @@ def _render_test_readme(pin: FreezePin, session_id: str, private_clips: list[int
 ## Zweck
 
 Das private Testset der Hackathon-Challenge „Wer ist wer nach der Verdeckung?"
-(`docs/hackathon-challenge-reid.md`): {n_clips} zurückgehaltene Drohnen-Clips des
-Pilotspiels GER vs. Panama Rojo (16.05.2026), `private_test = true` in
-`data/reference/frozen_eval_clips.csv` (D-07-Fallback -- kein zweites Drohnenspiel lag
-zum Build-Zeitpunkt vor, siehe `docs/hackathon-bundles.md`). Dient ausschließlich der
-Endwertung nach dem Event -- niemals zur Entwicklung oder zum Tuning verwenden.
+(`docs/hackathon-challenge-reid.md`): {n_clips} Drohnen-Clips des ECHTEN ZWEITEN
+Drohnenspiels GER vs. Puerto Rico (16.05.2026, registriert 2026-09-02) --
+`hackathon_role = private_test` in `data/reference/hackathon_split.csv`. Dev- und
+Test-Set sind damit durch das SPIEL getrennt, nicht durch eine Clip-Zurückhaltung
+innerhalb desselben Spiels (DATA-04, plan 02.2-21 -- ersetzt den früheren D-07-Fallback,
+siehe `docs/hackathon-bundles.md`). Dient ausschließlich der Endwertung nach dem Event
+-- niemals zur Entwicklung oder zum Tuning verwenden.
 
 ## Verzeichnisstruktur
 
@@ -794,20 +795,25 @@ data/
   clips/clip_NNN.mp4          Rohes Drohnenmaterial, {n_clips} Clips
   overlays/clip_NNN.mp4       Boxen + Track-Nummern zur Sichtprüfung
   detections.parquet          Pro-Frame-Detektionen des eingefrorenen Detektors
-  tracks.parquet               Baseline-Tracks (BoT-SORT), Team-Zuordnung, Feldkoordinaten
-  homography_calibration.csv   Landmarken je Hover-Position (Pixel -> Yards)
+  tracks.parquet               Baseline-Tracks (BoT-SORT), Team-Zuordnung
 manifest.json                  Datei-für-Datei-Hashes + Gesamt-Content-Hash
 README.md                      diese Datei
 ```
 
 ## Was bewusst fehlt
 
-Keine `continuity_review.csv`, keine `flag_pull_events.csv`, keine `gt_positions.csv`.
-Diese drei Referenzen bleiben zurückgehalten (T-2.2-28): die Kontinuitäts- und
-Flag-Pull-Urteile für genau diese {n_clips} Clips liegen ausschließlich im lokalen,
-nicht versionierten Label-Tresor (`data/private/test-labels/`) für die Endwertung nach
-dem Event. Kein öffentliches Bundle enthält sie, und keine Ground-Truth-Fußpositionen
-für diese Clips existieren in irgendeinem Bundle.
+Keine `continuity_review.csv`, keine `flag_pull_events.csv`, keine `gt_positions.csv`,
+keine `homography_calibration.csv`. Die ersten drei bleiben zurückgehalten (T-2.2-28):
+die Kontinuitäts- und Flag-Pull-Urteile für genau diese {n_clips} Clips liegen
+ausschließlich im lokalen, nicht versionierten Label-Tresor
+(`data/private/test-labels/{session_id}/`) für die Endwertung nach dem Event. Kein
+öffentliches Bundle enthält sie, und keine Ground-Truth-Fußpositionen für diese Clips
+existieren in irgendeinem Bundle. `homography_calibration.csv` fehlt aus einem anderen
+Grund: die Kalibrierung gilt für die Hover-Positionen des PILOTEN-Spiels und wäre für
+dieses andere Spiel falsche Daten -- entsprechend liefert dieses Bundle keine
+Feldkoordinaten (`x_yards`/`y_yards`), Kontinuitäts-/Flag-Pull-Wertung bleibt
+Pixel-Raum (`scripts/hackathon/score_tracks.py` dokumentiert bereits den
+"ortsblinden" Fallback für genau diesen Fall).
 
 ## Schemas
 
@@ -922,11 +928,14 @@ def build_bundle(config: Config, kind: str, pin: FreezePin, out_dir: Path) -> Bu
     `config.paths.reference / "hackathon_freeze.json"` -- never trusts `pin.run_id`
     blindly: a freshly re-read pin must exist and must match `pin.run_id`, or this
     raises `BundleError` (T-2.2-24; a stale/synthetic `pin` object must never silently
-    drive a real build). The "dev" content table is the pilot session's `role = pool`
-    clips only (D-07/D-13); a "test" build ships only the `private_test = true` clips
-    (never a hard-coded list) and always refuses any label-bearing file, both by
-    basename and by column (T-2.2-28); "transfer" ships the sideline/broadcast
-    material with per-domain detections (D-11).
+    drive a real build). Both "dev" and "test" resolve their session id AND clip list
+    from `data/reference/hackathon_split.csv` (`cv.testset.read_hackathon_split`,
+    plan 02.2-21) -- "dev" ships every clip registered `hackathon_role = dev` (today,
+    all 61 pilot clips); "test" ships only `hackathon_role = private_test` clips
+    (today, the real second game) and always refuses any label-bearing file, both by
+    basename and by column (T-2.2-28), plus verifies the private test game's
+    ground-truth vault before assembling a single byte (`_assert_test_labels_vaulted`);
+    "transfer" ships the sideline/broadcast material with per-domain detections (D-11).
     """
     if kind not in BUNDLE_KINDS:
         raise BundleError(f"unknown bundle kind {kind!r} (expected one of {BUNDLE_KINDS})")
@@ -949,10 +958,13 @@ def build_bundle(config: Config, kind: str, pin: FreezePin, out_dir: Path) -> Bu
     private_clips: list[int] = []
     pool_clips: list[int] = []
     if kind == "dev":
-        pool_clips = _pool_clip_numbers(config, "drone", session_id)
+        session_id = _read_hackathon_split(config).dev_session_id
+        pool_clips = _dev_clip_numbers(config)
         items = _dev_items(config, session_id, pool_clips)
     elif kind == "test":
-        private_clips = _private_test_clip_numbers(config, "drone", session_id)
+        session_id = _read_hackathon_split(config).test_session_id
+        private_clips = _test_clip_numbers(config)
+        _assert_test_labels_vaulted(config, session_id, private_clips)
         items = _test_items(config, session_id, private_clips)
     else:  # "transfer"
         items = _transfer_items(config)
@@ -969,12 +981,11 @@ def build_bundle(config: Config, kind: str, pin: FreezePin, out_dir: Path) -> Bu
         item.writer(staging_root / item.dest)
 
     if kind == "test":
-        _vault_withheld_labels(config, private_clips)
         _assert_no_label_leak_in_tree(staging_root)
 
     readme_path = staging_root / "README.md"
     if kind == "dev":
-        baseline = _pool_baseline_stats(staging_root / "data" / "continuity_review.csv")
+        baseline = _dev_baseline_stats(staging_root / "data" / "continuity_review.csv")
         readme_text = _render_readme(kind, pin, session_id, pool_clips, baseline)
     elif kind == "test":
         readme_text = _render_test_readme(pin, session_id, private_clips)
