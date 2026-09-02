@@ -245,7 +245,9 @@ summary = mh.compute(acc, metrics=["idf1", "mota", "num_switches"], name="synthe
 | A3 | motmetrics (not trackeval) is the right default for the label-based interface | Package Legitimacy Audit, Don't Hand-Roll | If the eventual identity-labels work (M2-3) specifically wants HOTA (not IDF1/MOTA) as its headline number, `trackeval`'s heavier dependency footprint becomes necessary anyway and the "no torch, laptop-in-seconds" framing would need revisiting for that later phase only, not for M2-4's label-free layer |
 | A4 | SoccerNet/SportsMOT's "one primary + secondary metrics" framing is a fair precedent to cite for METR-03, despite those benchmarks using label-based HOTA as the primary (this phase's primary/acceptance metric is the label-free-adjacent human threshold, not a label-based one) | Wording for METR-03 | The analogy is structural (one acceptance metric + directional others), not literal (this project's acceptance metric is human-judged, not computed from GT tracks) — if the user reads it as claiming HOTA-equivalence, the wording proposal should clarify this distinction explicitly in the plan output |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+RESOLVED 2026-09-02 by CONTEXT.md decisions: (1) partial test-split review is steady-state input — plan M2-04-01 `--review-test` works at any completeness level, reviewed-only rate carries its own n + "unvollstaendig" flag; (2) the guard metric ships as a DIAGNOSTIC column, the primary `n_fragments / expected_players` is the one officially reported continuous number (METR-01).
 
 1. **Is the Puerto Rico continuity review expected to reach 61/61 before M2-4 executes, or does the phase need to run against the current 10/61 partial state?**
    - What we know: the vault file has all 61 clip rows scaffolded, 10 reviewed, formatted with a semicolon delimiter (Pitfall 3).
