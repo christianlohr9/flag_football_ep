@@ -213,6 +213,25 @@ siehe oben) machen das überwiegend zu Bestätigungsarbeit, ersetzen aber nicht 
 einzelnen Frames — kein Frame gilt als "verifiziert", ohne dass ein Mensch es tatsächlich gesehen
 hat.
 
+### Nachtrag 2026-09-02: GoPro-Fernfeld wird übersprungen (Nutzerentscheid während der Sitzung)
+
+Nach den ersten 8 GoPro-Frames meldete die Nutzerin: Vorlabels leer, Fernfeld stark verpixelt.
+Die Sichtung der neuen Sessions (`docs/material-sighting.md`, Abschnitt 2026-09-02) bestätigt den
+Mechanismus: GoPro-Spielerinnen sind im nahen/mittleren Feld so gross wie auf der Drohne
+(p50 28–32 px), nur das Fernfeld fällt auf 25–27 px ab. Vereinbarung:
+
+- Die Aufgabe `al-1-sideline-1` wird **nur für Frames mit Spielerinnen im nahen/mittleren
+  Feldbereich** korrigiert; Fernfeld-Frames bleiben **unberührt** (kein Kasten, kein Tag).
+  Zielgrösse ~50–80 saubere GoPro-Frames statt 200 — genug, damit Iteration 2 brauchbare
+  Vorlabels liefert.
+- **Merge-Regel für Plan 02.2-13:** ein Sideline-Frame mit 0 Boxen ist ein *übersprungener*
+  Frame, kein echtes Negativ (jeder AL-Frame stammt aus einem laufenden Spielzug mit 10
+  Spielerinnen auf dem Feld). Solche Frames werden vor der Validierung getrimmt, nicht als leere
+  Frames ins Dataset übernommen. Die 8 bereits korrigierten Frames bleiben.
+- **Iteration 2 (Plan 02.2-16):** die GoPro-Auswahl zieht nur aus nahen/mittleren Feldzonen
+  (`field_zone_bucket`), das Fernfeld wird ausgeschlossen. Die GoPro-Domäne bleibt vorerst
+  Trainingsdomäne; die Ablation aus dem D-11-Verdikt entscheidet weiterhin über ihren Verbleib.
+
 ## Iteration 2
 
 Noch nicht gezogen — folgt in Plan 02.2-17, nach Abschluss der Iteration-1-Korrektursitzung
