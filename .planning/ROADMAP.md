@@ -435,6 +435,10 @@ where `files_modified` do not collide; 2.2 waves 7–11 keep priority on shared 
   - [ ] `M2-02-03-PLAN.md` — measured values into `docs/baseline-messung.md` and both challenge-description documents, drift test, and the user checkpoint on the 90% target mark (BASE-02/03/04)
 - [ ] **Phase M2-3: Labels und Prüfsatz** - Sight the multi-TB raw material, register + select ≥3 games (40+ plays, differing conditions), identity labels per player via track correction (CVAT candidate), dev/test split by GAME — supersedes the same-game clip-split test set when achieved (Requirements: DATA-01..05; conflict #1 in ABGLEICH.md)
 - [ ] **Phase M2-4: Messvorschrift** - Continuous metric alongside the threshold in `scripts/hackathon/score_tracks.py`, one run outputs both split by dev/test; comparison run showing a difference the threshold metric swallows (Requirements: METR-01..04)
+  - **Plans:** 3 plans (waves 1-3, sequential: metric core -> CLI -> documentation)
+  - [ ] `M2-04-01-PLAN.md` - label-free continuous metric (`n_fragments`/10 primary, active-track deviation as diagnostic guard) plus the M2-3-ready label-based IDF1/MOTA interface, both in new `scripts/hackathon/` modules; the identity-swap blind spot is an executable test (METR-01)
+  - [ ] `M2-04-02-PLAN.md` - `score_tracks.py` split mode: one run reports threshold rate + continuous metric for dev and private_test with their own denominators, JSON + Markdown, vault review read via an explicit path only, legacy M2-2 report contract frozen (METR-01/02)
+  - [ ] `M2-04-03-PLAN.md` - METR-04 comparison section in `docs/baseline-messung.md` from the existing M2-2 per-clip rows, METR-03 wording (Abnahmekriterium vs Zielrichtung) in both challenge documents, drift tests, user checkpoint on the wording (METR-03/04)
 - [ ] **Phase M2-5: Einstiegspaket** - ~30s error clip + baseline side-by-side, constraints as a list, post-hackathon result policy, clone-to-first-measurement < 30 min proven with an outsider (Requirements: PACK-01..05)
 
 **Execution Order (M2):** M2-1 → M2-2 → M2-3 → M2-4 → M2-5; M2-2 may start once M2-1's license inventory (not the signature) is done, per the draft's own gate logic the SIGNATURE remains the release valve for shipping material to teams.
@@ -461,5 +465,5 @@ where `files_modified` do not collide; 2.2 waves 7–11 keep priority on shared 
 | M2-1 Freigabe und Lizenzlage | 0/2 | Planned | - |
 | M2-2 Ehrliche Baseline | 0/3 | Planned | - |
 | M2-3 Labels und Prüfsatz | 0/3 | Not started | - |
-| M2-4 Messvorschrift | 0/2 | Not started | - |
+| M2-4 Messvorschrift | 0/3 | Planned | - |
 | M2-5 Einstiegspaket | 0/2 | Not started | - |
