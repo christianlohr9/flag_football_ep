@@ -1,9 +1,12 @@
 # Datensatz-Aufbau — Laufendes Protokoll (Phase 2.2)
 
 **Status: Iteration 1 abgeschlossen — Korrektursitzung, Merge und DVC-Versionierung am
-2026-09-02 (Plan 02.2-13). Datensatz v1 liegt unter `data/labels/dataset/`, DVC-getrackt,
-739 Bilder über drei Domänen, 100 % nutzerin-gesichtet. Noch offen: Iteration 2 (Plan
-02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20).**
+2026-09-02 (Plan 02.2-13), am selben Tag per Korrektur auf Datensatz v1.1 berichtigt
+(D-17-Verstoss, siehe `### Korrektur 2026-09-02` unten). Datensatz v1.1 liegt unter
+`data/labels/dataset/`, DVC-getrackt, 558 Bilder über drei Domänen (Drohne 450, TV/Broadcast
+100, GoPro/Hinterfeld 8) — jedes Bild tatsächlich von der Nutzerin in CVAT gesichtet
+und/oder korrigiert, per Datei-Diff gegen die Vorlabels verifiziert, nicht nur gemeldet.
+Noch offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20).**
 
 ## Zweck & Abgrenzung
 
@@ -390,6 +393,96 @@ lokale Sicherungskopie der Korrektursitzung an. Der eigentliche `dvc push` gegen
 provisionierten OTC-OBS-Bucket bleibt Plan 02.2-20 vorbehalten (Bucket-Bereitstellung: Plan
 02.2-14) — dieser Aufschub blockiert diesen Plan nicht, wie in Task 3s eigenem `<action>`-Block
 vorgesehen.
+
+> **Korrigiert am 2026-09-02, siehe `### Korrektur 2026-09-02` unten:** die 189
+> GoPro/Hinterfeld-Frames, die die obigen Tabellen als "übernommen" ausweisen, waren zum
+> Zeitpunkt dieses Merges tatsächlich überwiegend ungeprüfte Vorlabels, keine
+> nutzerin-gesichteten Frames. `data/labels/dataset/` ist inzwischen auf Datensatz v1.1
+> berichtigt (558 Bilder). Die Zahlen und Hashes oben beschreiben, was am Merge-Tag
+> tatsächlich gebaut wurde (historischer Ausführungsnachweis) — für den aktuellen,
+> D-17-konformen Stand gilt ausschliesslich die Korrektur-Sektion.
+
+### Korrektur 2026-09-02: D-17-Verstoss behoben — Datensatz v1.1
+
+**Befund:** Die Nutzerin stellte am 2026-09-02 klar, dass von den 200 GoPro/Hinterfeld-Frames
+der Aufgabe `al-1-sideline-1` tatsächlich nur ca. 8 in CVAT gesichtet und gelabelt wurden — die
+übrigen Frames tragen weiterhin ungeprüfte Vorlabels des feingetunten Detektors (die 11
+Fernfeld-Frames mit 0 Boxen waren bereits vor diesem Befund korrekt als übersprungen getrimmt,
+siehe `### Merge & Validierung` oben). Drohne (450) und TV/Broadcast (100) wurden von der
+Nutzerin durchgesehen und bleiben unverändert. Der oben unter `### Korrektursitzung: Ergebnis`
+dokumentierte Datei-Diff (104/200 abweichend von den Vorlabel-Boxzahlen) hatte Box*zahl*-
+Änderungen gezählt, nicht pro Frame verifiziert, ob die Boxen selbst tatsächlich neu gesetzt
+wurden — das verdeckte, dass ein grosser Teil der scheinbar "veränderten" Zahl aus wenigen stark
+bearbeiteten Frames stammt, während die meisten der 200 Frames unangetastet blieben. Das
+verletzt D-17 (100 % Nutzerin-Verifikation): ein Datensatz darf keine Frames enthalten, die nur
+ein Vorlabel-Modell, aber nie ein Mensch gesehen hat.
+
+**Diff-Methodik (dieser Korrekturlauf):** pro Domäne wurde jedes Bild aus dem korrigierten
+CVAT-Export gegen dasselbe Bild im Vorlabel-COCO (gleicher Dateiname) verglichen — Boxenzahl,
+`category_id` und `bbox`-Koordinaten (Toleranz 1,0 px, deckt CVATs eigene
+Rundung/Polygon-zu-Rechteck-Konvertierung an unveränderten Boxen ab). Ein Frame gilt als
+"berührt", wenn die Boxenzahl abweicht oder mindestens eine Box aus dem Vorlabel keine
+Entsprechung im Export findet; sonst als "unberührt" (= identisch zum Vorlabel = nie tatsächlich
+bearbeitet, auch wenn die Aufgabe in CVAT als abgeschlossen markiert wurde).
+
+| Domäne | Bilder | Berührt (≠ Vorlabel) | Unberührt (= Vorlabel) | Davon 0-Boxen (Fernfeld, bereits getrimmt) | Behandlung |
+|---|---:|---:|---:|---:|---|
+| Drohne | 450 | 172 | 278 | 0 | alle 450 bleiben — von der Nutzerin durchgesehen, "unberührt" heisst hier bestätigt, nicht ungesehen |
+| TV/Broadcast | 100 | 94 | 6 | 0 | alle 100 bleiben — von der Nutzerin durchgesehen |
+| GoPro/Hinterfeld | 200 | **8** | 192 | 11 | nur die 8 berührten Frames bleiben; die 181 unberührten, nicht-Fernfeld Frames werden ausgeschlossen (D-17) |
+
+Die 8 berührten GoPro-Frames sind exakt die ersten acht in Aufnahmereihenfolge (`Wide - Clip
+001_f00000` bis `Wide - Clip 002_f00071`) — deckungsgleich mit der im Nachtrag vom 2026-09-02
+festgehaltenen Beobachtung "nach den ersten 8 GoPro-Frames meldete die Nutzerin: Vorlabels leer,
+Fernfeld stark verpixelt". Bei Drohne und TV/Broadcast bestätigt die hohe Berührt-Quote (38 %
+bzw. 94 %) zusammen mit der ausdrücklichen Aussage der Nutzerin, dass diese beiden Domänen
+tatsächlich durchgesehen wurden — der niedrigere Drohnen-Anteil ist plausibel, weil der
+Drohnen-Detektor (worauf er feingetunt ist) dort die höchste Vorlabel-Trefferquote hatte und
+entsprechend am wenigsten Korrektur brauchte.
+
+**Datensatz v1 → v1.1:**
+
+| Kennzahl | v1 (Plan 02.2-13, fehlerhaft) | v1.1 (diese Korrektur) |
+|---|---:|---:|
+| Bilder gesamt | 739 | 558 |
+| Drohne | 450 | 450 (unverändert) |
+| TV/Broadcast | 100 | 100 (unverändert) |
+| GoPro/Hinterfeld | 189 | **8** |
+| `player`-Boxen | 9799 | 9305 |
+| `referee`-Boxen | 1371 | 1063 |
+| DVC-MD5 (`.dvc`-Datei) | `b0a33db5bb3269c8fdd594e198dcab9f.dir` (741 Dateien) | `1659e351c063750eea94b536eb9f10e1.dir` (560 Dateien) |
+| `content_sha256` | `e27c1b60d60e240d8f6bc9d4b6b2cd276b135776cb2cd812ff36ff6661fabb8b` | `82f0feb7c4d678a44bdc7e90be416561bb2e27fabb5a657eb0dc005dbc54fa92` |
+
+181 GoPro/Hinterfeld-Frames wurden per D-17 aus `data/labels/dataset/` entfernt (Bilddateien
+gelöscht, `instances.json`/`manifest.json` neu durchnummeriert). Der volle, ungetrimmte
+200-Bilder-Export bleibt unverändert und git-ignoriert unter
+`data/labels/al-iteration-1/cvat-export/sideline/instances.json` erhalten — eine künftige
+GoPro-Nachsitzung kann daraus jeden noch unbearbeiteten Frame nachträglich korrigieren und
+mergen, ohne die Ziehung erneut zu machen.
+
+**Ausschluss-Assertionen erneut geprüft (Teilmenge von v1, daher trivial erwartet, aber nicht
+angenommen):** Puerto Rico 0 Treffer über alle 558 Frames; `frozen_eval_clips.csv`
+(`role = frozen_eval`) 0 Schnittmenge (Domäne + Clip-Nummer) gegen alle 558 Frames.
+
+**Validierung** (`ffep cv dataset --coco data/labels/dataset --manifest
+data/labels/dataset/manifest.json --min-images 1 --max-images 3000`): exit 0, 558 Bilder, 9305
+`player` + 1063 `referee` Boxen, 0 Bilder ohne Annotation, jede Domäne mit
+mindestens einer `player`-Box (Drohne 7953, GoPro/Hinterfeld 82, TV/Broadcast 1270).
+
+**Ehrlicher Stand gegen den 1.500-Floor (korrigiert):** 558 von 1.500 (37 %) — spürbar unter dem
+zuvor gemeldeten 739/1500 (49 %), weil dieser Wert vorher auf 181 nicht tatsächlich verifizierten
+Frames beruhte. Iteration 2 (Plan 02.2-16/17) muss den GoPro-Rückstand entsprechend deutlicher
+aufholen als im ursprünglichen Plan-13-Stand angenommen — die Nachtrags-Zielgrösse "~50–80
+saubere Frames pro Sitzung" bleibt die realistische Grundlage dafür, nicht die volle
+200er-Ausschreibung.
+
+**DVC:** `dvc add data/labels/dataset` erneut ausgeführt (neuer Pointer, `git status --porcelain
+data/labels` zeigt weiterhin nur `data/labels/dataset.dvc`, `git check-ignore -q
+data/labels/dataset` bestätigt weiterhin den Ausschluss der Nutzdaten). `dvc push -r
+local-fallback` erneut gegen den bestehenden lokalen Rückfall-Remote ausgeführt (3 neue Dateien
+— Drohne/Broadcast-Bildinhalte waren bereits im Cache, nur die geänderten JSON-Dateien und der
+neue `.dir`-Eintrag sind neu). Der reale OTC-OBS-Push bleibt weiterhin Plan 02.2-20 vorbehalten,
+unverändert gegenüber Plan 02.2-13s Stand.
 
 ## Iteration 2
 

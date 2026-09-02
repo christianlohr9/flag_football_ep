@@ -82,7 +82,7 @@ uv sync --extra versioning
 
 Der Bucket-Name ist ein **Platzhalter** (`ffep-datasets-PLACEHOLDER`) — Plan 02.2-14 provisioniert den echten OTC-OBS-Bucket, Plan 02.2-20 ersetzt den Platzhalter durch den echten Namen. Zugangsdaten (`OTC_OBS_ACCESS_KEY_ID`/`OTC_OBS_SECRET_ACCESS_KEY`) werden nie literal in `ffep.toml` oder `.dvc/config` geschrieben, sondern ausschließlich über `secret(config.cv.otc_obs_access_key_env)` aus der Umgebung/`.env` aufgelöst — dasselbe Muster wie `cvat_username_env`/`cvat_password_env`.
 
-**Unverifiziert in dieser Umgebung (RESEARCH Pitfall 3):** der eigentliche `dvc push`/`dvc pull` gegen den echten OTC-OBS-Endpunkt wurde noch nicht getestet (keine Credentials, kein Test-Bucket in dieser Session) -- Plan 02.2-13s Versuch schlug wie erwartet mit `403 Forbidden` gegen den Platzhalter-Bucket fehl. `tests/test_dvc_layout.py` beweist die DVC-Mechanik gegen einen lokalen Verzeichnis-Remote; Plan 02.2-13 hat denselben lokalen Rückfallweg zusätzlich gegen den echten Iteration-1-Datensatz (739 Bilder, nicht nur ein Test-Fixture) verifiziert (`.dvc/config.local`, git-ignoriert, `docs/dataset-buildout.md` → `### DVC-Versionierung`). Der OTC-OBS-Endpunkt selbst bleibt die einzige noch offene Variable, sobald echte Credentials existieren (behandelt als Checkpoint-würdiger erster Versuch, nicht als Annahme).
+**Unverifiziert in dieser Umgebung (RESEARCH Pitfall 3):** der eigentliche `dvc push`/`dvc pull` gegen den echten OTC-OBS-Endpunkt wurde noch nicht getestet (keine Credentials, kein Test-Bucket in dieser Session) -- Plan 02.2-13s Versuch schlug wie erwartet mit `403 Forbidden` gegen den Platzhalter-Bucket fehl. `tests/test_dvc_layout.py` beweist die DVC-Mechanik gegen einen lokalen Verzeichnis-Remote; Plan 02.2-13 hat denselben lokalen Rückfallweg zusätzlich gegen den echten Iteration-1-Datensatz (ursprünglich 739 Bilder, seit der D-17-Korrektur vom 2026-09-02 558 Bilder, nicht nur ein Test-Fixture) verifiziert (`.dvc/config.local`, git-ignoriert, `docs/dataset-buildout.md` → `### DVC-Versionierung`, `### Korrektur 2026-09-02`). Der OTC-OBS-Endpunkt selbst bleibt die einzige noch offene Variable, sobald echte Credentials existieren (behandelt als Checkpoint-würdiger erster Versuch, nicht als Annahme).
 
 **Pro-Maschine-`uv sync`-Falle gilt auch hier:** wie beim `cv`-Extra oben (siehe "Pro-Maschine-torch-Falle") muss `uv sync --extra versioning` auf jeder Maschine separat laufen, die DVC nutzt — es gibt keine automatische Übertragung des installierten Zustands zwischen Primärmaschine und Dell-Rechner.
 
@@ -381,14 +381,16 @@ Solo-Entwickler-Projekt mit einer Annotationsperson ist eine IAA-Messung nicht b
 diese Kennzahlen und der Content-Hash belegen Konsistenz-mit-sich-selbst und
 Rueckverfolgbarkeit, nicht Inter-Annotator-Zuverlaessigkeit.
 
-**Nachfolger (Phase 2.2, Plan 02.2-13):** Die 304-Frame-Piloten-Datenmenge oben bleibt als
-historischer Beleg unveraendert stehen, fliesst aber gemaess dem Seed-Set-Verdikt
-`nicht uebernommen` (`docs/dataset-plan.md` `## 6`) **nicht** in den wachsenden
-Multi-Domaenen-Datensatz ein. Der laufende, DVC-getrackte Nachfolge-Datensatz liegt unter
-`data/labels/dataset/` (Drohne/GoPro-Hinterfeld/TV-Broadcast, 739 Bilder nach
-AL-Iteration 1) -- vollstaendiger Ausfuehrungsnachweis inkl. Domaenen-Aufschluesselung,
-DVC-MD5 und `content_sha256` in `docs/dataset-buildout.md` (`## Iteration 1` ->
-`### Merge & Validierung`, `### DVC-Versionierung`). Die hier dokumentierte
+**Nachfolger (Phase 2.2, Plan 02.2-13, korrigiert 2026-09-02):** Die 304-Frame-Piloten-Datenmenge
+oben bleibt als historischer Beleg unveraendert stehen, fliesst aber gemaess dem
+Seed-Set-Verdikt `nicht uebernommen` (`docs/dataset-plan.md` `## 6`) **nicht** in den
+wachsenden Multi-Domaenen-Datensatz ein. Der laufende, DVC-getrackte Nachfolge-Datensatz liegt
+unter `data/labels/dataset/` (Drohne/GoPro-Hinterfeld/TV-Broadcast, 558 Bilder nach
+AL-Iteration 1 und der D-17-Korrektur, die 181 ungeprueft-vorgelabelte GoPro-Frames wieder
+ausgeschlossen hat -- Datensatz v1.1, nicht mehr der 739-Bilder-Stand v1) -- vollstaendiger
+Ausfuehrungsnachweis inkl. Domaenen-Aufschluesselung, DVC-MD5 und `content_sha256` in
+`docs/dataset-buildout.md` (`## Iteration 1` -> `### Merge & Validierung`,
+`### DVC-Versionierung`, `### Korrektur 2026-09-02`). Die hier dokumentierte
 Labeling-Konvention (Boxen-Vollstaendigkeit, `referee`-nur-fuer-aktive-Schiedsrichter,
 Fusspunkt-Unterkante) gilt fuer den Nachfolge-Datensatz unveraendert weiter; die einzige
 domaenenspezifische Ergaenzung -- GoPro/Hinterfeld-Fernfeld wird bewusst uebersprungen statt
