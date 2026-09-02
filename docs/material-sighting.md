@@ -213,3 +213,203 @@ Entscheidung (D-11) folgt unten im Ratifizierungs-Block, sobald der Nutzer geurt
 > tatsächliche Seitenansicht und entspricht geometrisch `docs/capture-protocol.md`s Domäne 2. Die
 > Domänenwerte in Code und Inventar bleiben unverändert (`sideline`/`broadcast`), die Korrektur ist
 > rein dokumentarisch.
+
+## Nachtrag 2026-09-02 — Fünf neue Sessions (Vorarbeit AL-Iteration 2 / Milestone-2 M2-3)
+
+**Einordnung:** Der Nutzer hat fünf neue Aufnahme-Sessions unter `data/video/` abgelegt. Dieser
+Nachtrag registriert sie in `data/reference/video_inventory.csv`, sichtet sie mit derselben
+`ffep cv sight`-Pipeline wie oben und hält die Messwerte fest. Er ist doppelt zweckgebunden:
+erstens als Vorarbeit für **Phase 2.2 Active-Learning-Iteration 2** (die neuen Sessions sind
+Kandidaten für eine spätere Dataset-Version, sobald AL-Iteration 2 ansteht), zweitens als
+Materialgrundlage für **Milestone-2 Phase M2-3** ("Labels und Prüfsatz" — Materialauswahl für
+den Hackathon-Prüfsatz, `.planning/ROADMAP.md` §Milestone 2, DATA-01..05). Die fünf Sessions:
+
+| Session | Ordner | Domäne (registriert) | Clips | Spielzüge lt. Breakdown |
+|---|---|---|---|---|
+| Trainingslager GER vs GER (2026-01-03) | `2026-01-03_TrainingCamp_GERvsGER_Drone_9711289` | `drone` (Wide) + `sideline` (End Zone, siehe unten) | 30 + 30 | 30 |
+| Freundschaftsspiel GER vs Puerto Rico (2026-05-16) | `2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283` | `drone` (Wide) + `sideline` (End Zone, siehe unten) | 61 + 10 | 66 |
+| Freundschaftsspiel GER vs MEX (2026-03-01) | `2026-03-01_Friendly_GERvsMEX_GoPro_9711282` | `sideline` | 80 | 80 |
+| WC MEX vs ESP (2026-08-14) | `2026-08-14_WC_MEXvsESP_TV_9711284` | `broadcast` | 88 | 88 |
+| WC USA vs MEX (2024-08-31) | `2024-08-31_WC_USAvsMEX_TV_9711287` | `broadcast` | 95 | 95 |
+
+Alle fünf Ordner enthalten zusätzlich ein `breakdown.xlsx` (Hudl-PBP-Export, ein Sheet
+`Sheet1`), das **nicht** als Clip registriert wurde (siehe `docs/material-inventory.md` §Was
+nicht in die CSV kommt) — die Zeilenzahl abzüglich Kopfzeile liefert aber die Spielzüge-Spalte
+oben (per `openpyxl`, read-only, keine Personennamen ausgelesen). Hudl-Breakdown vorhanden →
+PBP-Join möglich für alle fünf Sessions.
+
+Die Clip-Zahlen in der obigen Tabelle sind die tatsächlich auf der Platte gefundenen — die
+Ordner enthalten je einen Clip weniger, als der Nutzer beim Ablegen genannt hatte (61/72/81/89/96
+statt 60/71/80/88/95); die genannten Zahlen zählten offenbar `breakdown.xlsx` mit. Harmlos, aber
+der Vollständigkeit halber hier festgehalten, weil die Registrierung strikt von der Platte liest,
+nicht von der Nutzer-Angabe.
+
+### Ordner-Befund: zwei Kamera-Feeds pro Drohnen-Ordner, und eine Domänen-Korrektur
+
+Beide Drohnen-Ordner (Trainingslager, Puerto Rico) enthalten **zwei Hudl-Winkel-Label**, `Wide`
+und `End Zone`, mit teilweise identischer Clip-Nummerierung — beim Trainingslager decken beide
+Label exakt dieselben 30 Spielzüge ab (volle 1:1-Überlappung, zwei simultane Kamera-Feeds),
+bei Puerto Rico deckt `Wide` die Plays 001–056 und 059–063 ab (61 Clips), `End Zone` die Plays
+057–066 (10 Clips), mit Teil-Überlappung bei 057–063 (vermutlich Kamera-Repositionierung Richtung
+Spielende). Da `sight_session`/`clip_paths` Clips pro Domäne+`session_id` über ein
+`clip_number`-keyed Dict indizieren, hätte eine gemeinsame `session_id` für beide Label bei jeder
+Kollision einen Clip stillschweigend verschluckt — beide Ordner wurden deshalb in je zwei
+`session_id`-Gruppen aufgeteilt (Suffix `-WIDE` bzw. eigene `-SIDELINE`-`session_id`, siehe unten).
+
+Beim Sichten der `End Zone`-Clips stellte sich zusätzlich heraus, dass sie **nicht** dieselbe
+Aufnahmecharakteristik wie ihre `Wide`-Geschwister zeigen: die Puerto-Rico-`End Zone`-Clips
+weisen eine deutliche Fischaugen-/Weitwinkel-Verzerrung auf (gekrümmte Torraum- und Seitenlinien,
+Bodennähe) — optisch identisch zur Signatur der beiden bestätigten GoPro-Sessions
+(2026-08-14 und die neue 2026-03-01-Session, siehe Vergleichsbilder unten), nicht zur glatten,
+unverzerrten Luftaufnahme der `Wide`-Clips derselben Session. Die Trainingslager-`End
+Zone`-Clips zeigen eine sehr breite, konstant hohe Rahmung mit einem sichtbaren Mast-/
+Stativ-Element im Bild — ebenfalls untypisch für eine frei hovernde Drohne. Beide `End
+Zone`-Gruppen wurden daher **von `domain=drone` auf `domain=sideline` umregistriert**
+(`fix(inventory)`-Commit dieser Session, siehe Git-Historie) und in
+`2026-01-03_TRAININGCAMP-GER-vs-GER-SIDELINE` (30 Clips) bzw.
+`2026-05-16_FRIENDLY-GER-vs-PUERTORICO-SIDELINE` (10 Clips) umbenannt. Diese Zuordnung stützt
+sich auf visuelle Auswertung einzelner Frames, nicht auf ein kalibriertes Verfahren — eine
+menschliche Bestätigung (welches physische Gerät die `End Zone`-Clips tatsächlich aufgenommen
+hat) steht noch aus, ist aber für die hier gezogenen Schlüsse nicht entscheidend, weil beide
+Domänen ohnehin als Trainingsdomänen zugelassen sind (D-11, siehe Ratifizierungs-Block oben).
+
+Die verbleibenden `Wide`-Clips beider Drohnen-Ordner bleiben `domain=drone`:
+`2026-01-03_TRAININGCAMP-GER-vs-GER-DRONE-WIDE` (30 Clips) und
+`2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE` (61 Clips).
+
+### Kamera-Positionen
+
+| Session | domain | n Clips | Hover-/Kamera-Positionen |
+|---|---|---|---|
+| Trainingslager `-DRONE-WIDE` | drone | 30 | 2 (hp-01: 17, hp-02: 13) |
+| Trainingslager `-SIDELINE` | sideline | 30 | 1 (hp-01: 30, lückenlos) |
+| Puerto Rico `-DRONE-WIDE` | drone | 61 | 2 (hp-01: 33, hp-02: 28) |
+| Puerto Rico `-SIDELINE` | sideline | 10 | 1 (hp-01: 10, lückenlos) |
+| GoPro GER vs MEX (neu) | sideline | 80 | 1 (hp-01: 80, lückenlos) |
+| TV MEX vs ESP | broadcast | 88 | 1 (hp-01: 88, lückenlos) |
+| TV USA vs MEX | broadcast | 95 | 1 (hp-01: 95, lückenlos) |
+
+Beide Drohnen-`-WIDE`-Sessions zeigen wie die Piloten-Session zwei Hover-Positionen (vermutlich
+ein Positionswechsel zur Halbzeit oder zwischen Drives); alle übrigen fünf Sessions liegen bei
+einer einzigen, durchgehenden Kameraposition über die gesamte Session.
+
+### Gemessene Spielergröße
+
+Methode identisch zu oben (MOG2-Hintergrundsubtraktion, Median/Perzentil über hunderte
+Einzelmessungen pro Clip). Kein Clip in keiner der sieben Sichtungen lieferte ein
+"no moving-blob samples recovered"-Notice — jeder Clip lieferte auswertbare Messungen.
+
+| Session | n Clips | p10 Median | p50 Median | p50-Spanne | Tier |
+|---|---|---|---|---|---|
+| Pilot (Referenz, drone) | 61 | 16.0 px | 30.0 px | 25.0–61.0 px | 61/61 Brauchbar |
+| Trainingslager `-DRONE-WIDE` | 30 | 17.0 px | 32.5 px | 22.0–67.0 px | 30/30 Brauchbar |
+| Trainingslager `-SIDELINE` | 30 | 19.0 px | 34.5 px | 22.0–53.0 px | 30/30 Brauchbar |
+| Puerto Rico `-DRONE-WIDE` | 61 | 17.0 px | 32.0 px | 19.0–62.0 px | 60/61 Brauchbar, 1 Unbrauchbar (Clip 25, p50=19.0) |
+| Puerto Rico `-SIDELINE` | 10 | 17.0 px | 26.5 px | 23.0–41.0 px | 10/10 Brauchbar |
+| GoPro GER vs MEX (neu) | 80 | 14.5 px | 28.0 px | 19.0–35.0 px | 79/80 Brauchbar, 1 Unbrauchbar (Clip 45, p50=19.0) |
+| TV MEX vs ESP | 88 | 14.0 px | 22.0 px | 17.0–25.0 px | 87/88 Brauchbar, 1 Unbrauchbar (Clip 13, p50=17.0) |
+| TV USA vs MEX | 95 | 13.0 px | 24.0 px | 19.0–33.0 px | 94/95 Brauchbar, 1 Unbrauchbar (Clip 87, p50=19.0) |
+
+Zur Einordnung: beide TV-Sessions liegen bei `1280x720`, nicht `1920x1080` wie die bestehende
+Broadcast-Session — niedrigere Auflösung als die bisherige Broadcast-Session, aber die gemessene
+Spielergröße bleibt im selben Band. Alle sieben Sessions bestehen fast vollständig aus
+`Brauchbar`-Clips; die vier vereinzelten `Unbrauchbar`-Ausreißer liegen jeweils nur 1 px unter
+der 20-px-Schwelle (17.0–19.0 px) und sind Einzelclip-Rauschen, kein Domänen-Befund.
+`recommend_inference_settings` bestätigt für alle sieben Sessions Band `20-40 px` →
+`resolution=896`, `sahi=false` — identisch zum bereits eingetragenen `ffep.toml`-Wert, keine
+Config-Änderung nötig.
+
+### GoPro: Spielergröße nach Bildzone (nah/mittel/fern)
+
+Zusätzliche Analyse für beide GoPro-Sessions (bestehende 2026-08-14 und neue 2026-03-01), um die
+Nutzerfrage "sind weit entfernte Spielerinnen unbrauchbar klein?" mit Zahlen statt Vermutung zu
+beantworten. Methode: dieselbe MOG2-Blob-Erkennung wie oben, zusätzlich wird pro akzeptiertem
+Blob die vertikale Bildposition (`y + h/2`, normiert auf Bildhöhe) mitgeführt und über alle Blobs
+einer Session in Terzile geteilt (unteres Drittel = "nah", mittleres = "mittel", oberes Drittel =
+"fern" der Y-Verteilung). Kein produktiver Pipeline-Code wurde dafür geändert — die Analyse
+importiert die privaten MOG2-Konstanten/Filter aus `cv/sighting.py` direkt, um exakt dieselbe
+Filterkaskade zu verwenden, läuft aber als eigenständiges Analyseskript (nicht Teil dieses
+Commits).
+
+| Session | Zone | n Blobs | p10 | p50 |
+|---|---|---|---|---|
+| GoPro 2026-08-14 (bestehend) | nah (unteres Drittel) | 38.040 | 15.0 px | 28.0 px |
+| GoPro 2026-08-14 (bestehend) | mittel | 38.239 | 17.0 px | 28.0 px |
+| GoPro 2026-08-14 (bestehend) | fern (oberes Drittel) | 37.994 | 17.0 px | 25.0 px |
+| GoPro 2026-03-01 (neu) | nah (unteres Drittel) | 50.339 | 15.0 px | 29.0 px |
+| GoPro 2026-03-01 (neu) | mittel | 50.842 | 13.0 px | 32.0 px |
+| GoPro 2026-03-01 (neu) | fern (oberes Drittel) | 50.292 | 16.0 px | 27.0 px |
+
+**Ausdrücklicher Hinweis, härter als der Richtwert-Hinweis oben:** die Bild-Y-Position ist ein
+Näherungs-Proxy für Tiefe, keine kalibrierte Entfernung — ohne Homographie ist "oberes Drittel"
+nicht zwangsläufig "am weitesten entfernt", nur "am weitesten oben im Bild" (bei einer schräg
+geneigten Kamera korrelieren beide meist, aber nicht linear). Der Höhen-Deckel
+(`h > frame_height/4`, filtert Tribünen-/Anzeigetafel-Artefakte) kann zudem gerade die größten
+kameranahen Spieler-Blobs mit-herausfiltern, was die "nah"-Zone systematisch nach unten
+verzerren könnte. Mit diesem Vorbehalt: **der Trend geht in die erwartete Richtung** — die
+"fern"-Zone misst in beiden Sessions den niedrigsten `p50` (25.0 px bzw. 27.0 px), 3–5 px unter
+"nah"/"mittel" —, aber die Spanne ist schmal (kein Kollaps auf ein "unbrauchbar klein"-Niveau; alle
+sechs Zonen-Werte bleiben deutlich über der 20-px-`Unbrauchbar`-Schwelle).
+
+### Drohnen-Winkel vs. Pilot
+
+Sichtprobe (Einzelframes, keine Homographie-Messung): die `-DRONE-WIDE`-Clips beider neuen
+Sessions (Trainingslager, Puerto Rico) zeigen einen zur Piloten-Session vergleichbaren, mäßig
+schrägen Hover-Winkel — keine erkennbar stärkere Aufsicht/Überkopf-Perspektive. Das
+Trainingslager wurde zudem in einer Multisport-Halle ohne Football-Markierungen aufgenommen
+(sichtbare Mittelkreis-Linie eines Hallenfußballfelds statt Yard-Linien), nicht auf einem
+regulären Football-Feld. Die neu als `sideline` reklassifizierten `End Zone`-Clips zeigen, wo
+beurteilbar (Puerto Rico), eher einen **flacheren**, boden­näheren Blickwinkel mit sichtbarer
+Weitwinkel-Verzerrung als die `Wide`-Drohnen-Clips derselben Session — das Gegenteil der im
+Piloten-Gate (`docs/capture-protocol.md` §Nachtrag 2026-08-31) gewünschten "steileren,
+überkopfigeren" Ausrichtung.
+
+## Die drei Einschätzungen (2026-09-02)
+
+**(a) Gibt es eine GoPro-Konfiguration mit p50 ≥ ~28 px in den relevanten Zonen
+(→ labelwürdig)?** Auf Session-Ebene: ja, knapp — die neue GoPro-Session misst p50 = 28.0 px
+gesamt (bestehende: 27.0 px), beide über der ~28-px-Hausmarke bzw. unmittelbar daran. Auf
+Zonen-Ebene ist das Bild gemischt: "nah" und "mittel" liegen bei beiden Sessions bei 28–32 px
+(klar labelwürdig), "fern" liegt bei 25.0 px (bestehend) bzw. 27.0 px (neu) — knapp unter bzw. an
+der Hausmarke. Es gibt also **keine** GoPro-Konfiguration, bei der auch die "fern"-Zone die
+~28-px-Marke sicher erreicht; die Gesamt-Session-Werte werden von den nahen/mittleren Zonen nach
+oben gezogen. Für Labeling-Zwecke heißt das: GoPro-Material ist insgesamt brauchbar, aber
+Clips/Abschnitte mit überwiegend weit entfernten Spielerinnen sollten mit reduzierter Erwartung
+an Box-Präzision eingeplant werden, nicht pauschal ausgeschlossen (kein Wert fällt unter die
+20-px-`Unbrauchbar`-Schwelle).
+
+**(b) Welche Drohnen-Session qualifiziert sich als REALES zweites Spiel für das private Test-Set
+(DATA-04), und erfüllen die Drohnen-Spiele jetzt DATA-01 (≥3 Spiele à ≥40 Spielzüge)?** Die
+Puerto-Rico-Session (`-DRONE-WIDE`, 61 Clips, 66 Spielzüge lt. Breakdown, andere Gegnerin als der
+Pilot, selber Aufnahmetag) ist ein echtes zweites Spiel gegen einen realen Gegner mit ≥40
+Spielzügen — sie qualifiziert sich für DATA-04 (Dev/Test-Trennung nach Spiel) und erfüllt für
+sich genommen DATA-02 (unterscheidet sich vom Piloten-Spiel im Gegner). Die
+Trainingslager-Session (`-DRONE-WIDE`, 30 Clips, 30 Spielzüge lt. Breakdown) qualifiziert sich
+**nicht**: GER gegen GER ist kein Gegner-Spiel, sondern ein internes Trainingslager, und 30 < 40
+Spielzüge unterschreitet ohnehin die DATA-01-Schwelle. Damit gibt es nach dieser Registrierung
+**zwei** echte Drohnen-Spiele mit ≥40 Spielzügen (Pilot: 61, Puerto Rico: 66), nicht drei — DATA-01
+(≥3 Spiele) ist für die Drohnen-Domäne **weiterhin nicht erfüllt**, ein drittes echtes
+Drohnen-Spiel gegen einen Gegner fehlt noch. Das korrigiert die in `ABGLEICH.md` festgehaltene
+Annahme "genau EIN Drohnen-Spiel registriert" auf **zwei** — ein Fortschritt, aber noch nicht die
+Zielmarke drei. (`docs/material-sighting.md` ist dafür der richtige Ort für die Korrektur; die
+DATA-01-Zählung selbst lebt in `.planning/imported/challenge-haertung/ABGLEICH.md`, das dieser
+Nachtrag nicht editiert, weil es außerhalb des Scopes dieser Sitzung liegt.)
+
+**(c) Zeigt eine Drohnen-Session einen steileren/überkopfigeren Winkel als der Pilot
+(Gate-Retrigger-Kandidat)?** Nein. Die Sichtprobe (siehe `### Drohnen-Winkel vs. Pilot` oben)
+zeigt für beide `-DRONE-WIDE`-Sessions einen zum Piloten vergleichbaren, nicht erkennbar
+steileren Winkel; die als `sideline` reklassifizierten `End Zone`-Clips liegen, wo beurteilbar,
+sogar flacher als der Pilot. Der im Piloten-Gate-Nachtrag (`docs/capture-protocol.md`) geäußerte
+Wunsch nach einem steileren Hover-Winkel für die nächste Session ist mit diesem Material also
+noch nicht erfüllt — kein Grund, das Piloten-Gate erneut aufzurollen, aber auch kein Fortschritt
+in die gewünschte Richtung. Diese Einschätzung stützt sich auf Einzelframe-Sichtprobe, nicht auf
+eine Winkel-Messung (keine Homographie für diese Sessions vorhanden) und ist entsprechend
+vorläufig.
+
+**Aktualisierte Bestandsaussage:** die drei oben unter "Domänen & Bestand" (`docs/material-
+inventory.md`) und in `ABGLEICH.md` festgehaltenen Stand-Aussagen zum Drohnen-Bestand ("genau EIN
+Drohnen-Spiel") sind mit dieser Registrierung überholt — es sind jetzt zwei echte Drohnen-Spiele
+(Pilot + Puerto Rico) plus eine Trainingslager-Session ohne Gegner-Charakter. Diese Zahlen sind
+hier in `docs/material-sighting.md` verbindlich festgehalten; `docs/material-inventory.md`s
+eigene "Domänen & Bestand"-Tabelle trägt weiterhin den Stand 2026-08-24 als historischen
+Schnappschuss (siehe deren Kopfzeile) und wird von diesem Nachtrag nicht überschrieben.
