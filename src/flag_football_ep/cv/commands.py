@@ -864,6 +864,53 @@ def eval_split(
     typer.echo(f"eval split: {out_csv} ({n_clips} clips)")
 
 
+@cv_app.command(name="hackathon-split")
+def hackathon_split(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    dev_session: Optional[str] = typer.Option(
+        None,
+        "--dev-session",
+        help="Public dev-set session id (default: cfg.cv.pilot_session_id)",
+    ),
+    test_session: str = typer.Option(
+        ..., "--test-session", help="Private test-set session id (the second game)"
+    ),
+    out: Optional[Path] = typer.Option(
+        None, "--out", help="Override the hackathon-split CSV output path"
+    ),
+    exclusions: Optional[Path] = typer.Option(
+        None, "--exclusions", help="Override the AL-exclusion CSV output path"
+    ),
+) -> None:
+    """Write the hackathon dev/private_test role split and the training-pool exclusion
+    for the private test session (DATA-04). The only sanctioned way to produce or
+    refresh `data/reference/hackathon_split.csv`/`data/reference/al_excluded_sessions.csv`
+    -- never hand-edit either file."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    dev_session_id = dev_session or cfg.cv.pilot_session_id
+    out_csv = out or (cfg.paths.reference / "hackathon_split.csv")
+    exclusions_csv = exclusions or (cfg.paths.reference / "al_excluded_sessions.csv")
+
+    from flag_football_ep.cv.testset import write_al_exclusion, write_hackathon_split
+
+    split = write_hackathon_split(cfg, dev_session_id, test_session, out_csv)
+    write_al_exclusion(
+        cfg,
+        test_session,
+        reason="private hackathon test game -- never a training-pool candidate",
+        requirement="DATA-04",
+        out_csv=exclusions_csv,
+    )
+
+    typer.echo(
+        f"hackathon split: {out_csv} (dev={len(split.dev_clips)} clips, "
+        f"test={len(split.test_clips)} clips)"
+    )
+    typer.echo(f"al exclusion: {exclusions_csv} ({test_session})")
+
+
 @cv_app.command()
 def detections(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),

@@ -274,6 +274,108 @@ def test_select_al_frames_empty_pool_raises_named_domain(
         select_al_frames(cfg, [session_id], 1, 4, 1, out_dir)
 
 
+# --- select_al_frames: session-level AL exclusion (DATA-04, plan 02.2-21) -----------------
+
+
+def _write_al_exclusion_csv(tmp_path: Path, rows: list[dict]) -> Path:
+    lines = ["session_id,domain,reason,requirement,excluded_at"]
+    for row in rows:
+        lines.append(
+            f"{row['session_id']},{row['domain']},{row['reason']},"
+            f"{row['requirement']},2026-09-02T00:00:00+00:00"
+        )
+    path = tmp_path / "data" / "reference" / "al_excluded_sessions.csv"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def test_select_al_frames_excluded_session_raises_before_loading_detector(
+    tmp_path: Path, cfg: Config, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An excluded session must never reach `detect.load_detector` at all -- the
+    monkeypatch below raises `AssertionError` if it is ever called, so a regression
+    that let the exclusion check run too late (or not at all) fails loudly rather
+    than silently opening the excluded session's clips.
+    """
+    session_id = "sess-excluded"
+    tcf._touch(tmp_path, "data/video/sess-excluded/Wide - Clip 001.mp4")
+    tcf._write_inventory(
+        tmp_path,
+        [tcf._row("data/video/sess-excluded/Wide - Clip 001.mp4", session_id=session_id, domain="drone")],
+    )
+    tcf._write_hover_positions(tmp_path, {1: "hp-01"})
+    _write_frozen_eval_csv(
+        tmp_path,
+        [
+            {"domain": "drone", "session_id": session_id, "clip_number": 1, "stratum_id": "hp-01", "role": "pool"},
+        ],
+    )
+    _write_al_exclusion_csv(
+        tmp_path,
+        [
+            {
+                "session_id": session_id,
+                "domain": "drone",
+                "reason": "private hackathon test game",
+                "requirement": "DATA-04",
+            }
+        ],
+    )
+
+    def _never_call(config, run_id=None):
+        raise AssertionError("detect.load_detector must not be called for an excluded session")
+
+    monkeypatch.setattr(detect, "load_detector", _never_call)
+
+    out_dir = tmp_path / "al" / "iteration-1"
+    with pytest.raises(ActiveLearningError, match=session_id):
+        select_al_frames(cfg, [session_id], 1, 2, 1, out_dir)
+
+
+def test_select_al_frames_non_excluded_session_still_selects(
+    tmp_path: Path, cfg: Config, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A session absent from `al_excluded_sessions.csv` (including when the file
+    itself is absent) selects exactly as before -- the exclusion check must not
+    change behaviour for the common case.
+    """
+    session_id = "sess-not-excluded"
+    _write_color_clip(tmp_path / "data/video/sess-not-excluded/Wide - Clip 001.mp4", 4, color=(50, 50, 50))
+    tcf._write_inventory(
+        tmp_path,
+        [tcf._row("data/video/sess-not-excluded/Wide - Clip 001.mp4", session_id=session_id, domain="drone")],
+    )
+    tcf._write_hover_positions(tmp_path, {1: "hp-01"})
+    _write_frozen_eval_csv(
+        tmp_path,
+        [
+            {"domain": "drone", "session_id": session_id, "clip_number": 1, "stratum_id": "hp-01", "role": "pool"},
+        ],
+    )
+    # A different session is excluded -- must not affect this one.
+    _write_al_exclusion_csv(
+        tmp_path,
+        [
+            {
+                "session_id": "some-other-session",
+                "domain": "drone",
+                "reason": "unrelated",
+                "requirement": "DATA-04",
+            }
+        ],
+    )
+    monkeypatch.setattr(
+        detect, "load_detector", lambda config, run_id=None: _FakeDetectorModel(lambda _i: _empty_detections())
+    )
+
+    out_dir = tmp_path / "al" / "iteration-1"
+    selection = select_al_frames(cfg, [session_id], 1, 1, 1, out_dir)
+
+    assert selection.frames
+    assert {f.clip_number for f in selection.frames} == {1}
+
+
 # --- select_al_frames: diversity vs. a naive flat uncertainty ranking ----------------------
 
 

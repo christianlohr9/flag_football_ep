@@ -18,11 +18,19 @@ of the yielded `DetectionBatch`es as scoring candidates (RESEARCH Pattern 1). Th
 candidate pool is restricted to `role = pool` clips (`frames.read_eval_split`,
 T-2.2-25): a clip held out as `frozen_eval` is never opened for candidate scoring at
 all, so it can never be selected regardless of how uncertain a frame inside it would
-have scored. Every AL prelabel/selection detector call always resolves through
+have scored. On top of that clip-level restriction, `select_al_frames` also honors a
+session-level exclusion (`data/reference/al_excluded_sessions.csv`,
+`testset.read_al_excluded_sessions`, DATA-04, plan 02.2-21): a session named there --
+today, the private hackathon test game -- raises `ActiveLearningError` before a
+single clip is opened or a detector is loaded, fail-closed by design. This is
+deliberately session-level rather than clip-level: the private test game reuses the
+pilot session's own clip numbers, so a clip-level exclusion via
+`frozen_eval_clips.csv` cannot express it without corrupting the pilot session's own
+split. Every AL prelabel/selection detector call always resolves through
 `detect.load_detector`'s default `champion`-alias path -- the newest fine-tuned
 detector, never the zero-shot fallback chain (RESEARCH Pitfall 1, T-2.2-26).
 
-Implemented by plan 02.2-09.
+Implemented by plan 02.2-09. Session-level exclusion added by plan 02.2-21.
 """
 
 from __future__ import annotations
@@ -294,9 +302,12 @@ def select_al_frames(
 
     Raises `ActiveLearningError` naming the domain when a session's candidate pool is
     empty (every registered clip is `frozen_eval`, or none remain after excluding a
-    prior iteration's selection).
+    prior iteration's selection). Raises `ActiveLearningError` naming the session, its
+    recorded reason and `al_excluded_sessions.csv` when any `session_ids` entry is a
+    session-level training-pool exclusion (DATA-04) -- checked before any clip is
+    opened or any detector is loaded.
     """
-    from flag_football_ep.cv import detect
+    from flag_football_ep.cv import detect, testset
     from flag_football_ep.cv.frames import (
         _allocate_proportional,
         _read_stratum_ids,
@@ -309,6 +320,15 @@ def select_al_frames(
     out_dir = Path(out_dir)
     eval_split_path = config.paths.reference / "frozen_eval_clips.csv"
     eval_split = read_eval_split(eval_split_path)
+
+    exclusions_path = config.paths.reference / "al_excluded_sessions.csv"
+    excluded_sessions = testset.read_al_excluded_sessions(exclusions_path)
+    for session_id in session_ids:
+        if session_id in excluded_sessions:
+            raise ActiveLearningError(
+                f"session {session_id!r} is excluded from active-learning selection "
+                f"({excluded_sessions[session_id]}) -- see {exclusions_path} (DATA-04)"
+            )
 
     excluded_frame_keys: set[tuple[str, int, int]] = set()
     if iteration > 1:
