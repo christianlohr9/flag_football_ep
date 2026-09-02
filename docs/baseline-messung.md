@@ -185,6 +185,66 @@ weitergibt).
 | `hsiangwei0903/Deep-EIoU` (ausgeschlossen) | keine — Default-Copyright, kein LICENSE-File | nicht verwendet | `gh api repos/hsiangwei0903/Deep-EIoU --jq '.license'` → `null`, geprüft 2026-09-01 |
 | `sports_model.pth.tar-60` (ausgeschlossen) | keine nachvollziehbare Lizenz/Herkunft (informeller Google-Drive-Link, identischer Dateiname in Deep-EIoU und gta-link) | nicht verwendet, aus dem lokalen `vendor/gta-link`-Klon entfernt | `vendor/README.md` `## Bekannte Probleme` |
 
+## Stetige Kennzahl neben der Schwelle (M2-4, METR-01/METR-04)
+
+Die stetige Kennzahl `fragments_per_expected_player` zählt je Clip `n_fragments` (Tracks,
+deren Anteil an der Clip-Länge unter 0,5 liegt, dieselbe Zählung wie in
+`## Verfahren und Messwerte`) und teilt sie durch die feste Konstante `EXPECTED_PLAYERS = 10`
+(5 gegen 5) — sie kommt ohne Identitäts-Labels aus, gebraucht werden nur die Tracks selbst.
+Als diagnostische Ergänzung läuft `active_track_count_deviation`, die mittlere Abweichung der
+Anzahl gleichzeitig aktiver Tracks von 10 je Frame — ausdrücklich kein Abnahmekriterium,
+sondern eine Warnleuchte.
+
+| Verfahren | Konfiguration | Schwellenmetrik (Human) | Schwellenmetrik (automatisch) | Stetige Kennzahl (Fragmente je erwarteter Spielerin) | Clips im Idealband 10–14 |
+|---|---|---|---|---|---|
+| BoT-SORT | bestehend, neu bewertet (nicht neu gelaufen) | 15/61 (24,59 %) | 57/61 (93,44 %) | 0,8361 | 1/61 (1,64 %) |
+| ByteTrack | baseline-matched | keine Review | 57/61 (93,44 %) | 0,8426 | 0/61 (0,00 %) |
+| ByteTrack | defaults | keine Review | 55/61 (90,16 %) | 0,9787 | 0/61 (0,00 %) |
+| CBIoU | baseline-matched | keine Review | 58/61 (95,08 %) | 0,7410 | 2/61 (3,28 %) |
+| CBIoU | defaults | keine Review | 49/61 (80,33 %) | 1,0770 | 0/61 (0,00 %) |
+| GTA | gta-link@e4d5cc40+osnet_x1_0-generic | keine Review | 61/61 (100,00 %) | 0,2639 | 10/61 (16,39 %) |
+
+**METR-04 in einem Satz:** die von der Challenge deklarierte Schwellenmetrik ist die
+Human-Bewertung, und die ist für fünf der sechs gemessenen Zeilen `keine Review` — sie
+verschluckt jeden Unterschied zwischen ByteTrack, CBIoU und GTA, weil sie zu ihnen schlicht
+nichts sagt. Die stetige Kennzahl dagegen ist für alle sechs Zeilen definiert und ordnet sie:
+GTA 0,2639, CBIoU baseline-matched 0,7410, BoT-SORT 0,8361, ByteTrack baseline-matched 0,8426,
+ByteTrack defaults 0,9787, CBIoU defaults 1,0770. Die engere Illustration innerhalb der
+automatischen Ansicht: ByteTrack defaults gegen baseline-matched verschiebt die automatische
+Schwelle um zwei Clips (55/61 → 57/61 (90,16 % → 93,44 %)), während die stetige Kennzahl von
+0,9787 auf 0,8426 wandert und der Idealband-Anteil in beiden Fällen bei 0/61 (0,00 %) bleibt —
+die stetige Kennzahl löst hier feiner auf, als es die grobe automatische Schwelle tut.
+
+**GTA-Vorbehalt (verbatim aus `## Verfahren und Messwerte`):** GTA lief mit einem generischen,
+nicht sportspezifisch feingetunten OSNet-Checkpoint (Market-1501, kein Flag-Football-Finetuning)
+auf gesampelten Crops (median 12 Crops/Track, gedeckelt bei `max_crops_per_track=12`, nicht
+jeder Frame eingebettet). Der Split/Merge-Schritt führte über alle 61 Clips 0 Split- und
+364 Merge-Operationen aus, die Track-Partition blieb in nur 3/61 Clips unverändert.
+**Wichtiger Vorbehalt:** die automatische Kontinuitäts-Rate von 61/61 (100 %) ist NICHT durch
+eine menschliche Review bestätigt (`human_pass_k`/`n` bewusst leer) und misst nur Track-Länge,
+nicht Identitätskorrektheit — bei median nur 12 Crops/Track und einem generischen Embedding
+könnten einige der 364 Merge-Operationen Tracks verschiedener Spielerinnen fälschlich
+zusammengeführt haben, ohne dass dies verifiziert wäre. Ein hoher Auto-Wert ist hier
+**kein Beleg** für eine tatsächliche Verbesserung gegenüber der 15/61-Referenz. Genau derselbe
+Mechanismus gilt für die stetige Kennzahl: ein Over-Merge (zwei Spielerinnen unter einer ID)
+**verbessert** `fragments_per_expected_player` — weniger Fragmente, weil weniger Tracks enden
+und neu beginnen —, während die Identität dabei schlechter wird. GTAs niedrigster Wert (0,2639)
+ist deshalb **kein Beleg** für eine tatsächlich bessere Identitätsstabilität.
+
+**Blinder Fleck:** die stetige Kennzahl misst Track-Abdeckung und Fragmentierung, nicht
+Identitätskorrektheit. Ein stiller Identitätswechsel während einer Überlappung — der dominante
+Fehlermodus in diesem Datensatz, 39 von 46 Pilot-Fails — hinterlässt darin keine Spur: kein
+Track endet, kein Track wird neu geboren, und die Anzahl gleichzeitig aktiver Tracks ändert
+sich nicht. Die Kennzahl zeigt Fortschritt innerhalb eines gescheiterten Plays und ersetzt
+weder das menschliche Urteil noch eine Assoziationsmetrik mit Identitäts-Labels (M2-3).
+
+Ein Aufruf liefert beide Zahlen für Dev und Test in einem Lauf. Die Dev-Form:
+`uv run python scripts/hackathon/score_tracks.py --tracks-dev data/processed/tracking/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE_tracks.parquet --review-dev data/reference/continuity_review.csv --split data/reference/hackathon_split.csv --out-md <Ausgabepfad>`.
+Mit zusätzlichem `--tracks-test`/`--review-test` liest derselbe Aufruf auch den privaten
+Test-Split; dessen Review-Datei liegt außerhalb der Versionskontrolle im projektinternen
+Datenvault und wird hier bewusst nicht als Pfad ausgeschrieben (siehe
+`docs/hackathon-challenge-reid.md` `## Datenschutz`).
+
 ## Grenzen dieser Messung
 
 Keine Beschönigung: die automatische Kennzahl ist gesättigt (BoT-SORTs eigene Referenzzeile

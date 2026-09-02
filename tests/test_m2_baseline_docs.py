@@ -22,6 +22,9 @@ BASELINE_MESSUNG = REPO_ROOT / "docs" / "baseline-messung.md"
 CHALLENGE_REID = REPO_ROOT / "docs" / "hackathon-challenge-reid.md"
 CHALLENGE_FORMULAR = REPO_ROOT / "docs" / "hackathon-challenge-reid-formular.md"
 SUMMARY_CSV = REPO_ROOT / "data" / "reference" / "baseline-methods" / "summary.csv"
+PER_CLIP_CSV = REPO_ROOT / "data" / "reference" / "baseline-methods" / "per_clip.csv"
+
+CONTINUOUS_SECTION_HEADING = "## Stetige Kennzahl neben der Schwelle (M2-4, METR-01/METR-04)"
 
 HISTORY_MARKERS = ("vormalig", "obere Schranke", "ersetzt", "Hochrechnung")
 OTHER_METHOD_NAMES = ("ByteTrack", "CBIoU", "GTA", "Deep-EIoU")
@@ -204,6 +207,88 @@ def test_every_rate_has_a_denominator() -> None:
         if any(exc in line for exc in allowed_exceptions):
             continue
         raise AssertionError(f"line has a '%' with no k/n denominator: {line!r}")
+
+
+def _continuous_section() -> str:
+    text = _read(BASELINE_MESSUNG)
+    return _section(text, CONTINUOUS_SECTION_HEADING)
+
+
+def _per_clip_rows() -> list[dict]:
+    with PER_CLIP_CSV.open(encoding="utf-8") as fh:
+        return list(csv.DictReader(fh))
+
+
+def _german_decimal(cell: str) -> float:
+    match = re.search(r"(\d+,\d+)", cell)
+    assert match, f"no German-comma decimal found in {cell!r}"
+    return float(match.group(1).replace(",", "."))
+
+
+def test_continuous_section_has_one_row_per_measured_method() -> None:
+    rows = _table_rows(_continuous_section())
+    assert rows, "no rows found in the METR-04 comparison table"
+    csv_keys = {(r["method"], r["config"]) for r in _csv_rows()}
+    assert len(rows) == len(csv_keys), (
+        f"expected {len(csv_keys)} rows in the METR-04 table (one per summary.csv "
+        f"method/config), found {len(rows)}"
+    )
+
+
+def test_continuous_values_match_per_clip_csv() -> None:
+    rows = _table_rows(_continuous_section())
+    per_clip = _per_clip_rows()
+    assert rows, "no rows found in the METR-04 comparison table"
+    for cells in rows:
+        verfahren, konfiguration = cells[0], cells[1]
+        csv_row = _csv_row_for(verfahren, konfiguration)
+        method, config = csv_row["method"], csv_row["config"]
+        fragments = [
+            float(r["n_fragments"])
+            for r in per_clip
+            if r["method"] == method and r["config"] == config
+        ]
+        assert fragments, f"no per_clip.csv rows for ({method!r}, {config!r})"
+        expected = round(sum(fragments) / len(fragments) / 10, 4)
+        actual = _german_decimal(cells[4])
+        assert abs(actual - expected) < 1e-9, (
+            f"row {verfahren}/{konfiguration}: continuous value {actual} != "
+            f"recomputed {expected} from per_clip.csv"
+        )
+
+
+def test_continuous_human_column_matches_summary_csv() -> None:
+    rows = _table_rows(_continuous_section())
+    assert rows, "no rows found in the METR-04 comparison table"
+    for cells in rows:
+        verfahren, konfiguration, human_cell = cells[0], cells[1], cells[2]
+        csv_row = _csv_row_for(verfahren, konfiguration)
+        if csv_row["human_pass_k"] == "":
+            assert human_cell == "keine Review", (
+                f"row {verfahren}/{konfiguration}: expected 'keine Review' "
+                f"(summary.csv human_pass_k is empty), got {human_cell!r}"
+            )
+        else:
+            assert "15/61" in human_cell, (
+                f"row {verfahren}/{konfiguration}: expected the 15/61 BoT-SORT "
+                f"reference rate, got {human_cell!r}"
+            )
+
+
+def test_continuous_section_documents_guard_gta_caveat_and_blind_spot() -> None:
+    section = _continuous_section()
+    assert "diagnostisch" in section, (
+        "METR-04 section must name the guard metric as diagnostic"
+    )
+    assert "364" in section, "METR-04 section is missing the GTA merge-count caveat"
+    caveat_vocabulary = ("Merge-Operation", "zusammengef", "Over-Merge", "over-merge")
+    assert any(word in section for word in caveat_vocabulary), (
+        "METR-04 section is missing GTA merge-caveat vocabulary"
+    )
+    assert "39" in section, "METR-04 section is missing the blind-spot fail count"
+    assert "Identitätswechsel" in section or "Identitaetswechsel" in section, (
+        "METR-04 section is missing the blind-spot identity-switch statement"
+    )
 
 
 def test_no_pii_in_docs() -> None:
