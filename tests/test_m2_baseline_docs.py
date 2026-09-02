@@ -195,6 +195,54 @@ def test_challenge_doc_links_protocol() -> None:
     )
 
 
+def test_challenge_reid_states_metr03_framing() -> None:
+    text = _read(CHALLENGE_REID)
+    section = _section(text, "### Benchmark-Design")
+    assert "Abnahmekriterium" in section, (
+        "### Benchmark-Design must name the acceptance criterion (Abnahmekriterium)"
+    )
+    assert "Zielrichtung" in section, (
+        "### Benchmark-Design must name the direction metric (Zielrichtung)"
+    )
+    assert "90 %" in section, (
+        "### Benchmark-Design must still state the 90 % acceptance target"
+    )
+    assert "Design offen" not in section, (
+        "### Benchmark-Design must no longer defer METR-03 wording as 'Design offen'"
+    )
+
+
+def test_challenge_reid_teil3_scoring_bullet_resolved() -> None:
+    text = _read(CHALLENGE_REID)
+    section = _section(text, "## Teil 3")
+    assert "~~Scoring-Skript" in section, (
+        "## Teil 3's dangling scoring bullet must be struck through, matching the "
+        "project's resolved-bullet convention"
+    )
+    assert "geklärt" in section, (
+        "## Teil 3's resolved scoring bullet must say 'geklärt' like the existing "
+        "resolved trackers-version bullet"
+    )
+
+
+def test_challenge_formular_names_direction_metric() -> None:
+    text = _read(CHALLENGE_FORMULAR)
+    section = text.split("## Beschreibung")[1].split("\n## ")[0]
+    assert "Zielrichtung" in section, (
+        "docs/hackathon-challenge-reid-formular.md ## Beschreibung must name the "
+        "direction metric (Zielrichtung)"
+    )
+
+
+def test_challenge_formular_beschreibung_word_count() -> None:
+    text = _read(CHALLENGE_FORMULAR)
+    section = text.split("## Beschreibung")[1].split("\n## ")[0]
+    word_count = len(section.split())
+    assert 150 <= word_count <= 300, (
+        f"## Beschreibung word count {word_count} outside the 150-300 budget"
+    )
+
+
 def test_every_rate_has_a_denominator() -> None:
     text = _read(BASELINE_MESSUNG)
     kn_before_percent = re.compile(r"\d+/\d+[^%\n]*%")

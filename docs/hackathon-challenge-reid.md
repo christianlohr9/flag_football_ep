@@ -164,9 +164,18 @@ optimiert.
 **Kern-Metrik:** Anteil der Spielzüge mit `pass` („≥ 90 % des Plays ohne Identitätswechsel"),
 gemessen von Menschen an gerenderten Overlays — dieselbe Definition wie im Gate-Dokument
 (`docs/pilot-gate-decision.md`, C-09 Kriterium 1). Ergänzend automatisch: Anzahl Spielerinnen-Tracks
-pro Clip (Ideal 10–14), verspätete Track-Starts, Fragmentzahl (`ffep cv continuity`). Für ein
-vollautomatisches Scoring während der Woche können aus den Human-Urteilen IDF1-artige Proxys
-abgeleitet werden — Design offen (siehe Teil 3).
+pro Clip (Ideal 10–14), verspätete Track-Starts, Fragmentzahl (`ffep cv continuity`).
+**Abnahmekriterium:** die Human-Bestehensrate (`pass`, ≥ 90 % des Plays ohne Identitätswechsel,
+gemessen an gerenderten Overlays) — unverändert. **Zielrichtung:** die stetige Kennzahl aus
+Phase M2-4 (Fragmente je erwarteter Spielerin, niedriger ist besser), im selben Lauf gemeldet,
+getrennt nach Dev und Test, damit Fortschritt innerhalb eines noch scheiternden Plays sichtbar
+wird und Einreichungen sich ordnen lassen, wenn das Abnahmekriterium sie nicht unterscheidet.
+**Diagnostisch:** die Guard-Kennzahl (Abweichung der Anzahl gleichzeitig aktiver Tracks von 10),
+kein Teil der Abnahme-/Zielrichtungs-Einordnung. Die stetige Kennzahl misst Abdeckung und
+Fragmentierung, nicht Identitätskorrektheit — ein stiller Wechsel während einer Überlappung
+bleibt für sie unsichtbar, und ein Over-Merge verbessert sie sogar; deshalb bleibt das
+menschliche Urteil das Abnahmekriterium (Details und Zahlen: `docs/baseline-messung.md`
+`## Stetige Kennzahl neben der Schwelle`, siehe auch `## Teil 4` unten).
 
 **Bonus-Metrik (Flag-Pull):** Treffer, wenn der erkannte Pull-Zeitpunkt innerhalb ±0,5 s und der
 Ort innerhalb ~2 Yards des gelabelten Ereignisses liegt; Precision/Recall über alle Clips mit
@@ -234,9 +243,13 @@ Ausschluss sensibler/fremder personenbezogener Daten — die Freigabe deckt das 
 
 - Verbands-OK einholen (Nutzer; blockiert die Einreichung).
 - Zweites Drohnenspiel auswählen und aufbereiten (Projekt), danach Labelling C (Nutzer).
-- Scoring-Skript: Human-Urteile bleiben die Referenz; ob während der Woche ein automatischer
+- ~~Scoring-Skript: Human-Urteile bleiben die Referenz; ob während der Woche ein automatischer
   Proxy (IDF1 gegen die bewerteten Clips, oder gegen eine kleine Voll-GT von 3–5 Clips) sinnvoll
-  ist, entscheiden wir beim Aufbereiten der Datasets.
+  ist, entscheiden wir beim Aufbereiten der Datasets.~~ — geklärt (Phase M2-4, METR-03):
+  Abnahmekriterium bleibt die Human-Bestehensrate; die stetige Kennzahl
+  (`docs/baseline-messung.md`) läuft im selben Lauf als Zielrichtung mit, die Guard-Kennzahl
+  diagnostisch — kein automatischer IDF1-Proxy nötig, siehe `### Benchmark-Design`
+  „Kern-Metrik" oben.
 - Umfang des Transfer-Sets (nur Detektionen, oder auch Urteile auf einer Stichprobe).
 - Infrastruktur beim Hackathon (GPU-Zugang, Datenablage ohne Cloud-Upload).
 - Einordnung in die Roadmap: Challenge **vor** Phase 2.3 (Coaching-Kennzahlen brauchen stabile
