@@ -15,6 +15,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 import pytest
 
@@ -22,6 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "hackathon"))
 
 import continuous_metric as cm  # noqa: E402
+import identity_metric as im  # noqa: E402
 import score_tracks  # noqa: E402
 
 _measure_clip, summarise_review = score_tracks._load_continuity_helpers()
@@ -587,3 +589,135 @@ def test_render_markdown_emits_rates_guard_and_blind_spot():
     assert cm.PARTIAL_REVIEW_LABEL in markdown
     assert "2/10 (20.00%)" in markdown
     assert "unvollstaendig (10/61 geprueft)" in markdown
+
+
+# --- identity_metric.py: M2-3-ready label-based association interface -------------
+
+IDENTITY_COLUMNS = (
+    "session_id",
+    "clip_number",
+    "frame_index",
+    "track_id",
+    "bbox_x1",
+    "bbox_y1",
+    "bbox_x2",
+    "bbox_y2",
+)
+
+
+def _identity_row(track_id: int, frame_index: int, x: float, y: float) -> dict:
+    return {
+        "session_id": "test-session-dev",
+        "clip_number": 1,
+        "frame_index": frame_index,
+        "track_id": track_id,
+        "bbox_x1": x,
+        "bbox_y1": y,
+        "bbox_x2": x + 10.0,
+        "bbox_y2": y + 10.0,
+    }
+
+
+def _empty_identity_df() -> pl.DataFrame:
+    schema = {
+        "session_id": pl.Utf8,
+        "clip_number": pl.Int64,
+        "frame_index": pl.Int64,
+        "track_id": pl.Int64,
+        "bbox_x1": pl.Float64,
+        "bbox_y1": pl.Float64,
+        "bbox_x2": pl.Float64,
+        "bbox_y2": pl.Float64,
+    }
+    return pl.DataFrame(schema=schema)
+
+
+def test_frame_events_covers_frames_present_in_either_input():
+    gt = pl.DataFrame([_identity_row(1, f, 0.0, 0.0) for f in range(5)]).select(list(IDENTITY_COLUMNS))
+    hyp = pl.DataFrame([_identity_row(1, f, 0.0, 0.0) for f in range(3, 8)]).select(list(IDENTITY_COLUMNS))
+
+    events = im.frame_events(gt, hyp, max_distance_px=10.0)
+
+    assert [e[0] for e in events] == list(range(8))
+
+
+def test_frame_events_matrix_shape_and_nan_threshold():
+    # gt bbox centre (5, 5); hyp bbox centre (8, 5) -- a 3px offset.
+    gt = pl.DataFrame([_identity_row(1, 0, 0.0, 0.0)]).select(list(IDENTITY_COLUMNS))
+    hyp = pl.DataFrame([_identity_row(1, 0, 3.0, 0.0)]).select(list(IDENTITY_COLUMNS))
+
+    events_wide = im.frame_events(gt, hyp, max_distance_px=10.0)
+    events_narrow = im.frame_events(gt, hyp, max_distance_px=2.0)
+
+    _, gt_ids, hyp_ids, wide_matrix = events_wide[0]
+    assert gt_ids == [1]
+    assert hyp_ids == [1]
+    assert wide_matrix.shape == (1, 1)
+    assert not np.isnan(wide_matrix[0, 0])
+    assert wide_matrix[0, 0] == pytest.approx(3.0)
+
+    _, _, _, narrow_matrix = events_narrow[0]
+    assert np.isnan(narrow_matrix[0, 0])
+
+
+def test_frame_events_one_sided_frame_yields_empty_list_on_other_side():
+    gt = pl.DataFrame([_identity_row(1, 0, 0.0, 0.0)]).select(list(IDENTITY_COLUMNS))
+    hyp = _empty_identity_df()
+
+    events = im.frame_events(gt, hyp, max_distance_px=10.0)
+
+    assert len(events) == 1
+    frame_index, gt_ids, hyp_ids, distance_matrix = events[0]
+    assert frame_index == 0
+    assert gt_ids == [1]
+    assert hyp_ids == []
+    assert distance_matrix.shape == (1, 0)
+
+
+def test_compute_identity_metrics_raises_actionable_error_when_motmetrics_missing(monkeypatch):
+    monkeypatch.setitem(sys.modules, "motmetrics", None)
+    gt = pl.DataFrame([_identity_row(1, 0, 0.0, 0.0)]).select(list(IDENTITY_COLUMNS))
+    hyp = gt.clone()
+
+    with pytest.raises(RuntimeError, match="motmetrics"):
+        im.compute_identity_metrics(gt, hyp)
+
+
+def test_identity_report_keys_are_the_documented_future_cli_surface():
+    assert im.IDENTITY_REPORT_KEYS == ("idf1", "mota", "num_switches", "n_frames", "max_distance_px")
+
+
+def test_compute_identity_metrics_perfect_hypothesis_scores_idf1_one():
+    pytest.importorskip("motmetrics")
+
+    rows = [_identity_row(track_id, f, track_id * 100.0, 0.0) for track_id in (1, 2) for f in range(N_FRAMES)]
+    gt = pl.DataFrame(rows).select(list(IDENTITY_COLUMNS))
+    hyp = gt.clone()
+
+    result = im.compute_identity_metrics(gt, hyp, max_distance_px=10.0, name="perfect")
+
+    assert result["idf1"] == pytest.approx(1.0)
+    assert result["num_switches"] == 0
+    assert result["n_frames"] == N_FRAMES
+
+
+def test_compute_identity_metrics_swapped_hypothesis_scores_below_one():
+    pytest.importorskip("motmetrics")
+
+    gt_rows, hyp_rows = [], []
+    for frame_index in range(N_FRAMES):
+        t1_x, t2_x = 0.0, 100.0
+        gt_rows.append(_identity_row(1, frame_index, t1_x, 0.0))
+        gt_rows.append(_identity_row(2, frame_index, t2_x, 0.0))
+        if frame_index >= N_FRAMES // 2:
+            t1_x, t2_x = t2_x, t1_x
+        hyp_rows.append(_identity_row(1, frame_index, t1_x, 0.0))
+        hyp_rows.append(_identity_row(2, frame_index, t2_x, 0.0))
+
+    gt = pl.DataFrame(gt_rows).select(list(IDENTITY_COLUMNS))
+    hyp = pl.DataFrame(hyp_rows).select(list(IDENTITY_COLUMNS))
+
+    result = im.compute_identity_metrics(gt, hyp, max_distance_px=10.0, name="swapped")
+
+    assert result["idf1"] < 1.0
+    assert result["num_switches"] >= 1
