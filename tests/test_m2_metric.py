@@ -12,6 +12,7 @@ fragment logic, never a stub.
 from __future__ import annotations
 
 import sys
+import tempfile
 from pathlib import Path
 
 import polars as pl
@@ -232,3 +233,357 @@ def test_aggregate_over_multiple_clips():
     assert result["n_clips_without_class_name"] == 3
     expected_mean = (0.7 + 0.0 + 0.0) / 3
     assert result["mean_fragments_per_expected_player"] == pytest.approx(expected_mean, abs=1e-4)
+
+
+# --- Split handling --------------------------------------------------------------
+
+SPLIT_ROWS = [
+    {
+        "domain": "drone",
+        "session_id": "test-session-dev",
+        "clip_number": n,
+        "hackathon_role": "dev",
+        "frozen_at": "2026-09-02T00:00:00+00:00",
+        "note": "synthetic",
+    }
+    for n in (1, 2, 3)
+] + [
+    {
+        "domain": "drone",
+        "session_id": "test-session-pt",
+        "clip_number": n,
+        "hackathon_role": "private_test",
+        "frozen_at": "2026-09-02T00:00:00+00:00",
+        "note": "synthetic",
+    }
+    for n in (1, 2, 3)
+]
+
+
+def _write_split_csv(path: Path, rows: list[dict]) -> None:
+    pl.DataFrame(rows).select(list(cm.SPLIT_COLUMNS)).write_csv(path)
+
+
+def test_read_split_maps_session_clip_to_role(tmp_path):
+    path = tmp_path / "hackathon_split.csv"
+    _write_split_csv(path, SPLIT_ROWS)
+
+    split_map = cm.read_split(path)
+
+    assert split_map[("test-session-dev", 1)] == "dev"
+    assert split_map[("test-session-pt", 1)] == "private_test"
+    assert len(split_map) == 6
+
+
+def test_read_split_raises_named_error_on_missing_column(tmp_path):
+    path = tmp_path / "hackathon_split.csv"
+    rows = [{k: v for k, v in row.items() if k != "note"} for row in SPLIT_ROWS]
+    pl.DataFrame(rows).write_csv(path)
+
+    with pytest.raises(cm.SplitSchemaError, match="note"):
+        cm.read_split(path)
+
+
+def test_read_split_raises_named_error_on_invalid_role(tmp_path):
+    path = tmp_path / "hackathon_split.csv"
+    bad_rows = [dict(row) for row in SPLIT_ROWS]
+    bad_rows[0]["hackathon_role"] = "public_test"
+    _write_split_csv(path, bad_rows)
+
+    with pytest.raises(cm.SplitSchemaError, match="public_test"):
+        cm.read_split(path)
+
+
+def test_role_violations_empty_when_roles_match(tmp_path):
+    path = tmp_path / "hackathon_split.csv"
+    _write_split_csv(path, SPLIT_ROWS)
+    split_map = cm.read_split(path)
+
+    dev_tracks = _to_df(
+        [_row("test-session-dev", n, 0, 0, 0.0, 0.0) for n in (1, 2, 3)]
+    )
+
+    assert cm.role_violations(dev_tracks, split_map, expected_role="dev") == []
+
+
+def test_role_violations_flags_wrong_role_and_unknown_pair(tmp_path):
+    path = tmp_path / "hackathon_split.csv"
+    _write_split_csv(path, SPLIT_ROWS)
+    split_map = cm.read_split(path)
+
+    # Clip 1 from the private_test session passed as --tracks-dev (wrong role);
+    # clip 99 is not in the split file at all (unknown pair).
+    mixed_tracks = _to_df(
+        [
+            _row("test-session-pt", 1, 0, 0, 0.0, 0.0),
+            _row("test-session-dev", 99, 0, 0, 0.0, 0.0),
+        ]
+    )
+
+    violations = cm.role_violations(mixed_tracks, split_map, expected_role="dev")
+
+    assert len(violations) == 2
+    assert any("private_test" in v and "erwartet 'dev'" in v for v in violations)
+    assert any("unbekannt" in v for v in violations)
+    assert violations == sorted(violations)
+
+
+# --- Vault-dialect review reading --------------------------------------------------
+
+_DIALECT_ROWS = [
+    {
+        "clip_number": 1,
+        "n_tracks": 24,
+        "longest_track_frac": 1.0,
+        "n_fragments": 5,
+        "auto_flag": "ok",
+        "verdict": "pass",
+        "id_switches": None,
+        "reviewer_note": "",
+    },
+    {
+        "clip_number": 2,
+        "n_tracks": 21,
+        "longest_track_frac": 1.0,
+        "n_fragments": 6,
+        "auto_flag": "ok",
+        "verdict": "fail",
+        "id_switches": 3,
+        "reviewer_note": "Wechsel bei Ueberlappung, Spielerin fiel, 1>6, 6>20",
+    },
+    {
+        "clip_number": 3,
+        "n_tracks": 18,
+        "longest_track_frac": 0.6,
+        "n_fragments": 2,
+        "auto_flag": "fragmented",
+        "verdict": "",
+        "id_switches": None,
+        "reviewer_note": "",
+    },
+]
+
+# A raw umlaut used inside the semicolon/cp1252 fixture's reviewer_note, matching
+# the real vault file's shape (German reviewer prose with umlauts and embedded
+# commas, never quoted because the delimiter is ';' not ','). The umlauts are real
+# non-ASCII characters (not the "ue"/"ae" transliteration used elsewhere in this
+# file) so the cp1252 fixture genuinely fails a UTF-8 decode, same as the real
+# vault file.
+_UMLAUT_NOTE = "Überlappung nahe Torraum, Spielerin für 3 Frames verdeckt"
+
+
+def _write_semicolon_cp1252_fixture(path: Path, rows: list[dict]) -> None:
+    header = ";".join(cm.REVIEW_COLUMNS)
+    lines = [header]
+    for row in rows:
+        note = row["reviewer_note"]
+        if row["clip_number"] == 2:
+            note = _UMLAUT_NOTE
+        id_switches = "" if row["id_switches"] is None else str(row["id_switches"])
+        lines.append(
+            ";".join(
+                [
+                    str(row["clip_number"]),
+                    str(row["n_tracks"]),
+                    str(row["longest_track_frac"]),
+                    str(row["n_fragments"]),
+                    row["auto_flag"],
+                    row["verdict"],
+                    id_switches,
+                    note,
+                ]
+            )
+        )
+    text = "\r\n".join(lines) + "\r\n"
+    path.write_bytes(text.encode("cp1252"))
+
+
+def _write_comma_utf8_fixture(path: Path, rows: list[dict]) -> None:
+    fixed_rows = []
+    for row in rows:
+        row = dict(row)
+        if row["clip_number"] == 2:
+            row["reviewer_note"] = _UMLAUT_NOTE
+        fixed_rows.append(row)
+    pl.DataFrame(fixed_rows).select(list(cm.REVIEW_COLUMNS)).write_csv(path)
+
+
+def test_sniff_review_dialect_detects_semicolon_cp1252(tmp_path):
+    path = tmp_path / "continuity_review.csv"
+    _write_semicolon_cp1252_fixture(path, _DIALECT_ROWS)
+
+    delimiter, encoding = cm.sniff_review_dialect(path)
+
+    assert delimiter == ";"
+    assert encoding == "cp1252"
+
+
+def test_sniff_review_dialect_detects_comma_utf8(tmp_path):
+    path = tmp_path / "continuity_review.csv"
+    _write_comma_utf8_fixture(path, _DIALECT_ROWS)
+
+    delimiter, encoding = cm.sniff_review_dialect(path)
+
+    assert delimiter == ","
+    assert encoding == "utf-8"
+
+
+def test_read_review_table_tolerates_crlf_and_strips_no_stray_cr(tmp_path):
+    path = tmp_path / "continuity_review.csv"
+    _write_semicolon_cp1252_fixture(path, _DIALECT_ROWS)
+
+    df = cm.read_review_table(path)
+
+    assert df.height == 3
+    assert list(df.columns) == list(cm.REVIEW_COLUMNS)
+    assert not any("\r" in (v or "") for v in df["reviewer_note"].to_list())
+    assert _UMLAUT_NOTE in df["reviewer_note"].to_list()
+
+
+def test_semicolon_cp1252_crlf_matches_comma_utf8_summary(tmp_path):
+    semicolon_path = tmp_path / "vault_review.csv"
+    comma_path = tmp_path / "normal_review.csv"
+    _write_semicolon_cp1252_fixture(semicolon_path, _DIALECT_ROWS)
+    _write_comma_utf8_fixture(comma_path, _DIALECT_ROWS)
+
+    before = semicolon_path.read_bytes()
+    normalized_summary = cm.summarise_review_normalized(semicolon_path, summarise_review)
+    after = semicolon_path.read_bytes()
+    plain_summary = summarise_review(comma_path)
+
+    assert before == after, "vault-shaped source file must stay byte-identical"
+    assert normalized_summary == plain_summary
+
+
+def test_summarise_review_normalized_short_circuits_for_comma_utf8(tmp_path, monkeypatch):
+    comma_path = tmp_path / "normal_review.csv"
+    _write_comma_utf8_fixture(comma_path, _DIALECT_ROWS)
+
+    called_with = {}
+
+    def _spy(path):
+        called_with["path"] = Path(path)
+        return summarise_review(path)
+
+    result = cm.summarise_review_normalized(comma_path, _spy)
+
+    assert called_with["path"] == comma_path
+    assert result == summarise_review(comma_path)
+
+
+def test_summarise_review_normalized_never_writes_inside_repo(tmp_path, monkeypatch):
+    semicolon_path = tmp_path / "vault_review.csv"
+    _write_semicolon_cp1252_fixture(semicolon_path, _DIALECT_ROWS)
+
+    original_temp_dir_cls = tempfile.TemporaryDirectory
+    captured: dict[str, Path] = {}
+
+    class _CapturingTemporaryDirectory(original_temp_dir_cls):
+        def __enter__(self):
+            entered = super().__enter__()
+            captured["path"] = Path(entered)
+            return entered
+
+    monkeypatch.setattr(cm.tempfile, "TemporaryDirectory", _CapturingTemporaryDirectory)
+
+    cm.summarise_review_normalized(semicolon_path, summarise_review)
+
+    assert "path" in captured
+    captured_path = captured["path"]
+    assert REPO_ROOT != captured_path
+    assert REPO_ROOT not in captured_path.parents
+    assert not captured_path.exists()
+
+
+# --- Partial-review honesty layer --------------------------------------------------
+
+
+def test_partial_review_keeps_pass_rate_none_and_reports_reviewed_only_rate(tmp_path):
+    rows = []
+    for n in range(1, 62):
+        if n <= 8:
+            verdict = "fail"
+        elif n <= 10:
+            verdict = "pass"
+        else:
+            verdict = ""
+        rows.append(
+            {
+                "clip_number": n,
+                "n_tracks": 20,
+                "longest_track_frac": 1.0,
+                "n_fragments": 2,
+                "auto_flag": "ok",
+                "verdict": verdict,
+                "id_switches": 1 if verdict == "fail" else None,
+                "reviewer_note": "",
+            }
+        )
+    path = tmp_path / "partial_review.csv"
+    _write_comma_utf8_fixture(path, rows)
+
+    summary = summarise_review(path)
+    assert summary["pass_rate"] is None
+    assert summary["n_clips"] == 61
+    assert summary["n_reviewed"] == 10
+
+    rate = cm.reviewed_only_rate(summary)
+    assert rate == {
+        "k": 2,
+        "n": 10,
+        "complete": False,
+        "note": "unvollstaendig (10/61 geprueft)",
+    }
+
+
+def test_reviewed_only_rate_complete_when_fully_reviewed():
+    summary = {
+        "n_clips": 3,
+        "n_reviewed": 3,
+        "n_pass": 1,
+        "n_fail": 2,
+        "pass_rate": 1 / 3,
+        "unreviewed_clips": [],
+    }
+
+    rate = cm.reviewed_only_rate(summary)
+
+    assert rate == {"k": 1, "n": 3, "complete": True, "note": None}
+
+
+# --- Rendering ---------------------------------------------------------------
+
+
+def test_render_markdown_emits_rates_guard_and_blind_spot():
+    report = {
+        "splits": {
+            "dev": {
+                "n": 61,
+                "human_rate": {"k": 15, "n": 61},
+                "mean_fragments_per_expected_player": 0.7,
+                "mean_active_track_count_deviation": 1.2,
+                "reviewed_only": None,
+            },
+            "private_test": {
+                "n": 61,
+                "human_rate": None,
+                "mean_fragments_per_expected_player": 0.9,
+                "mean_active_track_count_deviation": 1.5,
+                "reviewed_only": {
+                    "k": 2,
+                    "n": 10,
+                    "complete": False,
+                    "note": "unvollstaendig (10/61 geprueft)",
+                },
+            },
+        }
+    }
+
+    markdown = cm.render_markdown(report)
+
+    assert "| dev | 61 | 15/61 (24.59%) | 0.7000 | 1.2000 |" in markdown
+    assert "| private_test | 61 | n/a | 0.9000 | 1.5000 |" in markdown
+    assert cm.BLIND_SPOT_NOTE in markdown
+    assert cm.PARTIAL_REVIEW_LABEL in markdown
+    assert "2/10 (20.00%)" in markdown
+    assert "unvollstaendig (10/61 geprueft)" in markdown
