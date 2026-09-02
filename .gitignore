@@ -40,6 +40,11 @@ data/video/*
 data/labels/*
 !data/labels/.gitkeep
 
+# the growing multi-domain dataset itself stays ignored (PII), but its DVC
+# pointer file is exactly what git is supposed to track (Phase 2.2, D-18,
+# T-2.2-38) -- `dvc add` writes both, only the `.dvc` file may enter git.
+!data/labels/dataset.dvc
+
 # hackathon re-identification bundles contain extracted frames and crops of
 # players' faces (PII), same policy as data/video/* and data/labels/* above
 # (Phase 2.2, REQ-S2-03)
