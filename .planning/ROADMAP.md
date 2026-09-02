@@ -319,7 +319,7 @@ Plans:
   2. One detector is trained across all domains, with per-domain eval splits reported and per-domain inference settings (resolution, SAHI tiling) configured (D-04)
   3. The dataset is cleanly versioned (Roboflow Universe or DVC), and the option to publish it as the first public flag-football detection dataset has been assessed
 
-**Plans**: 20 plans in 11 waves (hackathon strand front-loaded per the 23.-27.11.2026 deadline)
+**Plans**: 21 plans in 12 waves (hackathon strand front-loaded per the 23.-27.11.2026 deadline; plan 21 added 2026-09-02 for the real second drone game)
 Plans:
 **Wave 1**
 
@@ -354,23 +354,27 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6)*
 
-- [ ] 02.2-14-PLAN.md — OTC OBS bundle delivery and participant delivery docs (independent of the AL strand)
+- [ ] 02.2-21-PLAN.md — Private test set switches to the real second drone game (GER vs Puerto Rico), dev bundle back to 61 clips, game-disjoint dev/test (DATA-04)
 - [ ] 02.2-15-PLAN.md — AL iteration 1: retrain and per-domain evaluation against the stopping rule
 
 **Wave 8** *(blocked on Wave 7)*
 
+- [ ] 02.2-14-PLAN.md — OTC OBS bundle delivery and participant delivery docs (delivers the plan-21 bundles)
 - [ ] 02.2-16-PLAN.md — AL iteration 2: selection and prelabelled CVAT push
-- [ ] 02.2-20-PLAN.md — DVC remote resolution, dataset v1 push and the OTC OBS A1 finding
 
 **Wave 9** *(blocked on Wave 8)*
 
-- [ ] 02.2-17-PLAN.md — AL iteration 2: correction weekend, merge, dataset v2 under DVC
+- [ ] 02.2-20-PLAN.md — DVC remote resolution, dataset v1 push and the OTC OBS A1 finding
 
 **Wave 10** *(blocked on Wave 9)*
 
-- [ ] 02.2-18-PLAN.md — AL iteration 2: retrain, three-way per-domain comparison, final labelling verdict
+- [ ] 02.2-17-PLAN.md — AL iteration 2: correction weekend, merge, dataset v2 under DVC
 
 **Wave 11** *(blocked on Wave 10)*
+
+- [ ] 02.2-18-PLAN.md — AL iteration 2: retrain, three-way per-domain comparison, final labelling verdict
+
+**Wave 12** *(blocked on Wave 11)*
 
 - [ ] 02.2-19-PLAN.md — Publication assessment, dataset card, licence decision and phase closing record
 
