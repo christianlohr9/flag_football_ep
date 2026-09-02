@@ -1,7 +1,9 @@
 # Datensatz-Aufbau — Laufendes Protokoll (Phase 2.2)
 
-**Status: Iteration 1 gezogen, vorgelabelt und als CVAT-Aufgaben bereitgestellt am 2026-09-01.
-Noch offen: die Nutzerin-Korrektursitzung (Plan 02.2-13, D-16/D-17).**
+**Status: Iteration 1 abgeschlossen — Korrektursitzung, Merge und DVC-Versionierung am
+2026-09-02 (Plan 02.2-13). Datensatz v1 liegt unter `data/labels/dataset/`, DVC-getrackt,
+739 Bilder über drei Domänen, 100 % nutzerin-gesichtet. Noch offen: Iteration 2 (Plan
+02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20).**
 
 ## Zweck & Abgrenzung
 
@@ -231,6 +233,124 @@ Mechanismus: GoPro-Spielerinnen sind im nahen/mittleren Feld so gross wie auf de
 - **Iteration 2 (Plan 02.2-16):** die GoPro-Auswahl zieht nur aus nahen/mittleren Feldzonen
   (`field_zone_bucket`), das Fernfeld wird ausgeschlossen. Die GoPro-Domäne bleibt vorerst
   Trainingsdomäne; die Ablation aus dem D-11-Verdikt entscheidet weiterhin über ihren Verbleib.
+
+### Korrektursitzung: Ergebnis (Plan 02.2-13, Task 1)
+
+Die Nutzerin meldete am 2026-09-02 alle fünf CVAT-Aufgaben (`al-1-drone-1`, `al-1-drone-2`,
+`al-1-sideline-1`, `al-1-broadcast-1`) als "gelabelt" gemäss D-16/D-17 — jede Aufgabe wurde
+vollständig gesichtet, mit der oben stehenden Konvention korrigiert oder bestätigt, ausser dem
+oben dokumentierten, ausdrücklich vereinbarten Fernfeld-Überspringen bei GoPro/Hinterfeld.
+
+Vergleich Vorlabel → korrigierte CVAT-Aufgabe (Box-Zahlen), gepullt via `ffep cv cvat-pull`:
+
+| Aufgabe | Bilder | Boxen Vorlabel | Boxen korrigiert | `player` | `referee` |
+|---|---:|---:|---:|---:|---:|
+| `al-1-drone-1` | 300 | — | 6064 | 5457 | 607 |
+| `al-1-drone-2` | 150 | — | 2795 | 2496 | 299 |
+| Drohne gesamt | 450 | 8650 | 8859 | 7953 | 906 |
+| `al-1-sideline-1` | 200 | 816 | 903 | 576 | 327 |
+| `al-1-broadcast-1` | 100 | 1375 | 1408 | 1270 | 138 |
+
+Die Box-Zunahme bei allen drei Domänen (Drohne +209, GoPro/Hinterfeld +87, TV/Broadcast +33)
+bestätigt, dass tatsächlich korrigiert und nicht nur unverändert bestätigt wurde. Ein
+Datei-für-Datei-Diff gegen die jeweiligen Vorlabel-`instances.json` (gleicher Dateiname pro
+Frame) zeigt zusätzlich: bei GoPro/Hinterfeld unterscheiden sich 104 von 200 Frames von ihrem
+Vorlabel (echte Korrektur, nicht nur Bestätigung), 96 sind unverändert — konsistent mit einer
+deutlich über die anfänglich gemeldeten "8 Frames" hinausgehenden Sitzung, wie unten in der
+Trim-Tabelle sichtbar.
+
+### Merge & Validierung (Plan 02.2-13, Task 2)
+
+Alle vier Aufgaben per `ffep cv cvat-pull --task <id> --out <dir>` gezogen (CVAT-Task-IDs 2-5,
+siehe `## Iteration 1` → `### CVAT-Aufgaben` oben), dann domänenweise (Drohne: Aufgabe 2+3
+zusammengeführt) mit den jeweiligen `manifest.json`-Dateien aus `data/labels/al-iteration-1/
+<domain>/` abgeglichen und in das eine wachsende Verzeichnis `data/labels/dataset/` gemergt
+(Bild- und Annotations-IDs neu durchnummeriert, Bilddateien domänen-präfixiert, um
+Dateinamens-Kollisionen zwischen Sessions zu vermeiden — z. B. taucht `Wide - Clip 001_f00000.jpg`
+sowohl in der Drohnen- als auch in der GoPro-Session auf).
+
+**Piloten-Seed (304 Frames) nicht übernommen:** gemäss dem in `docs/dataset-plan.md` `## 6`
+festgehaltenen Verdikt `nicht übernommen` (die 1.500-Frame-Zielzahl ist bereits ohne den
+Piloten-Seed geschrieben) fliesst der Piloten-Datensatz nicht in `data/labels/dataset/` ein —
+Iteration 1 startet die wachsende Datei bei null.
+
+**Merge-Regel angewendet (GoPro-Fernfeld-Trim, siehe Nachtrag oben):**
+
+| Domäne | Frames im Manifest | Übersprungen (0 Boxen) | Übernommen |
+|---|---:|---:|---:|
+| Drohne | 450 | 0 | 450 |
+| GoPro/Hinterfeld | 200 | 11 | 189 |
+| TV/Broadcast | 100 | 0 | 100 |
+| **Summe** | **750** | **11** | **739** |
+
+Die 11 übersprungenen GoPro-Frames sind exakt dieselben 11 Frames, die bereits beim Vorlabeln
+keine Detektion hatten (Mengenvergleich vor/nach Korrektur: identische Dateimenge) — das
+bestätigt, dass es sich tatsächlich um das unberührte Fernfeld handelt, nicht um vom Menschen
+bewusst leer bestätigte Frames (die Regel "0 Boxen = übersprungen, nie echtes Negativ" trifft
+also exakt die richtige Teilmenge). Die 189 übernommenen GoPro-Frames liegen über der in der
+Nachtrags-Vereinbarung genannten Zielgrösse "~50–80 saubere Frames" — die Sitzung ging nach dem
+ursprünglich gemeldeten Stopp-Punkt bei 8 Frames erkennbar weiter (104 von 189 übernommenen
+Frames unterscheiden sich von ihrem Vorlabel, siehe Tabelle oben); dies wird hier ehrlich
+berichtet, nicht nachträglich auf die ursprüngliche Schätzung zurechtgestutzt. Der volle,
+ungetrimmte Export bleibt unverändert unter `data/labels/al-iteration-1/cvat-export/sideline/
+instances.json` (200 Bilder, git-ignoriert) erhalten, analog zum `instances.full-404.json`-
+Präzedenzfall der Piloten-Sitzung (`docs/cv-setup.md` → `### Datensatz`).
+
+**Ausschluss-Assertionen (T-2.2-Bezug, per Skript geprüft):**
+
+- Puerto Rico (`2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE`, die private Testpartie) taucht
+  in keinem der drei Iteration-1-Sessions auf (Drohne: Panama Rojo, GoPro: GER-MEX, Broadcast:
+  USA-AUS) — 0 Treffer bei einer direkten Pfad-Suche über alle 739 gemergten Frames.
+  Puerto Rico war nie Teil der AL-1-Auswahl (`docs/dataset-buildout.md` `## Iteration 1` →
+  `### Ausführung`).
+  Puerto Rico Ausschluss zusätzlich sessionscharf gegen `data/reference/frozen_eval_clips.csv`
+  geprüft: keine Schnittmenge.
+- `data/reference/frozen_eval_clips.csv` (`role = frozen_eval`, 30 Zeilen über die drei
+  Domänen): sessionscharfer Abgleich (Domäne + `session_id` + `clip_number`) gegen alle 739
+  gemergten Frames ergibt eine leere Schnittmenge — kein eingefrorener Eval-Clip ist im
+  Trainingsdatensatz gelandet.
+
+**Validierung** (`ffep cv dataset --coco data/labels/dataset --manifest
+data/labels/dataset/manifest.json --min-images 1 --max-images 3000`):
+
+| Kennzahl | Wert |
+|---|---|
+| `n_images` | 739 |
+| `player`-Boxen | 9799 |
+| `referee`-Boxen | 1371 |
+| Bilder ohne Annotation (`_empty_images`) | 0 |
+| Split `train` | 739 Bilder (kein `val` — AL-Iterationen liefern ausschliesslich Trainingsmaterial, die Evaluierung läuft separat über den eingefrorenen Eval-Split, `02.2-11-SUMMARY.md`s Entscheidungsabschnitt) |
+| `content_sha256` | `e27c1b60d60e240d8f6bc9d4b6b2cd276b135776cb2cd812ff36ff6661fabb8b` |
+
+`boxes_by_domain` (jede Domäne trägt mindestens eine `player`-Box, von `validate_coco` erzwungen):
+
+| Domäne | `player` | `referee` | Bilder ohne Annotation |
+|---|---:|---:|---:|
+| Drohne | 7953 | 906 | 0 |
+| GoPro/Hinterfeld | 576 | 327 | 0 |
+| TV/Broadcast | 1270 | 138 | 0 |
+
+**Ehrlicher Stand gegen den 1.500-Floor:** 739 von 1.500 (49 %) — **erwartet unterhalb des
+Floors**, kein Fehlschlag. `docs/dataset-plan.md` `## 1`/`## 2` legt den 1.500-Floor über beide
+AL-Iterationen zusammen fest (750 pro Iteration bei zwei Iterationen); Iteration 1 allein war nie
+als floor-erreichend geplant. Die GoPro-Domäne liegt mit 189 von den ursprünglich geplanten 200
+Iteration-1-Frames deutlich unter ihrem Anteil (94 % statt 100 %, wegen des Fernfeld-Trims) — der
+Domänen-Mix nach Iteration 1 ist damit Drohne 450/900 (50 %), GoPro/Hinterfeld 189/400 (47 %),
+TV/Broadcast 100/200 (50 %). Iteration 2 (Plan 02.2-16/17) muss den GoPro-Rückstand nicht
+zwingend proportional aufholen, seit die Nachtrags-Vereinbarung die Zielgrösse dieser Domäne
+bereits auf "~50–80 saubere Frames pro Sitzung" statt auf den vollen 200er-Anteil abgesenkt hat.
+
+**CLI-Lücke gefunden und geschlossen (Abweichung, siehe SUMMARY):** `ffep cv dataset` exponierte
+bislang keinen Weg, `validate_coco`s `min_images`/`max_images` zu überschreiben — der Befehl
+validierte immer gegen das feste Phase-2.1-Einzeldomänen-Band `[250, 600]`, das ein 739-Bilder-
+Multi-Domänen-Paket immer als Ceiling-Verstoss abgelehnt hätte. `cv/commands.py`s `dataset`-Befehl
+bekam `--min-images`/`--max-images` (Default `None`, bestehendes Verhalten unverändert). Für
+diesen Iteration-1-Lauf wurde bewusst `--min-images 1` statt des vollen Multi-Domänen-Floors
+`1500` übergeben — die 3000er-Decke gilt sofort und uneingeschränkt (sie darf über keine
+Iteration hinweg überschritten werden), der 1.500er-Floor ist dagegen ein kumulatives
+Phase-Ziel über beide Iterationen und würde, als hartes Gate auf einen einzelnen
+Iteration-1-Lauf angewendet, den Befehl grundlos mit Exit-Code ≠ 0 scheitern lassen, obwohl das
+Ergebnis exakt dem Plan entspricht.
 
 ## Iteration 2
 

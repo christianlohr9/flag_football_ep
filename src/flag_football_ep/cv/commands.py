@@ -209,6 +209,22 @@ def dataset(
     manifest: Path = typer.Option(
         ..., "--manifest", help="Sample manifest to validate against"
     ),
+    min_images: Optional[int] = typer.Option(
+        None,
+        "--min-images",
+        help=(
+            "Override the image-count floor (default: the Phase-2.1 single-domain "
+            "band's 250; pass 1500 for the Phase-2.2 multi-domain floor)"
+        ),
+    ),
+    max_images: Optional[int] = typer.Option(
+        None,
+        "--max-images",
+        help=(
+            "Override the image-count ceiling (default: the Phase-2.1 single-domain "
+            "band's 600; pass 3000 for the Phase-2.2 multi-domain ceiling)"
+        ),
+    ),
 ) -> None:
     """Validate a COCO export against its sample manifest and report dataset stats."""
     from flag_football_ep.config import load_config
@@ -221,7 +237,7 @@ def dataset(
 
     from flag_football_ep.cv.dataset import validate_coco
 
-    stats = validate_coco(coco, loaded_manifest)
+    stats = validate_coco(coco, loaded_manifest, min_images=min_images, max_images=max_images)
 
     typer.echo(f"dataset: {coco} ({stats.n_images} images, {stats.content_sha256})")
     for class_name, count in stats.n_boxes.items():
