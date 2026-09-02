@@ -465,5 +465,5 @@ where `files_modified` do not collide; 2.2 waves 7–11 keep priority on shared 
 | M2-1 Freigabe und Lizenzlage | 1/2 | In progress (plan 01 at signature gate) | - |
 | M2-2 Ehrliche Baseline | 2/3 | In progress (plan 03 at BASE-04 gate) | - |
 | M2-3 Labels und Prüfsatz | 0/3 | Not started | - |
-| M2-4 Messvorschrift | 0/3 | Planned | - |
+| M2-4 Messvorschrift | 2/3 | In progress (plan 03 at METR-03 wording gate) | - |
 | M2-5 Einstiegspaket | 0/2 | Not started | - |

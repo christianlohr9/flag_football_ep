@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-09-01T13:24:57.952Z"
+last_updated: "2026-09-02T22:12:58.654Z"
 last_activity: 2026-08-31 -- Phase 02.2 execution started
 progress:
-  total_phases: 10
+  total_phases: 15
   completed_phases: 6
-  total_plans: 92
-  completed_plans: 84
-  percent: 60
+  total_plans: 93
+  completed_plans: 85
+  percent: 40
 ---
 
 # Project State
@@ -86,6 +86,6 @@ GroupKFold by game_id, Strand-1 non-goals (no live tooling, no CV dependency).
 
 ## Session Continuity
 
-Last session: 2026-09-01T13:24:57.948Z
-Stopped at: Phase 2.2 at wave-6 human gate: plan 13 CVAT labelling weekend (5 tasks, 750 frames ready)
-Resume file: .planning/phases/02.2-dataset-buildout/02.2-13-PLAN.md
+Last session: 2026-09-02T22:12:58.649Z
+Stopped at: Night run 2026-09-02/03 done: 2.2 at 13/21 (plan 21 at PR test-GT gate, 15 waits on GoPro relabel), M2-1 at signature gate, M2-2 at BASE-04/spot-check gate, M2-4 at METR-03 wording gate; HC briefing + demo reel ready
+Resume file: docs/hc-briefing-2026-09-03.md
