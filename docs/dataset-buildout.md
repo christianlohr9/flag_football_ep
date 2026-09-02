@@ -352,6 +352,45 @@ Phase-Ziel über beide Iterationen und würde, als hartes Gate auf einen einzeln
 Iteration-1-Lauf angewendet, den Befehl grundlos mit Exit-Code ≠ 0 scheitern lassen, obwohl das
 Ergebnis exakt dem Plan entspricht.
 
+### DVC-Versionierung (Plan 02.2-13, Task 3)
+
+`data/labels/dataset/` per `uv run --extra versioning dvc add data/labels/dataset` getrackt.
+
+| Kennzahl | Wert |
+|---|---|
+| DVC-MD5 (`.dvc`-Datei, `outs[0].md5`) | `b0a33db5bb3269c8fdd594e198dcab9f.dir` |
+| `nfiles` (DVC) | 741 (739 Bilder + `instances.json` + `manifest.json`) |
+| Projekt-`content_sha256` (`dataset_hash()`) | `e27c1b60d60e240d8f6bc9d4b6b2cd276b135776cb2cd812ff36ff6661fabb8b` |
+| Git-Commit des Pointers (`data/labels/dataset.dvc`) | `7b528cd` |
+
+**Zwei Hashes, zwei Zwecke (RESEARCH Pattern 2, siehe auch `docs/cv-setup.md` → `##
+Dataset-Versionierung`):** der DVC-MD5 ist DVCs eigene Content-Adressierung für
+Push/Pull/Cache — er identifiziert das Verzeichnis für DVCs Datenbewegung. Der
+`content_sha256` ist die projekt-interne Reproduzierbarkeits-Prüfsumme, die ein künftiger
+Trainingslauf (Plan 02.2-15) als MLflow-Parameter loggt. Beide bleiben nebeneinander bestehen,
+keiner ersetzt den anderen.
+
+**`git check-ignore -q data/labels/dataset`** bestätigt: die Nutzdaten bleiben git-ignoriert,
+nur `data/labels/dataset.dvc` erscheint in `git status`. `.gitignore` brauchte dafür eine
+gezielte Ausnahme (`!data/labels/dataset.dvc`) zur bestehenden `data/labels/*`-Regel — ohne sie
+verweigert `dvc add` selbst das Schreiben des Pointers ("bad DVC file name ... is git-ignored"),
+da DVC keinen Pointer erzeugt, der von der eigenen Git-Konfiguration sofort wieder verschluckt
+würde (Abweichung, siehe SUMMARY; vom Plan selbst vorweggenommen: "commit ... die
+`.gitignore`-Ergänzung, die DVC schreibt").
+
+**`dvc push` gegen den echten OTC-OBS-Endpunkt: versucht, wie erwartet fehlgeschlagen.** Der
+Platzhalter-Bucket (`ffep-datasets-PLACEHOLDER`) ist nicht bereitgestellt — `403 Forbidden` auf
+den ersten `HeadObject`-Aufruf, keine Zugangsdaten hinterlegt. Als lokaler Rückfall (per Plan
+so vorgesehen, `.dvc/config.local` — git-ignoriert, kein Teil des Commits) wurde ein
+lokal-Verzeichnis-Remote `local-fallback` unter `~/.dvc-local-remote/flag-football-datasets`
+konfiguriert und `dvc push -r local-fallback` erfolgreich ausgeführt (742 Dateien, inkl. der
+`.dir`-Cache-Datei) — beweist den Push/Pull-Mechanismus gegen das reale 739-Bilder-Datenset,
+nicht nur gegen `tests/test_dvc_layout.py`s Wegwerf-Verzeichnis, und legt bereits eine echte
+lokale Sicherungskopie der Korrektursitzung an. Der eigentliche `dvc push` gegen den
+provisionierten OTC-OBS-Bucket bleibt Plan 02.2-20 vorbehalten (Bucket-Bereitstellung: Plan
+02.2-14) — dieser Aufschub blockiert diesen Plan nicht, wie in Task 3s eigenem `<action>`-Block
+vorgesehen.
+
 ## Iteration 2
 
 Noch nicht gezogen — folgt in Plan 02.2-17, nach Abschluss der Iteration-1-Korrektursitzung
