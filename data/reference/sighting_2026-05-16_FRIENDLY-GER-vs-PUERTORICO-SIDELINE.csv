@@ -1,0 +1,11 @@
+clip_number,clip_path,hover_position_id,apparent_player_px_p10,apparent_player_px_p50,tier,notes
+57,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 057.mp4,hp-01,15.0,27.0,Brauchbar,"MOG2 background-subtraction estimate over 202 sampled frames -- Richtwert, kein Messprotokoll"
+58,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 058.mp4,hp-01,17.0,34.5,Brauchbar,"MOG2 background-subtraction estimate over 234 sampled frames -- Richtwert, kein Messprotokoll"
+59,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 059.mp4,hp-01,17.0,41.0,Brauchbar,"MOG2 background-subtraction estimate over 240 sampled frames -- Richtwert, kein Messprotokoll"
+60,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 060.mp4,hp-01,17.0,32.0,Brauchbar,"MOG2 background-subtraction estimate over 130 sampled frames -- Richtwert, kein Messprotokoll"
+61,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 061.mp4,hp-01,17.0,24.0,Brauchbar,"MOG2 background-subtraction estimate over 236 sampled frames -- Richtwert, kein Messprotokoll"
+62,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 062.mp4,hp-01,18.0,24.0,Brauchbar,"MOG2 background-subtraction estimate over 132 sampled frames -- Richtwert, kein Messprotokoll"
+63,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 063.mp4,hp-01,17.700000000000003,25.0,Brauchbar,"MOG2 background-subtraction estimate over 164 sampled frames -- Richtwert, kein Messprotokoll"
+64,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 064.mp4,hp-01,17.0,34.0,Brauchbar,"MOG2 background-subtraction estimate over 103 sampled frames -- Richtwert, kein Messprotokoll"
+65,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 065.mp4,hp-01,17.0,23.0,Brauchbar,"MOG2 background-subtraction estimate over 236 sampled frames -- Richtwert, kein Messprotokoll"
+66,data/video/2026-05-16_Friendly_GERvsPuertoRico_Drone_9711283/End Zone - Clip 066.mp4,hp-01,18.0,26.0,Brauchbar,"MOG2 background-subtraction estimate over 217 sampled frames -- Richtwert, kein Messprotokoll"
