@@ -14,8 +14,10 @@ import pytest
 
 from flag_football_ep.testing import canonical_plays, canonical_plays_with_scores
 from flag_football_ep.features.mutations import (
+    EP_HALF_UNKNOWN_SENTINEL,
     EP_PROBABILITY_COLUMNS,
     FOURTH_DOWN_DISTANCE_BUCKETS,
+    HC_SOURCE_PREFIX,
     DegenerateWeightRange,
     InsufficientPatAttempts,
     InvalidGameClockValues,
@@ -36,6 +38,7 @@ from flag_football_ep.features.mutations import (
 from flag_football_ep.model.hyperparams import (
     RECENCY_HALF_LIFE_DAYS_GRID,
     RECENCY_NULL_DATE_WEIGHT,
+    WP_SELECTED_COLUMNS,
 )
 from flag_football_ep.reference import COMPETITION_TIERS, UnmappedCompetitionError
 
@@ -1233,6 +1236,130 @@ class TestMakeEpModelMutations:
         )
 
         assert with_recency["Total_W_Scaled"].to_list() != without["Total_W_Scaled"].to_list()
+
+
+class TestMakeEpModelMutationsHalfSentinel:
+    """M3-02 task 2: `make_ep_model_mutations` overwrites `half` to
+    `EP_HALF_UNKNOWN_SENTINEL` for hc_workbook-sourced rows, immediately before the final
+    column selection -- decoupling the model's feature input from the `half=2` label-
+    construction sentinel pinned in `TestHalfSentinelLabelConstruction` above.
+    """
+
+    _HC_SOURCE = "hc_workbook:scoring-probability-by-situation-2023-2026:data"
+
+    def _ep_frame(
+        self,
+        *,
+        source: str = "hudl",
+        n_games: int = 1,
+        plays_per_game: int = 12,
+        half: int | None = None,
+    ) -> pl.DataFrame:
+        touchdown = [0] * plays_per_game
+        touchdown[5] = 1
+        overrides: dict = {"touchdown": touchdown * n_games}
+        if half is not None:
+            overrides["half"] = half
+        return prepare_ep_data(
+            canonical_plays_with_scores(
+                n_games=n_games,
+                plays_per_game=plays_per_game,
+                source=source,
+                overrides=overrides,
+            )
+        )
+
+    def test_non_hc_source_half_is_unchanged_proven_no_op(self):
+        df = self._ep_frame(source="hudl")
+
+        out = make_ep_model_mutations(df, [*_EP_MODEL_COLUMNS, "half", "source"])
+
+        assert out["half"].to_list() == df.filter(
+            pl.col("yardline_50").is_not_null(), pl.col("yards_to_go").is_not_null()
+        )["half"].to_list()
+
+    def test_hc_source_constant_half_2_becomes_sentinel(self):
+        df = self._ep_frame(source=self._HC_SOURCE, half=2)
+
+        out = make_ep_model_mutations(df, [*_EP_MODEL_COLUMNS, "half", "source"])
+
+        assert set(out["half"].to_list()) == {EP_HALF_UNKNOWN_SENTINEL}
+
+    def test_mixed_source_frame_overwrite_is_row_scoped_not_frame_scoped(self):
+        hudl_df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=12,
+            source="hudl",
+            overrides={"touchdown": [0] * 5 + [1] + [0] * 6},
+        )
+        hc_df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=12,
+            source=self._HC_SOURCE,
+            overrides={"touchdown": [0] * 3 + [1] + [0] * 8, "half": 2},
+        )
+        df = prepare_ep_data(pl.concat([hudl_df, hc_df]))
+
+        out = make_ep_model_mutations(df, [*_EP_MODEL_COLUMNS, "half", "source"])
+
+        hudl_rows = out.filter(pl.col("source") == "hudl")
+        hc_rows = out.filter(pl.col("source") == self._HC_SOURCE)
+        assert hc_rows.height > 0
+        assert hudl_rows.height > 0
+        assert set(hudl_rows["half"].to_list()) == {1, 2}
+        assert set(hc_rows["half"].to_list()) == {EP_HALF_UNKNOWN_SENTINEL}
+
+    def test_source_string_that_merely_contains_hc_workbook_is_not_rewritten(self):
+        df = self._ep_frame(source="legacy-hc_workbook-import", half=2)
+        assert not df["source"][0].startswith(HC_SOURCE_PREFIX)
+
+        out = make_ep_model_mutations(df, [*_EP_MODEL_COLUMNS, "half", "source"])
+
+        assert set(out["half"].to_list()) == {2}
+
+    def test_other_feature_columns_unchanged_on_hc_source_frame(self):
+        df = self._ep_frame(source=self._HC_SOURCE, half=2)
+
+        out = make_ep_model_mutations(df, [*_EP_MODEL_COLUMNS, "half", "source"])
+
+        assert out["Total_W_Scaled"].is_nan().sum() == 0
+        assert out["Total_W_Scaled"].min() >= 0
+        assert out["Total_W_Scaled"].max() <= 1
+        down_sum = out["down0"] + out["down1"] + out["down2"] + out["down3"] + out["down4"]
+        assert set(down_sum.to_list()) == {1}
+        assert set(out["label"].drop_nulls().unique().to_list()) <= {0, 1, 2, 3, 4}
+
+    def test_no_source_column_is_a_strict_no_op(self):
+        df = self._ep_frame(source=self._HC_SOURCE, half=2).drop("source")
+
+        out = make_ep_model_mutations(df, [*_EP_MODEL_COLUMNS, "half"])
+
+        assert set(out["half"].to_list()) == {2}
+
+    def test_make_wp_model_mutations_untouched_by_ep_half_sentinel(self):
+        # hc_workbook source, constant half=2 (the label-construction sentinel) -- WP's
+        # own model-mutation path must not gain a `half` overwrite of its own: `half` is
+        # not in WP_FEATURES/WP_SELECTED_COLUMNS at all, so it never reaches WP's output
+        # regardless of source. The frame's raw `half` column (still 2 everywhere, from
+        # label construction) also stays exactly 2 -- the EP sentinel logic never touches
+        # `prepare_wp_data`'s output.
+        assert "half" not in WP_SELECTED_COLUMNS
+
+        touchdown = [0] * 11 + [1]
+        df = prepare_wp_data(
+            canonical_plays_with_scores(
+                n_games=1,
+                plays_per_game=12,
+                source=self._HC_SOURCE,
+                overrides={"half": 2, "touchdown": touchdown},
+            )
+        )
+        assert set(df["half"].to_list()) == {2}
+
+        out = make_wp_model_mutations(df, ["posteam", "Winner", "label"])
+
+        assert "half" not in out.columns
+        assert set(df["half"].to_list()) == {2}
 
 
 class TestAddRecencyWeight:
