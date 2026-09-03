@@ -3,8 +3,8 @@
 
 Every fixture is built in-process with `openpyxl.Workbook()` using synthetic
 team labels (`Alphaland`, `Betaland`) and synthetic player labels
-(`Spieler A`, jersey `7`) -- no test may reference `data/raw/hc_files/` or
-any real player/team name.
+(`Spieler A`, jersey `7`) -- no test may open a real gitignored HC workbook
+or reference any real player/team name.
 """
 
 from __future__ import annotations
