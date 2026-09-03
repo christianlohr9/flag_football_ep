@@ -81,6 +81,18 @@ chain already AGPL-free per D-02).
 
 **M2 v2 (nach dem Hackathon):** TRANS-01 (Transfer-Messung Sideline/TV — Detektionen existieren bereits), TRANS-02 (Flag-Pull aus Trajektorien), OPS-01 (AGPL-freie Kette — **bereits erfüllt**), OPS-02 (Labeln als wiederholbarer Ablauf).
 
+## Milestone 3: Strand-1-Refresh für den HC-Sync
+
+Derived 2026-09-03 from `docs/hc-notes-2026-09-03.md`; delivery anchor = October 2026 sync with the HC.
+
+- [ ] **HC-01** (hc-workbook-ingest): Die `Data`-Tabs der drei HC-Workbooks (`data/raw/hc_files/`, PII, gitignored) werden über den bestehenden Ingest in kanonische Plays überführt (Contract v1.1; Spielernamen über `roster.csv`/`player_mapping.csv`, nie roh in Reports); pro Quelle ein Validierungsreport.
+- [ ] **HC-02** (dedupe-and-enrich): Überschneidungen zwischen HC-Plays und unseren Hudl/IFAF-Plays werden erkannt (Spiel + Spielzug oder Inhalts-Fingerprint) und dokumentiert; Präferenz: HC-Duplikate ausschließen; die WM-2026-Spiele reichern den Korpus an. Restdoppelungen werden ausgewiesen, nicht versteckt.
+- [ ] **HC-03** (epa-refinement): EP/WP auf dem vergrößerten Korpus neu trainiert (GroupKFold über `game_id`, Kalibrierung, Tier-Eval, MLflow-Version) und dem HC-Ansatz ("Scoring Probability by Situation": SP/EP nach Down & Distance, geclustert/gewichtet) tabellarisch gegenübergestellt.
+- [ ] **HC-04** (explosiveness-metric): Recherchierte, begründete Explosiveness-Definition (NFL-/PFF-Konventionen, Success Rate, EPA-basiert) statt der harten ">12 Yards und/oder positive EPA"-Schwelle; auf unseren Daten berechnet und gegen die HC-Werte gestellt; Efficiency-Definition des HC dokumentiert und reproduziert.
+- [ ] **HC-05** (player-analysis-report): Automatisierter Report äquivalent zum Tab "Player Analysis All Camps" (QB/WR: Comps, Attempts, Comp %, Adj Comp %, YPA, Air Yards, Exp Plays, Explosive %, Efficiency, Carries/Rush) als `ffep report`-Produkt, deutsch, aus kanonischen Plays; Handout für den Oktober-Sync mit EPA-Update und Explosiveness-Vorschlag.
+
+**M3 Backlog (nicht terminiert):** BL-01 Gameclock/Score aus TV per OCR (C-08); BL-02 Coach-Web-App statt Excel; BL-03 automatische PBP-Statistik aus CV (Machbarkeitsbedingungen); BL-04 "Was gewinnt ein Spiel?" Win-Driver-Analyse; BL-05 Fragenliste an Timo Riske (PFF).
+
 ## Out of Scope
 
 | Feature | Reason |
@@ -122,6 +134,10 @@ chain already AGPL-free per D-02).
 | DATA-01..05 | Phase M2-3 | Pending |
 | METR-01..04 | Phase M2-4 | Pending |
 | PACK-01..05 | Phase M2-5 | Pending |
+| HC-01, HC-02 | Phase M3-1 | Pending |
+| HC-03 | Phase M3-2 | Pending |
+| HC-04 | Phase M3-3 | Pending |
+| HC-05 | Phase M3-4 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total (+ 1 stretch)

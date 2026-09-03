@@ -443,6 +443,22 @@ where `files_modified` do not collide; 2.2 waves 7–11 keep priority on shared 
 
 **Execution Order (M2):** M2-1 → M2-2 → M2-3 → M2-4 → M2-5; M2-2 may start once M2-1's license inventory (not the signature) is done, per the draft's own gate logic the SIGNATURE remains the release valve for shipping material to teams.
 
+## Milestone 3: Strand-1-Refresh für den HC-Sync (project_code: hc)
+
+Derived 2026-09-03 from the head-coach meeting (`docs/hc-notes-2026-09-03.md`). The HC and the
+user now meet monthly; the **October 2026 sync** is the delivery anchor. M3 runs in parallel to the
+hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/reports vs `cv/`,
+`scripts/hackathon/`, challenge docs); the orchestrator serialises main-tree writers.
+
+- [ ] **Phase M3-1: HC-Workbook-Ingest** - The head coach's three Excel workbooks (`data/raw/hc_files/`, gitignored PII) become a canonical plays source: parse the Hudl-like `Data` tabs (EC 2025 vs WC nations, 2026 camps + competitions, 2023–2026 scoring-probability corpus), map to the v1.1 contract, dedupe against our Hudl/IFAF plays (prefer detecting his duplicates), enrich with the WC 2026 games; validation report per source (Requirements: HC-01, HC-02)
+- [ ] **Phase M3-2: EPA-Refinement** - Retrain EP/WP on the enlarged corpus (GroupKFold by game, calibration, per-tier eval); side-by-side with the HC's own "Scoring Probability by Situation" tables (SP/EP by down & distance, clustered/weighted) so he sees where the model agrees and where it improves; documented, reproducible, MLflow-versioned (Requirements: HC-03)
+- [ ] **Phase M3-3: Explosiveness & Efficiency** - Deep research on explosive-play definitions (NFL 20+/10+ yard conventions, PFF, success rate, EPA-based), propose a threshold-free or calibrated metric replacing ">12 yd and/or positive EPA", implement alongside his Efficiency draft; validated on our data (Requirements: HC-04)
+- [ ] **Phase M3-4: Player-Analysis-Report für den Oktober-Sync** - Automated equivalent of the "Player Analysis All Camps" tab (QB/WR tables: comps, attempts, comp %, adj comp %, YPA, air yards, explosive %, efficiency, rush) as an `ffep report` product from canonical plays, plus the EPA update and the explosiveness proposal as the HC handout; first exploratory cut of "Was gewinnt ein Spiel?" only if time permits (Requirements: HC-05)
+
+**Execution Order (M3):** M3-1 → M3-2 → M3-3 → M3-4 (M3-3 research may start in parallel to M3-1).
+
+**Backlog (captured 2026-09-03, not scheduled):** game clock + score from TV broadcast via CV/OCR (heals WP's synthetic clock, C-08 — needs GER games with a scorebug on TV); coach-facing web app replacing the HC's Excel (product, multi-team); automated PBP stat collection from CV (blocked on ball tracking / ball chip — document feasibility conditions); "Was gewinnt ein Flag-Football-Spiel?" win-driver analysis; Timo Riske (PFF) question list on team factors in advanced stats.
+
 ## Progress
 
 **Execution Order:**
