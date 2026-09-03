@@ -76,6 +76,10 @@ _NULL_SENTINEL = "~"
 _FINGERPRINT_COL = "_hc_dedupe_fingerprint"
 _ORIG_INDEX_COL = "_hc_dedupe_orig_index"
 
+# DedupeReport.summary_lines() renders at most this many individual
+# cross_game_overlaps lines (see that method's docstring for why).
+_MAX_OVERLAP_LINES = 20
+
 
 @dataclass
 class DedupeReport:
@@ -99,6 +103,24 @@ class DedupeReport:
     messages: list[str] = field(default_factory=list)
 
     def summary_lines(self) -> list[str]:
+        """Render this report as German lines for the pipeline's source
+        notices / the validation report / `docs/hc-workbook-ingest.md`.
+
+        `cross_game_overlaps` can be large against a real, sizeable corpus
+        (a short fingerprint -- e.g. a common down/distance/yardline combo
+        with no receiver -- coincidentally matches many unrelated games), so
+        this method renders at most `_MAX_OVERLAP_LINES` individual pair
+        lines (largest `n_matching` first) plus one aggregate line stating
+        the true total -- never a silently truncated total, and the full,
+        untruncated list always remains available on
+        `report.cross_game_overlaps` for any caller that needs it (e.g. a
+        test, or a future per-game drill-down). Rendering every pair
+        individually at real-corpus scale (hundreds of thousands of entries
+        observed against the committed legacy+ifaf corpus) would make the
+        validation report and console output unusable -- this is a Rule 1
+        fix discovered during the M3-01-04 real run, not a change to the
+        stage-2 exclusion logic above, which is untouched.
+        """
         lines: list[str] = [
             f"hc_dedupe: {self.n_hc_rows} HC-Zeile(n) geprüft, {self.n_excluded} "
             "wegen erklärter Duplikat-Paarung ausgeschlossen"
@@ -109,12 +131,32 @@ class DedupeReport:
                 f"{pair['n_hc']} HC-Zeile(n), {pair['n_matched']} übereinstimmend "
                 f"(ausgeschlossen), {pair['n_unmatched']} übernommen"
             )
-        for overlap in self.cross_game_overlaps:
+        if self.cross_game_overlaps:
+            total_rows = sum(o["n_matching"] for o in self.cross_game_overlaps)
+            n_hc_games = len({o["hc_game_id"] for o in self.cross_game_overlaps})
             lines.append(
-                f"hc_dedupe: unerklärte Überschneidung {overlap['hc_game_id']!r} <-> "
-                f"{overlap['other_game_id']!r}: {overlap['n_matching']} übereinstimmende "
-                "Zeile(n), nicht ausgeschlossen (keine erklärte Paarung)"
+                f"hc_dedupe: {len(self.cross_game_overlaps)} unerklärte Überschneidung(en) "
+                f"über {n_hc_games} HC-Spiel(e) hinweg ({total_rows} übereinstimmende "
+                "Zeile(n) insgesamt), keine davon ausgeschlossen (keine erklärte Paarung) "
+                "-- die größten Überschneidungen:"
             )
+            top = sorted(
+                self.cross_game_overlaps, key=lambda o: o["n_matching"], reverse=True
+            )
+            for overlap in top[:_MAX_OVERLAP_LINES]:
+                lines.append(
+                    f"hc_dedupe: unerklärte Überschneidung {overlap['hc_game_id']!r} <-> "
+                    f"{overlap['other_game_id']!r}: {overlap['n_matching']} "
+                    "übereinstimmende Zeile(n), nicht ausgeschlossen (keine erklärte "
+                    "Paarung)"
+                )
+            remaining = len(self.cross_game_overlaps) - _MAX_OVERLAP_LINES
+            if remaining > 0:
+                lines.append(
+                    f"hc_dedupe: ... {remaining} weitere unerklärte Überschneidung(en) "
+                    "nicht einzeln aufgeführt (vollständige Liste: "
+                    "DedupeReport.cross_game_overlaps)"
+                )
         lines.extend(self.messages)
         return lines
 
