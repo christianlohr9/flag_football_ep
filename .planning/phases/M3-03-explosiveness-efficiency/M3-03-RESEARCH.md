@@ -373,7 +373,7 @@ tradeoff explicitly acknowledged by its own proponents.
 1 and Code Examples; source cells are `Player Analysis All Camps!R2:U2` and `Data!O` in
 `data/raw/hc_files/Offense Analytics 2026 Camps and Competitions.xlsx` (gitignored, PII).
 
-## Open Questions
+## Open Questions (DEFERRED TO HEAD COACH — tracked as Frage 4–6 in docs/hc-rueckfragen-2026-09.md via plan M3-03-02 T3; code carries both readings until answered)
 
 1. **Does the HC's `Explosive %` formula omit EPA intentionally, or is it a spreadsheet gap?**
    - What we know: the formula cell (`R2`/`S2`) checks only `Data!J > 12` (yards), no EPA term.
