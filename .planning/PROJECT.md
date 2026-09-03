@@ -90,6 +90,10 @@ All eight decisions below are **locked** (synthesized from docs/plan-1-analytics
 
 The BWI hackathon challenge ("Wer ist wer nach der Verdeckung?") was submitted and **accepted**; hackathon 23.–27.11.2026, material to teams by **16.11.2026**. Milestone 2 hardens the challenge for handover: signed federation release with deletion commitment, honest multi-tracker baseline (real baseline 15/61 = 24.6%, not the earlier 77% upper bound), identity-labelled multi-game benchmark split by game, a continuous metric alongside the threshold, and a 30-minute starter package. Five phases M2-1..M2-5 (project_code `reid`), imported 2026-09-01 from the user's draft — source and reconciliation: `.planning/imported/challenge-haertung/` (ABGLEICH.md). M2 work interleaves with the remaining 2.2 waves where files do not collide.
 
+## Milestone 3: Strand-1-Refresh für den HC-Sync
+
+After the head-coach meeting on 2026-09-03 (`docs/hc-notes-2026-09-03.md`) the user and the HC (Jona Winkel) meet monthly; the **October 2026 sync** anchors Milestone 3: the HC's hand-maintained Excel workbooks become a canonical plays source (contract v1.2 adds his six extra RESULT tokens), EP/WP is retrained on the enlarged corpus and set against his "Scoring Probability by Situation" method, a researched Explosiveness/Efficiency definition replaces the hard ">12 yd" threshold, and the "Player Analysis All Camps" tab becomes an `ffep report` product. Phases M3-1..M3-4 (project_code `hc`); backlog BL-01..05 (game-clock OCR from TV, coach web app, CV stat automation, win drivers, PFF questions). Runs in parallel to the hackathon strand.
+
 ---
 *Last updated: 2026-09-01 during Phase 2.2 execution (waves 1–6 largely complete: D-11 verdict ratified — GoPro is a Hinterfeld/endzone view, TV the side view, both admitted as training domains under a mAP ablation; real continuity baseline 15/61 = 24.6% from the full human review; all three hackathon bundles built and leak-checked; Milestone 2 "Challenge-Härtung" imported after challenge acceptance)*
 
