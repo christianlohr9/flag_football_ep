@@ -35,6 +35,8 @@ _CHECKED_ARTEFACTS: tuple[Path, ...] = (
     REPO_ROOT / "data" / "reference" / "explosiveness" / "comparison_by_player.csv",
     REPO_ROOT / "data" / "reference" / "explosiveness" / "cliff_zone.csv",
     REPO_ROOT / "scripts" / "explosiveness_comparison.py",
+    # M3-04-02: maintained camp/competition row-window lookup table.
+    REPO_ROOT / "data" / "reference" / "hc_splits.csv",
 )
 
 _MIN_SURNAME_LEN = 6
