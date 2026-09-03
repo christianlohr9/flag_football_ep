@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.1",
+  "contract_version": "1.2",
   "status": "provisional",
   "status_note": "unilaterally adopted 2026-08-17 (user decision, analyst conversation postponed indefinitely); analyst ratification pending — see deferred_ratification. v1.1 amendment 2026-08-17: core-plus-optional column model replaces the fixed 19-column preset assumption (evidence: seven real exports with seven distinct headers, 12/13/26/33/39/43/45 columns)",
   "deferred_ratification": {
@@ -91,11 +91,11 @@
       "dtype": "str",
       "presence": "core",
       "required": true,
-      "base_tokens": ["Rush", "KNEEL", "Sack", "Interception", "Complete", "Incomplete", "Good", "No Good", "Fumble", "Penalty"],
+      "base_tokens": ["Rush", "KNEEL", "Sack", "Interception", "Complete", "Incomplete", "Good", "No Good", "Fumble", "Penalty", "Block", "Blocked", "Batted Down", "Dropped", "Timeout", "Offsetting Penalties"],
       "modifier_tokens": ["TD", "Def TD", "Safety", "Penalty"],
       "separator": ", ",
       "matching": "exact token match after split on separator, case-sensitive",
-      "note": "non-empty forward-only (23% of legacy plays are empty and silently become 'pass') — confirmed as unilateral working decision 2026-08-17. C-07 amendment: 'No Good' and 'Fumble' added to the C-07 token list; working Fumble semantics: Fumble = charted ball loss tag; possession-change semantics to be confirmed at ratification (see deferred_ratification). Replaces the fragile str.contains substring semantics."
+      "note": "non-empty forward-only (23% of legacy plays are empty and silently become 'pass') — confirmed as unilateral working decision 2026-08-17. C-07 amendment: 'No Good' and 'Fumble' added to the C-07 token list; working Fumble semantics: Fumble = charted ball loss tag; possession-change semantics to be confirmed at ratification (see deferred_ratification). Replaces the fragile str.contains substring semantics. v1.2 amendment (2026-09-03, source: head coach's three charting workbooks, user approval 2026-09-03): 'Block', 'Blocked' and 'Batted Down' are a pass attempt without a completion, deflected or batted down (readable from result_raw); 'Dropped' is a pass attempt without a completion, dropped by the receiver; 'Timeout' and 'Offsetting Penalties' are non-plays (no down consumed), handled like Penalty; 'Offsetting Penalties' additionally sets the penalty flag; 'Blocked' is a spelling variant of 'Block' with identical semantics, observed only inside 'Blocked, Def TD'. These six tokens' semantics are our proposal — head-coach confirmation pending (docs/hc-rueckfragen-2026-09.md Frage 3)."
     },
     {
       "name": "GN/LS",
