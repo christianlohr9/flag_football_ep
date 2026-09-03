@@ -243,7 +243,7 @@ Plan-level verification re-run:
 - `git diff` of the `hc_games.csv` commit shows 176 additions, 0 deletions/modifications — PASS
 - Second `scripts/hc_games_refill.py` run leaves `hc_games.csv` byte-identical (diff empty) — PASS
 - `git status --porcelain src/flag_football_ep/` empty at time of each Task 1-3 commit — PASS
-- Full suite (`uv run pytest tests -q`) launched in background per the project's documented long-runtime precedent (MEMORY.md, M3-01-RESEARCH.md); see below for result once available. Not blocking this SUMMARY per the same precedent ("plan for it, do not block phase completion on it").
+- Full suite (`uv run pytest tests -q`, then re-confirmed with `--tb=no`) — **exit code 0, PASSED**. No `FAILURES`/`ERRORS` section in either run; only pre-existing, unrelated warnings (CV `umap`/Kalman-filter `RuntimeWarning`s, deprecation notices) plus the expected `hc_games.csv is header-only` warnings from fixtures that intentionally start with an empty reference file.
 
 All 5 `<success_criteria>` from the plan met; all `<hard_rules>` from the orchestrator prompt satisfied (non-zero HC rows asserted and reported; `docs/hc-blocks-ohne-kopfzeile.md` produced; stale pipeline test fixed; PII discipline maintained — no player names in any committed file, verified by grep during test review).
 
