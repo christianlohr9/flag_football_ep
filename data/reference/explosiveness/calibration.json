@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "epa_quantile": 0.8,
+  "epa_threshold": 2.685250945389271,
+  "epa_median_success": 1.143921636044979,
+  "epa_iqr_success": 1.8440472558140755,
+  "corpus_n": 16067,
+  "n_success": 7657,
+  "corpus_sources": [
+    "ifaf",
+    "legacy",
+    "legacy-sportapp"
+  ],
+  "corpus_fingerprint": "f5f11469e284052b7cca7bbe3c4d86720f5d343cfc3574d35fb247841b53c834",
+  "calibrated_on": "2026-09-03T19:55:50.695207+00:00"
+}
