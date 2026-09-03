@@ -18,6 +18,7 @@ Not this phase: new metrics (M3-3), corpus fixes/training (M3-2), the web app (B
 - **REP-D01 Reproduce first, then extend:** every HC column is reproduced with HIS definition (documented from the workbook formulas in M3-3's research; ambiguities — Attempts+Drops denominator, `Efficiency` charting rule — carried as both readings until his answers) so his numbers match ours on the same plays before any new column appears. Differences are shown, not hidden.
 - **REP-D02 Same product conventions as Phase 1.4:** `reports/` module + `reports/render.py` HTML, headless-Agg charts embedded as data URIs, `ffep report` verb/flag, German prose, n on every rate, PII via roster mapping (player display names are allowed in the HC's own report — he sees his players — but nothing PII-bearing is committed; fixtures synthetic).
 - **REP-D03 Splits mirror his tabs:** All Camps / per camp / per competition / per opponent, driven by `game_id`/competition tier/date from `hc_games.csv` + our games table — no hand-maintained lists.
+  **REP-D03 (amended 2026-09-03 after research):** his camp tabs are hard-coded row-range windows into one `Data` sheet and `hc_games.csv` cannot carry them (flat competition, placeholder opponent) — a maintained `data/reference/hc_splits.csv` (row ranges → split label, Camp IV/VI conflict recorded) is therefore adopted as the ONE hand-maintained reference; see M3-04-RESEARCH.md Pattern 4 / Open Question 4.
 - **REP-D04 Handout = one document:** `docs/hc-sync-2026-10.md` (German) linking/embedding the three deliverables; the user reviews it (checkpoint) before the sync.
 - **REP-D05 Runtime budget:** the whole report set stays inside the < 10 min `ffep report` budget (REQ-S1-16 spirit).
 
@@ -42,6 +43,7 @@ Not this phase: new metrics (M3-3), corpus fixes/training (M3-2), the web app (B
 
 <deferred>
 ## Deferred Ideas
+- **WR/receiver table:** HC-05 says "QB/WR", but his "Player Analysis All Camps" tab contains QB rows only (verified from the workbook). No receiver table is invented in this phase (REP-D01); a WR-side extension reusing `reports/own_team.py::player_efficiency` is deferred and disclosed in the report docs and the handout ("Was heute noch fehlt").
 - Coach web app (BL-02); win-driver analysis (BL-04); automated stat collection via CV (BL-03).
 </deferred>
 

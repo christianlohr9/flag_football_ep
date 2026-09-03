@@ -530,7 +530,9 @@ phase consumes that conclusion rather than re-researching it.
 
 **If this table is empty:** N/A — see rows above.
 
-## Open Questions
+## Open Questions (RESOLVED/DEFERRED)
+
+Q1–Q3 (Attempts-denominator intent, `Data!Y` meaning, Camp IV/VI naming): DEFERRED to the head coach as Frage 7–9 via plan M3-04-07; the plans carry documented fallbacks meanwhile. Q4 (hc_games.csv schema vs standalone file): RESOLVED — standalone `data/reference/hc_splits.csv` adopted in plan M3-04-02 (CONTEXT REP-D03 amended).
 
 1. **Does the "Player Analysis All Camps" tab's `Attempts` denominator (Comps+Incs+INTs, no
    Sacks) reflect the HC's real intent, or should this phase's report use a Sacks-inclusive
