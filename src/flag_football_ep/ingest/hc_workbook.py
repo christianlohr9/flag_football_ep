@@ -71,6 +71,8 @@ from flag_football_ep.validation.schema import (
 __all__ = [
     "SHEET_NAMES",
     "PAIR_BLOCK_TAIL_ANCHOR",
+    "HALF_SENTINEL",
+    "HALF_SENTINEL_EXCLUDED_SHEETS",
     "SheetNotFoundError",
     "slugify",
     "hc_source_label",
@@ -97,6 +99,25 @@ SHEET_NAMES = ("Data", "Copy of Data")
 # exactly what is unknown for a pair block), the column at which a pair
 # block's semantics become unresolved. See map_block_to_frame.
 PAIR_BLOCK_TAIL_ANCHOR = "RECEIVED BY"
+
+# The constant `half` sentinel stamped on every row of a declared,
+# non-`Copy of Data` HC game (see ingest_workbook). `2` -- not `null` and not
+# `1` -- is the only value that both (a) genuinely satisfies
+# `validation.checks.half_assigned`'s contract (`half in {1, 2}`), and (b)
+# keeps `features.mutations._mark_half_end`'s `game_end` (which requires
+# `half == 2`) firing exactly once, at the true last row -- which is what
+# resolves WP's `Winner` and EP's post-game `None`-ing. M3-02-RESEARCH.md
+# Sec 2.2 tabulates why `null`/`1`/any other value all fail one or both of
+# these. This value must never be inlined anywhere else in this module.
+HALF_SENTINEL = 2
+
+# `HALF_SENTINEL` is never stamped for rows from these sheets, even for a
+# game declared in `data/reference/hc_games.csv` -- `Copy of Data`'s column
+# layout differs from `Data`'s in ways not yet resolved (Frage 2,
+# M3-02-RESEARCH.md Sec 1.3: 14 vs 15 columns, `YARD LN`/`Drive Success`
+# swapped, extra `FH`, `Thrown By`/`YAC` absent). Its rows keep `half = null`
+# and keep quarantining on `half_assigned` until Frage 2 is answered.
+HALF_SENTINEL_EXCLUDED_SHEETS = ("Copy of Data",)
 
 # Extends hudl._CHARTING_RENAME with the HC-only charting columns that have
 # no equivalent in any Hudl export (HC-D01: reuse, don't fork). Several of
@@ -921,18 +942,28 @@ def ingest_workbook(
     `segment_blocks` -> per block `map_block_to_frame` -> `segment_games` ->
     per game slice `resolve_game_identity`, constant-stamping (`source`,
     `competition`, `season`, `game_id`, `game_date`, `home_team`,
-    `away_team`, `result_raw`), `PLAY #` synthesis, `posteam`/`defteam` ->
-    concatenate the sheet's game frames (`how="vertical"`; they share a
-    schema by construction -- a mismatch is a bug, left to raise rather than
-    silently switched to `diagonal`) -> `hudl.derive_identity_columns` ->
-    `hudl.parse_result_tokens` -> `hudl.derive_outcome_columns` -> ODK `"K"`
-    kickoff override (identical to hudl's) -> `hudl.derive_drive_id` ->
-    `half` = typed null (no half-boundary data exists for HC workbooks) ->
+    `away_team`, `half`, `result_raw`), `PLAY #` synthesis, `posteam`/
+    `defteam` -> concatenate the sheet's game frames (`how="vertical"`; they
+    share a schema by construction -- a mismatch is a bug, left to raise
+    rather than silently switched to `diagonal`) -> `hudl.derive_identity_columns`
+    -> `hudl.parse_result_tokens` -> `hudl.derive_outcome_columns` -> ODK
+    `"K"` kickoff override (identical to hudl's) -> `hudl.derive_drive_id` ->
     `add_scoring_play_team(credit_defense=True)` -> `add_score_columns` ->
     `hudl.derive_yards_gained_first_down` -> `reference.map_players` (source
     key `"hc_workbook"`, deliberately coarse -- one `player_mapping.csv` row
     serves all three workbooks, not a per-sheet key) -> `count_result_tokens`
     -> `conform_to_canonical`.
+
+    `half` rule (M3-02-RESEARCH.md Sec 2.2): HC workbooks carry no real
+    half-boundary data, so `half` is not derived -- it is a per-game constant
+    `HALF_SENTINEL` (`2`) for a game declared in `data/reference/hc_games.csv`
+    and charted on a sheet outside `HALF_SENTINEL_EXCLUDED_SHEETS`, else
+    `null`. `2` is the only sentinel that both satisfies
+    `validation.checks.half_assigned` honestly and keeps
+    `features.mutations._mark_half_end`'s `game_end` (WP `Winner`, EP's
+    post-game `None`-ing) firing correctly; the named cost is that no real
+    halftime `No_Score` boundary exists for these games, so a scoreless
+    first-half drive is backward-filled with the game's next actual score.
 
     Never raises on a data-quality finding -- everything folds into the
     returned `HcIngestNotices`. A sheet with no usable blocks at all (e.g.
@@ -953,6 +984,10 @@ def ingest_workbook(
     domain_violations: list[DomainViolation] = []
     pair_row_total = 0
     synthesized_play_ids = 0
+    n_sentinel_rows = 0
+    n_sentinel_games = 0
+    n_null_undeclared_rows = 0
+    n_null_copy_of_data_rows = 0
 
     for block in blocks:
         block_df, header_report, block_domain, block_map_messages = map_block_to_frame(
@@ -986,6 +1021,13 @@ def ingest_workbook(
             )
             messages.extend(identity_messages)
 
+            # half=2 sentinel (M3-02-RESEARCH.md Sec 2.2), stamped alongside
+            # the other per-game identity columns rather than blanket-null
+            # after the concat: it is a per-game decision (declared vs.
+            # undeclared), never a per-sheet one. `Copy of Data`'s sheet
+            # exclusion overrides the declaration outright (Frage 2, Sec 1.3)
+            # -- undeclared and never-half-assigned rows keep quarantining.
+            use_sentinel = (not identity.provisional) and sheet not in HALF_SENTINEL_EXCLUDED_SHEETS
             game_df = game_df.with_columns(
                 pl.lit(source_label, dtype=pl.Utf8).alias("source"),
                 pl.lit(identity.competition, dtype=pl.Utf8).alias("competition"),
@@ -994,8 +1036,16 @@ def ingest_workbook(
                 pl.lit(identity.game_date, dtype=pl.Utf8).alias("game_date"),
                 pl.lit(identity.home_team, dtype=pl.Utf8).alias("home_team"),
                 pl.lit(identity.away_team, dtype=pl.Utf8).alias("away_team"),
+                pl.lit(HALF_SENTINEL if use_sentinel else None, dtype=pl.Int32).alias("half"),
                 pl.col("RESULT").alias("result_raw"),
             )
+            if use_sentinel:
+                n_sentinel_rows += n
+                n_sentinel_games += 1
+            elif sheet in HALF_SENTINEL_EXCLUDED_SHEETS:
+                n_null_copy_of_data_rows += n
+            else:
+                n_null_undeclared_rows += n
 
             game_df, n_filled = _fill_synthesized_play_ids(game_df)
             synthesized_play_ids += n_filled
@@ -1045,11 +1095,26 @@ def ingest_workbook(
 
         df = hudl.derive_drive_id(df)
 
-        df = df.with_columns(pl.lit(None, dtype=pl.Int32).alias("half"))
-        messages.append(
-            f"HC-Workbooks kennen keine Halbzeitgrenzen: half für {df.height} Zeile(n) "
-            "auf null gesetzt"
-        )
+        # half=2 sentinel notices (M3-02-RESEARCH.md Sec 2.2): built from the
+        # per-game counts accumulated above, each emitted only when non-zero,
+        # so a sheet with only declared or only undeclared games never
+        # reports a spurious zero count.
+        if n_sentinel_rows:
+            messages.append(
+                f"half = {HALF_SENTINEL} (Sentinel) für {n_sentinel_rows} Zeile(n) aus "
+                f"{n_sentinel_games} in hc_games.csv deklarierten Spiel(en) gesetzt -- "
+                "HC-Workbooks tragen keine echte Halbzeitgrenze; Folge: kein "
+                "No_Score-Marker zur Halbzeit, eine torlose Drive der ersten Halbzeit "
+                "erbt den nächsten tatsächlichen Score"
+            )
+        n_null_half_rows = n_null_undeclared_rows + n_null_copy_of_data_rows
+        if n_null_half_rows:
+            messages.append(
+                f"half = null für {n_null_half_rows} Zeile(n) ({n_null_undeclared_rows} aus "
+                "nicht in hc_games.csv deklarierten Spielen, "
+                f"{n_null_copy_of_data_rows} aus 'Copy of Data' -- Frage 2 offen): bleiben "
+                "in Quarantäne (half_assigned)"
+            )
 
         df = add_scoring_play_team(df, credit_defense=True)
         df = add_score_columns(df)
