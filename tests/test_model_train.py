@@ -31,6 +31,7 @@ from flag_football_ep.config import (
 from flag_football_ep.model import mlflow_store, registry
 from flag_football_ep.model.hyperparams import EP_FEATURES, EP_PARAMS, WP_FEATURES, WP_PARAMS
 from flag_football_ep.model.train import MissingTrainingColumns, train_ep, train_wp
+from flag_football_ep.reference import UnmappedCompetitionError
 from flag_football_ep.testing import canonical_plays_with_scores
 
 # --- shared test config/corpus helpers ---------------------------------------------------
@@ -158,6 +159,35 @@ def _wp_training_corpus(n_games: int = 12, plays_per_game: int = 16) -> pl.DataF
     variety for a real WP fit without a degenerate single-class target.
     """
     return _ep_training_corpus(n_games=n_games, plays_per_game=plays_per_game)
+
+
+# One of the three head-coach `(source, competition)` pairs `data/reference/
+# competition_tier.csv` must carry after this plan (M3-02-02 Task 3) -- used to pin the
+# `UnmappedCompetitionError` failure mode (RESEARCH Pitfall 3) below.
+_HC_SOURCE = "hc_workbook:scoring-probability-by-situation-2023-2026:data"
+_HC_COMPETITION = "HC Charting 2023-2026"
+
+
+def _hc_ep_training_corpus(
+    n_games: int = 12, plays_per_game: int = 16, competition: str = _HC_COMPETITION
+) -> pl.DataFrame:
+    """`_ep_training_corpus`'s shape, but sourced as a head-coach workbook row with the
+    constant half=2 label-construction sentinel (M3-02-02 Task 1/2) and a `competition`
+    value that only a head-coach-specific `competition_tier.csv` row can map.
+    """
+    touchdown = [0] * plays_per_game
+    touchdown[5] = 1  # mid-half, second drive of the half
+    overrides = {
+        "touchdown": touchdown * n_games,
+        "competition": competition,
+        "half": 2,
+    }
+    return canonical_plays_with_scores(
+        n_games=n_games,
+        plays_per_game=plays_per_game,
+        source=_HC_SOURCE,
+        overrides=overrides,
+    )
 
 
 # --- Task 1: EP training ------------------------------------------------------------------
@@ -820,3 +850,72 @@ def test_train_ep_phase_tag_is_01_3(tmp_path: Path) -> None:
     run = mlflow.tracking.MlflowClient().get_run(run_id)
 
     assert run.data.tags["phase"] == "01.3"
+
+
+# --- head-coach competition tier -----------------------------------------------------------
+#
+# M3-02-02 Task 3: `data/reference/competition_tier.csv` gets three new rows for the
+# head-coach sources this phase's ingest/dedupe (M3-02-01/04) will produce. Before those
+# rows exist, the first head-coach row that reaches `train_ep`/`train_wp` hard-fails with
+# `UnmappedCompetitionError` -- RESEARCH Pitfall 3, "the failure fires inside
+# `_build_competition_tier`, after the LOGO fit has already started, not at ingest time."
+# These tests pin that failure mode with `_make_config`'s own `tmp_path` CSV fixture (never
+# the real repo file for writing), then pin the fix against the real repo file read-only.
+
+
+def test_train_ep_raises_unmapped_competition_tier_error_for_unmapped_hc_source(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _hc_ep_training_corpus()
+
+    with pytest.raises(UnmappedCompetitionError, match=re.escape(_HC_SOURCE)) as exc_info:
+        train_ep(plays, config)
+    assert _HC_COMPETITION in str(exc_info.value)
+
+
+def test_train_ep_completes_with_matching_hc_competition_tier_row(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    config.reference.competition_tier.write_text(
+        config.reference.competition_tier.read_text()
+        + f"{_HC_SOURCE},{_HC_COMPETITION},mixed-other\n"
+    )
+    plays = _hc_ep_training_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    run = mlflow.tracking.MlflowClient().get_run(run_id)
+    assert isinstance(run_id, str)
+    assert run_id
+    assert len(run.data.metrics) > 0
+
+
+def test_real_competition_tier_csv_loads_and_every_tier_is_valid(repo_root: Path) -> None:
+    from flag_football_ep.reference import COMPETITION_TIERS, load_competition_tier
+
+    mapping = load_competition_tier(repo_root / "data" / "reference" / "competition_tier.csv")
+
+    assert mapping.height == 6
+    assert set(mapping["tier"].to_list()) <= set(COMPETITION_TIERS)
+
+
+def test_real_competition_tier_csv_has_three_hc_workbook_rows_and_original_three_intact(
+    repo_root: Path,
+) -> None:
+    from flag_football_ep.reference import load_competition_tier
+
+    mapping = load_competition_tier(repo_root / "data" / "reference" / "competition_tier.csv")
+
+    hc_rows = mapping.filter(pl.col("source").str.starts_with("hc_workbook:"))
+    assert hc_rows.height == 3
+
+    original_rows = mapping.filter(~pl.col("source").str.starts_with("hc_workbook:"))
+    original_pairs = set(
+        zip(original_rows["source"].to_list(), original_rows["competition"].to_list())
+    )
+    assert original_pairs == {
+        ("ifaf", "IFAF World Flag 2026"),
+        ("legacy", "legacy"),
+        ("legacy-sportapp", "FlagWC"),
+    }
