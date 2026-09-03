@@ -64,6 +64,10 @@ class ReferenceFiles:
     # M3-01-03; nothing loads it until the pipeline wiring in M3-01-04, which
     # guards the load.
     hc_games: Path = Path("data/reference/hc_games.csv")
+    # M3-04-02: optional, same rationale as hc_games above. Points at the
+    # maintained camp/competition row-window table; nothing loads it until
+    # the player-analysis report plans (M3-04-03..05) wire it in.
+    hc_splits: Path = Path("data/reference/hc_splits.csv")
 
 
 @dataclass(frozen=True)
@@ -260,6 +264,11 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
         # docstring): same pre-M3-compat fallback as raw_hc_files above.
         hc_games=_resolve(
             base_dir, reference_table.get("hc_games", "data/reference/hc_games.csv")
+        ),
+        # Not in _REFERENCE_KEYS/_key() deliberately (see ReferenceFiles.hc_splits
+        # docstring): same pre-M3-04-compat fallback as hc_games above.
+        hc_splits=_resolve(
+            base_dir, reference_table.get("hc_splits", "data/reference/hc_splits.csv")
         ),
     )
 

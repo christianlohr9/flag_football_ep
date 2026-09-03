@@ -88,6 +88,18 @@ _HC_GAMES_SCHEMA: dict[str, pl.DataType] = {
     "corpus_game_id": pl.Utf8,
     "note": pl.Utf8,
 }
+_HC_SPLITS_SCHEMA: dict[str, pl.DataType] = {
+    "workbook": pl.Utf8,
+    "sheet": pl.Utf8,
+    "first_row": pl.Int32,
+    "last_row": pl.Int32,
+    "split_key": pl.Utf8,
+    "label_de": pl.Utf8,
+    "label_status": pl.Utf8,
+    "source_tabs": pl.Utf8,
+    "note": pl.Utf8,
+}
+_HC_SPLIT_LABEL_STATUSES: tuple[str, ...] = ("verified", "conflict")
 
 
 def _read_reference_csv(path: Path, schema: dict[str, pl.DataType]) -> pl.DataFrame:
@@ -257,6 +269,111 @@ def load_hc_games(path: Path) -> pl.DataFrame:
         )
         if bad_ids:
             raise ValueError(f"game_id value(s) not prefixed 'hc-' in {path}: {bad_ids}")
+
+    return df
+
+
+def load_hc_splits(path: Path) -> pl.DataFrame:
+    """Load the maintained head-coach camp/competition split-window table.
+
+    `workbook,sheet,first_row,last_row,split_key,label_de,label_status,
+    source_tabs,note`. This file exists because the head coach's per-camp
+    tabs in the "Offense Analytics 2026 Camps and Competitions" workbook are
+    not filtered by any column -- each tab is a hard-coded absolute row
+    window into the same `Data` sheet (e.g. `Data!$P$1001:$P$2000` for
+    Mexico). There is no camp column and no per-camp date to join against, so
+    every boundary below is a maintained row, cited (in `note`) to the
+    formula cell it was read from -- never a magic number inside report
+    code. `label_status` is `"verified"` when two independently-named tabs
+    agree on the same window, or `"conflict"` when they disagree (see
+    `camp-iv-vi`: the same row window is named "Camp VI" in one tab and
+    "Camp IV" in another) -- the conflict is recorded, never silently
+    decided. `All Camps` (`2:19562`, the sheet's unfiltered total) is
+    deliberately NOT a row here: it is computed, not looked up.
+
+    Rejects, each naming the offending value(s):
+    - a duplicate `(workbook, sheet, split_key)` triple,
+    - a duplicate `split_key` across the whole file,
+    - a `first_row < 2`,
+    - a `last_row < first_row`,
+    - overlapping `[first_row, last_row]` windows within one `(workbook, sheet)`,
+    - a `label_status` outside `{"verified", "conflict"}`,
+    - an empty `label_de` or `split_key`.
+    """
+    df = _read_reference_csv(path, _HC_SPLITS_SCHEMA)
+
+    if df.height:
+        dupe_keys = (
+            df.group_by(["workbook", "sheet", "split_key"])
+            .agg(pl.len().alias("n"))
+            .filter(pl.col("n") > 1)
+            .select(["workbook", "sheet", "split_key"])
+            .rows()
+        )
+        if dupe_keys:
+            raise ValueError(
+                f"duplicate (workbook, sheet, split_key) triple(s) in {path}: {dupe_keys}"
+            )
+
+        dupe_split_keys = (
+            df.group_by("split_key")
+            .agg(pl.len().alias("n"))
+            .filter(pl.col("n") > 1)["split_key"]
+            .to_list()
+        )
+        if dupe_split_keys:
+            raise ValueError(f"duplicate split_key in {path}: {dupe_split_keys}")
+
+        bad_first_rows = df.filter(pl.col("first_row") < 2)["split_key"].to_list()
+        if bad_first_rows:
+            raise ValueError(
+                f"first_row < 2 (row 1 is the header) for split_key(s) in {path}: "
+                f"{bad_first_rows}"
+            )
+
+        bad_ranges = df.filter(pl.col("last_row") < pl.col("first_row"))["split_key"].to_list()
+        if bad_ranges:
+            raise ValueError(
+                f"last_row < first_row for split_key(s) in {path}: {bad_ranges}"
+            )
+
+        overlap_pairs: list[tuple[str, str]] = []
+        for _, group in df.sort(["workbook", "sheet", "first_row"]).group_by(
+            ["workbook", "sheet"], maintain_order=True
+        ):
+            rows = group.select(["split_key", "first_row", "last_row"]).rows()
+            for (key_a, _first_a, last_a), (key_b, first_b, _last_b) in zip(rows, rows[1:]):
+                if first_b <= last_a:
+                    overlap_pairs.append((key_a, key_b))
+        if overlap_pairs:
+            raise ValueError(
+                f"overlapping [first_row, last_row] window(s) in {path}: {overlap_pairs}"
+            )
+
+        bad_statuses = (
+            df.filter(~pl.col("label_status").is_in(_HC_SPLIT_LABEL_STATUSES))["label_status"]
+            .unique()
+            .to_list()
+        )
+        if bad_statuses:
+            raise ValueError(
+                f"label_status value(s) not in {_HC_SPLIT_LABEL_STATUSES} in {path}: "
+                f"{sorted(bad_statuses)}"
+            )
+
+        empty_label_de = df.filter(
+            pl.col("label_de").is_null() | (pl.col("label_de").str.strip_chars() == "")
+        )["split_key"].to_list()
+        if empty_label_de:
+            raise ValueError(f"empty label_de for split_key(s) in {path}: {empty_label_de}")
+
+        empty_split_key = df.filter(
+            pl.col("split_key").is_null() | (pl.col("split_key").str.strip_chars() == "")
+        )
+        if empty_split_key.height:
+            raise ValueError(
+                f"empty split_key for {empty_split_key.height} row(s) in {path}"
+            )
 
     return df
 
