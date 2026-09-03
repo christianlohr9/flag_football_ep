@@ -17,6 +17,7 @@ from flag_football_ep.reference import (
     load_final_scores,
     load_group_opponents,
     load_half_boundaries,
+    load_hc_games,
     load_player_mapping,
     load_sportapp_games,
     load_team_mapping,
@@ -512,3 +513,153 @@ def test_map_players_never_raises_on_unmapped_labels() -> None:
     result = map_players(df, mapping, "hudl", ["thrown_by"])  # must not raise
 
     assert result.unmapped == ["UNKNOWN1", "UNKNOWN2"]
+
+
+# --- load_hc_games ------------------------------------------------------
+
+_HC_GAMES_HEADER = (
+    "workbook,sheet,block_key,source_team1,source_team2,game_id,home_team,"
+    "away_team,competition,season,game_date,tier,corpus_game_id,note"
+)
+
+
+def _hc_games_row(
+    workbook: str = "offense-analytics-2026",
+    sheet: str = "data",
+    block_key: str = "b00-g00",
+    source_team1: str = "",
+    source_team2: str = "",
+    game_id: str = "hc-2026-01-alphaland-betaland",
+    home_team: str = "ALP",
+    away_team: str = "BET",
+    competition: str = "Camp",
+    season: str = "2026",
+    game_date: str = "2026-01-10",
+    tier: str = "womens-national",
+    corpus_game_id: str = "",
+    note: str = "",
+) -> str:
+    return ",".join(
+        [
+            workbook,
+            sheet,
+            block_key,
+            source_team1,
+            source_team2,
+            game_id,
+            home_team,
+            away_team,
+            competition,
+            season,
+            game_date,
+            tier,
+            corpus_game_id,
+            note,
+        ]
+    )
+
+
+def test_load_hc_games_returns_typed_frame(tmp_path: Path) -> None:
+    path = _write_csv(tmp_path, "hc_games.csv", [_HC_GAMES_HEADER, _hc_games_row()])
+
+    df = load_hc_games(path)
+
+    assert df.schema["season"] == pl.Int32
+    for col in (
+        "workbook",
+        "sheet",
+        "block_key",
+        "source_team1",
+        "source_team2",
+        "game_id",
+        "home_team",
+        "away_team",
+        "competition",
+        "game_date",
+        "tier",
+        "corpus_game_id",
+        "note",
+    ):
+        assert df.schema[col] == pl.Utf8
+    assert df.height == 1
+
+
+def test_load_hc_games_duplicate_key_triple_raises(tmp_path: Path) -> None:
+    path = _write_csv(
+        tmp_path,
+        "hc_games.csv",
+        [
+            _HC_GAMES_HEADER,
+            _hc_games_row(game_id="hc-a"),
+            _hc_games_row(game_id="hc-b"),
+        ],
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        load_hc_games(path)
+
+    message = str(exc_info.value)
+    assert "offense-analytics-2026" in message
+    assert "data" in message
+    assert "b00-g00" in message
+
+
+def test_load_hc_games_duplicate_game_id_raises(tmp_path: Path) -> None:
+    path = _write_csv(
+        tmp_path,
+        "hc_games.csv",
+        [
+            _HC_GAMES_HEADER,
+            _hc_games_row(block_key="b00-g00", game_id="hc-dupe"),
+            _hc_games_row(block_key="b00-g01", game_id="hc-dupe"),
+        ],
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        load_hc_games(path)
+
+    assert "hc-dupe" in str(exc_info.value)
+
+
+def test_load_hc_games_bad_tier_raises(tmp_path: Path) -> None:
+    path = _write_csv(
+        tmp_path, "hc_games.csv", [_HC_GAMES_HEADER, _hc_games_row(tier="not-a-real-tier")]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        load_hc_games(path)
+
+    message = str(exc_info.value)
+    assert "not-a-real-tier" in message
+    for tier in COMPETITION_TIERS:
+        assert tier in message
+
+
+def test_load_hc_games_non_hc_prefixed_game_id_raises(tmp_path: Path) -> None:
+    path = _write_csv(
+        tmp_path, "hc_games.csv", [_HC_GAMES_HEADER, _hc_games_row(game_id="hudl-2026-01-10")]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        load_hc_games(path)
+
+    assert "hudl-2026-01-10" in str(exc_info.value)
+
+
+def test_load_hc_games_header_only_loads_empty_with_warning(tmp_path: Path) -> None:
+    path = _write_csv(tmp_path, "hc_games.csv", [_HC_GAMES_HEADER])
+
+    with pytest.warns(UserWarning):
+        df = load_hc_games(path)
+
+    assert df.height == 0
+    assert df.schema["season"] == pl.Int32
+
+
+def test_load_hc_games_missing_file_raises(tmp_path: Path) -> None:
+    missing = tmp_path / "does-not-exist.csv"
+
+    with pytest.raises(MissingReferenceFile) as exc_info:
+        load_hc_games(missing)
+
+    assert str(missing) in str(exc_info.value)

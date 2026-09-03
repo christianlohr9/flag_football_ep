@@ -25,10 +25,19 @@ module raises on a data-quality finding; `SheetNotFoundError` is the only
 exception it defines, for a structurally absent sheet. Everything else is
 folded into the caller's `HcIngestNotices.messages`.
 
-This module reads, it does not derive: RESULT-token parsing, drive/scoring
-derivation and the final `canonical.conform_to_canonical` convergence are
-plan M3-01-03/04's job, reusing `ingest.hudl`'s existing functions rather
-than forking them (HC-D01).
+Game segmentation and identity: `segment_games` splits a block into
+per-game slices (numeric: `PLAY #` reset; pair: team-pair change);
+`resolve_game_identity` resolves a slice against the maintained
+`data/reference/hc_games.csv`, degrading to a provisional id plus a notice
+on a miss rather than raising (HC-D04).
+
+`ingest_workbook` is this module's convergence point: it reuses
+`ingest.hudl`'s derivation chain unchanged (`derive_identity_columns`,
+`parse_result_tokens`, `derive_outcome_columns`, `derive_drive_id`,
+`derive_yards_gained_first_down`) rather than forking a second
+RESULT-parsing implementation (HC-D01), and calls
+`canonical.conform_to_canonical` to converge onto the canonical schema with
+`source = hc_workbook:<file>:<sheet>`.
 """
 
 from __future__ import annotations
@@ -41,8 +50,16 @@ from typing import Any
 import openpyxl
 import polars as pl
 
-from flag_football_ep.canonical import ConformReport
+from flag_football_ep.canonical import (
+    CORE_COLUMNS,
+    NULLABLE_EXTRAS,
+    ConformReport,
+    add_score_columns,
+    add_scoring_play_team,
+    conform_to_canonical,
+)
 from flag_football_ep.ingest import hudl
+from flag_football_ep.reference import map_players
 from flag_football_ep.validation.schema import (
     Contract,
     DomainViolation,
@@ -62,6 +79,12 @@ __all__ = [
     "read_sheet_rows",
     "segment_blocks",
     "map_block_to_frame",
+    "HcGameSlice",
+    "HcGameIdentity",
+    "segment_games",
+    "resolve_game_identity",
+    "count_result_tokens",
+    "ingest_workbook",
 ]
 
 # The two tab names every HC workbook charts plays under. `Copy of Data`
@@ -132,7 +155,16 @@ class HcIngestNotices:
     returned. Keyed on the source label rather than a game id (mirrors
     `hudl.IngestNotices`), because one HC sheet holds many games across
     possibly several blocks -- there is no single game id to key on until
-    plan M3-01-03's game-identity resolution runs.
+    game-identity resolution (`resolve_game_identity`) runs.
+
+    `unmapped_players` is PII (raw player names/jersey labels left unmapped
+    by `reference.map_players`) -- it exists so a caller can decide what to
+    do with the labels themselves (e.g. extend `player_mapping.csv`), but it
+    must NEVER be rendered into a report, a console line, a doc or a commit
+    message; only its length (`len(notices.unmapped_players)`) may ever
+    appear in human-readable output. `result_token_counts` is not PII: every
+    token observed in the sheet's `RESULT` column (contract vocabulary or
+    not), counted by `count_result_tokens`.
     """
 
     source_label: str
@@ -141,6 +173,8 @@ class HcIngestNotices:
     header: HeaderReport | None = None
     domain: list[DomainViolation] = field(default_factory=list)
     conform: ConformReport | None = None
+    unmapped_players: list[str] = field(default_factory=list)
+    result_token_counts: dict[str, int] = field(default_factory=dict)
 
 
 def slugify(value: str) -> str:
@@ -498,3 +532,532 @@ def map_block_to_frame(
         df = df.rename(rename_map)
 
     return df, header_report, domain_violations, messages
+
+
+@dataclass(frozen=True)
+class HcGameSlice:
+    """One game's worth of rows inside a single `HcBlock` (game segmentation
+    within a block -- see `segment_games`).
+
+    `block_index`/`game_index` are 0-based; `block_key` is the stable,
+    block-scoped identifier `b{block_index:02d}-g{game_index:02d}` that
+    `data/reference/hc_games.csv` keys on. `rows` is the game's row slice in
+    the same `(physical_row_number, cell_values)` shape as `HcBlock.rows`.
+    `source_team1`/`source_team2` are the raw team-pair labels for a `pair`
+    slice (from the slice's first row), `None` for a `numeric` slice.
+    """
+
+    block_index: int
+    game_index: int
+    block_key: str
+    kind: str  # "pair" | "numeric"
+    rows: list[tuple[int, tuple]]
+    first_row: int
+    last_row: int
+    source_team1: str | None
+    source_team2: str | None
+
+
+def _coerce_play_number(value: Any) -> float | None:
+    """Best-effort numeric coercion of a `PLAY #` cell (Pitfall 5: openpyxl
+    delivers Excel numbers as `float`). `None`/non-numeric/unparseable
+    strings become `None` -- treated by `segment_games` as "does not
+    increase", i.e. a game boundary, never silently merged into the
+    previous game.
+    """
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+def _normalize_pair_label(value: Any) -> str:
+    """Case-insensitive, whitespace-trimmed comparison key for a team-pair
+    label. The raw value (not this normalized form) is what survives into
+    `HcGameSlice.source_team1`/`source_team2`.
+    """
+    if value is None:
+        return ""
+    return str(value).strip().casefold()
+
+
+def _split_numeric_block(
+    rows: list[tuple[int, tuple]], messages: list[str]
+) -> list[list[tuple[int, tuple]]]:
+    """Split a numeric block's rows into games wherever `PLAY #` (column 0)
+    does not increase relative to the previous row -- a reset to 1, any
+    decrease, or a null/unparseable cell, which is itself always a boundary
+    (never compared against a stale reference value, so one corrupt cell
+    cannot make two real games silently look like one)."""
+    groups: list[list[tuple[int, tuple]]] = []
+    current: list[tuple[int, tuple]] = []
+    prev_play_num: float | None = None
+    unparseable = 0
+
+    for row_num, values in rows:
+        raw = values[0] if values else None
+        play_num = _coerce_play_number(raw)
+        if play_num is None:
+            unparseable += 1
+
+        is_boundary = (
+            not current or play_num is None or prev_play_num is None or play_num <= prev_play_num
+        )
+        if is_boundary and current:
+            groups.append(current)
+            current = []
+        current.append((row_num, values))
+        prev_play_num = play_num
+
+    if current:
+        groups.append(current)
+
+    if unparseable:
+        messages.append(
+            f"{unparseable} Zeile(n) mit nicht auswertbarer PLAY # (null oder nicht "
+            "parsebar) -- als Spielgrenze behandelt statt zwei Spiele stillschweigend "
+            "zusammenzuführen"
+        )
+
+    return groups
+
+
+def _split_pair_block(rows: list[tuple[int, tuple]]) -> list[list[tuple[int, tuple]]]:
+    """Split a pair block's rows into games wherever the (team1, team2) pair
+    (columns 0-1) changes, compared case-insensitively and whitespace-trimmed."""
+    groups: list[list[tuple[int, tuple]]] = []
+    current: list[tuple[int, tuple]] = []
+    prev_pair: tuple[str, str] | None = None
+
+    for row_num, values in rows:
+        t1 = values[0] if len(values) >= 1 else None
+        t2 = values[1] if len(values) >= 2 else None
+        pair = (_normalize_pair_label(t1), _normalize_pair_label(t2))
+        is_boundary = not current or pair != prev_pair
+        if is_boundary and current:
+            groups.append(current)
+            current = []
+        current.append((row_num, values))
+        prev_pair = pair
+
+    if current:
+        groups.append(current)
+
+    return groups
+
+
+def segment_games(block: HcBlock) -> tuple[list[HcGameSlice], list[str]]:
+    """Split one `HcBlock` into per-game `HcGameSlice`s.
+
+    A numeric block splits wherever `PLAY #` does not increase relative to
+    the previous row (reset to 1, any decrease, or an unparseable cell -- see
+    `_split_numeric_block`). A pair block splits wherever the
+    `(source_team1, source_team2)` pair changes (`_split_pair_block`).
+    `block_key` is `b{block.index:02d}-g{game_index:02d}`, zero-padded and
+    stable across runs for an unchanged sheet -- two blocks in the same sheet
+    never collide (distinct `block_index`) and the same `block_key` string in
+    two different sheets is disambiguated by the caller's
+    `(workbook, sheet, block_key)` lookup, not by this function.
+    """
+    messages: list[str] = []
+    slices: list[HcGameSlice] = []
+
+    if not block.rows:
+        return slices, messages
+
+    if block.kind == "numeric":
+        groups = _split_numeric_block(block.rows, messages)
+    else:
+        groups = _split_pair_block(block.rows)
+
+    for game_index, group_rows in enumerate(groups):
+        first_row = group_rows[0][0]
+        last_row = group_rows[-1][0]
+        block_key = f"b{block.index:02d}-g{game_index:02d}"
+
+        source_team1: str | None = None
+        source_team2: str | None = None
+        if block.kind == "pair":
+            first_values = group_rows[0][1]
+            t1_raw = first_values[0] if len(first_values) >= 1 else None
+            t2_raw = first_values[1] if len(first_values) >= 2 else None
+            source_team1 = str(t1_raw) if t1_raw is not None else None
+            source_team2 = str(t2_raw) if t2_raw is not None else None
+
+        slices.append(
+            HcGameSlice(
+                block_index=block.index,
+                game_index=game_index,
+                block_key=block_key,
+                kind=block.kind,
+                rows=group_rows,
+                first_row=first_row,
+                last_row=last_row,
+                source_team1=source_team1,
+                source_team2=source_team2,
+            )
+        )
+
+    return slices, messages
+
+
+@dataclass(frozen=True)
+class HcGameIdentity:
+    """The resolved identity of one `HcGameSlice`: either a mapped row from
+    `data/reference/hc_games.csv` (`provisional=False`) or a degraded
+    placeholder (`provisional=True`) built when no row matches. Nothing is
+    invented for a provisional identity -- `home_team`/`away_team`/`tier`/
+    `season`/`game_date`/`corpus_game_id` all stay `None`.
+    """
+
+    game_id: str
+    home_team: str | None
+    away_team: str | None
+    competition: str | None
+    season: int | None
+    game_date: str | None
+    tier: str | None
+    corpus_game_id: str | None
+    provisional: bool
+
+
+# HC-D04: `reference.map_teams` is deliberately NOT used for game identity --
+# it raises `UnmappedTeamError` on any label with no mapping row, but an HC
+# game the maintainer has not yet transcribed into `hc_games.csv` must
+# degrade into a provisional id plus a loud notice, not abort the whole
+# ingest run. Game identity for this source therefore comes from a direct,
+# never-raising filter against the maintained `hc_games` frame below.
+def resolve_game_identity(
+    slice_: HcGameSlice,
+    workbook_slug: str,
+    sheet_slug: str,
+    hc_games: pl.DataFrame,
+) -> tuple[HcGameIdentity, list[str]]:
+    """Resolve `slice_`'s game identity against the maintained `hc_games` frame.
+
+    Filters on `(workbook, sheet, block_key)`. On a hit, returns the mapped
+    identity built from that row (`provisional=False`), no message. On a
+    miss, returns a provisional identity (`game_id =
+    "hc-{workbook}-{sheet}-{block_key}"`, every other field `None`) plus
+    exactly one notice naming the block key, the physical Excel row range,
+    the play count and -- for a pair block -- the raw team labels, so a
+    maintainer can add the `hc_games.csv` row without opening Excel. Never
+    raises.
+    """
+    messages: list[str] = []
+
+    match = hc_games.filter(
+        (pl.col("workbook") == workbook_slug)
+        & (pl.col("sheet") == sheet_slug)
+        & (pl.col("block_key") == slice_.block_key)
+    )
+
+    if match.height:
+        row = match.row(0, named=True)
+        identity = HcGameIdentity(
+            game_id=row["game_id"],
+            home_team=row["home_team"],
+            away_team=row["away_team"],
+            competition=row["competition"],
+            season=row["season"],
+            game_date=row["game_date"],
+            tier=row["tier"],
+            corpus_game_id=row["corpus_game_id"],
+            provisional=False,
+        )
+        return identity, messages
+
+    provisional_id = f"hc-{workbook_slug}-{sheet_slug}-{slice_.block_key}"
+    identity = HcGameIdentity(
+        game_id=provisional_id,
+        home_team=None,
+        away_team=None,
+        competition=None,
+        season=None,
+        game_date=None,
+        tier=None,
+        corpus_game_id=None,
+        provisional=True,
+    )
+
+    n_plays = len(slice_.rows)
+    team_note = ""
+    if slice_.kind == "pair":
+        team_note = f", Teams laut Sheet: {slice_.source_team1!r} vs. {slice_.source_team2!r}"
+    messages.append(
+        f"Unbekanntes Spiel {slice_.block_key!r} in {workbook_slug}/{sheet_slug}: "
+        f"Zeilen {slice_.first_row}-{slice_.last_row} ({n_plays} Plays){team_note} -- "
+        f"provisorische game_id {provisional_id!r} vergeben; data/reference/hc_games.csv "
+        "um diese Zeile ergänzen"
+    )
+
+    return identity, messages
+
+
+def _fill_synthesized_play_ids(game_df: pl.DataFrame) -> tuple[pl.DataFrame, int]:
+    """Fill a null `PLAY #` with the row's 1-based position within the game
+    (pair-block rows always lack a real `PLAY #`; a numeric block may have a
+    stray blank cell too). Returns `(df, n_filled)` -- the imported
+    `hudl.derive_identity_columns` can then cast `PLAY #` -> `play_id`
+    unchanged, real or synthesized.
+    """
+    n_missing = int(game_df["PLAY #"].null_count())
+    if not n_missing:
+        return game_df, 0
+
+    game_df = game_df.with_row_index(name="_hc_pos", offset=1)
+    game_df = game_df.with_columns(
+        pl.when(pl.col("PLAY #").is_null())
+        .then(pl.col("_hc_pos").cast(pl.Utf8))
+        .otherwise(pl.col("PLAY #"))
+        .alias("PLAY #")
+    )
+    game_df = game_df.drop("_hc_pos")
+    return game_df, n_missing
+
+
+def _stamp_posteam_defteam(
+    game_df: pl.DataFrame, kind: str, home_team: str | None, away_team: str | None
+) -> pl.DataFrame:
+    """Derive `posteam`/`defteam` for one game's rows.
+
+    A `pair` block has no `ODK` (nulled by `_null_pair_block_tail`) -- the
+    offence side is undetermined until Frage 2 (the pair block's column
+    shift) is answered, so both columns stay null rather than guessed. A
+    `numeric` block follows hudl's own convention: `posteam = home_team`
+    when `ODK == "O"`, `away_team` for every other non-null `ODK` (`"D"` or
+    `"K"` alike -- the `"K"` kickoff override only changes `play_type`, not
+    `posteam`), null when `ODK` itself is null.
+    """
+    if kind == "pair":
+        return game_df.with_columns(
+            pl.lit(None, dtype=pl.Utf8).alias("posteam"),
+            pl.lit(None, dtype=pl.Utf8).alias("defteam"),
+        )
+
+    game_df = game_df.with_columns(
+        pl.when(pl.col("ODK") == "O")
+        .then(pl.lit(home_team, dtype=pl.Utf8))
+        .when(pl.col("ODK").is_not_null())
+        .then(pl.lit(away_team, dtype=pl.Utf8))
+        .otherwise(pl.lit(None, dtype=pl.Utf8))
+        .alias("posteam")
+    )
+    game_df = game_df.with_columns(
+        pl.when(pl.col("posteam") == pl.lit(home_team, dtype=pl.Utf8))
+        .then(pl.lit(away_team, dtype=pl.Utf8))
+        .when(pl.col("posteam").is_not_null())
+        .then(pl.lit(home_team, dtype=pl.Utf8))
+        .otherwise(pl.lit(None, dtype=pl.Utf8))
+        .alias("defteam")
+    )
+    return game_df
+
+
+def count_result_tokens(df: pl.DataFrame) -> dict[str, int]:
+    """Count every token observed in `RESULT` (split on `", "`), independent
+    of the contract's known vocabulary -- so a caller can report per-token
+    counts (including any not-yet-ratified token, e.g. an HC-only one, see
+    docs/hc-rueckfragen-2026-09.md Frage 3) without re-parsing RESULT itself.
+    """
+    if df.height == 0 or "RESULT" not in df.columns:
+        return {}
+
+    tokens = (
+        df["RESULT"]
+        .fill_null("")
+        .str.split(", ")
+        .list.eval(pl.element().filter(pl.element() != ""))
+        .explode()
+        .drop_nulls()
+        .to_list()
+    )
+    counts: dict[str, int] = {}
+    for token in tokens:
+        counts[token] = counts.get(token, 0) + 1
+    return counts
+
+
+def ingest_workbook(
+    path: Path,
+    sheet: str,
+    contract: Contract,
+    hc_games: pl.DataFrame,
+    player_mapping: pl.DataFrame,
+) -> tuple[pl.DataFrame, HcIngestNotices]:
+    """Turn one (workbook, sheet)'s charted rows into canonical plays.
+
+    Order of operations, mirroring `hudl.ingest_file` and reusing its
+    derivation functions unchanged (HC-D01): `read_sheet_rows` ->
+    `segment_blocks` -> per block `map_block_to_frame` -> `segment_games` ->
+    per game slice `resolve_game_identity`, constant-stamping (`source`,
+    `competition`, `season`, `game_id`, `game_date`, `home_team`,
+    `away_team`, `result_raw`), `PLAY #` synthesis, `posteam`/`defteam` ->
+    concatenate the sheet's game frames (`how="vertical"`; they share a
+    schema by construction -- a mismatch is a bug, left to raise rather than
+    silently switched to `diagonal`) -> `hudl.derive_identity_columns` ->
+    `hudl.parse_result_tokens` -> `hudl.derive_outcome_columns` -> ODK `"K"`
+    kickoff override (identical to hudl's) -> `hudl.derive_drive_id` ->
+    `half` = typed null (no half-boundary data exists for HC workbooks) ->
+    `add_scoring_play_team(credit_defense=True)` -> `add_score_columns` ->
+    `hudl.derive_yards_gained_first_down` -> `reference.map_players` (source
+    key `"hc_workbook"`, deliberately coarse -- one `player_mapping.csv` row
+    serves all three workbooks, not a per-sheet key) -> `count_result_tokens`
+    -> `conform_to_canonical`.
+
+    Never raises on a data-quality finding -- everything folds into the
+    returned `HcIngestNotices`. A sheet with no usable blocks at all (e.g.
+    entirely empty) returns a zero-row `CANONICAL_COLUMNS` frame plus a
+    notice, not an error. Structural problems (an absent sheet) still
+    propagate from `read_sheet_rows` (`SheetNotFoundError`).
+    """
+    workbook_slug = slugify(Path(path).stem)
+    sheet_slug = slugify(sheet)
+    source_label = hc_source_label(path, sheet)
+
+    header, rows, messages = read_sheet_rows(path, sheet)
+    blocks, block_messages = segment_blocks(header, rows)
+    messages.extend(block_messages)
+
+    game_frames: list[pl.DataFrame] = []
+    header_reports: list[HeaderReport] = []
+    domain_violations: list[DomainViolation] = []
+    pair_row_total = 0
+    synthesized_play_ids = 0
+
+    for block in blocks:
+        block_df, header_report, block_domain, block_map_messages = map_block_to_frame(
+            block, contract
+        )
+        messages.extend(block_map_messages)
+        header_reports.append(header_report)
+        domain_violations.extend(block_domain)
+
+        slices, segment_messages = segment_games(block)
+        messages.extend(segment_messages)
+
+        offset = 0
+        for slice_ in slices:
+            n = len(slice_.rows)
+            game_df = block_df.slice(offset, n)
+            offset += n
+
+            # A pair block's frame carries the two synthetic hc_pair_team1/
+            # hc_pair_team2 columns (_null_pair_block_tail); a numeric
+            # block's frame never does. Drop them here -- the raw labels
+            # already live in slice_.source_team1/source_team2 for identity
+            # resolution, and keeping them would break the "every game frame
+            # in this sheet shares one schema" concat invariant below.
+            present_synthetic = [c for c in _SYNTHETIC_COLUMNS if c in game_df.columns]
+            if present_synthetic:
+                game_df = game_df.drop(present_synthetic)
+
+            identity, identity_messages = resolve_game_identity(
+                slice_, workbook_slug, sheet_slug, hc_games
+            )
+            messages.extend(identity_messages)
+
+            game_df = game_df.with_columns(
+                pl.lit(source_label, dtype=pl.Utf8).alias("source"),
+                pl.lit(identity.competition, dtype=pl.Utf8).alias("competition"),
+                pl.lit(identity.season, dtype=pl.Int32).alias("season"),
+                pl.lit(identity.game_id, dtype=pl.Utf8).alias("game_id"),
+                pl.lit(identity.game_date, dtype=pl.Utf8).alias("game_date"),
+                pl.lit(identity.home_team, dtype=pl.Utf8).alias("home_team"),
+                pl.lit(identity.away_team, dtype=pl.Utf8).alias("away_team"),
+                pl.col("RESULT").alias("result_raw"),
+            )
+
+            game_df, n_filled = _fill_synthesized_play_ids(game_df)
+            synthesized_play_ids += n_filled
+
+            game_df = _stamp_posteam_defteam(
+                game_df, slice_.kind, identity.home_team, identity.away_team
+            )
+            if slice_.kind == "pair":
+                pair_row_total += n
+
+            game_frames.append(game_df)
+
+    if pair_row_total:
+        messages.append(
+            f"{pair_row_total} Pair-Block-Zeile(n): posteam/defteam/ODK unbestimmt bis "
+            "Frage 2 (Spaltenversatz) beantwortet ist"
+        )
+    if synthesized_play_ids:
+        messages.append(
+            f"PLAY # für {synthesized_play_ids} Zeile(n) synthetisiert (1-basierte "
+            "Position innerhalb des Spiels, keine PLAY # im Sheet vorhanden)"
+        )
+
+    if not game_frames:
+        df = pl.DataFrame(schema={**CORE_COLUMNS, **NULLABLE_EXTRAS})
+        messages.append(
+            f"Sheet {sheet!r} enthält keine auswertbaren Blöcke: leerer kanonischer "
+            "Frame zurückgegeben"
+        )
+    else:
+        df = pl.concat(game_frames, how="vertical")
+
+        df = hudl.derive_identity_columns(df)
+        df = hudl.parse_result_tokens(df)
+        df, outcome_messages = hudl.derive_outcome_columns(df)
+        messages.extend(outcome_messages)
+
+        # ODK == 'K' overrides play_type to "kickoff" regardless of RESULT
+        # tokens, identical to hudl's own override -- harmless when no 'K'
+        # row exists in this sheet.
+        df = df.with_columns(
+            pl.when(pl.col("ODK") == "K")
+            .then(pl.lit("kickoff"))
+            .otherwise(pl.col("play_type"))
+            .alias("play_type")
+        )
+
+        df = hudl.derive_drive_id(df)
+
+        df = df.with_columns(pl.lit(None, dtype=pl.Int32).alias("half"))
+        messages.append(
+            f"HC-Workbooks kennen keine Halbzeitgrenzen: half für {df.height} Zeile(n) "
+            "auf null gesetzt"
+        )
+
+        df = add_scoring_play_team(df, credit_defense=True)
+        df = add_score_columns(df)
+        df = hudl.derive_yards_gained_first_down(df)
+
+    # Coarse "hc_workbook" source key (not the per-sheet source_label): one
+    # player_mapping.csv row then serves all three HC workbooks, since the
+    # HC's own player-label vocabulary does not vary per workbook/sheet.
+    player_columns = ["qb", "thrown_by", "received_by", "target", "tackle"]
+    map_result = map_players(df, player_mapping, source="hc_workbook", columns=player_columns)
+    df = map_result.frame
+    unmapped_players = map_result.unmapped
+    if unmapped_players:
+        # PII discipline: only the count, never the labels themselves.
+        messages.append(
+            f"{len(unmapped_players)} nicht zugeordnete Spieler-Label in "
+            f"{player_columns}"
+        )
+
+    result_token_counts = count_result_tokens(df)
+
+    df, conform_report = conform_to_canonical(df, source_label)
+
+    notices = HcIngestNotices(
+        source_label=source_label,
+        sheet=sheet,
+        messages=messages,
+        header=header_reports[0] if header_reports else None,
+        domain=domain_violations,
+        conform=conform_report,
+        unmapped_players=unmapped_players,
+        result_token_counts=result_token_counts,
+    )
+    return df, notices

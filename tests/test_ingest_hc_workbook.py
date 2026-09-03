@@ -14,15 +14,25 @@ from pathlib import Path
 import openpyxl
 import pytest
 
+import polars as pl
+
+from flag_football_ep.canonical import CANONICAL_COLUMNS
 from flag_football_ep.ingest.hc_workbook import (
     HcBlock,
+    HcGameIdentity,
+    HcGameSlice,
     SheetNotFoundError,
+    count_result_tokens,
     hc_source_label,
+    ingest_workbook,
     map_block_to_frame,
     read_sheet_rows,
+    resolve_game_identity,
     segment_blocks,
+    segment_games,
     slugify,
 )
+from flag_football_ep.reference import load_hc_games
 from flag_football_ep.validation.schema import HeaderReport, load_contract
 
 
@@ -370,3 +380,492 @@ def test_header_dedup_appends_suffix_and_names_it(contract) -> None:
     assert "C" in df.columns
     assert "C_2" in df.columns
     assert any("C_2" in m for m in messages)
+
+
+# --- segment_games (Task 2) --------------------------------------------------
+
+
+def _hc_games_frame(rows: list[dict]) -> pl.DataFrame:
+    """Build an in-memory `hc_games` frame matching `_HC_GAMES_SCHEMA`'s columns/dtypes."""
+    columns = [
+        "workbook", "sheet", "block_key", "source_team1", "source_team2", "game_id",
+        "home_team", "away_team", "competition", "season", "game_date", "tier",
+        "corpus_game_id", "note",
+    ]
+
+    def _season_value(row: dict) -> int | None:
+        raw = row.get("season")
+        return int(raw) if raw not in (None, "") else None
+
+    data = {
+        col: ([_season_value(row) for row in rows] if col == "season" else [row.get(col) for row in rows])
+        for col in columns
+    }
+    schema = {col: (pl.Int32 if col == "season" else pl.Utf8) for col in columns}
+    return pl.DataFrame(data, schema=schema)
+
+
+def test_game_segmentation_numeric_twenty_consecutive_rows_is_one_game() -> None:
+    header = ["PLAY #", "ODK"]
+    rows = [(i + 2, (float(i), "O")) for i in range(1, 21)]
+    block = HcBlock(index=0, kind="numeric", header=header, rows=rows, first_row=2, last_row=21)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 1
+    assert len(slices[0].rows) == 20
+    assert slices[0].block_key == "b00-g00"
+
+
+def test_game_segmentation_numeric_play_number_reset_splits_two_games() -> None:
+    header = ["PLAY #", "ODK"]
+    first_game = [(i + 2, (float(i), "O")) for i in range(1, 9)]  # PLAY # 1..8
+    second_game = [(i + 10, (float(i), "O")) for i in range(1, 13)]  # PLAY # 1..12, reset
+    rows = first_game + second_game
+    block = HcBlock(
+        index=0, kind="numeric", header=header, rows=rows,
+        first_row=rows[0][0], last_row=rows[-1][0],
+    )
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 2
+    assert len(slices[0].rows) == 8
+    assert len(slices[1].rows) == 12
+    assert slices[0].block_key == "b00-g00"
+    assert slices[1].block_key == "b00-g01"
+
+
+def test_game_segmentation_numeric_null_play_number_forces_boundary() -> None:
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, (1.0, "O")),
+        (3, (2.0, "O")),
+        (4, (None, "O")),  # unparseable -- forces a boundary
+        (5, (4.0, "O")),
+    ]
+    block = HcBlock(index=0, kind="numeric", header=header, rows=rows, first_row=2, last_row=5)
+
+    slices, messages = segment_games(block)
+
+    assert len(slices) >= 2  # the null row starts a new game
+    joined = " ".join(messages)
+    assert "PLAY #" in joined
+
+
+def test_game_segmentation_pair_block_splits_on_team_pair_change() -> None:
+    header = ["PLAY #", "ODK", "RESULT"]
+    rows = [
+        (2, ("Alphaland", "Betaland", "Rush")),
+        (3, ("Alphaland", "Betaland", "Complete")),
+        (4, ("Gammaland", "Deltaland", "Rush")),
+    ]
+    block = HcBlock(index=1, kind="pair", header=header, rows=rows, first_row=2, last_row=4)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 2
+    assert len(slices[0].rows) == 2
+    assert slices[0].source_team1 == "Alphaland"
+    assert slices[0].source_team2 == "Betaland"
+    assert len(slices[1].rows) == 1
+    assert slices[1].source_team1 == "Gammaland"
+    assert slices[1].source_team2 == "Deltaland"
+    assert slices[0].block_key == "b01-g00"
+    assert slices[1].block_key == "b01-g01"
+
+
+def test_game_segmentation_pair_block_case_and_whitespace_insensitive_match() -> None:
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Alphaland", "Betaland")),
+        (3, (" alphaland ", " BETALAND ")),
+        (4, ("Gammaland", "Deltaland")),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=4)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 2
+    assert len(slices[0].rows) == 2
+    # raw label from the first row of the slice is preserved verbatim
+    assert slices[0].source_team1 == "Alphaland"
+
+
+def test_game_segmentation_block_key_zero_padded_and_block_scoped() -> None:
+    header = ["PLAY #", "ODK"]
+    rows = [(i + 2, (float(i), "O")) for i in range(1, 3)] + [
+        (i + 20, (float(i), "O")) for i in range(1, 3)
+    ]
+    block = HcBlock(
+        index=3, kind="numeric", header=header, rows=rows,
+        first_row=rows[0][0], last_row=rows[-1][0],
+    )
+
+    slices, _ = segment_games(block)
+
+    assert [s.block_key for s in slices] == ["b03-g00", "b03-g01"]
+
+
+def test_game_segmentation_empty_block_returns_no_slices() -> None:
+    block = HcBlock(index=0, kind="numeric", header=["PLAY #"], rows=[], first_row=0, last_row=0)
+
+    slices, messages = segment_games(block)
+
+    assert slices == []
+    assert messages == []
+
+
+# --- resolve_game_identity (Task 2) ------------------------------------------
+
+
+def test_resolve_game_identity_mapped_hit_returns_hc_games_row() -> None:
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "offense-analytics-2026", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-2026-01-alp-bet",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-10", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            }
+        ]
+    )
+    header = ["PLAY #", "ODK"]
+    rows = [(2, (1.0, "O")), (3, (2.0, "O"))]
+    slice_ = HcGameSlice(
+        block_index=0, game_index=0, block_key="b00-g00", kind="numeric",
+        rows=rows, first_row=2, last_row=3, source_team1=None, source_team2=None,
+    )
+
+    identity, messages = resolve_game_identity(
+        slice_, "offense-analytics-2026", "data", hc_games
+    )
+
+    assert isinstance(identity, HcGameIdentity)
+    assert identity.provisional is False
+    assert identity.game_id == "hc-2026-01-alp-bet"
+    assert identity.home_team == "ALP"
+    assert identity.away_team == "BET"
+    assert identity.tier == "womens-national"
+    assert identity.season == 2026
+    assert messages == []
+
+
+def test_resolve_game_identity_same_block_key_different_sheet_resolves_differently() -> None:
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "wb", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-data-game",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-10", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+            {
+                "workbook": "wb", "sheet": "copy-of-data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-copy-game",
+                "home_team": "GAM", "away_team": "DEL", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-11", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    slice_ = HcGameSlice(
+        block_index=0, game_index=0, block_key="b00-g00", kind="numeric",
+        rows=[(2, (1.0, "O"))], first_row=2, last_row=2, source_team1=None, source_team2=None,
+    )
+
+    identity_data, _ = resolve_game_identity(slice_, "wb", "data", hc_games)
+    identity_copy, _ = resolve_game_identity(slice_, "wb", "copy-of-data", hc_games)
+
+    assert identity_data.game_id == "hc-data-game"
+    assert identity_copy.game_id == "hc-copy-game"
+
+
+def test_provisional_game_miss_returns_provisional_id_and_notice() -> None:
+    hc_games = _hc_games_frame([])
+    slice_ = HcGameSlice(
+        block_index=0, game_index=0, block_key="b00-g00", kind="numeric",
+        rows=[(2, (1.0, "O")), (3, (2.0, "O"))], first_row=2, last_row=3,
+        source_team1=None, source_team2=None,
+    )
+
+    identity, messages = resolve_game_identity(slice_, "offense-analytics-2026", "data", hc_games)
+
+    assert identity.provisional is True
+    assert identity.game_id == "hc-offense-analytics-2026-data-b00-g00"
+    assert len(messages) == 1
+    message = messages[0]
+    assert "b00-g00" in message
+    assert "2" in message  # row range / play count present
+    assert "3" in message
+
+
+def test_provisional_game_pair_block_notice_includes_raw_team_labels() -> None:
+    hc_games = _hc_games_frame([])
+    slice_ = HcGameSlice(
+        block_index=1, game_index=0, block_key="b01-g00", kind="pair",
+        rows=[(2, ("Alphaland", "Betaland", "Rush"))], first_row=2, last_row=2,
+        source_team1="Alphaland", source_team2="Betaland",
+    )
+
+    identity, messages = resolve_game_identity(slice_, "wb", "data", hc_games)
+
+    assert identity.provisional is True
+    message = messages[0]
+    assert "Alphaland" in message
+    assert "Betaland" in message
+
+
+def test_provisional_game_carries_null_fields_nothing_invented() -> None:
+    hc_games = _hc_games_frame([])
+    slice_ = HcGameSlice(
+        block_index=0, game_index=0, block_key="b00-g00", kind="numeric",
+        rows=[(2, (1.0, "O"))], first_row=2, last_row=2, source_team1=None, source_team2=None,
+    )
+
+    identity, _ = resolve_game_identity(slice_, "wb", "data", hc_games)
+
+    assert identity.home_team is None
+    assert identity.away_team is None
+    assert identity.tier is None
+    assert identity.season is None
+    assert identity.game_date is None
+
+
+def test_provisional_game_hc_games_csv_round_trip(tmp_path: Path) -> None:
+    """One CSV round-trip through load_hc_games proves segment_games/resolve_game_identity
+    fit the real loader, not just the inline test frame builder."""
+    path = tmp_path / "hc_games.csv"
+    path.write_text(
+        "workbook,sheet,block_key,source_team1,source_team2,game_id,home_team,away_team,"
+        "competition,season,game_date,tier,corpus_game_id,note\n"
+        "offense-analytics-2026,data,b00-g00,,,hc-2026-01-alp-bet,ALP,BET,Camp,2026,"
+        "2026-01-10,womens-national,,\n",
+        encoding="utf-8",
+    )
+    hc_games = load_hc_games(path)
+
+    slice_ = HcGameSlice(
+        block_index=0, game_index=0, block_key="b00-g00", kind="numeric",
+        rows=[(2, (1.0, "O"))], first_row=2, last_row=2, source_team1=None, source_team2=None,
+    )
+
+    identity, messages = resolve_game_identity(slice_, "offense-analytics-2026", "data", hc_games)
+
+    assert identity.provisional is False
+    assert identity.game_id == "hc-2026-01-alp-bet"
+    assert messages == []
+
+
+# --- count_result_tokens (Task 3) --------------------------------------------
+
+
+def test_count_result_tokens_counts_every_token() -> None:
+    df = pl.DataFrame({"RESULT": ["Rush", "Complete, TD", "Rush", None, "Block"]})
+
+    counts = count_result_tokens(df)
+
+    assert counts == {"Rush": 2, "Complete": 1, "TD": 1, "Block": 1}
+
+
+def test_count_result_tokens_empty_frame_returns_empty_dict() -> None:
+    df = pl.DataFrame({"RESULT": []}, schema={"RESULT": pl.Utf8})
+
+    assert count_result_tokens(df) == {}
+
+
+# --- ingest_workbook (Task 3) -------------------------------------------------
+
+_INGEST_MINIMAL_HEADER = ["PLAY #", "ODK", "DN", "DIST", "YARD LN", "RESULT", "GN/LS"]
+
+_INGEST_FULL_HEADER = [
+    "PLAY #", "ODK", "OFF FORM", "DN", "DIST", "YARD LN", "RESULT", "GN/LS",
+    "RECEIVED BY", "QB", "THROWN BY", "TARGET", "TACKLE",
+]
+
+
+def _player_mapping_frame(rows: list[tuple[str, str, str]]) -> pl.DataFrame:
+    return pl.DataFrame(
+        rows, schema=["source", "source_player", "canonical_player"], orient="row"
+    )
+
+
+def test_ingest_workbook_two_game_numeric_block_resolves_mapped_game_ids(
+    tmp_path: Path, contract
+) -> None:
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        [1, "O", 1, 10, -20, "Rush", 5],
+        [2, "O", 2, 5, -15, "Complete", 5],
+        [1, "O", 1, 10, -20, "Rush", 5],  # PLAY # resets -> second game
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g01",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g2",
+                "home_team": "GAM", "away_team": "DEL", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-02", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert list(df.columns) == list(CANONICAL_COLUMNS)
+    assert df["source"].unique().to_list() == [hc_source_label(path, "Data")]
+    assert sorted(df["game_id"].unique().to_list()) == ["hc-g1", "hc-g2"]
+    assert notices.sheet == "Data"
+
+
+def test_ingest_workbook_empty_sheet_returns_zero_row_canonical_frame(
+    tmp_path: Path, contract
+) -> None:
+    header = _INGEST_MINIMAL_HEADER
+    rows = [header] + [[None] * len(header) for _ in range(50)]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)  # must not raise
+
+    assert df.height == 0
+    assert list(df.columns) == list(CANONICAL_COLUMNS)
+    assert len(notices.messages) >= 1
+
+
+def test_ingest_workbook_end_to_end_two_sheet_workbook(tmp_path: Path, contract) -> None:
+    numeric_game1 = [
+        [1, "O", "DOG", 1, 10, -20, "Rush", 5, None, "Spieler A", None, None, None],
+        [2, "O", "DOG", 2, 5, -15, "Complete", 5, "25", "Spieler A", "Spieler A", "25", None],
+        [3, "D", "DOG", 3, 3, -10, "Sack", 0, None, "Spieler A", None, None, "Spieler A"],
+    ]
+    numeric_game2 = [
+        [1, "O", "DOG", 1, 10, -20, "Complete, TD", 20, "Spieler A", "Spieler A", "Spieler A", "Spieler A", None],
+    ]
+    pair_game = [
+        ["Alphaland", "Betaland", "DOG", 1, 10, -20, "Rush", 5, "Spieler B", None, None, None, None],
+        ["Alphaland", "Betaland", "DOG", 1, 8, -18, "Complete", 8, "Spieler C", None, None, None, None],
+    ]
+    data_rows = [_INGEST_FULL_HEADER] + numeric_game1 + numeric_game2 + pair_game
+    copy_rows = [_INGEST_FULL_HEADER] + numeric_game1
+
+    path = _make_workbook(tmp_path, {"Data": data_rows, "Copy of Data": copy_rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-2026-01-alp-bet",
+                "home_team": "ALP", "away_team": "BET", "competition": "Test Camp",
+                "season": "2026", "game_date": "2026-01-05", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            }
+        ]
+    )
+    player_mapping = _player_mapping_frame([("hc_workbook", "Spieler A", "Anna Mustermann")])
+
+    df_data, notices_data = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+    df_copy, notices_copy = ingest_workbook(
+        path, "Copy of Data", contract, hc_games, player_mapping
+    )
+
+    # canonical column set
+    assert list(df_data.columns) == list(CANONICAL_COLUMNS)
+    assert list(df_copy.columns) == list(CANONICAL_COLUMNS)
+
+    # per-sheet source label, uniform for every row
+    assert df_data["source"].unique().to_list() == [hc_source_label(path, "Data")]
+    assert df_copy["source"].unique().to_list() == [hc_source_label(path, "Copy of Data")]
+    assert notices_data.source_label != notices_copy.source_label
+
+    # per-game ids: mapped game1, provisional game2 and provisional pair game
+    game_ids = set(df_data["game_id"].unique().to_list())
+    assert "hc-2026-01-alp-bet" in game_ids
+    assert any(g.startswith("hc-hc-test-workbook-data-b00-g01") for g in game_ids)
+    assert any(g.startswith("hc-hc-test-workbook-data-b01-g00") for g in game_ids)
+
+    # null pair-block posteam/defteam
+    pair_rows = df_data.filter(pl.col("game_id").str.starts_with("hc-hc-test-workbook-data-b01"))
+    assert pair_rows.height == 2
+    assert pair_rows["posteam"].null_count() == 2
+    assert pair_rows["defteam"].null_count() == 2
+
+    # token counts include every RESULT token seen, including the multi-token combo
+    assert notices_data.result_token_counts.get("Rush", 0) >= 2
+    assert notices_data.result_token_counts.get("Complete", 0) >= 2
+    assert notices_data.result_token_counts.get("TD", 0) == 1
+    assert notices_data.result_token_counts.get("Sack", 0) == 1
+
+    # unmapped-player behaviour: "Spieler A" mapped, jersey "25" left unmapped.
+    # "Spieler B"/"Spieler C" (pair-block RECEIVED BY values) never reach
+    # map_players at all: RECEIVED BY onward is nulled for pair-block rows
+    # (PAIR_BLOCK_TAIL_ANCHOR, Frage 2 undetermined column shift) -- their
+    # raw labels are dropped before player mapping even runs, the strongest
+    # possible PII-safety property for that column.
+    assert "Spieler A" not in notices_data.unmapped_players
+    assert "25" in notices_data.unmapped_players
+    assert "Spieler B" not in notices_data.unmapped_players
+    assert "Spieler C" not in notices_data.unmapped_players
+    joined = " ".join(notices_data.messages)
+    # PII discipline: only the count appears in the human-readable message, never a label
+    assert "Spieler B" not in joined
+    assert "Spieler C" not in joined
+    assert str(len(notices_data.unmapped_players)) in joined
+
+
+def test_ingest_workbook_player_identity_mixed_type_survives_mapping(
+    tmp_path: Path, contract
+) -> None:
+    rows = [
+        _INGEST_FULL_HEADER,
+        [1, "O", "DOG", 1, 10, -20, "Complete", 5, "25", "Spieler A", "Spieler A", "25", None],
+        [2, "O", "DOG", 2, 5, -15, "Complete", 5, "Spieler A", "Spieler A", "Spieler A", "Spieler A", None],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([("hc_workbook", "Spieler A", "Anna Mustermann")])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)  # must not raise
+
+    received_by = df["received_by"].to_list()
+    assert "25" in received_by  # unmapped jersey label survives verbatim
+    assert "Anna Mustermann" in received_by  # mapped name label replaced
+    assert "25" in notices.unmapped_players
+    assert "Anna Mustermann" not in notices.unmapped_players
+    assert "Spieler A" not in notices.unmapped_players
+
+
+def test_ingest_workbook_synthesized_play_id_for_pair_block_rows(tmp_path: Path, contract) -> None:
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        ["Alphaland", "Betaland", 1, 10, -20, "Rush", 5],
+        ["Alphaland", "Betaland", 1, 8, -18, "Complete", 8],
+        ["Alphaland", "Betaland", 1, 6, -16, "Complete", 6],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert sorted(df["play_id"].to_list()) == [1, 2, 3]
+    joined = " ".join(notices.messages)
+    assert "3" in joined
+    assert "synthetisiert" in joined or "synthesized" in joined.lower()
