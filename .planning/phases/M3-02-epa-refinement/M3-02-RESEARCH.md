@@ -377,7 +377,7 @@ No new external packages are required for this phase. `openpyxl>=3.1.5`, `scikit
 | A4 | Camps/scrimmages plausibly belong in the `mixed-other` competition tier, same as `legacy`/`legacy-sportapp` | §5.4 | If wrong, HC games get systematically mis-tiered in the tier-covariate feature; low individual-row impact, moderate if it skews the tier comparison table in the deliverable |
 | A5 | `S`/`F` team-abbreviation noise rows (Spain vs. Switzerland; Finland vs. France) cannot be safely disambiguated without an alias table confirmed by evidence | §1.2 | Low risk — recommendation is explicitly to leave these as their own small residual games rather than guess, so a wrong assumption here costs completeness, not correctness |
 
-## Open Questions
+## Open Questions (DEFERRED — Frage 1/2 need the head coach; planning proceeds with documented exclusion of the pair block and [ASSUMED] tier defaults escalated as Zusatzfragen A/B)
 
 1. **Frage 1 (EC-2025 `Data` tab empty) and Frage 2 (`Scoring Probability` team-pair column layout)** — both still open per `docs/hc-rueckfragen-2026-09.md`; Frage 2 is now sharpened by this session's header-mismatch finding (`Copy of Data` vs. `Data` column order differs). Recommendation: route the sharpened Frage 2 finding back through the same `docs/hc-rueckfragen-2026-09.md` channel before attempting any `Copy of Data` segmentation work.
 2. **Whether the HC's `Reg`-tab polynomial coefficients were literally hand-transcribed from Excel chart trendlines, or fit some other way** — inferred from the pattern (increasing polynomial order for noisier down-4/opposite-half cells) but not confirmed with the HC. Low stakes: the recommendation (§4.4) is to not reproduce this method regardless of its provenance.
