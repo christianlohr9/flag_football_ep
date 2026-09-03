@@ -324,7 +324,9 @@ Not applicable in the usual "library X replaced library Y" sense — this is a o
 
 **Note for M3-3/M3-4 handoff (not this phase's scope, but discovered incidentally):** the `Player Analysis All Camps` "Adj Comp %" formula credits a dropped pass (non-blank `Drop` column) as a completion; "Exp Plays"/"Explosive %" in that sheet threshold strictly on `GN/LS > 12` for **passing plays only** (filtered by `Thrown By` match) — it does **not** implement the "OR positive EPA" half of the explosiveness rule the HC described verbally in `docs/hc-notes-2026-09-03.md`. This is a real discrepancy between the spreadsheet's current formula and the HC's stated intent, worth flagging to M3-3's research/planning.
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+RESOLVED 2026-09-03: Q1 (empty EC-2025 Data tab) and Q2 (pair-block column mapping) are routed to plan M3-01-01 Task 3 (human-action checkpoint: questions forwarded to the head coach; until answered the file is reported as "leer, Antwort ausstehend" and pair-block columns past RECEIVED BY stay null with a loud notice — no guessing). Q3 (RESULT tokens) is decided by the user ("Jona ist HC, er schlägt alles"): the six tokens enter data contract v1.2 in plan M3-01-01 Task 1 with proposed semantics marked HC-confirmation-pending.
 
 1. **Is `Germany Analytics Stats EC 2025 vs WC Nations.xlsx`'s `Data` tab supposed to have rows?**
    - What we know: the header is correct and matches the HC's own description; the tab is 100% empty across 2,506 physical rows (checked at 8 sample points spanning the full range); the workbook's aggregate stat tabs (`Player Stats All Games`, per-opponent tabs) show real, non-zero cached numbers proving the tab held data at some point.
