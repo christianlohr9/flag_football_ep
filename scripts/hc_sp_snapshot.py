@@ -319,10 +319,25 @@ def read_reg_tab(
     return records
 
 
-def _assert_no_datetime_or_long_strings(df: pl.DataFrame, *, tab: str) -> None:
+def _assert_no_datetime_or_long_strings(
+    df: pl.DataFrame, *, tab: str, exempt_columns: tuple[str, ...] = ()
+) -> None:
     """Pre-write PII/domain assertions from this plan's `<pii_discipline>`
     block: no output cell is a string longer than 24 characters, no output
     column holds a `datetime`.
+
+    The length check is scoped to the tidy matrix-tab columns the PII
+    discipline block is guarding (`field_half`, `distance_bin`) -- exactly
+    the columns a leaked player/team name would land in. `exempt_columns`
+    carries columns whose length is legitimately unbounded and independently
+    PII-free: `reg_formulas.csv`'s `formula_text` (verbatim Excel formula
+    text -- coefficients and cell references, per this plan's task 1 action
+    and RESEARCH section 4.4's no-PII verification of the `Reg` tab) and
+    `manifest.csv`'s `tab`/`source_workbook` columns (tab names and the
+    workbook basename -- the plan's own pii_discipline block explicitly
+    carves the workbook filename out of this rule: "it is a filename, not a
+    person"). The datetime check always applies, unconditionally, to every
+    column.
     """
     for col_name, dtype in zip(df.columns, df.dtypes):
         if dtype in (pl.Datetime, pl.Date):
@@ -330,7 +345,7 @@ def _assert_no_datetime_or_long_strings(df: pl.DataFrame, *, tab: str) -> None:
                 f"{tab}: column {col_name!r} has dtype {dtype} -- a corrupted "
                 "distance-bin label was not reconstructed to text before writing"
             )
-        if dtype == pl.Utf8:
+        if dtype == pl.Utf8 and col_name not in exempt_columns:
             too_long = df.filter(pl.col(col_name).str.len_chars() > _MAX_CELL_STRING_LEN)
             if too_long.height > 0:
                 offending = too_long[col_name].to_list()[0]
@@ -444,7 +459,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             print(f"wrote {out_path} ({df.height} records)")
 
-        _assert_no_datetime_or_long_strings(reg_df, tab="Reg")
+        _assert_no_datetime_or_long_strings(reg_df, tab="Reg", exempt_columns=("formula_text",))
         reg_out_path = args.out_dir / "reg_formulas.csv"
         reg_df.write_csv(reg_out_path)
         manifest_rows.append(
@@ -465,6 +480,11 @@ def main(argv: list[str] | None = None) -> int:
             ],
             orient="row",
         ).sort("tab")
+        _assert_no_datetime_or_long_strings(
+            manifest_df,
+            tab="manifest",
+            exempt_columns=("tab", "source_workbook", "out_file", "workbook_sha256"),
+        )
         manifest_path = args.out_dir / "manifest.csv"
         manifest_df.write_csv(manifest_path)
         print(f"wrote {manifest_path} ({manifest_df.height} records)")

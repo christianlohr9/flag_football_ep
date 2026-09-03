@@ -1,0 +1,10 @@
+tab,source_workbook,workbook_sha256,n_records,n_reconstructed_labels,extracted_at,out_file
+EP by D&D,Scoring Probability by Situation 2023-2026.xlsx,0486912ba4407ec493a83950fb2374cb1a512c0d3793461cb5a56e9ddd41abb1,217,0,2026-09-03,ep_by_dd.csv
+EP by D&D Clustered,Scoring Probability by Situation 2023-2026.xlsx,0486912ba4407ec493a83950fb2374cb1a512c0d3793461cb5a56e9ddd41abb1,48,3,2026-09-03,ep_by_dd_clustered.csv
+EP by D&D weighted,Scoring Probability by Situation 2023-2026.xlsx,0486912ba4407ec493a83950fb2374cb1a512c0d3793461cb5a56e9ddd41abb1,292,0,2026-09-03,ep_by_dd_weighted.csv
+Reg,Scoring Probability by Situation 2023-2026.xlsx,0486912ba4407ec493a83950fb2374cb1a512c0d3793461cb5a56e9ddd41abb1,16,0,2026-09-03,reg_formulas.csv
+SP by D&D,Scoring Probability by Situation 2023-2026.xlsx,0486912ba4407ec493a83950fb2374cb1a512c0d3793461cb5a56e9ddd41abb1,217,0,2026-09-03,sp_by_dd.csv
+SP by D&D Clustered,Scoring Probability by Situation 2023-2026.xlsx,0486912ba4407ec493a83950fb2374cb1a512c0d3793461cb5a56e9ddd41abb1,48,3,2026-09-03,sp_by_dd_clustered.csv
+SP by D&D weighted,Scoring Probability by Situation 2023-2026.xlsx,0486912ba4407ec493a83950fb2374cb1a512c0d3793461cb5a56e9ddd41abb1,233,0,2026-09-03,sp_by_dd_weighted.csv
+Sample Size by D&D,Scoring Probability by Situation 2023-2026.xlsx,0486912ba4407ec493a83950fb2374cb1a512c0d3793461cb5a56e9ddd41abb1,300,0,2026-09-03,sample_size_by_dd.csv
+Sample Size by D&D Clustered,Scoring Probability by Situation 2023-2026.xlsx,0486912ba4407ec493a83950fb2374cb1a512c0d3793461cb5a56e9ddd41abb1,48,3,2026-09-03,sample_size_by_dd_clustered.csv

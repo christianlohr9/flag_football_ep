@@ -1,0 +1,17 @@
+field_half,down,column,formula_text,kind
+opponent,1,Forecast,"=FORECAST(C98, 'Copy of Data'!I$2555:I$3017,'Copy of Data'!G$2555:G$3017)*6",forecast
+opponent,1,Reg,=5.71 + -0.0377*C98 + -0.00222*C98^2,polynomial
+opponent,2,Forecast,"=FORECAST(C147, 'Copy of Data'!I$3019:I$3375,'Copy of Data'!G$3019:G$3375)*6",forecast
+opponent,2,Reg,=5.62 + -0.0242*C147 + -0.00585*C147^2 + 0.000078*C147^3,polynomial
+opponent,3,Forecast,"=FORECAST(C196, 'Copy of Data'!I$3379:I$3640,'Copy of Data'!G$3379:G$3640)*6",forecast
+opponent,3,Reg,=5.33 + -0.0798*C196 + -0.00662*C196^2 + 0.000128*C196^3,polynomial
+opponent,4,Forecast,"=FORECAST(C245, 'Copy of Data'!I$3641:I$3804,'Copy of Data'!G$3641:G$3804)*6",forecast
+opponent,4,Reg,=4.55 + -0.131*C245 + -0.0573*C245^2 + 0.00701*C245^3 + -0.000321*C245^4 + 0.00000642*C245^5 + -0.000000047*C245^6,polynomial
+own,1,Forecast,"=FORECAST(C2, 'Copy of Data'!I$2:I$735,'Copy of Data'!G$2:G$735)*6",forecast
+own,1,Reg,=-0.0595*C2 + 4.23,polynomial
+own,2,Forecast,"=FORECAST(C26, 'Copy of Data'!I$736:I$1376,'Copy of Data'!G$736:G$1376)*6",forecast
+own,2,Reg,=-0.114*C26 + 4.57,polynomial
+own,3,Forecast,"=FORECAST(C50, 'Copy of Data'!I$1376:I$1867,'Copy of Data'!G$1376:G$1867)*6",forecast
+own,3,Reg,=-0.145*C50 + 4.07,polynomial
+own,4,Forecast,"=FORECAST(C74, 'Copy of Data'!I$1868:I$2180,'Copy of Data'!G$1868:G$2180)*6",forecast
+own,4,Reg,=3.94 + -0.293*C74 + 0.00602*C74^2,polynomial
