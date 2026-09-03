@@ -360,3 +360,206 @@ class TestExplosiveScore:
         ).with_columns(epa=pl.Series([1.5, 1.55]))
         scores = df.select(explosiveness.explosive_score(calibration).alias("s"))["s"].to_list()
         assert abs(scores[1] - scores[0]) < 0.05
+
+
+# --- DEFINITIONS / definition_comparison -------------------------------------------------------
+
+
+class TestDefinitions:
+    def test_ordered_keys_labels_and_scope_notes(self) -> None:
+        keys = [d.key for d in explosiveness.DEFINITIONS]
+        assert keys == [
+            "baseline_hc_workbook",
+            "baseline_hc_verbal",
+            "success_rate_epa",
+            "explosive_epa_magnitude",
+        ]
+        for definition in explosiveness.DEFINITIONS:
+            assert definition.label_de
+            assert definition.scope_note
+
+
+class TestDefinitionComparison:
+    def test_one_row_per_group_and_definition(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=8,
+            overrides={"play_type": "pass"},
+            extras={"thrown_by": ["QB A"] * 4 + ["QB B"] * 4},
+        ).with_columns(
+            epa=pl.Series([1.0, -1.0, 2.0, -2.0, 0.5, -0.5, 3.0, -3.0])
+        )
+        calibration = _make_calibration(threshold=2.0, iqr=1.0)
+        result = explosiveness.definition_comparison(
+            df, ["thrown_by"], calibration=calibration
+        )
+        assert result.height == 2 * len(explosiveness.DEFINITIONS)
+        expected_cols = {
+            "thrown_by",
+            "label",
+            "definition",
+            "label_de",
+            "scope_note",
+            "n",
+            "successes",
+            "rate",
+            "ci_low",
+            "ci_high",
+            "muted",
+            "shrunk_rate",
+        }
+        assert expected_cols.issubset(set(result.columns))
+
+    def test_pass_only_denominator_smaller_than_all_scrimmage(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=8,
+            overrides={
+                "play_type": ["pass", "pass", "pass", "pass", "run", "run", "run", "run"]
+            },
+            extras={"thrown_by": "QB A"},
+        ).with_columns(
+            epa=pl.Series([1.0, -1.0, 2.0, -2.0, 0.5, -0.5, 3.0, -3.0])
+        )
+        calibration = _make_calibration(threshold=2.0, iqr=1.0)
+        result = explosiveness.definition_comparison(
+            df, ["thrown_by"], calibration=calibration
+        )
+        workbook = result.filter(pl.col("definition") == "baseline_hc_workbook").row(
+            0, named=True
+        )
+        success = result.filter(pl.col("definition") == "success_rate_epa").row(
+            0, named=True
+        )
+        assert workbook["n"] < success["n"]
+        assert workbook["n"] == 4
+        assert success["n"] == 8
+        assert workbook["scope_note"] != success["scope_note"]
+
+    def test_muted_flag_matches_min_n_threshold(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=11,
+            overrides={"play_type": "pass"},
+            extras={"thrown_by": ["QB A"] * 8 + ["QB B"] * 3},
+        ).with_columns(epa=pl.Series([1.0] * 11))
+        calibration = _make_calibration(threshold=2.0, iqr=1.0)
+        result = explosiveness.definition_comparison(
+            df, ["thrown_by"], calibration=calibration
+        )
+        success = result.filter(pl.col("definition") == "success_rate_epa")
+        qb_a = success.filter(pl.col("thrown_by") == "QB A").row(0, named=True)
+        qb_b = success.filter(pl.col("thrown_by") == "QB B").row(0, named=True)
+        assert qb_a["n"] == 8
+        assert qb_a["muted"] is False
+        assert qb_b["n"] == 3
+        assert qb_b["muted"] is True
+
+    def test_shrunk_rate_between_pooled_and_raw_for_small_sample(self) -> None:
+        thrown_by = ["QB Pool"] * 20 + ["QB Small"] * 2
+        epa_values = [-1.0] * 20 + [1.0, 1.0]
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=22,
+            overrides={"play_type": "pass"},
+            extras={"thrown_by": thrown_by},
+        ).with_columns(epa=pl.Series(epa_values))
+        calibration = _make_calibration(threshold=2.0, iqr=1.0)
+        result = explosiveness.definition_comparison(
+            df, ["thrown_by"], calibration=calibration
+        )
+        success = result.filter(pl.col("definition") == "success_rate_epa")
+        small = success.filter(pl.col("thrown_by") == "QB Small").row(0, named=True)
+        pooled_rate = 2 / 22
+
+        assert small["n"] == 2
+        assert small["rate"] == pytest.approx(1.0)
+        assert pooled_rate < small["shrunk_rate"] < 1.0
+        assert abs(small["shrunk_rate"] - pooled_rate) < abs(small["rate"] - pooled_rate)
+
+    def test_shrunk_rate_converges_to_raw_rate_for_large_sample(self) -> None:
+        n = 500
+        thrown_by = ["QB Big"] * n + ["QB Tiny"] * 3
+        epa_values = [1.0 if i % 2 == 0 else -1.0 for i in range(n)] + [1.0, 1.0, 1.0]
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=n + 3,
+            overrides={"play_type": "pass"},
+            extras={"thrown_by": thrown_by},
+        ).with_columns(epa=pl.Series(epa_values))
+        calibration = _make_calibration(threshold=2.0, iqr=1.0)
+        result = explosiveness.definition_comparison(
+            df, ["thrown_by"], calibration=calibration
+        )
+        big = result.filter(
+            (pl.col("definition") == "success_rate_epa") & (pl.col("thrown_by") == "QB Big")
+        ).row(0, named=True)
+        assert big["n"] == n
+        assert abs(big["shrunk_rate"] - big["rate"]) < 0.01
+
+    def test_shrunk_rate_null_when_definition_scope_is_empty(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=6,
+            overrides={"play_type": "run"},
+            extras={"thrown_by": "QB Runner"},
+        ).with_columns(epa=pl.Series([1.0, -1.0, 0.5, -0.5, 2.0, -2.0]))
+        calibration = _make_calibration(threshold=2.0, iqr=1.0)
+        result = explosiveness.definition_comparison(
+            df, ["thrown_by"], calibration=calibration
+        )
+        workbook = result.filter(pl.col("definition") == "baseline_hc_workbook").row(
+            0, named=True
+        )
+        assert workbook["n"] == 0
+        assert workbook["shrunk_rate"] is None
+
+    def test_empty_input_returns_schema_correct_empty_frame(self) -> None:
+        df = canonical_plays_with_scores(n_games=0, plays_per_game=8).with_columns(
+            epa=pl.Series([], dtype=pl.Float64)
+        )
+        calibration = _make_calibration()
+        result = explosiveness.definition_comparison(
+            df, ["thrown_by"], calibration=calibration
+        )
+        assert result.height == 0
+        assert "shrunk_rate" in result.columns
+
+
+class TestCliffZoneTable:
+    def test_per_yard_counts_and_hc_explosive_flip(self) -> None:
+        yards = [8, 9, 10, 10, 11, 12, 12, 13, 14, 16]
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=len(yards),
+            overrides={"play_type": "pass", "yards_gained": yards},
+        )
+        result = explosiveness.cliff_zone_table(df)
+        assert result["yards_gained"].to_list() == list(range(8, 17))
+
+        row12 = result.filter(pl.col("yards_gained") == 12).row(0, named=True)
+        row13 = result.filter(pl.col("yards_gained") == 13).row(0, named=True)
+        assert row12["hc_explosive"] is False
+        assert row13["hc_explosive"] is True
+        assert row12["n"] == 2
+
+        row10 = result.filter(pl.col("yards_gained") == 10).row(0, named=True)
+        assert row10["n"] == 2
+        assert row10["share"] == pytest.approx(2 / len(yards))
+
+        row15 = result.filter(pl.col("yards_gained") == 15).row(0, named=True)
+        assert row15["n"] == 0
+
+
+def test_muted_min_n_imported_not_redefined() -> None:
+    """`MUTED_MIN_N` must be imported from `reports.aggregate`, never re-declared here."""
+    source_path = Path(__file__).resolve().parents[1] / "src" / "flag_football_ep" / (
+        "features/explosiveness.py"
+    )
+    source = source_path.read_text()
+    assert "MUTED_MIN_N = " not in source
+    assert "from flag_football_ep.reports.aggregate import" in source
+
+    from flag_football_ep.reports.aggregate import MUTED_MIN_N as aggregate_muted_min_n
+
+    assert explosiveness.MUTED_MIN_N is aggregate_muted_min_n

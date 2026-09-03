@@ -34,14 +34,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
 import polars as pl
 
-from flag_football_ep.reports.aggregate import MUTED_MIN_N, rate_table  # noqa: F401
+from flag_football_ep.reports.aggregate import MUTED_MIN_N, rate_table
 
 # --- Shared scope filter -------------------------------------------------------------------
 
@@ -507,3 +507,209 @@ def explosive_score(calibration: ExplosivenessCalibration) -> pl.Expr:
     )
     z = (pl.col("epa") - calibration.epa_threshold) / scale
     return 1 / (1 + (-z).exp())
+
+
+# --- Definition comparison rollup ------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class MetricDefinition:
+    """One row of `DEFINITIONS`: a named, data-driven metric definition rather than a
+    hand-written call site, so the German proposal document and the comparison table cannot
+    drift apart (RESEARCH `Don't Hand-Roll`, Pattern 1).
+    """
+
+    key: str
+    label_de: str
+    scope: pl.Expr
+    flag_factory: Callable[[ExplosivenessCalibration], pl.Expr]
+    scope_note: str
+    requires: tuple[str, ...]
+
+
+DEFINITIONS: tuple[MetricDefinition, ...] = (
+    MetricDefinition(
+        key="baseline_hc_workbook",
+        label_de="HC-Workbook Explosive % (Yards > 12, nur Pass)",
+        scope=pl.col("play_type") == "pass",
+        flag_factory=lambda _cal: pl.col("yards_gained") > HC_EXPLOSIVE_YARDS_THRESHOLD,
+        scope_note="Nenner: nur Pass-Attempts (Comps+Incs+Sacks), wie im HC-Workbook.",
+        requires=("play_type", "yards_gained"),
+    ),
+    MetricDefinition(
+        key="baseline_hc_verbal",
+        label_de="HC mündliche Regel (Yards > 12 oder EPA > 0, nur Pass)",
+        scope=pl.col("play_type") == "pass",
+        flag_factory=lambda _cal: (
+            (pl.col("yards_gained") > HC_EXPLOSIVE_YARDS_THRESHOLD) | (pl.col("epa") > 0)
+        ),
+        scope_note="Nenner: nur Pass-Attempts, wie im HC-Workbook (mündliche Regel).",
+        requires=("play_type", "yards_gained", "epa"),
+    ),
+    MetricDefinition(
+        key="success_rate_epa",
+        label_de="Success Rate (EPA > 0)",
+        scope=pl.lit(True),
+        flag_factory=lambda _cal: pl.col("epa") > 0,
+        scope_note="Nenner: alle Scrimmage-Plays (Lauf + Pass).",
+        requires=("epa",),
+    ),
+    MetricDefinition(
+        key="explosive_epa_magnitude",
+        label_de="Explosiveness (EPA-Magnitude auf Erfolgen)",
+        scope=pl.lit(True),
+        flag_factory=explosive_epa_flag,
+        scope_note="Nenner: alle Scrimmage-Plays (Lauf + Pass).",
+        requires=("epa",),
+    ),
+)
+
+
+PRIOR_STRENGTH = 10.0
+# Beta-binomial shrinkage prior strength (CONTEXT EXP-D05): the number of attempts at which a
+# player's own observed rate and the pooled corpus rate for that definition carry equal
+# weight in `shrink_rate`. Ten mirrors the imported MUTED_MIN_N's order of magnitude -- a
+# player with roughly twice that many attempts is already about half-weighted toward their
+# own number.
+
+
+def shrink_rate(successes, n, prior_rate: float, prior_strength: float):
+    """Beta-binomial posterior mean: `(successes + prior_strength * prior_rate) / (n +
+    prior_strength)`. `successes`/`n` may be Python numbers, a `pl.Expr` or a `pl.Series` --
+    the arithmetic is polymorphic over all three. A proposal offered ALONGSIDE the
+    established `rate`/`ci_low`/`ci_high`/`muted` convention (CONTEXT EXP-D05) -- those remain
+    the authoritative honest-reporting mechanism; no report may print a shrunk rate without
+    `n`.
+    """
+    return (successes + prior_strength * prior_rate) / (n + prior_strength)
+
+
+_DEFINITION_COMPARISON_SCHEMA_EXTRA: dict[str, pl.DataType] = {
+    "label": pl.Utf8,
+    "definition": pl.Utf8,
+    "label_de": pl.Utf8,
+    "scope_note": pl.Utf8,
+    "n": pl.Int64,
+    "successes": pl.Int64,
+    "rate": pl.Float64,
+    "ci_low": pl.Float64,
+    "ci_high": pl.Float64,
+    "muted": pl.Boolean,
+    "shrunk_rate": pl.Float64,
+}
+
+
+def definition_comparison(
+    plays: pl.DataFrame,
+    group_cols: Sequence[str],
+    *,
+    calibration: ExplosivenessCalibration,
+    definitions: tuple[MetricDefinition, ...] = DEFINITIONS,
+    prior_strength: float = PRIOR_STRENGTH,
+) -> pl.DataFrame:
+    """One row per (group, definition), reusing `rate_table` (never a second Clopper-Pearson
+    call site, RESEARCH `Don't Hand-Roll`): the `rate_table` columns (`n`, `successes`,
+    `rate`, `ci_low`/`ci_high`, `muted`) unchanged, plus `definition`, `label_de`,
+    `scope_note` and `shrunk_rate`.
+
+    Every known group (any non-null `group_cols` combination present anywhere in the
+    scrimmage corpus) is represented for every definition, even when that definition's scope
+    excludes the group entirely -- the row still appears with `n == 0` rather than being
+    dropped. `shrunk_rate` is null when a definition's pooled rate cannot be computed (zero
+    in-scope plays for that definition across the whole corpus). Returns a schema-correct
+    empty frame on empty input.
+    """
+    group_cols = list(group_cols)
+    output_columns = [
+        *group_cols,
+        *_DEFINITION_COMPARISON_SCHEMA_EXTRA,
+    ]
+
+    if plays.height == 0:
+        schema = {col: pl.Utf8 for col in group_cols}
+        schema.update(_DEFINITION_COMPARISON_SCHEMA_EXTRA)
+        return pl.DataFrame(schema=schema)
+
+    group_universe = (
+        scrimmage_plays(plays, require_epa=True)
+        .filter(pl.all_horizontal([pl.col(c).is_not_null() for c in group_cols]))
+        .select(group_cols)
+        .unique()
+        .sort(group_cols)
+    )
+
+    tables = []
+    for definition in definitions:
+        scoped = scrimmage_plays(plays, require_epa="epa" in definition.requires).filter(
+            definition.scope
+        )
+        flag = definition.flag_factory(calibration)
+        table = rate_table(scoped, group_cols, flag)
+
+        joined = (
+            group_universe.join(table, on=group_cols, how="left")
+            .with_columns(
+                n=pl.col("n").fill_null(0),
+                successes=pl.col("successes").fill_null(0),
+                label=pl.concat_str(
+                    [pl.col(c).cast(pl.Utf8) for c in group_cols], separator=" / "
+                ),
+            )
+            .with_columns(muted=pl.col("n") < MUTED_MIN_N)
+        )
+
+        pooled_rate = (
+            int(scoped.select(flag.cast(pl.Int32).sum()).item()) / scoped.height
+            if scoped.height > 0
+            else None
+        )
+        joined = joined.with_columns(
+            definition=pl.lit(definition.key),
+            label_de=pl.lit(definition.label_de),
+            scope_note=pl.lit(definition.scope_note),
+        )
+        joined = joined.with_columns(
+            shrunk_rate=(
+                shrink_rate(pl.col("successes"), pl.col("n"), pooled_rate, prior_strength)
+                if pooled_rate is not None
+                else pl.lit(None, dtype=pl.Float64)
+            )
+        )
+        tables.append(joined.select(output_columns))
+
+    return pl.concat(tables, how="vertical")
+
+
+def cliff_zone_table(plays: pl.DataFrame, *, window: tuple[int, int] = (8, 16)) -> pl.DataFrame:
+    """Per-`yards_gained` counts and shares around the head-coach cutoff, plus a boolean
+    `hc_explosive` column that flips exactly between 12 and 13 -- the table the German
+    proposal renders to make the 10-12 "cliff zone" visible (RESEARCH Summary: 11.5% of all
+    plays sit in this window) instead of merely asserting it.
+
+    One row per integer `yards_gained` value in `window` (inclusive), always the full range
+    regardless of gaps in the data -- a yard value with zero observed plays still appears
+    with `n == 0` rather than a missing row. `share` is `n / total_scrimmage_n`; null when
+    the corpus has zero scrimmage plays.
+    """
+    low, high = window
+    working = scrimmage_plays(plays)
+    total_n = working.height
+
+    counts = (
+        working.filter(pl.col("yards_gained").is_between(low, high))
+        .group_by("yards_gained", maintain_order=True)
+        .agg(n=pl.len().cast(pl.Int64))
+    )
+    full = pl.DataFrame(
+        {"yards_gained": list(range(low, high + 1))}, schema={"yards_gained": pl.Int32}
+    )
+    merged = (
+        full.join(counts, on="yards_gained", how="left")
+        .with_columns(n=pl.col("n").fill_null(0))
+        .with_columns(
+            share=(pl.col("n") / total_n if total_n > 0 else pl.lit(None, dtype=pl.Float64)),
+            hc_explosive=pl.col("yards_gained") > HC_EXPLOSIVE_YARDS_THRESHOLD,
+        )
+        .sort("yards_gained")
+    )
+    return merged.select(["yards_gained", "n", "share", "hc_explosive"])
