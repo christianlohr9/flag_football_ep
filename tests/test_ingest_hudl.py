@@ -218,6 +218,19 @@ def _outcome_row(result: str, down: int = 1, yardline_50: int = 25) -> dict:
         ("Interception", {"interception": 1}),
         ("Fumble", {"fumble": 1}),
         ("", {"play_type": None}),
+        # v1.2 amendment (six head-coach tokens, docs/hc-rueckfragen-2026-09.md
+        # Frage 3): Block/Blocked/Batted Down/Dropped are pass attempts without
+        # a completion; Timeout/Offsetting Penalties are non-plays like Penalty.
+        ("Block", {"play_type": "pass", "incomplete_pass": 1, "complete_pass": 0}),
+        ("Blocked", {"play_type": "pass", "incomplete_pass": 1, "complete_pass": 0}),
+        ("Batted Down", {"play_type": "pass", "incomplete_pass": 1, "complete_pass": 0}),
+        ("Dropped", {"play_type": "pass", "incomplete_pass": 1}),
+        ("Timeout", {"play_type": "no_play", "penalty": 0}),
+        ("Offsetting Penalties", {"play_type": "no_play", "penalty": 1}),
+        (
+            "Blocked, Def TD",
+            {"def_touchdown": 1, "touchdown": 0, "incomplete_pass": 1},
+        ),
     ],
 )
 def test_result_grammar_table(result: str, expected: dict) -> None:

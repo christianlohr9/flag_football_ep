@@ -55,7 +55,7 @@ def _core_row(**overrides: str) -> dict:
 
 def test_load_contract_happy_path(contract_path: Path) -> None:
     contract = load_contract(contract_path)
-    assert contract.version == "1.1"
+    assert contract.version == "1.2"
     assert contract.status == "provisional"
     assert set(contract.core_columns) == CORE_COLUMNS
     assert len(contract.optional_columns) >= 8
@@ -63,13 +63,13 @@ def test_load_contract_happy_path(contract_path: Path) -> None:
 
 def test_load_contract_tolerates_minor_bump(tmp_path: Path, contract_path: Path) -> None:
     raw = _load_raw(contract_path)
-    raw["contract_version"] = "1.2"
+    raw["contract_version"] = "1.3"
     path = _write_contract(tmp_path, raw)
 
     with pytest.warns(UserWarning):
         contract = load_contract(path)
 
-    assert contract.version == "1.2"
+    assert contract.version == "1.3"
 
 
 def test_load_contract_tolerates_larger_minor_bump(tmp_path: Path, contract_path: Path) -> None:

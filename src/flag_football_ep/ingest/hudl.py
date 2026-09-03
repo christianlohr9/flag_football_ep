@@ -215,9 +215,19 @@ def read_export(path: Path) -> pl.DataFrame:
 # module. This replaces the legacy pipeline's fragile substring semantics,
 # which only worked by accident (Incomplete not matching contains("Complete") only
 # because polars compares case-sensitively; TD vs Def TD needed an explicit guard).
+#
+# v1.2 amendment (2026-09-03): six base tokens added -- Block, Blocked, Batted
+# Down, Dropped, Timeout, Offsetting Penalties. Source: the head coach's three
+# charting workbooks (docs/hc-notes-2026-09-03.md), never seen in a Hudl
+# export. User approval 2026-09-03 ("Jona ist HC, er schlägt alles"); the
+# semantics implemented below are our proposal, confirmation still pending
+# (docs/hc-rueckfragen-2026-09.md Frage 3). `Blocked` only ever occurs inside
+# "Blocked, Def TD" -- it is a spelling variant of `Block`, not a distinct
+# outcome.
 _BASE_TOKENS = (
     "Rush", "KNEEL", "Sack", "Interception", "Complete", "Incomplete",
     "Good", "No Good", "Fumble", "Penalty",
+    "Block", "Blocked", "Batted Down", "Dropped", "Timeout", "Offsetting Penalties",
 )
 _MODIFIER_TOKENS = ("TD", "Def TD", "Safety", "Penalty")
 _ALL_TOKENS = sorted(set(_BASE_TOKENS) | set(_MODIFIER_TOKENS))
@@ -237,6 +247,12 @@ _TOKEN_COLUMN = {
     "TD": "tok_td",
     "Def TD": "tok_def_td",
     "Safety": "tok_safety",
+    "Block": "tok_block",
+    "Blocked": "tok_blocked",
+    "Batted Down": "tok_batted_down",
+    "Dropped": "tok_dropped",
+    "Timeout": "tok_timeout",
+    "Offsetting Penalties": "tok_offsetting_penalties",
 }
 
 
@@ -305,13 +321,24 @@ def derive_outcome_columns(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
             "play_type set to null instead of the legacy silent 'pass' default"
         )
 
+    # v1.2 amendment locals (docs/hc-rueckfragen-2026-09.md Frage 3, semantics
+    # pending head-coach confirmation): Timeout and Offsetting Penalties are
+    # non-plays like Penalty, so they never carry EP/WP training weight as if
+    # they were plays; Block/Blocked/Batted Down/Dropped are pass attempts
+    # without a completion (deflected or dropped, readable from result_raw).
+    no_play_token = pl.col("tok_penalty") | pl.col("tok_timeout") | pl.col("tok_offsetting_penalties")
+    deflected_or_dropped = (
+        pl.col("tok_block") | pl.col("tok_blocked") | pl.col("tok_batted_down") | pl.col("tok_dropped")
+    )
+
     df = df.with_columns(
-        # tok_penalty is checked FIRST: a flagged play is a no-play regardless of
-        # its base token, so "Rush, Penalty" and "Complete, Penalty" both map to
-        # no_play (previously "Rush, Penalty" leaked through as run — REVIEW
-        # WR-03). The base outcome survives in the penalty/complete_pass/... flag
-        # columns derived below.
-        pl.when(pl.col("tok_penalty")).then(pl.lit("no_play"))
+        # tok_penalty (now no_play_token, which also covers Timeout and
+        # Offsetting Penalties) is checked FIRST: a flagged play is a no-play
+        # regardless of its base token, so "Rush, Penalty" and "Complete,
+        # Penalty" both map to no_play (previously "Rush, Penalty" leaked
+        # through as run — REVIEW WR-03). The base outcome survives in the
+        # penalty/complete_pass/... flag columns derived below.
+        pl.when(no_play_token).then(pl.lit("no_play"))
         .when(pl.col("tok_rush")).then(pl.lit("run"))
         .when(pl.col("tok_kneel")).then(pl.lit("qb_kneel"))
         .when(pl.col("down") == 0).then(pl.lit("extra_point"))
@@ -324,10 +351,10 @@ def derive_outcome_columns(df: pl.DataFrame) -> tuple[pl.DataFrame, list[str]]:
         pl.col("tok_sack").cast(pl.Int32).alias("sack"),
         pl.col("tok_interception").cast(pl.Int32).alias("interception"),
         pl.col("tok_complete").cast(pl.Int32).alias("complete_pass"),
-        pl.col("tok_incomplete").cast(pl.Int32).alias("incomplete_pass"),
+        (pl.col("tok_incomplete") | deflected_or_dropped).cast(pl.Int32).alias("incomplete_pass"),
         (pl.col("tok_td") & ~pl.col("tok_def_td")).cast(pl.Int32).alias("touchdown"),
         pl.col("tok_def_td").cast(pl.Int32).alias("def_touchdown"),
-        pl.col("tok_penalty").cast(pl.Int32).alias("penalty"),
+        (pl.col("tok_penalty") | pl.col("tok_offsetting_penalties")).cast(pl.Int32).alias("penalty"),
         pl.col("tok_safety").cast(pl.Int32).alias("safety"),
         pl.col("tok_no_good").cast(pl.Int32).alias("no_good"),
         # Fumble working semantics: charted ball-loss tag only. Possession-change

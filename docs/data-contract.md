@@ -1,8 +1,8 @@
 # Datenvertrag — Hudl-Export Flag Football Nationalteam
 
-Version 1.1. Maschinenlesbares Gegenstück: `data-contract.schema.json` (wird vom Phase-1.2-Ingest-Validator direkt konsumiert — Spec und Validierung können nicht auseinanderlaufen). Die Sichtung echter Export-Werte ist erfolgt (2026-08-17, sieben Sample-Exporte).
+Version 1.2. Maschinenlesbares Gegenstück: `data-contract.schema.json` (wird vom Phase-1.2-Ingest-Validator direkt konsumiert — Spec und Validierung können nicht auseinanderlaufen). Die Sichtung echter Export-Werte ist erfolgt (2026-08-17, sieben Sample-Exporte).
 
-**Änderungshistorie:** v1.0 (2026-08-17): einseitig festgelegt, 19-Spalten-Preset-Modell. v1.1 (2026-08-17): Amendment auf das **Kern+Optional-Modell** — die Sichtung von sieben Real-Exporten (12/13/26/33/39/43/45 Spalten, alle Header verschieden) belegt, dass Hudl kein festes Preset liefert; der Vertrag validiert forward einen Pflicht-Kern plus optionale Kanonik-Spalten statt eines fixen Spaltensatzes.
+**Änderungshistorie:** v1.0 (2026-08-17): einseitig festgelegt, 19-Spalten-Preset-Modell. v1.1 (2026-08-17): Amendment auf das **Kern+Optional-Modell** — die Sichtung von sieben Real-Exporten (12/13/26/33/39/43/45 Spalten, alle Header verschieden) belegt, dass Hudl kein festes Preset liefert; der Vertrag validiert forward einen Pflicht-Kern plus optionale Kanonik-Spalten statt eines fixen Spaltensatzes. v1.2 (2026-09-03): Amendment auf sechs neue `RESULT`-Basis-Tokens aus den Workbooks des Cheftrainers (`Block`, `Blocked`, `Batted Down`, `Dropped`, `Timeout`, `Offsetting Penalties`); siehe v1.2-Änderungsvermerk unten.
 
 **Status: v1.0 einseitig festgelegt am 2026-08-17 — Analysten-Ratifizierung ausstehend (siehe DEFERRED-ANALYST-Block in §8 „Charting-Protokoll & Gesprächsagenda").** Das Analysten-Gespräch ist auf unbestimmte Zeit verschoben; alle Vertragsinhalte gelten ab sofort als einseitige Arbeitsentscheidungen des Nutzers.
 
@@ -46,14 +46,27 @@ Aus dem Dateinamen leitet der Ingest `game_id` und Metadaten (Datum, Teams, Wett
 
 ## `RESULT`-Vokabular & Grammatik
 
-Kanonisches Vokabular: 13 Tokens, aufgeteilt in Basis- und Modifier-Tokens.
+Kanonisches Vokabular: 19 Tokens, aufgeteilt in Basis- und Modifier-Tokens.
 
-- **Basis-Tokens:** `Rush`, `KNEEL`, `Sack`, `Interception`, `Complete`, `Incomplete`, `Good`, `No Good`, `Fumble`, `Penalty`
+- **Basis-Tokens:** `Rush`, `KNEEL`, `Sack`, `Interception`, `Complete`, `Incomplete`, `Good`, `No Good`, `Fumble`, `Penalty`, `Block`, `Blocked`, `Batted Down`, `Dropped`, `Timeout`, `Offsetting Penalties`
 - **Modifier-Tokens:** `TD`, `Def TD`, `Safety`, `Penalty`
 
 **Grammatik:** Ein `RESULT`-Wert ist ein Basis-Token plus optionale Modifier, verbunden mit dem Separator `", "` (Komma + Leerzeichen), z. B. `Complete, TD` oder `Sack, Safety`. Matching ist **exakter Token-Vergleich nach Split auf den Separator, case-sensitiv**. Das ersetzt die fragile Substring-Semantik der bisherigen Pipeline (`str.contains` in `helper_add_hudl_mutations.py`), die nur durch Zufälle funktioniert: `Incomplete` matcht `contains("Complete")` nur deshalb nicht, weil polars case-sensitiv vergleicht; `TD` ⊂ `Def TD` wird per explizitem `Def`-Ausschluss abgefangen.
 
 **C-07-Amendment (explizite Entscheidung, nicht stillschweigend):** `No Good` (97 Legacy-Vorkommen) und `Fumble` (9 Vorkommen) werden der C-07-Liste hinzugefügt. `KNEEL` bleibt im Vokabular, obwohl es in 3.701 Legacy-Plays 0-mal vorkommt. Das 13-Token-Vokabular inkl. C-07-Amendment ist als einseitige Arbeitsentscheidung bestätigt (2026-08-17). **Fumble-Arbeitssemantik:** Fumble = gecharteter Ballverlust-Tag; die Possession-Wechsel-Semantik wird bei der Analysten-Ratifizierung bestätigt (siehe DEFERRED-ANALYST-Block in §8).
+
+**v1.2-Änderungsvermerk (2026-09-03):** Quelle sind die drei Workbooks des Cheftrainers (Jona Winkel, HC der Damen-Nationalmannschaft) — sein Charting nutzt sechs `RESULT`-Werte, die im 13-Token-Vokabular nicht vorkamen. Freigabe durch den Nutzer am 2026-09-03 ("Jona ist HC, er schlägt alles"); die Semantik je Token ist unser Vorschlag, Bestätigung durch den Cheftrainer steht noch aus (Frage 3 in `docs/hc-rueckfragen-2026-09.md`).
+
+| Token | Bedeutung |
+|-------|-----------|
+| `Block` | Passversuch ohne Completion, abgeblockt |
+| `Blocked` | Schreibvariante von `Block`, identische Bedeutung — kommt nur innerhalb von `Blocked, Def TD` vor |
+| `Batted Down` | Passversuch ohne Completion, abgefälscht |
+| `Dropped` | Passversuch ohne Completion, vom Empfänger fallengelassen |
+| `Timeout` | kein echter Play, kein Down verbraucht — behandelt wie `Penalty` |
+| `Offsetting Penalties` | kein echter Play, kein Down verbraucht — behandelt wie `Penalty`, setzt zusätzlich das Penalty-Flag |
+
+`Blocked, Def TD` parst als Basis-Token `Blocked` plus Modifier `Def TD` und ergibt `def_touchdown`, ohne eigenen Code-Pfad. `tok_unknown` bleibt als Auffangnetz für alles Weitere bestehen — nichts außerhalb dieser sechs Werte wird stillschweigend neu interpretiert.
 
 **`RESULT` ist verpflichtend (nicht-leer), forward-only** (einseitige Arbeitsentscheidung 2026-08-17, Ratifizierung ausstehend — §8). Legacy-Defekt zur Einordnung: 846 von 3.701 Plays (23 %) haben ein leeres `RESULT` und werden von `helper_add_hudl_mutations.py` per `.otherwise(pl.lit("pass"))` stillschweigend als Pass klassifiziert. Fehlgeformte Legacy-Varianten (`Penalty (declined)`, `Complete Penalty` ohne Komma) sind grandfathered, forward ungültig.
 

@@ -19,8 +19,10 @@ import polars as pl
 SUPPORTED_CONTRACT_MAJOR = 1
 
 # The contract version this code was written against. A minor bump above
-# this is tolerated (warned about); a major bump is rejected.
-_BASELINE_MINOR = 1
+# this is tolerated (warned about); a major bump is rejected. Bumped to 2 for
+# the v1.2 amendment (2026-09-03): six head-coach RESULT tokens added
+# (docs/data-contract.md v1.2-Änderungsvermerk).
+_BASELINE_MINOR = 2
 
 _DTYPE_MAP: dict[str, pl.DataType] = {
     "int": pl.Int64,
