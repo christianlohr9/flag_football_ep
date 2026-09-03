@@ -99,6 +99,27 @@ Konsequenz: `half_seconds_remaining` bleibt synthetisch gemäß C-08 — `play_t
 
 Regel: `half = 1 if PLAY # < half2_first_play else 2`.
 
+### `half` für hc_workbook-Zeilen — Sentinel statt Ableitung (M3-02)
+
+Für `source`-Werte, die mit `hc_workbook:` beginnen, gilt eine andere Regel als oben: `half` wird **nicht** aus `data/half_boundaries.csv` abgeleitet — die Workbooks des Cheftrainers tragen keine Halbzeitinformation —, sondern auf den konstanten Sentinel `2` gesetzt (`HALF_SENTINEL` in `ingest/hc_workbook.py`). Das gilt **nur** für Spiele, die in `data/reference/hc_games.csv` deklariert sind; nie für den `Copy of Data`-Tab, dessen Spaltenlayout gegenüber `Data` ungeklärt abweicht (Frage 2).
+
+**Warum `2` und nicht `null` oder `1`:** `half` gated nicht nur ein EP-Feature, sondern auch die Label-Konstruktion beider Modelle (`features/mutations.py::_mark_half_end`, `.over(["game_id", "half"])`). `game_end` (Voraussetzung für WPs `Winner`-Backfill und EPs `epa`/`ep`-`None`-Setzung nach Spielende) feuert nur bei `half == 2`. Entscheidungstabelle (M3-02-RESEARCH.md §2.2):
+
+| Sentinel | `half_assigned` | `game_end` an der echten letzten Zeile? | WP `Winner` löst auf? | EP „No_Score" zur Halbzeit erhalten? |
+|---|---|---|---|---|
+| `null` | FAIL (Quarantäne, Ist-Zustand vor M3-02) | Nein | Nein | Nein |
+| `1` | PASS | Nein (`game_end` verlangt `half == 2`) | Nein | Nein |
+| **`2`** | **PASS** | **Ja** | **Ja** | Nein (by construction — keine echte Halbzeitgrenze existiert) |
+| `3` (oder jeder andere Wert außerhalb `{1, 2}`) | FAIL | Nein | Nein | Nein |
+
+`2` ist damit der einzige Sentinel, der `half_assigned` genuin erfüllt (nicht umgeht) **und** `game_end`/`Winner`/EPs Post-Game-`None`-Setzung korrekt hält.
+
+**Der Preis, offen benannt:** Diese Spiele haben keine echte Halbzeitgrenze, also wird zur Halbzeit kein `No_Score`-Marker gesetzt — eine torlose Drive der ersten Halbzeit erbt rückwärts aufgefüllt den nächsten tatsächlichen Score des Spiels statt korrekt als „kein Score vor der Halbzeit" zu gelten. Das wiegt am schwersten für die echten internationalen Spiele im `Scoring Probability`-Pair-Block (die eine reale Halbzeit haben) und am wenigsten für Camp-/Scrimmage-Segmente (die vermutlich ohnehin keine formale Zwei-Halbzeiten-Struktur haben).
+
+**Was nicht gemacht wurde:** Eine Play-Count-Midpoint-Heuristik (Option b) wurde an den beiden einzigen Spielen mit echtem `half_boundaries.csv`-Eintrag getestet (51,3 % bzw. 47,3 % der Plays vor der Halbzeit) — richtungsweisend unterstützend, aber `n = 2`; nicht übernommen. `[ASSUMED]`, falls das bei größerem `n` erneut geprüft wird.
+
+**Umkehrpfad:** Liefert der Cheftrainer künftig echte Halbzeitmarker, ersetzt eine echte `half_boundaries.csv`-Zeile (oder ein Äquivalent) den Sentinel für das betroffene Spiel; nichts sonst in der Pipeline ändert sich.
+
 ## Defense-Felder (REQ-S1-03)
 
 `DEF FRONT`, `COVERAGE` und `BLITZ` existieren in einem Teil der Exporte und sind teilweise gefüllt. Das kanonische Vokabular unten ist — wie in der Phase entschieden: Daten zuerst, Schema danach — aus echten Distinct-Werten von sieben Sample-Exporten abgeleitet (Sichtung 2026-08-17, in zwei Tranchen: zunächst GB vs. CAN, GER vs. SLO, MEX vs. GER; dann AUS vs. UA, GER vs. PAN, GER vs. PUE, SLO vs. ITA). Es wurde bewusst **kein** Lehrbuch-Schema (Cover 0/1/2/3, man/zone) übergestülpt — der Vertrag fixiert die tatsächlich verwendete Terminologie. Die Samples liegen unter `data/samples/`, enthalten Spielerinnen-Namen (PII) und sind deshalb per `.gitignore` dauerhaft von der Versionskontrolle ausgeschlossen.

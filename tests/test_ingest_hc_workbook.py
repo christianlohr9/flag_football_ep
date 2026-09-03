@@ -33,6 +33,7 @@ from flag_football_ep.ingest.hc_workbook import (
     slugify,
 )
 from flag_football_ep.reference import load_hc_games
+from flag_football_ep.validation.checks import half_assigned
 from flag_football_ep.validation.schema import HeaderReport, load_contract
 
 
@@ -516,6 +517,132 @@ def test_game_segmentation_empty_block_returns_no_slices() -> None:
     assert messages == []
 
 
+def test_game_segmentation_pair_block_possession_swap_is_one_game() -> None:
+    """Mirrors the real Data-tab pattern (M3-02-RESEARCH.md Sec 1.2): the head
+    coach charts offense and defense possessions of the SAME game as flipped
+    team-pair rows. An unordered-pair boundary key must group all five rows
+    into one slice, not fragment on every possession flip."""
+    header = ["PLAY #", "ODK", "RESULT"]
+    rows = [
+        (2, ("Germany", "Ireland", "Rush")),
+        (3, ("Germany", "Ireland", "Complete")),
+        (4, ("Ireland", "Germany", "Rush")),
+        (5, ("Ireland", "Germany", "Complete")),
+        (6, ("Germany", "Ireland", "Rush")),
+    ]
+    block = HcBlock(index=1, kind="pair", header=header, rows=rows, first_row=2, last_row=6)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 1
+    assert len(slices[0].rows) == 5
+    # RAW labels of the first row survive verbatim, not normalized/sorted
+    assert slices[0].source_team1 == "Germany"
+    assert slices[0].source_team2 == "Ireland"
+
+
+def test_game_segmentation_pair_block_possession_swap_then_real_opponent_change_splits() -> None:
+    """A genuine opponent change after a possession-swap stretch still opens
+    a new slice."""
+    header = ["PLAY #", "ODK", "RESULT"]
+    rows = [
+        (2, ("Germany", "Ireland", "Rush")),
+        (3, ("Germany", "Ireland", "Complete")),
+        (4, ("Ireland", "Germany", "Rush")),
+        (5, ("Ireland", "Germany", "Complete")),
+        (6, ("Germany", "Ireland", "Rush")),
+        (7, ("Germany", "Spain", "Rush")),
+    ]
+    block = HcBlock(index=1, kind="pair", header=header, rows=rows, first_row=2, last_row=7)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 2
+    assert len(slices[0].rows) == 5
+    assert len(slices[1].rows) == 1
+    assert slices[1].source_team1 == "Germany"
+    assert slices[1].source_team2 == "Spain"
+
+
+def test_game_segmentation_pair_block_possession_swap_case_and_whitespace_insensitive() -> None:
+    """Case/whitespace insensitivity survives the unordered-pair comparison:
+    a swapped, differently-cased/whitespace-padded pair does not open a new
+    slice."""
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),
+        (3, (" ireland ", "GERMANY")),
+        (4, ("Germany", "Ireland")),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=4)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 1
+    assert len(slices[0].rows) == 3
+
+
+def test_game_segmentation_pair_block_single_row_noise_stays_its_own_slice() -> None:
+    """A single-row noise entry with an unmatched abbreviation between two
+    possession-swap stretches becomes its own one-row slice -- never merged
+    into either neighbour by inference (RESEARCH Sec 1.2: do not guess
+    ambiguous abbreviations like S/F)."""
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),
+        (3, ("Ireland", "Germany")),
+        (4, ("AT", "D")),
+        (5, ("Germany", "Ireland")),
+        (6, ("Ireland", "Germany")),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=6)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 3
+    assert len(slices[0].rows) == 2
+    assert len(slices[1].rows) == 1
+    assert slices[1].source_team1 == "AT"
+    assert slices[1].source_team2 == "D"
+    assert len(slices[2].rows) == 2
+
+
+def test_game_segmentation_pair_block_three_slices_block_key_scoped() -> None:
+    """block_key numbering stays b{block:02d}-g{game:02d} and block-scoped
+    across a three-slice pair block."""
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),
+        (3, ("Ireland", "Germany")),
+        (4, ("AT", "D")),
+        (5, ("Germany", "Ireland")),
+    ]
+    block = HcBlock(index=1, kind="pair", header=header, rows=rows, first_row=2, last_row=5)
+
+    slices, _ = segment_games(block)
+
+    assert [s.block_key for s in slices] == ["b01-g00", "b01-g01", "b01-g02"]
+
+
+def test_game_segmentation_numeric_block_unaffected_by_pair_block_change() -> None:
+    """Numeric-block segmentation (PLAY#-reset) is untouched by the pair-block
+    unordered-key change."""
+    header = ["PLAY #", "ODK"]
+    first_game = [(i + 2, (float(i), "O")) for i in range(1, 9)]
+    second_game = [(i + 10, (float(i), "O")) for i in range(1, 13)]
+    rows = first_game + second_game
+    block = HcBlock(
+        index=0, kind="numeric", header=header, rows=rows,
+        first_row=rows[0][0], last_row=rows[-1][0],
+    )
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 2
+    assert len(slices[0].rows) == 8
+    assert len(slices[1].rows) == 12
+
+
 # --- resolve_game_identity (Task 2) ------------------------------------------
 
 
@@ -869,3 +996,175 @@ def test_ingest_workbook_synthesized_play_id_for_pair_block_rows(tmp_path: Path,
     joined = " ".join(notices.messages)
     assert "3" in joined
     assert "synthetisiert" in joined or "synthesized" in joined.lower()
+
+
+# --- half sentinel ---
+
+
+def test_ingest_workbook_declared_game_gets_half_sentinel(tmp_path: Path, contract) -> None:
+    """A declared, non-`Copy of Data` game's rows all carry half=2 (Int32)
+    and PASS half_assigned (M3-02-RESEARCH Sec 2.2: 2 is the only sentinel
+    that satisfies half_assigned AND keeps game_end/Winner/No_Score correct)."""
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        [1, "O", 1, 10, -20, "Rush", 5],
+        [2, "O", 2, 5, -15, "Complete", 5],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert df["half"].dtype == pl.Int32
+    assert df["half"].to_list() == [2, 2]
+
+    results = half_assigned(df)
+    assert all(r.status.name == "PASS" for r in results)
+
+
+def test_ingest_workbook_undeclared_game_stays_half_null_alongside_declared(
+    tmp_path: Path, contract
+) -> None:
+    """A declared game (half=2) and an undeclared game (half=null) coexist
+    row-wise in the same frame -- the decision is per game, not per sheet."""
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        [1, "O", 1, 10, -20, "Rush", 5],  # declared game
+        [1, "O", 1, 10, -20, "Rush", 5],  # PLAY # resets -> undeclared second game
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    declared_half = df.filter(pl.col("game_id") == "hc-g1")["half"].to_list()
+    undeclared_half = df.filter(pl.col("game_id") != "hc-g1")["half"].to_list()
+    assert declared_half == [2]
+    assert undeclared_half == [None]
+
+    results = half_assigned(df)
+    by_game = {r.game_id: r for r in results}
+    assert by_game["hc-g1"].status.name == "PASS"
+    undeclared_game_id = next(g for g in by_game if g != "hc-g1")
+    assert by_game[undeclared_game_id].status.name == "FAIL"
+    assert "no half boundary" in by_game[undeclared_game_id].detail
+
+
+def test_ingest_workbook_copy_of_data_stays_half_null_even_if_declared(
+    tmp_path: Path, contract
+) -> None:
+    """`Copy of Data` rows stay half=null even for a game declared in
+    hc_games.csv -- the sheet exclusion overrides the declaration (Frage 2
+    unresolved column layout, M3-02-RESEARCH Sec 1.3)."""
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        [1, "O", 1, 10, -20, "Rush", 5],
+        [2, "O", 2, 5, -15, "Complete", 5],
+    ]
+    path = _make_workbook(tmp_path, {"Copy of Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "copy-of-data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Copy of Data", contract, hc_games, player_mapping)
+
+    assert df["half"].dtype == pl.Int32
+    assert df["half"].null_count() == df.height
+
+    results = half_assigned(df)
+    assert all(r.status.name == "FAIL" for r in results)
+    assert all("no half boundary" in r.detail for r in results)
+
+
+def test_ingest_workbook_half_sentinel_notices_carry_counts_and_reasons_no_pii(
+    tmp_path: Path, contract
+) -> None:
+    """The two German notices name real counts and reasons
+    (`nicht in hc_games.csv deklariert` / `Copy of Data, Frage 2 offen`);
+    neither message contains a player name."""
+    rows = [
+        _INGEST_FULL_HEADER,
+        [1, "O", "DOG", 1, 10, -20, "Rush", 5, None, "Spieler A", None, None, None],
+        [1, "O", "DOG", 1, 10, -20, "Rush", 5, None, "Spieler A", None, None, None],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows, "Copy of Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([("hc_workbook", "Spieler A", "Anna Mustermann")])
+
+    df_data, notices_data = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+    df_copy, notices_copy = ingest_workbook(
+        path, "Copy of Data", contract, hc_games, player_mapping
+    )
+
+    joined_data = " ".join(notices_data.messages)
+    assert "nicht in hc_games.csv deklariert" in joined_data
+    assert "Anna Mustermann" not in joined_data
+    assert "Spieler A" not in joined_data
+
+    joined_copy = " ".join(notices_copy.messages)
+    assert "Copy of Data" in joined_copy
+    assert "Frage 2 offen" in joined_copy
+    assert "Anna Mustermann" not in joined_copy
+    assert "Spieler A" not in joined_copy
+
+
+def test_ingest_workbook_empty_sheet_half_column_stays_int32(tmp_path: Path, contract) -> None:
+    """An empty sheet still returns the zero-row canonical frame with a
+    `half` column of dtype Int32 -- schema is independent of any declared
+    game."""
+    header = _INGEST_MINIMAL_HEADER
+    rows = [header] + [[None] * len(header) for _ in range(10)]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert df.height == 0
+    assert df["half"].dtype == pl.Int32
