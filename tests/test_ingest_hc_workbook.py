@@ -16,12 +16,15 @@ import pytest
 
 import polars as pl
 
+from flag_football_ep.canonical import CANONICAL_COLUMNS
 from flag_football_ep.ingest.hc_workbook import (
     HcBlock,
     HcGameIdentity,
     HcGameSlice,
     SheetNotFoundError,
+    count_result_tokens,
     hc_source_label,
+    ingest_workbook,
     map_block_to_frame,
     read_sheet_rows,
     resolve_game_identity,
@@ -654,3 +657,215 @@ def test_provisional_game_hc_games_csv_round_trip(tmp_path: Path) -> None:
     assert identity.provisional is False
     assert identity.game_id == "hc-2026-01-alp-bet"
     assert messages == []
+
+
+# --- count_result_tokens (Task 3) --------------------------------------------
+
+
+def test_count_result_tokens_counts_every_token() -> None:
+    df = pl.DataFrame({"RESULT": ["Rush", "Complete, TD", "Rush", None, "Block"]})
+
+    counts = count_result_tokens(df)
+
+    assert counts == {"Rush": 2, "Complete": 1, "TD": 1, "Block": 1}
+
+
+def test_count_result_tokens_empty_frame_returns_empty_dict() -> None:
+    df = pl.DataFrame({"RESULT": []}, schema={"RESULT": pl.Utf8})
+
+    assert count_result_tokens(df) == {}
+
+
+# --- ingest_workbook (Task 3) -------------------------------------------------
+
+_INGEST_MINIMAL_HEADER = ["PLAY #", "ODK", "DN", "DIST", "YARD LN", "RESULT", "GN/LS"]
+
+_INGEST_FULL_HEADER = [
+    "PLAY #", "ODK", "OFF FORM", "DN", "DIST", "YARD LN", "RESULT", "GN/LS",
+    "RECEIVED BY", "QB", "THROWN BY", "TARGET", "TACKLE",
+]
+
+
+def _player_mapping_frame(rows: list[tuple[str, str, str]]) -> pl.DataFrame:
+    return pl.DataFrame(
+        rows, schema=["source", "source_player", "canonical_player"], orient="row"
+    )
+
+
+def test_ingest_workbook_two_game_numeric_block_resolves_mapped_game_ids(
+    tmp_path: Path, contract
+) -> None:
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        [1, "O", 1, 10, -20, "Rush", 5],
+        [2, "O", 2, 5, -15, "Complete", 5],
+        [1, "O", 1, 10, -20, "Rush", 5],  # PLAY # resets -> second game
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g01",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g2",
+                "home_team": "GAM", "away_team": "DEL", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-02", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert list(df.columns) == list(CANONICAL_COLUMNS)
+    assert df["source"].unique().to_list() == [hc_source_label(path, "Data")]
+    assert sorted(df["game_id"].unique().to_list()) == ["hc-g1", "hc-g2"]
+    assert notices.sheet == "Data"
+
+
+def test_ingest_workbook_empty_sheet_returns_zero_row_canonical_frame(
+    tmp_path: Path, contract
+) -> None:
+    header = _INGEST_MINIMAL_HEADER
+    rows = [header] + [[None] * len(header) for _ in range(50)]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)  # must not raise
+
+    assert df.height == 0
+    assert list(df.columns) == list(CANONICAL_COLUMNS)
+    assert len(notices.messages) >= 1
+
+
+def test_ingest_workbook_end_to_end_two_sheet_workbook(tmp_path: Path, contract) -> None:
+    numeric_game1 = [
+        [1, "O", "DOG", 1, 10, -20, "Rush", 5, None, "Spieler A", None, None, None],
+        [2, "O", "DOG", 2, 5, -15, "Complete", 5, "25", "Spieler A", "Spieler A", "25", None],
+        [3, "D", "DOG", 3, 3, -10, "Sack", 0, None, "Spieler A", None, None, "Spieler A"],
+    ]
+    numeric_game2 = [
+        [1, "O", "DOG", 1, 10, -20, "Complete, TD", 20, "Spieler A", "Spieler A", "Spieler A", "Spieler A", None],
+    ]
+    pair_game = [
+        ["Alphaland", "Betaland", "DOG", 1, 10, -20, "Rush", 5, "Spieler B", None, None, None, None],
+        ["Alphaland", "Betaland", "DOG", 1, 8, -18, "Complete", 8, "Spieler C", None, None, None, None],
+    ]
+    data_rows = [_INGEST_FULL_HEADER] + numeric_game1 + numeric_game2 + pair_game
+    copy_rows = [_INGEST_FULL_HEADER] + numeric_game1
+
+    path = _make_workbook(tmp_path, {"Data": data_rows, "Copy of Data": copy_rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-2026-01-alp-bet",
+                "home_team": "ALP", "away_team": "BET", "competition": "Test Camp",
+                "season": "2026", "game_date": "2026-01-05", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            }
+        ]
+    )
+    player_mapping = _player_mapping_frame([("hc_workbook", "Spieler A", "Anna Mustermann")])
+
+    df_data, notices_data = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+    df_copy, notices_copy = ingest_workbook(
+        path, "Copy of Data", contract, hc_games, player_mapping
+    )
+
+    # canonical column set
+    assert list(df_data.columns) == list(CANONICAL_COLUMNS)
+    assert list(df_copy.columns) == list(CANONICAL_COLUMNS)
+
+    # per-sheet source label, uniform for every row
+    assert df_data["source"].unique().to_list() == [hc_source_label(path, "Data")]
+    assert df_copy["source"].unique().to_list() == [hc_source_label(path, "Copy of Data")]
+    assert notices_data.source_label != notices_copy.source_label
+
+    # per-game ids: mapped game1, provisional game2 and provisional pair game
+    game_ids = set(df_data["game_id"].unique().to_list())
+    assert "hc-2026-01-alp-bet" in game_ids
+    assert any(g.startswith("hc-hc-test-workbook-data-b00-g01") for g in game_ids)
+    assert any(g.startswith("hc-hc-test-workbook-data-b01-g00") for g in game_ids)
+
+    # null pair-block posteam/defteam
+    pair_rows = df_data.filter(pl.col("game_id").str.starts_with("hc-hc-test-workbook-data-b01"))
+    assert pair_rows.height == 2
+    assert pair_rows["posteam"].null_count() == 2
+    assert pair_rows["defteam"].null_count() == 2
+
+    # token counts include every RESULT token seen, including the multi-token combo
+    assert notices_data.result_token_counts.get("Rush", 0) >= 2
+    assert notices_data.result_token_counts.get("Complete", 0) >= 2
+    assert notices_data.result_token_counts.get("TD", 0) == 1
+    assert notices_data.result_token_counts.get("Sack", 0) == 1
+
+    # unmapped-player behaviour: "Spieler A" mapped, jersey "25" left unmapped.
+    # "Spieler B"/"Spieler C" (pair-block RECEIVED BY values) never reach
+    # map_players at all: RECEIVED BY onward is nulled for pair-block rows
+    # (PAIR_BLOCK_TAIL_ANCHOR, Frage 2 undetermined column shift) -- their
+    # raw labels are dropped before player mapping even runs, the strongest
+    # possible PII-safety property for that column.
+    assert "Spieler A" not in notices_data.unmapped_players
+    assert "25" in notices_data.unmapped_players
+    assert "Spieler B" not in notices_data.unmapped_players
+    assert "Spieler C" not in notices_data.unmapped_players
+    joined = " ".join(notices_data.messages)
+    # PII discipline: only the count appears in the human-readable message, never a label
+    assert "Spieler B" not in joined
+    assert "Spieler C" not in joined
+    assert str(len(notices_data.unmapped_players)) in joined
+
+
+def test_ingest_workbook_player_identity_mixed_type_survives_mapping(
+    tmp_path: Path, contract
+) -> None:
+    rows = [
+        _INGEST_FULL_HEADER,
+        [1, "O", "DOG", 1, 10, -20, "Complete", 5, "25", "Spieler A", "Spieler A", "25", None],
+        [2, "O", "DOG", 2, 5, -15, "Complete", 5, "Spieler A", "Spieler A", "Spieler A", "Spieler A", None],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([("hc_workbook", "Spieler A", "Anna Mustermann")])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)  # must not raise
+
+    received_by = df["received_by"].to_list()
+    assert "25" in received_by  # unmapped jersey label survives verbatim
+    assert "Anna Mustermann" in received_by  # mapped name label replaced
+    assert "25" in notices.unmapped_players
+    assert "Anna Mustermann" not in notices.unmapped_players
+    assert "Spieler A" not in notices.unmapped_players
+
+
+def test_ingest_workbook_synthesized_play_id_for_pair_block_rows(tmp_path: Path, contract) -> None:
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        ["Alphaland", "Betaland", 1, 10, -20, "Rush", 5],
+        ["Alphaland", "Betaland", 1, 8, -18, "Complete", 8],
+        ["Alphaland", "Betaland", 1, 6, -16, "Complete", 6],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert sorted(df["play_id"].to_list()) == [1, 2, 3]
+    joined = " ".join(notices.messages)
+    assert "3" in joined
+    assert "synthetisiert" in joined or "synthesized" in joined.lower()
