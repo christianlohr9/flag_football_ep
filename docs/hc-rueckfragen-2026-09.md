@@ -104,6 +104,8 @@ Das strukturell saubere Workbook (`Offense Analytics 2026 Camps and Competitions
 
 ## Antworten
 
+_Beantwortet 2026-09-03 per E-Mail durch den HC (Jona Winkel) — Fragen 1-3._
+
 ### Frage 1 — Ist der `Data`-Tab in "Germany Analytics Stats EC 2025 vs WC Nations.xlsx" leer gemeint?
 Ja, der Data Tab kommt aus der Datei zur Scoring Probability und ist für alle folgenden Dateien als Grundlage zu nehmen.
 
