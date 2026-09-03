@@ -70,3 +70,6 @@ data/private/*
 __pycache__/
 *.pyc
 .venv/
+
+# HC workbooks (player names = PII, hand-maintained by the head coach)
+data/raw/hc_files/
