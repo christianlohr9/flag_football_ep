@@ -1,1 +1,10 @@
 workbook,sheet,block_key,source_team1,source_team2,game_id,home_team,away_team,competition,season,game_date,tier,corpus_game_id,note
+scoring-probability-by-situation-2023-2026,data,b01-g00,,,hc-scoring-probability-dup-legacy-39,TM2,TM1,legacy,0,,mixed-other,legacy-39,fingerprint match 87/90 rows (96.7%) against legacy-39 -- real run M3-01-04
+scoring-probability-by-situation-2023-2026,data,b01-g01,,,hc-scoring-probability-dup-legacy-40,TM2,TM1,legacy,0,,mixed-other,legacy-40,fingerprint match 83/85 rows (97.6%) against legacy-40 -- real run M3-01-04
+scoring-probability-by-situation-2023-2026,data,b01-g02,,,hc-scoring-probability-dup-legacy-41,TM2,TM1,legacy,0,,mixed-other,legacy-41,fingerprint match 79/81 rows (97.5%) against legacy-41 -- real run M3-01-04
+scoring-probability-by-situation-2023-2026,data,b01-g03,,,hc-scoring-probability-dup-legacy-42,TM1,TM2,legacy,0,,mixed-other,legacy-42,fingerprint match 75/75 rows (100%) against legacy-42 -- real run M3-01-04
+scoring-probability-by-situation-2023-2026,data,b01-g04,,,hc-scoring-probability-dup-legacy-43,TM2,TM1,legacy,0,,mixed-other,legacy-43,fingerprint match 67/70 rows (95.7%) against legacy-43 -- real run M3-01-04
+scoring-probability-by-situation-2023-2026,data,b01-g05,,,hc-scoring-probability-dup-legacy-44,TM2,TM1,legacy,0,,mixed-other,legacy-44,fingerprint match 81/83 rows (97.6%) against legacy-44 -- real run M3-01-04
+scoring-probability-by-situation-2023-2026,data,b01-g06,,,hc-scoring-probability-dup-legacy-45,TM2,TM1,legacy,0,,mixed-other,legacy-45,fingerprint match 85/87 rows (97.7%) against legacy-45 -- real run M3-01-04
+scoring-probability-by-situation-2023-2026,data,b01-g07,,,hc-scoring-probability-dup-legacy-46,TM2,TM1,legacy,0,,mixed-other,legacy-46,fingerprint match 70/73 rows (95.9%) against legacy-46 -- real run M3-01-04
+scoring-probability-by-situation-2023-2026,data,b01-g08,,,hc-scoring-probability-dup-legacy-47,TM1,TM2,legacy,0,,mixed-other,legacy-47,fingerprint match 76/78 rows (97.4%) against legacy-47 -- real run M3-01-04
