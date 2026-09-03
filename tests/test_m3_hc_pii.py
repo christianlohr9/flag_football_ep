@@ -28,6 +28,13 @@ _CHECKED_ARTEFACTS: tuple[Path, ...] = (
     REPO_ROOT / "src" / "flag_football_ep" / "ingest" / "hc_dedupe.py",
     REPO_ROOT / "tests" / "test_ingest_hc_workbook.py",
     REPO_ROOT / "tests" / "test_ingest_hc_dedupe.py",
+    # M3-03-02: explosiveness/efficiency comparison artefacts (HC-04).
+    REPO_ROOT / "docs" / "explosiveness-vorschlag.md",
+    REPO_ROOT / "docs" / "explosiveness-recherche.md",
+    REPO_ROOT / "data" / "reference" / "explosiveness" / "comparison_overall.csv",
+    REPO_ROOT / "data" / "reference" / "explosiveness" / "comparison_by_player.csv",
+    REPO_ROOT / "data" / "reference" / "explosiveness" / "cliff_zone.csv",
+    REPO_ROOT / "scripts" / "explosiveness_comparison.py",
 )
 
 _MIN_SURNAME_LEN = 6
