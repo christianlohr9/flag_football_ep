@@ -10,6 +10,7 @@ raising.
 
 from __future__ import annotations
 
+import re
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
@@ -87,6 +88,40 @@ _HC_GAMES_SCHEMA: dict[str, pl.DataType] = {
     "tier": pl.Utf8,
     "corpus_game_id": pl.Utf8,
     "note": pl.Utf8,
+}
+_HC_SPLITS_SCHEMA: dict[str, pl.DataType] = {
+    "workbook": pl.Utf8,
+    "sheet": pl.Utf8,
+    "first_row": pl.Int32,
+    "last_row": pl.Int32,
+    "split_key": pl.Utf8,
+    "label_de": pl.Utf8,
+    "label_status": pl.Utf8,
+    "source_tabs": pl.Utf8,
+    "note": pl.Utf8,
+}
+_HC_SPLIT_LABEL_STATUSES: tuple[str, ...] = ("verified", "conflict")
+
+_HC_SPLIT_ROW_RANGE_RE = re.compile(r"rows (\d+)-(\d+)")
+
+HC_SPLIT_MATCH_STATES: tuple[str, ...] = (
+    "matched",
+    "spans-multiple",
+    "outside-known-windows",
+    "no-row-range",
+    "no-window-for-source",
+)
+
+_RESOLVE_HC_GAME_SPLITS_SCHEMA: dict[str, pl.DataType] = {
+    "game_id": pl.Utf8,
+    "workbook": pl.Utf8,
+    "sheet": pl.Utf8,
+    "first_row": pl.Int32,
+    "last_row": pl.Int32,
+    "split_key": pl.Utf8,
+    "label_de": pl.Utf8,
+    "label_status": pl.Utf8,
+    "split_match": pl.Utf8,
 }
 
 
@@ -259,6 +294,233 @@ def load_hc_games(path: Path) -> pl.DataFrame:
             raise ValueError(f"game_id value(s) not prefixed 'hc-' in {path}: {bad_ids}")
 
     return df
+
+
+def load_hc_splits(path: Path) -> pl.DataFrame:
+    """Load the maintained head-coach camp/competition split-window table.
+
+    `workbook,sheet,first_row,last_row,split_key,label_de,label_status,
+    source_tabs,note`. This file exists because the head coach's per-camp
+    tabs in the "Offense Analytics 2026 Camps and Competitions" workbook are
+    not filtered by any column -- each tab is a hard-coded absolute row
+    window into the same `Data` sheet (e.g. `Data!$P$1001:$P$2000` for
+    Mexico). There is no camp column and no per-camp date to join against, so
+    every boundary below is a maintained row, cited (in `note`) to the
+    formula cell it was read from -- never a magic number inside report
+    code. `label_status` is `"verified"` when two independently-named tabs
+    agree on the same window, or `"conflict"` when they disagree (see
+    `camp-iv-vi`: the same row window is named "Camp VI" in one tab and
+    "Camp IV" in another) -- the conflict is recorded, never silently
+    decided. `All Camps` (`2:19562`, the sheet's unfiltered total) is
+    deliberately NOT a row here: it is computed, not looked up.
+
+    Rejects, each naming the offending value(s):
+    - a duplicate `(workbook, sheet, split_key)` triple,
+    - a duplicate `split_key` across the whole file,
+    - a `first_row < 2`,
+    - a `last_row < first_row`,
+    - overlapping `[first_row, last_row]` windows within one `(workbook, sheet)`,
+    - a `label_status` outside `{"verified", "conflict"}`,
+    - an empty `label_de` or `split_key`.
+    """
+    df = _read_reference_csv(path, _HC_SPLITS_SCHEMA)
+
+    if df.height:
+        dupe_keys = (
+            df.group_by(["workbook", "sheet", "split_key"])
+            .agg(pl.len().alias("n"))
+            .filter(pl.col("n") > 1)
+            .select(["workbook", "sheet", "split_key"])
+            .rows()
+        )
+        if dupe_keys:
+            raise ValueError(
+                f"duplicate (workbook, sheet, split_key) triple(s) in {path}: {dupe_keys}"
+            )
+
+        dupe_split_keys = (
+            df.group_by("split_key")
+            .agg(pl.len().alias("n"))
+            .filter(pl.col("n") > 1)["split_key"]
+            .to_list()
+        )
+        if dupe_split_keys:
+            raise ValueError(f"duplicate split_key in {path}: {dupe_split_keys}")
+
+        bad_first_rows = df.filter(pl.col("first_row") < 2)["split_key"].to_list()
+        if bad_first_rows:
+            raise ValueError(
+                f"first_row < 2 (row 1 is the header) for split_key(s) in {path}: "
+                f"{bad_first_rows}"
+            )
+
+        bad_ranges = df.filter(pl.col("last_row") < pl.col("first_row"))["split_key"].to_list()
+        if bad_ranges:
+            raise ValueError(
+                f"last_row < first_row for split_key(s) in {path}: {bad_ranges}"
+            )
+
+        overlap_pairs: list[tuple[str, str]] = []
+        for _, group in df.sort(["workbook", "sheet", "first_row"]).group_by(
+            ["workbook", "sheet"], maintain_order=True
+        ):
+            rows = group.select(["split_key", "first_row", "last_row"]).rows()
+            for (key_a, _first_a, last_a), (key_b, first_b, _last_b) in zip(rows, rows[1:]):
+                if first_b <= last_a:
+                    overlap_pairs.append((key_a, key_b))
+        if overlap_pairs:
+            raise ValueError(
+                f"overlapping [first_row, last_row] window(s) in {path}: {overlap_pairs}"
+            )
+
+        bad_statuses = (
+            df.filter(~pl.col("label_status").is_in(_HC_SPLIT_LABEL_STATUSES))["label_status"]
+            .unique()
+            .to_list()
+        )
+        if bad_statuses:
+            raise ValueError(
+                f"label_status value(s) not in {_HC_SPLIT_LABEL_STATUSES} in {path}: "
+                f"{sorted(bad_statuses)}"
+            )
+
+        empty_label_de = df.filter(
+            pl.col("label_de").is_null() | (pl.col("label_de").str.strip_chars() == "")
+        )["split_key"].to_list()
+        if empty_label_de:
+            raise ValueError(f"empty label_de for split_key(s) in {path}: {empty_label_de}")
+
+        empty_split_key = df.filter(
+            pl.col("split_key").is_null() | (pl.col("split_key").str.strip_chars() == "")
+        )
+        if empty_split_key.height:
+            raise ValueError(
+                f"empty split_key for {empty_split_key.height} row(s) in {path}"
+            )
+
+    return df
+
+
+def resolve_hc_game_splits(games: pl.DataFrame, splits: pl.DataFrame) -> pl.DataFrame:
+    """Assign each declared head-coach game its camp/competition split label.
+
+    `games` needs `game_id, workbook, sheet, note`; `splits` is a
+    `load_hc_splits`-shaped frame. The `note` column is free-text prose --
+    written by the ingest segmenter's refill step, never a structured field
+    -- so reading a row window out of it (via a single `rows <first>-<last>`
+    regex) is a documented compromise: the ingest segmenter is the only
+    place that actually knows a block's real `first_row`/`last_row`, and
+    M3-02-04's refill chose to write them into `note` rather than add a
+    dedicated column. The named `split_match` states below exist precisely
+    to keep that compromise visible rather than silent -- nothing here ever
+    guesses a "closest" split.
+
+    Returns one row per input game, in input order, with columns
+    `game_id, workbook, sheet, first_row, last_row, split_key, label_de,
+    label_status, split_match`. `split_match` is one of
+    `HC_SPLIT_MATCH_STATES`:
+    - `"matched"`: the game's row window is fully contained in exactly one
+      declared split window.
+    - `"spans-multiple"`: the row window is not fully contained in any one
+      declared split window but overlaps one or more of them -- it crosses
+      a boundary. `split_key`/`label_de`/`label_status` are null.
+    - `"outside-known-windows"`: the row window has no overlap with any
+      declared split window for its `(workbook, sheet)`.
+    - `"no-row-range"`: `note` carries no `rows <a>-<b>` fragment (the
+      pre-existing duplicate-fingerprint rows are the normal case here) --
+      `first_row`/`last_row`/`split_key`/`label_de`/`label_status` are null.
+    - `"no-window-for-source"`: the game's `(workbook, sheet)` has no
+      declared split window at all.
+
+    Never raises. An empty `games` frame returns a schema-correct empty
+    frame.
+    """
+    if games.height == 0:
+        return pl.DataFrame(schema=_RESOLVE_HC_GAME_SPLITS_SCHEMA)
+
+    splits_by_source: dict[tuple[str, str], list[tuple[str, int, int, str, str]]] = {}
+    if splits.height:
+        for workbook, sheet, first_row, last_row, split_key, label_de, label_status in (
+            splits.select(
+                [
+                    "workbook",
+                    "sheet",
+                    "first_row",
+                    "last_row",
+                    "split_key",
+                    "label_de",
+                    "label_status",
+                ]
+            ).rows()
+        ):
+            splits_by_source.setdefault((workbook, sheet), []).append(
+                (split_key, first_row, last_row, label_de, label_status)
+            )
+
+    out_rows: list[tuple] = []
+    for game_id, workbook, sheet, note in games.select(
+        ["game_id", "workbook", "sheet", "note"]
+    ).rows():
+        match = _HC_SPLIT_ROW_RANGE_RE.search(note or "")
+        if match is None:
+            out_rows.append((game_id, workbook, sheet, None, None, None, None, None, "no-row-range"))
+            continue
+
+        first_row, last_row = int(match.group(1)), int(match.group(2))
+        candidates = splits_by_source.get((workbook, sheet), [])
+        if not candidates:
+            out_rows.append(
+                (game_id, workbook, sheet, first_row, last_row, None, None, None, "no-window-for-source")
+            )
+            continue
+
+        contained = [
+            c for c in candidates if c[1] <= first_row and last_row <= c[2]
+        ]
+        if len(contained) == 1:
+            split_key, _first, _last, label_de, label_status = contained[0]
+            out_rows.append(
+                (
+                    game_id,
+                    workbook,
+                    sheet,
+                    first_row,
+                    last_row,
+                    split_key,
+                    label_de,
+                    label_status,
+                    "matched",
+                )
+            )
+            continue
+
+        if len(contained) > 1:
+            out_rows.append(
+                (game_id, workbook, sheet, first_row, last_row, None, None, None, "spans-multiple")
+            )
+            continue
+
+        overlapping = [c for c in candidates if c[1] <= last_row and first_row <= c[2]]
+        if overlapping:
+            out_rows.append(
+                (game_id, workbook, sheet, first_row, last_row, None, None, None, "spans-multiple")
+            )
+        else:
+            out_rows.append(
+                (
+                    game_id,
+                    workbook,
+                    sheet,
+                    first_row,
+                    last_row,
+                    None,
+                    None,
+                    None,
+                    "outside-known-windows",
+                )
+            )
+
+    return pl.DataFrame(out_rows, schema=_RESOLVE_HC_GAME_SPLITS_SCHEMA, orient="row")
 
 
 def load_sportapp_games(path: Path) -> pl.DataFrame:
