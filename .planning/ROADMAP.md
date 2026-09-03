@@ -463,7 +463,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - [x] `M3-02-01-PLAN.md` — the two ingest fixes: unordered team-pair game segmentation, and the `half = 2` label sentinel scoped to games declared in `hc_games.csv` and never to `Copy of Data`, plus the decision table in `docs/data-contract.md` (HC-03)
   - [x] `M3-02-02-PLAN.md` — training-side prerequisites: the EP `half`-feature sentinel that keeps head-coach rows distinguishable from real second-half plays, the label-construction guards for both EP and WP, and the three `competition_tier.csv` rows that stop the first fit dying on `UnmappedCompetitionError` (HC-03)
   - [x] `M3-02-03-PLAN.md` — read-only snapshot of his nine aggregate tabs into `data/reference/hc_sp_tables/`, with the three Excel-corrupted distance-bin labels reconstructed and marked, plus its own PII and domain gate (HC-03)
-  - [ ] `M3-02-04-PLAN.md` — `scripts/hc_games_refill.py`, the real `ffep ingest` run, the asserted non-zero head-coach row count in `plays.parquet`, the before/after corpus table and the updated `docs/hc-workbook-ingest.md` (HC-03)
+  - [x] `M3-02-04-PLAN.md` — `scripts/hc_games_refill.py`, the real `ffep ingest` run, the asserted non-zero head-coach row count in `plays.parquet`, the before/after corpus table and the updated `docs/hc-workbook-ingest.md` (HC-03)
   - [ ] `M3-02-05-PLAN.md` — EP/WP retraining on the enlarged corpus with the with/without-head-coach ablation (four tagged MLflow runs, no alias moved), the per-source calibration tables, and the measured Timeout / Offsetting Penalties decision (HC-03)
   - [ ] `M3-02-06-PLAN.md` — `reports/hc_comparison.py` and `scripts/epa_comparison.py`: his published number, his rows recomputed by us, our non-head-coach rows and the model's out-of-fold expected points per (down, distance, field half) cell, each with its n and an explicit coverage report (HC-03)
   - [ ] `M3-02-07-PLAN.md` — the German `docs/epa-refinement-2026-10.md`, two Zusatzfragen appended to `docs/hc-rueckfragen-2026-09.md` without renumbering M3-3's Fragen 4-6, and the doc-versus-CSV drift guard (HC-03)
@@ -480,7 +480,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - **Plans:** 7 plans (waves 1-5; plan 07 is the only non-autonomous one and nothing depends on it)
   - **Goal:** His hand-maintained "Player Analysis All Camps" tab exists as a German `ffep report` product computed from canonical plays — every one of his eighteen columns with the definition his own formula cell uses, our Success Rate / calibrated Explosiveness / continuous score beside them with n on every rate, cut by his camp windows — and the three October deliverables are bundled into one reviewed handout for the head coach (HC-05)
   - [ ] `M3-04-01-PLAN.md` — the authorised M3-3 correction: Attempts excludes Sacks (cell `D2`) and Efficiency divides by Attempts + Carries (cell `U2`), the regenerated comparison CSVs, and both German documents corrected with a dated correction note (HC-05)
-  - [ ] `M3-04-02-PLAN.md` — `data/reference/hc_splits.csv` plus `load_hc_splits`/`resolve_hc_game_splits`: his camp tabs are hard-coded row windows, so the split key becomes maintained, cited reference data with the Camp IV/VI naming conflict recorded as unresolved (HC-05)
+  - [x] `M3-04-02-PLAN.md` — `data/reference/hc_splits.csv` plus `load_hc_splits`/`resolve_hc_game_splits`: his camp tabs are hard-coded row windows, so the split key becomes maintained, cited reference data with the Camp IV/VI naming conflict recorded as unresolved (HC-05)
   - [ ] `M3-04-03-PLAN.md` — `reports/player_analysis.py`: his eighteen columns from canonical plays on his denominators, with a named German availability state for every column that cannot be computed yet (HC-05)
   - [ ] `M3-04-04-PLAN.md` — the M3-3 metrics beside his columns (n / CI / muted / shrinkage, never recomputed), the camp-split sections and `build_player_analysis_data` (HC-05)
   - [ ] `M3-04-05-PLAN.md` — the German HTML page and its template, `player-analysis` as the fifth `ffep report` product with per-product failure isolation, the documentation and the timed real run (HC-05)
@@ -517,6 +517,6 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M2-4 Messvorschrift | 2/3 | In progress (plan 03 at METR-03 wording gate) | - |
 | M2-5 Einstiegspaket | 0/2 | Not started | - |
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
-| M3-2 EPA-Refinement | 3/8 | In progress (wave 1 done) | - |
+| M3-2 EPA-Refinement | 4/8 | In progress (HC rows in corpus: 1,964 / 35 games) | - |
 | M3-3 Explosiveness & Efficiency | 2/3 | In progress (plan 03 = user review gate) | - |
 | M3-4 Player-Analysis-Report | 0/7 | Planned (waves 1-5; plan 06 blocked on M3-02-04) | - |
