@@ -519,4 +519,4 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
 | M3-2 EPA-Refinement | 4/8 | In progress (HC rows in corpus: 1,964 / 35 games) | - |
 | M3-3 Explosiveness & Efficiency | 2/3 | In progress (plan 03 = user review gate) | - |
-| M3-4 Player-Analysis-Report | 0/7 | Planned (waves 1-5; plan 06 blocked on M3-02-04) | - |
+| M3-4 Player-Analysis-Report | 1/7 | In progress (wave 1; plan 06 unblocked by M3-02-04) | - |
