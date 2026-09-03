@@ -36,6 +36,15 @@ dependencies = [
     "mlflow>=3.15",
     "scipy>=1.14.1",
     "jinja2>=3.1.6",
+    # Cell-level `.xlsx` reading for the head coach's hand-maintained workbooks
+    # (ingest/hc_workbook.py): `data_only=True` formula resolution and
+    # `read_only=True` streaming for the multi-thousand-row Data/Copy of Data
+    # tabs. MIT; legitimacy verified in M3-01-RESEARCH.md's package audit
+    # (slopcheck [OK], long-established). Deliberately not `fastexcel`
+    # (calamine) -- that engine assumes one consistent header/column layout
+    # per sheet and cannot express the row-dtype-based block segmentation
+    # these workbooks need (M3-01-RESEARCH.md "Alternatives Considered").
+    "openpyxl>=3.1.5",
 ]
 
 [project.optional-dependencies]

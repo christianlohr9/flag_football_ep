@@ -40,6 +40,10 @@ class Paths:
     video: Path
     labels: Path
     tracking: Path
+    # M3-01: optional, resolved outside _PATH_KEYS/_key() below so that a
+    # config written before M3 (missing this key entirely) keeps loading and
+    # no pre-existing test fixture TOML needs an edit.
+    raw_hc_files: Path = Path("data/raw/hc_files")
 
 
 @dataclass(frozen=True)
@@ -55,6 +59,11 @@ class ReferenceFiles:
     homography_calibration: Path
     gt_positions: Path
     continuity_review: Path
+    # M3-01: optional, same rationale as Paths.raw_hc_files above. The file
+    # this points at (data/reference/hc_games.csv) is not created until plan
+    # M3-01-03; nothing loads it until the pipeline wiring in M3-01-04, which
+    # guards the load.
+    hc_games: Path = Path("data/reference/hc_games.csv")
 
 
 @dataclass(frozen=True)
@@ -232,7 +241,13 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
 
     paths_table = _table(data, "paths")
     paths = Paths(
-        **{key: _resolve(base_dir, _key(paths_table, "paths", key)) for key in _PATH_KEYS}
+        **{key: _resolve(base_dir, _key(paths_table, "paths", key)) for key in _PATH_KEYS},
+        # Not in _PATH_KEYS/_key() deliberately (see Paths.raw_hc_files docstring):
+        # falls back to the same default the dataclass field carries when a
+        # pre-M3 ffep.toml doesn't declare this key.
+        raw_hc_files=_resolve(
+            base_dir, paths_table.get("raw_hc_files", "data/raw/hc_files")
+        ),
     )
 
     reference_table = _table(data, "reference")
@@ -240,7 +255,12 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
         **{
             key: _resolve(base_dir, _key(reference_table, "reference", key))
             for key in _REFERENCE_KEYS
-        }
+        },
+        # Not in _REFERENCE_KEYS/_key() deliberately (see ReferenceFiles.hc_games
+        # docstring): same pre-M3-compat fallback as raw_hc_files above.
+        hc_games=_resolve(
+            base_dir, reference_table.get("hc_games", "data/reference/hc_games.csv")
+        ),
     )
 
     sportapp_table = _table(data, "sources.sportapp")
