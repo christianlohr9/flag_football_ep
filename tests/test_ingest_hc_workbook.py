@@ -516,6 +516,132 @@ def test_game_segmentation_empty_block_returns_no_slices() -> None:
     assert messages == []
 
 
+def test_game_segmentation_pair_block_possession_swap_is_one_game() -> None:
+    """Mirrors the real Data-tab pattern (M3-02-RESEARCH.md Sec 1.2): the head
+    coach charts offense and defense possessions of the SAME game as flipped
+    team-pair rows. An unordered-pair boundary key must group all five rows
+    into one slice, not fragment on every possession flip."""
+    header = ["PLAY #", "ODK", "RESULT"]
+    rows = [
+        (2, ("Germany", "Ireland", "Rush")),
+        (3, ("Germany", "Ireland", "Complete")),
+        (4, ("Ireland", "Germany", "Rush")),
+        (5, ("Ireland", "Germany", "Complete")),
+        (6, ("Germany", "Ireland", "Rush")),
+    ]
+    block = HcBlock(index=1, kind="pair", header=header, rows=rows, first_row=2, last_row=6)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 1
+    assert len(slices[0].rows) == 5
+    # RAW labels of the first row survive verbatim, not normalized/sorted
+    assert slices[0].source_team1 == "Germany"
+    assert slices[0].source_team2 == "Ireland"
+
+
+def test_game_segmentation_pair_block_possession_swap_then_real_opponent_change_splits() -> None:
+    """A genuine opponent change after a possession-swap stretch still opens
+    a new slice."""
+    header = ["PLAY #", "ODK", "RESULT"]
+    rows = [
+        (2, ("Germany", "Ireland", "Rush")),
+        (3, ("Germany", "Ireland", "Complete")),
+        (4, ("Ireland", "Germany", "Rush")),
+        (5, ("Ireland", "Germany", "Complete")),
+        (6, ("Germany", "Ireland", "Rush")),
+        (7, ("Germany", "Spain", "Rush")),
+    ]
+    block = HcBlock(index=1, kind="pair", header=header, rows=rows, first_row=2, last_row=7)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 2
+    assert len(slices[0].rows) == 5
+    assert len(slices[1].rows) == 1
+    assert slices[1].source_team1 == "Germany"
+    assert slices[1].source_team2 == "Spain"
+
+
+def test_game_segmentation_pair_block_possession_swap_case_and_whitespace_insensitive() -> None:
+    """Case/whitespace insensitivity survives the unordered-pair comparison:
+    a swapped, differently-cased/whitespace-padded pair does not open a new
+    slice."""
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),
+        (3, (" ireland ", "GERMANY")),
+        (4, ("Germany", "Ireland")),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=4)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 1
+    assert len(slices[0].rows) == 3
+
+
+def test_game_segmentation_pair_block_single_row_noise_stays_its_own_slice() -> None:
+    """A single-row noise entry with an unmatched abbreviation between two
+    possession-swap stretches becomes its own one-row slice -- never merged
+    into either neighbour by inference (RESEARCH Sec 1.2: do not guess
+    ambiguous abbreviations like S/F)."""
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),
+        (3, ("Ireland", "Germany")),
+        (4, ("AT", "D")),
+        (5, ("Germany", "Ireland")),
+        (6, ("Ireland", "Germany")),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=6)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 3
+    assert len(slices[0].rows) == 2
+    assert len(slices[1].rows) == 1
+    assert slices[1].source_team1 == "AT"
+    assert slices[1].source_team2 == "D"
+    assert len(slices[2].rows) == 2
+
+
+def test_game_segmentation_pair_block_three_slices_block_key_scoped() -> None:
+    """block_key numbering stays b{block:02d}-g{game:02d} and block-scoped
+    across a three-slice pair block."""
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),
+        (3, ("Ireland", "Germany")),
+        (4, ("AT", "D")),
+        (5, ("Germany", "Ireland")),
+    ]
+    block = HcBlock(index=1, kind="pair", header=header, rows=rows, first_row=2, last_row=5)
+
+    slices, _ = segment_games(block)
+
+    assert [s.block_key for s in slices] == ["b01-g00", "b01-g01", "b01-g02"]
+
+
+def test_game_segmentation_numeric_block_unaffected_by_pair_block_change() -> None:
+    """Numeric-block segmentation (PLAY#-reset) is untouched by the pair-block
+    unordered-key change."""
+    header = ["PLAY #", "ODK"]
+    first_game = [(i + 2, (float(i), "O")) for i in range(1, 9)]
+    second_game = [(i + 10, (float(i), "O")) for i in range(1, 13)]
+    rows = first_game + second_game
+    block = HcBlock(
+        index=0, kind="numeric", header=header, rows=rows,
+        first_row=rows[0][0], last_row=rows[-1][0],
+    )
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 2
+    assert len(slices[0].rows) == 8
+    assert len(slices[1].rows) == 12
+
+
 # --- resolve_game_identity (Task 2) ------------------------------------------
 
 
