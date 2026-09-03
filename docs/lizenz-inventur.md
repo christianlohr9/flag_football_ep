@@ -47,6 +47,7 @@ installiert, um Schritt 1 zu ermöglichen.
 | `mlflow` | 3.15.1 | Apache-2.0 | Installationsabhängigkeit des Kernpakets (Experiment-Tracking, intern) | importlib.metadata |
 | `scipy` | 1.14.1 | BSD-3-Clause | Installationsabhängigkeit des Kernpakets | importlib.metadata |
 | `jinja2` | 3.1.6 | BSD (Variante laut Metadaten nicht spezifiziert) | Installationsabhängigkeit des Kernpakets (Templating, z. B. generierte READMEs) | importlib.metadata |
+| `openpyxl` | 3.1.5 | MIT | Zellgenaues Lesen der Head-Coach-Workbooks (`ingest/hc_workbook.py`), `data_only`-Formelauflösung und `read_only`-Streaming | importlib.metadata |
 | **CV-Erweiterung (`optional-dependencies.cv`)** | | | | |
 | `rfdetr` | 1.9.3 | Apache-2.0 | Detektor-Training/-Inferenz (`cv/detect.py`), Basis des eingefrorenen Modells | importlib.metadata |
 | `trackers` | 2.6.0 | Apache-2.0 | Tracking-Baseline (BoT-SORT/OC-SORT), Bundle-Prozessierung | importlib.metadata |

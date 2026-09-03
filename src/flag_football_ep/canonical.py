@@ -86,9 +86,16 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     "description": pl.Utf8,
     "jersey_number": pl.Utf8,
     "player_id": pl.Utf8,
+    # HC workbooks (HC-D01, M3-01-02): the head coach's own charting columns
+    # with no equivalent in any Hudl export.
+    "bf_action": pl.Utf8,
+    "hand": pl.Utf8,
     # Int32
     "yac": pl.Int32,
     "drive_success": pl.Int32,
+    # HC workbooks (HC-D01, M3-01-02).
+    "air_yards": pl.Int32,
+    "efficiency": pl.Int32,
     # Float64
     "half_seconds_remaining": pl.Float64,
     # Int64
