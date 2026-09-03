@@ -453,7 +453,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 - [ ] **Phase M3-1: HC-Workbook-Ingest** - The head coach's three Excel workbooks (`data/raw/hc_files/`, gitignored PII) become a canonical plays source: parse the Hudl-like `Data` tabs (EC 2025 vs WC nations, 2026 camps + competitions, 2023–2026 scoring-probability corpus), map to the contract (amended to v1.2 in this phase for his six extra RESULT tokens), dedupe against our Hudl/IFAF plays (prefer detecting his duplicates), enrich with the WC 2026 games; validation report per source (Requirements: HC-01, HC-02)
   - **Plans:** 4 plans (waves 1-3; plan 01 is the only non-autonomous one and nothing depends on it)
   - [ ] `M3-01-01-PLAN.md` — data contract v1.2 (six head-coach RESULT tokens with defined semantics, doc + schema + `hudl.py` + tests + PROJECT.md C-07) and the German question list for the head coach (empty EC-2025 `Data` tab, pair-block column order), ending in the forwarding checkpoint (HC-01)
-  - [ ] `M3-01-02-PLAN.md` — `openpyxl` as an inventoried core dependency, two optional config paths, four new canonical extras, and the reading half of `ingest/hc_workbook.py`: sheet reader, dtype-based block segmentation, per-block contract mapping (HC-01)
+  - [x] `M3-01-02-PLAN.md` — `openpyxl` as an inventoried core dependency, two optional config paths, four new canonical extras, and the reading half of `ingest/hc_workbook.py`: sheet reader, dtype-based block segmentation, per-block contract mapping (HC-01) (completed 2026-09-03)
   - [ ] `M3-01-03-PLAN.md` — `data/reference/hc_games.csv` + `load_hc_games`, game segmentation and provisional-id resolution, and `ingest_workbook`: the canonical derivation chain reusing the hudl functions, plus PII-safe player mapping (HC-01)
   - [ ] `M3-01-04-PLAN.md` — `ingest/hc_dedupe.py` (declared pairing, then content fingerprint), the `ffep ingest` wiring, the real run filling `hc_games.csv`/`player_mapping.csv`, the German `docs/hc-workbook-ingest.md` and the PII gate test (HC-01, HC-02)
 - [ ] **Phase M3-2: EPA-Refinement** - Retrain EP/WP on the enlarged corpus (GroupKFold by game, calibration, per-tier eval); side-by-side with the HC's own "Scoring Probability by Situation" tables (SP/EP by down & distance, clustered/weighted) so he sees where the model agrees and where it improves; documented, reproducible, MLflow-versioned (Requirements: HC-03)
@@ -489,4 +489,4 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M2-3 Labels und Prüfsatz | 0/3 | Not started | - |
 | M2-4 Messvorschrift | 2/3 | In progress (plan 03 at METR-03 wording gate) | - |
 | M2-5 Einstiegspaket | 0/2 | Not started | - |
-| M3-1 HC-Workbook-Ingest | 0/4 | Planned (waves 1-3) | - |
+| M3-1 HC-Workbook-Ingest | 1/4 | In progress (plan 01 at HC-question gate, wave 2 running) | - |
