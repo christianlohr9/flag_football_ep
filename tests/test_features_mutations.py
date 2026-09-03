@@ -1545,3 +1545,123 @@ class TestAddCompetitionTierFeatures:
         assert out.height == df.height
         assert out.select(cols).sum_horizontal().min() == 1
         assert out.select(cols).sum_horizontal().max() == 1
+
+
+# --- half sentinel: label construction ---
+#
+# Head-coach (`hc_workbook:*`) rows carry no half information from the source; M3-02-01's
+# ingest reader stamps a constant `half = 2` for the whole game so that `_mark_half_end`'s
+# `half_end`/`game_end` computation -- which both EP's (`prepare_ep_data`) and WP's
+# (`prepare_wp_data`) label construction depend on -- resolves correctly (M3-02-RESEARCH
+# section 2.2). These tests pin that decision table directly against the label-construction
+# code, independent of the ingest reader (owned by M3-02-01, not built here) and independent
+# of the model-feature sentinel added in `TestMakeEpModelMutationsHalfSentinel` below (M3-02
+# task 2). Every frame is built with `flag_football_ep.testing.canonical_plays_with_scores`.
+class TestHalfSentinelLabelConstruction:
+    def test_constant_half_2_marks_half_end_and_game_end_on_same_row(self):
+        """RESEARCH section 2.2 decision table, row `2`: the only sentinel that both passes
+        `half_assigned` and makes `half_end`/`game_end` fire together, at the true last row.
+        """
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=8, overrides={"half": 2}
+        )
+
+        out = prepare_ep_data(df)
+
+        half_end_rows = out.filter(pl.col("half_end") == 1)
+        game_end_rows = out.filter(pl.col("game_end") == 1)
+        assert half_end_rows.height == 1
+        assert game_end_rows.height == 1
+        assert half_end_rows["play_id"].item() == game_end_rows["play_id"].item() == 8
+
+    def test_constant_half_1_never_fires_game_end(self):
+        """RESEARCH section 2.2 decision table, row `1`: `half_end` still fires once per
+        game, but `game_end` (which requires `half == 2`) never fires -- the regression this
+        sentinel choice exists to prevent. Assert it explicitly so nobody "simplifies" the
+        sentinel to 1 later.
+        """
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=8, overrides={"half": 1}
+        )
+
+        out = prepare_ep_data(df)
+
+        assert out.filter(pl.col("half_end") == 1).height == 1
+        assert out.filter(pl.col("game_end") == 1).height == 0
+
+    def test_all_null_half_never_fires_game_end_and_wp_winner_stays_null(self):
+        """RESEARCH section 2.2 decision table, row `null`: pins RESEARCH Pitfall 1's exact
+        failure mode -- an all-null `half` never fires `game_end`, so WP's `Winner` never
+        resolves for that game, independent of `half` ever being in `WP_FEATURES`.
+        """
+        touchdown = [0] * 7 + [1]
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=8,
+            overrides={"half": None, "touchdown": touchdown},
+        )
+
+        ep_out = prepare_ep_data(df)
+        assert ep_out.filter(pl.col("game_end") == 1).height == 0
+
+        wp_out = prepare_wp_data(df)
+        assert wp_out.filter(pl.col("game_end") == 1).height == 0
+        winner_out = make_wp_model_mutations(wp_out, ["posteam", "Winner", "label"])
+        assert winner_out["Winner"].null_count() == winner_out.height
+
+    def test_prepare_ep_data_next_score_half_on_constant_half_2(self):
+        """On the constant-half-2 sentinel, `prepare_ep_data` still produces a non-null
+        `Next_Score_Half` for every row of the game (backward-filled from the single
+        half_end row), and that terminal row is `"No_Score"` when it is not itself a
+        scoring play -- RESEARCH section 2.2's `No_Score`-preserved-by-construction claim.
+        """
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=8, overrides={"half": 2}
+        )
+
+        out = prepare_ep_data(df)
+
+        assert out["Next_Score_Half"].null_count() == 0
+        terminal_row = out.filter(pl.col("half_end") == 1)
+        assert terminal_row["scoring_play"].item() == 0
+        assert terminal_row["Next_Score_Half"].item() == "No_Score"
+
+    def test_prepare_wp_data_resolves_winner_on_constant_half_2(self):
+        """On the constant-half-2 sentinel, `prepare_wp_data`'s `game_end` flows through to
+        a fully resolved (non-null) `Winner` via `make_wp_model_mutations`.
+        """
+        touchdown = [0] * 7 + [1]
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=8,
+            overrides={"half": 2, "touchdown": touchdown},
+        )
+
+        wp_out = prepare_wp_data(df)
+        winner_out = make_wp_model_mutations(wp_out, ["posteam", "Winner", "label"])
+
+        assert winner_out["Winner"].null_count() == 0
+
+    def test_two_game_frame_mixed_real_and_constant_half_does_not_leak_game_end(self):
+        """A two-game frame where game A has real halves (1 then 2) and game B is constant
+        half 2 produces exactly one `game_end` per game -- the `.over("game_id")` scoping
+        holds even when one game's `half` values follow the sentinel and the other's don't.
+        """
+        half_game_a = [1, 1, 1, 1, 2, 2, 2, 2]
+        half_game_b = [2] * 8
+
+        df = canonical_plays_with_scores(
+            n_games=2,
+            plays_per_game=8,
+            overrides={"half": half_game_a + half_game_b},
+        )
+
+        out = prepare_ep_data(df)
+
+        counts = (
+            out.filter(pl.col("game_end") == 1)
+            .group_by("game_id")
+            .agg(pl.len().alias("n"))
+        )
+        assert set(counts["n"].to_list()) == {1}
+        assert counts.height == 2
