@@ -50,7 +50,10 @@ Das strukturell saubere Workbook (`Offense Analytics 2026 Camps and Competitions
 ## Antworten
 
 ### Frage 1 — Ist der `Data`-Tab in "Germany Analytics Stats EC 2025 vs WC Nations.xlsx" leer gemeint?
+Ja, der Data Tab kommt aus der Datei zur Scoring Probability und ist für alle folgenden Dateien als Grundlage zu nehmen.
 
 ### Frage 2 — Welche Spaltenbedeutung haben die Zeilen mit Team-Namen in "Scoring Probability by Situation 2023-2026.xlsx"?
+Ich habe irgendwann aufgehört die Teamnamen aufzuschreiben und nur noch O für Offense, D für Defense und S für no-play genommen. Dann wiederum irgendwann wieder angefangen zumindest in der ersten Zeile wieder die Teamnamen niederzuschreiben. Alles was darunter kommt, bis zu einer leeren Zeile bzw. einer neuen Zeile mit Teamnamen soll diese Teams darstellen.
 
 ### Frage 3 — Stimmen unsere Bedeutungen für sechs RESULT-Werte?
+Ja.
