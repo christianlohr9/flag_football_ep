@@ -72,6 +72,22 @@ _GROUP_OPPONENTS_SCHEMA: dict[str, pl.DataType] = {
     "canonical_team": pl.Utf8,
     "team_name": pl.Utf8,
 }
+_HC_GAMES_SCHEMA: dict[str, pl.DataType] = {
+    "workbook": pl.Utf8,
+    "sheet": pl.Utf8,
+    "block_key": pl.Utf8,
+    "source_team1": pl.Utf8,
+    "source_team2": pl.Utf8,
+    "game_id": pl.Utf8,
+    "home_team": pl.Utf8,
+    "away_team": pl.Utf8,
+    "competition": pl.Utf8,
+    "season": pl.Int32,
+    "game_date": pl.Utf8,
+    "tier": pl.Utf8,
+    "corpus_game_id": pl.Utf8,
+    "note": pl.Utf8,
+}
 
 
 def _read_reference_csv(path: Path, schema: dict[str, pl.DataType]) -> pl.DataFrame:
@@ -176,6 +192,71 @@ def load_group_opponents(path: Path) -> pl.DataFrame:
         )
         if dupes:
             raise ValueError(f"duplicate canonical_team in {path}: {dupes}")
+
+    return df
+
+
+def load_hc_games(path: Path) -> pl.DataFrame:
+    """Load the maintained head-coach game-identity mapping.
+
+    `workbook,sheet,block_key,source_team1,source_team2,game_id,home_team,
+    away_team,competition,season,game_date,tier,corpus_game_id,note`.
+    `workbook`/`sheet` are the slugified file stem/sheet name
+    (`hc_workbook.slugify`); `block_key` is `b{block_index:02d}-g{game_index:02d}`
+    as produced by `hc_workbook.segment_games`, so `(workbook, sheet, block_key)`
+    is the lookup key a fresh ingest run resolves against. `source_team1`/
+    `source_team2` are the raw labels as charted (empty for a numeric block) --
+    present only so a maintainer can recognise the row, never used for
+    matching. `game_id` is the canonical id, always prefixed `hc-` to stay
+    distinguishable from `hudl`/`ifaf`/`legacy` ids in `plays.parquet`.
+    `corpus_game_id` names an already-ingested (or another HC) game this block
+    duplicates -- empty when the block is a genuinely new game; plan
+    M3-01-04's dedupe stage reads it. `note` is free text for the maintainer.
+
+    Rejects, each naming the offending value(s):
+    - a duplicate `(workbook, sheet, block_key)` triple,
+    - a duplicate `game_id`,
+    - a `tier` outside `COMPETITION_TIERS`,
+    - a `game_id` that does not start with `hc-`.
+    """
+    df = _read_reference_csv(path, _HC_GAMES_SCHEMA)
+
+    if df.height:
+        dupe_keys = (
+            df.group_by(["workbook", "sheet", "block_key"])
+            .agg(pl.len().alias("n"))
+            .filter(pl.col("n") > 1)
+            .select(["workbook", "sheet", "block_key"])
+            .rows()
+        )
+        if dupe_keys:
+            raise ValueError(
+                f"duplicate (workbook, sheet, block_key) triple(s) in {path}: {dupe_keys}"
+            )
+
+        dupe_ids = (
+            df.group_by("game_id")
+            .agg(pl.len().alias("n"))
+            .filter(pl.col("n") > 1)["game_id"]
+            .to_list()
+        )
+        if dupe_ids:
+            raise ValueError(f"duplicate game_id in {path}: {dupe_ids}")
+
+        bad_tiers = (
+            df.filter(~pl.col("tier").is_in(COMPETITION_TIERS))["tier"].unique().to_list()
+        )
+        if bad_tiers:
+            raise ValueError(
+                f"tier value(s) not in COMPETITION_TIERS {COMPETITION_TIERS} in {path}: "
+                f"{sorted(bad_tiers)}"
+            )
+
+        bad_ids = (
+            df.filter(~pl.col("game_id").str.starts_with("hc-"))["game_id"].to_list()
+        )
+        if bad_ids:
+            raise ValueError(f"game_id value(s) not prefixed 'hc-' in {path}: {bad_ids}")
 
     return df
 
