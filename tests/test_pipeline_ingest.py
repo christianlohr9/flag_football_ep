@@ -1,14 +1,17 @@
-"""End-to-end tests for `flag_football_ep.pipeline`: four sources -> one
+"""End-to-end tests for `flag_football_ep.pipeline`: five sources -> one
 validated canonical dataset (REQ-S1-05, REQ-S1-06).
 
 Builds a synthetic `tmp_path` data tree per test: two Hudl exports (one clean,
 one with a `play_id` gap so it quarantines), a small legacy CSV carrying a
 deliberate check failure (warn-only), the committed sportapp.fi snapshot
 fixture (`tests/fixtures/sportapp/match-drives_TEST001.json` +
-`match-v1_TEST001.json`), and a small synthetic IFAF snapshot, plus matching
-reference CSVs. The real Hudl exports under `data/raw/hudl/` are git-ignored
-and intentionally not used here -- everything below is deterministic and
-independent of local data availability.
+`match-v1_TEST001.json`), a small synthetic IFAF snapshot, and (M3-01-04) a
+small synthetic HC workbook built in-process with `openpyxl.Workbook()`
+(synthetic team codes, no real names -- see `_write_hc_fixture`), plus
+matching reference CSVs. The real Hudl exports under `data/raw/hudl/` and the
+real HC workbooks under `data/raw/hc_files/` are git-ignored and intentionally
+not used here -- everything below is deterministic and independent of local
+data availability.
 """
 
 from __future__ import annotations
@@ -17,6 +20,7 @@ import json
 import shutil
 from pathlib import Path
 
+import openpyxl
 import polars as pl
 import pytest
 from typer.testing import CliRunner
@@ -66,6 +70,7 @@ def _make_config(root: Path, repo_root: Path) -> Config:
         video=data_root / "video",
         labels=data_root / "labels",
         tracking=data_root / "processed" / "tracking",
+        raw_hc_files=data_root / "raw" / "hc_files",
     )
     reference = ReferenceFiles(
         half_boundaries=data_root / "reference" / "half_boundaries.csv",
@@ -79,6 +84,7 @@ def _make_config(root: Path, repo_root: Path) -> Config:
         homography_calibration=data_root / "reference" / "homography_calibration.csv",
         gt_positions=data_root / "reference" / "gt_positions.csv",
         continuity_review=data_root / "reference" / "continuity_review.csv",
+        hc_games=data_root / "reference" / "hc_games.csv",
     )
     sources = Sources(
         sportapp=SportappSource(base_url="https://example.invalid", api_key_env="SPORTAPP_API_KEY"),
@@ -271,6 +277,62 @@ def _write_ifaf_fixture(ifaf_dir: Path) -> None:
     )
 
 
+# --- HC workbook fixture (M3-01-04) -----------------------------------------
+
+_HC_HEADER = ["PLAY #", "ODK", "DN", "DIST", "YARD LN", "RESULT", "GN/LS"]
+_HC_WORKBOOK_FILENAME = "hc_pipeline_test_workbook.xlsx"
+
+
+def _write_hc_workbook(hc_dir: Path, sheets: dict[str, list[list]]) -> Path:
+    """Write a real `.xlsx` with one sheet per (name, rows) pair; rows[0] is the header."""
+    hc_dir.mkdir(parents=True, exist_ok=True)
+    wb = openpyxl.Workbook()
+    default = wb.active
+    first = True
+    for name, rows in sheets.items():
+        ws = default if first else wb.create_sheet(name)
+        if first:
+            ws.title = name
+            first = False
+        for row in rows:
+            ws.append(row)
+    path = hc_dir / _HC_WORKBOOK_FILENAME
+    wb.save(path)
+    return path
+
+
+def _write_hc_fixture(hc_dir: Path, hc_games_path: Path) -> None:
+    """One workbook, two sheets: `Data` (a clean 3-play game "game-a" plus a
+    second game "game-b" with an out-of-range `DN` so it quarantines) and
+    `Copy of Data` (a verbatim copy of game-a's rows, declared in
+    `hc_games.csv` as a duplicate of game-a -- the Data/Copy of Data case,
+    M3-01-RESEARCH.md Pitfall 4).
+    """
+    game_a_rows = [
+        [1, "O", 1, 10, 25, "Rush", 5],
+        [2, "O", 2, 5, 20, "Rush, TD", 5],
+        [3, "O", 0, 0, 5, "Good", 0],
+    ]
+    game_b_rows = [
+        [1, "O", 9, 10, 25, "Rush", 5],  # DN=9 -- out of [0,4], fails downs_range
+    ]
+    data_rows = [_HC_HEADER, *game_a_rows, *game_b_rows]
+    copy_rows = [_HC_HEADER, *game_a_rows]
+
+    _write_hc_workbook(hc_dir, {"Data": data_rows, "Copy of Data": copy_rows})
+
+    hc_games_path.parent.mkdir(parents=True, exist_ok=True)
+    hc_games_path.write_text(
+        "workbook,sheet,block_key,source_team1,source_team2,game_id,home_team,away_team,"
+        "competition,season,game_date,tier,corpus_game_id,note\n"
+        "hc-pipeline-test-workbook,data,b00-g00,,,hc-test-game-a,GER,AUT,Test Camp,2026,"
+        "2026-01-01,womens-national,,\n"
+        "hc-pipeline-test-workbook,copy-of-data,b00-g00,,,hc-test-game-a-copy,GER,AUT,"
+        "Test Camp,2026,2026-01-01,womens-national,hc-test-game-a,duplicate of game-a\n",
+        encoding="utf-8",
+    )
+
+
 # --- Reference CSVs ---------------------------------------------------------
 
 
@@ -326,11 +388,16 @@ def _write_reference_csvs(reference_dir: Path) -> None:
         "canonical_team,team_name\nAUT,Austria\n",
         encoding="utf-8",
     )
+    (reference_dir / "hc_games.csv").write_text(
+        "workbook,sheet,block_key,source_team1,source_team2,game_id,home_team,away_team,"
+        "competition,season,game_date,tier,corpus_game_id,note\n",
+        encoding="utf-8",
+    )
 
 
 @pytest.fixture
 def full_tree(tmp_path: Path, repo_root: Path) -> Config:
-    """A complete synthetic data tree covering all four sources."""
+    """A complete synthetic data tree covering all five sources."""
     config = _make_config(tmp_path, repo_root)
     _write_hudl_clean_game(config.paths.raw_hudl)
     _write_hudl_gapped_game(config.paths.raw_hudl)
@@ -359,6 +426,27 @@ def hudl_clean_only_tree(tmp_path: Path, repo_root: Path) -> Config:
     return config
 
 
+@pytest.fixture
+def hc_tree(tmp_path: Path, repo_root: Path) -> Config:
+    """A clean Hudl game (so `corpus_combined` is non-empty for HC dedupe)
+    plus the M3-01-04 HC workbook fixture (`_write_hc_fixture`)."""
+    config = _make_config(tmp_path, repo_root)
+    _write_hudl_clean_game(config.paths.raw_hudl)
+    _write_reference_csvs(config.reference.half_boundaries.parent)
+    _write_hc_fixture(config.paths.raw_hc_files, config.reference.hc_games)
+    return config
+
+
+@pytest.fixture
+def hc_only_tree(tmp_path: Path, repo_root: Path) -> Config:
+    """Only the HC workbook directory is populated -- `corpus_combined` is
+    empty, so `dedupe_hc_rows` short-circuits and every HC row is kept."""
+    config = _make_config(tmp_path, repo_root)
+    _write_reference_csvs(config.reference.half_boundaries.parent)
+    _write_hc_fixture(config.paths.raw_hc_files, config.reference.hc_games)
+    return config
+
+
 def _write_toml_config(root: Path, repo_root: Path) -> Path:
     """Write an `ffep.toml` at `root` pointing at the same tree `_make_config` would."""
     data_root = root / "data"
@@ -378,6 +466,7 @@ reports = "{root / "reports"}"
 video = "{data_root / "video"}"
 labels = "{data_root / "labels"}"
 tracking = "{data_root / "processed" / "tracking"}"
+raw_hc_files = "{data_root / "raw" / "hc_files"}"
 
 [reference]
 half_boundaries = "{data_root / "reference" / "half_boundaries.csv"}"
@@ -391,6 +480,7 @@ hover_positions = "{data_root / "reference" / "hover_positions.csv"}"
 homography_calibration = "{data_root / "reference" / "homography_calibration.csv"}"
 gt_positions = "{data_root / "reference" / "gt_positions.csv"}"
 continuity_review = "{data_root / "reference" / "continuity_review.csv"}"
+hc_games = "{data_root / "reference" / "hc_games.csv"}"
 
 [sources.sportapp]
 base_url = "https://example.invalid"
@@ -833,3 +923,94 @@ def test_run_ingest_malformed_dn_cell_game_reaches_game_results_with_downs_range
 
     downs_result = next(r for r in by_id[game_id].results if r.check == "downs_range")
     assert downs_result.status == Status.FAIL
+
+
+# --- hc_workbook source (M3-01-04) ------------------------------------------
+
+
+def test_run_ingest_hc_workbook_dispatched_with_per_sheet_source_label(hc_only_tree: Config) -> None:
+    # `hc_only_tree` requests only "hc_workbook" -- `corpus_combined` is empty,
+    # so `dedupe_hc_rows` short-circuits (both sheets' rows survive intact) and
+    # every HC game still lands in `games.parquet` (built from the pre-partition
+    # `combined` frame) even though every one of them quarantines on
+    # `half_assigned` (HC workbooks carry no half-boundary data -- see
+    # `test_run_ingest_hc_failing_game_quarantined_not_warned`).
+    result = run_ingest(hc_only_tree, ["hc_workbook"])
+
+    games = pl.read_parquet(hc_only_tree.paths.processed / "games.parquet")
+    sources = set(games["source"].to_list())
+
+    assert any(s.startswith("hc_workbook:hc-pipeline-test-workbook:data") for s in sources)
+    assert any(s.startswith("hc_workbook:hc-pipeline-test-workbook:copy-of-data") for s in sources)
+    assert len(result.game_results) == 3  # game-a, game-b (provisional), game-a-copy
+
+
+def test_run_ingest_hc_workbook_missing_directory_skipped_with_notice(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    config = _make_config(tmp_path, repo_root)
+    _write_hudl_clean_game(config.paths.raw_hudl)
+    _write_reference_csvs(config.reference.half_boundaries.parent)
+    # raw_hc_files is never created.
+
+    result = run_ingest(config, ["hudl", "hc_workbook"])
+
+    assert any(
+        "hc_workbook" in n and "skipping" in n for n in result.notices
+    )
+
+
+def test_run_ingest_hc_failing_game_quarantined_not_warned(hc_tree: Config) -> None:
+    """HC-D05: `hc_workbook` is never warn-only -- every FAIL means quarantine.
+
+    HC workbooks carry no half-boundary data (`ingest_workbook` stamps
+    `half = null` for every row -- M3-01-03), so `half_assigned` FAILs for
+    *every* HC game, clean or not; this is the honest, expected outcome, not
+    a defect in the fixture. `game-b`'s deliberately out-of-range `DN` cell
+    additionally fails `downs_range` -- the two games are distinguishable by
+    which checks failed, even though both quarantine.
+    """
+    result = run_ingest(hc_tree, ["hudl", "hc_workbook"])
+
+    by_id = {g.game_id: g for g in result.game_results}
+    hc_games_results = [g for g in result.game_results if g.source.startswith("hc_workbook")]
+    assert hc_games_results  # sanity: HC games reached game_results at all
+    assert all(g.quarantined for g in hc_games_results)
+
+    game_a = by_id["hc-test-game-a"]
+    game_b = by_id["hc-hc-pipeline-test-workbook-data-b00-g01"]
+
+    assert any("half_assigned" in reason for reason in game_a.reasons)
+    assert not any("downs_range" in reason for reason in game_a.reasons)
+
+    assert any("downs_range" in reason for reason in game_b.reasons)
+    assert any("half_assigned" in reason for reason in game_b.reasons)
+
+    # a downgraded WARN would mean the source is warn-only -- it is not.
+    assert not any(r.status == Status.WARN for g in hc_games_results for r in g.results)
+
+
+def test_run_ingest_hc_declared_duplicate_pair_excluded_and_reported(hc_tree: Config) -> None:
+    result = run_ingest(hc_tree, ["hudl", "hc_workbook"])
+
+    # every one of the copy game's 3 rows fingerprint-matches game-a and is
+    # excluded by dedupe *before* the checks/partition step ever runs --
+    # game-a-copy therefore never reaches `game_results` at all (0 rows left).
+    game_ids = {g.game_id for g in result.game_results}
+    assert "hc-test-game-a-copy" not in game_ids
+    assert "hc-test-game-a" in game_ids
+
+    assert any(
+        "hc_dedupe" in n and "hc-test-game-a-copy" in n and "hc-test-game-a" in n for n in result.notices
+    )
+    assert any("hc_dedupe" in n and "3" in n and "ausgeschlossen" in n for n in result.notices)
+
+
+def test_run_ingest_sources_hudl_only_does_not_touch_hc_directory(hc_tree: Config) -> None:
+    result = run_ingest(hc_tree, ["hudl"])
+
+    assert not any(n.startswith("hc_workbook") for n in result.notices)
+    assert not any("hc_dedupe" in n for n in result.notices)
+    assert not any(g.source.startswith("hc_workbook") for g in result.game_results)
+    unmapped_files = list(hc_tree.paths.raw_hc_files.glob("unmapped_players_*.txt"))
+    assert unmapped_files == []

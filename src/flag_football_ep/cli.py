@@ -25,7 +25,7 @@ app = typer.Typer(
 app.add_typer(cv_app, name="cv")
 
 DEFAULT_CONFIG = Path("ffep.toml")
-DEFAULT_SOURCES = ["hudl", "legacy", "sportapp", "ifaf"]
+DEFAULT_SOURCES = ["hudl", "legacy", "sportapp", "ifaf", "hc_workbook"]
 
 
 @app.command()

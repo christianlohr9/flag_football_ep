@@ -1,4 +1,4 @@
-"""Ingest orchestration: four sources -> one validated canonical frame (REQ-S1-05, REQ-S1-06).
+"""Ingest orchestration: five sources -> one validated canonical frame (REQ-S1-05, REQ-S1-06).
 
 `run_ingest` is the single convergence point for every raw source dispatched by
 `ffep ingest`: it loads the contract and reference data exactly once, dispatches
@@ -8,6 +8,14 @@ conformed per-source frames with a strict vertical concat (a schema mismatch her
 is a bug, not something to paper over with a diagonal concat mode), and runs the shared
 validation gate (`validation.checks.run_checks` + `partition_games`) to split
 accepted from quarantined rows.
+
+The "hc_workbook" source (HC-01/HC-02, plan M3-01-04) dispatches last, after
+hudl/legacy/sportapp/ifaf are already concatenated into `corpus_combined`:
+`ingest.hc_dedupe.dedupe_hc_rows` excludes head-coach rows that duplicate a
+declared partner game (`data/reference/hc_games.csv`'s `corpus_game_id`
+column, HC-D03) before the deduped HC rows join the rest. `hc_workbook` is
+deliberately not in `_WARN_ONLY_SOURCES` (HC-D05): a failing HC game is
+quarantined with reasons like any other new-format source.
 
 The "sportapp" source folds in two independent inputs, matching the
 re-derive-with-fallback decision recorded at the 01.2-11 plan checkpoint: fresh
@@ -46,25 +54,41 @@ import typer
 
 from flag_football_ep.canonical import CANONICAL_COLUMNS, CORE_COLUMNS, NULLABLE_EXTRAS, make_game_id
 from flag_football_ep.config import Config
+from flag_football_ep.ingest.hc_dedupe import dedupe_hc_rows
+from flag_football_ep.ingest.hc_workbook import SHEET_NAMES, SheetNotFoundError, ingest_workbook
 from flag_football_ep.ingest.hudl import ingest_dir
 from flag_football_ep.ingest.ifaf import ingest_snapshots as ingest_ifaf_snapshots
 from flag_football_ep.ingest.legacy import ingest_legacy
 from flag_football_ep.ingest.sportapp import read_mutated_sportapp_snapshot
 from flag_football_ep.ingest.sportapp import ingest_snapshots as ingest_sportapp_snapshots
-from flag_football_ep.reference import load_final_scores, load_half_boundaries, load_team_mapping
+from flag_football_ep.reference import (
+    _HC_GAMES_SCHEMA,
+    _PLAYER_MAPPING_SCHEMA,
+    load_final_scores,
+    load_half_boundaries,
+    load_hc_games,
+    load_player_mapping,
+    load_team_mapping,
+)
 from flag_football_ep.validation.checks import GameResult, partition_games, run_checks
 from flag_football_ep.validation.report import console_summary, render_report, write_report
 from flag_football_ep.validation.schema import Contract, load_contract
 
 __all__ = ["IngestResult", "run_ingest", "RunAllResult", "run_all", "EmptyIngestResultError"]
 
-# Fixed dispatch order (per <interfaces> in the plan): hudl, legacy, sportapp, ifaf.
-_KNOWN_SOURCES: tuple[str, ...] = ("hudl", "legacy", "sportapp", "ifaf")
+# Fixed dispatch order (per <interfaces> in the plan): hudl, legacy, sportapp,
+# ifaf, hc_workbook. hc_workbook dispatches last so `dedupe_hc_rows` has the
+# fully-assembled corpus of every other source to dedupe against (M3-01-04).
+_KNOWN_SOURCES: tuple[str, ...] = ("hudl", "legacy", "sportapp", "ifaf", "hc_workbook")
 
 # "legacy" (data_raw.csv, 47 hand-charted games) and "legacy-sportapp" (the
 # grandfathered WC24 CSV) both ran through pre-port/legacy mutation code that
 # cannot be re-validated at source -- FAILs are downgraded to WARN, never
 # quarantined. See 01.2-11-SUMMARY.md's "Pipeline wiring note for plan 14".
+# `hc_workbook` is deliberately NOT here (HC-D05): a head-coach camp/scrimmage
+# game that fails a check is quarantined with reasons like any other new-format
+# source, never waved through -- the head coach's own charting can be wrong
+# too, and this project has no independent way to re-validate it either.
 _WARN_ONLY_SOURCES: frozenset[str] = frozenset({"legacy", "legacy-sportapp"})
 
 _ALL_CANONICAL_DTYPES: dict[str, pl.DataType] = {**CORE_COLUMNS, **NULLABLE_EXTRAS}
@@ -345,6 +369,95 @@ def _ingest_ifaf(
     return frames, source_notices, game_notices
 
 
+def _ingest_hc_workbook(
+    hc_dir: Path,
+    contract: Contract,
+    hc_games: pl.DataFrame,
+    player_mapping: pl.DataFrame,
+    run_id: str,
+) -> tuple[list[pl.DataFrame], list[str], dict[str, list[str]]]:
+    """Dispatch the head-coach workbook source (HC-01/HC-02).
+
+    Iterates every `*.xlsx` file under `hc_dir` (sorted, for a deterministic
+    run) and, per file, every sheet named in `SHEET_NAMES` that actually
+    exists in that workbook (`SheetNotFoundError` from `ingest_workbook` is
+    caught and silently skipped -- most workbooks only have `Data`, not
+    `Copy of Data`). Each sheet is ingested inside its own try/except, so one
+    broken sheet never drops the whole source, mirroring `_ingest_ifaf`'s
+    per-game containment.
+
+    A sheet's resolved game ids (`df["game_id"]`) receive that sheet's full
+    `HcIngestNotices.messages` list in `game_notices` -- one sheet's findings
+    are not naturally splittable per game (`HcIngestNotices` is sheet-scoped,
+    not per-game), so every game the sheet contributed rows to carries the
+    sheet's complete finding set rather than losing it under a synthetic key
+    the validation report would otherwise show as "skipped".
+
+    PII discipline (HC-D02): every sheet's `unmapped_players` (raw labels)
+    are accumulated and written *once*, at the end, to
+    `hc_dir / f"unmapped_players_{run_id}.txt"` -- inside the gitignored raw
+    directory, never rendered, never committed. Every notice about unmapped
+    players names only a count, never a label.
+    """
+    frames: list[pl.DataFrame] = []
+    source_notices: list[str] = []
+    game_notices: dict[str, list[str]] = {}
+
+    if not hc_dir.exists() or not any(hc_dir.glob("*.xlsx")):
+        source_notices.append(
+            f"hc_workbook: source directory {hc_dir} is empty or missing, skipping"
+        )
+        return frames, source_notices, game_notices
+
+    unmapped_labels: set[str] = set()
+
+    for path in sorted(hc_dir.glob("*.xlsx")):
+        for sheet in SHEET_NAMES:
+            try:
+                df, notices = ingest_workbook(path, sheet, contract, hc_games, player_mapping)
+            except SheetNotFoundError:
+                continue
+            except Exception as exc:  # noqa: BLE001 -- one sheet's failure never drops the source
+                source_notices.append(
+                    f"hc_workbook/{path.name}:{sheet}: {type(exc).__name__}: {exc}"
+                )
+                continue
+
+            if df.height:
+                frames.append(df)
+
+            game_ids = df["game_id"].unique().to_list() if df.height else []
+            n_games = len(game_ids)
+            n_provisional = sum(
+                1 for m in notices.messages if "provisorische game_id" in m
+            )
+            unmapped_labels.update(notices.unmapped_players)
+
+            source_notices.append(
+                f"hc_workbook:{path.name}:{sheet}: {df.height} Zeile(n), {n_games} "
+                f"Spiel(e) ({n_provisional} davon provisorisch), "
+                f"{len(notices.unmapped_players)} nicht zugeordnete Spieler-Label"
+            )
+
+            if game_ids:
+                for game_id in game_ids:
+                    game_notices.setdefault(game_id, []).extend(notices.messages)
+            elif notices.messages:
+                source_notices.extend(
+                    f"hc_workbook/{path.name}:{sheet}: {m}" for m in notices.messages
+                )
+
+    if unmapped_labels:
+        outfile = hc_dir / f"unmapped_players_{run_id}.txt"
+        outfile.write_text("\n".join(sorted(unmapped_labels)) + "\n", encoding="utf-8")
+        source_notices.append(
+            f"hc_workbook: {len(unmapped_labels)} nicht zugeordnete Spieler-Label "
+            f"(über alle Sheets) nach {outfile} geschrieben -- gitignored, nie committen"
+        )
+
+    return frames, source_notices, game_notices
+
+
 def run_ingest(
     config: Config,
     sources: Sequence[str],
@@ -353,16 +466,20 @@ def run_ingest(
 ) -> IngestResult:
     """Ingest every requested source into one validated canonical frame.
 
-    Order of operations: validate `sources` against the four known names ->
+    Order of operations: validate `sources` against the five known names ->
     generate `run_id` once -> load the contract and reference data once ->
     dispatch each requested source in fixed order (hudl, legacy, sportapp,
-    ifaf), each inside its own try/except -> strict vertical concat (a schema
-    mismatch across already-conformed frames is a bug, never papered over with
-    a diagonal concat mode) -> `run_checks` + `partition_games` -> atomic
-    writes of `games.parquet` then `plays.parquet` -> render and write the
-    Markdown report (source notices passed through as `render_report`'s
-    `source_notices` argument) -> print the per-game console summary, then
-    echo every source notice (`notice: {text}`) -> return `IngestResult`.
+    ifaf, hc_workbook), each inside its own try/except -> strict vertical
+    concat of the four non-HC sources into `corpus_combined` (a schema
+    mismatch across already-conformed frames is a bug, never papered over
+    with a diagonal concat mode) -> if `hc_workbook` was requested,
+    `dedupe_hc_rows` excludes HC rows that duplicate a declared partner game
+    in `corpus_combined` (HC-D03) before the deduped HC rows join the rest ->
+    `run_checks` + `partition_games` -> atomic writes of `games.parquet` then
+    `plays.parquet` -> render and write the Markdown report (source notices
+    passed through as `render_report`'s `source_notices` argument) -> print
+    the per-game console summary, then echo every source notice
+    (`notice: {text}`) -> return `IngestResult`.
 
     `strict` only affects the caller's exit-code decision (`cli.ingest`,
     wired in a later task); it never changes what gets computed here.
@@ -409,6 +526,47 @@ def run_ingest(
         frames.extend(f)
         notices.extend(n)
         game_notices.update(gn)
+
+    # hc_workbook dispatches last (fixed order) so it dedupes against the
+    # fully-assembled corpus of every other requested source.
+    corpus_non_empty = [frame for frame in frames if frame.height > 0]
+    corpus_combined = (
+        pl.concat(corpus_non_empty, how="vertical") if corpus_non_empty else _empty_canonical_frame()
+    )
+
+    if "hc_workbook" in sources:
+        try:
+            hc_games = load_hc_games(config.reference.hc_games)
+        except Exception as exc:  # noqa: BLE001
+            notices.append(
+                f"hc_workbook: {config.reference.hc_games} unavailable "
+                f"({type(exc).__name__}: {exc}), every HC game resolves to a provisional id"
+            )
+            hc_games = pl.DataFrame(schema=_HC_GAMES_SCHEMA)
+
+        try:
+            player_mapping = load_player_mapping(config.reference.player_mapping)
+        except Exception as exc:  # noqa: BLE001
+            notices.append(
+                f"hc_workbook: {config.reference.player_mapping} unavailable "
+                f"({type(exc).__name__}: {exc}), no HC player label resolves this run"
+            )
+            player_mapping = pl.DataFrame(schema=_PLAYER_MAPPING_SCHEMA)
+
+        f, n, gn = _ingest_hc_workbook(
+            config.paths.raw_hc_files, contract, hc_games, player_mapping, run_id
+        )
+        notices.extend(n)
+        game_notices.update(gn)
+
+        hc_non_empty = [frame for frame in f if frame.height > 0]
+        hc_combined = (
+            pl.concat(hc_non_empty, how="vertical") if hc_non_empty else _empty_canonical_frame()
+        )
+        hc_kept, dedupe_report = dedupe_hc_rows(hc_combined, corpus_combined, hc_games)
+        notices.extend(dedupe_report.summary_lines())
+        if hc_kept.height:
+            frames.append(hc_kept)
 
     non_empty = [frame for frame in frames if frame.height > 0]
     combined = pl.concat(non_empty, how="vertical") if non_empty else _empty_canonical_frame()
