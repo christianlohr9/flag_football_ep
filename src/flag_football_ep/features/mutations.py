@@ -46,6 +46,26 @@ EP_PROBABILITY_COLUMNS = (
 )
 WP_PROBABILITY_COLUMN = "wp"
 
+# Head-coach workbooks (`ingest/hc_workbook.py`) carry no half information; the ingest
+# reader stamps a constant `half = 2` on every row of every HC game so that
+# `_mark_half_end`'s `game_end` (WP `Winner` backward-fill, EP's post-game `ep`/`epa`
+# None-ing) resolves correctly (M3-02-RESEARCH section 2.2). Reusing that same `2` as the
+# `EP_FEATURES` model input would make every head-coach row indistinguishable from a
+# genuine second-half play in the one feature whose adoption was measured at +0.001790
+# pooled LOGO log-loss for EP (`model/hyperparams.py::EP_FEATURES`). `0` is outside the
+# real domain {1, 2} `half` takes for every other source, so XGBoost can split "unknown
+# half" off as its own signal instead of blending into real half-2 plays.
+# [ASSUMED] M3-02-RESEARCH section 2.3 -- this is a design recommendation, not yet locked.
+# The alternative (feed 2 through unchanged) is a one-line revert of the overwrite in
+# `make_ep_model_mutations` below; the ablation in M3-02-05 reports the measured effect.
+EP_HALF_UNKNOWN_SENTINEL = 0
+
+# Prefix every head-coach workbook `source` value carries (`ingest/hc_workbook.py::
+# hc_source_label`: `hc_workbook:{slugified file stem}:{slugified sheet name}`). One
+# spelling of this prefix so the EP half-sentinel overwrite (and any other hc_workbook-
+# scoped logic) never drifts from a second copy of the same string.
+HC_SOURCE_PREFIX = "hc_workbook:"
+
 
 class MissingFeatureColumns(ValueError):
     """Raised when a required EP/WP probability column is missing from the input frame.
@@ -893,6 +913,13 @@ def make_ep_model_mutations(
     `Drive_Score_Dist_W`, `ScoreDiff_W`, `Total_W`, `Total_W_Scaled`; filters null
     `yardline_50`/`yards_to_go`; selects `selected_columns` in that exact order.
 
+    Immediately before that final selection, overwrites `half` to
+    `EP_HALF_UNKNOWN_SENTINEL` for every row whose `source` starts with
+    `HC_SOURCE_PREFIX`. It runs after label construction (not before) because `half=2` is
+    still required for `_mark_half_end`'s `game_end`/`Winner`/post-game `None`-ing to
+    resolve correctly upstream in `prepare_ep_data` -- only the value the *model* sees
+    changes here. It is a no-op for every non-head-coach source.
+
     Must be called on the full training corpus, never per-game or on any subset with no
     variation in `Drive_Score_Dist` / `score_differential` -- `DegenerateWeightRange` is
     raised instead of silently emitting NaN/inf sample weights (RESEARCH Pitfall 4).
@@ -980,12 +1007,27 @@ def make_ep_model_mutations(
             Total_W_Scaled=(pl.col("Total_W") - pl.col("Total_W").min())
             / (pl.col("Total_W").max() - pl.col("Total_W").min())
         )
-        .filter(
-            pl.col("yardline_50").is_not_null(),
-            pl.col("yards_to_go").is_not_null(),
-        )
-        .select(list(selected_columns))
     )
+
+    # Head-coach half sentinel (M3-02-RESEARCH section 2.3): overwrite `half` for
+    # hc_workbook-sourced rows immediately before final column selection, so the value
+    # this function returns for the model feature diverges from the `half=2` label-
+    # construction value that already flowed through `prepare_ep_data` upstream. Guarded
+    # so it is a strict no-op (raises nothing, changes nothing) when the frame has no
+    # `source` column -- some experiment callers pass narrower frames -- or no `half`
+    # column at all.
+    if "source" in model_data.columns and "half" in model_data.columns:
+        model_data = model_data.with_columns(
+            half=pl.when(pl.col("source").str.starts_with(HC_SOURCE_PREFIX))
+            .then(pl.lit(EP_HALF_UNKNOWN_SENTINEL))
+            .otherwise(pl.col("half"))
+            .cast(pl.Int32)
+        )
+
+    model_data = model_data.filter(
+        pl.col("yardline_50").is_not_null(),
+        pl.col("yards_to_go").is_not_null(),
+    ).select(list(selected_columns))
     return model_data
 
 
