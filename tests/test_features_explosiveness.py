@@ -12,11 +12,35 @@ No real player names anywhere: every fixture uses synthetic labels (`QB A`, `QB 
 
 from __future__ import annotations
 
+import json
+import math
+from pathlib import Path
+
 import polars as pl
 import pytest
 
 from flag_football_ep.features import explosiveness
 from flag_football_ep.testing import canonical_plays_with_scores
+
+
+def _make_calibration(
+    *, threshold: float = 2.0, iqr: float = 1.0, quantile: float = 0.80
+) -> explosiveness.ExplosivenessCalibration:
+    """A hand-built `ExplosivenessCalibration` for tests that only need the flag/score math,
+    not a full `calibrate(...)` run.
+    """
+    return explosiveness.ExplosivenessCalibration(
+        schema_version=explosiveness.CALIBRATION_SCHEMA_VERSION,
+        epa_quantile=quantile,
+        epa_threshold=threshold,
+        epa_median_success=threshold * 0.5,
+        epa_iqr_success=iqr,
+        corpus_n=100,
+        n_success=50,
+        corpus_sources=("hudl",),
+        corpus_fingerprint="deadbeef",
+        calibrated_on="2026-09-03T00:00:00+00:00",
+    )
 
 
 # --- scrimmage_plays -------------------------------------------------------------------------
@@ -199,3 +223,140 @@ class TestHcEfficiencyTable:
         result = explosiveness.hc_efficiency_table(df)
         assert result.height == 0
         assert "efficiency_sum" in result.columns
+
+
+# --- calibrate / ExplosivenessCalibration ------------------------------------------------------
+
+
+class TestCalibrate:
+    def test_epa_threshold_matches_q80_of_successes_only(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=10, overrides={"play_type": "pass"}
+        ).with_columns(epa=pl.Series([float(i) for i in range(1, 11)]))
+        calibration = explosiveness.calibrate(df)
+        expected = df["epa"].quantile(0.80)
+        assert calibration.epa_threshold == expected
+        assert calibration.n_success == 10
+        assert calibration.epa_quantile == 0.80
+
+    def test_ignores_non_successful_plays(self) -> None:
+        epa_values = [float(i) for i in range(1, 11)] + [-3.0] * 50
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=60, overrides={"play_type": "pass"}
+        ).with_columns(epa=pl.Series(epa_values))
+        with_failures = explosiveness.calibrate(df)
+
+        only_successes = canonical_plays_with_scores(
+            n_games=1, plays_per_game=10, overrides={"play_type": "pass"}
+        ).with_columns(epa=pl.Series([float(i) for i in range(1, 11)]))
+        baseline = explosiveness.calibrate(only_successes)
+
+        assert with_failures.epa_threshold == baseline.epa_threshold
+
+    def test_raises_when_fewer_than_minimum_successes(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=5, overrides={"play_type": "pass"}
+        ).with_columns(epa=pl.Series([1.0, 2.0, 3.0, -1.0, -2.0]))
+        with pytest.raises(explosiveness.InsufficientCalibrationSample, match="3"):
+            explosiveness.calibrate(df)
+
+    def test_corpus_fingerprint_stable_and_changes_on_single_value(self) -> None:
+        epa_values = [float(i) for i in range(1, 11)]
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=10, overrides={"play_type": "pass"}
+        ).with_columns(epa=pl.Series(epa_values))
+        cal1 = explosiveness.calibrate(df)
+        cal2 = explosiveness.calibrate(df)
+        assert cal1.corpus_fingerprint == cal2.corpus_fingerprint
+        assert cal1.corpus_n == 10
+        assert cal1.n_success == 10
+        assert cal1.corpus_sources == ("hudl",)
+
+        changed_values = list(epa_values)
+        changed_values[0] = 1.5
+        changed_df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=10, overrides={"play_type": "pass"}
+        ).with_columns(epa=pl.Series(changed_values))
+        cal3 = explosiveness.calibrate(changed_df)
+        assert cal3.corpus_fingerprint != cal1.corpus_fingerprint
+
+
+class TestCalibrationRoundTrip:
+    def test_write_and_load_round_trips_byte_for_byte(self, tmp_path: Path) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=10, overrides={"play_type": "pass"}
+        ).with_columns(epa=pl.Series([float(i) for i in range(1, 11)]))
+        calibration = explosiveness.calibrate(df)
+
+        path = tmp_path / "calibration.json"
+        explosiveness.write_calibration(calibration, path)
+        loaded = explosiveness.load_calibration(path)
+        assert loaded == calibration
+
+        second_line = path.read_text().lstrip().splitlines()[1].strip()
+        assert second_line.startswith('"schema_version"')
+
+    def test_write_creates_parent_directories(self, tmp_path: Path) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=10, overrides={"play_type": "pass"}
+        ).with_columns(epa=pl.Series([float(i) for i in range(1, 11)]))
+        calibration = explosiveness.calibrate(df)
+
+        path = tmp_path / "nested" / "dir" / "calibration.json"
+        explosiveness.write_calibration(calibration, path)
+        assert path.exists()
+
+    def test_load_raises_on_unknown_schema_version(self, tmp_path: Path) -> None:
+        path = tmp_path / "bad.json"
+        path.write_text(json.dumps({"schema_version": 999}))
+        with pytest.raises(explosiveness.UnknownCalibrationSchema, match="999"):
+            explosiveness.load_calibration(path)
+
+
+# --- success_flag / explosive_epa_flag / explosive_score ----------------------------------------
+
+
+class TestSuccessFlag:
+    def test_strictly_greater_than_zero(self) -> None:
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=3).with_columns(
+            epa=pl.Series([0.5, 0.0, -0.5])
+        )
+        result = df.select(explosiveness.success_flag().alias("s"))["s"].to_list()
+        assert result == [True, False, False]
+
+
+class TestExplosiveEpaFlag:
+    def test_threshold_inclusive_and_boundaries(self) -> None:
+        calibration = _make_calibration(threshold=2.0)
+        epa_values = [2.0, math.nextafter(2.0, 0.0), 1.0, -1.0]
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=4).with_columns(
+            epa=pl.Series(epa_values)
+        )
+        flags = df.select(explosiveness.explosive_epa_flag(calibration).alias("f"))[
+            "f"
+        ].to_list()
+        assert flags == [True, False, False, False]
+
+
+class TestExplosiveScore:
+    def test_bounds_monotone_and_half_at_threshold(self) -> None:
+        calibration = _make_calibration(threshold=2.0, iqr=1.0)
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=5).with_columns(
+            epa=pl.Series([-5.0, 0.0, 2.0, 5.0, 10.0])
+        )
+        scores = df.select(explosiveness.explosive_score(calibration).alias("s"))["s"].to_list()
+        assert all(0.0 < s < 1.0 for s in scores)
+        assert scores == sorted(scores)
+        assert scores[2] == pytest.approx(0.5)
+
+    def test_eleven_vs_twelve_yard_cliff_measurably_disappears(self) -> None:
+        # Headline regression guard (RESEARCH/CONTEXT): encodes the user's objection --
+        # "was ist, wenn eine Spielerin nur 11 Yards erzielt?" -- two plays with
+        # near-identical EPA must score nearly identically, regardless of the yard-based
+        # cliff the head coach's rule creates at 12.
+        calibration = _make_calibration(threshold=2.0, iqr=1.0)
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=2, overrides={"yards_gained": [11, 12]}
+        ).with_columns(epa=pl.Series([1.5, 1.55]))
+        scores = df.select(explosiveness.explosive_score(calibration).alias("s"))["s"].to_list()
+        assert abs(scores[1] - scores[0]) < 0.05

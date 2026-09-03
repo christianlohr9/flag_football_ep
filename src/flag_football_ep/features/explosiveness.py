@@ -32,7 +32,12 @@ the locked EXP-D01..EXP-D05 decisions this module implements.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Sequence
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from pathlib import Path
 
 import polars as pl
 
@@ -311,3 +316,194 @@ def hc_efficiency_table(
             "out_of_domain",
         ]
     )
+
+
+# --- Corpus-calibrated explosiveness ---------------------------------------------------------
+
+DEFAULT_EPA_QUANTILE = 0.80
+# RESEARCH Assumption A2: q80 of successful-play EPA (~+2.3 on our corpus) is a documented
+# design choice calibrated on OUR corpus, not a borrowed external standard -- Sam Hoppen's own
+# EPA>1.0 NFL cutoff is likewise self-described as landing "around the 80th percentile", not
+# derived from first principles. CONTEXT explicitly delegates the exact level to discretion.
+
+MIN_CALIBRATION_PLAYS = 10
+# Below ten successful plays a q80 estimate is dominated by one or two extreme observations;
+# ten is the working floor at which the quantile is determined by interpolation between order
+# statistics rather than collapsing onto the single largest value -- a documented design
+# choice (RESEARCH ties the exact bound to discretion), not an external standard.
+
+CALIBRATION_SCHEMA_VERSION = 1
+
+
+class InsufficientCalibrationSample(ValueError):
+    """Raised by `calibrate` when fewer than `MIN_CALIBRATION_PLAYS` successful plays are
+    available -- a threshold nobody should trust must never be returned silently.
+    """
+
+
+class UnknownCalibrationSchema(ValueError):
+    """Raised by `load_calibration` when the JSON's `schema_version` does not match
+    `CALIBRATION_SCHEMA_VERSION` -- fields may have moved or changed meaning between schema
+    versions, so an unknown version is never read as if it were current.
+    """
+
+
+@dataclass(frozen=True)
+class ExplosivenessCalibration:
+    """A versioned, corpus-fingerprinted explosiveness threshold (RESEARCH Pattern 3).
+
+    The threshold is derived from data, so the data it was derived from has to travel with
+    it: a report that renders "explosive" must be able to name the corpus that defined the
+    word. `corpus_fingerprint` is a sha256 over the sorted `(game_id, play_id, epa,
+    yards_gained)` tuples of the corpus `calibrate` ran on; `corpus_sources` names the
+    canonical `source` values included. Mirrors `data/reference/hackathon_freeze.json`'s
+    plainness: a small versioned JSON artifact with a fingerprint and a timestamp.
+    """
+
+    schema_version: int
+    epa_quantile: float
+    epa_threshold: float
+    epa_median_success: float
+    epa_iqr_success: float
+    corpus_n: int
+    n_success: int
+    corpus_sources: tuple[str, ...]
+    corpus_fingerprint: str
+    calibrated_on: str
+
+
+def _corpus_fingerprint(working: pl.DataFrame) -> str:
+    """sha256 over the sorted `(game_id, play_id, epa, yards_gained)` tuples of `working` --
+    changes when a single value changes, stable across repeated calls on the same frame.
+    """
+    rows = (
+        working.select(["game_id", "play_id", "epa", "yards_gained"])
+        .sort(["game_id", "play_id", "epa", "yards_gained"])
+        .to_dicts()
+    )
+    payload = "|".join(
+        f"{row['game_id']},{row['play_id']},{row['epa']},{row['yards_gained']}" for row in rows
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def calibrate(
+    plays: pl.DataFrame, *, epa_quantile: float = DEFAULT_EPA_QUANTILE
+) -> ExplosivenessCalibration:
+    """Calibrate an `ExplosivenessCalibration` from the corpus (RESEARCH Pattern 3,
+    IsoPPP-style).
+
+    The quantile is computed over successful plays only (`epa > 0`) via `pl.Expr.quantile`
+    (native polars, never a manual sort-and-index -- RESEARCH `Don't Hand-Roll`); appending
+    any number of non-successful plays never changes `epa_threshold`. Raises
+    `InsufficientCalibrationSample` below `MIN_CALIBRATION_PLAYS` successes rather than
+    returning a threshold nobody should trust.
+    """
+    working = scrimmage_plays(plays, require_epa=True)
+    corpus_n = working.height
+    success = working.filter(pl.col("epa") > 0)
+    n_success = success.height
+
+    if n_success < MIN_CALIBRATION_PLAYS:
+        raise InsufficientCalibrationSample(
+            f"calibrate: only {n_success} successful play(s) available, need at least "
+            f"{MIN_CALIBRATION_PLAYS} to trust a q{epa_quantile:.2f} threshold"
+        )
+
+    stats = success.select(
+        epa_threshold=pl.col("epa").quantile(epa_quantile),
+        epa_median_success=pl.col("epa").median(),
+        _q25=pl.col("epa").quantile(0.25),
+        _q75=pl.col("epa").quantile(0.75),
+    ).row(0, named=True)
+
+    sources: tuple[str, ...] = ()
+    if "source" in working.columns:
+        sources = tuple(sorted(working["source"].drop_nulls().unique().to_list()))
+
+    return ExplosivenessCalibration(
+        schema_version=CALIBRATION_SCHEMA_VERSION,
+        epa_quantile=epa_quantile,
+        epa_threshold=float(stats["epa_threshold"]),
+        epa_median_success=float(stats["epa_median_success"]),
+        epa_iqr_success=float(stats["_q75"] - stats["_q25"]),
+        corpus_n=corpus_n,
+        n_success=n_success,
+        corpus_sources=sources,
+        corpus_fingerprint=_corpus_fingerprint(working),
+        calibrated_on=datetime.now(timezone.utc).isoformat(),
+    )
+
+
+def write_calibration(calibration: ExplosivenessCalibration, path: Path | str) -> None:
+    """Write `calibration` as `json.dumps(..., indent=2)` with `schema_version` first --
+    mirrors `data/reference/hackathon_freeze.json`'s plainness. Creates parent directories.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(asdict(calibration), indent=2, sort_keys=False) + "\n")
+
+
+def load_calibration(path: Path | str) -> ExplosivenessCalibration:
+    """Round-trip the JSON `write_calibration` produces. Raises `UnknownCalibrationSchema`
+    when `schema_version` does not match `CALIBRATION_SCHEMA_VERSION`, before touching any
+    other field -- an unknown version's fields may have moved.
+    """
+    payload = json.loads(Path(path).read_text())
+    if payload.get("schema_version") != CALIBRATION_SCHEMA_VERSION:
+        raise UnknownCalibrationSchema(
+            f"load_calibration: unknown schema_version {payload.get('schema_version')!r} in "
+            f"{path} (expected {CALIBRATION_SCHEMA_VERSION})"
+        )
+    return ExplosivenessCalibration(
+        schema_version=payload["schema_version"],
+        epa_quantile=payload["epa_quantile"],
+        epa_threshold=payload["epa_threshold"],
+        epa_median_success=payload["epa_median_success"],
+        epa_iqr_success=payload["epa_iqr_success"],
+        corpus_n=payload["corpus_n"],
+        n_success=payload["n_success"],
+        corpus_sources=tuple(payload["corpus_sources"]),
+        corpus_fingerprint=payload["corpus_fingerprint"],
+        calibrated_on=payload["calibrated_on"],
+    )
+
+
+def success_flag() -> pl.Expr:
+    """`epa > 0` (nflverse convention, RESEARCH Pattern 2) -- `epa == 0` is NOT a success."""
+    return pl.col("epa") > 0
+
+
+def explosive_epa_flag(calibration: ExplosivenessCalibration) -> pl.Expr:
+    """`(epa > 0) & (epa >= calibration.epa_threshold)` -- the Kandidat-B rate (RESEARCH
+    Pattern 3). Inclusive at the threshold. The cutoff moves from a yard boundary (the head
+    coach's objection) to an EPA boundary that already carries down, distance, field position
+    and score context -- answering the objection instead of relocating it.
+    """
+    return (pl.col("epa") > 0) & (pl.col("epa") >= calibration.epa_threshold)
+
+
+_MIN_EXPLOSIVE_SCORE_SCALE = 0.1
+# Guards a zero-IQR calibration (a corpus whose successful plays happen to share an identical
+# inter-quartile EPA) from a divide-by-zero; 0.1 EPA is small enough that the resulting score
+# stays steep around the threshold rather than becoming artificially flat.
+
+
+def explosive_score(calibration: ExplosivenessCalibration) -> pl.Expr:
+    """Continuous score in (0, 1): a standardised-EPA logistic, `1 / (1 + exp(-z))` with
+    `z = (epa - epa_threshold) / iqr_success` (RESEARCH `Don't Hand-Roll` -- a plain polars
+    expression rather than importing `scipy.stats.logistic`). Monotone increasing in `epa`;
+    `epa == epa_threshold` maps to exactly 0.5, so "explosive" is the same statement in both
+    the binary and the continuous world.
+
+    This is what makes the 11-vs-12-yard cliff the user objected to ("was ist, wenn eine
+    Spielerin nur 11 Yards erzielt?") measurably disappear: two plays with near-identical
+    `epa` get near-identical scores here, regardless of yardage.
+    """
+    scale = (
+        calibration.epa_iqr_success
+        if calibration.epa_iqr_success > 0
+        else _MIN_EXPLOSIVE_SCORE_SCALE
+    )
+    z = (pl.col("epa") - calibration.epa_threshold) / scale
+    return 1 / (1 + (-z).exp())
