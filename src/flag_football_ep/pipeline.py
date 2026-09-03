@@ -386,12 +386,18 @@ def _ingest_hc_workbook(
     broken sheet never drops the whole source, mirroring `_ingest_ifaf`'s
     per-game containment.
 
-    A sheet's resolved game ids (`df["game_id"]`) receive that sheet's full
-    `HcIngestNotices.messages` list in `game_notices` -- one sheet's findings
-    are not naturally splittable per game (`HcIngestNotices` is sheet-scoped,
-    not per-game), so every game the sheet contributed rows to carries the
-    sheet's complete finding set rather than losing it under a synthetic key
-    the validation report would otherwise show as "skipped".
+    A sheet's `HcIngestNotices.messages` (one "Unbekanntes Spiel ..." entry
+    per provisional game, block-segmentation findings, the pair-block-tail
+    notice, ...) are sheet-scoped, not per-game -- `HcIngestNotices` has no
+    per-game key to split them by. They are folded into `source_notices`
+    (one line per message, prefixed with the file/sheet), never into
+    `game_notices`: a sheet can resolve to hundreds or (Scoring Probability's
+    heavily-fragmented `Copy of Data` tab, real run) low thousands of game
+    ids, and attaching the full message list to *every one* of them multiplies
+    into a validation report of several million lines -- a real, measured
+    Rule 1 finding from the M3-01-04 real run, not a hypothetical. Every
+    message still reaches the report and the console exactly once, just
+    under "Source notices" rather than duplicated under every game section.
 
     PII discipline (HC-D02): every sheet's `unmapped_players` (raw labels)
     are accumulated and written *once*, at the end, to
@@ -439,13 +445,9 @@ def _ingest_hc_workbook(
                 f"{len(notices.unmapped_players)} nicht zugeordnete Spieler-Label"
             )
 
-            if game_ids:
-                for game_id in game_ids:
-                    game_notices.setdefault(game_id, []).extend(notices.messages)
-            elif notices.messages:
-                source_notices.extend(
-                    f"hc_workbook/{path.name}:{sheet}: {m}" for m in notices.messages
-                )
+            source_notices.extend(
+                f"hc_workbook/{path.name}:{sheet}: {m}" for m in notices.messages
+            )
 
     if unmapped_labels:
         outfile = hc_dir / f"unmapped_players_{run_id}.txt"
