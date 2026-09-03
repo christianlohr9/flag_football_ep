@@ -95,7 +95,6 @@ def test_declared_pair_excludes_only_fingerprint_matches_reports_counts() -> Non
 def test_empty_corpus_game_id_loses_no_rows() -> None:
     corpus = canonical_plays(n_games=1, plays_per_game=3, source="hudl")
     hc = canonical_plays(n_games=1, plays_per_game=3, source="hc_workbook:wb:sheet")
-    hc_game_id = hc["game_id"][0]
 
     # no hc_games row at all for this game -- declared pairing absent
     kept, report = dedupe_hc_rows(hc, corpus, _hc_games([]))
@@ -198,10 +197,9 @@ def test_intra_game_duplicate_reported_never_excluded() -> None:
         n_games=1,
         plays_per_game=2,
         source="hc_workbook:wb:sheet",
-        overrides={"down": [1, 1]},
+        overrides={"down": [1, 1], "yardline": [7, 7], "yards_to_go": [10, 10]},
         extras={"yards_gained": [3, 3], "received_by": ["A", "A"], "thrown_by": ["Q", "Q"]},
     )
-    hc_game_id = hc["game_id"][0]
 
     kept, report = dedupe_hc_rows(hc, corpus, _hc_games([]))
 
