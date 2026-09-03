@@ -48,3 +48,51 @@ outcome of the fix, not a regression in `hc_workbook.py`.
 **Suggested owner:** whichever plan next touches `tests/test_pipeline_ingest.py`
 or HC pipeline integration (plausibly M3-02-04, which also regenerates
 `hc_games.csv` after the segmentation rule change).
+
+**Status: fixed by M3-02-04** — see that plan's SUMMARY for the fixture
+change (a third, still-undeclared HC game keeps the "every FAIL means
+quarantine" assertion meaningful).
+
+## From M3-02-04 (header-block segmentation rule, Frage 2 Antwort 2026-09-03)
+
+### Blank-row block boundary (head coach's rule) is not implemented — cannot be, without a `segment_blocks` change
+
+**Not fixed** — out of scope for this plan's `src/flag_football_ep/**`
+authorization, which is scoped to the header/marker rule only.
+
+**What was found:** the head coach's confirmed Frage-2 answer names a blank
+row as one of two block-boundary triggers ("bis zu einer leeren Zeile ...").
+By the time a pair block's rows reach `_split_pair_block`, a genuinely blank
+row has already been stripped twice over — once by `read_sheet_rows` (every
+row where all cells are `None`/`""`), and again by `segment_blocks` (any row
+whose column-A value is neither numeric nor a non-empty string, silently
+skipped so it never fractures a block). Both leave the identical symptom in
+`HcBlock.rows`: a gap in physical row numbers. An implementation that
+inferred a blank-row boundary from that gap was written, tested against
+synthetic fixtures, and then verified against the real workbook — and it
+was WRONG: the real `Data`-tab pair block has 5 rows with a populated
+DN/DIST/YARD LN but an empty column A/B (not blank rows, just missing team
+identity), and the gap-inference treated each as a boundary, fragmenting the
+validated 137 → 22 unordered-pair collapse (M3-02-RESEARCH.md Sec 1.2) down
+to 137 → 18. Removed before commit; verified against the real file that
+removing it restores the exact validated 22.
+
+**What would fix it:** `segment_blocks` would need to distinguish, in its
+return value, "row was blank" from "row was skipped for dtype reasons" —
+today both simply increment a counter and vanish. A safe fix threads that
+distinction through `HcBlock` (e.g. a `boundary_before: set[int]` of
+physical row numbers that had a genuine blank row directly before them) so
+`_split_pair_block` can trigger on it without the false-positive risk shown
+above.
+
+**Real-world impact of not fixing this:** none this run — the real `Data`-tab
+pair block (the only pair-block content in scope for declaration) has zero
+O/D/S marker rows at all (verified 2026-09-03), so no block in the currently
+declarable corpus is affected by the missing blank-row rule either way; the
+new-header-row half of the rule (which IS implemented) is sufficient for
+every block boundary actually observed.
+
+**Suggested owner:** whichever plan next needs the header+marker convention
+to matter in practice — i.e. if a future workbook update actually contains
+O/D/S marker rows spanning more than one real block separated only by a
+blank row (not yet observed in this corpus).

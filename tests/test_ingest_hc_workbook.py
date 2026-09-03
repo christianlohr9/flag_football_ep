@@ -330,6 +330,33 @@ def test_pair_block_tail_nulled_with_notice(contract) -> None:
     assert "Frage 2" in joined or "offen" in joined
 
 
+def test_pair_block_odk_derived_from_marker_row_tail_still_nulled(contract) -> None:
+    """A marker row's ODK is the row's own O/D/S value (Frage 2, Antwort
+    2026-09-03) -- but the tail from RECEIVED BY onward stays nulled for a
+    marker row exactly like a header row: Frage 2's answer addressed the
+    block-segmentation/ODK question, not the tail-column question."""
+    header_row = [
+        "Alphaland", "Betaland", "DOG", "RIGHT", "SWEEP", 1.0, 10.0, -20.0,
+        "Rush", 1.0, "SLANT", "Spieler A", 5.0, "Spieler B", 3.0, "7",
+        "", "", "", "", "", "", "",
+    ]
+    marker_row = [
+        "O", None, "DOG", "RIGHT", "SWEEP", 2.0, 5.0, -15.0,
+        "Complete", 1.0, "SLANT", "Spieler C", 8.0, "Spieler D", 3.0, "7",
+        "", "", "", "", "", "", "",
+    ]
+    block = _pair_block(SCORING_PROBABILITY_HEADER, [header_row, marker_row])
+
+    df, _, _, messages = map_block_to_frame(block, contract)
+
+    assert df["PLAY #"].null_count() == 2
+    assert df["ODK"].to_list() == [None, "O"]
+    assert df["received_by"].null_count() == 2
+    joined = " ".join(messages)
+    assert "1 Marker-Zeile(n)" in joined
+    assert "1 Zeile(n)" in joined  # the header row's own count phrase
+
+
 def test_jersey_string_integral_float_becomes_plain_integer_string(contract) -> None:
     block = _numeric_block(OFFENSE_ANALYTICS_HEADER, [_OFFENSE_ROW])
 
@@ -641,6 +668,145 @@ def test_game_segmentation_numeric_block_unaffected_by_pair_block_change() -> No
     assert len(slices) == 2
     assert len(slices[0].rows) == 8
     assert len(slices[1].rows) == 12
+
+
+# --- pair-block header + O/D/S-marker rule (M3-02-04 deviation, Frage 2 ------
+# Antwort 2026-09-03: "O" = Offense, "D" = Defense, "S" = no-play; a
+# team-name row opens a block, O/D/S rows inherit it, a blank row or the
+# next team-name row closes it) --------------------------------------------
+
+
+def test_game_segmentation_pair_block_marker_rows_inherit_open_header() -> None:
+    header = ["PLAY #", "ODK", "RESULT"]
+    rows = [
+        (2, ("Germany", "Ireland", "Rush")),  # header row
+        (3, ("O", None, "Complete")),  # marker row: offense
+        (4, ("D", None, "Rush")),  # marker row: defense
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=4)
+
+    slices, messages = segment_games(block)
+
+    assert len(slices) == 1
+    assert len(slices[0].rows) == 3
+    assert slices[0].source_team1 == "Germany"
+    assert slices[0].source_team2 == "Ireland"
+    assert "ohne Team-Namenspaar-Kopfzeile" not in " ".join(messages)
+
+
+def test_game_segmentation_pair_block_marker_case_and_whitespace_insensitive() -> None:
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),
+        (3, (" o ", None)),
+        (4, ("d", None)),
+        (5, ("S", None)),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=5)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 1
+    assert len(slices[0].rows) == 4
+
+
+def test_game_segmentation_pair_block_row_number_gap_alone_is_not_a_boundary() -> None:
+    """A gap in physical row numbers -- which happens both for a genuinely
+    blank row (stripped by read_sheet_rows) AND for any other row
+    segment_blocks silently skips (e.g. a populated play row with an empty
+    column A -- 5 such rows found in the real `Data`-tab pair block,
+    2026-09-03) -- is NOT, by itself, treated as a boundary: the two causes
+    are indistinguishable at this layer, and an earlier version of this
+    function that inferred a boundary from the gap over-fragmented the real
+    block (137 -> 18 instead of the validated 137 -> 22, M3-02-RESEARCH.md
+    Sec 1.2). A marker row after a gap still inherits the last-seen header,
+    exactly as if there had been no gap."""
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),
+        (3, ("O", None)),
+        # row 4 skipped for some reason not visible to this function
+        (5, ("D", None)),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=5)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 1
+    assert len(slices[0].rows) == 3
+    assert slices[0].source_team1 == "Germany"
+    assert slices[0].source_team2 == "Ireland"
+
+
+def test_game_segmentation_pair_block_new_header_closes_marker_block_even_same_pair() -> None:
+    """Once a block has received a marker row, a repeated team-name row
+    (even the SAME pair, no gap) always opens a new block -- the head
+    coach's literal rule ('bis ... einer neuen Zeile mit Teamnamen'), not
+    the possession-swap merge rule (which only applies to a pure
+    team-name-per-row stretch that never saw a marker)."""
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),
+        (3, ("O", None)),
+        (4, ("Germany", "Ireland")),  # new header row, no gap
+        (5, ("D", None)),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=5)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 2
+    assert len(slices[0].rows) == 2
+    assert len(slices[1].rows) == 2
+
+
+def test_game_segmentation_pair_block_marker_rows_before_any_header_are_headerless() -> None:
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("O", None)),
+        (3, ("D", None)),
+        (4, ("Germany", "Ireland")),
+        (5, ("O", None)),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=5)
+
+    slices, messages = segment_games(block)
+
+    assert len(slices) == 2
+    assert slices[0].source_team1 is None
+    assert slices[0].source_team2 is None
+    assert len(slices[0].rows) == 2
+    assert slices[1].source_team1 == "Germany"
+    assert len(slices[1].rows) == 2
+    joined = " ".join(messages)
+    assert "1 Pair-Block-Gruppe(n) ohne Team-Namenspaar-Kopfzeile" in joined
+    assert "docs/hc-blocks-ohne-kopfzeile.md" in joined
+
+
+def test_game_segmentation_pair_block_era1_and_marker_style_coexist_without_cross_talk() -> None:
+    """A block mixing a pure team-name-per-row (possession-swap) stretch and
+    a header+marker stretch, separated by a genuine opponent change, keeps
+    each style's own rule -- no cross-contamination between the two."""
+    header = ["PLAY #", "ODK"]
+    rows = [
+        (2, ("Germany", "Ireland")),  # era-1 possession swap
+        (3, ("Ireland", "Germany")),
+        (4, ("Germany", "Ireland")),
+        (5, ("Germany", "Spain")),  # header, marker era
+        (6, ("O", None)),
+        (7, ("D", None)),
+    ]
+    block = HcBlock(index=0, kind="pair", header=header, rows=rows, first_row=2, last_row=7)
+
+    slices, _ = segment_games(block)
+
+    assert len(slices) == 2
+    assert len(slices[0].rows) == 3
+    assert slices[0].source_team1 == "Germany"
+    assert slices[0].source_team2 == "Ireland"
+    assert len(slices[1].rows) == 3
+    assert slices[1].source_team1 == "Germany"
+    assert slices[1].source_team2 == "Spain"
 
 
 # --- resolve_game_identity (Task 2) ------------------------------------------
@@ -1168,3 +1334,113 @@ def test_ingest_workbook_empty_sheet_half_column_stays_int32(tmp_path: Path, con
 
     assert df.height == 0
     assert df["half"].dtype == pl.Int32
+
+
+# --- pair-block header + O/D/S-marker rule, end-to-end (M3-02-04 deviation) --
+
+
+def test_ingest_workbook_declared_marker_rows_get_real_posteam_defteam(
+    tmp_path: Path, contract
+) -> None:
+    """A declared pair-block game whose rows are a team-name header followed
+    by O/D marker rows resolves real posteam/defteam for the marker rows --
+    the header row itself still has no ODK, so it stays null (Frage 2,
+    Antwort 2026-09-03 addressed the marker rows, not the header row)."""
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        ["Alphaland", "Betaland", 1, 10, -20, "Rush", 5],
+        ["O", None, 2, 5, -15, "Complete", 5],
+        ["D", None, 1, 10, -20, "Rush", 5],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+    df = df.sort("play_id")
+
+    # PLAY # is null for both the header and the marker rows (synthesized
+    # from row position, PLAY #/ODK's raw content: row 1 = header, row 2 =
+    # "O" marker, row 3 = "D" marker) -- play_id 1/2/3 in sheet order.
+    assert df["game_id"].unique().to_list() == ["hc-g1"]
+    assert df["play_id"].to_list() == [1, 2, 3]
+    header_row, offense_row, defense_row = df[0], df[1], df[2]
+    assert header_row["posteam"].null_count() == 1
+    assert header_row["defteam"].null_count() == 1
+    assert offense_row["posteam"].to_list() == ["ALP"]
+    assert offense_row["defteam"].to_list() == ["BET"]
+    assert defense_row["posteam"].to_list() == ["BET"]
+    assert defense_row["defteam"].to_list() == ["ALP"]
+
+
+def test_ingest_workbook_pair_block_marker_s_becomes_no_play(tmp_path: Path, contract) -> None:
+    """An `S` marker row (Frage 2 Antwort: 'S für no-play') gets
+    play_type='no_play' regardless of its RESULT token -- consistent with
+    Timeout/Offsetting Penalties handling (contract v1.2)."""
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        ["Alphaland", "Betaland", 1, 10, -20, "Rush", 5],
+        ["S", None, 0, None, None, "Rush", None],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+    df = df.sort("play_id")
+
+    s_row = df[1]  # play_id 2, the "S" marker row
+    assert s_row["play_type"].to_list() == ["no_play"]
+    joined = " ".join(notices.messages)
+    assert "play_type='no_play' markiert" in joined
+
+
+def test_ingest_workbook_headerless_marker_group_stays_provisional_no_pii(
+    tmp_path: Path, contract
+) -> None:
+    """A marker-only run with no preceding team-name header row (Frage 2
+    Antwort: 'wenn er irgendwann aufgehört hat, Teamnamen aufzuschreiben')
+    resolves to a provisional identity -- posteam/defteam stay null (no
+    home_team/away_team known), and the headerless-group notice never
+    contains a player label."""
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        ["O", None, 1, 10, -20, "Rush", 5],
+        ["D", None, 2, 5, -15, "Complete", 5],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert df.height == 2
+    assert df["posteam"].null_count() == 2
+    assert df["defteam"].null_count() == 2
+    joined = " ".join(notices.messages)
+    assert "1 Pair-Block-Gruppe(n) ohne Team-Namenspaar-Kopfzeile" in joined
+    assert "docs/hc-blocks-ohne-kopfzeile.md" in joined
+    assert "Spieler" not in joined

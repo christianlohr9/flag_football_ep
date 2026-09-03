@@ -302,11 +302,15 @@ def _write_hc_workbook(hc_dir: Path, sheets: dict[str, list[list]]) -> Path:
 
 
 def _write_hc_fixture(hc_dir: Path, hc_games_path: Path) -> None:
-    """One workbook, two sheets: `Data` (a clean 3-play game "game-a" plus a
-    second game "game-b" with an out-of-range `DN` so it quarantines) and
-    `Copy of Data` (a verbatim copy of game-a's rows, declared in
-    `hc_games.csv` as a duplicate of game-a -- the Data/Copy of Data case,
-    M3-01-RESEARCH.md Pitfall 4).
+    """One workbook, two sheets: `Data` (a clean 3-play game "game-a", a
+    second game "game-b" with an out-of-range `DN` so it quarantines on
+    `downs_range` *and* `half_assigned`, and a third, clean-but-undeclared
+    game "game-c" that quarantines on `half_assigned` alone -- M3-02-04
+    added game-c so this fixture still demonstrates a pure
+    half_assigned-only quarantine after M3-02-01's half=2 sentinel made
+    game-a itself pass cleanly) and `Copy of Data` (a verbatim copy of
+    game-a's rows, declared in `hc_games.csv` as a duplicate of game-a --
+    the Data/Copy of Data case, M3-01-RESEARCH.md Pitfall 4).
     """
     game_a_rows = [
         [1, "O", 1, 10, 25, "Rush", 5],
@@ -316,7 +320,11 @@ def _write_hc_fixture(hc_dir: Path, hc_games_path: Path) -> None:
     game_b_rows = [
         [1, "O", 9, 10, 25, "Rush", 5],  # DN=9 -- out of [0,4], fails downs_range
     ]
-    data_rows = [_HC_HEADER, *game_a_rows, *game_b_rows]
+    game_c_rows = [
+        [1, "O", 1, 10, 25, "Rush", 5],
+        [2, "O", 2, 5, 20, "Complete", 5],
+    ]
+    data_rows = [_HC_HEADER, *game_a_rows, *game_b_rows, *game_c_rows]
     copy_rows = [_HC_HEADER, *game_a_rows]
 
     _write_hc_workbook(hc_dir, {"Data": data_rows, "Copy of Data": copy_rows})
@@ -942,7 +950,7 @@ def test_run_ingest_hc_workbook_dispatched_with_per_sheet_source_label(hc_only_t
 
     assert any(s.startswith("hc_workbook:hc-pipeline-test-workbook:data") for s in sources)
     assert any(s.startswith("hc_workbook:hc-pipeline-test-workbook:copy-of-data") for s in sources)
-    assert len(result.game_results) == 3  # game-a, game-b (provisional), game-a-copy
+    assert len(result.game_results) == 4  # game-a (declared), game-b + game-c (provisional), game-a-copy
 
 
 def test_run_ingest_hc_workbook_missing_directory_skipped_with_notice(
@@ -963,28 +971,42 @@ def test_run_ingest_hc_workbook_missing_directory_skipped_with_notice(
 def test_run_ingest_hc_failing_game_quarantined_not_warned(hc_tree: Config) -> None:
     """HC-D05: `hc_workbook` is never warn-only -- every FAIL means quarantine.
 
-    HC workbooks carry no half-boundary data (`ingest_workbook` stamps
-    `half = null` for every row -- M3-01-03), so `half_assigned` FAILs for
-    *every* HC game, clean or not; this is the honest, expected outcome, not
-    a defect in the fixture. `game-b`'s deliberately out-of-range `DN` cell
-    additionally fails `downs_range` -- the two games are distinguishable by
-    which checks failed, even though both quarantine.
+    Since M3-02-01's half=2 sentinel, a DECLARED, non-`Copy of Data` HC game
+    (game-a) genuinely PASSES `half_assigned` and is not quarantined -- the
+    intended effect of that fix, not a regression here. `game-c` is a clean
+    but UNDECLARED game: it still quarantines on `half_assigned` alone (no
+    hc_games.csv row -> half stays null), which is what this test's original
+    intent (a pure half_assigned-only quarantine still quarantines, never
+    warns) needs a still-failing case for. `game-b`'s deliberately
+    out-of-range `DN` additionally fails `downs_range` on top of
+    `half_assigned` (also undeclared) -- game-b and game-c are
+    distinguishable by which checks failed, even though both quarantine.
     """
     result = run_ingest(hc_tree, ["hudl", "hc_workbook"])
 
     by_id = {g.game_id: g for g in result.game_results}
     hc_games_results = [g for g in result.game_results if g.source.startswith("hc_workbook")]
     assert hc_games_results  # sanity: HC games reached game_results at all
-    assert all(g.quarantined for g in hc_games_results)
 
     game_a = by_id["hc-test-game-a"]
     game_b = by_id["hc-hc-pipeline-test-workbook-data-b00-g01"]
+    game_c = by_id["hc-hc-pipeline-test-workbook-data-b00-g02"]
 
-    assert any("half_assigned" in reason for reason in game_a.reasons)
-    assert not any("downs_range" in reason for reason in game_a.reasons)
+    # game-a: declared, non-Copy-of-Data -> half=2 sentinel -> genuinely OK
+    assert not game_a.quarantined
+    assert game_a.reasons == []
 
+    # game-b: undeclared AND domain-invalid -> quarantines on both checks
+    assert game_b.quarantined
     assert any("downs_range" in reason for reason in game_b.reasons)
     assert any("half_assigned" in reason for reason in game_b.reasons)
+
+    # game-c: undeclared but otherwise clean -> quarantines on half_assigned
+    # alone -- the case this test exists to demonstrate: even a single
+    # failing check still quarantines, it is never downgraded to WARN.
+    assert game_c.quarantined
+    assert any("half_assigned" in reason for reason in game_c.reasons)
+    assert not any("downs_range" in reason for reason in game_c.reasons)
 
     # a downgraded WARN would mean the source is warn-only -- it is not.
     assert not any(r.status == Status.WARN for g in hc_games_results for r in g.results)

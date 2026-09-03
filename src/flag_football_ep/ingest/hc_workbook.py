@@ -144,6 +144,17 @@ _HC_RENAME_UPPER: dict[str, str] = {k.strip().upper(): v for k, v in _HC_RENAME.
 # unmapped header, since they are not sheet headers at all.
 _SYNTHETIC_COLUMNS = frozenset({"hc_pair_team1", "hc_pair_team2"})
 
+# The three ODK-marker letters the head coach used in a pair block's column A
+# for a while, instead of writing a team-name pair on every row -- confirmed
+# 2026-09-03 (docs/hc-rueckfragen-2026-09.md Frage 2, Antwort): "O" =
+# Offense, "D" = Defense, "S" = kein echter Play ("no-play", handled like
+# Timeout/Offsetting Penalties -- see the ODK == "S" override in
+# ingest_workbook). Matched case-insensitively, whitespace-trimmed, against
+# column A (index 0) only: the head coach's own wording ("column 1") and the
+# confirmed header-row layout (team1/team2 also sit in columns A/B) both
+# point at column A as the marker's position, not column B.
+_PAIR_MARKER_VALUES = frozenset({"O", "D", "S"})
+
 
 class SheetNotFoundError(Exception):
     """Raised when the requested sheet is absent from the workbook."""
@@ -415,18 +426,29 @@ def _rename_target(header_name: str) -> str | None:
     return _HC_RENAME_UPPER.get(header_name.strip().upper())
 
 
-def _null_pair_block_tail(df: pl.DataFrame, clean_names: list[str]) -> tuple[pl.DataFrame, list[str]]:
+def _null_pair_block_tail(
+    df: pl.DataFrame, clean_names: list[str], marker_odk: list[str | None]
+) -> tuple[pl.DataFrame, list[str]]:
     """Pair-block handling (M3-01-RESEARCH.md Pitfall 2 / Open Question #2).
 
-    The first two columns hold a team-name pair, not `PLAY #`/`ODK` --
-    their raw values survive under dedicated names (`hc_pair_team1`/
-    `hc_pair_team2`, plan M3-01-03's game-identity key) before `PLAY #`/
-    `ODK` themselves are nulled. Columns from `PAIR_BLOCK_TAIL_ANCHOR`
-    onward (by position, not by name -- the header names past that point
-    are exactly what is unknown for this block) are nulled with one notice
-    naming the reason: guessing the column shift would swap passer,
-    receiver and gain. Columns before the anchor (through `TARGET ROUTE`)
-    are left untouched -- they line up with the header even in a pair block
+    The first two columns hold either a team-name pair or (Frage 2, Antwort
+    2026-09-03) an O/D/S marker in column A -- their raw values survive
+    under dedicated names (`hc_pair_team1`/`hc_pair_team2`, plan M3-01-03's
+    game-identity key) before `PLAY #`/`ODK` themselves are overwritten.
+    `PLAY #` is nulled for every row (no real play numbering exists in
+    either style; synthesized later by `_fill_synthesized_play_ids`). `ODK`
+    is nulled for a team-name header row (still no real ODK there) but set
+    to `marker_odk[i]` for a marker row -- `_pair_row_marker` already
+    confirmed that value is one of `"O"`/`"D"`/`"S"`, so this is not a
+    guess, it is the row's own charted marker. Columns from
+    `PAIR_BLOCK_TAIL_ANCHOR` onward (by position, not by name -- the header
+    names past that point are exactly what is unknown for this block) are
+    nulled with one notice naming the reason: guessing the column shift
+    would swap passer, receiver and gain, and Frage 2's answer addressed the
+    block-segmentation/ODK question, not this tail-column question, so the
+    same conservative nulling still applies to marker rows too. Columns
+    before the anchor (through `TARGET ROUTE`) are left untouched -- they
+    line up with the header in both a team-name and a marker row
     (M3-01-RESEARCH.md Pitfall 2).
     """
     messages: list[str] = []
@@ -437,12 +459,21 @@ def _null_pair_block_tail(df: pl.DataFrame, clean_names: list[str]) -> tuple[pl.
     if len(clean_names) >= 2:
         df = df.with_columns(pl.col(clean_names[1]).alias("hc_pair_team2"))
 
-    for core_name in ("PLAY #", "ODK"):
-        if core_name in df.columns:
-            df = df.with_columns(pl.lit(None, dtype=pl.Utf8).alias(core_name))
+    if "PLAY #" in df.columns:
+        df = df.with_columns(pl.lit(None, dtype=pl.Utf8).alias("PLAY #"))
+
+    n_marker = sum(1 for v in marker_odk if v is not None)
+    if "ODK" in df.columns:
+        if n_rows and len(marker_odk) == n_rows:
+            df = df.with_columns(pl.Series("ODK", marker_odk, dtype=pl.Utf8))
+        else:
+            df = df.with_columns(pl.lit(None, dtype=pl.Utf8).alias("ODK"))
     messages.append(
-        f"Pair-Block: PLAY #/ODK für {n_rows} Zeile(n) auf null gesetzt "
-        "(Spalten enthalten stattdessen ein Team-Namenspaar)"
+        f"Pair-Block: PLAY # für {n_rows} Zeile(n) auf null gesetzt (Spalte "
+        "enthält stattdessen ein Team-Namenspaar oder eine Marker-Zelle); ODK "
+        f"für {n_marker} Marker-Zeile(n) aus O/D/S übernommen (Frage 2, Antwort "
+        f"2026-09-03), für die übrigen {n_rows - n_marker} Zeile(n) (Team-"
+        "Namenspaar-Kopfzeile) auf null gesetzt"
     )
 
     anchor_idx = next(
@@ -518,7 +549,14 @@ def map_block_to_frame(
     df = pl.DataFrame(columns_data, schema={name: pl.Utf8 for name in clean_names})
 
     if block.kind == "pair":
-        df, pair_messages = _null_pair_block_tail(df, clean_names)
+        marker_odk = [
+            _pair_row_marker(
+                values[0] if len(values) >= 1 else None,
+                values[1] if len(values) >= 2 else None,
+            )
+            for _, values in block.rows
+        ]
+        df, pair_messages = _null_pair_block_tail(df, clean_names, marker_odk)
         messages.extend(pair_messages)
 
     materialized_core = [c for c in contract.core_columns if c not in df.columns]
@@ -608,6 +646,36 @@ def _normalize_pair_label(value: Any) -> str:
     return str(value).strip().casefold()
 
 
+def _pair_row_marker(value: Any, second_value: Any = None) -> str | None:
+    """`"O"`/`"D"`/`"S"` if `value` (a pair block's column-A cell) is one of
+    the head coach's ODK markers AND `second_value` (column B) is empty,
+    else `None`.
+
+    The `second_value` check exists because `"D"`/`"S"` are ALSO genuine,
+    real abbreviated team-name values in this corpus (`"D"` = Deutschland,
+    confirmed 6 times in the real `Data`-tab pair block; `"S"`/`"K"` occur
+    too) -- `_pair_row_marker` cannot tell "D" (Defense marker) from "D"
+    (Deutschland) from the letter alone, per RESEARCH.md Sec 1.2's own
+    warning against guessing ambiguous abbreviations. Every real occurrence
+    of `"D"`/`"S"`/`"K"` found in column A of the real workbook (2026-09-03)
+    carries a second, non-empty team-abbreviation value in column B (e.g.
+    `("D", "AT")`, `("S", "S")`, `("K", "K")`) -- a GENUINE marker row, per
+    the head coach's own description, carries no second team name (nothing
+    else to write). Requiring `second_value` to be empty is therefore not a
+    guess, it is the only reading that matches every real example of both
+    cases: an earlier version of this function ignored column B entirely and
+    mis-classified those 6 real `"D"` abbreviation rows as markers, silently
+    changing the real `Data`-tab pair block's game count from the validated
+    137 -> 22 (M3-02-RESEARCH.md Sec 1.2) to 137 -> 16.
+    """
+    if value is None:
+        return None
+    if second_value is not None and str(second_value).strip() != "":
+        return None
+    normalized = str(value).strip().upper()
+    return normalized if normalized in _PAIR_MARKER_VALUES else None
+
+
 def _split_numeric_block(
     rows: list[tuple[int, tuple]], messages: list[str]
 ) -> list[list[tuple[int, tuple]]]:
@@ -649,21 +717,74 @@ def _split_numeric_block(
     return groups
 
 
-def _split_pair_block(rows: list[tuple[int, tuple]]) -> list[list[tuple[int, tuple]]]:
-    """Split a pair block's rows into games wherever the unordered {team1,
-    team2} pair (columns 0-1) changes, compared case-insensitively and
-    whitespace-trimmed.
+def _split_pair_block(
+    rows: list[tuple[int, tuple]],
+) -> list[tuple[list[tuple[int, tuple]], str | None, str | None]]:
+    """Split a pair block's rows into games, honouring the two charting
+    conventions confirmed for `hc_workbook`'s pair blocks (Frage 2,
+    `docs/hc-rueckfragen-2026-09.md`, Antwort 2026-09-03):
 
-    The key is unordered (`frozenset`, not the ordered tuple) because the
-    head coach charts offense and defense possessions of the SAME game as
-    flipped team-pair rows (`Germany | Ireland` -> `Ireland | Germany` ->
-    `Germany | Ireland` ...) -- comparing the ordered tuple treats every
-    possession flip as a new game, fragmenting one real game into dozens of
-    slices. M3-02-RESEARCH.md Sec 1.2 measured this on the real `Data` tab's
-    pair block: 137 ordered-tuple fragments collapse to 22 unordered-pair
-    games. A `frozenset` of two identical labels collapses to one element,
-    which is harmless -- it only means a `(Germany, Germany)` row groups
-    with other `(Germany, Germany)` rows.
+    1. **Team-name-per-row era** (M3-02-RESEARCH.md Sec 1.2 -- the only style
+       found so far in the real `Data` tab's pair block): the head coach
+       charts offense/defense possessions of the SAME game as flipped
+       team-pair rows (`Germany | Ireland` -> `Ireland | Germany` -> ...).
+       Consecutive rows whose unordered `{team1, team2}` pair (case-
+       insensitive, whitespace-trimmed) stays the same, with no O/D/S marker
+       row in between, stay one game -- comparing the
+       *ordered* pair would treat every possession flip as a new game,
+       fragmenting one real game into dozens of slices (137 -> 22 on the real
+       block, M3-02-RESEARCH.md Sec 1.2).
+    2. **Header + O/D/S-marker era** (the head coach's Antwort: "Ich habe
+       irgendwann aufgehört die Teamnamen aufzuschreiben und nur noch O für
+       Offense, D für Defense und S für no-play genommen. Dann wiederum
+       irgendwann wieder angefangen zumindest in der ersten Zeile wieder die
+       Teamnamen niederzuschreiben. Alles was darunter kommt, bis zu einer
+       leeren Zeile bzw. einer neuen Zeile mit Teamnamen soll diese Teams
+       darstellen."): a team-name row opens a block; every `_pair_row_marker`
+       row after it (in column A) belongs to that block, carrying no team
+       name of its own; the block ends at the next team-name row. Once a
+       block has received a marker row it is "closed" to further same-pair
+       merging under rule 1 above -- a repeated team-name row after markers
+       always opens a NEW block (rule 2's literal boundary), never merges
+       back into the marker block.
+
+       **Known, deliberate gap:** the head coach's rule also names a blank
+       row as a boundary. This function does NOT detect that: by the time a
+       block's rows reach here, `read_sheet_rows` has already stripped every
+       genuinely blank row (no trace survives to compare against), and
+       `segment_blocks` separately, silently skips any row whose column A is
+       neither numeric nor a non-empty string -- a real, populated play row
+       with an empty column A (5 such rows found in the real `Data`-tab pair
+       block, 2026-09-03: e.g. row 43, DN/DIST/YARD LN populated, column A/B
+       both empty) is indistinguishable, from inside this function, from a
+       genuinely blank row. An earlier version of this function inferred a
+       blank-row boundary from a gap in physical row numbers; empirically
+       verified against the real workbook, that inference is WRONG -- it
+       over-fragmented the real block from the validated 22 games (M3-02-
+       RESEARCH.md Sec 1.2) to 18, entirely from those 5 non-blank
+       skipped rows, not from any real blank-row separator. Removed rather
+       than shipped with a known false-positive; a safe fix needs
+       `segment_blocks` to preserve the blank-vs-skipped distinction and
+       hand it down, which is out of this deviation's scope (logged in
+       deferred-items.md).
+    3. **Marker rows with no open block** (no team-name row has appeared yet
+       anywhere in the block): these form their own "headerless" group --
+       `source_team1`/`source_team2` both `None`, no team identity derivable
+       from the sheet alone. Surfaced via the `n Pair-Block-Gruppe(n) ohne
+       Team-Namenspaar-Kopfzeile` notice in `segment_games` for the
+       `docs/hc-blocks-ohne-kopfzeile.md` worksheet.
+
+    Returns a list of `(rows, header_team1, header_team2)` tuples --
+    `header_team1`/`header_team2` are the RAW values of the block-opening
+    team-name row (`None`/`None` for a headerless marker-only group).
+
+    A rule-1-only run (no marker rows anywhere in the block -- the real
+    `Data`-tab pair block's only observed pattern, verified 2026-09-03
+    against `data/raw/hc_files/Scoring Probability by Situation
+    2023-2026.xlsx`: 0 O/D/S marker rows, 0 headerless groups) reproduces
+    the validated 137 -> 22 unordered-pair collapse exactly (M3-02-
+    RESEARCH.md Sec 1.2) -- confirmed by re-running this function against
+    the real block this session, not assumed.
 
     This rule change invalidates every existing `block_key` in a pair block
     (fewer, larger games renumber the `game_index` sequence) --
@@ -671,24 +792,48 @@ def _split_pair_block(rows: list[tuple[int, tuple]]) -> list[list[tuple[int, tup
     ingest, never hand-patched (M3-02-RESEARCH.md Pitfall 2; see
     `docs/hc-workbook-ingest.md` Sec Wartung).
     """
-    groups: list[list[tuple[int, tuple]]] = []
+    groups: list[tuple[list[tuple[int, tuple]], str | None, str | None]] = []
     current: list[tuple[int, tuple]] = []
-    prev_pair_key: frozenset[str] | None = None
+    current_header: tuple[str, str] | None = None
+    current_pair_key: frozenset[str] | None = None
+    current_has_marker = False
+
+    def _flush() -> None:
+        if not current:
+            return
+        t1, t2 = current_header if current_header is not None else (None, None)
+        groups.append((list(current), t1, t2))
 
     for row_num, values in rows:
-        t1 = values[0] if len(values) >= 1 else None
-        t2 = values[1] if len(values) >= 2 else None
-        pair_key = frozenset({_normalize_pair_label(t1), _normalize_pair_label(t2)})
-        is_boundary = not current or pair_key != prev_pair_key
-        if is_boundary and current:
-            groups.append(current)
-            current = []
-        current.append((row_num, values))
-        prev_pair_key = pair_key
+        t1_raw = values[0] if len(values) >= 1 else None
+        t2_raw = values[1] if len(values) >= 2 else None
+        marker = _pair_row_marker(t1_raw, t2_raw)
 
-    if current:
-        groups.append(current)
+        if marker is not None:
+            current.append((row_num, values))
+            current_has_marker = True
+        else:
+            pair_key = frozenset({_normalize_pair_label(t1_raw), _normalize_pair_label(t2_raw)})
+            same_pair_continuation = (
+                current
+                and current_header is not None
+                and not current_has_marker
+                and pair_key == current_pair_key
+            )
+            if same_pair_continuation:
+                current.append((row_num, values))
+            else:
+                if current:
+                    _flush()
+                current = [(row_num, values)]
+                current_header = (
+                    str(t1_raw) if t1_raw is not None else "",
+                    str(t2_raw) if t2_raw is not None else "",
+                )
+                current_pair_key = pair_key
+                current_has_marker = False
 
+    _flush()
     return groups
 
 
@@ -697,17 +842,26 @@ def segment_games(block: HcBlock) -> tuple[list[HcGameSlice], list[str]]:
 
     A numeric block splits wherever `PLAY #` does not increase relative to
     the previous row (reset to 1, any decrease, or an unparseable cell -- see
-    `_split_numeric_block`). A pair block splits wherever the unordered
-    `{source_team1, source_team2}` pair changes (`_split_pair_block`) --
-    unordered because the head coach charts offense/defense possessions of
-    the same game as the team-pair columns flipping order every few rows;
-    comparing the ordered pair would fragment one real game into dozens of
-    slices (M3-02-RESEARCH.md Sec 1.2).
+    `_split_numeric_block`). A pair block splits per `_split_pair_block`'s
+    combined rule: unordered `{team1, team2}` pair equality for a
+    team-name-per-row stretch (possession flips do not split), or a
+    team-name row opening a new block for the header + O/D/S-marker
+    convention -- see `_split_pair_block`'s docstring for the full rule
+    (Frage 2, confirmed 2026-09-03) and its documented, deliberate gap
+    (a genuinely blank row cannot currently be distinguished from any other
+    row `segment_blocks` silently skips).
+
     `block_key` is `b{block.index:02d}-g{game_index:02d}`, zero-padded and
     stable across runs for an unchanged sheet -- two blocks in the same sheet
     never collide (distinct `block_index`) and the same `block_key` string in
     two different sheets is disambiguated by the caller's
     `(workbook, sheet, block_key)` lookup, not by this function.
+
+    A pair-block group with no team-name header (`source_team1 is None`) is
+    "headerless" -- a run of O/D/S-marker rows with no preceding team-name
+    row to inherit from anywhere earlier in the block. `segment_games`
+    counts these and, when non-zero, emits one notice naming the count for
+    `docs/hc-blocks-ohne-kopfzeile.md`.
     """
     messages: list[str] = []
     slices: list[HcGameSlice] = []
@@ -716,23 +870,20 @@ def segment_games(block: HcBlock) -> tuple[list[HcGameSlice], list[str]]:
         return slices, messages
 
     if block.kind == "numeric":
-        groups = _split_numeric_block(block.rows, messages)
+        header_groups: list[tuple[list[tuple[int, tuple]], str | None, str | None]] = [
+            (group, None, None) for group in _split_numeric_block(block.rows, messages)
+        ]
     else:
-        groups = _split_pair_block(block.rows)
+        header_groups = _split_pair_block(block.rows)
 
-    for game_index, group_rows in enumerate(groups):
+    n_headerless = 0
+    for game_index, (group_rows, source_team1, source_team2) in enumerate(header_groups):
         first_row = group_rows[0][0]
         last_row = group_rows[-1][0]
         block_key = f"b{block.index:02d}-g{game_index:02d}"
 
-        source_team1: str | None = None
-        source_team2: str | None = None
-        if block.kind == "pair":
-            first_values = group_rows[0][1]
-            t1_raw = first_values[0] if len(first_values) >= 1 else None
-            t2_raw = first_values[1] if len(first_values) >= 2 else None
-            source_team1 = str(t1_raw) if t1_raw is not None else None
-            source_team2 = str(t2_raw) if t2_raw is not None else None
+        if block.kind == "pair" and source_team1 is None:
+            n_headerless += 1
 
         slices.append(
             HcGameSlice(
@@ -746,6 +897,13 @@ def segment_games(block: HcBlock) -> tuple[list[HcGameSlice], list[str]]:
                 source_team1=source_team1,
                 source_team2=source_team2,
             )
+        )
+
+    if n_headerless:
+        messages.append(
+            f"{n_headerless} Pair-Block-Gruppe(n) ohne Team-Namenspaar-Kopfzeile "
+            "(O/D/S-Marker-Zeile(n) ohne vorausgehende Team-Namenszeile im selben "
+            "Block) -- siehe docs/hc-blocks-ohne-kopfzeile.md"
         )
 
     return slices, messages
@@ -869,22 +1027,21 @@ def _fill_synthesized_play_ids(game_df: pl.DataFrame) -> tuple[pl.DataFrame, int
 def _stamp_posteam_defteam(
     game_df: pl.DataFrame, kind: str, home_team: str | None, away_team: str | None
 ) -> pl.DataFrame:
-    """Derive `posteam`/`defteam` for one game's rows.
+    """Derive `posteam`/`defteam` for one game's rows, from `ODK` alone --
+    not from `kind`.
 
-    A `pair` block has no `ODK` (nulled by `_null_pair_block_tail`) -- the
-    offence side is undetermined until Frage 2 (the pair block's column
-    shift) is answered, so both columns stay null rather than guessed. A
-    `numeric` block follows hudl's own convention: `posteam = home_team`
-    when `ODK == "O"`, `away_team` for every other non-null `ODK` (`"D"` or
-    `"K"` alike -- the `"K"` kickoff override only changes `play_type`, not
-    `posteam`), null when `ODK` itself is null.
+    A `numeric` block follows hudl's own convention: `posteam = home_team`
+    when `ODK == "O"`, `away_team` for every other non-null `ODK` (`"D"`,
+    `"K"` or `"S"` alike -- the `"K"`/`"S"` overrides only change
+    `play_type`, not `posteam`), null when `ODK` itself is null. A `pair`
+    block's team-name header rows keep `ODK` null (`_null_pair_block_tail`),
+    so they fall into the same null branch by construction -- the offence
+    side stays undetermined for those rows, as before. A `pair` block's
+    O/D/S-marker rows (Frage 2, confirmed 2026-09-03) DO carry a real `ODK`
+    value now, so this same rule derives their `posteam`/`defteam` from the
+    slice's resolved `home_team`/`away_team` too -- `kind` is kept as a
+    parameter only for callers/readability, it no longer branches behaviour.
     """
-    if kind == "pair":
-        return game_df.with_columns(
-            pl.lit(None, dtype=pl.Utf8).alias("posteam"),
-            pl.lit(None, dtype=pl.Utf8).alias("defteam"),
-        )
-
     game_df = game_df.with_columns(
         pl.when(pl.col("ODK") == "O")
         .then(pl.lit(home_team, dtype=pl.Utf8))
@@ -947,7 +1104,8 @@ def ingest_workbook(
     share a schema by construction -- a mismatch is a bug, left to raise
     rather than silently switched to `diagonal`) -> `hudl.derive_identity_columns`
     -> `hudl.parse_result_tokens` -> `hudl.derive_outcome_columns` -> ODK
-    `"K"` kickoff override (identical to hudl's) -> `hudl.derive_drive_id` ->
+    `"K"` kickoff override (identical to hudl's) -> pair-block ODK `"S"`
+    no-play override (Frage 2, Antwort 2026-09-03) -> `hudl.derive_drive_id` ->
     `add_scoring_play_team(credit_defense=True)` -> `add_score_columns` ->
     `hudl.derive_yards_gained_first_down` -> `reference.map_players` (source
     key `"hc_workbook"`, deliberately coarse -- one `player_mapping.csv` row
@@ -983,6 +1141,7 @@ def ingest_workbook(
     header_reports: list[HeaderReport] = []
     domain_violations: list[DomainViolation] = []
     pair_row_total = 0
+    pair_marker_row_total = 0
     synthesized_play_ids = 0
     n_sentinel_rows = 0
     n_sentinel_games = 0
@@ -1055,13 +1214,38 @@ def ingest_workbook(
             )
             if slice_.kind == "pair":
                 pair_row_total += n
+                # Per-row marker value ("O"/"D"/"S"/None), carried through
+                # the concat so the post-concat ODK == "S" -> "no_play"
+                # override below only ever touches rows that actually came
+                # from a pair-block marker row -- never a genuine numeric-
+                # block ODK == "S" row (371 real occurrences in the corpus,
+                # unrelated pre-existing behaviour, out of this plan's
+                # scope). Dropped again before conform_to_canonical.
+                row_markers = [
+                    _pair_row_marker(
+                        v[0] if len(v) >= 1 else None, v[1] if len(v) >= 2 else None
+                    )
+                    for _, v in slice_.rows
+                ]
+                pair_marker_row_total += sum(1 for m in row_markers if m is not None)
+                game_df = game_df.with_columns(
+                    pl.Series("_hc_pair_marker_odk", row_markers, dtype=pl.Utf8)
+                )
+            else:
+                game_df = game_df.with_columns(
+                    pl.lit(None, dtype=pl.Utf8).alias("_hc_pair_marker_odk")
+                )
 
             game_frames.append(game_df)
 
     if pair_row_total:
+        pair_header_row_total = pair_row_total - pair_marker_row_total
         messages.append(
-            f"{pair_row_total} Pair-Block-Zeile(n): posteam/defteam/ODK unbestimmt bis "
-            "Frage 2 (Spaltenversatz) beantwortet ist"
+            f"{pair_row_total} Pair-Block-Zeile(n) insgesamt: {pair_marker_row_total} "
+            "Zeile(n) mit O/D/S-Marker (ODK/posteam/defteam aus dem Marker abgeleitet, "
+            f"Frage 2 Antwort 2026-09-03), {pair_header_row_total} Zeile(n) mit "
+            "Team-Namenspaar-Kopfzeile statt echtem ODK (posteam/defteam bleiben null; "
+            "der Spaltenversatz ab RECEIVED BY bleibt für beide Zeilenarten offen)"
         )
     if synthesized_play_ids:
         messages.append(
@@ -1092,6 +1276,28 @@ def ingest_workbook(
             .otherwise(pl.col("play_type"))
             .alias("play_type")
         )
+
+        # Pair-block O/D/S marker "S" -> no_play (Frage 2, Antwort
+        # 2026-09-03: "S für no-play"), handled like Timeout/Offsetting
+        # Penalties (contract v1.2). Scoped to `_hc_pair_marker_odk` (set
+        # only for pair-block marker rows, see the per-slice loop above) so
+        # this NEVER touches a genuine numeric-block ODK == "S" row -- that
+        # is pre-existing, already-shipped behaviour, out of this plan's
+        # scope.
+        n_pair_marker_s = int((df["_hc_pair_marker_odk"] == "S").sum())
+        if n_pair_marker_s:
+            df = df.with_columns(
+                pl.when(pl.col("_hc_pair_marker_odk") == "S")
+                .then(pl.lit("no_play"))
+                .otherwise(pl.col("play_type"))
+                .alias("play_type")
+            )
+            messages.append(
+                f"{n_pair_marker_s} Pair-Block-Zeile(n) mit O/D/S-Marker 'S' als "
+                "play_type='no_play' markiert (kein echter Play, Frage 2 Antwort "
+                "2026-09-03)"
+            )
+        df = df.drop("_hc_pair_marker_odk")
 
         df = hudl.derive_drive_id(df)
 
