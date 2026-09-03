@@ -62,6 +62,10 @@ __all__ = [
     "read_sheet_rows",
     "segment_blocks",
     "map_block_to_frame",
+    "HcGameSlice",
+    "HcGameIdentity",
+    "segment_games",
+    "resolve_game_identity",
 ]
 
 # The two tab names every HC workbook charts plays under. `Copy of Data`
@@ -498,3 +502,269 @@ def map_block_to_frame(
         df = df.rename(rename_map)
 
     return df, header_report, domain_violations, messages
+
+
+@dataclass(frozen=True)
+class HcGameSlice:
+    """One game's worth of rows inside a single `HcBlock` (game segmentation
+    within a block -- see `segment_games`).
+
+    `block_index`/`game_index` are 0-based; `block_key` is the stable,
+    block-scoped identifier `b{block_index:02d}-g{game_index:02d}` that
+    `data/reference/hc_games.csv` keys on. `rows` is the game's row slice in
+    the same `(physical_row_number, cell_values)` shape as `HcBlock.rows`.
+    `source_team1`/`source_team2` are the raw team-pair labels for a `pair`
+    slice (from the slice's first row), `None` for a `numeric` slice.
+    """
+
+    block_index: int
+    game_index: int
+    block_key: str
+    kind: str  # "pair" | "numeric"
+    rows: list[tuple[int, tuple]]
+    first_row: int
+    last_row: int
+    source_team1: str | None
+    source_team2: str | None
+
+
+def _coerce_play_number(value: Any) -> float | None:
+    """Best-effort numeric coercion of a `PLAY #` cell (Pitfall 5: openpyxl
+    delivers Excel numbers as `float`). `None`/non-numeric/unparseable
+    strings become `None` -- treated by `segment_games` as "does not
+    increase", i.e. a game boundary, never silently merged into the
+    previous game.
+    """
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+def _normalize_pair_label(value: Any) -> str:
+    """Case-insensitive, whitespace-trimmed comparison key for a team-pair
+    label. The raw value (not this normalized form) is what survives into
+    `HcGameSlice.source_team1`/`source_team2`.
+    """
+    if value is None:
+        return ""
+    return str(value).strip().casefold()
+
+
+def _split_numeric_block(
+    rows: list[tuple[int, tuple]], messages: list[str]
+) -> list[list[tuple[int, tuple]]]:
+    """Split a numeric block's rows into games wherever `PLAY #` (column 0)
+    does not increase relative to the previous row -- a reset to 1, any
+    decrease, or a null/unparseable cell, which is itself always a boundary
+    (never compared against a stale reference value, so one corrupt cell
+    cannot make two real games silently look like one)."""
+    groups: list[list[tuple[int, tuple]]] = []
+    current: list[tuple[int, tuple]] = []
+    prev_play_num: float | None = None
+    unparseable = 0
+
+    for row_num, values in rows:
+        raw = values[0] if values else None
+        play_num = _coerce_play_number(raw)
+        if play_num is None:
+            unparseable += 1
+
+        is_boundary = (
+            not current or play_num is None or prev_play_num is None or play_num <= prev_play_num
+        )
+        if is_boundary and current:
+            groups.append(current)
+            current = []
+        current.append((row_num, values))
+        prev_play_num = play_num
+
+    if current:
+        groups.append(current)
+
+    if unparseable:
+        messages.append(
+            f"{unparseable} Zeile(n) mit nicht auswertbarer PLAY # (null oder nicht "
+            "parsebar) -- als Spielgrenze behandelt statt zwei Spiele stillschweigend "
+            "zusammenzuführen"
+        )
+
+    return groups
+
+
+def _split_pair_block(rows: list[tuple[int, tuple]]) -> list[list[tuple[int, tuple]]]:
+    """Split a pair block's rows into games wherever the (team1, team2) pair
+    (columns 0-1) changes, compared case-insensitively and whitespace-trimmed."""
+    groups: list[list[tuple[int, tuple]]] = []
+    current: list[tuple[int, tuple]] = []
+    prev_pair: tuple[str, str] | None = None
+
+    for row_num, values in rows:
+        t1 = values[0] if len(values) >= 1 else None
+        t2 = values[1] if len(values) >= 2 else None
+        pair = (_normalize_pair_label(t1), _normalize_pair_label(t2))
+        is_boundary = not current or pair != prev_pair
+        if is_boundary and current:
+            groups.append(current)
+            current = []
+        current.append((row_num, values))
+        prev_pair = pair
+
+    if current:
+        groups.append(current)
+
+    return groups
+
+
+def segment_games(block: HcBlock) -> tuple[list[HcGameSlice], list[str]]:
+    """Split one `HcBlock` into per-game `HcGameSlice`s.
+
+    A numeric block splits wherever `PLAY #` does not increase relative to
+    the previous row (reset to 1, any decrease, or an unparseable cell -- see
+    `_split_numeric_block`). A pair block splits wherever the
+    `(source_team1, source_team2)` pair changes (`_split_pair_block`).
+    `block_key` is `b{block.index:02d}-g{game_index:02d}`, zero-padded and
+    stable across runs for an unchanged sheet -- two blocks in the same sheet
+    never collide (distinct `block_index`) and the same `block_key` string in
+    two different sheets is disambiguated by the caller's
+    `(workbook, sheet, block_key)` lookup, not by this function.
+    """
+    messages: list[str] = []
+    slices: list[HcGameSlice] = []
+
+    if not block.rows:
+        return slices, messages
+
+    if block.kind == "numeric":
+        groups = _split_numeric_block(block.rows, messages)
+    else:
+        groups = _split_pair_block(block.rows)
+
+    for game_index, group_rows in enumerate(groups):
+        first_row = group_rows[0][0]
+        last_row = group_rows[-1][0]
+        block_key = f"b{block.index:02d}-g{game_index:02d}"
+
+        source_team1: str | None = None
+        source_team2: str | None = None
+        if block.kind == "pair":
+            first_values = group_rows[0][1]
+            t1_raw = first_values[0] if len(first_values) >= 1 else None
+            t2_raw = first_values[1] if len(first_values) >= 2 else None
+            source_team1 = str(t1_raw) if t1_raw is not None else None
+            source_team2 = str(t2_raw) if t2_raw is not None else None
+
+        slices.append(
+            HcGameSlice(
+                block_index=block.index,
+                game_index=game_index,
+                block_key=block_key,
+                kind=block.kind,
+                rows=group_rows,
+                first_row=first_row,
+                last_row=last_row,
+                source_team1=source_team1,
+                source_team2=source_team2,
+            )
+        )
+
+    return slices, messages
+
+
+@dataclass(frozen=True)
+class HcGameIdentity:
+    """The resolved identity of one `HcGameSlice`: either a mapped row from
+    `data/reference/hc_games.csv` (`provisional=False`) or a degraded
+    placeholder (`provisional=True`) built when no row matches. Nothing is
+    invented for a provisional identity -- `home_team`/`away_team`/`tier`/
+    `season`/`game_date`/`corpus_game_id` all stay `None`.
+    """
+
+    game_id: str
+    home_team: str | None
+    away_team: str | None
+    competition: str | None
+    season: int | None
+    game_date: str | None
+    tier: str | None
+    corpus_game_id: str | None
+    provisional: bool
+
+
+# HC-D04: `reference.map_teams` is deliberately NOT used for game identity --
+# it raises `UnmappedTeamError` on any label with no mapping row, but an HC
+# game the maintainer has not yet transcribed into `hc_games.csv` must
+# degrade into a provisional id plus a loud notice, not abort the whole
+# ingest run. Game identity for this source therefore comes from a direct,
+# never-raising filter against the maintained `hc_games` frame below.
+def resolve_game_identity(
+    slice_: HcGameSlice,
+    workbook_slug: str,
+    sheet_slug: str,
+    hc_games: pl.DataFrame,
+) -> tuple[HcGameIdentity, list[str]]:
+    """Resolve `slice_`'s game identity against the maintained `hc_games` frame.
+
+    Filters on `(workbook, sheet, block_key)`. On a hit, returns the mapped
+    identity built from that row (`provisional=False`), no message. On a
+    miss, returns a provisional identity (`game_id =
+    "hc-{workbook}-{sheet}-{block_key}"`, every other field `None`) plus
+    exactly one notice naming the block key, the physical Excel row range,
+    the play count and -- for a pair block -- the raw team labels, so a
+    maintainer can add the `hc_games.csv` row without opening Excel. Never
+    raises.
+    """
+    messages: list[str] = []
+
+    match = hc_games.filter(
+        (pl.col("workbook") == workbook_slug)
+        & (pl.col("sheet") == sheet_slug)
+        & (pl.col("block_key") == slice_.block_key)
+    )
+
+    if match.height:
+        row = match.row(0, named=True)
+        identity = HcGameIdentity(
+            game_id=row["game_id"],
+            home_team=row["home_team"],
+            away_team=row["away_team"],
+            competition=row["competition"],
+            season=row["season"],
+            game_date=row["game_date"],
+            tier=row["tier"],
+            corpus_game_id=row["corpus_game_id"],
+            provisional=False,
+        )
+        return identity, messages
+
+    provisional_id = f"hc-{workbook_slug}-{sheet_slug}-{slice_.block_key}"
+    identity = HcGameIdentity(
+        game_id=provisional_id,
+        home_team=None,
+        away_team=None,
+        competition=None,
+        season=None,
+        game_date=None,
+        tier=None,
+        corpus_game_id=None,
+        provisional=True,
+    )
+
+    n_plays = len(slice_.rows)
+    team_note = ""
+    if slice_.kind == "pair":
+        team_note = f", Teams laut Sheet: {slice_.source_team1!r} vs. {slice_.source_team2!r}"
+    messages.append(
+        f"Unbekanntes Spiel {slice_.block_key!r} in {workbook_slug}/{sheet_slug}: "
+        f"Zeilen {slice_.first_row}-{slice_.last_row} ({n_plays} Plays){team_note} -- "
+        f"provisorische game_id {provisional_id!r} vergeben; data/reference/hc_games.csv "
+        "um diese Zeile ergänzen"
+    )
+
+    return identity, messages
