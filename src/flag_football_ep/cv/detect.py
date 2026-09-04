@@ -148,10 +148,21 @@ class DetectionBatch:
 _RESOLUTION_DIVISOR = 224
 
 # `rfdetr.training.callbacks.best_model.BestModelCallback.on_fit_end` writes this
-# filename unconditionally (once at least one validation epoch improved on the
-# initial 0.0 high-water mark) -- verified against the installed rfdetr==1.9.3, not
-# assumed from the plan's illustrative snippet.
+# filename only when at least one validation epoch improved the monitored metric
+# (verified against the installed rfdetr==1.9.3 source, not assumed from the plan's
+# illustrative snippet). A dataset with zero validation frames -- Phase 2.2's
+# AL-iteration convention, where every merged frame carries `split: "train"` and
+# evaluation happens separately against the frozen eval-clip split
+# (`detect.evaluate_per_domain`), never `ffep cv train`'s internal val split -- never
+# triggers an improving validation epoch, so `on_fit_end` never writes this file.
 _CHECKPOINT_FILENAME = "checkpoint_best_total.pth"
+# `on_fit_end` backfills this file unconditionally when EMA tracking is enabled (the
+# rfdetr default) and `checkpoint_best_total.pth` was never written -- "a guaranteed
+# checkpoint_best_ema.pth" per the callback's own docstring, verified against a real
+# zero-validation-frame run (Phase 2.2 AL iteration 1, 2026-09-04): the log recorded
+# "EMA metric never improved; saved final EMA weights as checkpoint_best_ema.pth" and
+# `checkpoint_best_total.pth` was absent from `resolved_output_dir` afterward.
+_CHECKPOINT_FALLBACK_FILENAME = "checkpoint_best_ema.pth"
 _METRICS_FILENAME = "metrics.json"
 _PARAMS_FILENAME = "params.json"
 _DATASET_LAYOUT_DIRNAME = "dataset"
@@ -472,10 +483,16 @@ def train_detector(
     metrics = _extract_metrics(raw_metrics)
 
     checkpoint = resolved_output_dir / _CHECKPOINT_FILENAME
+    checkpoint_source = "best_total"
     if not checkpoint.exists():
-        raise WeightsNotFound(
-            f"expected checkpoint not found after training: {checkpoint}"
-        )
+        fallback_checkpoint = resolved_output_dir / _CHECKPOINT_FALLBACK_FILENAME
+        if not fallback_checkpoint.exists():
+            raise WeightsNotFound(
+                f"expected checkpoint not found after training: {checkpoint} "
+                f"(fallback {fallback_checkpoint} also absent)"
+            )
+        checkpoint = fallback_checkpoint
+        checkpoint_source = "best_ema_fallback_no_val_split"
 
     params = {
         "epochs": resolved_epochs,
@@ -488,6 +505,7 @@ def train_detector(
         "torch_version": torch.__version__,
         "cuda_available": torch.cuda.is_available(),
         "cuda_version": torch.version.cuda or "",
+        "checkpoint_source": checkpoint_source,
     }
 
     (resolved_output_dir / _METRICS_FILENAME).write_text(
@@ -540,13 +558,21 @@ def _register_from_artifacts(artifacts_dir: Path, config: Config) -> DetectorTra
     """Registration-only mode: read a checkpoint+metrics+params directory produced by
     an earlier `register=False` run (on the Dell box or Colab) and register it,
     without calling the trainer.
+
+    Accepts either checkpoint filename `train_detector` itself may have written
+    (`_CHECKPOINT_FILENAME` or, for a zero-validation-frame dataset,
+    `_CHECKPOINT_FALLBACK_FILENAME`) -- the remote run went through the exact same
+    fallback selection this module's own `train_detector` applies, so registration
+    must recognize the same two names.
     """
     checkpoint = artifacts_dir / _CHECKPOINT_FILENAME
+    if not checkpoint.exists():
+        checkpoint = artifacts_dir / _CHECKPOINT_FALLBACK_FILENAME
     metrics_path = artifacts_dir / _METRICS_FILENAME
     params_path = artifacts_dir / _PARAMS_FILENAME
 
     for path, label in (
-        (checkpoint, _CHECKPOINT_FILENAME),
+        (checkpoint, f"{_CHECKPOINT_FILENAME} or {_CHECKPOINT_FALLBACK_FILENAME}"),
         (metrics_path, _METRICS_FILENAME),
         (params_path, _PARAMS_FILENAME),
     ):

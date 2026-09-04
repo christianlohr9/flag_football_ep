@@ -239,6 +239,35 @@ def _make_fake_rfdetr_small(state: _FakeTrainerState, eval_metrics: dict[str, fl
     return _FakeRFDETRSmall
 
 
+def _make_fake_rfdetr_small_no_val_split(
+    state: _FakeTrainerState, eval_metrics: dict[str, float]
+):
+    """A fake `RFDETRSmall` mirroring the real `BestModelCallback.on_fit_end` behaviour
+    on a dataset with zero validation frames (Phase 2.2's AL-iteration convention):
+    `train()` writes only `checkpoint_best_ema.pth`, never `checkpoint_best_total.pth`
+    -- verified against a real zero-val-split run (rfdetr==1.9.3, Phase 2.2 AL
+    iteration 1, 2026-09-04): `on_fit_end`'s `checkpoint_best_total.pth` copy only
+    fires when a validation epoch actually improved the monitored metric, which never
+    happens with an empty validation dataloader.
+    """
+
+    class _FakeRFDETRSmallNoValSplit:
+        def __init__(self, **kwargs):
+            state.init_calls.append(kwargs)
+
+        def train(self, **kwargs):
+            state.train_calls.append(kwargs)
+            output_dir = Path(kwargs["output_dir"])
+            output_dir.mkdir(parents=True, exist_ok=True)
+            (output_dir / "checkpoint_best_ema.pth").write_bytes(b"fake-ema-checkpoint")
+
+        def evaluate(self, **kwargs):
+            state.evaluate_calls.append(kwargs)
+            return dict(eval_metrics)
+
+    return _FakeRFDETRSmallNoValSplit
+
+
 _EVAL_METRICS = {
     "val/mAP_50_95": 0.42,
     "val/mAP_50": 0.65,
@@ -381,6 +410,39 @@ def test_invalid_resolution_raises_named_exception_with_value(tmp_path: Path) ->
 
 
 # --- register=True ---------------------------------------------------------------------------
+
+
+def test_missing_val_split_falls_back_to_ema_checkpoint(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _stub_validate_coco: None
+) -> None:
+    """Phase 2.2's AL-iteration datasets carry no `val`-split frames at all (every
+    merged frame is `split: "train"` -- evaluation runs separately against the
+    frozen eval-clip split, `detect.evaluate_per_domain`). The real
+    `BestModelCallback.on_fit_end` never writes `checkpoint_best_total.pth` in that
+    case (no validation epoch ever improves), only backfills
+    `checkpoint_best_ema.pth` -- `train_detector` must fall back to it rather than
+    raising `WeightsNotFound`, and record the fallback in `params["checkpoint_source"]`
+    for provenance.
+    """
+    config = _make_config(tmp_path)
+    coco_dir, manifest = _build_dataset(tmp_path)
+    write_manifest(manifest, config.paths.labels / "frames" / "manifest.json")
+
+    state = _FakeTrainerState()
+    monkeypatch.setattr(
+        "rfdetr.RFDETRSmall", _make_fake_rfdetr_small_no_val_split(state, _EVAL_METRICS)
+    )
+
+    result = detect.train_detector(config, coco_dir, register=True, output_dir=tmp_path / "out")
+
+    assert result.checkpoint.name == "checkpoint_best_ema.pth"
+    assert result.checkpoint.exists()
+
+    mlflow_store.configure(config)
+    runs = mlflow.search_runs(
+        experiment_names=[config.cv.detector_experiment], output_format="list"
+    )
+    assert runs[0].data.params.get("checkpoint_source") == "best_ema_fallback_no_val_split"
 
 
 def test_register_true_creates_one_run_with_dataset_hash_and_per_class_ap(
