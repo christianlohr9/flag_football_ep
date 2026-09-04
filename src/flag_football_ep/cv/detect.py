@@ -379,6 +379,7 @@ def train_detector(
     register: bool = True,
     from_artifacts: Path | None = None,
     resume: Path | None = None,
+    init_weights: Path | None = None,
 ) -> DetectorTrainResult:
     """Fine-tune RF-DETR on the validated COCO dataset at `dataset_dir`.
 
@@ -392,6 +393,19 @@ def train_detector(
     resumable across multiple bounded foreground calls (a single-machine wall-clock
     constraint, not a plan requirement) without discarding optimizer/LR-scheduler
     state between chunks.
+
+    `init_weights`, when given, is a *different* starting point than `resume`: a
+    bare `RFDETRSmall`-compatible checkpoint (`.pth`, e.g. an earlier run's
+    registered `checkpoint_best_total.pth`/`checkpoint_best_ema.pth`, not a Lightning
+    `.ckpt`) to initialize model weights from before a fresh 0-to-`epochs` training
+    run -- fine-tuning from a prior detector's learned weights instead of RF-DETR's
+    default COCO-pretrained backbone, with a new optimizer/LR schedule and no
+    inherited epoch count. Forwarded to the `RFDETRSmall(..., pretrain_weights=...)`
+    constructor kwarg -- the same mechanism `cv.registry.RFDETRWrapper.load_context`
+    already uses to rebuild a model from a stored checkpoint path (`RFDETRSmall(
+    pretrain_weights=context.artifacts["weights"])`), not a new loading path. Mutually
+    exclusive with `resume` is not enforced here (rfdetr itself would raise if both
+    conflict); no caller in this codebase passes both.
 
     `None`-defaulting keyword overrides fall back to `config.cv.train_*`/`device`.
     `register=False` produces a checkpoint+metrics directory without touching MLflow
@@ -461,7 +475,10 @@ def train_detector(
     import torch
     from rfdetr import RFDETRSmall
 
-    model = RFDETRSmall(resolution=resolved_resolution)
+    if init_weights is not None:
+        model = RFDETRSmall(resolution=resolved_resolution, pretrain_weights=str(init_weights))
+    else:
+        model = RFDETRSmall(resolution=resolved_resolution)
     train_kwargs: dict[str, object] = dict(
         dataset_dir=str(prepared_dir),
         epochs=resolved_epochs,
@@ -515,6 +532,7 @@ def train_detector(
         "cuda_available": torch.cuda.is_available(),
         "cuda_version": torch.version.cuda or "",
         "checkpoint_source": checkpoint_source,
+        "init_weights": str(init_weights) if init_weights is not None else "default_coco_pretrain",
     }
 
     (resolved_output_dir / _METRICS_FILENAME).write_text(

@@ -377,6 +377,43 @@ def test_resume_is_forwarded_to_the_trainer_as_a_bare_string(
     assert state.train_calls[0]["resume"] == str(resume_ckpt)
 
 
+def test_init_weights_is_forwarded_to_the_model_constructor_as_pretrain_weights(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _stub_validate_coco: None
+) -> None:
+    """`init_weights` initializes the model from a prior detector's bare checkpoint
+    (`RFDETRSmall(pretrain_weights=...)`, the same mechanism
+    `cv.registry.RFDETRWrapper.load_context` already uses) -- distinct from `resume`,
+    which restores a full Lightning training state instead.
+    """
+    config = _make_config(tmp_path)
+    coco_dir, manifest = _build_dataset(tmp_path)
+    write_manifest(manifest, config.paths.labels / "frames" / "manifest.json")
+
+    state = _FakeTrainerState()
+    monkeypatch.setattr("rfdetr.RFDETRSmall", _make_fake_rfdetr_small(state, _EVAL_METRICS))
+
+    prior_checkpoint = tmp_path / "champion_checkpoint_best_total.pth"
+    prior_checkpoint.write_bytes(b"fake-prior-weights")
+
+    result = detect.train_detector(
+        config,
+        coco_dir,
+        register=True,
+        output_dir=tmp_path / "out",
+        init_weights=prior_checkpoint,
+    )
+
+    assert state.init_calls[0]["pretrain_weights"] == str(prior_checkpoint)
+    assert "resume" not in state.train_calls[0]
+
+    mlflow_store.configure(config)
+    runs = mlflow.search_runs(
+        experiment_names=[config.cv.detector_experiment], output_format="list"
+    )
+    assert runs[0].data.params.get("init_weights") == str(prior_checkpoint)
+    assert result.run_id
+
+
 # --- abort-before-trainer --------------------------------------------------------------------
 
 

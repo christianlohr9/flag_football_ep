@@ -342,6 +342,15 @@ def train(
             "continues toward --epochs as a total target, not an additional count"
         ),
     ),
+    init_weights: Optional[Path] = typer.Option(
+        None,
+        "--init-weights",
+        help=(
+            "Initialize model weights from a bare RFDETRSmall checkpoint (.pth, not a "
+            "Lightning .ckpt) before a fresh 0-to---epochs run -- fine-tuning from a "
+            "prior detector instead of the default COCO-pretrained backbone"
+        ),
+    ),
 ) -> None:
     """Train the RF-DETR player/referee detector."""
     if from_artifacts is None and dataset is None:
@@ -367,6 +376,7 @@ def train(
         register=register,
         from_artifacts=from_artifacts,
         resume=resume,
+        init_weights=init_weights,
     )
 
     typer.echo(f"run: {result.run_id}")
