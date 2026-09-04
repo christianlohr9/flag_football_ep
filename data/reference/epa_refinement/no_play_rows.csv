@@ -1,0 +1,11 @@
+source,token,rows,share_of_source_rows,rows_surviving_to_ep_training
+hc_workbook:offense-analytics-2026-camps-and-competitions:data,Offsetting Penalties,1,0.0008453085376162299,1
+hc_workbook:offense-analytics-2026-camps-and-competitions:data,Penalty,18,0.015215553677092139,17
+hc_workbook:offense-analytics-2026-camps-and-competitions:data,Timeout,2,0.0016906170752324597,2
+hc_workbook:offense-analytics-2026-camps-and-competitions:data,__any__,21,0.01775147928994083,20
+hc_workbook:scoring-probability-by-situation-2023-2026:data,Offsetting Penalties,3,0.0005323868677905945,3
+hc_workbook:scoring-probability-by-situation-2023-2026:data,Penalty,261,0.046317657497781724,261
+hc_workbook:scoring-probability-by-situation-2023-2026:data,Timeout,3,0.0005323868677905945,3
+hc_workbook:scoring-probability-by-situation-2023-2026:data,__any__,267,0.04738243123336291,267
+legacy,Penalty,145,0.03917860037827614,133
+legacy,__any__,145,0.03917860037827614,133
