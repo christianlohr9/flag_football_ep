@@ -482,7 +482,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - [x] `M3-04-01-PLAN.md` — the authorised M3-3 correction: Attempts excludes Sacks (cell `D2`) and Efficiency divides by Attempts + Carries (cell `U2`), the regenerated comparison CSVs, and both German documents corrected with a dated correction note (HC-05)
   - [x] `M3-04-02-PLAN.md` — `data/reference/hc_splits.csv` plus `load_hc_splits`/`resolve_hc_game_splits`: his camp tabs are hard-coded row windows, so the split key becomes maintained, cited reference data with the Camp IV/VI naming conflict recorded as unresolved (HC-05)
   - [x] `M3-04-03-PLAN.md` — `reports/player_analysis.py`: his eighteen columns from canonical plays on his denominators, with a named German availability state for every column that cannot be computed yet (HC-05)
-  - [ ] `M3-04-04-PLAN.md` — the M3-3 metrics beside his columns (n / CI / muted / shrinkage, never recomputed), the camp-split sections and `build_player_analysis_data` (HC-05)
+  - [x] `M3-04-04-PLAN.md` — the M3-3 metrics beside his columns (n / CI / muted / shrinkage, never recomputed), the camp-split sections and `build_player_analysis_data` (HC-05)
   - [ ] `M3-04-05-PLAN.md` — the German HTML page and its template, `player-analysis` as the fifth `ffep report` product with per-product failure isolation, the documentation and the timed real run (HC-05)
   - [x] `M3-04-06-PLAN.md` — scoped cross-phase ingest fix (blocked until `M3-02-04-SUMMARY.md` exists): the `drop` nullable extra and its header mapping, which switch Adj Comp % / adj Pass Yards / adj YPA on without any report-code change (HC-05)
   - [ ] `M3-04-07-PLAN.md` — `docs/hc-sync-2026-10.md`, the three Zusatzfragen (Frage 7-9) appended without breaking the six existing Fragen, and the human review before the October sync (HC-05)
@@ -519,4 +519,4 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
 | M3-2 EPA-Refinement | 6/8 | In progress (waves 1–4 done; 07 doc running, 08 = user review) | - |
 | M3-3 Explosiveness & Efficiency | 2/3 | In progress (plan 03 = user review gate) | - |
-| M3-4 Player-Analysis-Report | 4/7 | In progress (01/02/03/06 done; 04 running) | - |
+| M3-4 Player-Analysis-Report | 5/7 | In progress (05 HTML running; 07 handout + user review) | - |
