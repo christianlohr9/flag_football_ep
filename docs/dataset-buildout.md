@@ -12,7 +12,10 @@ MLflow Run `be854a1adebf4eb4b01d98dc39022ee1`) — Drohne verschlechtert sich ge
 Champion auf den eingefrorenen Eval-Clips (`mAP_50_95` -0,0476), GoPro nicht messbar (keine
 Ground Truth für die eingefrorenen Clips), daher **nicht promoviert**, siehe
 `## Iteration-1-Detektor: Training und Per-Domain-Evaluation (Plan 02.2-15)` unten. Noch
-offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20).**
+offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20). Am
+2026-09-04 zusätzlich: Ground-Truth-Sampling + Vorlabel-Push für die eingefrorenen Eval-Clips
+vorbereitet (CVAT-Aufgaben `eval-gt-drone`/`eval-gt-sideline`), siehe
+`### Nachtrag 2026-09-04 (Ausführung)` unten — Prüfung durch die Nutzerin steht noch aus.**
 
 ### Korrektur 2026-09-04 (Koordinator): Der Drohnen-Vergleich ist kein Held-out-Vergleich
 
@@ -37,6 +40,91 @@ Eval-Clips — 18 Drohnen- und 12 GoPro/Hinterfeld-Clips, Vorschlag 5–6 Frames
 (D-15). Beide Läufe werden dann auf denselben, von keinem Modell gesehenen Bildern gemessen;
 erst danach ist die Stoppregel (+0,010 mAP_50_95) überhaupt anwendbar. Bis dahin gilt für
 beide Domänen: Iteration 2 läuft wegen des 1.500-Frame-Floors ohnehin weiter.
+
+### Nachtrag 2026-09-04 (Ausführung): Ground-Truth-Sampling für die eingefrorenen Eval-Clips vorbereitet
+
+Der Tooling-Teil der Korrektur oben ist ausgeführt — Frame-Sampling + Vorlabel-Push in eigene
+CVAT-Aufgaben, ohne selbst Labels zu erzeugen (das bleibt Aufgabe der Nutzerin, D-15/D-19).
+
+**Sampling** (`ffep cv eval-gt-sample`, neu: `cv/frames.py::sample_eval_gt_frames`): zieht pro
+eingefrorenem Eval-Clip eine feste, seed-deterministische Frame-Anzahl (kein
+dauer-proportionales Budget wie `sample_training_frames`, sondern N Frames je Clip), verteilt
+über die Clip-Zeitachse per Grid+Jitter (derselbe Mechanismus, andere Allokation). Seed
+`20260516` (derselbe wie `frozen_eval_clips.csv`, aus Nachvollziehbarkeit wiederverwendet).
+
+| Domäne | Clips | Frames/Clip | Frames gesamt | Session | Manifest |
+|---|---:|---:|---:|---|---|
+| Drohne (`drone`) | 5, 6, 7, 11, 15, 16, 21, 22, 28, 33, 36, 40, 43, 49, 52, 54, 55, 56 (18) | 5 | **90** | `2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE` | `data/labels/eval/drone/frames/manifest.json` |
+| GoPro/Hinterfeld (`sideline`) | 8, 11, 16, 19, 24, 27, 34, 36, 37, 38, 50, 52 (12) | 6 | **72** | `2026-08-14_WC-GER-vs-MEX-GOPRO` | `data/labels/eval/sideline/frames/manifest.json` |
+
+**Vorlabel** (`ffep cv prelabel --backend finetuned`): ohne explizite `--run-id` löst
+`prelabel._load_finetuned_backend` die aktuelle `champion`-Alias auf — da Iteration 1 nicht
+promoviert wurde (Plan 02.2-15), bleibt das der Phase-2.1-Champion
+`87a8a5222f7a472787875e974d089c44`, exakt der Lauf, gegen den auch Iteration 1 gemessen werden
+soll. Inferenz-Einstellungen `resolution=896`/`sahi=false` (`ffep.toml`) sind für beide Domänen
+identisch mit den in `docs/dataset-plan.md` `## 4` gemessenen Pro-Domäne-Empfehlungen (zufällige
+Koinzidenz, dort dokumentiert) — keine Config-Änderung nötig.
+
+- Drohne: 90/90 Frames mit ≥1 Box, 1805 Boxen gesamt, 0 Frames ohne Erkennung.
+- GoPro/Hinterfeld: 66/72 Frames mit ≥1 Box, 496 Boxen gesamt, **6 Frames ohne Erkennung**
+  (Clip 24: 4 von 6 Frames, Clip 27: 2 von 6 Frames). Nach der Fernfeld-Vereinbarung vom
+  2026-09-02 (`### Nachtrag 2026-09-02` oben) mutmasslich echtes, unberührtes Fernfeld, kein
+  Detektor-Fehlschlag — **für die Nutzerin:** diese 6 Frames dürfen mit 0 Boxen bestehen
+  bleiben, wenn tatsächlich keine Spielerin im Nah-/Mittelfeld sichtbar ist; nur bei
+  sichtbaren, aber unmarkierten Spielerinnen im Nah-/Mittelfeld nachtragen. Betroffene Dateien:
+  `Wide - Clip 024_f00028.jpg`, `..._f00176.jpg`, `..._f00461.jpg`, `..._f00595.jpg`,
+  `Wide - Clip 027_f00048.jpg`, `..._f00244.jpg`.
+
+**CVAT-Aufgaben** (self-hosted, Loopback, getrennt von den `al-1-*`/`al-2-*`-Aufgaben):
+
+| Task-ID | Name | Frames |
+|---:|---|---:|
+| 6 | `eval-gt-drone` | 90 |
+| 7 | `eval-gt-sideline` | 72 |
+
+**DVC:** `data/labels/eval/` (Frames + Vorlabel-COCO beider Domänen, 328 Dateien) per
+`dvc add data/labels/eval` getrackt (`data/labels/eval.dvc`, md5
+`a5c6e47a93c76b44b9068edb918e4d21.dir`), gegen den lokalen Rückfall-Remote `local-fallback`
+gepusht (167 Dateien, dedupliziert über die hartverlinkten `frames/`/`prelabel/`-Kopien) —
+derselbe Mechanismus wie `data/labels/dataset.dvc` (Plan 02.2-13), nie der
+OTC-OBS-Platzhalter-Remote. `data/labels/eval/` bleibt strikt getrennt von
+`data/labels/dataset/` (eigener DVC-Pointer, eigener Verzeichnisbaum).
+
+**D-19-Schutz jetzt Code, nicht mehr nur Konvention:** `dataset.assert_no_frozen_eval_clips`,
+neu über einen `eval_split_path`-Parameter in `validate_coco` verdrahtet — sowohl
+`ffep cv dataset` als auch `detect.train_detector`s eigene Datensatz-Vorbereitung übergeben ab
+sofort unbedingt `data/reference/frozen_eval_clips.csv`. Ein Merge-Versuch, der einen
+eingefrorenen Eval-Clip enthält, schlägt jetzt mit einem benannten `DatasetError` fehl, statt
+sich (wie bislang bei jedem AL-Iterations-Merge, siehe Plan 02.2-13s "0 Überschneidung"
+-Assertion) auf eine manuelle Post-hoc-Prüfung zu verlassen. Test:
+`tests/test_cv_dataset.py::test_assert_no_frozen_eval_clips_raises_naming_offending_clip` und
+`test_validate_coco_rejects_frozen_eval_frame_when_eval_split_path_given`.
+
+**Lade-Reihenfolge für `evaluate_per_domain`:** `detect._load_domain_ground_truth` bevorzugt ab
+sofort `data/labels/eval/<domain>/corrected/instances.json` (diese neue, garantiert
+held-out Konvention) vor der alten `data/labels/<session_id>/corrected/`-Konvention, sobald
+Ersteres existiert — nie beide gemischt für dieselbe Domäne. Test:
+`test_evaluate_per_domain_prefers_eval_gt_directory_over_session_corrected`.
+
+**Nach der Prüfung durch die Nutzerin:** korrigierte Exporte herunterladen —
+
+```
+ffep cv cvat-pull --task 6 --out data/labels/eval/drone/corrected
+ffep cv cvat-pull --task 7 --out data/labels/eval/sideline/corrected
+```
+
+— dann beide Läufe auf denselben, garantiert ungesehenen 90 (Drohne) + 72
+(GoPro/Hinterfeld) Bildern messen:
+
+```
+ffep cv eval-domains --run 87a8a5222f7a472787875e974d089c44 \
+  --split data/reference/frozen_eval_clips.csv --out data/reports/eval_domains_champion.json
+ffep cv eval-domains --run be854a1adebf4eb4b01d98dc39022ee1 \
+  --split data/reference/frozen_eval_clips.csv --out data/reports/eval_domains_iteration1.json
+```
+
+Erst danach ist die Stoppregel (+0,010 mAP_50_95, `docs/dataset-plan.md` `## 3`) für beide
+Domänen tatsächlich anwendbar — nicht länger "nicht messbar".
 
 ## Zweck & Abgrenzung
 
