@@ -220,16 +220,33 @@ def _clustered_distance_bin_expr() -> pl.Expr:
     )
 
 
-def empirical_sp_clustered(prepared: pl.DataFrame) -> pl.DataFrame:
-    """The clustered-axis twin of `hc_comparison.empirical_sp` -- same PAT exclusion, same
-    `rate_table` machinery, same `THIN_MIN_N` threshold, different (field-half-dependent)
-    distance binning. Kept in this script rather than `hc_comparison.py` because
-    `empirical_sp`'s public contract (M3-02-06 Task 1) is locked to the uncluttered
-    `distance_bin_expr` axis only.
+def _scope_to_clustered_axis(prepared: pl.DataFrame) -> pl.DataFrame:
+    """The clustered-axis twin of `hc_comparison._scope_to_axis`: exclude PAT rows
+    (`down == 0`), add `distance_bin` (clustered)/`field_half`, then drop any row where
+    `down`, `distance_bin` or `field_half` is null -- same reasoning as the uncluttered
+    axis's scoping (a null axis component is not a cell with a missing value, it is not a
+    cell at all), applied to the field-half-dependent clustered binning instead.
     """
-    scoped = prepared.filter(pl.col("down") != 0).with_columns(
-        field_half=field_half_expr()
-    ).with_columns(distance_bin=_clustered_distance_bin_expr())
+    return (
+        prepared.filter(pl.col("down") != 0)
+        .with_columns(field_half=field_half_expr())
+        .with_columns(distance_bin=_clustered_distance_bin_expr())
+        .filter(
+            pl.col("down").is_not_null()
+            & pl.col("distance_bin").is_not_null()
+            & pl.col("field_half").is_not_null()
+        )
+    )
+
+
+def empirical_sp_clustered(prepared: pl.DataFrame) -> pl.DataFrame:
+    """The clustered-axis twin of `hc_comparison.empirical_sp` -- same PAT/null-axis
+    exclusion, same `rate_table` machinery, same `THIN_MIN_N` threshold, different
+    (field-half-dependent) distance binning. Kept in this script rather than
+    `hc_comparison.py` because `empirical_sp`'s public contract (M3-02-06 Task 1) is locked
+    to the uncluttered `distance_bin_expr` axis only.
+    """
+    scoped = _scope_to_clustered_axis(prepared)
 
     table = rate_table(scoped, list(COMPARISON_KEYS), pl.col("Next_Score_Half") == "Touchdown")
     return table.with_columns(thin=(pl.col("n") < THIN_MIN_N))
@@ -238,11 +255,10 @@ def empirical_sp_clustered(prepared: pl.DataFrame) -> pl.DataFrame:
 def model_ep_per_cell_clustered(prepared: pl.DataFrame, oof: pl.DataFrame) -> tuple[pl.DataFrame, int]:
     """The clustered-axis twin of `hc_comparison.model_ep_per_cell`. Same inner join on
     `(game_id, play_id)`, same expected-points weighting (copied from `add_ep_variables`,
-    matching `hc_comparison._model_ep_expr` verbatim), different distance binning.
+    matching `hc_comparison._model_ep_expr` verbatim), same PAT/null-axis exclusion,
+    different distance binning.
     """
-    scoped = prepared.filter(pl.col("down") != 0).with_columns(
-        field_half=field_half_expr()
-    ).with_columns(distance_bin=_clustered_distance_bin_expr())
+    scoped = _scope_to_clustered_axis(prepared)
 
     joined = scoped.join(
         oof.select(["game_id", "play_id", *_MODEL_PROB_COLUMNS]),
