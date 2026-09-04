@@ -507,7 +507,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
 | 2.0 Capture Protocol | 4/4 | Complete    | 2026-08-24 |
 | 2.1 CV Pilot (Gate) | 17/17 | Complete    | 2026-08-31 |
-| 2.2 Dataset Buildout | 12/20 | In progress | - |
+| 2.2 Dataset Buildout | 13/21 | In progress (v1.2 = 572 frames; iteration-1 retrain not promoted; 21 partial) | - |
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
 | 2.4 Player Identity | 0/TBD | Not started (gated) | - |
 | 2.5 Broadcast Footage | 0/TBD | Deferred (stretch) | - |
