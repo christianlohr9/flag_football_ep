@@ -275,7 +275,11 @@ def _index_images_by_name(coco_dir: Path) -> dict[str, Path]:
 
 
 def _prepare_dataset_layout(
-    coco_dir: Path, manifest: FrameSampleManifest, output_dir: Path
+    coco_dir: Path,
+    manifest: FrameSampleManifest,
+    output_dir: Path,
+    *,
+    eval_split_path: Path | None = None,
 ) -> tuple[Path, str]:
     """Validate `coco_dir` against `manifest` and build the sibling `train/`/`valid/`
     Roboflow-COCO layout `rfdetr` expects (RESEARCH.md Standard Stack -- each split
@@ -289,12 +293,14 @@ def _prepare_dataset_layout(
     `(dataset_dir, content_sha256)`.
 
     Raises `dataset.DatasetError` (via `validate_coco`) before any trainer import or
-    call when `coco_dir` fails structural validation.
+    call when `coco_dir` fails structural validation -- including, when
+    `eval_split_path` is given, D-19's guard against a held-out frozen_eval clip
+    having leaked into `manifest` (`dataset.assert_no_frozen_eval_clips`).
     """
     from flag_football_ep.cv.dataset import DatasetError, validate_coco
 
     manifest = _filter_manifest_to_dataset(manifest, coco_dir)
-    stats = validate_coco(coco_dir, manifest)
+    stats = validate_coco(coco_dir, manifest, eval_split_path=eval_split_path)
 
     annotation_path = coco_dir / "instances.json"
     data = json.loads(annotation_path.read_text(encoding="utf-8"))
@@ -444,7 +450,10 @@ def train_detector(
     manifest = read_manifest(_resolve_manifest_path(config, Path(dataset_dir)))
 
     prepared_dir, content_sha256 = _prepare_dataset_layout(
-        Path(dataset_dir), manifest, resolved_output_dir
+        Path(dataset_dir),
+        manifest,
+        resolved_output_dir,
+        eval_split_path=config.paths.reference / "frozen_eval_clips.csv",
     )
 
     # Function-local imports: rfdetr/torch are `cv`-extras dependencies, never a
@@ -875,6 +884,7 @@ def detect_video(
 
 
 _EVAL_GT_DIRNAME = "corrected"
+_EVAL_GT_ROOT_DIRNAME = "eval"
 _EVAL_CLIP_NUMBER_RE = re.compile(r"Clip[ _](\d+)_f\d+")
 
 
@@ -913,16 +923,28 @@ def _load_domain_ground_truth(
     config: Config, domain: str, clip_to_session: dict[int, str]
 ) -> tuple[list[dict], list[dict], list[dict], dict[str, Path]]:
     """Load and filter ground-truth COCO annotations for one domain's frozen eval
-    clips, across every session that contributes a `frozen_eval` clip to `domain`.
+    clips.
 
-    Looks for a human-corrected COCO package at
-    `config.paths.labels / <session_id> / "corrected" / "instances.json"` for each
-    distinct `session_id` in `clip_to_session` -- the existing, established
-    convention this repo already uses for the Phase-2.1 pilot's own corrected
-    dataset (`data/labels/<session_id>/corrected/`, plan 02.1-09). A session with no
-    such package contributes nothing (not an error by itself -- a domain is only
-    considered to have no ground truth if *no* session contributes any matching
-    frame at all, checked by the caller).
+    Two ground-truth sources exist, checked in this priority order, never merged
+    together for the same domain:
+
+    1. **`config.paths.labels / "eval" / <domain> / "corrected" / "instances.json"`**
+       (the dedicated, domain-scoped held-out ground-truth convention this ad-hoc
+       plan introduces, 2026-09-04): sampled exclusively from `frozen_eval` clips
+       (`frames.sample_eval_gt_frames`), so every frame under it is guaranteed to be
+       genuinely unseen by any detector trained on `data/labels/dataset/`. Used
+       exclusively for `domain` when present -- never mixed with source 2, which can
+       predate the eval-clip freeze and therefore overlap a model's own training
+       data (the exact contamination the 2026-09-04 Koordinator-Korrektur in
+       `docs/dataset-buildout.md` documents: 76 of the Phase-2.1 pilot's own
+       corrected images sat inside the champion's own train/val split).
+    2. **`config.paths.labels / <session_id> / "corrected" / "instances.json"`** for
+       each distinct `session_id` in `clip_to_session` (the pre-existing, established
+       convention this repo already used for the Phase-2.1 pilot's own corrected
+       dataset, plan 02.1-09) -- the fallback when source 1 does not exist for
+       `domain` yet. A session with no such package contributes nothing (not an
+       error by itself -- a domain is only considered to have no ground truth if
+       *no* source contributes any matching frame at all, checked by the caller).
 
     Returns `(images, annotations, categories, image_paths)`: only images whose
     parsed clip number is a `frozen_eval` clip for `domain` (per `clip_to_session`),
@@ -938,8 +960,20 @@ def _load_domain_ground_truth(
     next_image_id = 1
     next_ann_id = 1
 
-    for session_id in sorted(set(clip_to_session.values())):
-        gt_dir = config.paths.labels / session_id / _EVAL_GT_DIRNAME
+    domain_eval_dir = config.paths.labels / _EVAL_GT_ROOT_DIRNAME / domain / _EVAL_GT_DIRNAME
+    if (domain_eval_dir / "instances.json").is_file():
+        # source 1: domain-scoped, guaranteed-held-out ground truth. `session_id`
+        # is intentionally `None` here -- membership in `clip_to_session` (any
+        # session backing this domain's frozen_eval clips) is enough; there is no
+        # per-source session to additionally cross-check against, unlike source 2.
+        sources: list[tuple[Path, str | None]] = [(domain_eval_dir, None)]
+    else:
+        sources = [
+            (config.paths.labels / session_id / _EVAL_GT_DIRNAME, session_id)
+            for session_id in sorted(set(clip_to_session.values()))
+        ]
+
+    for gt_dir, session_id in sources:
         annotation_path = gt_dir / "instances.json"
         if not annotation_path.is_file():
             continue
@@ -952,7 +986,9 @@ def _load_domain_ground_truth(
         old_to_new_id: dict[int, int] = {}
         for image in data.get("images", []):
             clip_num = _eval_clip_number(image["file_name"])
-            if clip_num is None or clip_to_session.get(clip_num) != session_id:
+            if clip_num is None or clip_num not in clip_to_session:
+                continue
+            if session_id is not None and clip_to_session[clip_num] != session_id:
                 continue
             source_path = session_image_paths.get(image["file_name"])
             if source_path is None:

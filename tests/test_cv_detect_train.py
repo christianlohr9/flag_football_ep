@@ -185,7 +185,7 @@ def _stub_validate_coco(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     monkeypatch.setattr(
         "flag_football_ep.cv.dataset.validate_coco",
-        lambda _coco_dir, _manifest: _STUB_DATASET_STATS,
+        lambda _coco_dir, _manifest, **_kwargs: _STUB_DATASET_STATS,
     )
 
 
@@ -848,3 +848,62 @@ def test_evaluate_per_domain_logs_mlflow_metrics_prefixed_per_domain(
     assert "drone_mAP_50_95" in logged
     assert "drone_AP_player" in logged
     assert "drone_n_images" in logged
+
+
+def test_evaluate_per_domain_prefers_eval_gt_directory_over_session_corrected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`data/labels/eval/<domain>/corrected/instances.json` (the dedicated,
+    guaranteed-held-out ground-truth convention this ad-hoc plan introduces,
+    2026-09-04) takes priority over the legacy `data/labels/<session_id>/corrected/`
+    convention -- the two are never merged for the same domain, since the legacy
+    convention can predate the eval-clip freeze and overlap a model's own training
+    data (exactly the contamination the 2026-09-04 Koordinator-Korrektur in
+    docs/dataset-buildout.md documents for the drone domain's pilot-derived GT).
+    """
+    config = _make_config(tmp_path)
+
+    split_path = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 5,
+                "stratum_id": "hp-01", "role": "frozen_eval", "private_test": "true",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+        ],
+    )
+    # legacy, potentially-contaminated session-scoped GT: 1 frame
+    _write_corrected_coco(
+        config.paths.labels / "sess-drone" / "corrected",
+        [(5, 0, [(1, [1.0, 1.0, 2.0, 2.0])])],
+    )
+    # new, guaranteed-held-out eval-GT directory: 2 frames -- a distinct count from
+    # the legacy source lets this test prove which source was actually read (1 would
+    # mean the legacy source leaked in, 3 would mean both got merged).
+    _write_corrected_coco(
+        config.paths.labels / "eval" / "drone" / "corrected",
+        [
+            (5, 1, [(1, [10.0, 10.0, 20.0, 20.0])]),
+            (5, 2, [(1, [10.0, 10.0, 20.0, 20.0])]),
+        ],
+    )
+
+    model = _FakeEvalModel(
+        [
+            _detections([[10.0, 10.0, 30.0, 30.0]], [0.9], [0]),
+            _detections([[10.0, 10.0, 30.0, 30.0]], [0.9], [0]),
+        ]
+    )
+    monkeypatch.setattr(detect, "load_detector", lambda _config, _run_id: model)
+
+    mlflow_store.configure(config)
+    mlflow_store.ensure_experiment(config.cv.detector_experiment, config)
+    with mlflow.start_run() as run:
+        run_id = run.info.run_id
+
+    results = detect.evaluate_per_domain(config, run_id, split_path, tmp_path / "out.json")
+
+    assert results["drone"]["n_images"] == 2
+    assert len(model.calls) == 2

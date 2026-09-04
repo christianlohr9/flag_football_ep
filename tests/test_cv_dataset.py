@@ -500,6 +500,164 @@ def test_validate_coco_multidomain_band_accepts_1500_rejects_120(tmp_path: Path)
     assert "1500" in str(exc_info.value)
 
 
+# --- assert_no_frozen_eval_clips / validate_coco's eval_split_path guard (D-19) ------
+#
+# Ad-hoc eval-GT plan (2026-09-04): a frame sitting on a clip frozen for held-out
+# evaluation must never be mergeable into a dataset that trains/validates the
+# detector, regardless of which domain/session produced it.
+
+
+def _write_frozen_eval_csv(path: Path, rows: list[dict]) -> None:
+    columns = [
+        "domain", "session_id", "clip_number", "stratum_id", "role",
+        "private_test", "frozen_at", "seed",
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [",".join(columns)]
+    for row in rows:
+        lines.append(",".join(str(row[c]) for c in columns))
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def test_assert_no_frozen_eval_clips_raises_naming_offending_clip(tmp_path: Path) -> None:
+    split_path = tmp_path / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 5,
+                "stratum_id": "hp-01", "role": "frozen_eval", "private_test": "true",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 1,
+                "stratum_id": "hp-01", "role": "pool", "private_test": "false",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+        ],
+    )
+    from flag_football_ep.cv.frames import FrameSample, FrameSampleManifest
+
+    manifest = FrameSampleManifest(
+        session_id="sess-drone",
+        seed=1,
+        target=2,
+        frames=[
+            FrameSample(
+                clip_number=5, clip_path="x", frame_index=0, timestamp_s=0.0,
+                image_path="clip005.jpg", split="train", domain="drone",
+            ),
+            FrameSample(
+                clip_number=1, clip_path="x", frame_index=0, timestamp_s=0.0,
+                image_path="clip001.jpg", split="train", domain="drone",
+            ),
+        ],
+        split={5: "train", 1: "train"},
+    )
+
+    with pytest.raises(DatasetError, match=r"drone.*5"):
+        dataset.assert_no_frozen_eval_clips(manifest, split_path)
+
+
+def test_assert_no_frozen_eval_clips_passes_for_pool_only_manifest(tmp_path: Path) -> None:
+    from flag_football_ep.cv.frames import FrameSample, FrameSampleManifest
+
+    split_path = tmp_path / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 5,
+                "stratum_id": "hp-01", "role": "frozen_eval", "private_test": "true",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+        ],
+    )
+    manifest = FrameSampleManifest(
+        session_id="sess-drone",
+        seed=1,
+        target=1,
+        frames=[
+            FrameSample(
+                clip_number=1, clip_path="x", frame_index=0, timestamp_s=0.0,
+                image_path="clip001.jpg", split="train", domain="drone",
+            ),
+        ],
+        split={1: "train"},
+    )
+
+    dataset.assert_no_frozen_eval_clips(manifest, split_path)  # must not raise
+
+
+def test_assert_no_frozen_eval_clips_no_op_when_split_file_missing(tmp_path: Path) -> None:
+    from flag_football_ep.cv.frames import FrameSample, FrameSampleManifest
+
+    manifest = FrameSampleManifest(
+        session_id="sess-drone",
+        seed=1,
+        target=1,
+        frames=[
+            FrameSample(
+                clip_number=5, clip_path="x", frame_index=0, timestamp_s=0.0,
+                image_path="clip005.jpg", split="train", domain="drone",
+            ),
+        ],
+        split={5: "train"},
+    )
+    dataset.assert_no_frozen_eval_clips(manifest, tmp_path / "does-not-exist.csv")
+
+
+def test_validate_coco_rejects_frozen_eval_frame_when_eval_split_path_given(
+    tmp_path: Path, small_bounds: None
+) -> None:
+    from flag_football_ep.cv.frames import FrameSample, FrameSampleManifest
+
+    coco_dir = tmp_path / "coco"
+    split_path = tmp_path / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 5,
+                "stratum_id": "hp-01", "role": "frozen_eval", "private_test": "true",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+        ],
+    )
+    manifest = FrameSampleManifest(
+        session_id="sess-drone",
+        seed=1,
+        target=2,
+        frames=[
+            FrameSample(
+                clip_number=5, clip_path="x", frame_index=0, timestamp_s=0.0,
+                image_path="frame_a.jpg", split="train", domain="drone",
+            ),
+            FrameSample(
+                clip_number=1, clip_path="x", frame_index=1, timestamp_s=0.0,
+                image_path="frame_b.jpg", split="val", domain="drone",
+            ),
+        ],
+        split={5: "train", 1: "val"},
+    )
+    images = [
+        {"id": 1, "file_name": "frame_a.jpg", "width": 640, "height": 480},
+        {"id": 2, "file_name": "frame_b.jpg", "width": 640, "height": 480},
+    ]
+    annotations = [
+        {"id": 1, "image_id": 1, "category_id": 1, "bbox": [0, 0, 10, 10]},
+        {"id": 2, "image_id": 2, "category_id": 1, "bbox": [0, 0, 10, 10]},
+    ]
+    _write_coco(coco_dir, categories=_default_categories(), images=images, annotations=annotations)
+
+    with pytest.raises(DatasetError, match=r"drone.*5"):
+        dataset.validate_coco(coco_dir, manifest, eval_split_path=split_path)
+
+    # the very same manifest/coco validates fine when the guard is not requested
+    stats = dataset.validate_coco(coco_dir, manifest)
+    assert stats.n_images == 2
+
+
 def test_validate_coco_pilot_single_domain_still_validates_under_default_band(
     tmp_path: Path, small_bounds: None
 ) -> None:

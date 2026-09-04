@@ -203,7 +203,11 @@ FUNCTION_CONTRACTS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
         "prelabel_frames",
         ("config", "frames_dir", "out_dir", "force", "backend"),
     ),
-    ("dataset", "validate_coco", ("coco_dir", "manifest", "min_images", "max_images")),
+    (
+        "dataset",
+        "validate_coco",
+        ("coco_dir", "manifest", "min_images", "max_images", "eval_split_path"),
+    ),
     ("dataset", "dataset_hash", ("root",)),
     ("dataset", "create_cvat_task", ("config", "coco_dir", "name")),
     ("dataset", "export_cvat_task", ("config", "task_id", "out_dir")),

@@ -101,12 +101,59 @@ class DatasetStats:
     boxes_by_domain: dict[str, dict[str, int]] = field(default_factory=dict)
 
 
+def assert_no_frozen_eval_clips(manifest: FrameSampleManifest, eval_split_path: Path) -> None:
+    """Raise `DatasetError` naming every `(domain, clip_number)` in `manifest` that
+    falls on a clip frozen for held-out evaluation (`role == "frozen_eval"` in
+    `eval_split_path`, D-13) -- these frames must never enter a dataset used to train
+    or validate the detector, regardless of which session produced them (D-19: the
+    entire point of a held-out clip is that no model, current or future, ever sees it
+    during training; the 2026-09-04 Koordinator-Korrektur is the concrete cost of this
+    guard not existing sooner -- the Phase-2.1 champion was measured against clips it
+    had itself trained on).
+
+    A no-op when `eval_split_path` does not exist -- no frozen split has been written
+    yet (`ffep cv eval-split`/`frames.freeze_eval_clips`), so there is nothing to
+    guard against -- which lets this be wired unconditionally into every
+    `validate_coco` call (see its `eval_split_path` parameter) without an ordering
+    dependency on the eval split existing first.
+    """
+    eval_split_path = Path(eval_split_path)
+    if not eval_split_path.is_file():
+        return
+
+    import polars as pl
+
+    df = pl.read_csv(eval_split_path)
+    frozen = df.filter(pl.col("role") == "frozen_eval")
+    frozen_pairs = {
+        (row["domain"], int(row["clip_number"])) for row in frozen.iter_rows(named=True)
+    }
+    if not frozen_pairs:
+        return
+
+    offending = sorted(
+        {
+            (frame.domain, frame.clip_number)
+            for frame in manifest.frames
+            if (frame.domain, frame.clip_number) in frozen_pairs
+        }
+    )
+    if offending:
+        raise DatasetError(
+            f"manifest contains {len(offending)} frame(s) on frozen_eval clip(s) "
+            f"{offending} -- held-out evaluation clips must never become training "
+            "data (D-19); remove them from the merged dataset before validating or "
+            "training on it"
+        )
+
+
 def validate_coco(
     coco_dir: Path,
     manifest: FrameSampleManifest,
     *,
     min_images: int | None = None,
     max_images: int | None = None,
+    eval_split_path: Path | None = None,
 ) -> DatasetStats:
     """Validate `coco_dir` (a CVAT COCO export) against `manifest`: every sampled
     frame must be present, every category must be exactly `CLASS_NAMES` in order, no
@@ -124,7 +171,18 @@ def validate_coco(
     counted under the `"_empty_images"` key of `DatasetStats.n_boxes` (and, per
     domain, of `DatasetStats.boxes_by_domain[domain]`) rather than rejected -- a
     frame can genuinely show no visible player after human correction.
+
+    `eval_split_path`, when given, additionally runs `assert_no_frozen_eval_clips`
+    against `manifest` before any other check (D-19) -- both `cv/commands.py`'s
+    `dataset` CLI command and `detect.train_detector`'s own dataset-preparation path
+    pass `config.paths.reference / "frozen_eval_clips.csv"` here unconditionally, so
+    the guard runs on every real merge/train call through this project's two actual
+    entry points, not just when a caller remembers to opt in. `None` (the default)
+    skips the guard entirely, preserving every pre-existing call site's behavior.
     """
+    if eval_split_path is not None:
+        assert_no_frozen_eval_clips(manifest, Path(eval_split_path))
+
     # Resolved from the module globals at call time (not baked into the parameter
     # default at def-time) so a test's `monkeypatch.setattr(dataset, "_MIN_IMAGES",
     # ...)` keeps working exactly as it did before this signature grew `min_images`/
