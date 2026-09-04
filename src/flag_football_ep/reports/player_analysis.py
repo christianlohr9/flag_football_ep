@@ -28,6 +28,12 @@ delegating, which is a small, deliberate extension beyond a plain
 
 There is no WR/receiver table on this tab (verified in M3-04-RESEARCH: columns Z onward and the
 rows below the last QB row are empty) -- this module is QB-row-only, matching his own sheet.
+
+`m3_columns_by_qb` (M3-04-04) puts our own numbers next to his: Success Rate, calibrated
+Explosiveness and the continuous explosiveness score, each with `n`/CI/muted/`shrunk_rate` --
+every value read live from `features.explosiveness.definition_comparison`/`explosive_score`
+(M3-3's frozen public API), never a second implementation of "explosive" or "success" in this
+module.
 """
 
 from __future__ import annotations
@@ -36,11 +42,18 @@ from dataclasses import dataclass
 
 import polars as pl
 
+from flag_football_ep.config import Config
 from flag_football_ep.features.explosiveness import (
+    DEFINITIONS,
     HC_PASS_ATTEMPT_SCOPE,
+    ExplosivenessCalibration,
     MissingExplosivenessColumns,
+    UnknownCalibrationSchema,
+    definition_comparison,
+    explosive_score,
     hc_efficiency_table,
     hc_workbook_explosive_rate,
+    load_calibration,
     scrimmage_plays,
 )
 from flag_football_ep.reports.aggregate import MUTED_MIN_N, SectionBasis, section_basis
@@ -455,3 +468,131 @@ def hc_columns_by_qb(plays: pl.DataFrame, *, group_col: str = "thrown_by") -> Hc
         notices=tuple(notices),
         basis=basis,
     )
+
+
+# --- M3-3 columns beside his (M3-04-04, Task 1) ----------------------------------------------
+
+_M3_DEFINITION_FIELDS: tuple[str, ...] = ("rate", "n", "ci_low", "ci_high", "muted", "shrunk_rate")
+
+_M3_FIELD_DTYPES: dict[str, pl.DataType] = {
+    "rate": pl.Float64,
+    "n": pl.Int64,
+    "ci_low": pl.Float64,
+    "ci_high": pl.Float64,
+    "muted": pl.Boolean,
+    "shrunk_rate": pl.Float64,
+}
+
+
+def _m3_column_schema() -> dict[str, pl.DataType]:
+    """`spieler` plus, for every `DEFINITIONS` key, its six fields
+    (`{key}_rate`, `{key}_n`, `{key}_ci_low`, `{key}_ci_high`, `{key}_muted`,
+    `{key}_shrunk_rate}`), plus `explosive_score_mean` -- the exact column-name shape
+    `<interfaces>` specifies (`success_rate_epa_rate`, `success_rate_epa_n`, ...).
+    """
+    schema: dict[str, pl.DataType] = {"spieler": pl.Utf8}
+    for definition in DEFINITIONS:
+        for field in _M3_DEFINITION_FIELDS:
+            schema[f"{definition.key}_{field}"] = _M3_FIELD_DTYPES[field]
+    schema["explosive_score_mean"] = pl.Float64
+    return schema
+
+
+_M3_COLUMN_SCHEMA: dict[str, pl.DataType] = _m3_column_schema()
+
+_MISSING_CALIBRATION_NOTICE_TEMPLATE = (
+    "Explosiveness-Kalibrierung nicht gefunden ({detail}); die kalibrierten Spalten bleiben "
+    "leer."
+)
+
+
+def load_report_calibration(config: Config) -> tuple[ExplosivenessCalibration | None, tuple[str, ...]]:
+    """Resolve `config.paths.reference / "explosiveness" / "calibration.json"` (M3-3's frozen
+    artefact).
+
+    Returns `(calibration, ())` on success. A missing file or an `UnknownCalibrationSchema`
+    (schema-version drift) both degrade to `(None, (notice,))` -- this function never raises.
+    The caller is responsible for gating every M3-3 column on the returned calibration; this
+    function only resolves the artefact.
+    """
+    path = config.paths.reference / "explosiveness" / "calibration.json"
+    if not path.exists():
+        return None, (_MISSING_CALIBRATION_NOTICE_TEMPLATE.format(detail=str(path)),)
+    try:
+        return load_calibration(path), ()
+    except UnknownCalibrationSchema as exc:
+        return None, (_MISSING_CALIBRATION_NOTICE_TEMPLATE.format(detail=str(exc)),)
+
+
+def m3_columns_by_qb(
+    plays: pl.DataFrame,
+    *,
+    calibration: ExplosivenessCalibration | None,
+    group_col: str = "thrown_by",
+) -> tuple[pl.DataFrame, tuple[str, ...]]:
+    """Our numbers beside his: Success Rate, calibrated Explosiveness and the continuous
+    explosiveness score, each with `n`/CI/`muted`/`shrunk_rate`, one row per resolved player
+    identity (same `_identity_expr` fallback `hc_columns_by_qb` uses, so the two tables' player
+    sets line up for a caller that joins them).
+
+    Every value is read from a single live `definition_comparison(..., calibration=calibration)`
+    call over `DEFINITIONS` -- never a second implementation of "explosive" or "success" here
+    (M3-3 handoff, `docs/explosiveness-vorschlag.md`). `explosive_score_mean` is the mean of
+    `explosive_score(calibration)` over the same scrimmage frame, per player; null for a player
+    with no play carrying a real `epa` value (a mean over an all-null series is null, no special
+    casing needed). A player whose plays never enter a given definition's scope still gets a row
+    for that definition with `n == 0` (`definition_comparison`'s own `group_universe`
+    guarantee) -- never a missing row.
+
+    `calibration is None` (see `load_report_calibration`) returns a schema-correct table -- one
+    row per identity present in `plays`, every M3-3 column null -- and an empty notice tuple
+    (the notice itself is `load_report_calibration`'s job, not repeated here per call).
+
+    Raises nothing beyond what `scrimmage_plays`/`definition_comparison` themselves raise for a
+    genuinely malformed frame (missing `play_type`/`down`/`yards_gained`/`epa` entirely) -- a
+    frame with zero head-coach rows or zero plays for this split is not malformed, it is handled
+    via the empty-table path above.
+    """
+    base = scrimmage_plays(plays).with_columns(_identity_expr(group_col).alias(_IDENTITY))
+    base = base.filter(pl.col(_IDENTITY).is_not_null())
+
+    identities = (
+        base.select(_IDENTITY)
+        .unique()
+        .sort(_IDENTITY)
+        .rename({_IDENTITY: "spieler"})
+    )
+
+    if calibration is None:
+        null_columns = [
+            pl.lit(None, dtype=_M3_COLUMN_SCHEMA[col]).alias(col)
+            for col in _M3_COLUMN_SCHEMA
+            if col != "spieler"
+        ]
+        table = identities.with_columns(null_columns).select(list(_M3_COLUMN_SCHEMA))
+        return table, ()
+
+    comparison = definition_comparison(base, [_IDENTITY], calibration=calibration).rename(
+        {_IDENTITY: "spieler"}
+    )
+
+    wide = identities
+    for definition in DEFINITIONS:
+        subset = (
+            comparison.filter(pl.col("definition") == definition.key)
+            .select(["spieler", *_M3_DEFINITION_FIELDS])
+            .rename({field: f"{definition.key}_{field}" for field in _M3_DEFINITION_FIELDS})
+        )
+        wide = wide.join(subset, on="spieler", how="left")
+
+    scored = base.with_columns(_explosive_score=explosive_score(calibration))
+    exp_score = (
+        scored.group_by(_IDENTITY, maintain_order=True)
+        .agg(explosive_score_mean=pl.col("_explosive_score").mean())
+        .rename({_IDENTITY: "spieler"})
+    )
+    wide = wide.join(exp_score, on="spieler", how="left")
+
+    table = wide.select(list(_M3_COLUMN_SCHEMA)).sort("spieler")
+    return table, ()
+
