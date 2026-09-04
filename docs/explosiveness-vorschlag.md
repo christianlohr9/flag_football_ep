@@ -130,6 +130,13 @@ bekommen deshalb fast dieselbe Einordnung -- statt eines harten "nein" gegen ein
 "ja" an einer Yard-Grenze, die nichts über den tatsächlichen Wert des Plays für den
 Spielausgang aussagt.
 
+### Entscheidung
+
+Am 2026-09-04 angenommen: Kandidat B wird unsere Explosiveness-Kennzahl. Welche Varianten
+geprüft wurden, warum B und nicht A oder die reine mündliche Regel, und wie der Schwellenwert
+künftig neu berechnet und versioniert wird, steht ausführlich und eigenständig in
+`docs/explosiveness-entscheidung.md`.
+
 ## Kleine Stichproben
 
 Jede Rate in unseren Tabellen trägt ihr `n` und ein Konfidenzintervall (Clopper-Pearson);
@@ -166,6 +173,8 @@ Drei Fragen konnten wir nicht aus den Daten allein beantworten -- sie stehen aus
 
 - `docs/explosiveness-recherche.md` -- die Literaturrecherche (Connelly, PFF, Sam Hoppen)
   und die wörtliche Formel-Herkunft.
+- `docs/explosiveness-entscheidung.md` -- das Entscheidungsprotokoll: welche Varianten geprüft
+  wurden, warum Kandidat B, und wie der Schwellenwert versioniert wird.
 - `data/reference/explosiveness/comparison_overall.csv` -- alle Team-Zahlen dieses
   Dokuments.
 - `data/reference/explosiveness/comparison_by_player.csv` -- dieselben Zahlen pro Spieler

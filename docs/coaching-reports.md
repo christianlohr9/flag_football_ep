@@ -32,6 +32,8 @@ source cell). Beside his columns, the page shows three of ours -- Success Rate, 
 Explosiveness and the continuous explosiveness score, each with its own `n`/confidence interval
 -- delegated live to the M3-3 `features/explosiveness.py` definitions
 (`docs/explosiveness-vorschlag.md`), never a second implementation of "explosive" or "success".
+The decision record for which definition was adopted (candidate B, EPA magnitude on successful
+plays above a corpus-derived percentile) lives in `docs/explosiveness-entscheidung.md`.
 
 The page is split into sections the way his own tabs are split: `Alle Camps (Korpus gesamt)`
 (the whole corpus), `Head Coach Workbook gesamt` (every hand-charted row, a cross-check
