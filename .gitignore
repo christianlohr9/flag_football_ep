@@ -45,6 +45,11 @@ data/labels/*
 # T-2.2-38) -- `dvc add` writes both, only the `.dvc` file may enter git.
 !data/labels/dataset.dvc
 
+# the held-out eval ground-truth sample (frozen_eval clips only, D-19) is PII
+# just like the training dataset above -- same exception, its own DVC pointer,
+# never merged with data/labels/dataset/.
+!data/labels/eval.dvc
+
 # hackathon re-identification bundles contain extracted frames and crops of
 # players' faces (PII), same policy as data/video/* and data/labels/* above
 # (Phase 2.2, REQ-S2-03)
