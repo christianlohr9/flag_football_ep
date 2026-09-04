@@ -1,10 +1,12 @@
 # Explosiveness & Efficiency: Vorschlag für den Oktober-Sync
 
-Stand: 2026-09-03. Antwort auf deine Frage aus dem Sync ("was ist, wenn eine Spielerin nur
-11 Yards erzielt?") und auf die Recherche in `docs/explosiveness-recherche.md`. Alle Zahlen
-unten sind auf unserem eigenen Korpus gemessen, nicht aus der Literatur übernommen; die
-Messtabellen liegen unter `data/reference/explosiveness/` und dieses Dokument wird gegen
-sie geprüft (jede Zahl hier hat eine Zeile dort).
+Stand: 2026-09-04 (reviewt und freigegeben durch dich am 2026-09-04, vor dem Oktober-Sync --
+Kandidat B, EPA-Magnitude mit Perzentil-Schwelle, angenommen als unsere Explosiveness-Kennzahl;
+Herleitung und Alternativen in `docs/explosiveness-entscheidung.md`). Antwort auf deine Frage aus
+dem Sync ("was ist, wenn eine Spielerin nur 11 Yards erzielt?") und auf die Recherche in
+`docs/explosiveness-recherche.md`. Alle Zahlen unten sind auf unserem eigenen Korpus gemessen,
+nicht aus der Literatur übernommen; die Messtabellen liegen unter `data/reference/explosiveness/`
+und dieses Dokument wird gegen sie geprüft (jede Zahl hier hat eine Zeile dort).
 
 Keine Spielernamen in diesem Dokument (öffentlich, git-versioniert).
 

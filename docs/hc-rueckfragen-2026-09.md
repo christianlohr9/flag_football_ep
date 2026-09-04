@@ -134,6 +134,8 @@ Oktober-Dokument als solche markiert.
 
 Das strukturell saubere Workbook (`Offense Analytics 2026 Camps and Competitions.xlsx`) wird vollständig eingelesen; die beiden offenen Punkte (Frage 1, Frage 2) erscheinen namentlich im Ingest-Report.
 
+**Zustellung (Review 2026-09-04):** Fragen 4-6 gehen nicht separat raus, sondern zusammen mit dem Oktober-Handout (`docs/hc-sync-2026-10.md`), das sie ohnehin schon bündelt.
+
 ## Antworten
 
 _Beantwortet 2026-09-03 per E-Mail durch den HC (Jona Winkel) — Fragen 1-3._
