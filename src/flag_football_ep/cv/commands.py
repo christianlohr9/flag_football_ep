@@ -95,6 +95,50 @@ def sample(
     typer.echo(f"manifest: {manifest_path} ({len(manifest.frames)} frames)")
 
 
+@cv_app.command(name="eval-gt-sample")
+def eval_gt_sample(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    domain: str = typer.Option(
+        ..., "--domain", help="Capture domain to draw held-out ground-truth frames for"
+    ),
+    frames_per_clip: int = typer.Option(
+        ..., "--frames-per-clip", help="Frames to sample from each frozen_eval clip"
+    ),
+    seed: int = typer.Option(
+        20260516, "--seed", help="Random seed for the ground-truth frame sample"
+    ),
+    out: Optional[Path] = typer.Option(
+        None, "--out", help="Override the sampled-frames output directory"
+    ),
+    split: Optional[Path] = typer.Option(
+        None,
+        "--split",
+        help="Frozen eval-clip split CSV (default: cfg.reference frozen_eval_clips.csv)",
+    ),
+) -> None:
+    """Draw the seeded, deterministic ground-truth frame sample from a domain's
+    frozen_eval clips (D-13/D-19) -- the held-out labeling task, never AL/training."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    out_dir = out or (cfg.paths.labels / "eval" / domain / "frames")
+    split_path = split or (cfg.paths.reference / "frozen_eval_clips.csv")
+
+    from flag_football_ep.cv.frames import sample_eval_gt_frames, write_manifest
+
+    manifest = sample_eval_gt_frames(
+        cfg,
+        domain,
+        frames_per_clip=frames_per_clip,
+        seed=seed,
+        out_dir=out_dir,
+        eval_split_path=split_path,
+    )
+    manifest_path = write_manifest(manifest, out_dir / "manifest.json")
+
+    typer.echo(f"manifest: {manifest_path} ({len(manifest.frames)} frames)")
+
+
 @cv_app.command()
 def prelabel(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
@@ -237,7 +281,13 @@ def dataset(
 
     from flag_football_ep.cv.dataset import validate_coco
 
-    stats = validate_coco(coco, loaded_manifest, min_images=min_images, max_images=max_images)
+    stats = validate_coco(
+        coco,
+        loaded_manifest,
+        min_images=min_images,
+        max_images=max_images,
+        eval_split_path=cfg.paths.reference / "frozen_eval_clips.csv",
+    )
 
     typer.echo(f"dataset: {coco} ({stats.n_images} images, {stats.content_sha256})")
     for class_name, count in stats.n_boxes.items():
