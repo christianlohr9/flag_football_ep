@@ -466,7 +466,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - [x] `M3-02-04-PLAN.md` — `scripts/hc_games_refill.py`, the real `ffep ingest` run, the asserted non-zero head-coach row count in `plays.parquet`, the before/after corpus table and the updated `docs/hc-workbook-ingest.md` (HC-03)
   - [x] `M3-02-05-PLAN.md` — EP/WP retraining on the enlarged corpus with the with/without-head-coach ablation (four tagged MLflow runs, no alias moved), the per-source calibration tables, and the measured Timeout / Offsetting Penalties decision (HC-03)
   - [x] `M3-02-06-PLAN.md` — `reports/hc_comparison.py` and `scripts/epa_comparison.py`: his published number, his rows recomputed by us, our non-head-coach rows and the model's out-of-fold expected points per (down, distance, field half) cell, each with its n and an explicit coverage report (HC-03)
-  - [ ] `M3-02-07-PLAN.md` — the German `docs/epa-refinement-2026-10.md`, two Zusatzfragen appended to `docs/hc-rueckfragen-2026-09.md` without renumbering M3-3's Fragen 4-6, and the doc-versus-CSV drift guard (HC-03)
+  - [x] `M3-02-07-PLAN.md` — the German `docs/epa-refinement-2026-10.md`, two Zusatzfragen appended to `docs/hc-rueckfragen-2026-09.md` without renumbering M3-3's Fragen 4-6, and the doc-versus-CSV drift guard (HC-03)
   - [ ] `M3-02-08-PLAN.md` — human review of the coach-facing document, the question set and the champion-promotion decision before the October sync, then the reviewed wording and the decision written back (HC-03)
   - Note (M3-2 planning, 2026-09-03): the `Scoring Probability` team-pair games are deliberately NOT declared this phase — `_stamp_posteam_defteam` nulls `posteam`/`defteam` for every pair-block row until Frage 2 is answered, so they cannot produce an EP or WP label even with the half sentinel. `Copy of Data` (Frage 2) and the EC-2025 workbook (Frage 1) stay excluded for the same reason. Timeout / Offsetting Penalties rows are KEPT for the October run, measured rather than assumed (plan 05), because filtering them would change the frozen 1.3 baseline for every source and confound the ablation.
 - [ ] **Phase M3-3: Explosiveness & Efficiency** - Deep research on explosive-play definitions (NFL 20+/10+ yard conventions, PFF, success rate, EPA-based), propose a threshold-free or calibrated metric replacing ">12 yd and/or positive EPA", implement alongside his Efficiency draft; validated on our data (Requirements: HC-04)
@@ -517,6 +517,6 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M2-4 Messvorschrift | 2/3 | In progress (plan 03 at METR-03 wording gate) | - |
 | M2-5 Einstiegspaket | 0/2 | Not started | - |
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
-| M3-2 EPA-Refinement | 6/8 | In progress (waves 1–4 done; 07 doc running, 08 = user review) | - |
+| M3-2 EPA-Refinement | 7/8 | Awaiting user review (M3-02-08: docs/epa-refinement-2026-10.md) | - |
 | M3-3 Explosiveness & Efficiency | 2/3 | In progress (plan 03 = user review gate) | - |
 | M3-4 Player-Analysis-Report | 5/7 | In progress (05 HTML running; 07 handout + user review) | - |
