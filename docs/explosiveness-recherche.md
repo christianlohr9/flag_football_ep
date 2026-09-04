@@ -90,7 +90,9 @@ Quelle: `data/raw/hc_files/Offense Analytics 2026 Camps and Competitions.xlsx`, 
 
 ```
 ExpPlays  = COUNTIFS(Data!P, <QB>, Data!J, ">12")   ' J = "GN/LS" (Yards Gained/Lost)
-Explosive% = ExpPlays / Attempts                     ' Attempts = Comps+Incs+Sacks (nur Pass!)
+Explosive% = ExpPlays / Attempts    ' Attempts = Comps+Incs+INTs (ohne Sacks, nur Pass!)
+                                     ' Zelle D2, gelesen 2026-09-03 -- Korrektur 2026-09-04:
+                                     ' Sacks zaehlen NICHT mit, entgegen der frueheren Notiz hier
 ```
 
 Wichtiger Befund: **die Formel prüft ausschließlich `Yards > 12` -- keine EPA-Bedingung.** Die
@@ -103,7 +105,9 @@ Kennzahl gar nicht ein.
 **Efficiency** (Spalte U):
 
 ```
-Efficiency = SUMIF(Data!P, <QB>, Data!O) / (Attempts + Drops)
+Efficiency = SUMIF(Data!P, <QB>, Data!O) / (Attempts + Carries)
+' Zelle U2, gelesen 2026-09-03 -- Korrektur 2026-09-04: Nenner ist Attempts + Carries
+' (diese Tab-Formel), NICHT Attempts + Drops wie in der frueheren Fassung dieses Dokuments
 ```
 
 Spalte `O` im `Data`-Tab heißt selbst "Efficiency" und enthält pro Play einen Wert 0/1 (vereinzelt

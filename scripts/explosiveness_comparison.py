@@ -44,6 +44,7 @@ from flag_football_ep.features.explosiveness import (
     DEFAULT_EPA_QUANTILE,
     DEFINITIONS,
     HC_EXPLOSIVE_YARDS_THRESHOLD,
+    HC_PASS_ATTEMPT_SCOPE,
     MissingExplosivenessColumns,
     calibrate,
     cliff_zone_table,
@@ -185,7 +186,10 @@ def _build_overall_table(
     team_comparison = definition_comparison(team_key, ["_team"], calibration=calibration)
     definitions_rows = team_comparison.select(list(_OVERALL_COLUMNS))
 
-    pass_epa = scrimmage_plays(plays, require_epa=True).filter(pl.col("play_type") == "pass")
+    # M3-04-01 correction: HC_PASS_ATTEMPT_SCOPE (imported, never re-derived) excludes sack
+    # rows from the workbook's own Attempts denominator (D2 = Comps+Incs+INTs) -- this used
+    # to be a local `play_type == "pass"` filter that silently counted sacks in.
+    pass_epa = scrimmage_plays(plays, require_epa=True).filter(HC_PASS_ATTEMPT_SCOPE)
     yards_only_flag = (pl.col("yards_gained") > HC_EXPLOSIVE_YARDS_THRESHOLD) & ~(
         pl.col("epa") > 0
     )

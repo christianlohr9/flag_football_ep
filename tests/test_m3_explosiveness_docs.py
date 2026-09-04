@@ -180,7 +180,9 @@ _METRIC_NAME_LABEL = re.compile(r'"Explosive\s?%"')
 # the document) may be referenced again by value alone -- a callback, not a new,
 # undenominated claim. One entry per line/context that does this, so weakening this list
 # is always a visible, deliberate decision (mirrors _ALLOWED_TOKENS in test_m3_hc_pii.py).
-_ALLOWED_CALLBACK_PERCENTAGES = ("48,6 %",)
+# "49,4 %" is the M3-04-01-corrected baseline_hc_verbal rate (was "48,6 %" pre-correction,
+# 2026-09-04) -- Comps+Incs+INTs Attempts scope, no Sacks; see the "Korrektur" section.
+_ALLOWED_CALLBACK_PERCENTAGES = ("49,4 %",)
 
 
 def test_every_percentage_has_a_denominator() -> None:
@@ -205,6 +207,22 @@ def test_every_percentage_has_a_denominator() -> None:
         if any(callback in line for callback in _ALLOWED_CALLBACK_PERCENTAGES):
             continue
         raise AssertionError(f"line has a '%' with no k/n denominator nearby: {raw_line!r}")
+
+
+def test_korrektur_section_present_with_both_corrected_denominators() -> None:
+    """M3-04-01: the Attempts and Efficiency denominator corrections must be visible and
+    dated in the document, not applied silently to the numbers alone."""
+    text = _read(VORSCHLAG)
+    assert "### Korrektur 2026-09-04 (Nenner)" in text, (
+        "missing dated 'Korrektur 2026-09-04 (Nenner)' heading"
+    )
+    assert "Comps + Incs + INTs" in text, (
+        "Korrektur section does not name the corrected Attempts formula (Comps+Incs+INTs)"
+    )
+    assert "Attempts + Carries" in text, (
+        "Korrektur section does not name the corrected Efficiency denominator "
+        "(Attempts + Carries)"
+    )
 
 
 def test_rueckfragen_has_six_frage_headings_with_matching_stubs() -> None:

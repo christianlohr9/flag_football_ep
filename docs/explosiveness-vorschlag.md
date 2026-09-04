@@ -37,15 +37,29 @@ werden muss. Zweitens hat der Korpus noch keine `Efficiency`-Spalte (dein `Data!
 deine Efficiency-Reproduktion ist im Code fertig vorbereitet (`hc_efficiency_table`), aber
 auf echten Zeilen noch nicht berechnet, weil die Spalte fehlt.
 
+### Korrektur 2026-09-04 (Nenner)
+
+Zwei Nenner in diesem Dokument waren falsch und sind jetzt korrigiert, direkt anhand der
+Formelzellen `D2` und `U2` im Tab `Player Analysis All Camps` nachgeprüft. Erstens: deine
+`Attempts`-Zelle (`D2`) addiert Comps + Incs + INTs -- Sacks zählen nicht mit. Unsere frühere
+Fassung dieses Dokuments hatte einen etwas größeren Nenner (inklusive Sacks) verwendet; alle
+Zahlen unten sind jetzt auf dem korrekten, kleineren Nenner nachgerechnet. Zweitens: deine
+`Efficiency`-Zelle (`U2`) teilt durch Attempts + Carries (Pass- und Lauf-Attempts zusammen),
+nicht durch Attempts + Drops -- die Efficiency-Reproduktion im Code (`hc_efficiency_table`)
+folgt jetzt deiner Tabellenformel als Hauptzahl, während die ältere Attempts-plus-Drops-Lesart
+als zweite, klar benannte Zahl daneben stehen bleibt. Beide Lesarten bleiben sichtbar
+nebeneinander, bis Frage 4, 5 und 6 in `docs/hc-rueckfragen-2026-09.md` beantwortet sind --
+das ist unsere Korrektur, nicht dein Fehler.
+
 ## Deine heutige Zahl, wörtlich reproduziert
 
 Wir haben zwei unterschiedliche Regeln bei dir gefunden und beide -- getrennt, ohne eine
-für die andere zu halten -- auf denselben 14.991 Pass-Attempts nachgerechnet:
+für die andere zu halten -- auf denselben 14.739 Pass-Attempts nachgerechnet:
 
 | Regel | Formel | Ergebnis |
 |---|---|---|
-| Workbook-Formel (`Player Analysis All Camps!R2:S2`) | `Yards > 12`, nur Pass | 15,8 % (2.365/14.991) |
-| Mündliche Regel (aus dem Sync) | `Yards > 12` ODER `EPA > 0`, nur Pass | 48,6 % (7.290/14.991) |
+| Workbook-Formel (`Player Analysis All Camps!R2:S2`) | `Yards > 12`, nur Pass | 16,0 % (2.365/14.739) |
+| Mündliche Regel (aus dem Sync) | `Yards > 12` ODER `EPA > 0`, nur Pass | 49,4 % (7.284/14.739) |
 
 Der Befund ohne Wertung: deine Tabellen-Formel prüft ausschließlich Yards -- keine EPA
 irgendwo in der Formelkette. Deine mündliche Beschreibung im Sync war eine andere,
@@ -60,9 +74,9 @@ trennt seit Jahren zwei Fragen, die eine einzelne "Explosive %"-Zahl vermischt:
 **Efficiency** ("war der Play gut genug?", binär) und **Explosiveness** ("wie groß war er,
 gegeben dass er gut war?", nur über die guten Plays gemittelt).
 
-Auf unseren Daten zeigt sich das konkret: die mündliche "oder"-Regel (48,6 %) liegt fast
+Auf unseren Daten zeigt sich das konkret: die mündliche "oder"-Regel (49,4 %) liegt fast
 exakt bei der reinen Success Rate (EPA > 0: 47,7 %, 7.657/16.067). Die Yards-Klausel trägt
-kaum etwas Eigenes bei -- nur 84 von 14.991 Pass-Attempts (0,6 %) werden AUSSCHLIESSLICH
+kaum etwas Eigenes bei -- nur 84 von 14.739 Pass-Attempts (0,6 %) werden AUSSCHLIESSLICH
 durch "Yards > 12" explosive, während EPA bei ihnen nicht positiv ist. Deine mündliche
 Regel misst also in der Praxis fast nur Efficiency, nicht "große Plays" -- genau die
 Verwechslung, die die Literatur als Kernproblem benennt.
