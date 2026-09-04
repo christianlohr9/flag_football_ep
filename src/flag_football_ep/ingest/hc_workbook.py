@@ -134,6 +134,8 @@ _HC_ONLY_RENAME: dict[str, str] = {
     "OFF STR": "off_str",
     "THROWN BY": "thrown_by",
     "YAC": "yac",
+    # Unblocks the report's Adj Comp %, adj Pass Yards, adj YPA (HC-05, M3-04-06).
+    "DROP": "drop",
 }
 _HC_RENAME: dict[str, str] = {**hudl._CHARTING_RENAME, **_HC_ONLY_RENAME}
 # case-insensitive/whitespace-tolerant lookup: normalized header -> canonical extra

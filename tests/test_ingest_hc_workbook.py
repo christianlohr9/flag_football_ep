@@ -16,7 +16,7 @@ import pytest
 
 import polars as pl
 
-from flag_football_ep.canonical import CANONICAL_COLUMNS
+from flag_football_ep.canonical import CANONICAL_COLUMNS, NULLABLE_EXTRAS
 from flag_football_ep.ingest.hc_workbook import (
     HcBlock,
     HcGameIdentity,
@@ -366,6 +366,30 @@ def test_jersey_string_integral_float_becomes_plain_integer_string(contract) -> 
     assert df["PLAY #"][0] == "1"
 
 
+def test_drop_column_in_canonical_columns_as_nullable_utf8_extra() -> None:
+    assert "drop" in CANONICAL_COLUMNS
+    assert NULLABLE_EXTRAS["drop"] == pl.Utf8
+
+
+@pytest.mark.parametrize("drop_header", ["Drop", "DROP", "drop", " Drop "])
+def test_drop_header_any_case_or_whitespace_maps_to_drop_column_raw_text(
+    contract, drop_header
+) -> None:
+    header = list(OFFENSE_ANALYTICS_HEADER)
+    header[22] = drop_header  # "Drop" sits at index 22 in the real header
+    row = list(_OFFENSE_ROW)
+    row[22] = "X"  # the head coach's real charted drop mark
+    block = _numeric_block(header, [row])
+
+    df, _, _, messages = map_block_to_frame(block, contract)
+
+    assert df["drop"][0] == "X"
+    # "drop" is a rename target, not a header collected into the unmapped
+    # ("nicht stillschweigend verworfen") notice.
+    unmapped_notices = [m for m in messages if "nicht stillschweigend verworfen" in m]
+    assert not unmapped_notices or drop_header not in unmapped_notices[0]
+
+
 def test_result_negative_float_preserved_dn_out_of_range_flagged(contract) -> None:
     row = list(_OFFENSE_ROW)
     row[5] = 7.0  # DN out of the contract's [0, 4] range
@@ -385,8 +409,11 @@ def test_unknown_headers_named_not_silently_dropped(contract) -> None:
     _, _, _, messages = map_block_to_frame(block, contract)
 
     joined = " ".join(messages)
-    for unmapped_header in ("X", "S", "C", "Q", "Y", "Drop", "B"):
+    for unmapped_header in ("X", "S", "C", "Q", "Y", "B"):
         assert unmapped_header in joined
+    # Drop is mapped to the canonical `drop` extra (M3-04-06) -- no longer
+    # among the unmapped-header notices.
+    assert "Drop" not in joined
 
 
 def test_unknown_headers_charting_extras_are_renamed_not_listed(contract) -> None:
@@ -394,7 +421,7 @@ def test_unknown_headers_charting_extras_are_renamed_not_listed(contract) -> Non
 
     df, _, _, _ = map_block_to_frame(block, contract)
 
-    for extra in ("air_yards", "hand", "efficiency", "target_route", "received_by", "thrown_by", "target"):
+    for extra in ("air_yards", "hand", "efficiency", "target_route", "received_by", "thrown_by", "target", "drop"):
         assert extra in df.columns
 
 
@@ -1022,6 +1049,47 @@ def test_ingest_workbook_two_game_numeric_block_resolves_mapped_game_ids(
     assert df["source"].unique().to_list() == [hc_source_label(path, "Data")]
     assert sorted(df["game_id"].unique().to_list()) == ["hc-g1", "hc-g2"]
     assert notices.sheet == "Data"
+
+
+def test_ingest_workbook_no_drop_header_materializes_null_and_reports_it(
+    tmp_path: Path, contract
+) -> None:
+    """A sheet with no Drop header still conforms -- `drop` is a typed null,
+    named in `ConformReport.materialized_extras`, same as the four M3-01-02
+    extras behave when their header is absent."""
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        [1, "O", 1, 10, -20, "Rush", 5],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert "drop" in df.columns
+    assert df["drop"].null_count() == df.height
+    assert "drop" in notices.conform.materialized_extras
+
+
+def test_ingest_workbook_drop_header_present_survives_to_canonical_frame(
+    tmp_path: Path, contract
+) -> None:
+    header = _INGEST_MINIMAL_HEADER + ["Drop"]
+    rows = [
+        header,
+        [1, "O", 1, 10, -20, "Rush", 5, "X"],
+        [2, "O", 2, 5, -15, "Incomplete", 5, ""],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+    hc_games = _hc_games_frame([])
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    # an empty charted cell reads back as null (openpyxl), not empty string
+    assert df.sort("play_id")["drop"].to_list() == ["X", None]
+    assert "drop" not in notices.conform.materialized_extras
 
 
 def test_ingest_workbook_empty_sheet_returns_zero_row_canonical_frame(

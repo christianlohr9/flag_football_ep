@@ -90,6 +90,13 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     # with no equivalent in any Hudl export.
     "bf_action": pl.Utf8,
     "hand": pl.Utf8,
+    # HC workbooks (HC-05, M3-04-06): workbook column Data!W, the head
+    # coach's Drop mark. Kept as text, not a boolean flag -- his own Adj
+    # Comp % formula tests it with the Excel wildcard criterion "*"
+    # (COUNTIFS(..., Data!W, "*")), which in Excel matches text only; a
+    # numeric 1 in that cell would not be counted by his own sheet, so
+    # storing the raw charted text preserves that distinction.
+    "drop": pl.Utf8,
     # Int32
     "yac": pl.Int32,
     "drive_success": pl.Int32,
