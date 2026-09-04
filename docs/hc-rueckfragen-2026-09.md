@@ -98,6 +98,38 @@ ausweisen, oder (c) es beim reinen Pass-Nenner belassen, wie es heute ist?
 Ohne Antwort: Wir zeigen beide Zahlen weiterhin getrennt (Lauf und Pass), so wie oben, und
 bilden keine ungefragte Kombination.
 
+## Zusatzfragen (M3-2, EPA-Update)
+
+Diese zwei Zusatzfragen kamen aus dem EPA-Update für den Oktober-Sync
+(`docs/epa-refinement-2026-10.md`) — beide lassen sich nicht aus den Daten selbst beantworten.
+
+### Zusatzfrage A — Gibt es Halbzeit-Marker für deine Workbook-Spiele?
+
+Deine Workbooks tragen keine Halbzeit-Information. Für die Spiele, die wir trainierbar
+verwenden können, setzen wir deshalb einen dokumentierten Ersatzwert (konstant `half = 2`
+fürs ganze Spiel). Der Preis: eine torlose Drive vor der (nicht existierenden) Halbzeitgrenze
+erbt im Label den nächsten tatsächlichen Score des Spiels, statt an der echten Halbzeit als
+"kein Score" zu enden. Kannst du markieren, welche Zeile in einem Spiel der erste Play nach der
+Halbzeit ist — eine Zahl pro Spiel reicht — oder uns bestätigen, dass Camp- und
+Scrimmage-Segmente gar keine formale Zwei-Halbzeiten-Struktur haben? Ehrlich dazugesagt, was wir
+NICHT gemacht haben: wir haben getestet, die Halbzeit aus der reinen Play-Anzahl zu schätzen —
+das landete bei den einzigen zwei Spielen mit einem echten Marker innerhalb von vier
+Prozentpunkten der Spielmitte, aber `n = 2` reicht nicht, um das zu übernehmen.
+
+Ohne Antwort: der Ersatzwert bleibt, dokumentiert in `docs/data-contract.md`, und die
+Einschränkung steht im Oktober-Dokument.
+
+### Zusatzfrage B — Wie sollen wir deine Spiele einordnen: Camp, Scrimmage oder Länderspiel?
+
+Das Modell nutzt das Wettbewerbs-Niveau als Eingabe, und wir klassifizieren aktuell alle deine
+Spiele als `mixed-other` — dieselbe Kategorie wie die älteren Legacy-Spiele, eine Annahme, keine
+Tatsache. Kannst du uns eine kurze Liste je Workbook geben (`Offense Analytics 2026 Camps and
+Competitions`, `Scoring Probability by Situation 2023-2026`): Länderspiel, Turnier,
+Camp/Scrimmage, gemischt?
+
+Ohne Antwort: `mixed-other` bleibt der dokumentierte Default, und die Annahme wird im
+Oktober-Dokument als solche markiert.
+
 ## Was wir ohne Antwort liefern
 
 Das strukturell saubere Workbook (`Offense Analytics 2026 Camps and Competitions.xlsx`) wird vollständig eingelesen; die beiden offenen Punkte (Frage 1, Frage 2) erscheinen namentlich im Ingest-Report.
@@ -120,3 +152,7 @@ Ja.
 ### Frage 5 — Was genau steht in der Spalte "Efficiency" (Data!O)?
 
 ### Frage 6 — Sollen Läufe in "Explosive %" und "Efficiency" mitzählen?
+
+### Zusatzfrage A — Gibt es Halbzeit-Marker für deine Workbook-Spiele?
+
+### Zusatzfrage B — Wie sollen wir deine Spiele einordnen: Camp, Scrimmage oder Länderspiel?
