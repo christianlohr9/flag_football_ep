@@ -156,3 +156,55 @@ Ja.
 ### Zusatzfrage A — Gibt es Halbzeit-Marker für deine Workbook-Spiele?
 
 ### Zusatzfrage B — Wie sollen wir deine Spiele einordnen: Camp, Scrimmage oder Länderspiel?
+
+## Zusatzfragen (M3-4, Report)
+
+_Ergänzt 2026-09-04 beim Bau des automatisierten Player-Analysis-Reports. Die Nummerierung
+setzt die Fragen 1-6 oben fort; die Struktur bleibt bewusst getrennt, damit die bestehenden
+Abschnitte unverändert bleiben._
+
+#### Frage 7 — Camp IV oder Camp VI?
+
+Deine Zeilen 3001-4000 im `Data`-Tab tauchen unter zwei verschiedenen Tab-Namen auf: `Set
+Analysis Camp IV` und `Player Analysis Camp VI` — beide über exakt denselben Zeilenbereich,
+beide Namen direkt aus deinen eigenen Formelzellen gelesen (kein Übertragungsfehler unserer
+Seite). Welcher Name ist der richtige, und soll künftig jeder Set-Analysis-Camp (I, III, IV, V)
+auch einen eigenen Player-Analysis-Tab bekommen, oder bleibt das Paar nur für diesen einen Camp
+bestehen?
+
+Ohne Antwort: Der Report zeigt diesen Abschnitt als "Camp IV/VI (Zeilen 3001-4000, Name
+unklar)" mit einem sichtbaren Konflikt-Hinweis, statt sich für einen Namen zu entscheiden.
+
+#### Frage 8 — Was bedeutet die Spalte `Data!Y` (Kopf "B")?
+
+Deine Air-Yards-Formel (`Player Analysis All Camps!K2`) zieht einen Term ab:
+`SUMIF(Data!L, <QB-Name>, Data!Y)` — summiert über alle Zeilen, in denen `RECEIVED BY` (Spalte
+L) der Name des Quarterbacks selbst ist, also Zeilen, in denen der QB als eigener Passempfänger
+auftaucht. Die Spalte `Data!Y` selbst trägt als Kopfzeile nur den einzelnen Buchstaben `"B"`,
+ohne erkennbare Bedeutung anderswo im Workbook (vier weitere einbuchstabige Spalten -- `X`, `S`,
+`C`, `Q` -- haben dasselbe Problem, aber nur `Y` fließt in eine Formel ein).
+
+Ohne Antwort: Unsere Air-Yards-Zahl lässt diesen Subtraktionsterm weg und liegt dadurch
+tendenziell etwas höher als deine -- sichtbar als Fußnote im Report, nicht stillschweigend.
+
+#### Frage 9 — Wie wird die Drop-Spalte (`Data!W`) gefüllt?
+
+Deine `Adj Comp %`-, `adj Pass Yards`- und `adj YPA`-Formeln hängen alle an derselben Spalte
+(`Data!W`, Kopf "Drop"). Zwei Teilfragen, die wir aus den Daten allein nicht beantworten
+können:
+
+Erstens, wie trägst du einen Drop ein -- als Text (ein `x`, ein Wort) oder als Zahl? Dein
+eigenes Formel-Kriterium (`COUNTIFS(..., "*")`) ist ein Excel-Wildcard und zählt ausschließlich
+Text -- eine numerische Markierung (z. B. `1`) würde von deiner eigenen Tabelle stillschweigend
+NICHT gezählt. Wir speichern die Spalte deshalb als Text (nie als Zahl), aber wenn du Drops
+zahlenmäßig markierst, zählt deine eigene Formel sie schon heute nicht mit -- unabhängig von
+uns.
+
+Zweitens, zählt ein Drop bei dir zusätzlich als Incompletion (`Incs`)? Das ist dieselbe
+Unklarheit wie schon bei Frage 5 (`Attempts + Drops` als Efficiency-Nenner) -- wir können aus
+den Zeilen allein nicht sehen, ob deine `Incs`-Zählung Drops schon enthält oder nicht.
+
+Ohne Antwort: Unser Report markiert einen Play als "dropped", sobald `Data!W` einen
+nicht-leeren Wert trägt (Text oder Zahl) -- bewusst großzügiger als dein eigenes
+Text-only-Wildcard-Kriterium, und wir zählen einen Drop zusätzlich als Incompletion, bis du uns
+sagst, dass das falsch ist.

@@ -275,11 +275,20 @@ def test_rueckfragen_frage_headings_stay_balanced() -> None:
 
 
 def test_rueckfragen_zusatzfrage_stub_count_matches_section() -> None:
+    """Validates M3-2's own '## Zusatzfragen (M3-2, ...)' block specifically.
+
+    Scoped to the M3-2 heading text (not '## Zusatzfragen' in general) since M3-4
+    (`M3-04-07`) appends its own, differently-shaped '## Zusatzfragen (M3-4, Report)'
+    section to the same file, using `#### Frage N` sub-headings rather than this
+    block's `### Zusatzfrage <id>` convention -- a second, unrelated top-level
+    section with a similar name is expected and does not indicate M3-2's own block
+    was duplicated or corrupted.
+    """
     text = _read(RUECKFRAGEN)
 
-    section_headings = list(re.finditer(r"^## Zusatzfragen.*$", text, re.MULTILINE))
+    section_headings = list(re.finditer(r"^## Zusatzfragen \(M3-2.*$", text, re.MULTILINE))
     assert len(section_headings) == 1, (
-        f"expected exactly one '## Zusatzfragen' section, found {len(section_headings)}"
+        f"expected exactly one '## Zusatzfragen (M3-2...)' section, found {len(section_headings)}"
     )
     heading = section_headings[0]
     body_start = heading.end()
