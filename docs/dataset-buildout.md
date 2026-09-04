@@ -14,6 +14,30 @@ Ground Truth für die eingefrorenen Clips), daher **nicht promoviert**, siehe
 `## Iteration-1-Detektor: Training und Per-Domain-Evaluation (Plan 02.2-15)` unten. Noch
 offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20).**
 
+### Korrektur 2026-09-04 (Koordinator): Der Drohnen-Vergleich ist kein Held-out-Vergleich
+
+**Befund:** Die 76 Ground-Truth-Bilder der obigen Tabelle stammen aus dem korrigierten
+Pilot-Datensatz (`data/labels/frames/manifest.json`, 404 Frames über alle 61 Clips). Der
+Phase-2.1-Champion (`87a8a522…`) wurde genau auf diesem Datensatz trainiert: von den 113
+Pilot-Frames in den 18 eingefrorenen Drohnen-Eval-Clips lagen 88 im `train`- und 25 im
+`val`-Split des Champion-Laufs. Der Champion wurde also auf seinen eigenen Trainingsbildern
+gemessen (0,6259), der Iteration-1-Lauf (`be854a1a…`) dagegen auf echt ungesehenen Bildern —
+Datensatz v1.2 enthält keinen einzigen der 18 Eval-Clips (43 Pool-Clips, 450 Drohnen-Frames,
+0 Bild-Überschneidung mit dem Pilot-Manifest). Trainingskonfiguration beider Läufe identisch
+(30 Epochen, 896 px, Batch 4, Grad-Accum 4, MPS).
+
+**Folge:** Der Unterschied von −0,0476 mAP_50_95 ist als „Rückgang" nicht belegt; die
+Stoppregel-Bewertung für die Drohnen-Domäne lautet nicht `nein`, sondern **nicht messbar**
+(wie bereits für GoPro/Hinterfeld). Die Nicht-Beförderung bleibt richtig, aber aus dem
+Grund „kein gültiger Vergleich", nicht „Regression".
+
+**Was den Vergleich gültig macht (Nutzer-Gate):** Ground Truth direkt aus den eingefrorenen
+Eval-Clips — 18 Drohnen- und 12 GoPro/Hinterfeld-Clips, Vorschlag 5–6 Frames je Clip
+(≈ 90 + 70 Frames), als eigene CVAT-Aufgabe mit Vorlabels des aktuellen Champions, 100 % geprüft
+(D-15). Beide Läufe werden dann auf denselben, von keinem Modell gesehenen Bildern gemessen;
+erst danach ist die Stoppregel (+0,010 mAP_50_95) überhaupt anwendbar. Bis dahin gilt für
+beide Domänen: Iteration 2 läuft wegen des 1.500-Frame-Floors ohnehin weiter.
+
 ## Zweck & Abgrenzung
 
 Dieses Dokument ist der laufende Ausführungs-Nachweis der Active-Learning-Iterationen, die
