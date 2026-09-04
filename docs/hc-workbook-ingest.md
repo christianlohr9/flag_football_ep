@@ -23,7 +23,23 @@ Die Verschiebung der Gesamt-Spielzahl (2.128 → 1.857) kommt fast vollständig 
 Segmentierungskorrektur (M3-02-01): `Data`s Team-Namenspaar-Block fällt von 137 auf 22 echte
 Spiele (unten erklärt), `Copy of Data`s über 150 verwandte Namenspaar-Teilblöcke von 1.801 auf
 1.645 Fragmente — die Zahl ist kleiner, aber **nicht** deshalb schon trainierbar (siehe
-`## Nicht eingelesen (bewusst)`). Die aussagekräftigere Zahl für den Cheftrainer-Sync ist die
+`### Nachtrag 2026-09-04 (M3-02-05, Zulassungsregeln)
+
+Die Zahlen oben sind der Stand vom 2026-09-03. Mit den drei Zulassungsregeln aus M3-02-05
+(Platzhalter-Zeilen ohne ODK/DN/RESULT werden vor der Validierung als Nicht-Plays entfernt;
+`play_id` wird aus der Zeilenreihenfolge im Spiel neu vergeben, das Original-`PLAY #` bleibt als
+Extra `hc_play_no`; Spiele ohne Teamnamen bleiben unter provisorischer `game_id` trainierbar) sind
+jetzt **92 HC-Spiele mit 6.818 Zeilen** trainierbar (vorher 35 / 1.964). Kein Check wurde
+aufgeweicht; `hc_workbook` bleibt außerhalb von `_WARN_ONLY_SOURCES`.
+
+**Gesamtlauf** (`ffep ingest`, 2026-09-04): 339 Spiele, **28.255** akzeptierte Plays, 130
+quarantänisiert. Von den verbleibenden HC-Quarantänen sind die 22 Spiele des Pair-Blocks
+(`half_assigned`, keine O/D/S-Marker, Zuordnung von `posteam` müsste aus der
+Teamnamen-Reihenfolge kommen) der größte Posten — offen unter
+`.planning/todos/pending/2026-09-04-hc-pair-block-22-spiele.md`; der Rest sind echte
+Charting-Lücken (`downs_range` mit vereinzelten null-Downs innerhalb eines Spiels).
+
+## Nicht eingelesen (bewusst)`). Die aussagekräftigere Zahl für den Cheftrainer-Sync ist die
 **trainierbare** Spielzahl, also wie viele Spiele tatsächlich `data/processed/plays.parquet`
 erreichen: **35** (25 aus Offense Analytics, 10 aus Scoring Probability), alle mit `half=2`
 (Sentinel, siehe `## Validierung`) und beide mit `posteam`/`defteam`, weil beide numerisch
