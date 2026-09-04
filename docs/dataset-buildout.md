@@ -7,8 +7,12 @@ auf Datensatz v1.2 erweitert (siehe `### Nachtrag 2026-09-04` unten). Datensatz 
 unter `data/labels/dataset/`, DVC-getrackt, 572 Bilder über drei Domänen (Drohne 450,
 TV/Broadcast 100, GoPro/Hinterfeld 22) — jedes Bild tatsächlich von der Nutzerin in CVAT
 gesichtet und/oder korrigiert, per Datei-Diff gegen die Vorlabels verifiziert, nicht nur
-gemeldet. Noch offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan
-02.2-20).**
+gemeldet. Iteration-1-Detektor auf v1.2 trainiert und per Domäne evaluiert (Plan 02.2-15,
+MLflow Run `be854a1adebf4eb4b01d98dc39022ee1`) — Drohne verschlechtert sich gegenüber dem
+Champion auf den eingefrorenen Eval-Clips (`mAP_50_95` -0,0476), GoPro nicht messbar (keine
+Ground Truth für die eingefrorenen Clips), daher **nicht promoviert**, siehe
+`## Iteration-1-Detektor: Training und Per-Domain-Evaluation (Plan 02.2-15)` unten. Noch
+offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20).**
 
 ## Zweck & Abgrenzung
 
@@ -589,6 +593,142 @@ GoPro-Rückstand strukturiert aufgeholt wird, nicht diese Ad-hoc-Nachsitzung.
 `dvc push -r local-fallback` erneut gegen den bestehenden lokalen Rückfall-Remote ausgeführt;
 `dvc status -r local-fallback -c` bestätigt "Cache and remote 'local-fallback' are in sync"
 danach. Der reale OTC-OBS-Push bleibt weiterhin Plan 02.2-20 vorbehalten.
+
+## Iteration-1-Detektor: Training und Per-Domain-Evaluation (Plan 02.2-15)
+
+### Training
+
+`evaluate_per_domain` implementiert (`src/flag_football_ep/cv/detect.py`): läuft den geladenen
+Detektor über jede Domäne der eingefrorenen Eval-Clips, scored die Vorhersagen mit
+`torchmetrics.detection.MeanAveragePrecision` gegen menschlich korrigierte Ground-Truth-Frames
+aus `data/labels/<session_id>/corrected/instances.json` (gefiltert auf die dieser Domäne
+zugeordneten `frozen_eval`-Clip-Nummern). Eine Domäne ohne verfügbare Ground-Truth-Frames für
+ihre eingefrorenen Clips löst `EvalGroundTruthMissing` mit Domänennamen aus, statt eine
+Kennzahl über eine leere Menge zu berichten.
+
+**Gefundener und behobener Blocker (Rule 3):** `train_detector` löste sein Manifest bislang
+immer aus dem festen Piloten-Pfad (`data/labels/frames/manifest.json`, 404 reine
+Drohnen-Frames) auf, unabhängig vom übergebenen `--dataset`-Pfad — ein Training gegen
+`data/labels/dataset` (das wachsende Multi-Domänen-Datenset) hätte still die falschen Frames
+verwendet. `_resolve_manifest_path` bevorzugt jetzt `<dataset_dir>/manifest.json`, wenn
+vorhanden (die 2.2-Konvention, siehe `### Merge & Validierung` oben), und fällt nur für den
+Piloten-Datenpfad auf den alten Ort zurück.
+
+**Zweiter gefundener und behobener Blocker (Rule 1):** Der echte Trainingslauf (unten) endete
+nach allen 30 Epochen mit `WeightsNotFound: expected checkpoint not found ... checkpoint_best_
+total.pth`. Ursache: RF-DETRs eigener `BestModelCallback.on_fit_end` schreibt diese Datei nur,
+wenn mindestens eine Validierungs-Epoche die überwachte Metrik tatsächlich verbessert hat — die
+AL-Iterations-Datensätze dieser Phase tragen aber überhaupt keinen `val`-Split (jeder gemergte
+Frame trägt `split: "train"`; die Evaluierung läuft bewusst getrennt über die eingefrorenen
+Eval-Clips, nicht über `train_detector`s internen Val-Split), sodass nie eine verbessernde
+Validierungs-Epoche stattfindet. RF-DETR selbst schreibt in diesem Fall stattdessen zuverlässig
+`checkpoint_best_ema.pth` ("EMA metric never improved; saved final EMA weights..." im Log).
+`train_detector`/`_register_from_artifacts` akzeptieren jetzt beide Dateinamen und tragen die
+tatsächlich verwendete Quelle in `params["checkpoint_source"]` ein
+(`best_ema_fallback_no_val_split` für diesen Lauf) — ein Blocker, der jeden künftigen
+AL-Iterations-Trainingslauf gegen dieses Datenset ebenso getroffen hätte, nicht nur diesen.
+
+Trainiert auf der Primärmaschine (Apple M5 Max, `--device mps`, D-21-Fallback — kein CUDA auf
+dieser Maschine verfügbar), nach demselben chunk-freien Verfahren wie die 2.1-Baseline
+dokumentiert (`## Detector-Training` in `docs/cv-setup.md`), diesmal in einem durchgehenden
+Hintergrundlauf statt manuell segmentiert:
+
+| Setting | Wert |
+|---|---|
+| `resolution` | 896 |
+| `epochs` | 30 |
+| `batch_size` | 4 |
+| `grad_accum_steps` | 4 |
+| `device` | `mps` |
+| `dataset_content_sha256` | `d4528a9958305c267e6257be26c07466fe78e286d4777108c29d9476003b56b1` (== Datensatz v1.2) |
+| `checkpoint_source` | `best_ema_fallback_no_val_split` |
+| `machine` | `MacBook-Pro-2.local` (Apple M5 Max, 128 GB) |
+| **MLflow Run-ID** | `be854a1adebf4eb4b01d98dc39022ee1` |
+| Wall-Clock | ~2 h 19 min (11:26:35–13:45:12 Uhr, 2026-09-04, ein durchgehender Lauf) |
+| Registrierte Modellversion | `cv_detector_model` Version 2 |
+
+### Per-Domain-Evaluation
+
+Beide Detektoren — der Phase-2.1-Champion (`87a8a5222f7a472787875e974d089c44`) und der neue
+Iteration-1-Lauf (`be854a1adebf4eb4b01d98dc39022ee1`) — wurden mit `ffep cv eval-domains` gegen
+`data/reference/frozen_eval_clips.csv` gemessen.
+
+**Drohne:** Ground Truth kommt aus dem Piloten-Korrektur-Datensatz
+(`data/labels/2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE/corrected/`, 304 Frames, vor der
+2.2-Eval-Split-Einfrierung gezogen). 13 der 18 eingefrorenen Drohnen-Clips (5, 6, 7, 11, 15, 16,
+21, 22, 28, 33, 36, 40, 43) überschneiden sich mit den vom Piloten gelabelten Clip-Nummern
+(1–46); die übrigen 5 (49, 52, 54, 55, 56) liegen ausserhalb des Piloten-Materials und tragen
+keine Ground Truth. 76 Bilder / 1635 Boxen stehen damit für die Drohnen-Domäne zur Verfügung —
+ein Teilsatz der 18 Clips, aber real von der Nutzerin gesichtete Boxen, keine erfundene Zahl.
+
+**GoPro/Hinterfeld:** Für keinen der 12 eingefrorenen `sideline`-Clips existiert ein
+menschlich-korrigiertes COCO-Paket (`data/labels/2026-08-14_WC-GER-vs-MEX-GOPRO/` enthält nur
+`bundle-inputs/`, kein `corrected/`) — jede AL-1-Korrektur betraf ausschliesslich `role = pool`-
+Clips (`Pool-Sicherheit` oben), wie von Konstruktion beabsichtigt. Ein realer
+`ffep cv eval-domains`-Lauf gegen den vollen Split bestätigt das:
+`EvalGroundTruthMissing: domain 'sideline' has zero ground-truth-labeled frames overlapping its
+12 frozen_eval clip(s)`. **Die GoPro-Domäne ist diese Iteration nicht messbar** — kein
+Ausweichen auf eine erfundene Zahl, sondern eine ehrlich dokumentierte Lücke: eine eigene
+Eval-Ground-Truth-Sitzung für die eingefrorenen GoPro-Clips ist bislang von keinem Plan
+vorgesehen und hat nicht stattgefunden.
+
+**Vergleichstabelle (identischer 76-Bilder-Drohnen-Eval-Satz für beide Läufe):**
+
+| Detektor | Domäne | n Bilder | n Boxen | `mAP_50` | `mAP_50_95` | `AP_player` | `AP_referee` |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Phase-2.1-Champion (`87a8a522...`) | Drohne | 76 | 1635 | 0,8669 | 0,6259 | 0,6163 | 0,6355 |
+| Iteration-1 v1.2 (`be854a1a...`) | Drohne | 76 | 1635 | 0,8315 | 0,5783 | 0,5475 | 0,6091 |
+| **Delta** | Drohne | — | — | **-0,0354** | **-0,0476** | -0,0688 | -0,0264 |
+| Phase-2.1-Champion | GoPro/Hinterfeld | — | — | nicht messbar (keine Ground Truth) | | | |
+| Iteration-1 v1.2 | GoPro/Hinterfeld | — | — | nicht messbar (keine Ground Truth) | | | |
+
+**Wichtiger Methodenhinweis:** Diese 76-Bild-Zahl (`mAP_50_95 = 0,6259` für den Champion) ist
+*nicht* dieselbe Messung wie die in `docs/dataset-plan.md` `## 3` als Referenz-Ausgangspunkt
+zitierte `mAP_50_95 = 0,8112` — jene Zahl stammt aus dem internen 20-%-Val-Split des
+304-Bild-Piloten-Datensatzes (Phase 2.1, vor Existenz der eingefrorenen Eval-Clips). Die hier
+gemessene Zahl verwendet dieselben eingefrorenen Clips für beide Detektoren, exakt die
+Vergleichsbasis, die das Abbruchkriterium verlangt ("gegenüber dem zuletzt registrierten
+Detektor ... auf den eingefrorenen Pro-Domäne-Eval-Clips") — beide Zahlen sind real gemessen,
+beschreiben aber unterschiedliche Testsätze und dürfen nicht gegeneinander verglichen werden.
+
+### Abbruchkriterium-Verdikt
+
+**Drohne:** Delta `mAP_50_95` = -0,0476 (Verschlechterung, nicht Verbesserung), `mAP_50`
+bewegt sich in dieselbe (negative) Richtung. Klar unterhalb der +0,010-Verbesserungsschwelle —
+**Iteration 2 für Drohne (Metrik-Verdikt): nein.** Plausible Ursache: das Multi-Domänen-Training
+(572 Bilder über drei Domänen, davon nur 450 Drohne) ohne jeden Val-Split (siehe
+`checkpoint_source`-Fund oben) hat keine früh-stoppende, validierungsbasierte
+Checkpoint-Auswahl — es zählen die letzten EMA-Gewichte nach exakt 30 Epochen, nicht die besten
+gegen eine Kontrollmenge. Eine Verschlechterung ist damit ein plausibles, ehrliches Ergebnis
+dieser Iteration, kein Messfehler.
+
+**GoPro/Hinterfeld:** Kein registrierter Vorgänger-Lauf für diese Domäne UND keine
+Ground-Truth-Frames für ihre eingefrorenen Clips diese Iteration — das Abbruchkriterium ist für
+diese Domäne (noch) nicht anwendbar (`docs/dataset-plan.md` `## 3`: "für GoPro und TV ...
+labelt daher immer bis mindestens zum Floor, unabhängig vom Abbruchkriterium").
+
+**1.500-Floor-Status (bindend, unabhängig vom Metrik-Verdikt):** 572 von 1.500 (38 %) —
+deutlich unter dem Floor. **Iteration 2 läuft für alle Domänen zum Erreichen des Floors, auch
+für die Drohne trotz ihres negativen Metrik-Verdikts** — exakt der von Task 3 selbst
+vorweggenommene Fall ("Note the 1,500-frame floor separately: it is mandatory regardless of the
+metric verdict").
+
+### Promotion-Entscheidung
+
+**Nicht promoviert.** Task 3s eigene Regel ("Promote ... if it improves the drone domain
+without regressing the second domain") ist hier zweifach nicht erfüllt: die Drohnen-Domäne hat
+sich verschlechtert (nicht verbessert), und die zweite Domäne (GoPro) ist diese Iteration gar
+nicht messbar, kann eine fehlende Regression also nicht bestätigen. `champion` bleibt auf dem
+Phase-2.1-Lauf (`87a8a5222f7a472787875e974d089c44`) — verifiziert nach der Evaluation
+unverändert: `resolve_champion('cv_detector_model', config) == '87a8a5222f7a472787875e974d089c44'`.
+`hackathon-frozen` ebenfalls unverändert und identisch geprüft
+(`resolve_frozen('cv_detector_model', config) == '87a8a5222f7a472787875e974d089c44'`) — beide
+Aliase wurden von diesem Plan nur gelesen, nie geschrieben.
+
+Der neue Iteration-1-Lauf (`be854a1adebf4eb4b01d98dc39022ee1`) bleibt als registrierte
+`cv_detector_model`-Version 2 im MLflow-Store erhalten (Provenienz-Nachweis, kein Alias) — für
+einen künftigen Vergleich (z. B. nach Iteration 2, wenn ein Val-Split-fähiger Trainingslauf
+existiert) verfügbar, ohne den aktuellen Produktionsstand zu beeinflussen.
 
 ## Iteration 2
 
