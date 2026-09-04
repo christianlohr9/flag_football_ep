@@ -1,0 +1,101 @@
+{% extends "base.html.j2" %}
+
+{% block title %}Player Analysis — {{ team }}{% endblock %}
+
+{% block subtitle %}{{ generated_on.isoformat() }} · {{ overall_basis_text }}{% endblock %}
+
+{% block content %}
+<div class="summary-block">
+<ul>
+<li>{{ n_hc_rows }} Zeile(n) im Gesamtkorpus stammen aus der Quelle "hc_workbook" (0 ist eine gültige Antwort).</li>
+{% if unavailable_labels %}
+<li>Aktuell nicht verfügbar: {{ unavailable_labels | join(', ') }} (Details siehe Hinweise unten).</li>
+{% else %}
+<li>Alle Spalten sind heute berechenbar.</li>
+{% endif %}
+</ul>
+</div>
+
+{% if unmapped_players %}
+<div class="warning-block">
+<h2>Nicht zugeordnete Spielernamen</h2>
+<p>
+Folgende Namen konnten keinem Spieler zugeordnet werden. Sie erscheinen unten in den
+Tabellen unter ihrer Original-Schreibweise. Bitte in
+<code>data/reference/player_mapping.csv</code> ergänzen:
+</p>
+<ul>
+{% for name in unmapped_players %}
+<li>{{ name }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+{% if notices %}
+<div class="warning-block">
+<ul>
+{% for notice in notices %}
+<li>{{ notice }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+{% if definition_chart_uri %}
+<div class="chart-block">
+<img class="chart-img" src="{{ definition_chart_uri }}" alt="Definitionsvergleich: Explosiveness / Efficiency">
+</div>
+{% endif %}
+{% if cliff_chart_uri %}
+<div class="chart-block">
+<img class="chart-img" src="{{ cliff_chart_uri }}" alt="Klippen-Zone: Anteil der Plays je Yard">
+</div>
+{% endif %}
+
+{% for section in sections %}
+<h2>{{ section.heading }}</h2>
+{% if section.label_status == "conflict" %}
+<p class="warning-block">
+Konflikt: Für diesen Zeilenbereich trägt sein Workbook zwei unterschiedliche Tab-Namen
+(Frage 7, M3-04-07) — noch nicht vom Head Coach entschieden.
+</p>
+{% endif %}
+<p class="section-basis">{{ section.basis_text }}</p>
+{% if section.empty_notice %}
+<p class="warning-block">{{ section.empty_notice }}</p>
+{% else %}
+<table>
+<thead>
+<tr>
+{% for header in section.headers %}
+<th>{{ header }}</th>
+{% endfor %}
+</tr>
+</thead>
+<tbody>
+{% for row in section.rows %}
+<tr>
+{% for cell in row.cells %}
+<td class="{% if row.muted %}muted-cell{% endif %}">{{ cell }}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block footnotes %}
+<p>{{ air_yards_deviation_notice }}</p>
+<p>{{ standing_opp_notice }}</p>
+<p>
+Konfidenzintervalle nach Clopper-Pearson. Zellen mit n &lt; {{ muted_min_n }} sind grau
+markiert (geringe Stichprobe) -- sie werden immer angezeigt, nie ausgeblendet.
+</p>
+<p>
+Die Spalten "Success Rate" und "Explosiveness kalibriert" sowie der "Kontinuierliche Score"
+stammen aus den M3-3-Definitionen (siehe docs/explosiveness-vorschlag.md).
+</p>
+{% endblock %}

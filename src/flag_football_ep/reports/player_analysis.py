@@ -41,10 +41,12 @@ never-raise, name-every-degraded-condition discipline.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import date
 
 import polars as pl
 
+from flag_football_ep.charts.explosiveness import render_cliff_zone, render_definition_comparison
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import HC_SOURCE_PREFIX
 from flag_football_ep.features.explosiveness import (
@@ -53,6 +55,7 @@ from flag_football_ep.features.explosiveness import (
     ExplosivenessCalibration,
     MissingExplosivenessColumns,
     UnknownCalibrationSchema,
+    cliff_zone_table,
     definition_comparison,
     explosive_score,
     hc_efficiency_table,
@@ -69,14 +72,18 @@ from flag_football_ep.reference import (
 )
 from flag_football_ep.reports.aggregate import MUTED_MIN_N, SectionBasis, section_basis
 
-# `own_team.py` is READ-ONLY under this plan's file-collision guard (M3-04-04-PLAN.md): these
-# two names are imported, never copied or refactored, so player-identity canonicalisation and
-# the "missing mapping file" empty-frame shape can never drift between the two reports.
+# `own_team.py` is READ-ONLY under this plan's file-collision guard (M3-04-04-PLAN.md/
+# M3-04-05-PLAN.md): these names are imported, never copied or refactored, so player-identity
+# canonicalisation, the "missing mapping file" empty-frame shape and the own-team report's own
+# `keine Daten`/rate-formatting vocabulary can never drift between the two reports.
 from flag_football_ep.reports.own_team import (
     _EMPTY_MAPPING_SCHEMA,
+    _NO_DATA,
     _canonicalise_players,
+    _format_pct,
     attach_epa,
 )
+from flag_football_ep.reports.render import fig_to_data_uri, render_page
 
 PLAYER_ANALYSIS_FILENAME: str = "player-analysis.html"
 
@@ -690,6 +697,16 @@ class PlayerAnalysisReportData:
     standing per-opponent limitation, the Camp IV/VI conflict) as a German sentence, in first-
     occurrence order, deduplicated. Never raises: this object always builds, on today's
     zero-head-coach-row corpus and on tomorrow's, with no code change (must_haves).
+
+    `corpus_comparison_table`/`corpus_cliff_table` (M3-04-05 addition, page-builder half; both
+    default to a schema-correct empty frame so a caller that does not care about the two M3-3
+    page-level charts is unaffected) are the page-wide (not per-player) inputs
+    `build_player_analysis_page` feeds straight into `charts.explosiveness.render_
+    definition_comparison`/`render_cliff_zone` -- computed from the SAME `canon` frame the
+    `korpus` split's `hc_columns_by_qb`/`m3_columns_by_qb` see, via the same live
+    `definition_comparison`/`cliff_zone_table` calls `m3_columns_by_qb` and
+    `scripts/explosiveness_comparison.py::_build_overall_table` already use, never a second CI
+    implementation. Neither carries a player name -- both are aggregate, corpus-wide tables.
     """
 
     team: str
@@ -699,6 +716,12 @@ class PlayerAnalysisReportData:
     notices: tuple[str, ...]
     n_hc_rows: int
     overall_basis: SectionBasis
+    corpus_comparison_table: pl.DataFrame = field(
+        default_factory=lambda: pl.DataFrame(schema=_CORPUS_COMPARISON_SCHEMA)
+    )
+    corpus_cliff_table: pl.DataFrame = field(
+        default_factory=lambda: pl.DataFrame(schema=_CORPUS_CLIFF_SCHEMA)
+    )
 
 
 def _build_split(
@@ -792,6 +815,9 @@ def build_player_analysis_data(
     notices.extend(korpus_notices)
     splits: list[PlayerAnalysisSplit] = [korpus_split]
 
+    corpus_comparison_table = _corpus_comparison_table(canon, calibration=calibration)
+    corpus_cliff_table = _corpus_cliff_table(canon)
+
     unresolved_games: tuple[tuple[str, str], ...] = ()
 
     try:
@@ -861,4 +887,289 @@ def build_player_analysis_data(
         notices=tuple(dict.fromkeys(notices)),
         n_hc_rows=n_hc_rows,
         overall_basis=overall_basis,
+        corpus_comparison_table=corpus_comparison_table,
+        corpus_cliff_table=corpus_cliff_table,
+    )
+
+
+# --- Page-level M3-3 chart tables (M3-04-05, Task 1) ------------------------------------------
+
+_CORPUS_COMPARISON_GROUP_COL = "_korpus"
+
+_CORPUS_COMPARISON_SCHEMA: dict[str, pl.DataType] = {
+    "definition": pl.Utf8,
+    "label_de": pl.Utf8,
+    "rate": pl.Float64,
+    "ci_low": pl.Float64,
+    "ci_high": pl.Float64,
+    "n": pl.Int64,
+    "muted": pl.Boolean,
+}
+
+_CORPUS_CLIFF_SCHEMA: dict[str, pl.DataType] = {
+    "yards_gained": pl.Int32,
+    "n": pl.Int64,
+    "share": pl.Float64,
+    "hc_explosive": pl.Boolean,
+}
+
+
+def _corpus_comparison_table(
+    canon: pl.DataFrame, *, calibration: ExplosivenessCalibration | None
+) -> pl.DataFrame:
+    """The page-wide (not per-player) `definition_comparison` table `build_player_analysis_page`
+    feeds to `render_definition_comparison` -- one row per `DEFINITIONS` entry over the WHOLE
+    `canon` frame (the same frame the `korpus` split's `hc_columns_by_qb`/`m3_columns_by_qb`
+    see), built via a constant grouping column exactly the way
+    `scripts/explosiveness_comparison.py::_build_overall_table` builds its own team-level row --
+    never a second Clopper-Pearson/shrinkage implementation.
+
+    `calibration is None` (see `load_report_calibration`) returns a schema-correct empty frame;
+    the missing-calibration notice itself is `load_report_calibration`'s job, not repeated here.
+    Raises nothing beyond what `definition_comparison` itself raises for a genuinely malformed
+    frame -- `canon` has already passed through `hc_columns_by_qb`/`m3_columns_by_qb` unharmed by
+    the time this is called.
+    """
+    if calibration is None:
+        return pl.DataFrame(schema=_CORPUS_COMPARISON_SCHEMA)
+    keyed = canon.with_columns(pl.lit("Korpus").alias(_CORPUS_COMPARISON_GROUP_COL))
+    comparison = definition_comparison(
+        keyed, [_CORPUS_COMPARISON_GROUP_COL], calibration=calibration
+    )
+    return comparison.select(list(_CORPUS_COMPARISON_SCHEMA))
+
+
+def _corpus_cliff_table(canon: pl.DataFrame) -> pl.DataFrame:
+    """The page-wide cliff-zone distribution `build_player_analysis_page` feeds to
+    `render_cliff_zone`, over the SAME `canon` frame the `korpus` split sees -- never a second,
+    more narrowly filtered frame. Needs no calibration; `cliff_zone_table` itself tolerates an
+    empty `canon` and never raises.
+    """
+    return cliff_zone_table(canon)
+
+
+# --- The German page (M3-04-05, Task 1) --------------------------------------------------------
+
+_UNAVAILABLE = "nicht verfügbar (siehe Hinweise)"
+"""Distinct from `own_team.py`'s `_NO_DATA` ("keine Daten", a real zero-play answer) and
+`_NOT_APPLICABLE` ("–", a stat that does not apply to this row) -- a column in
+`HcColumnTable.unavailable` is a THIRD state: the corpus cannot compute it today at all, for a
+named reason in the page's notices. Rendering it as `_NO_DATA` or a bare `0` would let a reader
+mistake "cannot compute" for "computed, and it's zero" (module docstring's "never a silent
+zero"); this string can never be confused with either of the other two.
+"""
+
+_HC_COLUMN_ORDER: tuple[tuple[str, str], ...] = (
+    ("comps", "Comps"),
+    ("incs", "Incs"),
+    ("attempts", "Attempts"),
+    ("tds", "TDs"),
+    ("comp_pct", "Comp %"),
+    ("adj_comp_pct", "Adj Comp %"),
+    ("ints", "INTs"),
+    ("sacks", "Sacks"),
+    ("pass_yards", "Pass Yards"),
+    ("air_yards", "Air Yards"),
+    ("ypa", "YPA"),
+    ("adj_pass_yards", "adj Pass Yards"),
+    ("adj_ypa", "adj YPA"),
+    ("exp_plays", "Exp Plays"),
+    ("explosive_pct", "Explosive %"),
+    ("efficiency", "Efficiency"),
+    ("carries", "Carries"),
+    ("rush_yards", "Rush Yards"),
+    ("rush_tds", "Rush TDs"),
+)
+"""His tab's own column order (`<action>`, M3-04-05-PLAN.md) -- `efficiency_drops` (the second,
+Drops-denominator reading `hc_columns_by_qb` also computes) is deliberately absent: it is not one
+of his 19 tab headers, only an internal cross-check column (RESEARCH Open Question, M3-04-07)."""
+
+_HC_INT_COLUMNS = frozenset(
+    {"comps", "incs", "attempts", "tds", "ints", "sacks", "exp_plays", "carries", "rush_tds"}
+)
+_HC_YARD_COLUMNS = frozenset({"pass_yards", "air_yards", "adj_pass_yards", "rush_yards"})
+_HC_YPA_COLUMNS = frozenset({"ypa", "adj_ypa"})
+_HC_PCT_WITH_ATTEMPTS_N = frozenset({"comp_pct", "adj_comp_pct", "explosive_pct"})
+
+_M3_DISPLAY_COLUMNS: tuple[tuple[str, str], ...] = (
+    ("success_rate_epa", "Success Rate"),
+    ("explosive_epa_magnitude", "Explosiveness kalibriert"),
+)
+"""The two `DEFINITIONS` keys `m3_columns_by_qb`'s per-player rows contribute directly beside
+his columns; `explosive_score_mean` (the continuous score) is appended separately below as its
+own "Kontinuierlicher Score" column, per `M3-04-04-SUMMARY.md`'s "Success Rate, calibrated
+Explosiveness and the continuous explosive_score" framing. `baseline_hc_workbook`/
+`baseline_hc_verbal` (the other two `DEFINITIONS` entries) are cross-checks against his OWN
+`Explosive %` column, shown only in the page-wide `render_definition_comparison` chart, not
+duplicated a second time per player here."""
+
+
+def _format_hc_cell(key: str, row: dict) -> str:
+    """One HC-schema cell -- reuses `own_team.py`'s `_NO_DATA`/`_format_pct` vocabulary, never a
+    local re-implementation of "no data" or "percentage with n". Exhaustive over every key in
+    `_HC_COLUMN_ORDER` -- an unhandled key is a programming error, not a data condition, so it
+    raises rather than silently falling through.
+    """
+    value = row.get(key)
+    if key in _HC_INT_COLUMNS:
+        return _NO_DATA if value is None else str(int(value))
+    if key in _HC_YARD_COLUMNS:
+        return _NO_DATA if value is None else f"{value:.1f}"
+    if key in _HC_YPA_COLUMNS:
+        return _NO_DATA if value is None else f"{value:.2f}"
+    if key in _HC_PCT_WITH_ATTEMPTS_N:
+        return _format_pct(value, row.get("attempts"))
+    if key == "efficiency":
+        attempts, carries = row.get("attempts"), row.get("carries")
+        n = attempts + carries if attempts is not None and carries is not None else None
+        return _format_pct(value, n)
+    raise AssertionError(f"unhandled HC column key: {key!r}")  # pragma: no cover - exhaustive
+
+
+def _hc_row_cells(row: dict, unavailable: frozenset[str]) -> list[str]:
+    """One row's worth of HC cells, in `_HC_COLUMN_ORDER` -- a key in `unavailable` renders
+    `_UNAVAILABLE` unconditionally, regardless of what `row` happens to hold for it (it is null
+    there by `hc_columns_by_qb`'s own contract, but this never trusts that instead of checking).
+    """
+    return [
+        _UNAVAILABLE if key in unavailable else _format_hc_cell(key, row)
+        for key, _label in _HC_COLUMN_ORDER
+    ]
+
+
+def _format_m3_rate_cell(row: dict, *, definition_key: str) -> str:
+    """`rate (n=…) · CI low-high, geshrinkt shrunk_rate` for one `DEFINITIONS` key -- every
+    number this module's own docstring promises ("n on every rate") in one cell, never a bare
+    percentage. `n == 0`/`rate is None` (a player whose plays never entered this definition's
+    scope) renders `_NO_DATA`, matching `own_team.py::_format_pct`'s own null/zero-n rule.
+    """
+    rate = row.get(f"{definition_key}_rate")
+    n = row.get(f"{definition_key}_n")
+    if rate is None or not n:
+        return _NO_DATA
+    ci_low = row.get(f"{definition_key}_ci_low")
+    ci_high = row.get(f"{definition_key}_ci_high")
+    shrunk_rate = row.get(f"{definition_key}_shrunk_rate")
+    text = f"{rate:.0%} (n={n})"
+    if shrunk_rate is not None:
+        text = f"{text}, geshrinkt {shrunk_rate:.0%}"
+    if ci_low is not None and ci_high is not None:
+        text = f"{text} · CI {ci_low:.0%}-{ci_high:.0%}"
+    return text
+
+
+def _format_explosive_score_cell(value: float | None) -> str:
+    return _NO_DATA if value is None else f"{value:.2f}"
+
+
+def _m3_row_cells(row: dict) -> list[str]:
+    """One row's worth of M3 cells: `_M3_DISPLAY_COLUMNS`' two rates, then the continuous
+    `explosive_score_mean` -- the exact three columns `M3-04-04-SUMMARY.md` names.
+    """
+    cells = [
+        _format_m3_rate_cell(row, definition_key=definition_key)
+        for definition_key, _label in _M3_DISPLAY_COLUMNS
+    ]
+    cells.append(_format_explosive_score_cell(row.get("explosive_score_mean")))
+    return cells
+
+
+_TABLE_HEADERS: tuple[str, ...] = (
+    ("Spieler",)
+    + tuple(label for _key, label in _HC_COLUMN_ORDER)
+    + tuple(label for _key, label in _M3_DISPLAY_COLUMNS)
+    + ("Kontinuierlicher Score",)
+)
+
+
+def _split_context(split: PlayerAnalysisSplit) -> dict:
+    """One `PlayerAnalysisSplit` -> template context: his columns and ours joined on `spieler`
+    into ONE row per player (never two separate tables a reader has to cross-reference by eye),
+    row-level `muted` from his own `attempts < MUTED_MIN_N` flag (`hc_columns_by_qb`'s own
+    convention, mirrored here rather than a new per-cell muting scheme this codebase does not
+    otherwise use -- `own_team_report.html.j2`'s own row-level `{% if row.muted %}` is the
+    established pattern this mirrors).
+
+    `split.m3_table`'s identity universe is a subset of `split.columns.table`'s (M3-04-04's own
+    `test_m3_player_universe_is_subset_of_hc_columns_players`), so the `how="left"` join can
+    never drop an HC-tab player for lack of an M3 row; a player absent from the M3 side simply
+    renders `keine Daten` in the M3 cells via `_format_m3_rate_cell`'s own null/zero-n check.
+    """
+    unavailable = frozenset(split.columns.unavailable)
+    merged = split.columns.table.join(split.m3_table, on="spieler", how="left").sort("spieler")
+
+    rows = [
+        {
+            "muted": bool(row.get("muted", False)),
+            "cells": [row["spieler"]] + _hc_row_cells(row, unavailable) + _m3_row_cells(row),
+        }
+        for row in merged.iter_rows(named=True)
+    ]
+
+    return {
+        "key": split.key,
+        "heading": split.heading,
+        "label_status": split.label_status,
+        "basis_text": split.basis.text,
+        "empty_notice": split.empty_notice,
+        "headers": _TABLE_HEADERS,
+        "rows": rows,
+    }
+
+
+def build_player_analysis_page(
+    data: PlayerAnalysisReportData, *, generated_on: date | None = None
+) -> str:
+    """Render a `PlayerAnalysisReportData` into one standalone HTML document string (HC-05).
+
+    Performs no filesystem writes, matching `build_own_team_page`'s own contract. Every numeric
+    cell is pre-formatted into its display string before it reaches the template --
+    `player_analysis.html.j2` does no arithmetic. The two M3-3 charts
+    (`render_definition_comparison` over `data.corpus_comparison_table`, `render_cliff_zone` over
+    `data.corpus_cliff_table`) are embedded ONCE per page, above the per-split sections, never
+    once per section. If either renderer raises, the exception is caught, that one chart is
+    skipped (the OTHER chart and every table section still render), and a German notice is
+    appended -- a chart is never worth failing a page for (must_haves).
+    """
+    generated_on = generated_on or date.today()
+
+    korpus_split = next((s for s in data.splits if s.key == _KORPUS_SPLIT_KEY), None)
+    korpus_unavailable = korpus_split.columns.unavailable if korpus_split is not None else ()
+    unavailable_labels = tuple(
+        label for key, label in _HC_COLUMN_ORDER if key in korpus_unavailable
+    )
+
+    chart_notices: list[str] = []
+
+    definition_chart_uri: str | None = None
+    try:
+        definition_chart_uri = fig_to_data_uri(
+            render_definition_comparison(data.corpus_comparison_table)
+        )
+    except Exception as exc:  # noqa: BLE001 - a chart is never worth failing a page for
+        chart_notices.append(f"Chart 'Definitionsvergleich' konnte nicht erstellt werden: {exc}")
+
+    cliff_chart_uri: str | None = None
+    try:
+        cliff_chart_uri = fig_to_data_uri(render_cliff_zone(data.corpus_cliff_table))
+    except Exception as exc:  # noqa: BLE001 - a chart is never worth failing a page for
+        chart_notices.append(f"Chart 'Klippen-Zone' konnte nicht erstellt werden: {exc}")
+
+    sections = [_split_context(split) for split in data.splits]
+
+    return render_page(
+        "player_analysis.html.j2",
+        team=data.team,
+        generated_on=generated_on,
+        overall_basis_text=data.overall_basis.text,
+        n_hc_rows=data.n_hc_rows,
+        unavailable_labels=unavailable_labels,
+        unmapped_players=data.unmapped_players,
+        notices=tuple(data.notices) + tuple(chart_notices),
+        definition_chart_uri=definition_chart_uri,
+        cliff_chart_uri=cliff_chart_uri,
+        sections=sections,
+        muted_min_n=MUTED_MIN_N,
+        air_yards_deviation_notice=_AIR_YARDS_DEVIATION_NOTICE,
+        standing_opp_notice=_STANDING_OPP_NOTICE,
     )
