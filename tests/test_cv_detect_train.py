@@ -16,8 +16,11 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import cv2
 import mlflow
+import numpy as np
 import pytest
+import supervision as sv
 
 from flag_football_ep.config import (
     Config,
@@ -520,3 +523,266 @@ def test_train_cli_requires_dataset_unless_from_artifacts_given() -> None:
     assert "--dataset" in plain_output
     assert "--from-artifacts" in plain_output
     assert "required unless" in plain_output
+
+
+# --- evaluate_per_domain (plan 02.2-15) -----------------------------------------------------
+#
+# Ground truth is sourced from data/labels/<session_id>/corrected/instances.json,
+# filtered to images whose parsed clip number is one of that domain's frozen_eval
+# clips (see detect.py::_load_domain_ground_truth's docstring) -- mirroring the real
+# Phase-2.1 pilot corrected-dataset convention these tests build synthetically.
+
+
+def _write_frozen_eval_csv(path: Path, rows: list[dict]) -> None:
+    columns = [
+        "domain", "session_id", "clip_number", "stratum_id", "role",
+        "private_test", "frozen_at", "seed",
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [",".join(columns)]
+    for row in rows:
+        lines.append(",".join(str(row[c]) for c in columns))
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_corrected_coco(
+    gt_dir: Path, frames: list[tuple[int, int, list[tuple[int, list[float]]]]]
+) -> None:
+    """`frames`: list of `(clip_number, frame_index, boxes)`, `boxes`:
+    `[(category_id, [x, y, w, h]), ...]`. Writes a tiny real JPEG per frame (decoded
+    by `_evaluate_domain_frames` via `cv2.imread`) plus `instances.json` under
+    `gt_dir/images/default/` + `gt_dir/instances.json`, matching the real corrected/
+    CVAT-export layout `_index_images_by_name` already tolerates.
+    """
+    images_dir = gt_dir / "images" / "default"
+    images_dir.mkdir(parents=True, exist_ok=True)
+
+    images = []
+    annotations = []
+    ann_id = 1
+    for image_id, (clip_number, frame_index, boxes) in enumerate(frames, start=1):
+        file_name = f"Wide - Clip {clip_number:03d}_f{frame_index:05d}.jpg"
+        frame = np.zeros((64, 64, 3), dtype=np.uint8)
+        cv2.imwrite(str(images_dir / file_name), frame)
+        images.append(
+            {"id": image_id, "file_name": file_name, "width": 64, "height": 64}
+        )
+        for category_id, bbox in boxes:
+            annotations.append(
+                {
+                    "id": ann_id,
+                    "image_id": image_id,
+                    "category_id": category_id,
+                    "bbox": bbox,
+                }
+            )
+            ann_id += 1
+
+    categories = [{"id": 1, "name": "player"}, {"id": 2, "name": "referee"}]
+    (gt_dir / "instances.json").write_text(
+        json.dumps({"images": images, "annotations": annotations, "categories": categories})
+    )
+
+
+class _FakeEvalModel:
+    """A fake detector for `evaluate_per_domain`: `.predict(image, params=None)`
+    mirrors the loaded pyfunc model's contract (`cv.detect._call_model`).
+    `boxes_by_call[i]` is returned on the i-th call, in call order -- lets a test
+    control exactly which prediction each ground-truth frame receives.
+    """
+
+    def __init__(self, boxes_by_call: list[sv.Detections]) -> None:
+        self._boxes_by_call = boxes_by_call
+        self.calls: list[dict] = []
+
+    def predict(self, image, params=None) -> sv.Detections:
+        call_index = len(self.calls)
+        self.calls.append({"image": image, "params": params})
+        return self._boxes_by_call[call_index]
+
+
+def _detections(xyxy, confidence, class_id) -> sv.Detections:
+    return sv.Detections(
+        xyxy=np.array(xyxy, dtype=np.float64).reshape(-1, 4),
+        confidence=np.array(confidence, dtype=np.float64),
+        class_id=np.array(class_id, dtype=np.int64),
+    )
+
+
+def test_evaluate_per_domain_returns_per_domain_metrics_with_n_images_and_n_boxes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _make_config(tmp_path)
+
+    split_path = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 5,
+                "stratum_id": "hp-01", "role": "frozen_eval", "private_test": "true",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 1,
+                "stratum_id": "hp-01", "role": "pool", "private_test": "false",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+        ],
+    )
+
+    gt_dir = config.paths.labels / "sess-drone" / "corrected"
+    _write_corrected_coco(
+        gt_dir,
+        [
+            # clip 5 is frozen_eval -> included; clip 1 is pool -> excluded even
+            # though a corrected frame exists for it.
+            (5, 0, [(1, [10.0, 10.0, 20.0, 20.0])]),
+            (1, 0, [(1, [10.0, 10.0, 20.0, 20.0])]),
+        ],
+    )
+
+    model = _FakeEvalModel([_detections([[10.0, 10.0, 30.0, 30.0]], [0.9], [0])])
+    monkeypatch.setattr(detect, "load_detector", lambda _config, _run_id: model)
+
+    mlflow_store.configure(config)
+    mlflow_store.ensure_experiment(config.cv.detector_experiment, config)
+    with mlflow.start_run() as run:
+        run_id = run.info.run_id
+
+    out_path = tmp_path / "eval_report.json"
+    results = detect.evaluate_per_domain(config, run_id, split_path, out_path)
+
+    assert "drone" in results
+    assert results["drone"]["n_images"] == 1
+    assert results["drone"]["n_boxes"] == 1
+    assert len(model.calls) == 1  # only the frozen_eval frame was inferred over
+    assert "AP_player" in results["drone"]
+    assert "AP_referee" in results["drone"]
+
+    assert out_path.exists()
+    written = json.loads(out_path.read_text())
+    assert written["drone"]["n_images"] == 1
+
+
+def test_evaluate_per_domain_never_reports_pooled_metric_instead_of_per_domain(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A pooled aggregate may be present as an *additional* key, but every domain
+    named in the split must still carry its own entry (C-05/D-04) -- a caller
+    reading only `results["_pooled"]` would silently hide a domain collapsing.
+    """
+    config = _make_config(tmp_path)
+
+    split_path = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 5,
+                "stratum_id": "hp-01", "role": "frozen_eval", "private_test": "true",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+        ],
+    )
+    _write_corrected_coco(
+        config.paths.labels / "sess-drone" / "corrected",
+        [(5, 0, [(1, [10.0, 10.0, 20.0, 20.0])])],
+    )
+
+    model = _FakeEvalModel([_detections([[10.0, 10.0, 30.0, 30.0]], [0.9], [0])])
+    monkeypatch.setattr(detect, "load_detector", lambda _config, _run_id: model)
+
+    mlflow_store.configure(config)
+    mlflow_store.ensure_experiment(config.cv.detector_experiment, config)
+    with mlflow.start_run() as run:
+        run_id = run.info.run_id
+
+    results = detect.evaluate_per_domain(config, run_id, split_path, tmp_path / "out.json")
+
+    assert "drone" in results
+    assert "_pooled" in results
+    assert set(results) != {"_pooled"}
+
+
+def test_evaluate_per_domain_raises_named_error_for_domain_with_no_ground_truth(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`sideline`'s frozen_eval clips exist in the split, but no corrected/ package
+    has ever been written for its session -- must raise naming `sideline`, never
+    report a metric over an empty ground-truth set.
+    """
+    config = _make_config(tmp_path)
+
+    split_path = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 5,
+                "stratum_id": "hp-01", "role": "frozen_eval", "private_test": "true",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+            {
+                "domain": "sideline", "session_id": "sess-sideline", "clip_number": 8,
+                "stratum_id": "hp-01", "role": "frozen_eval", "private_test": "false",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+        ],
+    )
+    _write_corrected_coco(
+        config.paths.labels / "sess-drone" / "corrected",
+        [(5, 0, [(1, [10.0, 10.0, 20.0, 20.0])])],
+    )
+    # sess-sideline/corrected/ deliberately not written.
+
+    model = _FakeEvalModel([_detections([[10.0, 10.0, 30.0, 30.0]], [0.9], [0])])
+    monkeypatch.setattr(detect, "load_detector", lambda _config, _run_id: model)
+
+    mlflow_store.configure(config)
+    mlflow_store.ensure_experiment(config.cv.detector_experiment, config)
+    with mlflow.start_run() as run:
+        run_id = run.info.run_id
+
+    with pytest.raises(detect.EvalGroundTruthMissing, match="sideline"):
+        detect.evaluate_per_domain(config, run_id, split_path, tmp_path / "out.json")
+
+
+def test_evaluate_per_domain_logs_mlflow_metrics_prefixed_per_domain(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _make_config(tmp_path)
+
+    split_path = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            {
+                "domain": "drone", "session_id": "sess-drone", "clip_number": 5,
+                "stratum_id": "hp-01", "role": "frozen_eval", "private_test": "true",
+                "frozen_at": "2026-09-01T00:00:00Z", "seed": 1,
+            },
+        ],
+    )
+    _write_corrected_coco(
+        config.paths.labels / "sess-drone" / "corrected",
+        [(5, 0, [(1, [10.0, 10.0, 20.0, 20.0])])],
+    )
+
+    model = _FakeEvalModel([_detections([[10.0, 10.0, 30.0, 30.0]], [0.9], [0])])
+    monkeypatch.setattr(detect, "load_detector", lambda _config, _run_id: model)
+
+    mlflow_store.configure(config)
+    mlflow_store.ensure_experiment(config.cv.detector_experiment, config)
+    with mlflow.start_run() as run:
+        run_id = run.info.run_id
+
+    detect.evaluate_per_domain(config, run_id, split_path, tmp_path / "out.json")
+
+    from mlflow import MlflowClient
+
+    logged = MlflowClient().get_run(run_id).data.metrics
+    assert "drone_mAP_50" in logged
+    assert "drone_mAP_50_95" in logged
+    assert "drone_AP_player" in logged
+    assert "drone_n_images" in logged

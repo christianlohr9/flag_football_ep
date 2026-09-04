@@ -57,6 +57,7 @@ taken from the installed package's real behaviour, not assumed.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import time
 from dataclasses import dataclass
@@ -87,6 +88,17 @@ class WeightsNotFound(CvError, ValueError):
 
 class MissingClipError(CvError, ValueError):
     """Raised when a clip path passed to `detect_video` does not exist."""
+
+
+class EvalGroundTruthMissing(CvError, ValueError):
+    """Raised by `evaluate_per_domain` when a domain named in the frozen eval split
+    has zero ground-truth-labeled frames available -- either no human-corrected COCO
+    package exists for any session backing that domain's `frozen_eval` clips, or one
+    exists but none of its frames fall on a `frozen_eval` clip number. Names the
+    domain: reporting a metric over an empty ground-truth set would silently produce
+    a meaningless number (C-05/D-04's pooled-acceptance-hides-collapse concern,
+    applied to the eval side rather than the training side).
+    """
 
 
 class InvalidResolution(CvError, ValueError):
@@ -160,14 +172,27 @@ _SAHI_MERGE_IOU_THRESHOLD = 0.5
 _TIMING_STAGES: tuple[str, ...] = ("decode", "detect", "postprocess")
 
 
-def _resolve_manifest_path(config: Config) -> Path:
-    """The frame-sample manifest's default location: `ffep cv sample`'s own default
-    output directory (`config.paths.labels / "frames"`), where `write_manifest`
-    writes `manifest.json`. `train_detector`'s contract has no manifest parameter
-    (plan 02.1-02's stub signature), so the manifest that defines the clip-level
-    train/val split is always resolved from this one canonical location -- never
-    re-derived, matching every other manifest consumer in this pipeline.
+def _resolve_manifest_path(config: Config, dataset_dir: Path) -> Path:
+    """Resolve the frame-sample manifest that defines the clip-level train/val split
+    for `dataset_dir`.
+
+    Phase 2.2's growing multi-domain dataset (`data/labels/dataset/`) keeps its own
+    `manifest.json` alongside `instances.json` -- the same convention `ffep cv
+    dataset --manifest <coco_dir>/manifest.json` already validates against (plan
+    02.2-13's merge). When `dataset_dir/manifest.json` exists, it is used directly:
+    the growing dataset's manifest is the only one that actually describes which
+    domain each merged image belongs to, and `_filter_manifest_to_dataset` below
+    still restricts it to whatever subset of frames `dataset_dir` actually contains.
+
+    Falls back to `ffep cv sample`'s own default output directory
+    (`config.paths.labels / "frames" / "manifest.json"`) when `dataset_dir` carries
+    no manifest of its own -- the original Phase 2.1 pilot contract (plan 02.1-02's
+    stub signature predates the multi-domain dataset directory and never wrote a
+    manifest next to its own COCO export), preserved unchanged for that flow.
     """
+    dataset_local_manifest = Path(dataset_dir) / "manifest.json"
+    if dataset_local_manifest.is_file():
+        return dataset_local_manifest
     return config.paths.labels / "frames" / "manifest.json"
 
 
@@ -405,7 +430,7 @@ def train_detector(
 
     from flag_football_ep.cv.frames import read_manifest
 
-    manifest = read_manifest(_resolve_manifest_path(config))
+    manifest = read_manifest(_resolve_manifest_path(config, Path(dataset_dir)))
 
     prepared_dir, content_sha256 = _prepare_dataset_layout(
         Path(dataset_dir), manifest, resolved_output_dir
@@ -823,13 +848,292 @@ def detect_video(
     return DetectionRun(frames, stage_totals)
 
 
+_EVAL_GT_DIRNAME = "corrected"
+_EVAL_CLIP_NUMBER_RE = re.compile(r"Clip[ _](\d+)_f\d+")
+
+
+def _read_frozen_eval_session_ids(eval_split_path: Path) -> dict[str, dict[int, str]]:
+    """`{domain: {clip_number: session_id}}` for every `role == "frozen_eval"` row in
+    the eval-split CSV at `eval_split_path`.
+
+    Reads the CSV directly rather than going through `frames.EvalSplit` a second
+    time: `EvalSplit.clips_by_domain` (the `frames.read_eval_split` contract this
+    module's `key_links` names) only carries clip numbers, not the `session_id` each
+    clip belongs to -- both are needed here to locate a domain's ground-truth COCO
+    package, which lives under `config.paths.labels / session_id / "corrected"`.
+    """
+    import polars as pl
+
+    df = pl.read_csv(eval_split_path)
+    eval_rows = df.filter(pl.col("role") == "frozen_eval")
+
+    out: dict[str, dict[int, str]] = {}
+    for row in eval_rows.iter_rows(named=True):
+        out.setdefault(row["domain"], {})[int(row["clip_number"])] = row["session_id"]
+    return out
+
+
+def _eval_clip_number(file_name: str) -> int | None:
+    """Parse the clip number out of an extracted frame's file name (e.g. `"drone__Wide
+    - Clip 001_f00026.jpg"` or the pilot's unprefixed `"Wide - Clip 001_f00026.jpg"`),
+    or `None` when the name does not match the project-wide `"Clip <n>_f<index>"`
+    convention `frames.py`'s own frame-extraction naming already establishes.
+    """
+    match = _EVAL_CLIP_NUMBER_RE.search(file_name)
+    return int(match.group(1)) if match else None
+
+
+def _load_domain_ground_truth(
+    config: Config, domain: str, clip_to_session: dict[int, str]
+) -> tuple[list[dict], list[dict], list[dict], dict[str, Path]]:
+    """Load and filter ground-truth COCO annotations for one domain's frozen eval
+    clips, across every session that contributes a `frozen_eval` clip to `domain`.
+
+    Looks for a human-corrected COCO package at
+    `config.paths.labels / <session_id> / "corrected" / "instances.json"` for each
+    distinct `session_id` in `clip_to_session` -- the existing, established
+    convention this repo already uses for the Phase-2.1 pilot's own corrected
+    dataset (`data/labels/<session_id>/corrected/`, plan 02.1-09). A session with no
+    such package contributes nothing (not an error by itself -- a domain is only
+    considered to have no ground truth if *no* session contributes any matching
+    frame at all, checked by the caller).
+
+    Returns `(images, annotations, categories, image_paths)`: only images whose
+    parsed clip number is a `frozen_eval` clip for `domain` (per `clip_to_session`),
+    their annotations, the package's category list (first package found, all
+    packages share `dataset.CLASS_NAMES`), and a `file_name -> Path` index for
+    locating each image's bytes on disk (mirrors `_index_images_by_name`).
+    """
+    images: list[dict] = []
+    annotations: list[dict] = []
+    categories: list[dict] = []
+    image_paths: dict[str, Path] = {}
+
+    next_image_id = 1
+    next_ann_id = 1
+
+    for session_id in sorted(set(clip_to_session.values())):
+        gt_dir = config.paths.labels / session_id / _EVAL_GT_DIRNAME
+        annotation_path = gt_dir / "instances.json"
+        if not annotation_path.is_file():
+            continue
+
+        data = json.loads(annotation_path.read_text(encoding="utf-8"))
+        if not categories:
+            categories = data.get("categories", [])
+        session_image_paths = _index_images_by_name(gt_dir)
+
+        old_to_new_id: dict[int, int] = {}
+        for image in data.get("images", []):
+            clip_num = _eval_clip_number(image["file_name"])
+            if clip_num is None or clip_to_session.get(clip_num) != session_id:
+                continue
+            source_path = session_image_paths.get(image["file_name"])
+            if source_path is None:
+                continue
+
+            old_to_new_id[image["id"]] = next_image_id
+            images.append({**image, "id": next_image_id})
+            image_paths[image["file_name"]] = source_path
+            next_image_id += 1
+
+        for ann in data.get("annotations", []):
+            new_image_id = old_to_new_id.get(ann["image_id"])
+            if new_image_id is None:
+                continue
+            annotations.append({**ann, "id": next_ann_id, "image_id": new_image_id})
+            next_ann_id += 1
+
+    return images, annotations, categories, image_paths
+
+
+def _write_json_atomic(path: Path, data: dict) -> None:
+    """`.tmp` sibling + `os.replace`, matching `frames.write_manifest`'s discipline
+    (T-2.1-10) -- never a half-written eval report on disk.
+    """
+    import os
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    try:
+        tmp_path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        os.replace(tmp_path, path)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def _evaluate_domain_frames(
+    config: Config,
+    model,
+    images: list[dict],
+    annotations: list[dict],
+    categories: list[dict],
+    image_paths: dict[str, Path],
+    *,
+    resolution: int,
+    sahi: bool,
+) -> dict:
+    """Run `model` over every image in `images` and score the predictions against
+    `annotations` with `torchmetrics.detection.MeanAveragePrecision` (the same
+    `faster-coco-eval`/`torchmetrics` stack `train_detector`'s own
+    `RFDETRSmall.evaluate()` call is built on, per this module's own docstring on
+    RF-DETR's real metric shape) -- never a second, hand-rolled mAP implementation.
+
+    Category ids are 1-indexed in COCO (`dataset.CLASS_NAMES` order: `player=1`,
+    `referee=2`); `DetectionBatch.class_id` is 0-indexed into `CLASS_NAMES` directly
+    (this module's own convention). Both sides are normalized to the same 0-indexed
+    space before scoring.
+
+    Mirrors RF-DETR's own reported granularity (see `train_detector`'s docstring):
+    `mAP_50`/`mAP_50_95` are the *overall*, IoU-averaged-or-not pooled metrics;
+    `AP_player`/`AP_referee` are per-class, IoU-averaged (0.5:0.95) only -- RF-DETR's
+    trainer does not expose a separate per-class AP50, and this function does not
+    manufacture one with a different library.
+    """
+    import cv2
+    import torch
+    from torchmetrics.detection.mean_ap import MeanAveragePrecision
+
+    cat_id_to_class_idx = {c["id"]: idx for idx, c in enumerate(sorted(categories, key=lambda c: c["id"]))}
+
+    anns_by_image_id: dict[int, list[dict]] = {}
+    for ann in annotations:
+        anns_by_image_id.setdefault(ann["image_id"], []).append(ann)
+
+    metric = MeanAveragePrecision(box_format="xyxy", class_metrics=True)
+    n_boxes = 0
+
+    for image in images:
+        source_path = image_paths[image["file_name"]]
+        frame_bgr = cv2.imread(str(source_path))
+        if frame_bgr is None:
+            raise EvalGroundTruthMissing(
+                f"ground-truth image {source_path} could not be decoded"
+            )
+        frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
+
+        if sahi:
+            detections = _detect_tiled(config, model, frame_rgb, resolution=resolution)
+        else:
+            detections = _detect_full_frame(model, frame_rgb, resolution=resolution)
+
+        pred_boxes = torch.as_tensor(detections.xyxy, dtype=torch.float32).reshape(-1, 4)
+        pred_scores = torch.as_tensor(detections.confidence, dtype=torch.float32).reshape(-1)
+        pred_labels = torch.as_tensor(detections.class_id, dtype=torch.int64).reshape(-1)
+
+        gt_anns = anns_by_image_id.get(image["id"], [])
+        gt_boxes_list: list[list[float]] = []
+        gt_labels_list: list[int] = []
+        for ann in gt_anns:
+            x, y, w, h = ann["bbox"]
+            gt_boxes_list.append([x, y, x + w, y + h])
+            gt_labels_list.append(cat_id_to_class_idx[ann["category_id"]])
+            n_boxes += 1
+
+        gt_boxes = torch.tensor(gt_boxes_list, dtype=torch.float32).reshape(-1, 4)
+        gt_labels = torch.tensor(gt_labels_list, dtype=torch.int64).reshape(-1)
+
+        metric.update(
+            [{"boxes": pred_boxes, "scores": pred_scores, "labels": pred_labels}],
+            [{"boxes": gt_boxes, "labels": gt_labels}],
+        )
+
+    computed = metric.compute()
+
+    ap_by_class_name = {name: 0.0 for name in CLASS_NAMES}
+    classes_present = torch.atleast_1d(computed["classes"]).tolist()
+    ap_per_class = torch.atleast_1d(computed["map_per_class"]).tolist()
+    for class_idx, ap in zip(classes_present, ap_per_class):
+        if 0 <= class_idx < len(CLASS_NAMES):
+            ap_by_class_name[CLASS_NAMES[class_idx]] = float(ap)
+
+    return {
+        "mAP_50": float(computed["map_50"]),
+        "mAP_50_95": float(computed["map"]),
+        "AP_player": ap_by_class_name["player"],
+        "AP_referee": ap_by_class_name["referee"],
+        "n_images": len(images),
+        "n_boxes": n_boxes,
+    }
+
+
 def evaluate_per_domain(config: Config, run_id: str, eval_split_path: Path, out_path: Path) -> dict:
     """Run the detector at `run_id` over every clip named in the frozen eval split at
     `eval_split_path` (`frames.EvalSplit`, written by `frames.freeze_eval_clips`),
     returning per-domain metrics --
     `{domain: {mAP_50, mAP_50_95, AP_player, AP_referee, n_images, n_boxes}}`, never a
-    pooled number alone (C-05/D-04). Also writes the same result to `out_path`.
+    pooled number alone (C-05/D-04). Also writes the same result to `out_path`, and
+    logs every metric into the MLflow run `run_id` as a `<domain>_<metric>` metric.
 
-    Implemented by plan 02.2-15.
+    Ground truth is sourced from each domain's human-corrected COCO package(s) at
+    `data/labels/<session_id>/corrected/instances.json`, filtered to images whose
+    parsed clip number is one of that domain's `frozen_eval` clips
+    (`_load_domain_ground_truth`) -- `frozen_eval_clips.csv` itself only freezes
+    *which clips* are held out, never labels them; a domain whose `frozen_eval`
+    clips have no corresponding corrected package (or whose corrected package has no
+    frame on a `frozen_eval` clip) raises `EvalGroundTruthMissing` naming that
+    domain, rather than silently reporting a metric over an empty set (same
+    C-05/D-04 discipline `dataset.validate_coco` already applies on the training
+    side).
+
+    A `"_pooled"` key is included as an additional, non-authoritative aggregate over
+    every domain's boxes -- callers must never read it in place of the per-domain
+    entries (C-05/D-04).
     """
-    raise NotImplementedError("implemented by plan 02.2-15")
+    from flag_football_ep.cv.frames import read_eval_split
+
+    split = read_eval_split(eval_split_path)
+    session_by_clip = _read_frozen_eval_session_ids(eval_split_path)
+
+    model = load_detector(config, run_id)
+
+    resolution = config.cv.resolution
+    sahi = config.cv.sahi
+
+    results: dict[str, dict] = {}
+    for domain in sorted(split.clips_by_domain):
+        clip_to_session = session_by_clip.get(domain, {})
+        images, annotations, categories, image_paths = _load_domain_ground_truth(
+            config, domain, clip_to_session
+        )
+        if not images:
+            raise EvalGroundTruthMissing(
+                f"domain {domain!r} has zero ground-truth-labeled frames overlapping "
+                f"its {len(clip_to_session)} frozen_eval clip(s) -- no corrected COCO "
+                "package under data/labels/<session_id>/corrected/ covers any of them"
+            )
+        results[domain] = _evaluate_domain_frames(
+            config, model, images, annotations, categories, image_paths,
+            resolution=resolution, sahi=sahi,
+        )
+
+    total_images = sum(r["n_images"] for r in results.values())
+    total_boxes = sum(r["n_boxes"] for r in results.values())
+    if total_images:
+        pooled_map = sum(r["mAP_50_95"] * r["n_images"] for r in results.values()) / total_images
+        pooled_map_50 = sum(r["mAP_50"] * r["n_images"] for r in results.values()) / total_images
+    else:
+        pooled_map = 0.0
+        pooled_map_50 = 0.0
+    results["_pooled"] = {
+        "mAP_50": pooled_map_50,
+        "mAP_50_95": pooled_map,
+        "n_images": total_images,
+        "n_boxes": total_boxes,
+    }
+
+    _write_json_atomic(Path(out_path), results)
+
+    import mlflow
+
+    from flag_football_ep.model import mlflow_store
+
+    mlflow_store.configure(config)
+    with mlflow.start_run(run_id=run_id):
+        for domain, metrics in results.items():
+            for metric_name, value in metrics.items():
+                if isinstance(value, (int, float)):
+                    mlflow.log_metric(f"{domain}_{metric_name}", float(value))
+
+    return results
