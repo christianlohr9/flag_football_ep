@@ -16,10 +16,14 @@ offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20
 2026-09-04 zusätzlich: Ground-Truth-Sampling + Vorlabel-Push für die eingefrorenen Eval-Clips
 vorbereitet (CVAT-Aufgaben `eval-gt-drone`/`eval-gt-sideline`), geprüft, Held-out-Ergebnis
 bestätigt die Nicht-Promotion (`### Nachtrag 2026-09-04 (abends)`). Ursachen-Diagnose
-abgeschlossen (zwei Ablationsläufe): weder fehlender Val-Split noch Multi-Domain-Mix
-erklären die Drohnen-Lücke, Champion-Feintuning hilft nur wenig — die AL-1-Frame-Diversität
-pro Clip (nahe am 12-Frame-Cap, wenige Pool-Clips) ist der tragfähigste Erklärungsansatz,
-siehe `### Nachtrag 2026-09-04 (Diagnose)` unten.**
+abgeschlossen (drei Ablationsläufe): der ursprünglich berichtete Drohnen-Abstand war
+grossteils (rund zwei Drittel bis drei Viertel, je nach Metrik) ein Messartefakt — der
+Champion selbst war auf den Eval-Clips nicht sauber held-out (88+25 Leck-Frames im eigenen
+Pilotentraining). Ein "sauberer Champion" (Ablation D, Eval-Clips vollständig entfernt) landet
+bei `mAP_50` 0,9030/`mAP_50_95` 0,7847 statt der ursprünglichen 0,9550/0,9423. Ein kleinerer,
+aber echter Rest bleibt (~0,015/~0,077 gegenüber Iteration-1) und ist am ehesten der
+AL-1-Frame-Diversität pro Clip zuzuschreiben, siehe `### Nachtrag 2026-09-04 (Diagnose)` und
+`### Nachtrag 2026-09-04 (Diagnose, Korrektur)` unten.**
 
 ### Korrektur 2026-09-04 (Koordinator): Der Drohnen-Vergleich ist kein Held-out-Vergleich
 
@@ -272,6 +276,102 @@ landet. Die Startgewichte-Frage (Kandidat 4) ist ebenfalls real: `train_detector
 nicht als alleinige Lösung erwartet werden. `champion` und `hackathon-frozen` bleiben beide
 unverändert auf `87a8a5222f7a472787875e974d089c44` — kein Alias wurde bewegt. Vollständiger
 Bericht: `.planning/phases/02.2-dataset-buildout/02.2-DIAG-SUMMARY.md`.
+
+### Nachtrag 2026-09-04 (Diagnose, Korrektur): Der Champion selbst ist nicht sauber Held-out — Ablation D
+
+**Befund des Koordinators:** Der obige Vergleich hat ein Loch. Der Champion (`87a8a522…`)
+ist auf den eingefrorenen Eval-Clips selbst nicht held-out: sein Pilot-Trainingsset enthält
+88 Train- und 25 Val-Frames aus genau den 18 eingefrorenen Drohnen-Clips (`### Korrektur
+2026-09-04 (Koordinator)` oben) — die Eval-GT-Frames sind andere Frame-Indizes derselben
+Clips, also zeitlich nahe Near-Duplikate dessen, worauf der Champion trainiert hat. v1.2/
+Ablation A/B enthalten dagegen keinen einzigen dieser 18 Clips. Das, plus der dokumentierte
+Vorlabel-Bias (95 % der geprüften Drohnen-Boxen sind unveränderte Champion-Vorlabels), kann
+die gesamte Drohnen-Lücke erklären, ganz ohne einen Frame-Dichte-Effekt.
+
+**Ablation D — "sauberer Champion":** exakt das Piloten-Rezept (korrigierter Piloten-Datensatz,
+304 Bilder, 30 Epochen, 896 px, Batch 4, Grad-Accum 4, MPS, dieselbe Clip-Level-Split-Logik wie
+beim Champion — Split-Zuordnung für überlebende Clips unverändert aus dem Original-Manifest
+übernommen, nicht neu gewürfelt), aber mit jedem Frame aus den 18 eingefrorenen Drohnen-Clips
+aus Train UND Val entfernt. Tatsächlich entfernt: 76 von 304 korrigierten Bildern (nicht die
+zuvor grob geschätzten ~291/43 Clips — diese Zahl war die Schätzung auf Manifest-Sample-Ebene
+vor Korrektur-Filterung, nicht die tatsächlich korrigierten Bilder). Verbleibend: **228 Bilder,
+33 Clips**, Split 181 Train / 47 Val (20,6 % — nahe am ursprünglichen 20 %-Design). Per
+`assert_no_frozen_eval_clips` verifiziert: 0 Überschneidung mit den eingefrorenen Eval-Clips.
+Da 228 Bilder unter `validate_coco`s Standard-Untergrenze `_MIN_IMAGES = 250` liegt (die der
+Champion mit 304 Bildern noch komfortabel erfüllte), wurde `dataset._MIN_IMAGES` für diesen
+einen Diagnoselauf per `monkeypatch.setattr`-Mechanismus auf 200 gesenkt — genau der
+Mechanismus, den `dataset.py`s eigener Docstring für exakt diesen Fall vorsieht (Laufzeit-Lookup
+des Moduls-Attributs statt Def-Time-Default), keine Änderung an `train_detector`s öffentlicher
+Signatur für einen einzelnen Ablationslauf. MLflow-Lauf `a6d53662e6fa4df88d10debd1551de6b`
+(`checkpoint_source = best_total` — der Val-Split griff).
+
+**Ergebnis auf der geprüften Held-out-Ground-Truth:**
+
+| Lauf | Domäne | n Bilder | mAP_50 | mAP_50_95 | AP_player | AP_referee |
+|---|---|---:|---:|---:|---:|---:|
+| Champion 2.1 (`87a8a522…`, **nicht sauber held-out**) | Drohne | 90 | 0,9550 | 0,9423 | 0,9520 | 0,9325 |
+| **Ablation D (`a6d53662…`, sauberer Champion)** | Drohne | 90 | **0,9030** | **0,7847** | 0,8110 | 0,7583 |
+| Iteration-1 v1.2 (`be854a1a…`) | Drohne | 90 | 0,8881 | 0,7073 | 0,7134 | 0,7013 |
+| Ablation A (Drohne-only + Val-Split) | Drohne | 90 | 0,8884 | 0,7076 | 0,7223 | 0,6929 |
+| Ablation B (Champion-Feintuning, v1.2 voll) | Drohne | 90 | 0,8926 | 0,7283 | 0,7208 | 0,7359 |
+| Champion 2.1 (Zero-Shot, nie auf GoPro trainiert) | GoPro/Hinterfeld | 72 | 0,7971 | 0,7813 | 0,7016 | 0,8610 |
+| Ablation D (Drohne-only, Zero-Shot auf GoPro) | GoPro/Hinterfeld | 72 | 0,6255 | 0,5264 | 0,5394 | 0,5135 |
+| Iteration-1 v1.2 | GoPro/Hinterfeld | 72 | 0,7248 | 0,5292 | 0,5952 | 0,4633 |
+| Ablation B (v1.2 voll, Champion-Feintuning) | GoPro/Hinterfeld | 72 | 0,7644 | 0,5655 | 0,6046 | 0,5265 |
+
+**Frame-Dichte pro Clip, D vs. v1.2-Drohne (derselbe Vergleich wie oben, jetzt für D statt für
+den vollen Piloten):**
+
+| Datensatz | n Bilder | n Clips | Frames/Clip Median | Min | Max |
+|---|---:|---:|---:|---:|---:|
+| Ablation D (Piloten-Rezept ohne die 18 Eval-Clips) | 228 | 33 | 7 | 3 | 12 |
+| v1.2-Drohne (AL-1) | 450 | 43 | 12 | 4 | 12 |
+| Piloten-Datensatz voll (zum Vergleich, inkl. Leck) | 304 | 46 | 7 | 3 | 12 |
+
+D behält das Dichte-Profil des vollen Piloten fast unverändert (Median 7 vs. 7, nur die 18
+Eval-Clips fehlen) — der Dichte-Kontrast zu v1.2 (Median 12, nahe am Cap) bleibt also bestehen,
+unabhängig von der Leckage-Frage.
+
+**Ehrliche, revidierte Schlussfolgerung — beide Effekte sind real, in unterschiedlichem
+Ausmaß:**
+
+Die Rechnung mit den jetzt vorliegenden Zahlen: von der ursprünglich berichteten Drohnen-Lücke
+(Champion 0,9550/0,9423 vs. Iteration-1 0,8881/0,7073 → Δ 0,0669 mAP_50 / 0,2350 mAP_50_95)
+schliesst Ablation D (der saubere Champion, 0,9030/0,7847) **77,7 % der `mAP_50`-Lücke und
+67,1 % der `mAP_50_95`-Lücke** — das ist die Leckage- plus Vorlabel-Bias-Erklärung des
+Koordinators, und sie trägt tatsächlich den **überwiegenden Teil** der ursprünglich berichteten
+Differenz. Das war kein kleiner Vorbehalt, sondern der Hauptfaktor.
+
+Aber selbst nach vollständiger Entfernung der Leckage bleibt ein echter, sauber
+held-out-gemessener Rest: Ablation D (0,9030/0,7847) liegt weiterhin **über** Iteration-1
+(0,8881/0,7073, Δ 0,0149 mAP_50 / 0,0774 mAP_50_95) und über Ablation A (0,8884/0,7076, Δ
+0,0146/0,0771) — bei nur 228 statt 450 bzw. 450 Trainingsbildern. Da Ablation A bereits
+sowohl "kein Val-Split" als auch "Multi-Domain-Mix" als Erklärung für diesen Rest widerlegt
+hat (A hat beides behoben und blieb bei Iteration-1s Niveau), und D denselben Val-Split-Mechanismus
+wie der Champion nutzt (`checkpoint_source = best_total`) ohne den Rest zu schliessen, bleibt
+die **Frame-Diversität pro Clip** die plausibelste Erklärung für diesen kleineren, aber realen
+Rest: D zieht 228 Bilder aus 33 Clips bei Median 7/Clip (fast identisch mit dem ungekürzten
+Piloten), v1.2/Iteration-1/A ziehen 450 Bilder aus nur 43 Clips bei Median 12/Clip (nahe am
+Cap) — mehr Rohbilder, aber dichter konzentriert auf weniger, dafür stärker korrelierte Clips.
+
+**Zusammengefasst:** Die Leckage im Champion-Vergleich erklärt den **überwiegenden Teil**
+(rund zwei Drittel bis drei Viertel, je nach Metrik) der ursprünglich berichteten Drohnen-Lücke
+— es handelt sich nicht um eine echte Modell-Regression in diesem Ausmass. Ein kleinerer, aber
+auf sauberer Held-out-Basis real gemessener Rest (~0,015 `mAP_50`, ~0,077 `mAP_50_95`) bleibt
+bestehen und ist am ehesten der Frame-Dichte/-Diversität pro Clip zuzuschreiben, nicht dem
+Val-Split, nicht dem Multi-Domain-Mix und nur geringfügig den Startgewichten (Ablation B). Für
+GoPro/Hinterfeld liefert D einen zusätzlichen, nicht überbewerteten Datenpunkt: Ds
+Zero-Shot-Transfer auf GoPro (0,6255/0,5264) ist sogar schwächer als der des (leckenden)
+Champions (0,7971/0,7813) — vermutlich schlicht wegen der kleineren Trainingsmenge (228 vs.
+304 Bilder), nicht weiter aufgelöst innerhalb dieser Diagnose.
+
+**Konsequenz für Plan 02.2-16 (Iteration 2), revidiert:** Iteration 1 ist **keine dramatische
+Regression** gegenüber einem sauber gemessenen Champion-Äquivalent — der ursprünglich
+berichtete Abstand war grossteils ein Messartefakt der eigenen Leckage des Champions. Die
+Frame-Diversitäts-Empfehlung von oben (mehr distinkte Clips statt mehr Frames pro Clip, Cap
+für die Uncertainty-Selektion prüfen) bleibt gültig, aber als Verbesserung im kleinen,
+einstelligen-Prozentpunkt-Bereich einzuordnen, nicht als Behebung eines grossen Defekts. Kein
+Alias wurde bewegt; `champion`/`hackathon-frozen` bleiben auf `87a8a5222f7a472787875e974d089c44`.
 
 ## Zweck & Abgrenzung
 
