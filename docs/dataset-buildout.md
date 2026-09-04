@@ -14,8 +14,12 @@ Ground Truth für die eingefrorenen Clips), daher **nicht promoviert**, siehe
 `## Iteration-1-Detektor: Training und Per-Domain-Evaluation (Plan 02.2-15)` unten. Noch
 offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20). Am
 2026-09-04 zusätzlich: Ground-Truth-Sampling + Vorlabel-Push für die eingefrorenen Eval-Clips
-vorbereitet (CVAT-Aufgaben `eval-gt-drone`/`eval-gt-sideline`), siehe
-`### Nachtrag 2026-09-04 (Ausführung)` unten — Prüfung durch die Nutzerin steht noch aus.**
+vorbereitet (CVAT-Aufgaben `eval-gt-drone`/`eval-gt-sideline`), geprüft, Held-out-Ergebnis
+bestätigt die Nicht-Promotion (`### Nachtrag 2026-09-04 (abends)`). Ursachen-Diagnose
+abgeschlossen (zwei Ablationsläufe): weder fehlender Val-Split noch Multi-Domain-Mix
+erklären die Drohnen-Lücke, Champion-Feintuning hilft nur wenig — die AL-1-Frame-Diversität
+pro Clip (nahe am 12-Frame-Cap, wenige Pool-Clips) ist der tragfähigste Erklärungsansatz,
+siehe `### Nachtrag 2026-09-04 (Diagnose)` unten.**
 
 ### Korrektur 2026-09-04 (Koordinator): Der Drohnen-Vergleich ist kein Held-out-Vergleich
 
@@ -165,6 +169,109 @@ ffep cv eval-domains --run be854a1adebf4eb4b01d98dc39022ee1 \
 
 Erst danach ist die Stoppregel (+0,010 mAP_50_95, `docs/dataset-plan.md` `## 3`) für beide
 Domänen tatsächlich anwendbar — nicht länger "nicht messbar".
+
+### Nachtrag 2026-09-04 (Diagnose): Warum Iteration 1 auf der Drohne schwächer ist als der Champion
+
+Die vier Kandidaten aus dem vorigen Nachtrag wurden geprüft — zwei ohne GPU an den
+vorhandenen Daten/MLflow-Params, zwei per kleiner Ablation (max. drei Trainingsläufe laut
+Vorgabe, zwei genügten für eine Entscheidung).
+
+**Günstige Prüfung ohne neues Training:**
+
+- **Manifest/Frames bestätigt korrekt.** `be854a1a…`s Param `dataset_content_sha256` ==
+  `d4528a99…` == Datensatz v1.2s eigener Hash exakt; der Lauf startete 2026-09-04 13:45,
+  nach Commit `53ba641` (11:26), der `_resolve_manifest_path` fixte. Iteration 1 trainierte
+  nachweislich auf den richtigen 572 v1.2-Frames, nicht auf dem alten 404-Frame-Pilot-Manifest.
+- **Keine Label-Konventions-Drift.** Boxen/Bild (Pilot 21,76 vs. v1.2-Drohne 19,69),
+  Referee-Anteil (9,86 % vs. 10,23 %), Box-Fläche (Median 3537 vs. 3585 px²), Box-Breite/Höhe
+  (44,6×86,2 vs. 43,8×88,5) — alle nahezu identisch zwischen Piloten-Korrektur und
+  AL-1-Korrektur. Die Korrektursitzungen labeln konsistent.
+- **Frame-Dichte pro Clip deutlich unterschiedlich.** Der Champion trainierte auf 322
+  Trainings-Frames über 46 Clips (Median 7 Frames/Clip, Ziehung duration-proportional über
+  alle 60 Session-Clips). v1.2-Drohne zieht 450 Frames über nur 43 Pool-Clips (Median 12
+  Frames/Clip — am `_MAX_CANDIDATES_PER_CLIP`-Deckel von 12, denselben, den auch
+  `sample_training_frames` für reguläres Sampling verwendet). Trotz *mehr* Rohframes ist die
+  effektive Clip-Diversität in v1.2 niedriger: bis zu 12 zeitlich nahe, stark korrelierte
+  Frames aus demselben Clip liefern deutlich weniger unabhängiges Trainingssignal als
+  duration-proportional über mehr Clips verteilte Frames.
+
+**Ablation A — Drohne-only-Teilmenge von v1.2 mit gesätem 10 %-Val-Split** (Kandidaten 1
+"kein Val-Split/EMA-Fallback" und 2 "Multi-Domain-Mix" zusammen getestet): 450 Drohnen-Frames
+unverändert aus v1.2, Clip-Level-Val-Split neu zugewiesen (Seed `20260905`, 5 von 43 Clips,
+45/450 Frames = 10,0 %), sonst exakt die Champion-Einstellungen (30 Epochen, 896 px, Batch 4,
+Grad-Accum 4, MPS). MLflow-Lauf `702ab0b5baaf422fa0c21e3988daa4a4`
+(`checkpoint_source = best_total` — der Val-Split griff, echte Best-Checkpoint-Auswahl über
+30 Epochen, nicht der EMA-Fallback). **Ergebnis: praktisch identisch zu Iteration 1**
+(Drohne `mAP_50` 0,8884 vs. 0,8881, `mAP_50_95` 0,7076 vs. 0,7073). Damit sind Kandidaten 1
+und 2 beide **widerlegt**: weder ein echter Val-Split mit Best-Checkpoint-Auswahl noch die
+Entfernung des Multi-Domain-Mix verändert die Drohnen-Leistung messbar. Da A die Lücke nicht
+schliesst, entfällt Lauf C (der laut Plan nur zur Trennung von 1 und 2 nötig gewesen wäre,
+wenn A sie geschlossen hätte).
+
+**Ablation B — v1.2 vollständig, Start von den Champion-Gewichten** (Kandidat 4
+"COCO-Pretrain vs. Champion-Feintuning"): dieselben 572 v1.2-Frames wie Iteration 1
+(0 Val-Frames, `checkpoint_source = best_ema_fallback_no_val_split`, unverändert gegenüber
+Iteration 1), aber `RFDETRSmall(pretrain_weights=…)` mit dem Champion-Checkpoint
+(`checkpoint_best_total.pth`, Modellregistry-Artefakt des Champion-Laufs) statt dem
+RF-DETR-Standard-COCO-Pretrain initialisiert — dafür `train_detector` um einen minimalen
+`init_weights`-Parameter erweitert (`RFDETRSmall(pretrain_weights=…)`, dieselbe Mechanik, die
+`RFDETRWrapper.load_context` bereits für das Laden registrierter Checkpoints nutzt; neuer
+`--init-weights`-CLI-Flag, ein Test, Commit `94f0572`). MLflow-Lauf
+`689d5f1dc2c2450785be0f1a1bac9491`. **Ergebnis: kleine, echte, aber die Lücke nicht
+schliessende Verbesserung.** Drohne `mAP_50` 0,8926 (+0,0044 ggü. Iteration 1), `mAP_50_95`
+0,7283 (+0,0210); GoPro/Hinterfeld `mAP_50` 0,7644 (+0,0396), `mAP_50_95` 0,5655 (+0,0363).
+Kandidat 4 trägt real bei — spürbarer bei GoPro/Hinterfeld als bei der Drohne — bleibt aber
+weit vom Champion entfernt (Drohne `mAP_50_95` 0,7283 vs. 0,9423).
+
+**Ergebnistabelle** (alle Läufe auf derselben geprüften Ground Truth, `n` überall identisch):
+
+| Lauf | Domäne | n Bilder | mAP_50 | mAP_50_95 | AP_player | AP_referee |
+|---|---|---:|---:|---:|---:|---:|
+| Champion 2.1 (`87a8a522…`) | Drohne | 90 | 0,9550 | 0,9423 | 0,9520 | 0,9325 |
+| Iteration-1 v1.2 (`be854a1a…`) | Drohne | 90 | 0,8881 | 0,7073 | 0,7134 | 0,7013 |
+| Ablation A (`702ab0b5…`, Drohne-only + Val-Split) | Drohne | 90 | 0,8884 | 0,7076 | 0,7223 | 0,6929 |
+| Ablation B (`689d5f1d…`, Champion-Feintuning) | Drohne | 90 | 0,8926 | 0,7283 | 0,7208 | 0,7359 |
+| Champion 2.1 | GoPro/Hinterfeld | 72 | 0,7971 | 0,7813 | 0,7016 | 0,8610 |
+| Iteration-1 v1.2 | GoPro/Hinterfeld | 72 | 0,7248 | 0,5292 | 0,5952 | 0,4633 |
+| Ablation A (Drohne-only, sah nie GoPro) | GoPro/Hinterfeld | 72 | 0,6510 | 0,4838 | 0,5410 | 0,4265 |
+| Ablation B (Champion-Feintuning, v1.2 voll) | GoPro/Hinterfeld | 72 | 0,7644 | 0,5655 | 0,6046 | 0,5265 |
+
+Ablation A's GoPro/Hinterfeld-Zeile ist erwartungsgemäss die schwächste (das Modell trainierte
+nie auf GoPro-Frames) — sie steht nur zur Vollständigkeit in der Tabelle, nicht als
+Domain-Vergleich.
+
+**Schlussfolgerung.** Weder der fehlende Val-Split (Kandidat 1) noch der Multi-Domain-Mix
+(Kandidat 2) erklärt die Drohnen-Lücke — Ablation A widerlegt beide direkt. Die
+Startgewichte (Kandidat 4) tragen real, aber nur klein bei. Die tragfähigste verbleibende
+Erklärung ist die **Frame-Diversität der AL-1-Auswahl** (Kandidat 3, ergänzt um den
+Diversitäts-Aspekt, nicht nur "andere Verteilung"): die aktive Lernauswahl zieht bis zu
+12 Frames pro Clip aus nur 43 Pool-Clips (nahe am Cap), während der Champion mit 322
+Trainings-Frames aus 46 Clips (Median 7/Clip, duration-proportional über den ganzen
+60-Clip-Pool) bei geringerer Rohframe-Zahl eine deutlich diversere Stichprobe erhielt. Mehr
+korrelierte Frames aus wenigen Clips scheinen weniger effektives Trainingssignal zu liefern
+als weniger, aber breiter gestreute Frames — eine Größenordnung, die die 30-Epochen/
+Feintuning-Differenz und die Startgewichte-Differenz beide überschattet.
+
+**Offener Nebenbefund (nicht Teil dieser Ablation, für Iteration 2 relevant):** der Champion
+— nie auf einem einzigen GoPro/Hinterfeld-Frame trainiert, reines Zero-Shot-Domain-Transfer
+von der Drohne — schlägt Iteration 1 (200 echte GoPro-Trainings-Frames) auf GoPro/Hinterfeld
+in jeder Metrik (`mAP_50` 0,7971 vs. 0,7248, `mAP_50_95` 0,7813 vs. 0,5292). Ablation B
+(Champion-Feintuning, volles v1.2) verbessert GoPro/Hinterfeld spürbar (0,7644/0,5655),
+bleibt aber unter dem reinen Zero-Shot-Champion. Das spricht dafür, dass echtes
+GoPro-Trainingsmaterial in der aktuellen Rezept-Form (kein Val-Split, Multi-Domain-Batch,
+COCO-Pretrain-Start) die Zero-Shot-Generalisierung des Champions nicht zuverlässig übertrifft
+— nicht innerhalb dieser Ablation aufgelöst (keine GoPro-only-Ablation im Drei-Läufe-Budget),
+als offene Frage für Plan 02.2-16/17 markiert.
+
+**Konsequenz für Plan 02.2-16 (Iteration 2):** die Iteration-2-Auswahl sollte die
+Frame-Diversität pro Clip explizit erhöhen statt nur mehr Frames zu ziehen — z. B. mehr
+distinkte Clips pro Domäne einbeziehen (falls der Pool das hergibt) oder den Per-Clip-Cap für
+die Uncertainty-Selektion senken, damit AL-2 nicht erneut nahe am 12-Frame-Deckel pro Clip
+landet. Die Startgewichte-Frage (Kandidat 4) ist ebenfalls real: `train_detector`s neue
+`--init-weights`-Option (Commit `94f0572`) steht für Iteration 2 zur Verfügung, sollte aber
+nicht als alleinige Lösung erwartet werden. `champion` und `hackathon-frozen` bleiben beide
+unverändert auf `87a8a5222f7a472787875e974d089c44` — kein Alias wurde bewegt. Vollständiger
+Bericht: `.planning/phases/02.2-dataset-buildout/02.2-DIAG-SUMMARY.md`.
 
 ## Zweck & Abgrenzung
 
