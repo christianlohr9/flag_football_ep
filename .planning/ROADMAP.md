@@ -519,4 +519,4 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
 | M3-2 EPA-Refinement | 7/8 | Awaiting user review (M3-02-08: docs/epa-refinement-2026-10.md) | - |
 | M3-3 Explosiveness & Efficiency | 2/3 | In progress (plan 03 = user review gate) | - |
-| M3-4 Player-Analysis-Report | 6/7 | In progress (07 handout + user review pending) | - |
+| M3-4 Player-Analysis-Report | 6/7 | Awaiting user review (M3-04-07 checkpoint: docs/hc-sync-2026-10.md) | - |
