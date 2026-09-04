@@ -33,7 +33,10 @@ rows below the last QB row are empty) -- this module is QB-row-only, matching hi
 Explosiveness and the continuous explosiveness score, each with `n`/CI/muted/`shrunk_rate` --
 every value read live from `features.explosiveness.definition_comparison`/`explosive_score`
 (M3-3's frozen public API), never a second implementation of "explosive" or "success" in this
-module.
+module. `build_player_analysis_data` is the render-ready assembly: one section per head-coach
+camp/competition window (resolved through `reference.resolve_hc_game_splits`, never a row-number
+guess), plus the corpus-wide and head-coach-total sections, mirroring `reports/own_team.py`'s
+never-raise, name-every-degraded-condition discipline.
 """
 
 from __future__ import annotations
@@ -56,7 +59,23 @@ from flag_football_ep.features.explosiveness import (
     load_calibration,
     scrimmage_plays,
 )
+from flag_football_ep.reference import (
+    MissingReferenceFile,
+    load_hc_games,
+    load_hc_splits,
+    load_player_mapping,
+    resolve_hc_game_splits,
+)
 from flag_football_ep.reports.aggregate import MUTED_MIN_N, SectionBasis, section_basis
+
+# `own_team.py` is READ-ONLY under this plan's file-collision guard (M3-04-04-PLAN.md): these
+# two names are imported, never copied or refactored, so player-identity canonicalisation and
+# the "missing mapping file" empty-frame shape can never drift between the two reports.
+from flag_football_ep.reports.own_team import (
+    _EMPTY_MAPPING_SCHEMA,
+    _canonicalise_players,
+    attach_epa,
+)
 
 PLAYER_ANALYSIS_FILENAME: str = "player-analysis.html"
 
@@ -596,3 +615,242 @@ def m3_columns_by_qb(
     table = wide.select(list(_M3_COLUMN_SCHEMA)).sort("spieler")
     return table, ()
 
+
+# --- Split sections and the render-ready report object (M3-04-04, Task 2) --------------------
+
+_KORPUS_SPLIT_KEY = "korpus"
+_HC_GESAMT_SPLIT_KEY = "hc-gesamt"
+_NA_LABEL_STATUS = "n/a"
+
+_STANDING_OPP_NOTICE = (
+    'Pro-Gegner-Splits sind fuer Camp-Spiele nicht moeglich: die Ingest-Schicht setzt fuer '
+    'jedes Camp-Spiel ein konstantes away_team = "OPP"; die tatsaechliche Gegner-Identitaet '
+    "ist nur ueber das Camp-Label selbst erkennbar (z. B. \"Camp III (vs Switzerland)\")."
+)
+
+_SPLIT_REFERENCE_MISSING_NOTICE_TEMPLATE = (
+    "Referenzdatei fuer Camp-Splits fehlt ({detail}); nur der Korpus-Gesamt-Abschnitt wird "
+    "angezeigt."
+)
+
+_SPLIT_CONFLICT_NOTICE_TEMPLATE = (
+    "Konflikt bei Split(s) {keys}: derselbe Zeilenbereich traegt im Workbook zwei "
+    "unterschiedliche Tab-Namen (Frage 7, M3-04-07) -- noch nicht vom Head Coach entschieden."
+)
+
+_MISSING_PLAYER_MAPPING_NOTICE_TEMPLATE = (
+    "Spieler-Mapping-Datei fehlt ({path}); nicht zugeordnete Spielernamen koennen nicht "
+    "aufgeloest werden."
+)
+
+
+def _empty_split_notice(heading: str) -> str:
+    return f"Abschnitt '{heading}': keine Daten im Korpus fuer diesen Abschnitt."
+
+
+@dataclass(frozen=True)
+class PlayerAnalysisSplit:
+    """One rendered section: `korpus` (the whole own-team corpus, his "All Camps" tab's
+    analogue), `hc-gesamt` (every head-coach-sourced row together, a cross-check subtotal) or
+    one `split_key` from `hc_splits.csv` (a named camp/competition window).
+
+    `columns`/`m3_table` are built from the SAME filtered frame via `hc_columns_by_qb`/
+    `m3_columns_by_qb` -- never two independently filtered inputs that could silently diverge.
+    `empty_notice` is set (and `columns.table`/`m3_table` are empty, schema-correct frames)
+    when this section's filtered frame has zero rows -- the section still appears, because
+    "this camp has no data in our corpus yet" is information the head coach needs.
+    """
+
+    key: str
+    heading: str
+    label_status: str
+    columns: HcColumnTable
+    m3_table: pl.DataFrame
+    basis: SectionBasis
+    empty_notice: str | None
+
+
+@dataclass(frozen=True)
+class PlayerAnalysisReportData:
+    """The complete, render-ready `Player Analysis` data object (HC-05), one `PlayerAnalysisSplit`
+    per section: `korpus`, `hc-gesamt`, plus one per declared `hc_splits.csv` window.
+
+    `unresolved_games` names every declared head-coach game whose `resolve_hc_game_splits`
+    outcome was not `"matched"` (spoofing mitigation T-M3-04-13) -- their plays are counted in
+    `hc-gesamt` but in no camp section. `notices` collects every degraded condition (missing
+    reference file, missing/unreadable calibration, missing player mapping, unmapped names, the
+    standing per-opponent limitation, the Camp IV/VI conflict) as a German sentence, in first-
+    occurrence order, deduplicated. Never raises: this object always builds, on today's
+    zero-head-coach-row corpus and on tomorrow's, with no code change (must_haves).
+    """
+
+    team: str
+    splits: tuple[PlayerAnalysisSplit, ...]
+    unresolved_games: tuple[tuple[str, str], ...]
+    unmapped_players: tuple[str, ...]
+    notices: tuple[str, ...]
+    n_hc_rows: int
+    overall_basis: SectionBasis
+
+
+def _build_split(
+    plays: pl.DataFrame,
+    *,
+    key: str,
+    heading: str,
+    label_status: str,
+    calibration: ExplosivenessCalibration | None,
+    group_col: str,
+) -> tuple[PlayerAnalysisSplit, tuple[str, ...]]:
+    """Build one `PlayerAnalysisSplit` from `plays` already filtered to this section's scope,
+    delegating to `hc_columns_by_qb`/`m3_columns_by_qb` on the identical frame. Returns the
+    split plus every notice its two builders produced (the caller aggregates/deduplicates
+    across sections).
+    """
+    columns = hc_columns_by_qb(plays, group_col=group_col)
+    m3_table, m3_notices = m3_columns_by_qb(plays, calibration=calibration, group_col=group_col)
+    empty_notice = _empty_split_notice(heading) if columns.table.height == 0 else None
+
+    split = PlayerAnalysisSplit(
+        key=key,
+        heading=heading,
+        label_status=label_status,
+        columns=columns,
+        m3_table=m3_table,
+        basis=columns.basis,
+        empty_notice=empty_notice,
+    )
+    return split, tuple(columns.notices) + tuple(m3_notices)
+
+
+def build_player_analysis_data(
+    plays: pl.DataFrame, *, config: Config, scored: pl.DataFrame | None = None
+) -> PlayerAnalysisReportData:
+    """Assemble the full `PlayerAnalysisReportData` for `config.report.own_team` (HC-05).
+
+    `attach_epa` runs on the FULL, unfiltered `plays` corpus first (same reason
+    `build_own_team_data` does -- EPA provenance needs true play-by-play adjacency across both
+    teams' snaps), and only the resulting frame is filtered to `posteam == team`. Player
+    identities are canonicalised through the maintained mapping the same way `own_team.py`
+    does, via its own `_canonicalise_players` (imported, not refactored -- this plan's file
+    ownership boundary keeps `own_team.py` read-only).
+
+    Splits: `korpus` (the whole filtered frame, always built), `hc-gesamt` (every
+    `source == "hc_workbook"` row, built only when both `hc_games.csv` and `hc_splits.csv`
+    load), and one section per `split_key` in `hc_splits.csv`, each filtered to the `game_id`s
+    `resolve_hc_game_splits` marked `"matched"` for that key. A missing `hc_games.csv` or
+    `hc_splits.csv` degrades to a German notice and a report with only the `korpus` section --
+    it never raises and never guesses a split.
+
+    Never raises: a missing reference file, a missing/unreadable calibration, an empty section,
+    an unresolved game and an absent own team all become a German notice in `notices`, exactly
+    as `build_own_team_data` handles its own degraded conditions.
+    """
+    team = config.report.own_team
+    group_col = "thrown_by"
+    notices: list[str] = []
+
+    scored_plays = attach_epa(plays, processed_dir=config.paths.processed, scored=scored)
+    offense = scored_plays.filter(pl.col("posteam") == team)
+
+    try:
+        mapping = load_player_mapping(config.reference.player_mapping)
+    except MissingReferenceFile:
+        notices.append(
+            _MISSING_PLAYER_MAPPING_NOTICE_TEMPLATE.format(path=config.reference.player_mapping)
+        )
+        mapping = pl.DataFrame(schema=_EMPTY_MAPPING_SCHEMA)
+
+    canon, unmapped = _canonicalise_players(offense, mapping)
+    if unmapped:
+        notices.append(f"Nicht zugeordnete Spielernamen: {', '.join(unmapped)}")
+
+    calibration, calibration_notices = load_report_calibration(config)
+    notices.extend(calibration_notices)
+
+    n_hc_rows = (
+        canon.filter(pl.col("source") == "hc_workbook").height if "source" in canon.columns else 0
+    )
+    overall_basis = section_basis(canon)
+
+    korpus_split, korpus_notices = _build_split(
+        canon,
+        key=_KORPUS_SPLIT_KEY,
+        heading="Alle Camps (Korpus gesamt)",
+        label_status=_NA_LABEL_STATUS,
+        calibration=calibration,
+        group_col=group_col,
+    )
+    notices.extend(korpus_notices)
+    splits: list[PlayerAnalysisSplit] = [korpus_split]
+
+    unresolved_games: tuple[tuple[str, str], ...] = ()
+
+    try:
+        games = load_hc_games(config.reference.hc_games)
+        hc_splits_ref = load_hc_splits(config.reference.hc_splits)
+    except MissingReferenceFile as exc:
+        notices.append(_SPLIT_REFERENCE_MISSING_NOTICE_TEMPLATE.format(detail=str(exc)))
+    else:
+        resolved = resolve_hc_game_splits(games, hc_splits_ref)
+        unresolved_games = tuple(
+            (row["game_id"], row["split_match"])
+            for row in resolved.filter(pl.col("split_match") != "matched").iter_rows(named=True)
+        )
+
+        hc_gesamt_frame = (
+            canon.filter(pl.col("source") == "hc_workbook")
+            if "source" in canon.columns
+            else canon.filter(pl.lit(False))
+        )
+        hc_gesamt_split, hc_gesamt_notices = _build_split(
+            hc_gesamt_frame,
+            key=_HC_GESAMT_SPLIT_KEY,
+            heading="Head Coach Workbook gesamt (alle Camps)",
+            label_status=_NA_LABEL_STATUS,
+            calibration=calibration,
+            group_col=group_col,
+        )
+        notices.extend(hc_gesamt_notices)
+        splits.append(hc_gesamt_split)
+
+        conflict_keys = sorted(
+            hc_splits_ref.filter(pl.col("label_status") == "conflict")["split_key"].to_list()
+        )
+        if conflict_keys:
+            notices.append(
+                _SPLIT_CONFLICT_NOTICE_TEMPLATE.format(keys=", ".join(conflict_keys))
+            )
+
+        for split_row in hc_splits_ref.sort("first_row").iter_rows(named=True):
+            split_key = split_row["split_key"]
+            matched_game_ids = (
+                resolved.filter(
+                    (pl.col("split_key") == split_key) & (pl.col("split_match") == "matched")
+                )["game_id"].to_list()
+            )
+            camp_frame = canon.filter(pl.col("game_id").is_in(matched_game_ids))
+            camp_split, camp_notices = _build_split(
+                camp_frame,
+                key=split_key,
+                heading=split_row["label_de"],
+                label_status=split_row["label_status"],
+                calibration=calibration,
+                group_col=group_col,
+            )
+            notices.extend(camp_notices)
+            splits.append(camp_split)
+
+    notices.append(_STANDING_OPP_NOTICE)
+    if offense.height == 0:
+        notices.append(f"Keine Offense-Plays fuer {team!r} im Korpus gefunden.")
+
+    return PlayerAnalysisReportData(
+        team=team,
+        splits=tuple(splits),
+        unresolved_games=unresolved_games,
+        unmapped_players=tuple(unmapped),
+        notices=tuple(dict.fromkeys(notices)),
+        n_hc_rows=n_hc_rows,
+        overall_basis=overall_basis,
+    )

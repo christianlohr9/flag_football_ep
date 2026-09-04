@@ -34,8 +34,11 @@ from flag_football_ep.features.explosiveness import (
 )
 from flag_football_ep.reports.player_analysis import (
     HcColumnTable,
+    PlayerAnalysisReportData,
+    PlayerAnalysisSplit,
     _HC_COLUMN_SCHEMA,
     _M3_COLUMN_SCHEMA,
+    build_player_analysis_data,
     hc_columns_by_qb,
     load_report_calibration,
     m3_columns_by_qb,
@@ -144,6 +147,157 @@ def _assert_matches(actual, expected) -> None:
         assert actual is None
     else:
         assert actual == pytest.approx(expected)
+
+
+# --- Synthetic hc_games.csv / hc_splits.csv builders (never the real committed files, per
+# `M3-04-04-PLAN.md`'s file-collision guard: `hc_games.csv` may be in flux under a concurrent
+# plan, and this module's own tests must not depend on its content) ---------------------------
+
+_WORKBOOK = "wb1"
+_SHEET = "data"
+
+_HC_GAMES_COLUMNS: tuple[str, ...] = (
+    "workbook",
+    "sheet",
+    "block_key",
+    "source_team1",
+    "source_team2",
+    "game_id",
+    "home_team",
+    "away_team",
+    "competition",
+    "season",
+    "game_date",
+    "tier",
+    "corpus_game_id",
+    "note",
+)
+
+_HC_SPLITS_COLUMNS: tuple[str, ...] = (
+    "workbook",
+    "sheet",
+    "first_row",
+    "last_row",
+    "split_key",
+    "label_de",
+    "label_status",
+    "source_tabs",
+    "note",
+)
+
+
+def _hc_game_row(
+    game_id: str, *, note: str, workbook: str = _WORKBOOK, sheet: str = _SHEET
+) -> dict:
+    return {
+        "workbook": workbook,
+        "sheet": sheet,
+        "block_key": f"b01-{game_id}",
+        "source_team1": "",
+        "source_team2": "",
+        "game_id": game_id,
+        "home_team": "GER",
+        "away_team": "OPP",
+        "competition": "HC Camps 2026",
+        "season": 2026,
+        "game_date": "",
+        "tier": "womens-national",
+        "corpus_game_id": "",
+        "note": note,
+    }
+
+
+def _write_hc_games(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if rows:
+        frame = pl.DataFrame(rows, schema_overrides={"season": pl.Int32}).select(
+            list(_HC_GAMES_COLUMNS)
+        )
+    else:
+        frame = pl.DataFrame(schema={c: pl.Utf8 for c in _HC_GAMES_COLUMNS})
+    frame.write_csv(path)
+
+
+def _hc_split_row(
+    split_key: str,
+    *,
+    first_row: int,
+    last_row: int,
+    label_de: str,
+    label_status: str = "verified",
+    workbook: str = _WORKBOOK,
+    sheet: str = _SHEET,
+) -> dict:
+    return {
+        "workbook": workbook,
+        "sheet": sheet,
+        "first_row": first_row,
+        "last_row": last_row,
+        "split_key": split_key,
+        "label_de": label_de,
+        "label_status": label_status,
+        "source_tabs": "x",
+        "note": "synthetic test window",
+    }
+
+
+def _write_hc_splits(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if rows:
+        frame = pl.DataFrame(
+            rows, schema_overrides={"first_row": pl.Int32, "last_row": pl.Int32}
+        ).select(list(_HC_SPLITS_COLUMNS))
+    else:
+        frame = pl.DataFrame(schema={c: pl.Utf8 for c in _HC_SPLITS_COLUMNS})
+    frame.write_csv(path)
+
+
+def _hc_plays(*, game_id: str, n_plays: int, thrown_by: str = "QB1") -> pl.DataFrame:
+    """`n_plays` completed pass plays for the own team (`posteam == "HOME"`), `source ==
+    "hc_workbook"`, on a caller-chosen `game_id` -- so a synthetic `hc_games.csv` row can
+    reference it by exact value (auto-derived `make_game_id("hc_workbook", ...)` ids never
+    start with the `"hc-"` prefix `load_hc_games` requires, so this override is deliberate,
+    not incidental).
+    """
+    df = canonical_plays(
+        n_games=1,
+        plays_per_game=n_plays,
+        source="hc_workbook",
+        overrides={
+            "game_id": [game_id] * n_plays,
+            "posteam": [_HOME] * n_plays,
+            "defteam": [_AWAY] * n_plays,
+            "complete_pass": [1] * n_plays,
+            "yards_gained": [5] * n_plays,
+        },
+        extras={"thrown_by": [thrown_by] * n_plays},
+    )
+    return df.with_columns(epa=pl.Series([1.0] * n_plays))
+
+
+def _pat_filler_rows() -> pl.DataFrame:
+    """Two `down == 0` PAT rows, unrelated to any test's actual scrimmage plays --
+    `build_player_analysis_data`'s `attach_epa` call runs `estimate_pat_baselines` on the FULL
+    corpus before any team filtering, and that raises `InsufficientPatAttempts` without at
+    least one 1-pt and one 2-pt attempt (mirrors `tests/test_reports_own_team.py::_pat_ready`,
+    but as two dedicated extra rows rather than overwriting the first two of the caller's own
+    plays -- this module's tests need exact, hand-picked scrimmage-play counts per split).
+    `posteam` is deliberately the away side so these rows never enter any offense-filtered
+    split section.
+    """
+    return canonical_plays(
+        n_games=1,
+        plays_per_game=2,
+        overrides={
+            "down": [0, 0],
+            "yards_to_go": [3, 10],
+            "one_point_conv_success": [1, 0],
+            "two_point_conv_success": [0, 1],
+            "posteam": [_AWAY, _AWAY],
+            "defteam": [_HOME, _HOME],
+            "game_id": ["pat-filler", "pat-filler"],
+        },
+    ).with_columns(epa=pl.lit(None, dtype=pl.Float64))
 
 
 def _row(table: pl.DataFrame, spieler: str) -> dict:
@@ -572,3 +726,217 @@ class TestM3ColumnsByQb:
         m3_players = set(m3_table["spieler"].to_list())
         assert m3_players
         assert m3_players <= hc_players
+
+
+# --- Task 2: split sections and build_player_analysis_data ---------------------------------
+
+
+class TestBuildPlayerAnalysisData:
+    def test_returns_korpus_hc_gesamt_and_one_section_per_split_key(
+        self, tmp_path: Path
+    ) -> None:
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+
+        hc = _hc_plays(game_id="hc-g1", n_plays=3)
+        hudl = canonical_plays(
+            n_games=1,
+            plays_per_game=2,
+            overrides={
+                "posteam": [_HOME] * 2,
+                "defteam": [_AWAY] * 2,
+                "game_id": ["hudl-g0"] * 2,
+            },
+            extras={"thrown_by": ["QB2"] * 2},
+        ).with_columns(epa=pl.Series([1.0, -1.0]))
+        df = pl.concat([_pat_filler_rows(), hc, hudl], how="vertical")
+
+        _write_hc_games(
+            config.reference.hc_games,
+            [_hc_game_row("hc-g1", note="refill: numeric block, rows 100-150, 3 plays")],
+        )
+        _write_hc_splits(
+            config.reference.hc_splits,
+            [_hc_split_row("camp-a", first_row=2, last_row=1000, label_de="Camp A")],
+        )
+
+        result = build_player_analysis_data(df, config=config, scored=None)
+        assert isinstance(result, PlayerAnalysisReportData)
+
+        keys = {s.key for s in result.splits}
+        assert keys == {"korpus", "hc-gesamt", "camp-a"}
+
+        korpus = next(s for s in result.splits if s.key == "korpus")
+        hc_gesamt = next(s for s in result.splits if s.key == "hc-gesamt")
+        camp_a = next(s for s in result.splits if s.key == "camp-a")
+
+        assert korpus.basis.n_plays == 5
+        assert hc_gesamt.basis.n_plays == 3
+        assert camp_a.basis.n_plays == 3
+        assert camp_a.label_status == "verified"
+        assert camp_a.heading == "Camp A"
+        assert result.n_hc_rows == 3
+
+    def test_empty_state_zero_hc_rows(self, tmp_path: Path) -> None:
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        offense = canonical_plays(
+            n_games=1,
+            plays_per_game=4,
+            overrides={"posteam": [_HOME] * 4, "defteam": [_AWAY] * 4},
+            extras={"thrown_by": ["QB1"] * 4},
+        ).with_columns(epa=pl.Series([1.0, -1.0, 0.5, -0.5]))
+        df = pl.concat([_pat_filler_rows(), offense], how="vertical")
+
+        _write_hc_games(config.reference.hc_games, [])
+        _write_hc_splits(
+            config.reference.hc_splits,
+            [
+                _hc_split_row("camp-a", first_row=2, last_row=1000, label_de="Camp A"),
+                _hc_split_row("camp-b", first_row=1001, last_row=2000, label_de="Camp B"),
+            ],
+        )
+
+        result = build_player_analysis_data(df, config=config, scored=None)
+        assert isinstance(result, PlayerAnalysisReportData)
+        assert result.n_hc_rows == 0
+
+        camp_splits = [s for s in result.splits if s.key not in ("korpus", "hc-gesamt")]
+        assert len(camp_splits) == 2
+        for split in camp_splits:
+            assert split.empty_notice is not None
+            assert split.columns.table.height == 0
+
+    def test_two_windows_report_different_row_counts(self, tmp_path: Path) -> None:
+        """Pitfall-3 guard: two camps with head-coach rows in different windows must not
+        report identical numbers -- that would mean the filter never discriminated."""
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+
+        hc_a = _hc_plays(game_id="hc-a", n_plays=3, thrown_by="QB1")
+        hc_b = _hc_plays(game_id="hc-b", n_plays=5, thrown_by="QB2")
+        df = pl.concat([_pat_filler_rows(), hc_a, hc_b], how="vertical")
+
+        _write_hc_games(
+            config.reference.hc_games,
+            [
+                _hc_game_row("hc-a", note="refill: numeric block, rows 100-150, 3 plays"),
+                _hc_game_row("hc-b", note="refill: numeric block, rows 2100-2200, 5 plays"),
+            ],
+        )
+        _write_hc_splits(
+            config.reference.hc_splits,
+            [
+                _hc_split_row("camp-a", first_row=2, last_row=1000, label_de="Camp A"),
+                _hc_split_row("camp-b", first_row=2001, last_row=3000, label_de="Camp B"),
+            ],
+        )
+
+        result = build_player_analysis_data(df, config=config, scored=None)
+        camp_a = next(s for s in result.splits if s.key == "camp-a")
+        camp_b = next(s for s in result.splits if s.key == "camp-b")
+
+        assert camp_a.basis.n_plays == 3
+        assert camp_b.basis.n_plays == 5
+        assert camp_a.basis.n_plays != camp_b.basis.n_plays
+
+    def test_unresolved_game_named_and_excluded_from_every_camp_section(
+        self, tmp_path: Path
+    ) -> None:
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+
+        hc_matched = _hc_plays(game_id="hc-a", n_plays=3, thrown_by="QB1")
+        hc_unresolved = _hc_plays(game_id="hc-z", n_plays=2, thrown_by="QB2")
+        df = pl.concat([_pat_filler_rows(), hc_matched, hc_unresolved], how="vertical")
+
+        _write_hc_games(
+            config.reference.hc_games,
+            [
+                _hc_game_row("hc-a", note="refill: numeric block, rows 100-150, 3 plays"),
+                _hc_game_row("hc-z", note="refill: numeric block, rows 9000-9100, 2 plays"),
+            ],
+        )
+        _write_hc_splits(
+            config.reference.hc_splits,
+            [_hc_split_row("camp-a", first_row=2, last_row=1000, label_de="Camp A")],
+        )
+
+        result = build_player_analysis_data(df, config=config, scored=None)
+
+        assert ("hc-z", "outside-known-windows") in result.unresolved_games
+
+        hc_gesamt = next(s for s in result.splits if s.key == "hc-gesamt")
+        assert set(hc_gesamt.columns.table["spieler"].to_list()) == {"QB1", "QB2"}
+
+        camp_a = next(s for s in result.splits if s.key == "camp-a")
+        assert set(camp_a.columns.table["spieler"].to_list()) == {"QB1"}
+
+    def test_missing_hc_games_csv_yields_only_korpus_section(self, tmp_path: Path) -> None:
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        offense = canonical_plays(
+            n_games=1,
+            plays_per_game=2,
+            overrides={"posteam": [_HOME] * 2, "defteam": [_AWAY] * 2},
+            extras={"thrown_by": ["QB1"] * 2},
+        ).with_columns(epa=pl.Series([1.0, -1.0]))
+        df = pl.concat([_pat_filler_rows(), offense], how="vertical")
+        # config.reference.hc_games/hc_splits point at tmp_path files that are never written.
+
+        result = build_player_analysis_data(df, config=config, scored=None)
+
+        assert len(result.splits) == 1
+        assert result.splits[0].key == "korpus"
+        assert any("Referenzdatei" in n for n in result.notices)
+
+    def test_standing_opp_notice_always_present(self, tmp_path: Path) -> None:
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        offense = canonical_plays(
+            n_games=1,
+            plays_per_game=1,
+            overrides={"posteam": [_HOME], "defteam": [_AWAY]},
+            extras={"thrown_by": ["QB1"]},
+        ).with_columns(epa=pl.Series([1.0]))
+        df = pl.concat([_pat_filler_rows(), offense], how="vertical")
+
+        result = build_player_analysis_data(df, config=config, scored=None)
+        assert any("OPP" in n for n in result.notices)
+
+    def test_conflict_label_status_triggers_notice(self, tmp_path: Path) -> None:
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        offense = canonical_plays(
+            n_games=1,
+            plays_per_game=1,
+            overrides={"posteam": [_HOME], "defteam": [_AWAY]},
+            extras={"thrown_by": ["QB1"]},
+        ).with_columns(epa=pl.Series([1.0]))
+        df = pl.concat([_pat_filler_rows(), offense], how="vertical")
+
+        _write_hc_games(config.reference.hc_games, [])
+        _write_hc_splits(
+            config.reference.hc_splits,
+            [
+                _hc_split_row(
+                    "camp-conflict",
+                    first_row=2,
+                    last_row=1000,
+                    label_de="Camp Conflict",
+                    label_status="conflict",
+                )
+            ],
+        )
+
+        result = build_player_analysis_data(df, config=config, scored=None)
+        assert any("Konflikt" in n for n in result.notices)
+
+    def test_empty_plays_frame_does_not_raise(self, tmp_path: Path) -> None:
+        config = _make_config(tmp_path)
+        config.paths.processed.mkdir(parents=True, exist_ok=True)
+        df = canonical_plays(n_games=1, plays_per_game=1).filter(pl.lit(False))
+
+        result = build_player_analysis_data(df, config=config, scored=None)
+        assert isinstance(result, PlayerAnalysisReportData)
+        assert result.splits[0].key == "korpus"
