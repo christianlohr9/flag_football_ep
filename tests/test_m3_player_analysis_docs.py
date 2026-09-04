@@ -3,20 +3,45 @@
 Task 1 guards `docs/hc-rueckfragen-2026-09.md`'s appended `## Zusatzfragen (M3-4,
 Report)` block (Frage 7-9) -- must never disturb the pre-existing six `## Frage N` /
 six `### Frage N` invariant that `tests/test_m3_explosiveness_docs.py` (M3-3) already
-guards, and must not be renumbered on top of Frage 1-6. Task 2 extends this file with
-guards for `docs/hc-sync-2026-10.md`, the October handout.
+guards, and must not be renumbered on top of Frage 1-6.
+
+Task 2 guards `docs/hc-sync-2026-10.md`, the October handout -- required section
+headings in order, every relative Markdown link target resolves on disk (with the one
+documented exception for a not-yet-landed EPA document), no roster player name or
+long surname anywhere in the file, and every standalone rate ("NN,N %") carries a
+`k/n` or `n=` denominator nearby (bare column-name mentions like `"Comp %"` are not
+rates and are exempt).
 
 Stdlib + pytest only, no network, sub-second.
 """
 
 from __future__ import annotations
 
+import csv
 import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 RUECKFRAGEN = REPO_ROOT / "docs" / "hc-rueckfragen-2026-09.md"
+HANDOUT = REPO_ROOT / "docs" / "hc-sync-2026-10.md"
+EPA_DOC = REPO_ROOT / "docs" / "epa-refinement-2026-10.md"
+ROSTER = REPO_ROOT / "data" / "reference" / "roster.csv"
+
+_MIN_SURNAME_LEN = 6
+
+# EPA-document pending marker (see this plan's <precondition>) -- if the EPA document
+# has not landed yet, the handout must carry this exact marker instead of a dead link.
+_EPA_PENDING_MARKER = "EPA-Update steht noch aus (M3-2)"
+
+REQUIRED_HANDOUT_HEADINGS = (
+    "## Worum es geht",
+    "## Was du bekommst",
+    "## Dein Tab, automatisiert",
+    "## Was heute noch fehlt",
+    "## Offene Fragen",
+    "## Quellen",
+)
 
 
 def _read(path: Path) -> str:
@@ -97,3 +122,102 @@ def test_zusatzfragen_m3_4_appended_after_m3_2_block_stays_byte_identical() -> N
     assert m3_2_idx < m3_4_idx, (
         "M3-4's Zusatzfragen block must come after M3-2's, never before/inside it"
     )
+
+
+# ---------------------------------------------------------------------------
+# docs/hc-sync-2026-10.md -- the October handout
+# ---------------------------------------------------------------------------
+
+
+def test_handout_required_headings_present_in_order() -> None:
+    text = _read(HANDOUT)
+    positions = []
+    for heading in REQUIRED_HANDOUT_HEADINGS:
+        assert heading in text, f"missing required heading: {heading!r}"
+        positions.append(text.index(heading))
+    assert positions == sorted(positions), (
+        f"required headings are out of order: {REQUIRED_HANDOUT_HEADINGS}"
+    )
+
+
+def test_handout_has_a_stand_line() -> None:
+    text = _read(HANDOUT)
+    assert "**Stand:**" in text, "handout is missing a '**Stand:**' status line"
+
+
+_MD_LINK_RE = re.compile(r"\]\(([^)]+)\)")
+
+
+def test_handout_relative_links_resolve_or_carry_the_epa_pending_marker() -> None:
+    text = _read(HANDOUT)
+    docs_dir = HANDOUT.parent
+
+    for target in _MD_LINK_RE.findall(text):
+        if target.startswith(("http://", "https://")):
+            continue
+        resolved = (docs_dir / target).resolve()
+        if resolved == EPA_DOC.resolve() and not EPA_DOC.exists():
+            assert _EPA_PENDING_MARKER in text, (
+                "epa-refinement-2026-10.md is linked but absent, and the handout does "
+                f"not carry the pending marker {_EPA_PENDING_MARKER!r}"
+            )
+            continue
+        assert resolved.exists(), f"dead relative link target: {target!r} -> {resolved}"
+
+
+def _load_roster_names() -> tuple[set[str], set[str]]:
+    assert ROSTER.exists(), f"{ROSTER} does not exist"
+    with ROSTER.open(encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    full_names = {row["player_name"].strip() for row in rows if row.get("player_name")}
+    assert full_names, "roster.csv produced zero player names -- loader broken?"
+
+    surnames: set[str] = set()
+    for name in full_names:
+        parts = name.split()
+        if not parts:
+            continue
+        surname = parts[-1]
+        if len(surname) >= _MIN_SURNAME_LEN:
+            surnames.add(surname)
+    return full_names, surnames
+
+
+def test_handout_has_no_roster_player_name_or_long_surname() -> None:
+    full_names, surnames = _load_roster_names()
+    text = _read(HANDOUT)
+    lower = text.lower()
+
+    for name in full_names:
+        assert name.lower() not in lower, f"player name {name!r} found in {HANDOUT}"
+
+    for surname in surnames:
+        pattern = re.compile(rf"\b{re.escape(surname)}\b", re.IGNORECASE)
+        assert not pattern.search(text), f"surname {surname!r} found in {HANDOUT}"
+
+
+# Bare column-name mentions ("Comp %", "Adj Comp %", "Explosive %", ...) are not rates
+# and carry no denominator by construction -- exempt them the same way
+# test_m3_explosiveness_docs.py exempts `"Explosive %"`.
+_COLUMN_NAME_PERCENT = re.compile(r"\b(?:Adj )?(?:Comp|Explosive) ?%")
+
+
+def test_handout_every_standalone_rate_has_a_denominator() -> None:
+    text = _read(HANDOUT)
+    fraction_before_or_after = re.compile(
+        r"\d+[.,]?\d*\s*/\s*\d+[.,]?\d*|\d+[.,]?\d*\s+von\s+\d+[.,]?\d*|n\s*=\s*\d"
+    )
+    table_row = re.compile(r"^\s*\|")
+    numeric_percent = re.compile(r"\d[\d.,]*\s?%")
+
+    for raw_line in text.splitlines():
+        line = _COLUMN_NAME_PERCENT.sub("", raw_line)
+        if not numeric_percent.search(line):
+            continue
+        if table_row.match(line):
+            assert re.search(r"\d", line), f"table row has '%' but no digits at all: {line!r}"
+            continue
+        assert fraction_before_or_after.search(line), (
+            f"line has a numeric '%' with no k/n or n= denominator nearby: {raw_line!r}"
+        )
