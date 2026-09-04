@@ -4,15 +4,27 @@ Every column below is pinned verbatim to its workbook formula cell (`M3-04-RESEA
 Pattern 1, sheet `Player Analysis All Camps`, row 2 as the representative formula row), not
 re-derived from what a column name suggests. Two denominator corrections landed in M3-04-01
 before this module was written (`Attempts` excludes Sacks; `Efficiency`'s denominator is
-`Attempts + Carries`, not `Attempts + Drops`) -- both will be consumed here via
-`features.explosiveness`'s corrected public API in a follow-up task, never recomputed locally.
+`Attempts + Carries`, not `Attempts + Drops`) -- both are consumed here via
+`features.explosiveness`'s corrected public API, never recomputed locally.
 
 The one rule that governs this module: a column that cannot be computed from the corpus today
-is named, never approximated -- never a silent zero, a dash, or a copy of a neighbouring column
-(REP-D01: differences are shown, not hidden). This first task builds the thirteen
-counting/yardage columns directly from canonical plays; a following task fills the six
-delegated/blocked columns (`adj_comp_pct`, `adj_pass_yards`, `adj_ypa`, `exp_plays`,
-`explosive_pct`, `efficiency`, `efficiency_drops`) -- they are typed nulls here.
+is named, never approximated. Three of his columns need a canonical `drop` column that may not
+carry real signal yet (`Adj Comp %`, `adj Pass Yards`, `adj YPA`); one needs a hand-charted
+`efficiency` extra (`Efficiency`); one drops a subtraction term whose source column's meaning is
+undocumented (`Air Yards`, `Data!Y`, header literally `"B"` -- Frage 8). Every one of these is
+either computed honestly or named in `HcColumnTable.unavailable` with a German sentence in
+`HcColumnTable.notices` -- never a silent zero, a dash, or a copy of a neighbouring column
+(REP-D01: differences are shown, not hidden).
+
+Availability is judged on REAL SIGNAL, not merely on column presence: `plays_scored.parquet`
+already carries `drop`/`efficiency` as typed-null NULLABLE_EXTRAS columns even with zero
+head-coach rows in the corpus (`conform_to_canonical` materialises every extra unconditionally).
+Treating "column present" as "available" would silently compute `Adj Comp % == Comp %` and
+`Efficiency == 0.0` for every player today -- exactly the "copy of a neighbouring column"/
+silent-zero failure this module exists to prevent. `_drop_available`/`_efficiency_available`
+therefore check for at least one real (non-null, and for `drop`, non-blank) value before ever
+delegating, which is a small, deliberate extension beyond a plain
+`"column" in plays.columns` check.
 
 There is no WR/receiver table on this tab (verified in M3-04-RESEARCH: columns Z onward and the
 rows below the last QB row are empty) -- this module is QB-row-only, matching his own sheet.
@@ -24,7 +36,13 @@ from dataclasses import dataclass
 
 import polars as pl
 
-from flag_football_ep.features.explosiveness import HC_PASS_ATTEMPT_SCOPE, scrimmage_plays
+from flag_football_ep.features.explosiveness import (
+    HC_PASS_ATTEMPT_SCOPE,
+    MissingExplosivenessColumns,
+    hc_efficiency_table,
+    hc_workbook_explosive_rate,
+    scrimmage_plays,
+)
 from flag_football_ep.reports.aggregate import MUTED_MIN_N, SectionBasis, section_basis
 
 PLAYER_ANALYSIS_FILENAME: str = "player-analysis.html"
@@ -56,20 +74,21 @@ _HC_COLUMN_SCHEMA: dict[str, pl.DataType] = {
     "muted": pl.Boolean,
 }
 
-# Delegated/blocked columns -- typed nulls in this task, filled by a following task.
-_DELEGATED_COLUMNS: tuple[str, ...] = (
-    "adj_comp_pct",
-    "adj_pass_yards",
-    "adj_ypa",
-    "exp_plays",
-    "explosive_pct",
-    "efficiency",
-    "efficiency_drops",
-)
-
 # Internal row-key column name used while building the per-identity tables below; renamed to
 # `spieler` (the schema's own key column) before any table leaves this module.
 _IDENTITY = "_hc_identity"
+
+_DROP_UNAVAILABLE_NOTICE = (
+    "Adj Comp % / adj Pass Yards / adj YPA nicht verfügbar: die Drop-Spalte (Data!W) ist noch "
+    "nicht kanonisch."
+)
+_EFFICIENCY_UNAVAILABLE_NOTICE = (
+    "Efficiency nicht verfügbar: die handgechartete Spalte Data!O ist noch nicht im Korpus."
+)
+_AIR_YARDS_DEVIATION_NOTICE = (
+    'Air Yards ohne den Abzugsterm aus Data!Y (Spaltenkopf "B", Bedeutung ungeklärt — Frage 8); '
+    "unsere Zahl kann daher leicht über seiner liegen."
+)
 
 
 def _identity_expr(group_col: str) -> pl.Expr:
@@ -83,6 +102,39 @@ def _identity_expr(group_col: str) -> pl.Expr:
     if group_col == "thrown_by":
         return pl.coalesce([pl.col("thrown_by"), pl.col("qb")])
     return pl.col(group_col)
+
+
+def _drop_flag_expr() -> pl.Expr:
+    """His `COUNTIFS(..., Data!W, "*")` non-blank-text wildcard, reproduced as: `drop`
+    non-null and non-empty after whitespace stripping. Never derived from any other column
+    (RESEARCH Pitfall 2) -- an `Adj Comp %` numerically identical to `Comp %` is the exact
+    failure this guards against. Assumes `"drop"` is present in the frame; callers check
+    `_drop_available` first.
+    """
+    return pl.col("drop").is_not_null() & (pl.col("drop").cast(pl.Utf8).str.strip_chars() != "")
+
+
+def _drop_available(plays: pl.DataFrame) -> bool:
+    """True only when `drop` is present with at least one real (non-blank) flagged row -- see
+    the module docstring's "Availability is judged on REAL SIGNAL" note.
+    """
+    if "drop" not in plays.columns:
+        return False
+    flagged = plays.select(_drop_flag_expr().any()).item()
+    return bool(flagged)
+
+
+def _efficiency_available(plays: pl.DataFrame) -> bool:
+    """True only when `efficiency` is present with at least one non-null value -- same
+    present-but-all-null trap as `_drop_available`. `hc_efficiency_table` itself only checks
+    column presence (`MissingExplosivenessColumns` fires on a literally absent column), so this
+    module adds the real-signal check before ever delegating rather than trusting a
+    present-but-empty column to mean "computed".
+    """
+    if "efficiency" not in plays.columns:
+        return False
+    present = plays.select(pl.col("efficiency").is_not_null().any()).item()
+    return bool(present)
 
 
 def _pass_and_sack_table(plays: pl.DataFrame, *, group_col: str) -> pl.DataFrame:
@@ -229,18 +281,59 @@ def _base_table(plays: pl.DataFrame, *, group_col: str) -> pl.DataFrame:
     return combined.rename({_IDENTITY: "spieler"}).sort("spieler")
 
 
+def _dropped_aggregates(plays: pl.DataFrame, *, group_col: str) -> pl.DataFrame:
+    """Per-identity dropped-incompletion count (`Adj Comp %` cell `G2`'s own numerator term:
+    completions plus incompletions with a non-blank Drop) and dropped-row air-yards sum
+    (`adj Pass Yards` cell `N2`'s own literal formula sums `air_yards` on every row flagged
+    dropped, with NO completion-status restriction at all -- reproduced exactly, not narrowed to
+    incompletions only). Only called once `_drop_available` is true.
+    """
+    base = (
+        scrimmage_plays(plays)
+        .filter(HC_PASS_ATTEMPT_SCOPE)
+        .with_columns(_identity_expr(group_col).alias(_IDENTITY))
+        .filter(pl.col(_IDENTITY).is_not_null())
+    )
+    has_air_yards = "air_yards" in plays.columns
+    flag = _drop_flag_expr()
+
+    schema: dict[str, pl.DataType] = {
+        _IDENTITY: pl.Utf8,
+        "dropped_incompletions": pl.Int64,
+        "dropped_air_yards": pl.Float64,
+    }
+    if base.height == 0:
+        return pl.DataFrame(schema=schema).rename({_IDENTITY: "spieler"})
+
+    agg_exprs = {
+        "dropped_incompletions": (
+            (pl.col("complete_pass") == 0) & (pl.col("interception") == 0) & flag
+        )
+        .sum()
+        .cast(pl.Int64),
+    }
+    if has_air_yards:
+        agg_exprs["dropped_air_yards"] = (
+            pl.when(flag).then(pl.col("air_yards")).otherwise(0).sum().cast(pl.Float64)
+        )
+
+    result = base.group_by(_IDENTITY, maintain_order=True).agg(**agg_exprs)
+    if not has_air_yards:
+        result = result.with_columns(dropped_air_yards=pl.lit(0.0, dtype=pl.Float64))
+    return result.rename({_IDENTITY: "spieler"})
+
+
 @dataclass(frozen=True)
 class HcColumnTable:
     """The reproduced `Player Analysis All Camps` table plus its named availability state.
 
-    `unavailable` lists the schema column keys that cannot be computed from the corpus today --
-    their values in `table` are null, never a zero or a copy of a neighbouring column.
-    `notices` are German sentences naming why. `basis` is the shared
-    `reports.aggregate.SectionBasis` for the whole table, not a new per-column convention.
-
-    In this task, the seven delegated columns (`_DELEGATED_COLUMNS`) are unconditionally typed
-    null and NOT yet listed in `unavailable`/`notices` -- a following task wires the real
-    availability computation (`features.explosiveness` delegation, the `drop`-column gate).
+    `unavailable` lists the schema column keys (e.g. `"efficiency"`, `"adj_comp_pct"`) that
+    cannot be computed from the corpus today -- their values in `table` are null, never a zero
+    or a copy of a neighbouring column. `notices` are German sentences: one per unavailable
+    group, plus the Air-Yards subtraction-term deviation and the head-coach-row corpus count,
+    always present regardless of availability (a corpus notice naming zero HC rows is itself a
+    legitimate, expressible answer). `basis` is the shared `reports.aggregate.SectionBasis` for
+    the whole table, not a new per-column convention.
     """
 
     table: pl.DataFrame
@@ -253,16 +346,112 @@ def hc_columns_by_qb(plays: pl.DataFrame, *, group_col: str = "thrown_by") -> Hc
     """His `Player Analysis All Camps` tab, per QB, from canonical plays.
 
     Thirteen columns (Comps, Incs, Attempts, TDs, Comp %, INTs, Sacks, Pass Yards, Air Yards,
-    YPA, Carries, Rush Yards, Rush TDs) plus `muted` are computed directly from `plays` in this
-    task. The seven delegated columns are typed null placeholders here -- a following task wires
-    `features.explosiveness` delegation and the `drop`-column availability gate.
+    YPA, Carries, Rush Yards, Rush TDs) plus `muted` are always computed directly from `plays`.
+    `exp_plays`/`explosive_pct` are joined from `features.explosiveness.hc_workbook_explosive_rate`
+    verbatim -- never a second implementation of "explosive" in this module.
+    `efficiency`/`efficiency_drops` are joined from `hc_efficiency_table` inside a
+    `MissingExplosivenessColumns` guard (mirrors `reports/build.py`'s per-product isolation,
+    applied here per column), gated additionally on `_efficiency_available`'s real-signal check.
+    `adj_comp_pct`/`adj_pass_yards`/`adj_ypa` are computed only when `_drop_available` is true.
+    Every column that cannot be computed is null in `table` and named in `.unavailable`, never
+    a silent zero or a copy of an unadjusted neighbour.
+
+    Raises nothing: `plays` missing `sack`/`play_type`/`down`/`yards_gained` propagates
+    `MissingExplosivenessColumns` from `scrimmage_plays` (a genuinely malformed input, not a
+    "data not here yet" case this module's own availability handling covers).
     """
+    unavailable: list[str] = []
+    notices: list[str] = []
+
     basis = section_basis(scrimmage_plays(plays))
 
     table = _base_table(plays, group_col=group_col)
-    table = table.with_columns(
-        [pl.lit(None, dtype=_HC_COLUMN_SCHEMA[c]).alias(c) for c in _DELEGATED_COLUMNS]
+
+    has_air_yards = "air_yards" in plays.columns
+    if has_air_yards:
+        notices.append(_AIR_YARDS_DEVIATION_NOTICE)
+
+    hc_rows = (
+        plays.filter(pl.col("source") == "hc_workbook").height if "source" in plays.columns else 0
     )
+    notices.append(
+        f"{hc_rows} Zeile(n) im Korpus stammen aus der Quelle 'hc_workbook' (0 ist eine "
+        "gültige Antwort)."
+    )
+
+    # Exp Plays / Explosive % -- delegated verbatim, never re-derived (M3-3 handoff).
+    exp = hc_workbook_explosive_rate(plays, group_col=group_col).rename({group_col: "spieler"})
+    table = table.join(
+        exp.select(["spieler", "exp_plays", "explosive_pct"]), on="spieler", how="left"
+    )
+
+    # Efficiency / efficiency_drops.
+    drop_available = _drop_available(plays)
+    drops_flag = _drop_flag_expr() if drop_available else None
+
+    if _efficiency_available(plays):
+        try:
+            eff = hc_efficiency_table(plays, group_col=group_col, drops_flag=drops_flag)
+            eff = eff.rename({group_col: "spieler"}).select(
+                ["spieler", "efficiency", "efficiency_drops"]
+            )
+            table = table.join(eff, on="spieler", how="left")
+            if not drop_available:
+                unavailable.append("efficiency_drops")
+        except MissingExplosivenessColumns:
+            table = table.with_columns(
+                efficiency=pl.lit(None, dtype=pl.Float64),
+                efficiency_drops=pl.lit(None, dtype=pl.Float64),
+            )
+            unavailable.extend(["efficiency", "efficiency_drops"])
+            notices.append(_EFFICIENCY_UNAVAILABLE_NOTICE)
+    else:
+        table = table.with_columns(
+            efficiency=pl.lit(None, dtype=pl.Float64),
+            efficiency_drops=pl.lit(None, dtype=pl.Float64),
+        )
+        unavailable.extend(["efficiency", "efficiency_drops"])
+        notices.append(_EFFICIENCY_UNAVAILABLE_NOTICE)
+
+    # Adj Comp % / adj Pass Yards / adj YPA.
+    if drop_available:
+        dropped = _dropped_aggregates(plays, group_col=group_col)
+        table = (
+            table.join(dropped, on="spieler", how="left")
+            .with_columns(
+                dropped_incompletions=pl.col("dropped_incompletions").fill_null(0),
+                dropped_air_yards=pl.col("dropped_air_yards").fill_null(0.0),
+            )
+            .with_columns(
+                adj_comp_pct=pl.when(
+                    pl.col("attempts").is_not_null() & (pl.col("attempts") > 0)
+                )
+                .then((pl.col("comps") + pl.col("dropped_incompletions")) / pl.col("attempts"))
+                .otherwise(None),
+                adj_pass_yards=pl.when(pl.col("pass_yards").is_not_null())
+                .then(pl.col("pass_yards") + pl.col("dropped_air_yards"))
+                .otherwise(None),
+            )
+        )
+        table = table.with_columns(
+            adj_ypa=pl.when(pl.col("attempts").is_not_null() & (pl.col("attempts") > 0))
+            .then(pl.col("adj_pass_yards") / pl.col("attempts"))
+            .otherwise(None)
+        ).drop(["dropped_incompletions", "dropped_air_yards"])
+    else:
+        table = table.with_columns(
+            adj_comp_pct=pl.lit(None, dtype=pl.Float64),
+            adj_pass_yards=pl.lit(None, dtype=pl.Float64),
+            adj_ypa=pl.lit(None, dtype=pl.Float64),
+        )
+        unavailable.extend(["adj_comp_pct", "adj_pass_yards", "adj_ypa"])
+        notices.append(_DROP_UNAVAILABLE_NOTICE)
+
     table = table.select(list(_HC_COLUMN_SCHEMA)).sort("spieler")
 
-    return HcColumnTable(table=table, unavailable=(), notices=(), basis=basis)
+    return HcColumnTable(
+        table=table,
+        unavailable=tuple(sorted(set(unavailable))),
+        notices=tuple(notices),
+        basis=basis,
+    )

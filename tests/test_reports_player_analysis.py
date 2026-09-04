@@ -179,3 +179,124 @@ class TestCountingAndYardageColumns:
         result = hc_columns_by_qb(df, group_col="thrown_by")
         assert result.table.height == 0
         assert result.table.schema == _HC_COLUMN_SCHEMA
+
+
+# --- Task 2: delegated columns and named availability state -----------------
+
+
+class TestDelegatedColumnsAndAvailability:
+    def test_exp_plays_and_explosive_pct_match_explosiveness_module(self) -> None:
+        from flag_football_ep.features.explosiveness import hc_workbook_explosive_rate
+
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=3,
+            overrides={"yards_gained": [20, 5, 3]},
+            extras={"thrown_by": ["QB1", "QB1", "QB1"]},
+        )
+        expected = hc_workbook_explosive_rate(df, group_col="thrown_by")
+        expected_row = expected.filter(pl.col("thrown_by") == "QB1").to_dicts()[0]
+
+        result = hc_columns_by_qb(df, group_col="thrown_by")
+        row = _row(result.table, "QB1")
+        assert row["exp_plays"] == expected_row["exp_plays"]
+        assert row["explosive_pct"] == pytest.approx(expected_row["explosive_pct"])
+
+    def test_efficiency_unavailable_when_column_has_no_real_signal(self) -> None:
+        df = canonical_plays(n_games=1, plays_per_game=1, extras={"thrown_by": ["QB1"]})
+        result = hc_columns_by_qb(df, group_col="thrown_by")
+        row = _row(result.table, "QB1")
+        assert row["efficiency"] is None
+        assert "efficiency" in result.unavailable
+        assert any("Efficiency" in n for n in result.notices)
+
+    def test_efficiency_computed_when_synthetic_column_present(self) -> None:
+        from flag_football_ep.features.explosiveness import hc_efficiency_table
+
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=2,
+            overrides={"complete_pass": [1, 0]},
+            extras={"thrown_by": ["QB1", "QB1"], "efficiency": [1, 0]},
+        )
+        expected = hc_efficiency_table(df, group_col="thrown_by")
+        expected_row = expected.filter(pl.col("thrown_by") == "QB1").to_dicts()[0]
+
+        result = hc_columns_by_qb(df, group_col="thrown_by")
+        row = _row(result.table, "QB1")
+        assert row["efficiency"] == pytest.approx(expected_row["efficiency"])
+        assert "efficiency" not in result.unavailable
+
+    def test_adjusted_columns_unavailable_when_drop_column_absent(self) -> None:
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=2,
+            overrides={"complete_pass": [1, 0]},
+            extras={"thrown_by": ["QB1", "QB1"]},
+        )
+        assert df["drop"].null_count() == df.height  # sanity: no real drop signal
+
+        result = hc_columns_by_qb(df, group_col="thrown_by")
+        row = _row(result.table, "QB1")
+        for column in ("adj_comp_pct", "adj_pass_yards", "adj_ypa"):
+            assert row[column] is None
+            assert column in result.unavailable
+        assert row["adj_comp_pct"] != row["comp_pct"]
+
+    def test_adjusted_columns_computed_when_synthetic_drop_column_present(self) -> None:
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=2,
+            overrides={"complete_pass": [1, 0], "yards_gained": [10, 0]},
+            extras={
+                "thrown_by": ["QB1", "QB1"],
+                "drop": [None, "X"],
+                "air_yards": [None, 7],
+            },
+        )
+        result = hc_columns_by_qb(df, group_col="thrown_by")
+        row = _row(result.table, "QB1")
+        for column in ("adj_comp_pct", "adj_pass_yards", "adj_ypa"):
+            assert column not in result.unavailable
+        assert row["adj_comp_pct"] == pytest.approx((1 + 1) / 2)
+        assert row["adj_pass_yards"] == pytest.approx(17.0)
+
+    def test_drop_flag_never_derived_from_other_columns(self) -> None:
+        """The drop flag is `drop` non-null and non-empty after stripping -- never derived
+        from any other column. A whitespace-only drop value is not flagged."""
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=2,
+            overrides={"complete_pass": [1, 0]},
+            extras={"thrown_by": ["QB1", "QB1"], "drop": ["X", "   "]},
+        )
+        # "X" is a real flag (row 1); the whitespace-only row 2 is not -- so drop IS
+        # available overall (row 1 has real signal), but the whitespace row must not be
+        # counted as a dropped incompletion.
+        result = hc_columns_by_qb(df, group_col="thrown_by")
+        row = _row(result.table, "QB1")
+        # row 1 is a completion (not eligible as a dropped incompletion), row 2 is
+        # whitespace-only (not a real flag) -- so no dropped incompletions at all.
+        assert row["adj_comp_pct"] == pytest.approx(row["comp_pct"])
+
+    def test_notices_include_air_yards_deviation_when_available(self) -> None:
+        df = canonical_plays(n_games=1, plays_per_game=1, extras={"thrown_by": ["QB1"]})
+        result = hc_columns_by_qb(df, group_col="thrown_by")
+        assert any("Air Yards" in n for n in result.notices)
+
+    def test_notices_include_hc_workbook_corpus_count(self) -> None:
+        df = canonical_plays(n_games=1, plays_per_game=1, extras={"thrown_by": ["QB1"]})
+        result = hc_columns_by_qb(df, group_col="thrown_by")
+        assert any("hc_workbook" in n for n in result.notices)
+
+    def test_unavailable_and_notices_nonempty_on_todays_real_column_set(self) -> None:
+        """`canonical_plays()`'s default frame carries `drop`/`efficiency` as present but
+        entirely null columns -- exactly today's real corpus state (zero HC rows ingested
+        into `plays_scored.parquet` yet). Both must still be treated as unavailable."""
+        df = canonical_plays(n_games=1, plays_per_game=2, extras={"thrown_by": ["QB1", "QB1"]})
+        result = hc_columns_by_qb(df, group_col="thrown_by")
+        assert result.unavailable
+        assert result.notices
+        assert {"adj_comp_pct", "adj_pass_yards", "adj_ypa", "efficiency"} <= set(
+            result.unavailable
+        )
