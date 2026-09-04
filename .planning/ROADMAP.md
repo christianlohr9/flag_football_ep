@@ -464,7 +464,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - [x] `M3-02-02-PLAN.md` — training-side prerequisites: the EP `half`-feature sentinel that keeps head-coach rows distinguishable from real second-half plays, the label-construction guards for both EP and WP, and the three `competition_tier.csv` rows that stop the first fit dying on `UnmappedCompetitionError` (HC-03)
   - [x] `M3-02-03-PLAN.md` — read-only snapshot of his nine aggregate tabs into `data/reference/hc_sp_tables/`, with the three Excel-corrupted distance-bin labels reconstructed and marked, plus its own PII and domain gate (HC-03)
   - [x] `M3-02-04-PLAN.md` — `scripts/hc_games_refill.py`, the real `ffep ingest` run, the asserted non-zero head-coach row count in `plays.parquet`, the before/after corpus table and the updated `docs/hc-workbook-ingest.md` (HC-03)
-  - [ ] `M3-02-05-PLAN.md` — EP/WP retraining on the enlarged corpus with the with/without-head-coach ablation (four tagged MLflow runs, no alias moved), the per-source calibration tables, and the measured Timeout / Offsetting Penalties decision (HC-03)
+  - [x] `M3-02-05-PLAN.md` — EP/WP retraining on the enlarged corpus with the with/without-head-coach ablation (four tagged MLflow runs, no alias moved), the per-source calibration tables, and the measured Timeout / Offsetting Penalties decision (HC-03)
   - [ ] `M3-02-06-PLAN.md` — `reports/hc_comparison.py` and `scripts/epa_comparison.py`: his published number, his rows recomputed by us, our non-head-coach rows and the model's out-of-fold expected points per (down, distance, field half) cell, each with its n and an explicit coverage report (HC-03)
   - [ ] `M3-02-07-PLAN.md` — the German `docs/epa-refinement-2026-10.md`, two Zusatzfragen appended to `docs/hc-rueckfragen-2026-09.md` without renumbering M3-3's Fragen 4-6, and the doc-versus-CSV drift guard (HC-03)
   - [ ] `M3-02-08-PLAN.md` — human review of the coach-facing document, the question set and the champion-promotion decision before the October sync, then the reviewed wording and the decision written back (HC-03)
@@ -517,6 +517,6 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M2-4 Messvorschrift | 2/3 | In progress (plan 03 at METR-03 wording gate) | - |
 | M2-5 Einstiegspaket | 0/2 | Not started | - |
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
-| M3-2 EPA-Refinement | 4/8 | In progress (HC rows in corpus: 1,964 / 35 games) | - |
+| M3-2 EPA-Refinement | 5/8 | In progress (wave 3 done: corpus 35→92 HC games, ablation run) | - |
 | M3-3 Explosiveness & Efficiency | 2/3 | In progress (plan 03 = user review gate) | - |
 | M3-4 Player-Analysis-Report | 2/7 | In progress (wave 1 done; plan 06 running) | - |
