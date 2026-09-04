@@ -479,7 +479,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 - [ ] **Phase M3-4: Player-Analysis-Report für den Oktober-Sync** - Automated equivalent of the "Player Analysis All Camps" tab (QB/WR tables: comps, attempts, comp %, adj comp %, YPA, air yards, explosive %, efficiency, rush) as an `ffep report` product from canonical plays, plus the EPA update and the explosiveness proposal as the HC handout; first exploratory cut of "Was gewinnt ein Spiel?" only if time permits (Requirements: HC-05)
   - **Plans:** 7 plans (waves 1-5; plan 07 is the only non-autonomous one and nothing depends on it)
   - **Goal:** His hand-maintained "Player Analysis All Camps" tab exists as a German `ffep report` product computed from canonical plays — every one of his eighteen columns with the definition his own formula cell uses, our Success Rate / calibrated Explosiveness / continuous score beside them with n on every rate, cut by his camp windows — and the three October deliverables are bundled into one reviewed handout for the head coach (HC-05)
-  - [ ] `M3-04-01-PLAN.md` — the authorised M3-3 correction: Attempts excludes Sacks (cell `D2`) and Efficiency divides by Attempts + Carries (cell `U2`), the regenerated comparison CSVs, and both German documents corrected with a dated correction note (HC-05)
+  - [x] `M3-04-01-PLAN.md` — the authorised M3-3 correction: Attempts excludes Sacks (cell `D2`) and Efficiency divides by Attempts + Carries (cell `U2`), the regenerated comparison CSVs, and both German documents corrected with a dated correction note (HC-05)
   - [x] `M3-04-02-PLAN.md` — `data/reference/hc_splits.csv` plus `load_hc_splits`/`resolve_hc_game_splits`: his camp tabs are hard-coded row windows, so the split key becomes maintained, cited reference data with the Camp IV/VI naming conflict recorded as unresolved (HC-05)
   - [ ] `M3-04-03-PLAN.md` — `reports/player_analysis.py`: his eighteen columns from canonical plays on his denominators, with a named German availability state for every column that cannot be computed yet (HC-05)
   - [ ] `M3-04-04-PLAN.md` — the M3-3 metrics beside his columns (n / CI / muted / shrinkage, never recomputed), the camp-split sections and `build_player_analysis_data` (HC-05)
@@ -519,4 +519,4 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
 | M3-2 EPA-Refinement | 4/8 | In progress (HC rows in corpus: 1,964 / 35 games) | - |
 | M3-3 Explosiveness & Efficiency | 2/3 | In progress (plan 03 = user review gate) | - |
-| M3-4 Player-Analysis-Report | 1/7 | In progress (wave 1; plan 06 unblocked by M3-02-04) | - |
+| M3-4 Player-Analysis-Report | 2/7 | In progress (wave 1 done; plan 06 running) | - |
