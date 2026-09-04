@@ -885,3 +885,143 @@ def read_eval_split(path: Path) -> EvalSplit:
         seed=int(seeds[0]),
         frozen_at=frozen_at,
     )
+
+
+# --- Frozen eval-clip ground-truth sampling (ad-hoc plan, 2026-09-04, D-19) --------
+#
+# One level below freeze_eval_clips's clip-level freeze: draws the actual
+# ground-truth labeling sample FROM the frozen clips themselves, so the drone/GoPro
+# comparison the 2026-09-04 Koordinator-Korrektur asked for (docs/dataset-buildout.md
+# Sec "Korrektur 2026-09-04") can be measured against images no detector, current or
+# future, has ever trained on. Deliberately a separate function from
+# sample_training_frames: that one allocates a duration-proportional frame budget
+# across every clip in a session; this one draws a FIXED frames_per_clip count from an
+# EXPLICIT, pre-frozen clip subset (frozen_eval only) -- the eval-GT budget is "N
+# frames per held-out clip", never a proportional share of session runtime.
+
+
+def sample_eval_gt_frames(
+    config: Config,
+    domain: str,
+    *,
+    frames_per_clip: int,
+    seed: int,
+    out_dir: Path,
+    eval_split_path: Path | None = None,
+) -> FrameSampleManifest:
+    """Draw a deterministic, seeded ground-truth sample of `frames_per_clip` frames
+    from every clip frozen for held-out evaluation (`role == "frozen_eval"` in
+    `eval_split_path`, default `config.paths.reference / "frozen_eval_clips.csv"`) in
+    `domain`, extract them into `out_dir`, and return the manifest.
+
+    Timestamps sit on the same evenly spaced, jittered grid `sample_training_frames`
+    uses per clip (`_GRID_MARGIN_S`/`_JITTER_FRACTION`), so the frames spread over each
+    clip's full timeline rather than clustering at one play phase -- but unlike
+    `sample_training_frames`, every clip gets exactly `frames_per_clip` frames (no
+    duration-proportional allocation): this is a fixed, deliberately small
+    ground-truth labeling budget per held-out clip, not a training-frame budget.
+    `random.Random(f"{seed}:{domain}:{clip_number}")` seeds each clip's jitter
+    independently, matching `sample_training_frames`'s own per-clip-generator
+    discipline (a later run that adds/removes a clip never reshuffles another clip's
+    frames).
+
+    Every returned `FrameSample.split` is `"eval_gt"` -- never `"train"`/`"val"` -- a
+    visible marker (readable straight off the manifest) that these frames belong to
+    the held-out ground-truth budget, not an active-learning/training sample. This is
+    a labeling convention, not the D-19 enforcement mechanism itself: the binding
+    guard against these frames ever entering the training dataset is
+    `dataset.assert_no_frozen_eval_clips` (wired into `validate_coco`/`train_detector`
+    unconditionally), which rejects any manifest whose `(domain, clip_number)` pair is
+    a `frozen_eval` row regardless of what `split` value it carries.
+
+    Raises `EvalSplitError` naming `domain` when it has no `frozen_eval` clips in the
+    split, or when those clips' own `session_id` column (read directly from
+    `eval_split_path`, never from the full `video_inventory.csv` -- a domain can
+    legitimately register several sessions there, e.g. drone also carries a
+    training-camp and a Puerto Rico session neither of which contributed any
+    `frozen_eval` clip) names more than one distinct session (today's real frozen
+    split is 1:1 per domain; this stays a named, explicit failure rather than a
+    silent "first session wins" if that ever changes). Raises `ClipNotFound` naming
+    any frozen_eval clip missing its registered video file under `config.paths.video`.
+    """
+    resolved_split_path = (
+        Path(eval_split_path)
+        if eval_split_path is not None
+        else config.paths.reference / "frozen_eval_clips.csv"
+    )
+    split = read_eval_split(resolved_split_path)
+    clip_numbers = split.clips_by_domain.get(domain, [])
+    if not clip_numbers:
+        raise EvalSplitError(
+            f"domain {domain!r} has no frozen_eval clips in {resolved_split_path} -- "
+            "nothing to sample ground truth from"
+        )
+
+    eval_rows = pl.read_csv(resolved_split_path, schema_overrides=_EVAL_SPLIT_SCHEMA).filter(
+        (pl.col("domain") == domain) & (pl.col("role") == "frozen_eval")
+    )
+    session_ids = sorted(eval_rows.select("session_id").unique().to_series().to_list())
+    if len(session_ids) != 1:
+        raise EvalSplitError(
+            f"domain {domain!r}'s frozen_eval clips span {len(session_ids)} "
+            f"session(s) ({session_ids!r}) in {resolved_split_path} -- "
+            "sample_eval_gt_frames requires exactly one session per domain (today's "
+            "real frozen split is always 1:1; a future multi-session domain needs an "
+            "explicit per-session call)"
+        )
+    session_id = session_ids[0]
+
+    clips = clip_paths(config, session_id, domain=domain)
+    clip_by_number = {clip_number(path): path for path in clips}
+    missing = set(clip_numbers) - set(clip_by_number)
+    if missing:
+        raise ClipNotFound(
+            f"frozen_eval clip(s) {sorted(missing)} for domain {domain!r} session "
+            f"{session_id!r} have no registered clip file under config.paths.video"
+        )
+
+    durations = _read_clip_durations(config, session_id, set(clip_numbers), domain=domain)
+    repo_root = config.paths.data_root.parent.resolve()
+
+    frames: list[FrameSample] = []
+    for n in sorted(clip_numbers):
+        clip = clip_by_number[n]
+        duration = durations[n]
+
+        start = _GRID_MARGIN_S
+        end = max(start + 0.01, duration - _GRID_MARGIN_S)
+        cell_width = (end - start) / frames_per_clip
+
+        jitter_rng = random.Random(f"{seed}:{domain}:{n}")
+        timestamps: list[float] = []
+        for i in range(frames_per_clip):
+            base = start + cell_width * (i + 0.5)
+            jitter = jitter_rng.uniform(
+                -_JITTER_FRACTION * cell_width, _JITTER_FRACTION * cell_width
+            )
+            timestamps.append(min(end, max(start, base + jitter)))
+
+        fps = _probe_fps(clip)
+        written = extract_frames(clip, out_dir, timestamps)
+        clip_relative = clip.relative_to(repo_root).as_posix()
+
+        for timestamp, image_path in zip(timestamps, written):
+            frames.append(
+                FrameSample(
+                    clip_number=n,
+                    clip_path=clip_relative,
+                    frame_index=round(timestamp * fps),
+                    timestamp_s=timestamp,
+                    image_path=str(image_path),
+                    split="eval_gt",
+                    domain=domain,
+                )
+            )
+
+    return FrameSampleManifest(
+        session_id=session_id,
+        seed=seed,
+        target=frames_per_clip * len(clip_numbers),
+        frames=frames,
+        split={n: "eval_gt" for n in clip_numbers},
+    )

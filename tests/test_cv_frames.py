@@ -30,6 +30,7 @@ from flag_football_ep.cv.frames import (
     freeze_eval_clips,
     read_eval_split,
     read_manifest,
+    sample_eval_gt_frames,
     sample_training_frames,
     write_manifest,
 )
@@ -703,3 +704,113 @@ def test_read_eval_split_round_trips(tmp_path: Path, cfg: Config) -> None:
 def test_read_eval_split_raises_for_missing_path(tmp_path: Path) -> None:
     with pytest.raises(EvalSplitError, match="not found"):
         read_eval_split(tmp_path / "does-not-exist.csv")
+
+
+# --- sample_eval_gt_frames (ad-hoc plan, 2026-09-04, D-13/D-19) --------------------
+
+
+def _make_eval_gt_session(
+    tmp_path: Path,
+    session_id: str,
+    n_clips: int,
+    *,
+    duration: float = 2.0,
+    fps: int = 24,
+    domain: str = "drone",
+) -> None:
+    """Real, ffmpeg-decodable clips (unlike `_make_eval_session`'s placeholder
+    files) -- `sample_eval_gt_frames` calls `extract_frames`, which needs real video
+    bytes to decode.
+    """
+    rows = []
+    for i in range(1, n_clips + 1):
+        rel_path = f"data/video/{session_id}/Wide - Clip {i:03d}.mp4"
+        _make_synthetic_clip(tmp_path / rel_path, duration=duration, fps=fps)
+        row = _row(rel_path, session_id=session_id, domain=domain)
+        row["duration_seconds"] = str(duration)
+        row["fps"] = str(float(fps))
+        rows.append(row)
+    _write_inventory(tmp_path, rows)
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_eval_gt_frames_only_samples_frozen_eval_clips(tmp_path: Path, cfg: Config) -> None:
+    session_id = "sess-drone"
+    _make_eval_gt_session(tmp_path, session_id, 8)
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 9)})
+    split_csv = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
+    split = freeze_eval_clips(cfg, ["drone"], 0.5, 20260516, split_csv)
+    frozen = set(split.clips_by_domain["drone"])
+    assert frozen  # sanity: some clips actually got frozen
+
+    out_dir = tmp_path / "eval-out"
+    manifest = sample_eval_gt_frames(
+        cfg, "drone", frames_per_clip=3, seed=42, out_dir=out_dir, eval_split_path=split_csv
+    )
+
+    sampled_clips = {frame.clip_number for frame in manifest.frames}
+    assert sampled_clips == frozen
+    for clip_num in frozen:
+        assert sum(1 for f in manifest.frames if f.clip_number == clip_num) == 3
+    assert all(f.split == "eval_gt" for f in manifest.frames)
+    assert all(f.domain == "drone" for f in manifest.frames)
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_eval_gt_frames_is_deterministic(tmp_path: Path, cfg: Config) -> None:
+    session_id = "sess-drone"
+    _make_eval_gt_session(tmp_path, session_id, 8)
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 9)})
+    split_csv = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
+    freeze_eval_clips(cfg, ["drone"], 0.5, 20260516, split_csv)
+
+    manifest_a = sample_eval_gt_frames(
+        cfg, "drone", frames_per_clip=2, seed=7, out_dir=tmp_path / "out-a",
+        eval_split_path=split_csv,
+    )
+    manifest_b = sample_eval_gt_frames(
+        cfg, "drone", frames_per_clip=2, seed=7, out_dir=tmp_path / "out-b",
+        eval_split_path=split_csv,
+    )
+
+    timestamps_a = sorted((f.clip_number, f.timestamp_s) for f in manifest_a.frames)
+    timestamps_b = sorted((f.clip_number, f.timestamp_s) for f in manifest_b.frames)
+    assert timestamps_a == timestamps_b
+
+
+@pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
+def test_sample_eval_gt_frames_frame_index_matches_written_filename(
+    tmp_path: Path, cfg: Config
+) -> None:
+    session_id = "sess-drone"
+    _make_eval_gt_session(tmp_path, session_id, 8)
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 9)})
+    split_csv = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
+    freeze_eval_clips(cfg, ["drone"], 0.5, 20260516, split_csv)
+
+    manifest = sample_eval_gt_frames(
+        cfg, "drone", frames_per_clip=2, seed=1, out_dir=tmp_path / "out",
+        eval_split_path=split_csv,
+    )
+
+    assert manifest.frames
+    for frame in manifest.frames:
+        image_path = Path(frame.image_path)
+        assert image_path.exists()
+        assert image_path.name.endswith(f"_f{frame.frame_index:05d}.jpg")
+
+
+def test_sample_eval_gt_frames_raises_for_domain_without_frozen_eval_clips(
+    tmp_path: Path, cfg: Config
+) -> None:
+    session_id = "sess-drone"
+    _make_eval_session(tmp_path, session_id, 8, domain="drone")
+    _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 9)})
+    split_csv = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
+    freeze_eval_clips(cfg, ["drone"], 0.5, 1, split_csv)
+
+    with pytest.raises(EvalSplitError, match="sideline"):
+        sample_eval_gt_frames(
+            cfg, "sideline", frames_per_clip=3, seed=1, out_dir=tmp_path / "out",
+            eval_split_path=split_csv,
+        )
