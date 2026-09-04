@@ -33,9 +33,7 @@ from flag_football_ep.features.explosiveness import (
     write_calibration,
 )
 from flag_football_ep.reports.player_analysis import (
-    HcColumnTable,
     PlayerAnalysisReportData,
-    PlayerAnalysisSplit,
     _HC_COLUMN_SCHEMA,
     _M3_COLUMN_SCHEMA,
     build_player_analysis_data,
@@ -253,16 +251,19 @@ def _write_hc_splits(path: Path, rows: list[dict]) -> None:
 
 
 def _hc_plays(*, game_id: str, n_plays: int, thrown_by: str = "QB1") -> pl.DataFrame:
-    """`n_plays` completed pass plays for the own team (`posteam == "HOME"`), `source ==
-    "hc_workbook"`, on a caller-chosen `game_id` -- so a synthetic `hc_games.csv` row can
-    reference it by exact value (auto-derived `make_game_id("hc_workbook", ...)` ids never
-    start with the `"hc-"` prefix `load_hc_games` requires, so this override is deliberate,
-    not incidental).
+    """`n_plays` completed pass plays for the own team (`posteam == "HOME"`), on a
+    caller-chosen `game_id` -- so a synthetic `hc_games.csv` row can reference it by exact
+    value (auto-derived `make_game_id("hc_workbook", ...)` ids never start with the `"hc-"`
+    prefix `load_hc_games` requires, so this override is deliberate, not incidental).
+
+    The `source` label has the real ingest shape `hc_workbook:{file}:{sheet}` (see
+    `mutations.HC_SOURCE_PREFIX`): the data layer once compared `source == "hc_workbook"`
+    exactly and counted zero head-coach rows on the real corpus.
     """
     df = canonical_plays(
         n_games=1,
         plays_per_game=n_plays,
-        source="hc_workbook",
+        source="hc_workbook:offense-analytics-2026-camps-and-competitions:data",
         overrides={
             "game_id": [game_id] * n_plays,
             "posteam": [_HOME] * n_plays,

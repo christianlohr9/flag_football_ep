@@ -46,6 +46,7 @@ from dataclasses import dataclass
 import polars as pl
 
 from flag_football_ep.config import Config
+from flag_football_ep.features.mutations import HC_SOURCE_PREFIX
 from flag_football_ep.features.explosiveness import (
     DEFINITIONS,
     HC_PASS_ATTEMPT_SCOPE,
@@ -78,6 +79,13 @@ from flag_football_ep.reports.own_team import (
 )
 
 PLAYER_ANALYSIS_FILENAME: str = "player-analysis.html"
+
+
+def _is_hc_source() -> pl.Expr:
+    """Rows from the head coach's workbooks. The ingest labels them
+    `hc_workbook:{file}:{sheet}` (see `mutations.HC_SOURCE_PREFIX`), so an exact
+    `== "hc_workbook"` comparison silently matches nothing on the real corpus."""
+    return pl.col("source").str.starts_with(HC_SOURCE_PREFIX.rstrip(":"))
 
 # His tab's own column order (interfaces block, M3-04-03-PLAN.md). Integers are Int64, rates
 # and yard sums are Float64, `muted` is Boolean.
@@ -404,7 +412,7 @@ def hc_columns_by_qb(plays: pl.DataFrame, *, group_col: str = "thrown_by") -> Hc
         notices.append(_AIR_YARDS_DEVIATION_NOTICE)
 
     hc_rows = (
-        plays.filter(pl.col("source") == "hc_workbook").height if "source" in plays.columns else 0
+        plays.filter(_is_hc_source()).height if "source" in plays.columns else 0
     )
     notices.append(
         f"{hc_rows} Zeile(n) im Korpus stammen aus der Quelle 'hc_workbook' (0 ist eine "
@@ -769,7 +777,7 @@ def build_player_analysis_data(
     notices.extend(calibration_notices)
 
     n_hc_rows = (
-        canon.filter(pl.col("source") == "hc_workbook").height if "source" in canon.columns else 0
+        canon.filter(_is_hc_source()).height if "source" in canon.columns else 0
     )
     overall_basis = section_basis(canon)
 
@@ -799,7 +807,7 @@ def build_player_analysis_data(
         )
 
         hc_gesamt_frame = (
-            canon.filter(pl.col("source") == "hc_workbook")
+            canon.filter(_is_hc_source())
             if "source" in canon.columns
             else canon.filter(pl.lit(False))
         )
