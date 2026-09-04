@@ -118,6 +118,47 @@ class TestHcWorkbookExplosiveRate:
         assert row["n"] == 4
         assert row["exp_plays"] == 2
 
+    def test_excludes_sack_rows_from_attempts(self) -> None:
+        # M3-04-01 correction: workbook Attempts (D2) = Comps + Incs + INTs, no Sacks.
+        # Canonical play_type == "pass" includes sack rows; HC_PASS_ATTEMPT_SCOPE excludes
+        # them, so `n` (Attempts) drops from 5 to 3 -- sacks are never counted as Attempts.
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=5,
+            overrides={
+                "play_type": "pass",
+                "sack": [0, 0, 0, 1, 1],
+                "yards_gained": [5, 8, 3, 13, 20],
+            },
+            extras={"thrown_by": "QB A"},
+        )
+        result = explosiveness.hc_workbook_explosive_rate(df)
+        row = result.row(0, named=True)
+        assert row["n"] == 3
+
+    def test_sack_row_never_enters_exp_plays_even_with_explosive_yardage(self) -> None:
+        # Scope probe (RESEARCH): a sack row with yards_gained > 12 is impossible in
+        # practice, but must never enter exp_plays or n regardless.
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "play_type": "pass",
+                "sack": [0, 0, 1, 1],
+                "yards_gained": [5, 3, 40, -7],
+            },
+            extras={"thrown_by": "QB A"},
+        )
+        result = explosiveness.hc_workbook_explosive_rate(df)
+        row = result.row(0, named=True)
+        assert row["n"] == 2
+        assert row["exp_plays"] == 0
+
+    def test_raises_on_missing_sack_column(self) -> None:
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=4).drop("sack")
+        with pytest.raises(explosiveness.MissingExplosivenessColumns, match="sack"):
+            explosiveness.hc_workbook_explosive_rate(df)
+
     def test_ignores_epa_column_entirely(self) -> None:
         base = canonical_plays_with_scores(
             n_games=1,
@@ -162,6 +203,31 @@ class TestHcVerbalExplosiveRate:
         assert result.height == 0
         assert set(result.columns) == {"thrown_by", "n", "successes", "rate"}
 
+    def test_excludes_sack_rows_from_attempts(self) -> None:
+        # M3-04-01 correction: same HC_PASS_ATTEMPT_SCOPE as hc_workbook_explosive_rate.
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "play_type": "pass",
+                "sack": [0, 0, 1, 1],
+                "yards_gained": [5, 20, 3, 3],
+            },
+            extras={"thrown_by": "QB A"},
+        ).with_columns(epa=pl.Series([1.0, -0.5, 5.0, -0.2]))
+        result = explosiveness.hc_verbal_explosive_rate(df)
+        row = result.row(0, named=True)
+        assert row["n"] == 2
+
+    def test_raises_on_missing_sack_column(self) -> None:
+        df = (
+            canonical_plays_with_scores(n_games=1, plays_per_game=4)
+            .drop("sack")
+            .with_columns(epa=pl.Series([1.0, -1.0, 2.0, -2.0]))
+        )
+        with pytest.raises(explosiveness.MissingExplosivenessColumns, match="sack"):
+            explosiveness.hc_verbal_explosive_rate(df)
+
 
 # --- hc_efficiency_table ----------------------------------------------------------------------
 
@@ -178,10 +244,40 @@ class TestHcEfficiencyTable:
         row = result.row(0, named=True)
         assert row["efficiency_sum"] == 2
         assert row["attempts"] == 4
+        assert row["carries"] == 0
         assert row["denominator"] == 4
         assert row["efficiency"] == pytest.approx(0.5)
+        # No drops_flag given -- the secondary drops reading stays null, never a silent 0.
+        assert row["drops"] is None
+        assert row["denominator_drops"] is None
+        assert row["efficiency_drops"] is None
 
-    def test_drops_flag_extends_denominator(self) -> None:
+    def test_carries_extend_primary_denominator(self) -> None:
+        # M3-04-01 correction: workbook Efficiency (U2) denominator = Attempts + Carries
+        # (D2 + W2, same sheet), not Attempts + Drops.
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=7,
+            overrides={
+                "play_type": ["pass", "pass", "pass", "pass", "run", "run", "run"],
+            },
+            extras={
+                "thrown_by": ["QB A", "QB A", "QB A", "QB A", None, None, None],
+                "qb": ["QB A"] * 7,
+                "efficiency": [1, 1, 0, 1, None, None, None],
+            },
+        )
+        result = explosiveness.hc_efficiency_table(df)
+        row = result.row(0, named=True)
+        assert row["attempts"] == 4
+        assert row["carries"] == 3
+        assert row["denominator"] == 7
+        assert row["efficiency"] == pytest.approx(row["efficiency_sum"] / 7)
+
+    def test_drops_flag_extends_denominator_drops_only(self) -> None:
+        # M3-04-01 correction: drops_flag now feeds ONLY the secondary
+        # denominator_drops/efficiency_drops reading -- the primary `denominator` is always
+        # attempts + carries and never moves because of drops_flag.
         df = canonical_plays_with_scores(
             n_games=1,
             plays_per_game=4,
@@ -195,8 +291,24 @@ class TestHcEfficiencyTable:
             df, drops_flag=pl.col("result_raw") == "Dropped"
         )
         without_drops = explosiveness.hc_efficiency_table(df)
-        assert with_drops.row(0, named=True)["denominator"] == 5
-        assert without_drops.row(0, named=True)["denominator"] == 4
+
+        with_drops_row = with_drops.row(0, named=True)
+        assert with_drops_row["drops"] == 1
+        assert with_drops_row["denominator_drops"] == 5
+        assert with_drops_row["efficiency_drops"] == pytest.approx(2 / 5)
+        assert with_drops_row["denominator"] == 4  # primary reading untouched by drops_flag
+        assert with_drops_row["carries"] == 0
+
+        without_drops_row = without_drops.row(0, named=True)
+        assert without_drops_row["denominator"] == 4
+        assert without_drops_row["drops"] is None
+        assert without_drops_row["denominator_drops"] is None
+        assert without_drops_row["efficiency_drops"] is None
+
+    def test_raises_on_missing_sack_column(self) -> None:
+        df = canonical_plays_with_scores(n_games=1, plays_per_game=4).drop("sack")
+        with pytest.raises(explosiveness.MissingExplosivenessColumns, match="sack"):
+            explosiveness.hc_efficiency_table(df)
 
     def test_raises_on_missing_efficiency_column(self) -> None:
         df = canonical_plays_with_scores(n_games=1, plays_per_game=4).drop("efficiency")
@@ -222,7 +334,9 @@ class TestHcEfficiencyTable:
         df = canonical_plays_with_scores(n_games=0, plays_per_game=8)
         result = explosiveness.hc_efficiency_table(df)
         assert result.height == 0
-        assert "efficiency_sum" in result.columns
+        assert {"efficiency_sum", "carries", "drops", "denominator_drops"}.issubset(
+            set(result.columns)
+        )
 
 
 # --- calibrate / ExplosivenessCalibration ------------------------------------------------------
@@ -435,6 +549,45 @@ class TestDefinitionComparison:
         assert workbook["n"] == 4
         assert success["n"] == 8
         assert workbook["scope_note"] != success["scope_note"]
+
+    def test_baseline_hc_definitions_exclude_sacks_matching_hc_workbook_explosive_rate(
+        self,
+    ) -> None:
+        # M3-04-01 correction: baseline_hc_workbook/baseline_hc_verbal route through the same
+        # HC_PASS_ATTEMPT_SCOPE as hc_workbook_explosive_rate, so their `n` must agree and
+        # must exclude sack rows. success_rate_epa/explosive_epa_magnitude scope every
+        # scrimmage play (scope=pl.lit(True)) and are untouched by this correction -- sacks
+        # still count there.
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=6,
+            overrides={"play_type": "pass", "sack": [0, 0, 0, 0, 1, 1]},
+            extras={"thrown_by": "QB A"},
+        ).with_columns(epa=pl.Series([1.0, -1.0, 2.0, -2.0, 0.5, -0.5]))
+        calibration = _make_calibration(threshold=2.0, iqr=1.0)
+
+        workbook_n = explosiveness.hc_workbook_explosive_rate(df).row(0, named=True)["n"]
+        result = explosiveness.definition_comparison(
+            df, ["thrown_by"], calibration=calibration
+        )
+
+        workbook_row = result.filter(pl.col("definition") == "baseline_hc_workbook").row(
+            0, named=True
+        )
+        verbal_row = result.filter(pl.col("definition") == "baseline_hc_verbal").row(
+            0, named=True
+        )
+        success_row = result.filter(pl.col("definition") == "success_rate_epa").row(
+            0, named=True
+        )
+        magnitude_row = result.filter(
+            pl.col("definition") == "explosive_epa_magnitude"
+        ).row(0, named=True)
+
+        assert workbook_row["n"] == workbook_n == 4
+        assert verbal_row["n"] == 4
+        assert success_row["n"] == 6
+        assert magnitude_row["n"] == 6
 
     def test_muted_flag_matches_min_n_threshold(self) -> None:
         df = canonical_plays_with_scores(

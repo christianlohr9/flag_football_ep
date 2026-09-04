@@ -53,16 +53,29 @@ SCRIMMAGE_PLAY_TYPES: tuple[str, ...] = ("run", "pass")
 # R2:S2, docs/explosiveness-recherche.md). Strictly greater -- 12 itself is NOT explosive.
 HC_EXPLOSIVE_YARDS_THRESHOLD = 12
 
-# Documents why canonical `play_type == "pass"` equals the workbook's per-QB `Attempts`
-# denominator (`Comps+Incs+Sacks`): verified directly from `ingest/hudl.py` -- a sack maps to
-# `play_type == "pass"`, and a `Dropped` / `Batted Down` / `Block` RESULT token also maps to
-# `play_type == "pass"` and sets `incomplete_pass`. So filtering canonical `play_type ==
-# "pass"` reproduces the workbook's pass-attempt denominator without re-deriving it from
-# `complete_pass`/`sack` flags individually.
+# The head coach's own Attempts scope, read directly from the formula cell (M3-04-01
+# correction, 2026-09-04; M3-04-RESEARCH Pattern 1, "Attempts" row): workbook cell
+# `Player Analysis All Camps!D2` = `B2 + C2 + H2` (Comps + Incs + INTs). Sacks live in a
+# separate column (`I`) and are NEVER summed into `D2`. Canonical `play_type == "pass"`
+# includes sack rows (a sack maps to `play_type == "pass"` in `ingest/hudl.py`), so this
+# scope subtracts them explicitly rather than reusing the plain pass filter. `sack` is
+# validated (never a silent null) by `_hc_pass_attempts` before this expression runs.
+HC_PASS_ATTEMPT_SCOPE: pl.Expr = (pl.col("play_type") == "pass") & (
+    pl.col("sack").fill_null(0) != 1
+)
+
+# Prose form of `HC_PASS_ATTEMPT_SCOPE` for docstrings/scope notes. Corrects this module's
+# own prior "Comps+Incs+Sacks" reading (pre-M3-04-01): that claim was never checked against
+# the workbook's actual `D2` formula cell and is wrong -- Sacks (`I2`) are a separate column,
+# never added into `D2`.
 HC_PASS_ATTEMPT_FILTER = (
-    "canonical play_type == 'pass' == workbook Attempts (Comps+Incs+Sacks): sacks and "
-    "Dropped/Batted Down/Block RESULT tokens all map to play_type == 'pass' in "
-    "ingest/hudl.py, matching the workbook's per-QB Attempts definition verbatim."
+    "Workbook cell `Player Analysis All Camps!D2` = B2+C2+H2 (Comps+Incs+INTs). Sacks (`I2`) "
+    "are a SEPARATE column and are NEVER added into D2 -- read directly from the formula cell "
+    "(M3-04-RESEARCH Pattern 1). Canonical play_type == 'pass' includes sack rows (a sack "
+    "maps to play_type == 'pass' in ingest/hudl.py), so HC_PASS_ATTEMPT_SCOPE subtracts them "
+    "explicitly. Corrects this module's own prior 'Comps+Incs+Sacks' reading, in force before "
+    "M3-04-01's correction (2026-09-04), which was never checked against the workbook's "
+    "actual D2 formula cell."
 )
 
 
@@ -132,6 +145,24 @@ def scrimmage_plays(plays: pl.DataFrame, *, require_epa: bool = False) -> pl.Dat
     )
 
 
+def _hc_pass_attempts(plays: pl.DataFrame, *, require_epa: bool = False) -> pl.DataFrame:
+    """Restrict to the head coach's own Attempts scope (`HC_PASS_ATTEMPT_SCOPE`): pass plays
+    minus sack rows, per workbook cell `Player Analysis All Camps!D2` (M3-04-01 correction).
+
+    Every HC-scoped function in this module (`hc_workbook_explosive_rate`,
+    `hc_verbal_explosive_rate`, `hc_efficiency_table`, the `baseline_hc_*` `DEFINITIONS`
+    entries) routes through this one helper rather than keeping a local
+    `play_type == "pass"` filter, so a future scope correction only needs to change one
+    place. Validates `sack` up front via `_require_columns` -- a missing `sack` column fails
+    loud rather than silently letting sack rows count as Attempts. Applies `scrimmage_plays`
+    first (so `down`/`yards_gained`/`play_type` are validated too), then
+    `HC_PASS_ATTEMPT_SCOPE`.
+    """
+    _require_columns(plays, ["sack"], context="_hc_pass_attempts")
+    working = scrimmage_plays(plays, require_epa=require_epa)
+    return working.filter(HC_PASS_ATTEMPT_SCOPE)
+
+
 # --- Head-coach baselines -------------------------------------------------------------------
 
 
@@ -145,11 +176,13 @@ def hc_workbook_explosive_rate(
     `Player Analysis All Camps!R2:S2`, read via `openpyxl(data_only=False)`):
 
         ExpPlays   = COUNTIFS(Data!P, <QB>, Data!J, ">12")
-        Explosive% = ExpPlays / Attempts          # Attempts = Comps+Incs+Sacks, pass-only
+        Explosive% = ExpPlays / Attempts     # Attempts (D2) = Comps+Incs+INTs, no Sacks
+                                              # (M3-04-01 correction, 2026-09-04)
 
-    Filters to `play_type == "pass"` on top of `scrimmage_plays` -- `HC_PASS_ATTEMPT_FILTER`
-    documents why canonical `play_type == "pass"` equals the workbook's Attempts denominator.
-    A 30-yard run for the same QB never changes `n` or `exp_plays` here (RESEARCH Pitfall 3):
+    Filters via `_hc_pass_attempts` (`HC_PASS_ATTEMPT_SCOPE`) on top of `scrimmage_plays` --
+    `HC_PASS_ATTEMPT_FILTER` documents why this scope, not the plain `play_type == "pass"`
+    filter, reproduces the workbook's own `D2` Attempts denominator (sack rows excluded). A
+    30-yard run for the same QB never changes `n` or `exp_plays` here (RESEARCH Pitfall 3):
     the workbook's per-QB Attempts denominator never counted rushing plays, and this function
     reproduces that scope exactly, not a team-wide blend of run and pass.
 
@@ -166,7 +199,7 @@ def hc_workbook_explosive_rate(
     null resolved group value are excluded. Returns one row per group with `n`, `exp_plays`,
     `explosive_pct`, sorted by `group_col`; a schema-correct empty frame on empty input.
     """
-    working = scrimmage_plays(plays).filter(pl.col("play_type") == "pass")
+    working = _hc_pass_attempts(plays)
     working, key = _with_group_key(working, group_col)
     working = working.filter(pl.col(key).is_not_null())
 
@@ -203,12 +236,12 @@ def hc_verbal_explosive_rate(
     are computed here as separate, separately labelled functions and are always reported side
     by side, never merged into one silently-chosen number.
 
-    Same pass-only scope and group-identity fallback as `hc_workbook_explosive_rate`. A play
-    is a success under `(yards_gained > HC_EXPLOSIVE_YARDS_THRESHOLD) | (epa > 0)`. Requires
-    `epa` (`scrimmage_plays(..., require_epa=True)`). Returns one row per group with `n`,
-    `successes`, `rate`; a schema-correct empty frame on empty input.
+    Same `_hc_pass_attempts` scope and group-identity fallback as `hc_workbook_explosive_rate`.
+    A play is a success under `(yards_gained > HC_EXPLOSIVE_YARDS_THRESHOLD) | (epa > 0)`.
+    Requires `epa` (`_hc_pass_attempts(..., require_epa=True)`). Returns one row per group
+    with `n`, `successes`, `rate`; a schema-correct empty frame on empty input.
     """
-    working = scrimmage_plays(plays, require_epa=True).filter(pl.col("play_type") == "pass")
+    working = _hc_pass_attempts(plays, require_epa=True)
     working, key = _with_group_key(working, group_col)
     working = working.filter(pl.col(key).is_not_null())
 
@@ -240,9 +273,17 @@ def hc_efficiency_table(
     drops_flag: pl.Expr | None = None,
 ) -> pl.DataFrame:
     """Literal reproduction of the workbook's `Efficiency` formula (RESEARCH Pattern 1,
-    CONTEXT EXP-D04):
+    M3-04-01 correction, 2026-09-04):
 
-        Efficiency = SUMIF(Data!P, <QB>, Data!O) / (Attempts + Drops)
+        Efficiency = SUMIF(Data!P, <QB>, Data!O) / (D2 + W2)
+        # D2 = Attempts (Comps+Incs+INTs, no Sacks), W2 = Carries (same sheet, play_type=="run")
+
+    Cell `U2`'s own denominator is Attempts **plus Carries** -- both same-sheet cells -- NOT
+    Attempts plus Drops, which was this module's prior (pre-M3-04-01) assumption. `carries` is
+    the same group's rushing-play count, `play_type == "run"`, from the same scrimmage frame
+    (workbook cell `W2`), computed with the same `group_col` identity fallback as `attempts`.
+    `denominator = attempts + carries` and `efficiency = efficiency_sum / denominator` are the
+    PRIMARY reading -- the one that matches the workbook's own `U2` formula.
 
     `Data!O` (the canonical `efficiency` extra) is treated as an opaque, manually-charted
     per-play input, never re-derived: three plausible down/distance/yards formulas were
@@ -250,16 +291,23 @@ def hc_efficiency_table(
     2, Assumption A1) -- shipping a guessed formula here is forbidden. Charted values outside
     `{0, 1}` (e.g. an observed outlier `9`) are summed as-is into `efficiency_sum` and
     separately counted in `out_of_domain`, so the anomaly is visible rather than silently
-    clipped.
+    clipped. A null charted value counts in the denominator (via `attempts`) and contributes 0
+    to the numerator.
 
-    `attempts` is the pass-attempt count from the same scope as `hc_workbook_explosive_rate`.
-    A null charted value counts in the denominator (via `attempts`) and contributes 0 to the
-    numerator. `drops_flag` is an optional `pl.Expr` counted into `drops` and added to
-    `attempts` to form `denominator` -- whether the workbook's `Incs` already includes
-    `Drops` is RESEARCH Open Question 2 for the head coach (the Attempts-plus-Drops
-    ambiguity), so this is an explicit argument, never a resolved default. Raises
-    `MissingExplosivenessColumns` naming `efficiency` when the column is absent -- HC-charted
-    rows are not in the corpus yet.
+    `drops_flag` is an optional `pl.Expr`, kept as the clearly-labelled SECOND reading: when
+    given, it is counted into `drops`, and `denominator_drops = attempts + drops` /
+    `efficiency_drops = efficiency_sum / denominator_drops` are emitted alongside the primary
+    `denominator`/`efficiency`. `drops`/`denominator_drops`/`efficiency_drops` are null when
+    `drops_flag is None`. This second reading exists because the earlier "Attempts + Drops"
+    wording came from a different sheet's formula, not from this tab's own `U2` cell -- whether
+    the head coach intended the rushing denominator this tab's formula actually computes, or
+    whether the tab's own formula is itself inconsistent with a stated Drops-based intent, is
+    an open question for the head coach (M3-04-07 turns it into a written question); this
+    function does not resolve it, it only keeps both readings computable and separately named.
+
+    Raises `MissingExplosivenessColumns` naming `efficiency` when the column is absent --
+    HC-charted rows are not in the corpus yet -- and (via `_hc_pass_attempts`) naming `sack`
+    when that column is absent.
     """
     _require_columns(
         plays,
@@ -268,7 +316,7 @@ def hc_efficiency_table(
         note="HC-charted rows are not in the corpus yet",
     )
 
-    working = scrimmage_plays(plays).filter(pl.col("play_type") == "pass")
+    working = _hc_pass_attempts(plays)
     working, key = _with_group_key(working, group_col)
     working = working.filter(pl.col(key).is_not_null())
 
@@ -276,10 +324,13 @@ def hc_efficiency_table(
         group_col: pl.Utf8,
         "efficiency_sum": pl.Int64,
         "attempts": pl.Int64,
-        "drops": pl.Int64,
+        "carries": pl.Int64,
         "denominator": pl.Int64,
         "efficiency": pl.Float64,
         "out_of_domain": pl.Int64,
+        "drops": pl.Int64,
+        "denominator_drops": pl.Int64,
+        "efficiency_drops": pl.Float64,
     }
     if working.height == 0:
         return pl.DataFrame(schema=schema)
@@ -289,31 +340,60 @@ def hc_efficiency_table(
         _out_of_domain=(
             pl.col("efficiency").is_not_null() & ~pl.col("efficiency").is_in([0, 1])
         ),
-        _drop=(drops_flag.cast(pl.Int32) if drops_flag is not None else pl.lit(0)),
+    )
+    if drops_flag is not None:
+        working = working.with_columns(_drop=drops_flag.cast(pl.Int32))
+
+    agg_exprs = {
+        "efficiency_sum": pl.col("_eff_numerator").sum().cast(pl.Int64),
+        "attempts": pl.len().cast(pl.Int64),
+        "out_of_domain": pl.col("_out_of_domain").sum().cast(pl.Int64),
+    }
+    if drops_flag is not None:
+        agg_exprs["drops"] = pl.col("_drop").sum().cast(pl.Int64)
+
+    attempts_agg = working.group_by(key, maintain_order=True).agg(**agg_exprs)
+    if drops_flag is None:
+        attempts_agg = attempts_agg.with_columns(drops=pl.lit(None, dtype=pl.Int64))
+
+    carries_working = scrimmage_plays(plays).filter(pl.col("play_type") == "run")
+    carries_working, carries_key = _with_group_key(carries_working, group_col)
+    carries_working = carries_working.filter(pl.col(carries_key).is_not_null())
+    carries_agg = (
+        carries_working.group_by(carries_key, maintain_order=True)
+        .agg(carries=pl.len().cast(pl.Int64))
+        .rename({carries_key: key})
     )
 
     result = (
-        working.group_by(key, maintain_order=True)
-        .agg(
-            efficiency_sum=pl.col("_eff_numerator").sum().cast(pl.Int64),
-            attempts=pl.len().cast(pl.Int64),
-            drops=pl.col("_drop").sum().cast(pl.Int64),
-            out_of_domain=pl.col("_out_of_domain").sum().cast(pl.Int64),
-        )
-        .with_columns(denominator=pl.col("attempts") + pl.col("drops"))
+        attempts_agg.join(carries_agg, on=key, how="left")
+        .with_columns(carries=pl.col("carries").fill_null(0))
+        .with_columns(denominator=pl.col("attempts") + pl.col("carries"))
         .with_columns(efficiency=pl.col("efficiency_sum") / pl.col("denominator"))
-        .rename({key: group_col})
-        .sort(group_col)
     )
+    if drops_flag is not None:
+        result = result.with_columns(
+            denominator_drops=pl.col("attempts") + pl.col("drops")
+        ).with_columns(efficiency_drops=pl.col("efficiency_sum") / pl.col("denominator_drops"))
+    else:
+        result = result.with_columns(
+            denominator_drops=pl.lit(None, dtype=pl.Int64),
+            efficiency_drops=pl.lit(None, dtype=pl.Float64),
+        )
+
+    result = result.rename({key: group_col}).sort(group_col)
     return result.select(
         [
             group_col,
             "efficiency_sum",
             "attempts",
-            "drops",
+            "carries",
             "denominator",
             "efficiency",
             "out_of_domain",
+            "drops",
+            "denominator_drops",
+            "efficiency_drops",
         ]
     )
 
@@ -531,20 +611,26 @@ DEFINITIONS: tuple[MetricDefinition, ...] = (
     MetricDefinition(
         key="baseline_hc_workbook",
         label_de="HC-Workbook Explosive % (Yards > 12, nur Pass)",
-        scope=pl.col("play_type") == "pass",
+        scope=HC_PASS_ATTEMPT_SCOPE,
         flag_factory=lambda _cal: pl.col("yards_gained") > HC_EXPLOSIVE_YARDS_THRESHOLD,
-        scope_note="Nenner: nur Pass-Attempts (Comps+Incs+Sacks), wie im HC-Workbook.",
-        requires=("play_type", "yards_gained"),
+        scope_note=(
+            "Nenner: Pass-Attempts nach Workbook-Formel D2 = Comps + Incs + INTs "
+            "(ohne Sacks)."
+        ),
+        requires=("play_type", "yards_gained", "sack"),
     ),
     MetricDefinition(
         key="baseline_hc_verbal",
         label_de="HC mündliche Regel (Yards > 12 oder EPA > 0, nur Pass)",
-        scope=pl.col("play_type") == "pass",
+        scope=HC_PASS_ATTEMPT_SCOPE,
         flag_factory=lambda _cal: (
             (pl.col("yards_gained") > HC_EXPLOSIVE_YARDS_THRESHOLD) | (pl.col("epa") > 0)
         ),
-        scope_note="Nenner: nur Pass-Attempts, wie im HC-Workbook (mündliche Regel).",
-        requires=("play_type", "yards_gained", "epa"),
+        scope_note=(
+            "Nenner: Pass-Attempts nach Workbook-Formel D2 = Comps + Incs + INTs "
+            "(ohne Sacks), wie im HC-Workbook (mündliche Regel)."
+        ),
+        requires=("play_type", "yards_gained", "epa", "sack"),
     ),
     MetricDefinition(
         key="success_rate_epa",
