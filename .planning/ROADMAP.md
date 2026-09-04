@@ -485,7 +485,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - [x] `M3-04-04-PLAN.md` — the M3-3 metrics beside his columns (n / CI / muted / shrinkage, never recomputed), the camp-split sections and `build_player_analysis_data` (HC-05)
   - [x] `M3-04-05-PLAN.md` — the German HTML page and its template, `player-analysis` as the fifth `ffep report` product with per-product failure isolation, the documentation and the timed real run (HC-05)
   - [x] `M3-04-06-PLAN.md` — scoped cross-phase ingest fix (blocked until `M3-02-04-SUMMARY.md` exists): the `drop` nullable extra and its header mapping, which switch Adj Comp % / adj Pass Yards / adj YPA on without any report-code change (HC-05)
-  - [ ] `M3-04-07-PLAN.md` — `docs/hc-sync-2026-10.md`, the three Zusatzfragen (Frage 7-9) appended without breaking the six existing Fragen, and the human review before the October sync (HC-05)
+  - [x] `M3-04-07-PLAN.md` — `docs/hc-sync-2026-10.md`, the three Zusatzfragen (Frage 7-9) appended without breaking the six existing Fragen, and the human review before the October sync (HC-05)
   - Note (M3-4 planning, 2026-09-03): the "Was gewinnt ein Spiel?" exploratory cut is NOT planned — it stays in the backlog (BL-04) per M3-04-CONTEXT.md's Deferred Ideas. No WR/receiver table is planned either: the head coach's tab has none (verified from the workbook formula cells), so a receiver table would be extension, not reproduction. Two research findings are handled inside the phase rather than deferred: his camp splits are hard-coded row windows (not derivable from `hc_games.csv`), and the `drop` extras mapping is missing from the ingest layer. The handout's EPA half depends on M3-02-07/08 and degrades to a dated placeholder if they have not landed.
 
 **Execution Order (M3):** M3-1 → M3-2 → M3-3 → M3-4 (M3-3 research may start in parallel to M3-1).
@@ -517,6 +517,6 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M2-4 Messvorschrift | 2/3 | In progress (plan 03 at METR-03 wording gate) | - |
 | M2-5 Einstiegspaket | 0/2 | Not started | - |
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
-| M3-2 EPA-Refinement | 7/8 | Awaiting user review (M3-02-08: docs/epa-refinement-2026-10.md) | - |
+| M3-2 EPA-Refinement | 7/8 | Reviewed 2026-09-04; champion promotion decision pending (M3-02-08 task 2) | - |
 | M3-3 Explosiveness & Efficiency | 3/3 | Complete (variant b adopted 2026-09-04, recalibrated on the enlarged corpus) | - |
-| M3-4 Player-Analysis-Report | 6/7 | Awaiting user review (M3-04-07 checkpoint: docs/hc-sync-2026-10.md) | - |
+| M3-4 Player-Analysis-Report | 7/7 | Complete (handout reviewed 2026-09-04) | - |

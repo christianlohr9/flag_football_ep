@@ -1,5 +1,8 @@
 # EPA-Update für den Oktober-Sync 2026
 
+Status: am 2026-09-04 geprüft, freigegeben für den Oktober-Sync (keine Textänderungen).
+Champion-Entscheidung: siehe Schlusszeile (Stand) — Beförderung der `with_hc`-Läufe steht als Entscheidung an, bis dahin bleibt der bisherige Champion.
+
 Das hier ist eine reproduzierbare, kalibrierte Neuberechnung deiner EPA/WP-Größen auf einem
 größeren Korpus — **kein neues Modell und keine fancigere Mathematik.** Gleiche Methode wie im
 letzten Bericht (Leave-one-game-out, dieselben Features, dieselben Hyperparameter), nur mehr
@@ -256,4 +259,4 @@ Jede Zahl in diesem Dokument kommt aus genau einer dieser committeten Dateien:
 `data/reference/hc_sp_tables/*.csv` für deine eigenen Tabellen. `tests/test_m3_epa_docs.py`
 prüft das automatisch bei jedem Testlauf.
 
-Stand: 2026-09-04.
+Stand: 2026-09-04 (Review abgeschlossen; Champion-Entscheidung offen, siehe Status oben).
