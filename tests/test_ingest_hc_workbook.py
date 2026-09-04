@@ -1161,7 +1161,79 @@ def test_ingest_workbook_synthesized_play_id_for_pair_block_rows(tmp_path: Path,
     assert sorted(df["play_id"].to_list()) == [1, 2, 3]
     joined = " ".join(notices.messages)
     assert "3" in joined
-    assert "synthetisiert" in joined or "synthesized" in joined.lower()
+    assert "neu vergeben" in joined
+    assert "hc_play_no" in joined
+
+
+# --- HC corpus admission rule 1 (placeholder rows, 2026-09-04) ---
+
+
+def test_ingest_workbook_placeholder_rows_removed_before_validation(
+    tmp_path: Path, contract
+) -> None:
+    """A numeric block's placeholder rows (ODK/DN/RESULT all null -- the two
+    PLAY # 1-2 rows charted at the start of a new SP-charted game, before
+    anything real happens) are removed before validation ever runs (HC
+    corpus admission rule 1, confirmed 2026-09-04)."""
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        [1, None, None, None, None, None, None],
+        [2, None, None, None, None, None, None],
+        [3, "O", 1, 10, -20, "Rush", 5],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert df.height == 1
+    assert df["down"].to_list() == [1]
+    joined = " ".join(notices.messages)
+    assert "2 Platzhalter-Zeile(n)" in joined
+    assert "hc-g1" in joined
+
+
+def test_ingest_workbook_placeholder_rows_keep_real_result_null_dn(
+    tmp_path: Path, contract
+) -> None:
+    """A row with a real RESULT but null DN is a genuinely, if incompletely,
+    charted play -- it stays and is checked as before (not a placeholder)."""
+    rows = [
+        _INGEST_MINIMAL_HEADER,
+        [1, "O", None, None, None, "Rush", 5],
+    ]
+    path = _make_workbook(tmp_path, {"Data": rows})
+
+    hc_games = _hc_games_frame(
+        [
+            {
+                "workbook": "hc-test-workbook", "sheet": "data", "block_key": "b00-g00",
+                "source_team1": "", "source_team2": "", "game_id": "hc-g1",
+                "home_team": "ALP", "away_team": "BET", "competition": "Camp",
+                "season": "2026", "game_date": "2026-01-01", "tier": "womens-national",
+                "corpus_game_id": "", "note": "",
+            },
+        ]
+    )
+    player_mapping = _player_mapping_frame([])
+
+    df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
+
+    assert df.height == 1
+    joined = " ".join(notices.messages)
+    assert "Platzhalter-Zeile(n)" not in joined
 
 
 # --- half sentinel ---
@@ -1422,9 +1494,12 @@ def test_ingest_workbook_headerless_marker_group_stays_provisional_no_pii(
 ) -> None:
     """A marker-only run with no preceding team-name header row (Frage 2
     Antwort: 'wenn er irgendwann aufgehört hat, Teamnamen aufzuschreiben')
-    resolves to a provisional identity -- posteam/defteam stay null (no
-    home_team/away_team known), and the headerless-group notice never
-    contains a player label."""
+    resolves to a provisional identity -- `home_team`/`away_team` stay null
+    (no declared team names known), but `posteam`/`defteam` still resolve
+    from the real `ODK` marker via the HC-OFF/HC-DEF placeholders (HC
+    corpus admission rule 3, confirmed 2026-09-04: EP only needs the
+    offense/defense perspective, not real team identity). The
+    headerless-group notice never contains a player label."""
     rows = [
         _INGEST_MINIMAL_HEADER,
         ["O", None, 1, 10, -20, "Rush", 5],
@@ -1438,8 +1513,10 @@ def test_ingest_workbook_headerless_marker_group_stays_provisional_no_pii(
     df, notices = ingest_workbook(path, "Data", contract, hc_games, player_mapping)
 
     assert df.height == 2
-    assert df["posteam"].null_count() == 2
-    assert df["defteam"].null_count() == 2
+    assert df["home_team"].null_count() == 2
+    assert df["away_team"].null_count() == 2
+    assert df["posteam"].to_list() == ["HC-OFF", "HC-DEF"]
+    assert df["defteam"].to_list() == ["HC-DEF", "HC-OFF"]
     joined = " ".join(notices.messages)
     assert "1 Pair-Block-Gruppe(n) ohne Team-Namenspaar-Kopfzeile" in joined
     assert "docs/hc-blocks-ohne-kopfzeile.md" in joined

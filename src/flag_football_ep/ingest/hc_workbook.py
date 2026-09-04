@@ -436,7 +436,8 @@ def _null_pair_block_tail(
     under dedicated names (`hc_pair_team1`/`hc_pair_team2`, plan M3-01-03's
     game-identity key) before `PLAY #`/`ODK` themselves are overwritten.
     `PLAY #` is nulled for every row (no real play numbering exists in
-    either style; synthesized later by `_fill_synthesized_play_ids`). `ODK`
+    either style; reassigned later by `_reassign_hc_play_no`, HC corpus
+    admission rule 2, 2026-09-04). `ODK`
     is nulled for a team-name header row (still no real ODK there) but set
     to `marker_odk[i]` for a marker row -- `_pair_row_marker` already
     confirmed that value is one of `"O"`/`"D"`/`"S"`, so this is not a
@@ -1002,26 +1003,74 @@ def resolve_game_identity(
     return identity, messages
 
 
-def _fill_synthesized_play_ids(game_df: pl.DataFrame) -> tuple[pl.DataFrame, int]:
-    """Fill a null `PLAY #` with the row's 1-based position within the game
-    (pair-block rows always lack a real `PLAY #`; a numeric block may have a
-    stray blank cell too). Returns `(df, n_filled)` -- the imported
-    `hudl.derive_identity_columns` can then cast `PLAY #` -> `play_id`
-    unchanged, real or synthesized.
-    """
-    n_missing = int(game_df["PLAY #"].null_count())
-    if not n_missing:
-        return game_df, 0
+def _drop_placeholder_rows(game_df: pl.DataFrame) -> tuple[pl.DataFrame, int]:
+    """Remove a numeric-block game's placeholder rows (`ODK`/`DN`/`RESULT`
+    all null) before validation ever sees them -- HC corpus admission rule 1,
+    confirmed 2026-09-04 (`.planning/todos/pending/
+    2026-09-04-hc-korpus-zulassung-vor-training.md`).
 
-    game_df = game_df.with_row_index(name="_hc_pos", offset=1)
-    game_df = game_df.with_columns(
-        pl.when(pl.col("PLAY #").is_null())
-        .then(pl.col("_hc_pos").cast(pl.Utf8))
-        .otherwise(pl.col("PLAY #"))
-        .alias("PLAY #")
+    Typically the first `PLAY # 1-2` rows of a newly-started SP-charted
+    game: nothing was charted there yet, so they are not real plays --
+    previously they made the whole game FAIL `validation.checks.
+    downs_range` (null `DN`) and get quarantined. A row with a real
+    `RESULT` but null `DN` is a genuinely, if incompletely, charted play and
+    stays -- checked by `downs_range` exactly as before. Classification
+    only: this never weakens `downs_range` itself, it removes rows that
+    were never real plays before the check runs. Returns `(df, n_removed)`.
+    """
+    if game_df.height == 0 or not {"ODK", "DN", "RESULT"}.issubset(game_df.columns):
+        return game_df, 0
+    n_before = game_df.height
+    filtered = game_df.filter(
+        ~(pl.col("ODK").is_null() & pl.col("DN").is_null() & pl.col("RESULT").is_null())
     )
+    return filtered, n_before - filtered.height
+
+
+def _reassign_hc_play_no(game_df: pl.DataFrame) -> tuple[pl.DataFrame, int]:
+    """Reassign `PLAY #` from every row's 1-based position within the game --
+    not just null cells -- HC corpus admission rule 2, confirmed 2026-09-04
+    (`.planning/todos/pending/2026-09-04-hc-korpus-zulassung-vor-training.md`).
+
+    The head coach's own `PLAY #` numbering (real charting gaps, resets, or
+    nulls) previously fed straight into `play_id` via `hudl.
+    derive_identity_columns`'s `PLAY #` -> `play_id` cast, so
+    `validation.checks.gapless_play_ids` was checking HIS numbering, not the
+    sheet's real row order -- a real charting gap (rows numbered e.g.
+    1, 2, 5, 6) failed the check even though every row is a real,
+    correctly-ordered play. The original value survives as `hc_play_no`
+    before this overwrite; `conform_to_canonical` currently drops it (no
+    slot for it in `canonical.CANONICAL_COLUMNS` yet -- extending that
+    schema is out of this change's scope, `canonical.py` is a concurrent
+    plan's territory), so it is not invented, only not yet persisted to
+    `plays.parquet`.
+
+    Returns `(df, n_rows)` -- `n_rows` is `game_df.height`: every row is
+    reassigned now, unlike the previous null-only fill this replaces.
+    """
+    n_rows = game_df.height
+    if n_rows == 0 or "PLAY #" not in game_df.columns:
+        return game_df, n_rows
+
+    game_df = game_df.with_columns(pl.col("PLAY #").alias("hc_play_no"))
+    game_df = game_df.with_row_index(name="_hc_pos", offset=1)
+    game_df = game_df.with_columns(pl.col("_hc_pos").cast(pl.Utf8).alias("PLAY #"))
     game_df = game_df.drop("_hc_pos")
-    return game_df, n_missing
+    return game_df, n_rows
+
+
+# HC corpus admission rule 3 (confirmed 2026-09-04): a provisional game (no
+# hc_games.csv row, so `home_team`/`away_team` both resolve to `None`) still
+# derives `posteam`/`defteam` from a real `ODK` value, using these
+# game-scoped placeholder labels -- "Teamnamen sind nur für Dedupe/Splits
+# relevant", EP only needs the offense/defense perspective. The real
+# `home_team`/`away_team` COLUMNS (stamped from `identity.home_team`/
+# `identity.away_team` in `ingest_workbook`, not by this function) stay null
+# for a provisional game exactly as before -- only `posteam`/`defteam` get a
+# fallback, so `hc_dedupe`'s fingerprint comparison (which reads
+# `home_team`/`away_team`, never `posteam`/`defteam`) is unaffected.
+_PROVISIONAL_POSTEAM_PLACEHOLDER = "HC-OFF"
+_PROVISIONAL_DEFTEAM_PLACEHOLDER = "HC-DEF"
 
 
 def _stamp_posteam_defteam(
@@ -1041,20 +1090,28 @@ def _stamp_posteam_defteam(
     value now, so this same rule derives their `posteam`/`defteam` from the
     slice's resolved `home_team`/`away_team` too -- `kind` is kept as a
     parameter only for callers/readability, it no longer branches behaviour.
+
+    When `home_team`/`away_team` are both `None` (a provisional game, HC
+    corpus admission rule 3), `_PROVISIONAL_POSTEAM_PLACEHOLDER`/
+    `_PROVISIONAL_DEFTEAM_PLACEHOLDER` stand in instead, so a real `ODK`
+    value still resolves a usable offense/defense perspective rather than
+    nulling out for want of a declared team name.
     """
+    effective_home = home_team if home_team is not None else _PROVISIONAL_POSTEAM_PLACEHOLDER
+    effective_away = away_team if away_team is not None else _PROVISIONAL_DEFTEAM_PLACEHOLDER
     game_df = game_df.with_columns(
         pl.when(pl.col("ODK") == "O")
-        .then(pl.lit(home_team, dtype=pl.Utf8))
+        .then(pl.lit(effective_home, dtype=pl.Utf8))
         .when(pl.col("ODK").is_not_null())
-        .then(pl.lit(away_team, dtype=pl.Utf8))
+        .then(pl.lit(effective_away, dtype=pl.Utf8))
         .otherwise(pl.lit(None, dtype=pl.Utf8))
         .alias("posteam")
     )
     game_df = game_df.with_columns(
-        pl.when(pl.col("posteam") == pl.lit(home_team, dtype=pl.Utf8))
-        .then(pl.lit(away_team, dtype=pl.Utf8))
+        pl.when(pl.col("posteam") == pl.lit(effective_home, dtype=pl.Utf8))
+        .then(pl.lit(effective_away, dtype=pl.Utf8))
         .when(pl.col("posteam").is_not_null())
-        .then(pl.lit(home_team, dtype=pl.Utf8))
+        .then(pl.lit(effective_home, dtype=pl.Utf8))
         .otherwise(pl.lit(None, dtype=pl.Utf8))
         .alias("defteam")
     )
@@ -1097,10 +1154,12 @@ def ingest_workbook(
     Order of operations, mirroring `hudl.ingest_file` and reusing its
     derivation functions unchanged (HC-D01): `read_sheet_rows` ->
     `segment_blocks` -> per block `map_block_to_frame` -> `segment_games` ->
-    per game slice `resolve_game_identity`, constant-stamping (`source`,
-    `competition`, `season`, `game_id`, `game_date`, `home_team`,
-    `away_team`, `half`, `result_raw`), `PLAY #` synthesis, `posteam`/
-    `defteam` -> concatenate the sheet's game frames (`how="vertical"`; they
+    per game slice `resolve_game_identity`, `_drop_placeholder_rows`
+    (numeric blocks only, HC corpus admission rule 1), constant-stamping
+    (`source`, `competition`, `season`, `game_id`, `game_date`, `home_team`,
+    `away_team`, `half`, `result_raw`), `_reassign_hc_play_no` (HC corpus
+    admission rule 2), `posteam`/`defteam` (HC corpus admission rule 3 for a
+    provisional game) -> concatenate the sheet's game frames (`how="vertical"`; they
     share a schema by construction -- a mismatch is a bug, left to raise
     rather than silently switched to `diagonal`) -> `hudl.derive_identity_columns`
     -> `hudl.parse_result_tokens` -> `hudl.derive_outcome_columns` -> ODK
@@ -1147,6 +1206,8 @@ def ingest_workbook(
     n_sentinel_games = 0
     n_null_undeclared_rows = 0
     n_null_copy_of_data_rows = 0
+    placeholder_row_total = 0
+    placeholder_game_count = 0
 
     for block in blocks:
         block_df, header_report, block_domain, block_map_messages = map_block_to_frame(
@@ -1180,6 +1241,26 @@ def ingest_workbook(
             )
             messages.extend(identity_messages)
 
+            # HC corpus admission rule 1 (confirmed 2026-09-04): a numeric
+            # block's placeholder rows (ODK/DN/RESULT all null -- typically
+            # PLAY # 1-2 at a new SP-charted game's start) are removed
+            # before validation ever runs. Scoped to numeric blocks only: a
+            # pair block's rows never carry a real ODK/DN pair this test can
+            # evaluate (`_null_pair_block_tail` nulls both), and the
+            # `row_markers` series built below from `slice_.rows`
+            # (unfiltered) would desync against a filtered pair `game_df`.
+            if slice_.kind == "numeric":
+                game_df, n_placeholder = _drop_placeholder_rows(game_df)
+                if n_placeholder:
+                    placeholder_row_total += n_placeholder
+                    placeholder_game_count += 1
+                    messages.append(
+                        f"{n_placeholder} Platzhalter-Zeile(n) (ODK/DN/RESULT alle "
+                        f"null) vor der Validierung entfernt: {workbook_slug}/"
+                        f"{sheet_slug} game {identity.game_id!r}"
+                    )
+                n = game_df.height
+
             # half=2 sentinel (M3-02-RESEARCH.md Sec 2.2), stamped alongside
             # the other per-game identity columns rather than blanket-null
             # after the concat: it is a per-game decision (declared vs.
@@ -1206,8 +1287,8 @@ def ingest_workbook(
             else:
                 n_null_undeclared_rows += n
 
-            game_df, n_filled = _fill_synthesized_play_ids(game_df)
-            synthesized_play_ids += n_filled
+            game_df, n_reassigned = _reassign_hc_play_no(game_df)
+            synthesized_play_ids += n_reassigned
 
             game_df = _stamp_posteam_defteam(
                 game_df, slice_.kind, identity.home_team, identity.away_team
@@ -1238,6 +1319,12 @@ def ingest_workbook(
 
             game_frames.append(game_df)
 
+    if placeholder_row_total:
+        messages.append(
+            f"{placeholder_row_total} Platzhalter-Zeile(n) insgesamt in "
+            f"{placeholder_game_count} Spiel(en) vor der Validierung entfernt "
+            "(ODK/DN/RESULT alle null, HC-Korpus-Zulassungsregel 1, 2026-09-04)"
+        )
     if pair_row_total:
         pair_header_row_total = pair_row_total - pair_marker_row_total
         messages.append(
@@ -1249,8 +1336,11 @@ def ingest_workbook(
         )
     if synthesized_play_ids:
         messages.append(
-            f"PLAY # für {synthesized_play_ids} Zeile(n) synthetisiert (1-basierte "
-            "Position innerhalb des Spiels, keine PLAY # im Sheet vorhanden)"
+            f"PLAY # für {synthesized_play_ids} Zeile(n) aus der Zeilenreihenfolge "
+            "innerhalb des jeweiligen Spiels neu vergeben (hc_play_no behält die "
+            "Original-PLAY #, sofern im Sheet vorhanden -- HC-Korpus-Zulassungsregel 2, "
+            "2026-09-04: gapless_play_ids prüft damit die reale Reihenfolge, nicht "
+            "seine Nummerierung)"
         )
 
     if not game_frames:
