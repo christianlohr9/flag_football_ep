@@ -101,6 +101,31 @@ _EMPIRICAL_SP_REQUIRED_COLUMNS: tuple[str, ...] = (
 )
 
 
+def _scope_to_axis(prepared: pl.DataFrame) -> pl.DataFrame:
+    """Shared scoping for `empirical_sp` and `model_ep_per_cell`: exclude PAT rows
+    (`down == 0`), add `distance_bin`/`field_half`, then drop any row where `down`,
+    `distance_bin` or `field_half` is null.
+
+    A row with a null axis component (null `down`, or `yards_to_go`/`yardline_50` null
+    enough to make `distance_bin`/`field_half` null) has no defined position on the
+    down/distance/field-half grid this comparison is built on -- it is not a "cell" with a
+    missing value, it is not a cell at all. Keeping it would silently manufacture a
+    `(null, ..., ...)` group that can never appear in the head coach's own table and would
+    make `comparison_table`'s `field_half`/`down` columns fail their own domain (`{"own",
+    "opponent"}` / `{1, 2, 3, 4}`) contract. This is the same exclusion reasoning as the
+    `down == 0` PAT filter, just extended to every axis column instead of only `down`.
+    """
+    return (
+        prepared.filter(pl.col("down") != 0)
+        .with_columns(distance_bin=distance_bin_expr(), field_half=field_half_expr())
+        .filter(
+            pl.col("down").is_not_null()
+            & pl.col("distance_bin").is_not_null()
+            & pl.col("field_half").is_not_null()
+        )
+    )
+
+
 def empirical_sp(prepared: pl.DataFrame, *, success_label: str = "Touchdown") -> pl.DataFrame:
     """One row per `(down, distance_bin, field_half)` empirical scoring probability.
 
@@ -124,8 +149,11 @@ def empirical_sp(prepared: pl.DataFrame, *, success_label: str = "Touchdown") ->
     "trustworthy but noticeably thinner than its counterpart".
 
     `down == 0` (PAT) rows are excluded before grouping -- a PAT is not a down/distance
-    situation on this axis. Returns the full declared schema with zero rows when `prepared`
-    is empty (or empty after the down==0 filter), and raises nothing in that case. Raises
+    situation on this axis -- and so is any row where `down`, `distance_bin` or
+    `field_half` comes out null (`_scope_to_axis`): a null axis component means "no defined
+    cell", not "a cell with a missing value". Returns the full declared schema with zero
+    rows when `prepared` is empty (or empty after scoping), and raises nothing in that case.
+    Raises
     `MissingComparisonColumns`, naming every missing column, when `down`, `yards_to_go`,
     `yardline_50` or `Next_Score_Half` is absent from `prepared`.
     """
@@ -135,10 +163,7 @@ def empirical_sp(prepared: pl.DataFrame, *, success_label: str = "Touchdown") ->
             f"empirical_sp: missing required column(s): {', '.join(missing)}"
         )
 
-    scoped = prepared.filter(pl.col("down") != 0).with_columns(
-        distance_bin=distance_bin_expr(),
-        field_half=field_half_expr(),
-    )
+    scoped = _scope_to_axis(prepared)
 
     table = rate_table(
         scoped,
@@ -198,10 +223,7 @@ def model_ep_per_cell(
             f"model_ep_per_cell: missing required column(s): {', '.join(missing)}"
         )
 
-    scoped = prepared.filter(pl.col("down") != 0).with_columns(
-        distance_bin=distance_bin_expr(),
-        field_half=field_half_expr(),
-    )
+    scoped = _scope_to_axis(prepared)
 
     joined = scoped.join(
         oof.select(["game_id", "play_id", *_MODEL_PROB_COLUMNS]),

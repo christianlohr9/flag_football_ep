@@ -169,6 +169,52 @@ class TestEmpiricalSp:
         ).to_dicts()[0]
         assert row["n"] == 4
 
+    def test_null_yardline_row_excluded_not_a_null_field_half_cell(self) -> None:
+        # A row with null yardline_50 has no defined field_half -- it must not appear as
+        # its own (down, distance_bin, None) group in the output.
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "half": [1, 1, 1, 1],
+                "down": [1, 1, 1, 1],
+                "yards_to_go": [5, 5, 5, 5],
+                "yardline_50": [10, 10, 10, None],
+            },
+        )
+        prepared = prepare_ep_data(df)
+        result = empirical_sp(prepared)
+
+        assert result.filter(pl.col("field_half").is_null()).height == 0
+        row = result.filter(
+            (pl.col("down") == 1)
+            & (pl.col("distance_bin") == "5")
+            & (pl.col("field_half") == "own")
+        ).to_dicts()[0]
+        assert row["n"] == 3
+
+    def test_null_yards_to_go_row_excluded_not_a_null_distance_bin_cell(self) -> None:
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "half": [1, 1, 1, 1],
+                "down": [1, 1, 1, 1],
+                "yards_to_go": [5, 5, 5, None],
+                "yardline_50": [10, 10, 10, 10],
+            },
+        )
+        prepared = prepare_ep_data(df)
+        result = empirical_sp(prepared)
+
+        assert result.filter(pl.col("distance_bin").is_null()).height == 0
+        row = result.filter(
+            (pl.col("down") == 1)
+            & (pl.col("distance_bin") == "5")
+            & (pl.col("field_half") == "own")
+        ).to_dicts()[0]
+        assert row["n"] == 3
+
     def test_empty_input_returns_full_schema_and_raises_nothing(self) -> None:
         df = canonical_plays_with_scores(n_games=1, plays_per_game=2)
         prepared = prepare_ep_data(df).filter(pl.col("down") == 999)
