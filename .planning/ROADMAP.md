@@ -474,7 +474,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - **Goal:** Efficiency and explosiveness exist as two separate, defensible numbers computed on our own plays, with the head coach's current metric reproduced verbatim next to them and the 12-yard cliff replaced by a corpus-calibrated, versioned threshold plus a continuous score (HC-04)
   - [x] `M3-03-01-PLAN.md` — `features/explosiveness.py`: the two head-coach baselines (literal workbook yards-only, and his verbal yards-or-EPA rule), the literal `Efficiency` reproduction, success rate, the IsoPPP-style EPA-magnitude rate on a corpus-calibrated versioned threshold, the continuous score, and the comparison rollup with n / Clopper-Pearson / muted / shrinkage (HC-04)
   - [x] `M3-03-02-PLAN.md` — the comparison run on `plays_scored.parquet` (calibration JSON + three pseudonymous reference CSVs), the headless cliff-zone and definition-comparison chart renderers, the German `docs/explosiveness-vorschlag.md`, three new questions in `docs/hc-rueckfragen-2026-09.md`, and the doc-versus-CSV and PII guards (HC-04)
-  - [ ] `M3-03-03-PLAN.md` — human review of the coach-facing proposal and the three questions before the October sync, then the reviewed wording and the delivery decision written back (HC-04)
+  - [x] `M3-03-03-PLAN.md` — human review of the coach-facing proposal and the three questions before the October sync, then the reviewed wording and the delivery decision written back (HC-04)
   - Note (M3-3 planning, 2026-09-03): wiring these metrics into `reports/own_team.py` is deliberately NOT in this phase — M3-03-CONTEXT.md scopes the report product to M3-4. Plan 02's handover section names the exact public API M3-4 consumes.
 - [ ] **Phase M3-4: Player-Analysis-Report für den Oktober-Sync** - Automated equivalent of the "Player Analysis All Camps" tab (QB/WR tables: comps, attempts, comp %, adj comp %, YPA, air yards, explosive %, efficiency, rush) as an `ffep report` product from canonical plays, plus the EPA update and the explosiveness proposal as the HC handout; first exploratory cut of "Was gewinnt ein Spiel?" only if time permits (Requirements: HC-05)
   - **Plans:** 7 plans (waves 1-5; plan 07 is the only non-autonomous one and nothing depends on it)
@@ -518,5 +518,5 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M2-5 Einstiegspaket | 0/2 | Not started | - |
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
 | M3-2 EPA-Refinement | 7/8 | Awaiting user review (M3-02-08: docs/epa-refinement-2026-10.md) | - |
-| M3-3 Explosiveness & Efficiency | 2/3 | In progress (plan 03 = user review gate) | - |
+| M3-3 Explosiveness & Efficiency | 3/3 | Complete (variant b adopted 2026-09-04, recalibrated on the enlarged corpus) | - |
 | M3-4 Player-Analysis-Report | 6/7 | Awaiting user review (M3-04-07 checkpoint: docs/hc-sync-2026-10.md) | - |
