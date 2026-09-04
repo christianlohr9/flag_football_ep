@@ -2,11 +2,13 @@
 
 **Status: Iteration 1 abgeschlossen — Korrektursitzung, Merge und DVC-Versionierung am
 2026-09-02 (Plan 02.2-13), am selben Tag per Korrektur auf Datensatz v1.1 berichtigt
-(D-17-Verstoss, siehe `### Korrektur 2026-09-02` unten). Datensatz v1.1 liegt unter
-`data/labels/dataset/`, DVC-getrackt, 558 Bilder über drei Domänen (Drohne 450, TV/Broadcast
-100, GoPro/Hinterfeld 8) — jedes Bild tatsächlich von der Nutzerin in CVAT gesichtet
-und/oder korrigiert, per Datei-Diff gegen die Vorlabels verifiziert, nicht nur gemeldet.
-Noch offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20).**
+(D-17-Verstoss, siehe `### Korrektur 2026-09-02` unten), am 2026-09-04 per GoPro-Nachsitzung
+auf Datensatz v1.2 erweitert (siehe `### Nachtrag 2026-09-04` unten). Datensatz v1.2 liegt
+unter `data/labels/dataset/`, DVC-getrackt, 572 Bilder über drei Domänen (Drohne 450,
+TV/Broadcast 100, GoPro/Hinterfeld 22) — jedes Bild tatsächlich von der Nutzerin in CVAT
+gesichtet und/oder korrigiert, per Datei-Diff gegen die Vorlabels verifiziert, nicht nur
+gemeldet. Noch offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan
+02.2-20).**
 
 ## Zweck & Abgrenzung
 
@@ -483,6 +485,110 @@ local-fallback` erneut gegen den bestehenden lokalen Rückfall-Remote ausgeführ
 — Drohne/Broadcast-Bildinhalte waren bereits im Cache, nur die geänderten JSON-Dateien und der
 neue `.dir`-Eintrag sind neu). Der reale OTC-OBS-Push bleibt weiterhin Plan 02.2-20 vorbehalten,
 unverändert gegenüber Plan 02.2-13s Stand.
+
+### Nachtrag 2026-09-04: GoPro-Nachsitzung — Datensatz v1.2
+
+**Befund:** Die Nutzerin meldete am 2026-09-04, sie habe "zwischenzeitlich GoPro
+nachgelabelt... einige nahe Aufnahmen gelabelt und den Rest so gelassen" — eine weitere,
+freiwillige Korrektursitzung auf derselben CVAT-Aufgabe `al-1-sideline-1` (Task-ID 4),
+zusätzlich zu den bereits in `### Korrektur 2026-09-02` festgestellten 8 berührten Frames.
+Kein Frame gilt als verifiziert, ohne per Datei-Diff bestätigt zu sein — dieselbe Methodik
+wie in der Korrektur vom 2026-09-02 wurde erneut angewendet, diesmal gegen einen frischen
+`ffep cv cvat-pull --task 4` (statt gegen den zwei Tage alten, zwischenzeitlich veralteten
+Export).
+
+**Diff-Methodik (unverändert gegenüber `### Korrektur 2026-09-02`):** pro Bild wird die
+Boxenzahl, `category_id` und `bbox` (Toleranz 1,0 px) des frischen CVAT-Exports gegen dasselbe
+Bild im Vorlabel-COCO (`data/labels/al-iteration-1/sideline-prelabel/instances.json`)
+verglichen. "Berührt" = Boxenzahl weicht ab oder mindestens eine Box hat keine Entsprechung im
+Vorlabel; sonst "unberührt".
+
+| Kennzahl | 2026-09-02 (Korrektur) | 2026-09-04 (dieser Nachtrag) |
+|---|---:|---:|
+| Berührte (verifizierte) GoPro-Frames | 8 | **22** |
+| Neu berührt seit 2026-09-02 | — | **14** |
+| Fernfeld-Skip (0 Boxen, bereits vor 2026-09-02 getrimmt) | 11 | 11 (unverändert) |
+| Unberührt/unverifiziert (ausgeschlossen) | 192 | 178 |
+| `player`-Boxen (berührte Frames) | 82 | 218 |
+| `referee`-Boxen (berührte Frames) | 19 | 57 |
+
+Die 14 neu berührten Frames sind:
+
+```
+Wide - Clip 017_f00051.jpg   Wide - Clip 017_f00076.jpg   Wide - Clip 017_f00178.jpg
+Wide - Clip 018_f00277.jpg   Wide - Clip 020_f00525.jpg   Wide - Clip 021_f00023.jpg
+Wide - Clip 021_f00046.jpg   Wide - Clip 021_f00068.jpg   Wide - Clip 021_f00091.jpg
+Wide - Clip 031_f00028.jpg   Wide - Clip 033_f00188.jpg   Wide - Clip 033_f00375.jpg
+Wide - Clip 033_f00563.jpg   Wide - Clip 035_f00000.jpg
+```
+
+Keiner der 14 neuen Frames hat 0 Boxen — die Nutzerin hat konsequent nur Frames mit
+Spielerinnen im nahen/mittleren Feldbereich bearbeitet, exakt wie im Nachtrag vom 2026-09-02
+vereinbart (Fernfeld bleibt unberührt). Kein bereits berührter Frame verlor seinen
+"berührt"-Status (0 Regressionen). Die verbleibenden 178 unberührten Frames (11 bestätigtes
+Fernfeld-Skip + 167 noch nicht gesichtete Frames mit weiterhin ungeprüften Vorlabels) bleiben
+per Merge-Regel ausgeschlossen — kein Frame gilt als Teil des Datensatzes, ohne dass ein
+Mensch ihn tatsächlich gesehen hat (D-17).
+
+**Nebenbefund (nicht Teil der gemeldeten Sitzung, aber real und vor dem Merge geprüft):**
+Ein Kontroll-Pull von Task 5 (`al-1-broadcast-1`) zeigte ebenfalls eine Änderung seit der
+letzten Korrektur — Shape-Zahl 1408 → 1419, zuletzt aktualisiert 2026-09-04 08:36 UTC (vs.
+2026-09-01 für die Drohnen-Aufgaben, die byte-identisch geblieben sind, per direktem
+Vorlabel-Vergleich bestätigt: `al-1-drone-1`/`al-1-drone-2` unverändert). Ein Datei-Diff
+(gleiche Methodik) zeigt 26 von 100 Broadcast-Frames mit abweichenden Boxen gegenüber dem
+09-02-Export, davon 3 neu berührt (vorher exakt Vorlabel-identisch: `Wide - Clip 031_f00050`,
+`Wide - Clip 032_f00354`, `Wide - Clip 040_f00325`) — 97 von 100 Frames jetzt berührt (vorher
+94). Da die TV/Broadcast-Domäne bereits mit "alle 100 bleiben — von der Nutzerin durchgesehen"
+vollständig in den Datensatz übernommen ist (siehe `### Korrektur 2026-09-02`), ändert dieser
+Fund keine Ein-/Ausschluss-Entscheidung; die Box-Koordinaten wurden dennoch aus dem frischeren
+Export übernommen, um den Datensatz auf dem aktuellsten von der Nutzerin bestätigten Stand zu
+halten statt auf einem zwei Tage alten Zwischenstand. Aufgenommen unter
+`.planning/phases/02.2-dataset-buildout/deferred-items.md` als Beobachtung für eine künftige
+Sitzung, da die Nutzerin dies nicht ausdrücklich berichtet hatte.
+
+**Merge (Datensatz v1.1 → v1.2):**
+
+| Kennzahl | v1.1 | v1.2 |
+|---|---:|---:|
+| Bilder gesamt | 558 | **572** |
+| Drohne | 450 (unverändert) | 450 (unverändert, byte-identisch gegen Vorlabel geprüft) |
+| TV/Broadcast | 100 | 100 (Bild-Auswahl unverändert, Annotationen aktualisiert) |
+| GoPro/Hinterfeld | 8 | **22** |
+| `player`-Boxen | 9305 | **9444** |
+| `referee`-Boxen | 1063 | **1109** |
+| DVC-MD5 (`.dvc`-Datei) | `1659e351c063750eea94b536eb9f10e1.dir` (560 Dateien) | `b39db72109a25376fe50628405ab6e48.dir` (574 Dateien) |
+| `content_sha256` | `82f0feb7c4d678a44bdc7e90be416561bb2e27fabb5a657eb0dc005dbc54fa92` | `d4528a9958305c267e6257be26c07466fe78e286d4777108c29d9476003b56b1` |
+
+**Ausschluss-Assertionen erneut geprüft:** Puerto Rico 0 Treffer (kein Session-Bezug zur
+GoPro/Broadcast/Drohne-Auswahl dieser Iteration); `frozen_eval_clips.csv`
+(`role = frozen_eval`) 0 Schnittmenge gegen alle 572 Frames (die 14 neuen GoPro-Frames stammen
+aus Clips 17/18/20/21/31/33/35, keiner davon in der 30-zeiligen `frozen_eval`-Liste).
+
+**Validierung** (`ffep cv dataset --coco data/labels/dataset --manifest
+data/labels/dataset/manifest.json --min-images 1 --max-images 3000`): exit 0, 572 Bilder,
+9444 `player` + 1109 `referee` Boxen, 0 Bilder ohne Annotation. Domänen-Aufschlüsselung:
+
+| Domäne | Bilder | `player` | `referee` | Bilder ohne Annotation |
+|---|---:|---:|---:|---:|
+| Drohne | 450 | 7953 | 906 | 0 |
+| GoPro/Hinterfeld | 22 | 218 | 57 | 0 |
+| TV/Broadcast | 100 | 1273 | 146 | 0 |
+
+`uv run pytest tests/test_cv_dataset.py tests/test_dvc_layout.py -x -q` — 23 passed (grün
+gegen v1.2).
+
+**Ehrlicher Stand gegen den 1.500-Floor:** 572 von 1.500 (38 %) — weiterhin deutlich unter dem
+Floor, wie erwartet für einen Stand zwischen den beiden geplanten AL-Iterationen. GoPro liegt
+jetzt bei 22/400 (5,5 %) statt vorher 8/400 (2 %) — die Nachtrags-Zielgrösse "~50–80 saubere
+Frames" ist noch nicht erreicht, Iteration 2 (Plan 02.2-16/17) bleibt der Ort, an dem der
+GoPro-Rückstand strukturiert aufgeholt wird, nicht diese Ad-hoc-Nachsitzung.
+
+**DVC:** `dvc add data/labels/dataset` erneut ausgeführt (neuer Pointer,
+`git status --porcelain data/labels` zeigt weiterhin nur `data/labels/dataset.dvc`,
+`git check-ignore -q data/labels/dataset` bestätigt weiterhin den Ausschluss der Nutzdaten).
+`dvc push -r local-fallback` erneut gegen den bestehenden lokalen Rückfall-Remote ausgeführt;
+`dvc status -r local-fallback -c` bestätigt "Cache and remote 'local-fallback' are in sync"
+danach. Der reale OTC-OBS-Push bleibt weiterhin Plan 02.2-20 vorbehalten.
 
 ## Iteration 2
 
