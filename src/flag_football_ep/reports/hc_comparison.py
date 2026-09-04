@@ -146,3 +146,206 @@ def empirical_sp(prepared: pl.DataFrame, *, success_label: str = "Touchdown") ->
         pl.col("Next_Score_Half") == success_label,
     )
     return table.with_columns(thin=(pl.col("n") < THIN_MIN_N))
+
+
+_MODEL_PROB_COLUMNS: tuple[str, ...] = (
+    "Touchdown_Prob",
+    "Opp_Touchdown_Prob",
+    "Safety_Prob",
+    "Opp_Safety_Prob",
+    "No_Score_Prob",
+)
+
+
+def _model_ep_expr() -> pl.Expr:
+    """The pipeline's own expected-points weighting, copied verbatim from
+    `features.mutations.add_ep_variables` (mutations.py:638-647) so the model column here
+    and the pipeline's own `ep` mean exactly the same thing. Do not edit this independently
+    of that function -- if the weighting ever changes there, it must change here too.
+    """
+    return (
+        (0 * pl.col("No_Score_Prob"))
+        + (2 * pl.col("Safety_Prob"))
+        + (6 * pl.col("Touchdown_Prob"))
+        + (-2 * pl.col("Opp_Safety_Prob"))
+        + (-6 * pl.col("Opp_Touchdown_Prob"))
+    )
+
+
+def model_ep_per_cell(
+    prepared: pl.DataFrame, oof: pl.DataFrame
+) -> tuple[pl.DataFrame, int]:
+    """One row per `(down, distance_bin, field_half)` mean out-of-fold expected points.
+
+    Inner-joins `prepared` onto `oof` on `(game_id, play_id)` -- `oof` is
+    `data/processed/oof_predictions_ep.parquet` (or an equivalent frame): each historical
+    play's probability as predicted by a model that never saw that play's game
+    (`model/evaluate.py::oof_frame`'s contract). A play present in `prepared` (after the
+    same `down == 0` exclusion `empirical_sp` applies, so the two axes stay comparable) but
+    absent from `oof` -- e.g. dropped at training by `drop_nulls()` -- is never silently
+    ignored: it is counted in the returned `unscored_rows` integer instead.
+
+    Per-row expected points use `_model_ep_expr()`, the exact weighting copied from
+    `add_ep_variables`. Returns `(cells, unscored_rows)` where `cells` has columns
+    `down, distance_bin, field_half, model_ep_mean, model_n`.
+
+    Raises `MissingComparisonColumns`, naming every missing column, when any of the five
+    `_MODEL_PROB_COLUMNS` is absent from `oof`.
+    """
+    missing = [c for c in _MODEL_PROB_COLUMNS if c not in oof.columns]
+    if missing:
+        raise MissingComparisonColumns(
+            f"model_ep_per_cell: missing required column(s): {', '.join(missing)}"
+        )
+
+    scoped = prepared.filter(pl.col("down") != 0).with_columns(
+        distance_bin=distance_bin_expr(),
+        field_half=field_half_expr(),
+    )
+
+    joined = scoped.join(
+        oof.select(["game_id", "play_id", *_MODEL_PROB_COLUMNS]),
+        on=["game_id", "play_id"],
+        how="inner",
+    )
+    unscored_rows = scoped.height - joined.height
+
+    schema = {
+        "down": pl.Int32,
+        "distance_bin": pl.Utf8,
+        "field_half": pl.Utf8,
+        "model_ep_mean": pl.Float64,
+        "model_n": pl.Int64,
+    }
+    if joined.height == 0:
+        return pl.DataFrame(schema=schema), unscored_rows
+
+    cells = (
+        joined.with_columns(model_ep=_model_ep_expr())
+        .group_by(list(COMPARISON_KEYS), maintain_order=True)
+        .agg(
+            model_ep_mean=pl.col("model_ep").mean(),
+            model_n=pl.len().cast(pl.Int64),
+        )
+        .sort(list(COMPARISON_KEYS))
+    )
+    return cells, unscored_rows
+
+
+def _distance_sort_key_expr() -> pl.Expr:
+    """The leading integer of `distance_bin` (`"2"` -> 2, `"10"` -> 10, `"15+"` -> 15,
+    `"6-10"` -> 6, `"21-25"` -> 21) -- a natural-numeric sort key shared by every axis this
+    module produces (uncluttered and clustered alike), so `"2"` sorts before `"10"` instead
+    of after it as plain string comparison would.
+    """
+    return pl.col("distance_bin").str.extract(r"^(\d+)", 1).cast(pl.Int64, strict=False)
+
+
+def comparison_table(
+    hc_published: pl.DataFrame,
+    hc_rows_ours: pl.DataFrame,
+    corpus_rows_ours: pl.DataFrame,
+    model_cells: pl.DataFrame,
+) -> pl.DataFrame:
+    """Outer-join all four comparison sources on `(down, distance_bin, field_half)`.
+
+    Inputs:
+      - `hc_published`: his own tables, tidy -- columns `down, distance_bin, field_half,
+        hc_published_sp, hc_published_n, hc_published_ep`
+        (`scripts/epa_comparison.py` merges `sp_by_dd.csv`/`ep_by_dd.csv`/
+        `sample_size_by_dd.csv` into this shape before calling this function).
+      - `hc_rows_ours`, `corpus_rows_ours`: `empirical_sp` output on his rows in our corpus
+        and the rest of the corpus, respectively (columns `down, distance_bin, field_half,
+        n, rate, thin`, plus whatever else `empirical_sp` returns -- only these three are
+        used here).
+      - `model_cells`: `model_ep_per_cell`'s first return value (columns `down,
+        distance_bin, field_half, model_ep_mean, model_n`).
+
+    Output columns (join keys plus): `hc_published_sp, hc_published_n, hc_published_ep,
+    hc_recomputed_sp, hc_recomputed_n, hc_recomputed_thin, ours_sp, ours_n, ours_thin,
+    model_ep, model_n, missing_in, abs_diff_hc_vs_model,
+    abs_diff_hc_published_vs_hc_recomputed`.
+
+    This is a genuine outer join -- no key present in any input is dropped, and no missing
+    side is ever coalesced to 0. `missing_in` is `"ours"` when a key exists only in
+    `hc_published` (both `*_ours` frames and `model_cells` have nothing for it), `"hc"` when
+    a key exists in at least one of the three corpus-derived frames but not in
+    `hc_published`, and null when the key is present on both the published side and the
+    corpus-derived side.
+
+    `hc_published_sp` and `hc_recomputed_sp` are the SAME quantity -- empirical scoring
+    probability, same down/distance/field-half definition -- computed two ways over the same
+    underlying head-coach plays. A systematic gap between them (`abs_diff_hc_published_vs_
+    hc_recomputed`) is a definition mismatch worth raising with the head coach, not a data
+    error, which is why both are carried rather than one replacing the other.
+
+    `abs_diff_hc_vs_model` compares points to points: `hc_published_ep` against `model_ep`
+    (not `hc_published_sp`, a [0, 1] probability, against `model_ep`, a points scale --
+    those are not the same unit and a diff between them would not mean anything).
+
+    No winner, rank or composite score column is computed here -- the table reports; the
+    German document (M3-02-07) argues.
+    """
+    keys = list(COMPARISON_KEYS)
+
+    hc = hc_published.select(
+        [*keys, "hc_published_sp", "hc_published_n", "hc_published_ep"]
+    ).with_columns(_in_hc_published=pl.lit(True))
+    hc_rec = (
+        hc_rows_ours.select(keys + ["n", "rate", "thin"])
+        .rename({"n": "hc_recomputed_n", "rate": "hc_recomputed_sp", "thin": "hc_recomputed_thin"})
+        .with_columns(_in_ours=pl.lit(True))
+    )
+    ours = (
+        corpus_rows_ours.select(keys + ["n", "rate", "thin"])
+        .rename({"n": "ours_n", "rate": "ours_sp", "thin": "ours_thin"})
+        .with_columns(_in_ours=pl.lit(True))
+    )
+    model = (
+        model_cells.select(keys + ["model_ep_mean", "model_n"])
+        .rename({"model_ep_mean": "model_ep"})
+        .with_columns(_in_ours=pl.lit(True))
+    )
+
+    joined = hc.join(hc_rec, on=keys, how="full", coalesce=True, suffix="_hc_rec")
+    joined = joined.join(ours, on=keys, how="full", coalesce=True, suffix="_ours")
+    joined = joined.join(model, on=keys, how="full", coalesce=True, suffix="_model")
+
+    present_in_ours = (
+        pl.col("_in_ours").fill_null(False)
+        | pl.col("_in_ours_ours").fill_null(False)
+        | pl.col("_in_ours_model").fill_null(False)
+    )
+    present_in_hc_published = pl.col("_in_hc_published").fill_null(False)
+
+    result = (
+        joined.with_columns(
+            missing_in=pl.when(present_in_hc_published & ~present_in_ours)
+            .then(pl.lit("ours"))
+            .when(~present_in_hc_published & present_in_ours)
+            .then(pl.lit("hc"))
+            .otherwise(pl.lit(None, dtype=pl.Utf8)),
+            abs_diff_hc_vs_model=(pl.col("hc_published_ep") - pl.col("model_ep")).abs(),
+            abs_diff_hc_published_vs_hc_recomputed=(
+                pl.col("hc_published_sp") - pl.col("hc_recomputed_sp")
+            ).abs(),
+        )
+        .drop(["_in_hc_published", "_in_ours", "_in_ours_ours", "_in_ours_model"])
+        .with_columns(_distance_sort_key=_distance_sort_key_expr())
+        .sort(["field_half", "down", "_distance_sort_key"], nulls_last=True)
+        .drop("_distance_sort_key")
+    )
+    return result
+
+
+def coverage_table(comparison: pl.DataFrame) -> pl.DataFrame:
+    """The subset of `comparison_table`'s output with a non-null `missing_in`, plus a blank
+    `reason` column for the caller to fill in.
+
+    A cell-specific reason (e.g. "distance bin absent from our corpus", "cell absent from
+    his workbook") is only knowable at the call site (`scripts/epa_comparison.py`), not from
+    the joined frame alone -- this function only isolates which rows need one.
+    """
+    return comparison.filter(pl.col("missing_in").is_not_null()).with_columns(
+        reason=pl.lit(None, dtype=pl.Utf8)
+    )

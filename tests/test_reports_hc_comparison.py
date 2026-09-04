@@ -230,7 +230,8 @@ class TestModelEpPerCell:
                 "Safety_Prob": [0.0, 0.0],
                 "Opp_Safety_Prob": [0.0, 0.0],
                 "No_Score_Prob": [0.0, 1.0],
-            }
+            },
+            schema_overrides={"game_id": pl.Utf8, "play_id": pl.Int32},
         )
         cells, unscored = model_ep_per_cell(prepared, oof)
 
@@ -260,7 +261,8 @@ class TestModelEpPerCell:
                 "Safety_Prob": [0.1],
                 "Opp_Safety_Prob": [0.1],
                 "No_Score_Prob": [0.2],
-            }
+            },
+            schema_overrides={"game_id": pl.Utf8, "play_id": pl.Int32},
         )
         cells, unscored = model_ep_per_cell(prepared, oof)
         assert unscored == 1
