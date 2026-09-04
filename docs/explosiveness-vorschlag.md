@@ -27,17 +27,16 @@ auflöst, ohne deine Kennzahl zu ersetzen oder falsch zu erklären.
 ## Datengrundlage
 
 Basis ist `data/processed/plays_scored.parquet`, unser aktueller kanonischer Spielstand:
-16.067 Scrimmage-Plays (Lauf oder Pass, Down 1-4) aus drei Quellen -- `legacy` (3.701
-Zeilen, ohne echtes Saison-Tag), `legacy-sportapp` (14.545 Zeilen, Saison 2024) und `ifaf`
-(3.191 Zeilen, Saison 2026).
+21.907 Scrimmage-Plays (Lauf oder Pass, Down 1-4) aus fünf Quellen -- `legacy` (3.701
+Zeilen, ohne echtes Saison-Tag), `legacy-sportapp` (14.545 Zeilen, Saison 2024), `ifaf`
+(3.191 Zeilen, Saison 2026) und, seit dem Nachtrag unten, zwei deiner eigenen Workbooks
+(`hc_workbook:offense-analytics-2026-camps-and-competitions`, 1.183 Zeilen, und
+`hc_workbook:scoring-probability-by-situation-2023-2026`, 5.635 Zeilen).
 
-Zwei Dinge fehlen in diesem Korpus noch, ausdrücklich benannt statt stillschweigend
-übergangen: erstens sind deine eigenen Workbook-Zeilen noch nicht enthalten (Quelle
-`hc_workbook` kommt nicht vor) -- M3-1 liest sie ein, M3-2 rechnet sie neu durch, danach
-aktualisieren sich diese Zahlen automatisch, ohne dass dieses Dokument neu geschrieben
-werden muss. Zweitens hat der Korpus noch keine `Efficiency`-Spalte (dein `Data!O`) --
-deine Efficiency-Reproduktion ist im Code fertig vorbereitet (`hc_efficiency_table`), aber
-auf echten Zeilen noch nicht berechnet, weil die Spalte fehlt.
+Bis zum 2026-09-04 fehlten zwei Dinge in diesem Korpus, ausdrücklich benannt statt
+stillschweigend übergangen: deine eigenen Workbook-Zeilen und die `Efficiency`-Spalte
+(dein `Data!O`). Beide sind jetzt vorhanden -- siehe den Nachtrag unten für die
+Neukalibrierung, die das ausgelöst hat.
 
 ### Korrektur 2026-09-04 (Nenner)
 
@@ -53,15 +52,49 @@ als zweite, klar benannte Zahl daneben stehen bleibt. Beide Lesarten bleiben sic
 nebeneinander, bis Frage 4, 5 und 6 in `docs/hc-rueckfragen-2026-09.md` beantwortet sind --
 das ist unsere Korrektur, nicht dein Fehler.
 
+### Nachtrag 2026-09-04 (Neukalibrierung auf dem erweiterten Korpus)
+
+Autorisiert, weil die Definition selbst am 2026-09-04 freigegeben wurde (siehe `Stand:` oben und
+`docs/explosiveness-entscheidung.md`) -- die Zahlen unten waren aber auf einem Korpus gerechnet,
+der deine eigenen Zeilen noch gar nicht enthielt
+(`.planning/todos/pending/2026-09-04-explosiveness-kalibrierung-mit-hc-korpus.md`). Zwischen der
+ursprünglichen Kalibrierung (2026-09-03, 19:55 UTC) und heute wurden deine Workbook-Zeilen
+eingelesen und neu gescort; alle Zahlen in diesem Dokument sind jetzt auf dem erweiterten Korpus
+neu gerechnet (`uv run python scripts/explosiveness_comparison.py --recalibrate`).
+
+| Kennzahl | Vorher (03.09., ohne deine Zeilen) | Nachher (04.09., mit deinen Zeilen) |
+|---|---|---|
+| Kalibrierungs-Korpus (alle Scrimmage-Plays) | 16.067 | 21.907 |
+| ... davon erfolgreich (`EPA > 0`) | 7.657 | 10.554 |
+| Explosiveness-Schwellenwert (80. Perzentile) | 2,69 EPA | 2,66 EPA |
+| `corpus_fingerprint` | `f5f11469...b53c834` | `0ebc5fcc...0dad0f8c4` |
+| Workbook-Formel (Yards>12, nur Pass) | 16,0 % (2.365/14.739) | 15,4 % (3.097/20.138) |
+| Mündliche Regel (Yards>12 oder EPA>0, nur Pass) | 49,4 % (7.284/14.739) | 49,7 % (10.011/20.138) |
+| Success Rate (EPA>0, alle Scrimmage-Plays) | 47,7 % (7.657/16.067) | 48,2 % (10.554/21.907) |
+| Explosiveness (EPA-Magnitude, alle Scrimmage-Plays) | 9,6 % (1.535/16.067) | 9,6 % (2.112/21.907) |
+| Klippen-Zone 10-12 Yards | 10,7 % (1.727 Plays) | 10,5 % (2.300 Plays) |
+| `baseline_hc_workbook`-Vergleich mit deinen eigenen Zeilen | 0 deiner Zeilen enthalten | 5.399 deiner Pass-Attempts jetzt Teil des Nenners |
+| `Efficiency`-Spalte (`Data!O`) im Korpus | fehlt | vorhanden, `hc_efficiency_table` berechnet erfolgreich |
+
+Die Kernaussage bleibt unverändert -- die mündliche "oder"-Regel liegt weiterhin fast exakt bei
+der Success Rate, der Schwellenwert verschiebt sich nur geringfügig (2,69 auf 2,66 EPA), und die
+Klippen-Zone bleibt bei rund einem von neun Plays. Neu ist, dass die Vergleichszahlen jetzt zum
+ersten Mal tatsächlich deine eigenen 5.399 Pass-Attempts enthalten (nicht mehr nur die drei
+älteren Quellen), und dass die `Efficiency`-Spalte selbst jetzt im Korpus vorhanden ist -- ihre
+Bedeutung (Frage 5) bleibt trotzdem offen, deshalb zeigt dieses Dokument weiterhin keine
+Efficiency-Zahlen. `data/reference/explosiveness/comparison_by_player.csv` trägt jetzt 416
+statt 360 Zeilen (neue Pseudonyme für zuvor nicht enthaltene Spieler:innen).
+
 ## Deine heutige Zahl, wörtlich reproduziert
 
 Wir haben zwei unterschiedliche Regeln bei dir gefunden und beide -- getrennt, ohne eine
-für die andere zu halten -- auf denselben 14.739 Pass-Attempts nachgerechnet:
+für die andere zu halten -- auf denselben 20.138 Pass-Attempts nachgerechnet (seit dem
+Nachtrag oben einschließlich deiner eigenen 5.399 Pass-Attempts):
 
 | Regel | Formel | Ergebnis |
 |---|---|---|
-| Workbook-Formel (`Player Analysis All Camps!R2:S2`) | `Yards > 12`, nur Pass | 16,0 % (2.365/14.739) |
-| Mündliche Regel (aus dem Sync) | `Yards > 12` ODER `EPA > 0`, nur Pass | 49,4 % (7.284/14.739) |
+| Workbook-Formel (`Player Analysis All Camps!R2:S2`) | `Yards > 12`, nur Pass | 15,4 % (3.097/20.138) |
+| Mündliche Regel (aus dem Sync) | `Yards > 12` ODER `EPA > 0`, nur Pass | 49,7 % (10.011/20.138) |
 
 Der Befund ohne Wertung: deine Tabellen-Formel prüft ausschließlich Yards -- keine EPA
 irgendwo in der Formelkette. Deine mündliche Beschreibung im Sync war eine andere,
@@ -76,9 +109,9 @@ trennt seit Jahren zwei Fragen, die eine einzelne "Explosive %"-Zahl vermischt:
 **Efficiency** ("war der Play gut genug?", binär) und **Explosiveness** ("wie groß war er,
 gegeben dass er gut war?", nur über die guten Plays gemittelt).
 
-Auf unseren Daten zeigt sich das konkret: die mündliche "oder"-Regel (49,4 %) liegt fast
-exakt bei der reinen Success Rate (EPA > 0: 47,7 %, 7.657/16.067). Die Yards-Klausel trägt
-kaum etwas Eigenes bei -- nur 84 von 14.739 Pass-Attempts (0,6 %) werden AUSSCHLIESSLICH
+Auf unseren Daten zeigt sich das konkret: die mündliche "oder"-Regel (49,7 %) liegt fast
+exakt bei der reinen Success Rate (EPA > 0: 48,2 %, 10.554/21.907). Die Yards-Klausel trägt
+kaum etwas Eigenes bei -- nur 102 von 20.138 Pass-Attempts (0,5 %) werden AUSSCHLIESSLICH
 durch "Yards > 12" explosive, während EPA bei ihnen nicht positiv ist. Deine mündliche
 Regel misst also in der Praxis fast nur Efficiency, nicht "große Plays" -- genau die
 Verwechslung, die die Literatur als Kernproblem benennt.
@@ -86,23 +119,23 @@ Verwechslung, die die Literatur als Kernproblem benennt.
 ## Die Klippe, in Zahlen
 
 Das ist die direkte Antwort auf deine Frage: die 10-12-Yard-Zone (unmittelbar um deinen
-Cutoff bei 12) im Detail, Yard für Yard, mit Anzahl und Anteil an allen 16.067
+Cutoff bei 12) im Detail, Yard für Yard, mit Anzahl und Anteil an allen 21.907
 Scrimmage-Plays.
 
 | Yards | n | Anteil | Balken |
 |---|---|---|---|
-| 8 | 877 | 5,5 % | █████ |
-| 9 | 789 | 4,9 % | █████ |
-| 10 | 806 | 5,0 % | █████ |
-| 11 | 536 | 3,3 % | ███ |
-| 12 | 385 | 2,4 % | ██ |
+| 8 | 1198 | 5,5 % | █████ |
+| 9 | 1093 | 5,0 % | █████ |
+| 10 | 1050 | 4,8 % | █████ |
+| 11 | 724 | 3,3 % | ███ |
+| 12 | 526 | 2,4 % | ██ |
 | — Cutoff (12/13) — | | | |
-| 13 | 314 | 2,0 % | ██ |
-| 14 | 263 | 1,6 % | ██ |
-| 15 | 235 | 1,5 % | █ |
-| 16 | 212 | 1,3 % | █ |
+| 13 | 412 | 1,9 % | ██ |
+| 14 | 347 | 1,6 % | ██ |
+| 15 | 296 | 1,4 % | █ |
+| 16 | 272 | 1,2 % | █ |
 
-Die Zone 10-12 Yards allein hält 10,7 % aller Scrimmage-Plays (1.727 Plays). Das ist keine
+Die Zone 10-12 Yards allein hält 10,5 % aller Scrimmage-Plays (2.300 Plays). Das ist keine
 Randerscheinung: mehr als jeder zehnte Play in unserem Korpus liegt so nah am Cutoff, dass
 ein einziger Yard mehr oder weniger das Etikett "explosive" kippt -- genau dein Einwand,
 jetzt als Zahl statt als Vermutung.
@@ -115,8 +148,8 @@ Feldposition stecken schon im EP-Modell), keine neue Logik nötig.
 Explosiveness als Kandidat B (EPA-Magnitude auf erfolgreichen Plays, IsoPPP-Stil): ein Play
 gilt als explosive, wenn er erfolgreich war (`EPA > 0`) UND seine EPA über einem
 Schwellenwert liegt, der aus unserem eigenen Korpus stammt -- der 80. Perzentile der EPA
-aller erfolgreichen Plays. Aktuell (kalibriert auf 16.067 Plays, davon 7.657 erfolgreich):
-Schwellenwert = 2,69 EPA. Dieser Wert ist nicht geraten oder aus der NFL übernommen -- er
+aller erfolgreichen Plays. Aktuell (kalibriert auf 21.907 Plays, davon 10.554 erfolgreich):
+Schwellenwert = 2,66 EPA. Dieser Wert ist nicht geraten oder aus der NFL übernommen -- er
 wird direkt aus unseren Daten berechnet und zusammen mit dem Korpus, aus dem er stammt, in
 `data/reference/explosiveness/calibration.json` gespeichert. Das heißt: der Wert kann
 jederzeit neu abgeleitet werden, statt einfach geglaubt zu werden.

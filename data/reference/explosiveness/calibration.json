@@ -1,16 +1,18 @@
 {
   "schema_version": 1,
   "epa_quantile": 0.8,
-  "epa_threshold": 2.685250945389271,
-  "epa_median_success": 1.143921636044979,
-  "epa_iqr_success": 1.8440472558140755,
-  "corpus_n": 16067,
-  "n_success": 7657,
+  "epa_threshold": 2.6568707302212715,
+  "epa_median_success": 1.1074473857879639,
+  "epa_iqr_success": 1.7783656045794487,
+  "corpus_n": 21907,
+  "n_success": 10554,
   "corpus_sources": [
+    "hc_workbook:offense-analytics-2026-camps-and-competitions:data",
+    "hc_workbook:scoring-probability-by-situation-2023-2026:data",
     "ifaf",
     "legacy",
     "legacy-sportapp"
   ],
-  "corpus_fingerprint": "f5f11469e284052b7cca7bbe3c4d86720f5d343cfc3574d35fb247841b53c834",
-  "calibrated_on": "2026-09-03T19:55:50.695207+00:00"
+  "corpus_fingerprint": "0ebc5fcc1ee593ec05f1294572df9be5a744994e0d6ebee7e97c84d0dad0f8c4",
+  "calibrated_on": "2026-09-04T09:04:32.000139+00:00"
 }

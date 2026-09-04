@@ -180,9 +180,11 @@ _METRIC_NAME_LABEL = re.compile(r'"Explosive\s?%"')
 # the document) may be referenced again by value alone -- a callback, not a new,
 # undenominated claim. One entry per line/context that does this, so weakening this list
 # is always a visible, deliberate decision (mirrors _ALLOWED_TOKENS in test_m3_hc_pii.py).
-# "49,4 %" is the M3-04-01-corrected baseline_hc_verbal rate (was "48,6 %" pre-correction,
-# 2026-09-04) -- Comps+Incs+INTs Attempts scope, no Sacks; see the "Korrektur" section.
-_ALLOWED_CALLBACK_PERCENTAGES = ("49,4 %",)
+# "49,7 %" is the M3-03-03-Nachtrag-recalibrated baseline_hc_verbal rate (was "49,4 %"
+# post-M3-04-01-correction, "48,6 %" pre-correction) -- same Comps+Incs+INTs Attempts
+# scope, now on the corpus including the head coach's own rows (2026-09-04 recalibration,
+# see the "Nachtrag" section under "## Datengrundlage").
+_ALLOWED_CALLBACK_PERCENTAGES = ("49,7 %",)
 
 
 def test_every_percentage_has_a_denominator() -> None:

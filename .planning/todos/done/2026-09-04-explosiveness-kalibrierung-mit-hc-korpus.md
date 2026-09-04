@@ -15,3 +15,10 @@ Offen (Entscheidung Nutzer, weil die Zahlen unter Review stehen):
   p80-Schwellwert vermutlich leicht) und die Vorschlags-/Recherche-Dokumente regenerieren —
   sinnvollerweise **vor** der Freigabe "vorschlag ok" oder als expliziter Nachtrag danach.
 - Nicht still nachziehen: `docs/explosiveness-vorschlag.md` wird gerade vom Nutzer gelesen.
+
+---
+
+**Erledigt (2026-09-04, M3-03-03):** Neu kalibriert als Nachtrag nach Freigabe von Kandidat B
+(EPA-Magnitude, Perzentil-Schwelle) -- Korpus 16.067 -> 21.907 Plays, Schwellenwert 2,69 -> 2,66
+EPA, `data/reference/explosiveness/*` regeneriert, Nachtrag in `docs/explosiveness-vorschlag.md`
+und `docs/explosiveness-recherche.md` dokumentiert, Doc-Guards grün.

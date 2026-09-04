@@ -123,8 +123,8 @@ Attempts+Drops), ohne die Bedeutung von Spalte O selbst zu erklären.
 ## Unsere eigene Yards-Verteilung (2023-2026-Korpus)
 
 Basis: `data/processed/plays_scored.parquet`, Scrimmage-Plays (`play_type` in `{run, pass}`,
-`down` 1-4, `yards_gained` nicht null). **n = 15.006 Plays.** Keine Spielernamen, nur
-Aggregatzahlen.
+`down` 1-4, `yards_gained` nicht null). **n = 20.737 Plays** (Stand 2026-09-04, Nachtrag unten --
+seit dem 2026-09-03 waren es 15.006). Keine Spielernamen, nur Aggregatzahlen.
 
 | Kennzahl | Wert |
 |---|---|
@@ -132,34 +132,49 @@ Aggregatzahlen.
 | 75. Perzentile | 10 |
 | 80. Perzentile | 11 |
 | 90. Perzentile | 16 |
-| 95. Perzentile | 23 |
-| Anteil Plays > 12 Yards | 16.7% (2.504/15.006) |
-| Plays in der "Klippen-Zone" 10-12 Yards | 11.5% (1.727/15.006) |
+| 95. Perzentile | 22 |
+| Anteil Plays > 12 Yards | 15,8% (3.269/20.737) |
+| Plays in der "Klippen-Zone" 10-12 Yards | 11,1% (2.300/20.737) |
 
-Die Klippen-Zone (10-12 Yards, also unmittelbar um den HC-Cutoff) ist mit 11,5% aller Plays keine
+Die Klippen-Zone (10-12 Yards, also unmittelbar um den HC-Cutoff) ist mit 11,1% aller Plays keine
 Randerscheinung -- mehr als jeder neunte Play liegt so nah am Cutoff, dass 1 Yard mehr oder
 weniger das Etikett "explosive" kippt. Das bestätigt den Einwand des Nutzers quantitativ: der
 Cutoff bei 12 trifft nicht selten, sondern trifft mitten in eine dichte Zone der Verteilung.
 
-**EPA-Seite** (n = 14.669 Plays mit EPA, aus demselben Scrimmage-Subset):
+**EPA-Seite** (n = 20.447 Plays mit EPA, aus demselben Scrimmage-Subset):
 
 | Kennzahl | Wert |
 |---|---|
-| Success Rate (EPA > 0) | 52.2% |
-| HC-Regel wörtlich (Yards>12 ODER EPA>0) | 52.8% |
-| ... davon nur durch "Yards>12" ausgelöst (EPA ≤ 0) | 89 Plays (0,6% aller EPA-Plays) |
-| Ø EPA auf erfolgreichen Plays (IsoPPP-Analog) | +1,60 |
-| Median EPA auf erfolgreichen Plays | +1,14 |
+| Success Rate (EPA > 0) | 51,6% |
+| HC-Regel wörtlich (Yards>12 ODER EPA>0) | 52,1% |
+| ... davon nur durch "Yards>12" ausgelöst (EPA ≤ 0) | 108 Plays (0,5% aller EPA-Plays) |
+| Ø EPA auf erfolgreichen Plays (IsoPPP-Analog) | +1,56 |
+| Median EPA auf erfolgreichen Plays | +1,11 |
 
 **Der zentrale Befund:** Die "und/oder"-Verknüpfung in der mündlichen HC-Regel wird fast
-vollständig vom EPA-Teil dominiert -- 52,2% aller Plays haben positive EPA, aber nur 16,7% haben
-mehr als 12 Yards. Wenn man beide mit "oder" verknüpft (52,8%), tragen nur 89 zusätzliche Plays
-(0,6%) etwas bei, die nicht schon über positive EPA erfasst wären. **Die verbal beschriebene
+vollständig vom EPA-Teil dominiert -- 51,6% aller Plays haben positive EPA, aber nur 15,8% haben
+mehr als 12 Yards. Wenn man beide mit "oder" verknüpft (52,1%), tragen nur 108 zusätzliche Plays
+(0,5%) etwas bei, die nicht schon über positive EPA erfasst wären. **Die verbal beschriebene
 "Explosive"-Regel des HC ist also faktisch fast identisch mit seiner Success Rate, nicht mit einer
 Beschreibung "großer" Plays** -- genau die Efficiency/Explosiveness-Verwechslung, die die
 Literatur (Connelly) als Kernfehler benennt. Das ist ein starkes Argument dafür, die beiden
 Konzepte im Vorschlag klar zu trennen: eine Success-Rate-Kennzahl (Efficiency) und eine separate,
 kleinere Explosiveness-Kennzahl über nur die erfolgreichen Plays.
+
+### Nachtrag 2026-09-04 (Neukalibrierung auf dem erweiterten Korpus)
+
+Die Zahlen oben (Verteilung und EPA-Seite) waren ursprünglich auf einem Korpus gerechnet, der
+deine eigenen Workbook-Zeilen noch nicht enthielt. Seit dem Ingest/Re-Scoring deiner Zeilen ist
+der Korpus von 15.006 auf 20.737 Plays (Yards-Verteilung) bzw. von 14.669 auf 20.447 Plays
+(EPA-Seite) gewachsen; alle Werte in beiden Tabellen oben sind bereits die neu gerechneten
+Werte. Die qualitative Aussage bleibt unverändert: die mündliche "oder"-Regel bleibt praktisch
+deckungsgleich mit der reinen Success Rate, der Cliff bleibt bei rund einem von neun Plays. Der
+in `docs/explosiveness-vorschlag.md` verwendete Explosiveness-Schwellenwert (Kandidat B, 80.
+Perzentile der EPA auf erfolgreichen Plays) ist auf demselben erweiterten Korpus neu kalibriert
+worden: 2,69 EPA (03.09.) -> 2,66 EPA (04.09.), siehe dort Abschnitt "Nachtrag" für die vollen
+Vorher/Nachher-Zahlen und `data/reference/explosiveness/calibration.json` für den aktuell
+gültigen Wert. Details und Autorisierung:
+`.planning/todos/done/2026-09-04-explosiveness-kalibrierung-mit-hc-korpus.md`.
 
 ## Vorschlags-Kandidaten (threshold-frei bzw. kalibriert)
 
@@ -168,9 +183,12 @@ kleinere Explosiveness-Kennzahl über nur die erfolgreichen Plays.
    durch einen down-spezifischen Cliff -- kommunizierbar ("Play, der besser war als 4 von 5
    vergleichbaren Downs"), aber immer noch binär.
 2. **Kandidat B -- EPA-Magnitude auf erfolgreichen Plays (IsoPPP-Stil):** "explosive" = Play mit
-   `epa > 0` UND `epa` über der empirischen 80. Perzentile der erfolgreichen Plays (bei uns ≈ +2,3
-   EPA). Vorteil: automatisch kontextsensitiv (Down, Distance, Feldposition, Uhr stecken schon im
-   EP-Modell), keine manuelle Down-Bucket-Pflege nötig. Direkt an nflverse/PFF anschlussfähig.
+   `epa > 0` UND `epa` über der empirischen 80. Perzentile der erfolgreichen Plays (bei uns aktuell
+   2,66 EPA, siehe `data/reference/explosiveness/calibration.json`). Vorteil: automatisch
+   kontextsensitiv (Down, Distance, Feldposition, Uhr stecken schon im EP-Modell), keine manuelle
+   Down-Bucket-Pflege nötig. Direkt an nflverse/PFF anschlussfähig. **Am 2026-09-04 als unsere
+   Explosiveness-Kennzahl angenommen** -- Entscheidungsprotokoll in
+   `docs/explosiveness-entscheidung.md`.
 3. **Kandidat C -- Kontinuierlicher/weicher Score:** statt einer 0/1-Flagge ein Score in [0,1]
    (z.B. eine logistische Funktion der EPA- oder Yards-Verteilung), der die 11-vs-12-Klippe
    auflöst, weil es keine Klippe mehr gibt -- ein Play mit 11 Yards bekommt einen leicht
@@ -219,3 +237,7 @@ mit dem bestehenden Code.
 - `data/raw/hc_files/Offense Analytics 2026 Camps and Competitions.xlsx` (gitignored, PII) --
   Formelzellen `Player Analysis All Camps` R2/S2/U2, `Data`-Tab Spalte O
 - `data/processed/plays_scored.parquet` -- eigene Verteilungszahlen (siehe Tabellen oben)
+- `docs/explosiveness-vorschlag.md` -- der Vorschlag an den Head Coach mit allen gemessenen
+  Zahlen und dem Nachtrag zur Neukalibrierung.
+- `docs/explosiveness-entscheidung.md` -- das Entscheidungsprotokoll zur angenommenen
+  Explosiveness-Kennzahl (Kandidat B).
