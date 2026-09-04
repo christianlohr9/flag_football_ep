@@ -41,6 +41,46 @@ Eval-Clips — 18 Drohnen- und 12 GoPro/Hinterfeld-Clips, Vorschlag 5–6 Frames
 erst danach ist die Stoppregel (+0,010 mAP_50_95) überhaupt anwendbar. Bis dahin gilt für
 beide Domänen: Iteration 2 läuft wegen des 1.500-Frame-Floors ohnehin weiter.
 
+### Nachtrag 2026-09-04 (abends): Held-out-Auswertung auf der geprüften Eval-Ground-Truth
+
+Die Nutzerin hat die beiden Eval-Aufgaben (CVAT 6 `eval-gt-drone`, 7 `eval-gt-sideline`) zu 100 %
+geprüft; die Labels liegen unter `data/labels/eval/<domain>/corrected/` (Drohne 90 Bilder,
+1.834 Boxen; GoPro/Hinterfeld 72 Bilder, davon 66 mit Boxen, 623 Boxen). Beide Läufe wurden mit
+`ffep cv eval-domains --split data/reference/frozen_eval_clips.csv` auf exakt dieser Ground Truth
+gemessen (`data/reports/eval_domains_champion.json`, `data/reports/eval_domains_iteration1.json`):
+
+| Lauf | Domäne | n Bilder | n Boxen | mAP_50 | mAP_50_95 | AP_player | AP_referee |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Champion 2.1 (`87a8a522…`) | Drohne | 90 | 1834 | 0,955 | 0,942 | 0,952 | 0,933 |
+| Iteration-1 v1.2 (`be854a1a…`) | Drohne | 90 | 1834 | 0,888 | 0,707 | 0,713 | 0,701 |
+| Champion 2.1 | GoPro/Hinterfeld | 72 | 623 | 0,797 | 0,781 | 0,702 | 0,861 |
+| Iteration-1 v1.2 | GoPro/Hinterfeld | 72 | 623 | 0,725 | 0,529 | 0,595 | 0,463 |
+
+**Vorbehalt Vorlabel-Bias:** Die Ground Truth wurde aus Champion-Vorlabels heraus geprüft. Auf der
+Drohne blieben 1.736 von 1.834 Boxen (95 %) unverändert (IoU ≥ 0,95 zum Vorlabel), 55 wurden
+nachjustiert, 43 ergänzt, 14 gelöscht; auf GoPro/Hinterfeld blieben 467 von 623 unverändert,
+141 wurden ergänzt (Spielerinnen, die der Champion nicht gefunden hatte), 15 nachjustiert,
+14 gelöscht. Die Champion-Werte — besonders mAP_50_95, das die Box-Genauigkeit belohnt — sind
+dadurch nach oben verzerrt; 0,942 auf der Drohne ist überwiegend Selbstübereinstimmung. Ein
+Drohnen-only-Modell mit 0,781 mAP_50_95 auf GoPro ist aus demselben Grund nicht als echte
+GoPro-Leistung zu lesen.
+
+**Was trotzdem trägt:** Bei IoU 0,5 (mAP_50), wo die Box-Genauigkeit kaum zählt, liegt
+Iteration-1 auf der Drohne um 0,067 und auf GoPro um 0,072 hinter dem Champion. Die Stoppregel
+(+0,010 mAP_50_95 auf der Drohne, ohne Rückgang in der zweiten Domäne) ist damit **nicht erfüllt**;
+der Champion bleibt, der Iteration-1-Lauf wird nicht befördert. Anders als am Vormittag ist das
+jetzt ein Held-out-Befund, wenn auch mit dem genannten Bias zugunsten des Champions.
+
+**Offene Diagnose (vor Iteration 2 zu klären):** Warum ist ein auf 450 Drohnen-Frames (plus TV
+100, GoPro 22) trainiertes Modell auf der Drohne schwächer als das Pilot-Modell auf 404 Frames?
+Kandidaten, jeweils prüfbar ohne neue Labels: (1) kein Val-Split in v1.2 — der Lauf nutzte den
+EMA-Fallback statt einer Best-Checkpoint-Auswahl (`checkpoint_source =
+best_ema_fallback_no_val_split`); (2) Multi-Domain-Mix (TV/GoPro) im selben Lauf; (3) andere
+Frame-Verteilung der AL-1-Auswahl (gezielt unsichere Frames) gegenüber der Pilot-Stichprobe;
+(4) Startgewichte (COCO-Pretrain vs. Champion-Feintuning). Vorschlag: eine kleine Ablation
+(Drohne-only v1.2 mit 10 % Val-Split; Champion-Feintuning auf v1.2) auf denselben Eval-Labels,
+bevor Plan 02.2-16 weitere Labels anfordert.
+
 ### Nachtrag 2026-09-04 (Ausführung): Ground-Truth-Sampling für die eingefrorenen Eval-Clips vorbereitet
 
 Der Tooling-Teil der Korrektur oben ist ausgeführt — Frame-Sampling + Vorlabel-Push in eigene
