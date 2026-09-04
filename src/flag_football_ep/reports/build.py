@@ -52,6 +52,11 @@ from flag_football_ep.reports.own_team import (
     build_own_team_data,
     build_own_team_page,
 )
+from flag_football_ep.reports.player_analysis import (
+    PLAYER_ANALYSIS_FILENAME,
+    build_player_analysis_data,
+    build_player_analysis_page,
+)
 from flag_football_ep.reports.render import write_report_run
 from flag_football_ep.reports.wp_review import (
     attach_wp_provenance,
@@ -59,7 +64,13 @@ from flag_football_ep.reports.wp_review import (
     wp_review_filename,
 )
 
-PRODUCTS: tuple[str, ...] = ("opponents", "own-team", "decisions", "wp-review")
+PRODUCTS: tuple[str, ...] = (
+    "opponents",
+    "own-team",
+    "decisions",
+    "wp-review",
+    "player-analysis",
+)
 """Every product `build_reports`/`run_report_pipeline` know how to build, in dispatch order."""
 
 _INGEST_SOURCES: tuple[str, ...] = ("hudl", "legacy", "sportapp", "ifaf")
@@ -171,6 +182,17 @@ def build_reports(
                 notices.append(
                     f"WP-Review-Seite für Spiel {game_id!r} fehlgeschlagen: {exc}"
                 )
+
+    if "player-analysis" in resolved_products:
+        try:
+            player_analysis_data = build_player_analysis_data(
+                plays, config=config, scored=scored
+            )
+            rendered[PLAYER_ANALYSIS_FILENAME] = build_player_analysis_page(
+                player_analysis_data
+            )
+        except Exception as exc:  # noqa: BLE001 - per-product isolation, see docstring
+            notices.append(f"Player-Analysis-Auswertung fehlgeschlagen: {exc}")
 
     return rendered, tuple(notices)
 

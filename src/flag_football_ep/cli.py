@@ -475,7 +475,10 @@ def report(
     product: List[str] = typer.Option(
         [],
         "--product",
-        help="Product(s) to build (repeatable): opponents, own-team, decisions, wp-review; default: all",
+        help=(
+            "Product(s) to build (repeatable): opponents, own-team, decisions, wp-review, "
+            "player-analysis; default: all"
+        ),
     ),
     skip_ingest: bool = typer.Option(
         False,

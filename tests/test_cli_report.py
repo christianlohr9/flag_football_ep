@@ -38,6 +38,7 @@ from flag_football_ep.reports.build import (
 from flag_football_ep.reports.decisions import DECISIONS_FILENAME
 from flag_football_ep.reports.opponent import opponent_filename
 from flag_football_ep.reports.own_team import OWN_TEAM_FILENAME
+from flag_football_ep.reports.player_analysis import PLAYER_ANALYSIS_FILENAME
 from flag_football_ep.reports.wp_review import wp_review_filename
 from flag_football_ep.testing import canonical_plays_with_scores
 
@@ -307,8 +308,14 @@ def test_build_reports_unknown_product_raises(tmp_path: Path) -> None:
         build_reports(plays, scored, config=config, products=["bogus"])
 
 
-def test_products_tuple_is_the_four_locked_families(tmp_path: Path) -> None:
-    assert PRODUCTS == ("opponents", "own-team", "decisions", "wp-review")
+def test_products_tuple_is_the_five_locked_families(tmp_path: Path) -> None:
+    assert PRODUCTS == (
+        "opponents",
+        "own-team",
+        "decisions",
+        "wp-review",
+        "player-analysis",
+    )
 
 
 def test_build_reports_own_team_product_uses_own_team_filename(tmp_path: Path) -> None:
@@ -374,6 +381,39 @@ def test_build_reports_product_failure_yields_notice_and_other_products_still_bu
     assert opponent_filename("AWAY") in rendered
     assert any("decisions" in n.lower() or "entscheidung" in n.lower() for n in notices)
     assert any("synthetic decisions failure" in n for n in notices)
+
+
+def test_build_reports_player_analysis_failure_yields_notice_and_other_products_still_build(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = tms._make_config(tmp_path)
+    _write_group_opponents(
+        config.reference.group_opponents.parent, [("AWAY", "Away Team")]
+    )
+    plays, scored = _plays_and_fake_scored()
+
+    import flag_football_ep.reports.build as build_module
+
+    def _boom(*args: object, **kwargs: object) -> str:
+        raise RuntimeError("synthetic player-analysis failure")
+
+    monkeypatch.setattr(build_module, "build_player_analysis_data", _boom)
+
+    rendered, notices = build_reports(
+        plays,
+        scored,
+        config=config,
+        opponents=["AWAY"],
+        products=["opponents", "player-analysis"],
+    )
+
+    assert PLAYER_ANALYSIS_FILENAME not in rendered
+    assert opponent_filename("AWAY") in rendered
+    assert any(
+        "player-analysis" in n.lower() or "player-analysis-auswertung" in n.lower()
+        for n in notices
+    )
+    assert any("synthetic player-analysis failure" in n for n in notices)
 
 
 # --- build_reports: WP review pages come from the provenance-resolved frame (T-1.4-67) ------

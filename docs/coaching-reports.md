@@ -1,11 +1,12 @@
-# Coaching reports (REQ-S1-12 .. REQ-S1-16)
+# Coaching reports (REQ-S1-12 .. REQ-S1-16, HC-05)
 
 `ffep report` turns the canonical dataset into the full coaching-report set: opponent
-tendencies, own-team efficiency, decision cheatsheets and per-game win-probability review,
-each as a standalone offline HTML file. There is no PDF dependency by design -- the PDF path
-is the browser's own print dialog, applied to the HTML files.
+tendencies, own-team efficiency, decision cheatsheets, per-game win-probability review and the
+head coach's own Player-Analysis tab, each as a standalone offline HTML file. There is no PDF
+dependency by design -- the PDF path is the browser's own print dialog, applied to the HTML
+files.
 
-## The four products
+## The five products
 
 | Product | Filename | Requirement |
 |---|---|---|
@@ -13,6 +14,7 @@ is the browser's own print dialog, applied to the HTML files.
 | Own-team efficiency report | `own-team.html` | REQ-S1-13 |
 | Decision cheatsheet (PAT break-even, 4th-down conversion) | `decisions.html` | REQ-S1-14 |
 | Win-probability review, one per game | `wp-review-<game>.html` | REQ-S1-15 |
+| Player Analysis (his workbook tab, automated) | `player-analysis.html` | HC-05 |
 
 Every file is a self-contained HTML document: charts are embedded as base64 PNG data URIs, no
 `<script>` tag, no external `http(s)` reference. Open it directly in a browser, on the HC's
@@ -20,13 +22,54 @@ tablet or anywhere else -- no server, no network access, no PDF renderer. To get
 browser's print dialog on the HTML file; `@media print` rules keep charts from splitting across
 pages and preserve shading via `print-color-adjust: exact`.
 
+## Player Analysis (HC-05)
+
+`player-analysis.html` reproduces the head coach's hand-maintained `Player Analysis All Camps`
+workbook tab, per QB, from canonical plays -- each of his 19 columns (Comps through Rush TDs)
+computed to his own workbook formula, never re-derived from what a column name suggests
+(`src/flag_football_ep/reports/player_analysis.py`'s module docstring names every formula
+source cell). Beside his columns, the page shows three of ours -- Success Rate, calibrated
+Explosiveness and the continuous explosiveness score, each with its own `n`/confidence interval
+-- delegated live to the M3-3 `features/explosiveness.py` definitions
+(`docs/explosiveness-vorschlag.md`), never a second implementation of "explosive" or "success".
+
+The page is split into sections the way his own tabs are split: `Alle Camps (Korpus gesamt)`
+(the whole corpus), `Head Coach Workbook gesamt` (every hand-charted row, a cross-check
+subtotal) and one section per camp/competition window declared in
+`data/reference/hc_splits.csv`. A column that cannot be computed from the corpus today (e.g.
+`Adj Comp %` before the `drop` column carries real signal) renders a named "nicht verfügbar"
+state, never a blank or a silent zero; thin-sample cells (`n < 5`) are greyed, never hidden. Two
+M3-3 charts (the definition comparison, the cliff-zone distribution) are embedded once per page,
+above the per-split tables.
+
+```bash
+uv run ffep report --product player-analysis --skip-ingest
+```
+
+### Was heute noch fehlt
+
+- **Keine Receiver-Tabelle:** REQ HC-05's wording says "QB/WR", but his `Player Analysis All
+  Camps` tab carries QB rows only (verified from the workbook, `M3-04-RESEARCH.md`) -- no WR
+  table is invented here. A WR-side extension reusing `reports/own_team.py::player_efficiency`
+  is deferred (`M3-04-CONTEXT.md` Deferred Ideas); open question: should a receiver table join
+  this same page or stay a separate product?
+- **Three drop-dependent columns** (`Adj Comp %`, `adj Pass Yards`, `adj YPA`) wait on the
+  canonical `drop` column carrying real (non-blank) signal in the corpus -- currently named
+  unavailable, not approximated.
+- **The Air-Yards deviation:** our `Air Yards` sum omits a subtraction term from `Data!Y`
+  (column header literally `"B"`, meaning undocumented -- Frage 8, `M3-04-07`); our number can
+  therefore read slightly higher than his.
+- **The Camp IV/VI naming conflict:** the same workbook row range carries two different tab
+  names (`Set Analysis Camp IV` vs. `Player Analysis Camp VI`); the page marks that section
+  `Konflikt` and waits on the head coach's answer (Frage 7, `M3-04-07`).
+
 ## Commands
 
 ```bash
-ffep report                        # everything: every group opponent, all four products
+ffep report                        # everything: every group opponent, all five products
 ffep report --opponent FRA         # just one opponent's tendency report (repeatable)
 ffep report --product own-team     # just one product family (repeatable): opponents,
-                                    # own-team, decisions, wp-review
+                                    # own-team, decisions, wp-review, player-analysis
 ffep report --skip-ingest          # re-render from the existing plays.parquet, skip re-ingest
 ```
 
