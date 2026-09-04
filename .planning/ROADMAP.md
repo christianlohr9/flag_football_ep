@@ -355,7 +355,7 @@ Plans:
 **Wave 7** *(blocked on Wave 6)*
 
 - [ ] 02.2-21-PLAN.md — Private test set switches to the real second drone game (GER vs Puerto Rico), dev bundle back to 61 clips, game-disjoint dev/test (DATA-04)
-- [ ] 02.2-15-PLAN.md — AL iteration 1: retrain and per-domain evaluation against the stopping rule
+- [x] 02.2-15-PLAN.md — AL iteration 1: retrain and per-domain evaluation against the stopping rule
 
 **Wave 8** *(blocked on Wave 7)*
 
