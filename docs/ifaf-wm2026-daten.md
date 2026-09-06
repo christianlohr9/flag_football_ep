@@ -94,6 +94,31 @@ Cloud-Speicher ohne Login.
    nur auf Erreichbarkeit geprüft, nicht abgeholt — lohnt sich für ein späteres Mal, falls
    Kader-/Spielerdaten gebraucht werden.
 
+## Wichtiger Nachtrag: Männer- und Frauen-Spiele wurden vermischt
+
+Beim Nachrechnen ist aufgefallen: Die beiden Turnierdokumente (Frauen und Männer) tragen
+intern denselben Namen ("IFAF World Flag 2026"), nur ein Zusatzfeld ("Women"/"Men")
+unterscheidet sie. Unser Ingest hat bisher nur den Namen genommen — dadurch sind alle 25
+akzeptierten Männer-Spiele unbemerkt unter derselben Kennung wie die Frauen-Spiele gelandet.
+Zusätzlich verschärft: der deutsche Männer-Nationalteam-Code (`m-ger`) wird in unserer
+Team-Tabelle auf denselben Kürzel "GER" abgebildet wie das Frauenteam — ein Bericht, der nach
+Team "GER" filtert, hätte also Männer- und Frauendaten vermischt, sobald die Männer-Spiele
+mal im Datensatz landen.
+
+**Behoben:**
+- Die Wettbewerbs-Kennung unterscheidet jetzt zwischen "IFAF World Flag 2026 Women" und
+  "...Men" (32 Frauen-Spiele / 3.191 Zeilen, 25 Männer-Spiele / 2.305 Zeilen).
+- Die Männer-Spiele bekommen eine eigene Kategorie ("mens-international") und sind ab sofort
+  von jedem EP/WP-Training ausgeschlossen — sie bleiben im Datensatz und werden auch weiter
+  bewertet (echte EP/WP-Werte, genau wie bei den Frauen), aber sie fließen nicht ins Training
+  der Modelle ein, bis das jemand bewusst anders entscheidet.
+- Der Auswertungs-Vergleichsbericht (M3, Explosiveness/Vergleich) filtert die Männer-Spiele
+  jetzt explizit heraus, bevor irgendetwas berechnet wird — nicht erst nachträglich.
+
+Für dich heißt das: nichts an den bisherigen Frauen-Auswertungen ändert sich, aber die
+Männer-Daten waren zwischenzeitlich unbemerkt mit eingeflossen und sind jetzt sauber
+getrennt.
+
 Alle Zahlen, Commits und der volle technische Nachtrag stehen in
 `.planning/phases/01.2-repo-to-pipeline/01.2-IFAF-FULL-SUMMARY.md` und
 `docs/ifaf-field-mapping.md`.
