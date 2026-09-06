@@ -226,6 +226,7 @@ FUNCTION_CONTRACTS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "register",
             "from_artifacts",
             "resume",
+            "init_weights",
         ),
     ),
     ("detect", "load_detector", ("config", "run_id")),

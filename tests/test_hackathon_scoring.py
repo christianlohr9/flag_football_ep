@@ -888,11 +888,16 @@ def test_real_split_mode_run_reports_honesty_flags_for_both_splits(tmp_path: Pat
     assert dev["human_reference"]["pass_rate"] is not None
     assert dev["human_reference"]["n_pass"] == 15
 
-    assert test["human_reference"]["pass_rate"] is None
+    # The private-test review is human work in progress: its row count moves as the
+    # user labels, so assert the honesty contract for whichever state the vault is in.
     reviewed_only = test["human_reference_reviewed_only"]
-    assert reviewed_only["complete"] is False
-    assert reviewed_only["n"] == 10
-    assert "unvollstaendig" in reviewed_only["note"]
+    if reviewed_only["complete"]:
+        assert reviewed_only["n"] == 61
+        assert test["human_reference"]["pass_rate"] is not None
+    else:
+        assert test["human_reference"]["pass_rate"] is None
+        assert 0 < reviewed_only["n"] < 61
+        assert "unvollstaendig" in reviewed_only["note"]
 
     for split in (dev, test):
         assert split["continuous"]["mean_fragments_per_expected_player"] is not None
