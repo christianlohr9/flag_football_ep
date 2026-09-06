@@ -27,6 +27,16 @@ Rerun discipline: without `--recalibrate`, an existing `calibration.json` is loa
 reused rather than recomputed, so a rerun of this script cannot silently move the
 threshold under an already-published `docs/explosiveness-vorschlag.md`. Pass
 `--recalibrate` to derive a fresh threshold from the current corpus.
+
+Corpus scope (2026-09-06 addendum): rows whose `competition_tier` resolves to
+`EXCLUDED_TIERS` (currently just `mens-international` -- the IFAF ffwc26-men
+tournament, docs/ifaf-field-mapping.md) are dropped before any calibration or
+comparison computation runs, mirroring the training-time
+`exclude_games_ep`/`exclude_games_wp` exclusion in `ffep.toml` -- this corpus
+is scoped to the German women's national team program, and the men's
+tournament sharing team codes with the women's (`m-ger`/`w-ger` both map to
+canonical `GER`) means it would otherwise silently contaminate the own-team
+comparison the moment it entered `plays_scored.parquet`.
 """
 
 from __future__ import annotations
@@ -40,6 +50,7 @@ import polars as pl
 from scipy.stats import binomtest
 
 from flag_football_ep.config import load_config
+from flag_football_ep.reference import load_competition_tier, map_competition_tier
 from flag_football_ep.features.explosiveness import (
     DEFAULT_EPA_QUANTILE,
     DEFINITIONS,
@@ -62,6 +73,38 @@ from flag_football_ep.reports.aggregate import MUTED_MIN_N
 # elimination even behind a pseudonym; higher and too many real contributors disappear
 # into the bucket. Overridable via --min-attempts.
 DEFAULT_MIN_ATTEMPTS = 15
+
+# 2026-09-06 addendum: competition_tier values excluded from this corpus by
+# default. "mens-international" is the IFAF ffwc26-men tournament -- see the
+# module docstring's "Corpus scope" section for why this must be filtered
+# here rather than relying on team-code filtering downstream (m-ger/w-ger
+# collide onto the same canonical "GER" team code).
+EXCLUDED_TIERS: tuple[str, ...] = ("mens-international",)
+
+
+def _exclude_tiers(plays: pl.DataFrame, config) -> pl.DataFrame:
+    """Drop every row whose `competition_tier` (resolved fresh from
+    `config.reference.competition_tier`, not trusted from any pre-existing
+    column) is in `EXCLUDED_TIERS`. Reports how many rows/games were dropped
+    so a silent scope change is never invisible in the script's own output.
+    """
+    if "source" not in plays.columns or "competition" not in plays.columns:
+        return plays
+
+    mapping = load_competition_tier(config.reference.competition_tier)
+    tiered = map_competition_tier(plays, mapping)
+
+    excluded = tiered.filter(pl.col("competition_tier").is_in(EXCLUDED_TIERS))
+    if excluded.height:
+        excluded_games = (
+            excluded["game_id"].n_unique() if "game_id" in excluded.columns else None
+        )
+        print(
+            f"finding: excluding {excluded.height} row(s) across {excluded_games} game(s) "
+            f"with tier in {EXCLUDED_TIERS} from the explosiveness/comparison corpus"
+        )
+
+    return tiered.filter(~pl.col("competition_tier").is_in(EXCLUDED_TIERS)).drop("competition_tier")
 
 _OVERALL_COLUMNS = (
     "definition",
@@ -396,6 +439,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     plays = pl.read_parquet(plays_path)
+    plays = _exclude_tiers(plays, config)
     _print_corpus_census(plays)
 
     explo_dir = config.paths.reference / "explosiveness"
