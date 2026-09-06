@@ -3,9 +3,10 @@
 Reads the raw snapshots `fetch/ifaf.py` already wrote to disk (`data/raw/ifaf/`);
 no network access happens here. Implements `docs/ifaf-field-mapping.md` exactly —
 see that document for the per-field evidence (`observed`/`documented`/`absent`)
-this parser is built against, including why `yards_to_go` stays null (the payload's
-`context.yardsToGo` is a hardcoded constant, not real per-play distance data) and
-why `context.ballOn` maps onto `yardline_50` with an identity transform.
+this parser is built against, including why `context.ballOn` maps onto
+`yardline_50` with an identity transform, and why `yards_to_go` is derived from
+field position (`derive_yards_to_go`) rather than trusted from the payload's own
+`context.yardsToGo` (a hardcoded constant, not real per-play distance data).
 
 Convergence with the other ingest sources (hudl, legacy, sportapp) happens only at
 `canonical.conform_to_canonical` — this module never reuses the Hudl `RESULT`
@@ -109,6 +110,19 @@ def _play_type_from_sequence(sequence: Any) -> str | None:
         return "run"
     return None
 
+
+def _sequence_has_middle_line(sequence: Any) -> bool:
+    """True when the play's own `sequence` action list names `MIDDLE_LINE`
+    directly (10 occurrences in the live corpus, distinct from -- but
+    consistent with -- `outcome.type == "MIDDLE_LINE"`, 145 occurrences).
+    Used by `derive_yards_to_go` as a second, independent crossing signal
+    alongside `yardline_50 >= MIDFIELD_YARDLINE`."""
+    if not isinstance(sequence, list):
+        return False
+    return any(
+        isinstance(step, dict) and step.get("action") == "MIDDLE_LINE" for step in sequence
+    )
+
 # Live-data finding (docs/ifaf-field-mapping.md): `outcome.type` alone is not a
 # reliable scoring signal for these five types. "TOUCHDOWN" plays are sometimes
 # actually 1- or 2-point conversions (description.kind == "TRY" on those rows,
@@ -182,6 +196,8 @@ _WORKING_SCHEMA: dict[str, pl.DataType] = {
     "_missing_ballon": pl.Int32,
     "_missing_possession": pl.Int32,
     "_sequence_play_type": pl.Utf8,
+    "_sequence_middle_line": pl.Boolean,
+    "_outcome_middle_line": pl.Boolean,
 }
 
 
@@ -380,6 +396,8 @@ def flatten_unified_plays(payload: list, game_meta: dict, game_id: str) -> pl.Da
                 "_missing_ballon": 0 if "ballOn" in context else 1,
                 "_missing_possession": 0 if "possessionTeamId" in context else 1,
                 "_sequence_play_type": _play_type_from_sequence(play.get("sequence")),
+                "_sequence_middle_line": _sequence_has_middle_line(play.get("sequence")),
+                "_outcome_middle_line": outcome.get("type") == "MIDDLE_LINE",
             }
         )
 
@@ -558,6 +576,77 @@ def derive_yardage_columns(df: pl.DataFrame) -> pl.DataFrame:
     return df.with_columns(gain.alias("yards_gained"))
 
 
+# IFAF 5v5 flag rules (docs/ifaf-field-mapping.md yards_to_go-derivation
+# addendum, 2026-09-06): the offense gets four downs to advance the ball past
+# midfield, then a fresh four downs to score. The "line to gain" is therefore
+# not a fixed +10 like American football -- it is always one of two field
+# landmarks: midfield (not yet crossed this possession) or the opponent's
+# goal line (already crossed). Given the already-verified `yardline_50`
+# convention (own-goal-line origin, 0..50, midfield == 25 -- see the
+# ballOn-semantics section), yards_to_go is fully determined by field
+# position, needing no down-count arithmetic at all.
+MIDFIELD_YARDLINE = 25
+GOAL_YARDLINE = 50
+
+
+def derive_yards_to_go(df: pl.DataFrame) -> pl.DataFrame:
+    """Derive `yards_to_go` from field position alone, recomputed fresh per
+    play. Must run after `flatten_unified_plays` on a single game's frame,
+    already sorted by `play_id` -- same per-game, already-sorted contract
+    every other per-game derivation in this module relies on.
+
+    Rule:
+
+    1. A down-0 (PAT/TRY) row: `yards_to_go = GOAL_YARDLINE - yardline_50` --
+       every PAT attempt is inherently in the goal-to-go phase (a team only
+       reaches a PAT by having already scored a touchdown, deep in opponent
+       territory).
+    2. Otherwise: `yards_to_go = GOAL_YARDLINE - yardline_50` when this row's
+       own `yardline_50 >= MIDFIELD_YARDLINE` (already past midfield --
+       goal-to-go), else `yards_to_go = MIDFIELD_YARDLINE - yardline_50`
+       (still trying to reach midfield).
+
+    A null `yardline_50` (a missing-`ballOn` context, `_missing_ballon`)
+    propagates to a null `yards_to_go` automatically, same as
+    `derive_yardage_columns`.
+
+    **Not sticky across a drive -- an earlier draft of this rule persisted a
+    "crossed midfield at some point in this drive" flag via
+    `cum_max().over("drive_id")` (mirroring American-football down
+    persistence: once a first down is earned, a subsequent loss doesn't
+    revert the line to gain). That version was empirically WORSE, not
+    better: cross-checked against the `events` feed's own
+    `DISTANCE_CHANGE.payload.marker` (which carries exactly two real values,
+    `MIDDLE`/`GOAL` -- the payload's `yardsToGo` number itself is the
+    already-documented hardcoded `10` and carries no information), the
+    sticky version agreed on only 74.3% of 3,527 comparable (game, ballOn)
+    pairs, while this simple, non-sticky, per-play recompute agrees on
+    98.2% -- adding the `MIDDLE_LINE` outcome/sequence marker as an
+    additional OR-signal (`_outcome_middle_line`/`_sequence_middle_line`,
+    computed in `flatten_unified_plays` but deliberately unused here) made
+    it slightly worse still (97.5%). This is a live-data finding, not an
+    assumption: IFAF's own engine does not appear to persist a "crossed
+    midfield" achievement the way an American-football first down would --
+    the MIDDLE/GOAL phase is just a function of the current spot. See
+    docs/ifaf-field-mapping.md's Nachtrag for the full comparison and the
+    residual ~2% disagreement (concentrated on a couple of specific ballOn
+    values, most likely asynchronous referee-console state updates across
+    the separate DOWN_UPDATE/LOS_UPDATE/DISTANCE_CHANGE event types, not a
+    semantic gap in this rule).
+    """
+    yardline = pl.col("yardline_50")
+    yards_to_go = (
+        pl.when(pl.col("down") == 0)
+        .then(GOAL_YARDLINE - yardline)
+        .when(yardline >= MIDFIELD_YARDLINE)
+        .then(GOAL_YARDLINE - yardline)
+        .otherwise(MIDFIELD_YARDLINE - yardline)
+        .cast(pl.Int32)
+    )
+
+    return df.with_columns(yards_to_go.alias("yards_to_go"))
+
+
 def _read_json_or_empty(path: Path) -> Any:
     try:
         with path.open("r", encoding="utf-8") as f:
@@ -695,6 +784,7 @@ def ingest_snapshots(
             df = map_teams(df, team_mapping, "ifaf", ["posteam", "defteam", "home_team", "away_team"])
             df = derive_outcome_columns(df)
             df = derive_yardage_columns(df)
+            df = derive_yards_to_go(df)
 
             if df.height:
                 unmapped = (

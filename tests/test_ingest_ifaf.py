@@ -27,6 +27,7 @@ from flag_football_ep.ingest.ifaf import (
     _play_type_from_sequence,
     derive_outcome_columns,
     derive_yardage_columns,
+    derive_yards_to_go,
     flatten_unified_plays,
     ingest_snapshots,
     load_snapshot,
@@ -200,9 +201,13 @@ def test_flatten_game_clock_ms_int64_half_seconds_remaining_null():
     assert df["game_clock_ms"].drop_nulls().len() > 0
 
 
-def test_flatten_yards_to_go_always_null():
-    """context.yardsToGo (and games.json currentContext.yardsToGo) is a hardcoded
-    constant per docs/ifaf-field-mapping.md, so this source never populates it."""
+def test_flatten_yards_to_go_starts_null_before_derivation():
+    """flatten_unified_plays itself never populates yards_to_go directly --
+    context.yardsToGo (and games.json currentContext.yardsToGo) is a
+    hardcoded constant per docs/ifaf-field-mapping.md, so trusting it
+    verbatim would be wrong. yards_to_go is instead derived from field
+    position afterward by derive_yards_to_go (see its own tests below),
+    the same two-step pattern yards_gained already uses."""
     payload = _load_fixture_payload()
     df = flatten_unified_plays(payload, _game_meta(), "g1")
     assert df["yards_to_go"].null_count() == df.height
@@ -843,3 +848,111 @@ def test_ingest_snapshots_wires_yards_gained_derivation(tmp_path):
     results = ingest_snapshots(raw_dir, _team_mapping())
     _, df, _ = results[0]
     assert df.sort("play_id")["yards_gained"].to_list()[0] == 15
+
+
+# ---------------------------------------------------------------------------
+# derive_yards_to_go (2026-09-06: yards_to_go-derivation addendum)
+# ---------------------------------------------------------------------------
+
+
+def test_derive_yards_to_go_own_half_targets_midfield():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 10, "possessionTeamId": "w-usa"}},
+    ]
+    df = derive_yards_to_go(_run_through_outcome(payload))
+    assert df.row(0, named=True)["yards_to_go"] == 15  # 25 - 10
+
+
+def test_derive_yards_to_go_crossed_midfield_targets_goal_line():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 30, "possessionTeamId": "w-usa"}},
+    ]
+    df = derive_yards_to_go(_run_through_outcome(payload))
+    assert df.row(0, named=True)["yards_to_go"] == 20  # 50 - 30
+
+
+def test_derive_yards_to_go_not_sticky_reverts_when_sacked_back_below_midfield():
+    """Empirical finding (docs/ifaf-field-mapping.md): the real system's own
+    MIDDLE/GOAL marker does NOT persist a "crossed midfield" achievement the
+    way an American-football first down would -- a sack that drags the spot
+    back under midfield reverts the target back to midfield-to-go. An
+    earlier "sticky" draft of this rule (cum_max over the drive) matched the
+    marker only 74.3% of the time; this simple per-play recompute matches
+    98.2%."""
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 30, "possessionTeamId": "w-usa"}},
+        {"playNumber": 2, "context": {"half": 1, "ballOn": 20, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "SACK"}},
+    ]
+    df = derive_yards_to_go(_run_through_outcome(payload))
+    rows = df.sort("play_id")["yards_to_go"].to_list()
+    assert rows[0] == 20  # 50 - 30, already past midfield
+    assert rows[1] == 5  # 25 - 20, reverted to midfield-to-go, not sticky
+
+
+def test_derive_yards_to_go_middle_line_outcome_marker_deliberately_unused():
+    """`_outcome_middle_line` is computed in `flatten_unified_plays` and
+    available on the frame, but `derive_yards_to_go` deliberately does not
+    consult it -- adding it as an OR-signal measured slightly worse (97.5%)
+    against the events feed's own marker than the pure ballOn threshold
+    (98.2%). A MIDDLE_LINE-outcome play below midfield still gets the
+    midfield-to-go target."""
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 24, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "MIDDLE_LINE"}},
+    ]
+    df = derive_yards_to_go(_run_through_outcome(payload))
+    assert df.row(0, named=True)["yards_to_go"] == 1  # 25 - 24, midfield-to-go despite the marker
+
+
+def test_derive_yards_to_go_sequence_middle_line_marker_deliberately_unused():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 18, "possessionTeamId": "w-usa"},
+         "sequence": _seq("SNAP", "QB_SET", "RUSH", "MIDDLE_LINE")},
+    ]
+    df = derive_yards_to_go(_run_through_outcome(payload))
+    assert df.row(0, named=True)["yards_to_go"] == 7  # 25 - 18, midfield-to-go despite the marker
+
+
+def test_derive_yards_to_go_pat_row_is_always_goal_to_go():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 45, "possessionTeamId": "w-usa"},
+         "outcome": {"type": "TRY", "pointsScored": 1}},
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    # PAT rows carry down == 0 in the real payload -- flatten copies whatever
+    # context.down provides, so set it explicitly for this synthetic case.
+    df = df.with_columns(pl.lit(0).alias("down"))
+    df = derive_outcome_columns(df)
+    df = derive_yards_to_go(df)
+    assert df.row(0, named=True)["yards_to_go"] == 5  # 50 - 45
+
+
+def test_derive_yards_to_go_resets_on_possession_change():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 30, "possessionTeamId": "w-usa"}},
+        {"playNumber": 2, "context": {"half": 1, "ballOn": 20, "possessionTeamId": "w-ger"},
+         "outcome": {"type": "INTERCEPTION", "turnover": True}},
+    ]
+    df = derive_yards_to_go(_run_through_outcome(payload))
+    rows = df.sort("play_id")["yards_to_go"].to_list()
+    assert rows[0] == 20  # w-usa already past midfield: 50 - 30
+    assert rows[1] == 5  # w-ger's new drive starts fresh: 25 - 20, not goal-to-go
+
+
+def test_derive_yards_to_go_missing_ballon_propagates_null():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"}},  # no ballOn
+    ]
+    df = derive_yards_to_go(_run_through_outcome(payload))
+    assert df.row(0, named=True)["yards_to_go"] is None
+
+
+def test_ingest_snapshots_wires_yards_to_go_derivation(tmp_path):
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 10, "possessionTeamId": "w-usa"}},
+    ]
+    raw_dir = _write_snapshot_dir(tmp_path, {"g1": payload})
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    _, df, _ = results[0]
+    assert df.row(0, named=True)["yards_to_go"] == 15
