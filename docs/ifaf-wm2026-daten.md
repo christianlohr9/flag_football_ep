@@ -138,6 +138,13 @@ Zeilen von IFAF, null Männer-Zeilen. Gesamtzahl aller Quellen zusammen: 28.255 
 der Stand von vor dieser ganzen IFAF-Aktion, nur jetzt mit besseren Frauen-Daten (Yardage,
 Distanz-bis-Erstdown, echte EP/WP-Werte).
 
+**Abschließend geprüft:** der komplette Testlauf über das ganze Projekt (nicht nur die
+IFAF-Tests) wurde am Ende noch einmal durchlaufen — zwei Fehler kamen zum Vorschein, die
+direkt aus dieser Session stammten (eine Test-Fixture, die noch mit dem alten
+Namensschema rechnete, und zwei veraltete Zeilenzahl-Prüfungen), beide sind jetzt behoben.
+Übrig bleiben nur zwei Testfehler, die schon vor dieser Session da waren und mit IFAF nichts
+zu tun haben (Kamera-Tracking/Hackathon-Scoring).
+
 Alle Zahlen, Commits und der volle technische Nachtrag stehen in
 `.planning/phases/01.2-repo-to-pipeline/01.2-IFAF-FULL-SUMMARY.md` und
 `docs/ifaf-field-mapping.md`.
