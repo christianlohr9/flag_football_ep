@@ -128,6 +128,27 @@ def fetch_ifaf(
         "--force/--no-force",
         help="Re-fetch games even if already cached on disk",
     ),
+    all_games: bool = typer.Option(
+        False,
+        "--all-games/--tournament-only",
+        help="Snapshot every game in /games regardless of tournamentId (both ffwc26-women and ffwc26-men)",
+    ),
+    include_full: bool = typer.Option(
+        False,
+        "--include-full/--no-include-full",
+        help="Also fetch /games/{id} and /games/{id}/plays per game (redacted before write)",
+    ),
+    pause: float = typer.Option(
+        0.0, "--pause", help="Seconds to sleep between games (politeness)"
+    ),
+    max_retries: int = typer.Option(
+        0, "--max-retries", help="Retries on a 429/5xx response before giving up on a request"
+    ),
+    probe: bool = typer.Option(
+        False,
+        "--probe/--no-probe",
+        help="Also run a one-shot status-only probe of a few plausible extra endpoints (no writes)",
+    ),
 ) -> None:
     """Fetch IFAF tournament play-by-play into the raw ifaf directory."""
     import os
@@ -152,7 +173,26 @@ def fetch_ifaf(
         limit,
         api_key,
         force,
+        all_games=all_games,
+        include_full=include_full,
+        pause_sec=pause,
+        max_retries=max_retries,
+        retry_backoff=1.0,
     )
+
+    if probe:
+        from flag_football_ep.fetch.ifaf import probe_extra_endpoints
+
+        probe_game_id = game_id or "ffwc26-wd1"
+        result = probe_extra_endpoints(
+            cfg.sources.ifaf.base_url,
+            resolved_tournament,
+            game_id=probe_game_id,
+            team_id="w-can",
+            api_key=api_key,
+        )
+        for path, status in result.items():
+            typer.echo(f"probe: {path} -> {status}")
 
 
 @app.command()

@@ -324,3 +324,216 @@ def test_no_leftover_tmp_files_after_successful_run(tmp_path, monkeypatch):
     ifaf.fetch_tournament(BASE, "ffwc26-women", tmp_path, game_id="g1")
 
     assert list(tmp_path.glob("*.tmp")) == []
+
+
+# ---------------------------------------------------------------------------
+# redact_pii
+# ---------------------------------------------------------------------------
+
+
+def test_redact_pii_nulls_known_keys_keeps_key_present():
+    payload = {
+        "playId": "p1",
+        "lastEditedBy": "uid-123",
+        "lastEditedByEmail": "someone@example.com",
+        "reviewedBy": "uid-456",
+        "reviewedByEmail": "reviewer@example.com",
+        "recordedByUserId": "6mrVht8t3DXG6rALs0pczOwFSY12",
+        "videoMark": {"videoUrl": "https://example.test/v.mp4", "videoTimeSec": 12.3},
+    }
+    result = ifaf.redact_pii(payload)
+    assert result["playId"] == "p1"
+    assert result["lastEditedBy"] is None
+    assert result["lastEditedByEmail"] is None
+    assert result["reviewedBy"] is None
+    assert result["reviewedByEmail"] is None
+    assert result["recordedByUserId"] is None
+    assert "lastEditedBy" in result  # key kept, not deleted
+    assert result["videoMark"] == {
+        "videoUrl": "https://example.test/v.mp4",
+        "videoTimeSec": 12.3,
+    }
+
+
+def test_redact_pii_handles_nested_lists_and_unknown_email_useridsuffix_keys():
+    payload = {
+        "events": [
+            {"action": "PENALTY", "adminEmail": "x@y.test", "ownerUserId": "abc"},
+            {"action": "SNAP"},
+        ]
+    }
+    result = ifaf.redact_pii(payload)
+    assert result["events"][0]["adminEmail"] is None
+    assert result["events"][0]["ownerUserId"] is None
+    assert result["events"][0]["action"] == "PENALTY"
+    assert result["events"][1] == {"action": "SNAP"}
+
+
+def test_write_json_applies_redaction_before_writing(tmp_path):
+    path = tmp_path / "plays_g1.json"
+    ifaf._write_json(path, {"reviewedByEmail": "leak@example.com", "playId": "p1"})
+    written = json.loads(path.read_text())
+    assert written["reviewedByEmail"] is None
+    assert written["playId"] == "p1"
+
+
+# ---------------------------------------------------------------------------
+# include_full=True: /games/{id} and /games/{id}/plays
+# ---------------------------------------------------------------------------
+
+
+def test_include_full_fetches_game_and_plays_and_redacts_them(tmp_path, monkeypatch):
+    def handler(url, params, headers):
+        if url.endswith("/unified-plays"):
+            return FakeResponse(200, [{"play": 1}])
+        if url.endswith("/events"):
+            return FakeResponse(200, [{"event": 1}])
+        if url == f"{BASE}/games/g1":
+            return FakeResponse(200, {"id": "g1", "homeTeamStats": {}})
+        if url == f"{BASE}/games/g1/plays":
+            return FakeResponse(
+                200, {"plays": [{"playId": "p1", "reviewedByEmail": "leak@example.com"}]}
+            )
+        raise AssertionError(f"unexpected url {url}")
+
+    _install_dispatch(monkeypatch, handler)
+
+    result = ifaf.fetch_tournament(
+        BASE, "ffwc26-women", tmp_path, game_id="g1", include_full=True
+    )
+
+    names = {p.name for p in result}
+    assert names == {
+        "unified-plays_g1.json",
+        "events_g1.json",
+        "game_g1.json",
+        "plays_g1.json",
+    }
+    plays_written = json.loads((tmp_path / "plays_g1.json").read_text())
+    assert plays_written["plays"][0]["reviewedByEmail"] is None
+    assert plays_written["plays"][0]["playId"] == "p1"
+
+
+def test_include_full_false_never_calls_game_or_plays_endpoints(tmp_path, monkeypatch):
+    """Default behavior (include_full=False) must be identical to the
+    original two-file contract — no new endpoint is ever hit."""
+    calls = []
+
+    def handler(url, params, headers):
+        calls.append(url)
+        if url.endswith("/unified-plays"):
+            return FakeResponse(200, [{"play": 1}])
+        if url.endswith("/events"):
+            return FakeResponse(200, [{"event": 1}])
+        raise AssertionError(f"unexpected url {url}")
+
+    _install_dispatch(monkeypatch, handler)
+
+    ifaf.fetch_tournament(BASE, "ffwc26-women", tmp_path, game_id="g1")
+
+    assert not any(c.endswith("/games/g1") or c.endswith("/plays") for c in calls)
+
+
+def test_all_games_true_ignores_tournament_filter(tmp_path, monkeypatch):
+    games_payload = {
+        "data": [
+            {"id": "g1", "tournament": "ffwc26-women"},
+            {"id": "g2", "tournament": "ffwc26-men"},
+        ]
+    }
+
+    def handler(url, params, headers):
+        if url == f"{BASE}/tournaments/ffwc26-women":
+            return FakeResponse(200, {"name": "WM 2026"})
+        if url == f"{BASE}/tournaments/ffwc26-women/teams":
+            return FakeResponse(200, {"teams": []})
+        if url == f"{BASE}/games":
+            return FakeResponse(200, games_payload)
+        if url.endswith("/unified-plays"):
+            return FakeResponse(200, [{"play": 1}])
+        if url.endswith("/events"):
+            return FakeResponse(200, [{"event": 1}])
+        raise AssertionError(f"unexpected url {url}")
+
+    _install_dispatch(monkeypatch, handler)
+
+    result = ifaf.fetch_tournament(BASE, "ffwc26-women", tmp_path, all_games=True)
+
+    names = {p.name for p in result}
+    assert "unified-plays_g1.json" in names
+    assert "unified-plays_g2.json" in names
+
+
+def test_max_retries_retries_on_429_then_succeeds(tmp_path, monkeypatch):
+    calls = {"unified-plays": 0}
+    sleeps = []
+    monkeypatch.setattr(ifaf.time, "sleep", lambda s: sleeps.append(s))
+
+    def handler(url, params, headers):
+        if url.endswith("/unified-plays"):
+            calls["unified-plays"] += 1
+            if calls["unified-plays"] < 2:
+                return FakeResponse(429)
+            return FakeResponse(200, [{"play": 1}])
+        if url.endswith("/events"):
+            return FakeResponse(200, [{"event": 1}])
+        raise AssertionError(f"unexpected url {url}")
+
+    _install_dispatch(monkeypatch, handler)
+
+    result = ifaf.fetch_tournament(
+        BASE, "ffwc26-women", tmp_path, game_id="g1", max_retries=3, retry_backoff=0.01
+    )
+
+    assert calls["unified-plays"] == 2
+    assert {p.name for p in result} == {"unified-plays_g1.json", "events_g1.json"}
+
+
+def test_pause_sec_sleeps_between_games_not_before_the_first(tmp_path, monkeypatch):
+    games_payload = {
+        "data": [
+            {"id": "g1", "tournament": "ffwc26-women"},
+            {"id": "g2", "tournament": "ffwc26-women"},
+        ]
+    }
+    sleeps = []
+    monkeypatch.setattr(ifaf.time, "sleep", lambda s: sleeps.append(s))
+
+    def handler(url, params, headers):
+        if url == f"{BASE}/tournaments/ffwc26-women":
+            return FakeResponse(200, {"name": "WM 2026"})
+        if url == f"{BASE}/tournaments/ffwc26-women/teams":
+            return FakeResponse(200, {"teams": []})
+        if url == f"{BASE}/games":
+            return FakeResponse(200, games_payload)
+        if url.endswith("/unified-plays"):
+            return FakeResponse(200, [{"play": 1}])
+        if url.endswith("/events"):
+            return FakeResponse(200, [{"event": 1}])
+        raise AssertionError(f"unexpected url {url}")
+
+    _install_dispatch(monkeypatch, handler)
+
+    ifaf.fetch_tournament(BASE, "ffwc26-women", tmp_path, pause_sec=0.5)
+
+    assert sleeps == [0.5]
+
+
+# ---------------------------------------------------------------------------
+# probe_extra_endpoints
+# ---------------------------------------------------------------------------
+
+
+def test_probe_extra_endpoints_reports_status_only_no_writes(tmp_path, monkeypatch):
+    def fake_get(url, headers=None, timeout=None):
+        return FakeResponse(200 if "teams" in url else 404)
+
+    monkeypatch.setattr(requests, "get", fake_get)
+
+    result = ifaf.probe_extra_endpoints(
+        BASE, "ffwc26-women", game_id="g1", team_id="w-can"
+    )
+
+    assert result["/teams/w-can"] == 200
+    assert result["/tournaments"] == 404
+    assert list(tmp_path.iterdir()) == []
