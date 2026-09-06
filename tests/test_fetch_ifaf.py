@@ -464,6 +464,50 @@ def test_all_games_true_ignores_tournament_filter(tmp_path, monkeypatch):
     assert "unified-plays_g2.json" in names
 
 
+def test_all_games_true_also_fetches_other_tournament_metadata(tmp_path, monkeypatch):
+    """Regression: a men's-bracket game processed via all_games=True must not
+    silently ingest with competition=season=gender=None -- its own
+    tournamentId's metadata must be fetched too, not just the primary
+    `tournament` argument's."""
+    games_payload = {
+        "data": [
+            {"id": "g1", "tournamentId": "ffwc26-women"},
+            {"id": "g2", "tournamentId": "ffwc26-men"},
+        ]
+    }
+    calls = []
+
+    def handler(url, params, headers):
+        calls.append(url)
+        if url == f"{BASE}/tournaments/ffwc26-women":
+            return FakeResponse(200, {"name": "WM 2026 Women"})
+        if url == f"{BASE}/tournaments/ffwc26-women/teams":
+            return FakeResponse(200, {"teams": []})
+        if url == f"{BASE}/tournaments/ffwc26-men":
+            return FakeResponse(200, {"name": "WM 2026 Men"})
+        if url == f"{BASE}/tournaments/ffwc26-men/teams":
+            return FakeResponse(200, {"teams": []})
+        if url == f"{BASE}/games":
+            return FakeResponse(200, games_payload)
+        if url.endswith("/unified-plays"):
+            return FakeResponse(200, [{"play": 1}])
+        if url.endswith("/events"):
+            return FakeResponse(200, [{"event": 1}])
+        raise AssertionError(f"unexpected url {url}")
+
+    _install_dispatch(monkeypatch, handler)
+
+    result = ifaf.fetch_tournament(BASE, "ffwc26-women", tmp_path, all_games=True)
+
+    assert f"{BASE}/tournaments/ffwc26-men" in calls
+    assert f"{BASE}/tournaments/ffwc26-men/teams" in calls
+    names = {p.name for p in result}
+    assert "tournament_ffwc26-men.json" in names
+    assert "tournament_ffwc26-men_teams.json" in names
+    written = json.loads((tmp_path / "tournament_ffwc26-men.json").read_text())
+    assert written == {"name": "WM 2026 Men"}
+
+
 def test_max_retries_retries_on_429_then_succeeds(tmp_path, monkeypatch):
     calls = {"unified-plays": 0}
     sleeps = []

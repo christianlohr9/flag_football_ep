@@ -363,6 +363,34 @@ def fetch_tournament(
 
     if all_games:
         matched = games_list
+        # Fetch tournament metadata (competition/season/gender, consumed by
+        # ingest/ifaf.py's _build_game_meta) for every OTHER tournamentId
+        # this /games response references -- all_games processes every game
+        # regardless of tournamentId, so a game whose tournament metadata was
+        # never fetched would otherwise silently ingest with
+        # competition=season=gender=None (an UnmappedCompetitionError at
+        # score time, not a quiet null -- REVIEW 2026-09-06).
+        other_tournament_ids = sorted(
+            {
+                g.get("tournamentId")
+                for g in games_list
+                if isinstance(g.get("tournamentId"), str) and g.get("tournamentId") != tournament
+            }
+        )
+        for other_tid in other_tournament_ids:
+            other_tournament_payload = http_get_json(
+                f"{base_url}/tournaments/{other_tid}", headers=headers, secret_values=secret_values
+            )
+            other_teams_payload = http_get_json(
+                f"{base_url}/tournaments/{other_tid}/teams",
+                headers=headers,
+                secret_values=secret_values,
+            )
+            other_tournament_path = out_dir / f"tournament_{other_tid}.json"
+            other_teams_path = out_dir / f"tournament_{other_tid}_teams.json"
+            _write_json(other_tournament_path, other_tournament_payload)
+            _write_json(other_teams_path, other_teams_payload)
+            discovery_paths += [other_tournament_path, other_teams_path]
     else:
         matched = [g for g in games_list if _game_matches_tournament(g, tournament)]
     if not matched:
