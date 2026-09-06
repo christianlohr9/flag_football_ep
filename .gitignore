@@ -78,3 +78,8 @@ __pycache__/
 
 # HC workbooks (player names = PII, hand-maintained by the head coach)
 data/raw/hc_files/
+
+# IFAF/cpx.studio snapshots carry player names and statistician ids: local only (2026-09-06),
+# same rule as data/raw/hc_files/. Reproducibility via the dated snapshot directories.
+data/raw/ifaf/
+data/raw/ifaf-snapshot-*/
