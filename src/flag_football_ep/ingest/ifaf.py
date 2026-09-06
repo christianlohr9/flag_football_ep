@@ -187,6 +187,7 @@ _WORKING_SCHEMA: dict[str, pl.DataType] = {
     "competition": pl.Utf8,
     "season": pl.Int32,
     "gender": pl.Utf8,
+    "tournament_id": pl.Utf8,
     "_outcome_turnover": pl.Boolean,
     "_outcome_points_scored": pl.Int32,
     "_penalty": pl.Boolean,
@@ -327,6 +328,7 @@ def flatten_unified_plays(payload: list, game_meta: dict, game_id: str) -> pl.Da
     competition = game_meta.get("competition")
     season = game_meta.get("season")
     gender = game_meta.get("gender")
+    tournament_id = game_meta.get("tournament_id")
 
     ordered = sorted(enumerate(payload), key=lambda pair: _play_sort_key(pair[0], pair[1]))
 
@@ -387,6 +389,7 @@ def flatten_unified_plays(payload: list, game_meta: dict, game_id: str) -> pl.Da
                 "competition": competition,
                 "season": season,
                 "gender": gender,
+                "tournament_id": tournament_id,
                 "_outcome_turnover": bool(outcome.get("turnover")),
                 "_outcome_points_scored": outcome.get("pointsScored"),
                 "_penalty": bool(play.get("penalty")),
@@ -685,10 +688,29 @@ def _load_tournaments_meta(raw_dir: Path) -> dict[str, dict]:
 
 
 def _build_game_meta(game_entry: dict, tournament_entry: dict) -> dict:
+    """Build per-game metadata, keyed off both the `/games` entry and its
+    resolved `/tournaments/{id}` document.
+
+    `competition` is tournament-*and-division* specific, not just the bare
+    tournament name -- a 2026-09-06 finding (docs/ifaf-field-mapping.md)
+    that both `ffwc26-women` and `ffwc26-men` share the exact same
+    `tournament.name` ("IFAF World Flag 2026"), so trusting the name alone
+    silently merged 25 men's games into the women's competition label
+    end-to-end (competition_tier lookup, reporting, everything keyed on
+    `competition`). `divisions[0]` ("Women"/"Men") is the reliable
+    disambiguator -- appended to the base name when present
+    ("IFAF World Flag 2026 Women"); falls back to suffixing the raw
+    `tournamentId` slug in parentheses if a future tournament document ever
+    lacks `divisions` (defensive, not observed live).
+    `tournament_id` is kept as its own field (not just folded into
+    `competition`) so downstream code can key on the stable machine
+    identifier rather than parsing the human-readable competition string.
+    """
     home = (game_entry.get("homeTeam") or {}).get("id")
     away = (game_entry.get("awayTeam") or {}).get("id")
+    tournament_id = game_entry.get("tournamentId") or tournament_entry.get("id")
 
-    competition = tournament_entry.get("name") or tournament_entry.get("id")
+    base_name = tournament_entry.get("name") or tournament_entry.get("id")
 
     season = None
     start_date = tournament_entry.get("startDate") or ""
@@ -696,7 +718,15 @@ def _build_game_meta(game_entry: dict, tournament_entry: dict) -> dict:
         season = int(start_date[:4])
 
     divisions = tournament_entry.get("divisions") or []
-    gender = divisions[0].lower() if divisions and isinstance(divisions[0], str) else None
+    division = divisions[0] if divisions and isinstance(divisions[0], str) else None
+    gender = division.lower() if division else None
+
+    if base_name and division:
+        competition = f"{base_name} {division}"
+    elif base_name and tournament_id:
+        competition = f"{base_name} ({tournament_id})"
+    else:
+        competition = base_name
 
     return {
         "home_team": home,
@@ -704,6 +734,7 @@ def _build_game_meta(game_entry: dict, tournament_entry: dict) -> dict:
         "competition": competition,
         "season": season,
         "gender": gender,
+        "tournament_id": tournament_id,
     }
 
 

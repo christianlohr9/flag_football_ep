@@ -66,6 +66,7 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     # Utf8
     "gender": pl.Utf8,
     "source_game_id": pl.Utf8,
+    "tournament_id": pl.Utf8,
     "game_date": pl.Utf8,
     "off_form": pl.Utf8,
     "off_play": pl.Utf8,
