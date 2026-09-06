@@ -33,7 +33,20 @@ class UnmappedCompetitionError(Exception):
     """
 
 
-COMPETITION_TIERS: tuple[str, ...] = ("womens-international", "womens-national", "mixed-other")
+# 2026-09-06 addendum: "mens-international" added for the IFAF ffwc26-men
+# tournament (docs/ifaf-field-mapping.md). Deliberately NOT added to
+# model/hyperparams.py's TIER_FEATURE_COLUMNS -- that tuple is frozen to the
+# champion EP/WP models' already-trained feature dimensionality (adding a
+# 4th one-hot column there would require retraining, out of scope here).
+# add_competition_tier_features still emits a "tier_mens_international"
+# column for callers that build it fresh from COMPETITION_TIERS, but the
+# frozen models simply never select it.
+COMPETITION_TIERS: tuple[str, ...] = (
+    "womens-international",
+    "womens-national",
+    "mixed-other",
+    "mens-international",
+)
 
 
 _HALF_BOUNDARIES_SCHEMA: dict[str, pl.DataType] = {

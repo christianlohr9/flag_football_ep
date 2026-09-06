@@ -352,7 +352,12 @@ def test_map_competition_tier_empty_mapping_raises(tmp_path: Path) -> None:
 
 
 def test_competition_tiers_is_fixed_vocabulary() -> None:
-    assert COMPETITION_TIERS == ("womens-international", "womens-national", "mixed-other")
+    assert COMPETITION_TIERS == (
+        "womens-international",
+        "womens-national",
+        "mixed-other",
+        "mens-international",
+    )
 
 
 # --- load_player_mapping ------------------------------------------------------

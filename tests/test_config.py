@@ -205,10 +205,21 @@ def test_secret_optional_returns_none_when_unset(monkeypatch: pytest.MonkeyPatch
 
 
 def test_checked_in_config_exclude_games(repo_root: Path) -> None:
+    """2026-09-06 addendum: the 48 IFAF ffwc26-men games (competition_tier
+    "mens-international") are excluded from both champion training sets by
+    default alongside the original legacy exclusions -- see
+    docs/ifaf-field-mapping.md."""
     cfg = load_config(repo_root / "ffep.toml")
 
-    assert cfg.train.exclude_games_ep == ["legacy-37"]
-    assert cfg.train.exclude_games_wp == ["legacy-35"]
+    assert "legacy-37" in cfg.train.exclude_games_ep
+    assert "legacy-35" in cfg.train.exclude_games_wp
+
+    ep_ifaf_excluded = [g for g in cfg.train.exclude_games_ep if g.startswith("ifaf-")]
+    wp_ifaf_excluded = [g for g in cfg.train.exclude_games_wp if g.startswith("ifaf-")]
+    assert len(ep_ifaf_excluded) == 48
+    assert len(wp_ifaf_excluded) == 48
+    assert len(cfg.train.exclude_games_ep) == 49
+    assert len(cfg.train.exclude_games_wp) == 49
 
 
 def test_load_config_exposes_competition_tier_path(tmp_path: Path) -> None:

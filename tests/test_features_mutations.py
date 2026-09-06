@@ -1584,6 +1584,7 @@ class TestAddCompetitionTierFeatures:
             "tier_womens_international",
             "tier_womens_national",
             "tier_mixed_other",
+            "tier_mens_international",
         ]
         for col in cols:
             assert out.schema[col] == pl.Int32
