@@ -195,6 +195,30 @@ def fetch_ifaf(
             typer.echo(f"probe: {path} -> {status}")
 
 
+@app.command(name="ifaf-video-marks")
+def ifaf_video_marks(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    out: Optional[Path] = typer.Option(
+        None, "--out", help="Output Parquet path (a sibling .csv is also written)"
+    ),
+) -> None:
+    """Build the per-play IFAF video-mark table from the redacted plays_{id}.json snapshots."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    from flag_football_ep.ingest.ifaf_video_marks import build_video_marks_table
+
+    df = build_video_marks_table(cfg.paths.raw_ifaf)
+
+    out_path = out or (cfg.paths.processed / "ifaf_video_marks.parquet")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    df.write_parquet(out_path)
+    df.write_csv(out_path.with_suffix(".csv"))
+
+    typer.echo(f"video marks: {out_path} ({df.height} rows, {df['game_id'].n_unique()} games)")
+
+
 @app.command()
 def train(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
