@@ -33,13 +33,20 @@ Events-Log) — bei den Spielen, wo beide Seiten überhaupt verwertbare Daten ha
 **98%** der Ballpositionen überein. Ein gutes Zeichen: die Ableitung ist nicht geraten,
 sondern trifft, was die API selbst an anderer Stelle auch aufzeichnet.
 
-**Die schlechte Nachricht:** "Yards to go" (wie weit bis zum ersten Down) ist in dieser API
-**überall** eine feste Konstante (`10`), egal wo man hinschaut — auch im Events-Log, das wir
-diese Woche neu ausgewertet haben. Das ist keine echte Zahl, sondern ein Platzhalter. Und
-genau dieses Feld braucht unser EP-Modell zwingend. Ergebnis: **echte EP/WP-Werte bleiben für
-IFAF-Spielzüge bei 0%** — das ändert sich nicht durch bessere Yardage-Ableitung, weil das
-Modell einen anderen, fehlenden Baustein braucht. Das ist die wichtigste offene Frage an den
-Datenanbieter (siehe unten).
+**Update (noch am selben Tag): Doch gelöst.** Die IFAF-5v5-Regeln geben die Antwort selbst:
+die Offense hat vier Downs, um die Mittellinie zu überqueren, und danach nochmal vier Downs,
+um zu punkten. Die "Distanz bis zum ersten Down" ist damit nie eine feste Zahl, sondern immer
+eine von zwei festen Ziellinien (Mittellinie oder gegnerische Torlinie) — und die kennen wir
+ja bereits aus der Ballposition. Wir haben das implementiert und gegen das Events-Log
+gegengecheckt (dort gibt es ein Feld `marker` mit echten Werten "MIDDLE"/"GOAL", auch wenn die
+zugehörige Zahl weiterhin die falsche Konstante ist) — **98% Übereinstimmung**. Eine erste,
+kompliziertere Version (die sich "gemerkt" hat, ob eine Serie die Mittellinie schon mal
+überquert hatte) hat sich als schlechter erwiesen als die einfache Version, die pro Spielzug
+neu aus der aktuellen Ballposition berechnet — ein echter, durch die Daten belegter Befund,
+keine Annahme.
+
+**Ergebnis: echte EP/WP-Werte für IFAF liegen jetzt bei 98%** (vorher ~0%, nur ein paar feste
+Konstanten bei Extrapunkt-Versuchen). Das Modell rechnet jetzt echt mit für diese Spiele.
 
 ## Play-Type — deutlich besser
 
@@ -54,10 +61,16 @@ Zwischen unserem ersten Abruf (17. August) und heute hat sich die API-Datenlage 
 Teil der Frauen-Spiele **verschlechtert**, nicht verbessert: 11 Spiele haben jetzt weniger
 Spielzüge als vorher (vermutlich eine nachträgliche Korrektur/Bereinigung durch die Reviewer),
 und genau in diesen 11 Spielen fehlt jetzt bei deutlich mehr Zeilen die Angabe, welcher Down
-es war. Das führt dazu, dass unsere Qualitätsprüfung mehr Frauen-Spiele aussortiert als vorher
-(21 von 48 statt 32 von 48) — nicht wegen eines Fehlers bei uns, sondern weil die Rohdaten
-selbst schlechter geworden sind. Männer-Spiele laufen zum ersten Mal durch: 25 von 48
-akzeptiert.
+es war.
+
+**Update: gelöst, pro Spiel einzeln.** Für jedes der 42 Frauen-Spiele haben wir beide
+Datenstände (17. August und 6. September) durch unsere komplette Qualitätsprüfung laufen
+lassen und automatisch den nehmen, der wirklich durchkommt. Ergebnis: exakt dieselben 11
+Spiele bestehen nur mit dem alten Stand (keine fehlenden Downs), die anderen 31 unverändert
+mit dem neuen. Kein Spiel scheitert an beiden. Die Wahl pro Spiel steht in
+`data/raw/ifaf/snapshot_manifest.json` (lokal, nicht Teil des Repos, genau wie die
+Rohdaten selbst). Frauen-Akzeptanz ist jetzt wieder bei **32 von 48** — exakt wie vor dieser
+Woche. Männer-Spiele laufen zum ersten Mal durch: 25 von 48 akzeptiert.
 
 ## Video
 
@@ -69,11 +82,11 @@ Cloud-Speicher ohne Login.
 
 ## Was noch offen ist / was man den Anbieter fragen sollte
 
-1. Gibt es irgendwo echte "Yards to go"-Daten, oder kennt das IFAF-Regelwerk das Konzept gar
-   nicht (z. B. Zonen-System statt Downs-und-Distanz)? Das ist der einzige Blocker für
-   EP/WP bei IFAF.
+1. ~~Gibt es irgendwo echte "Yards to go"-Daten?~~ Diese Woche gelöst — aus den IFAF-Regeln
+   selbst ableitbar, siehe oben. Kein Blocker mehr.
 2. Was ist zwischen dem 17. August und heute mit den 11 betroffenen Frauen-Spielen passiert?
-   Gab es eine nachträgliche Korrektur-Runde?
+   Gab es eine nachträgliche Korrektur-Runde? (Diese Woche nur umschifft, nicht geklärt —
+   wäre gut zu wissen, ob sich das bei künftigen Abrufen wiederholt.)
 3. 13 Frauen-Spiele liefern im Reviewer-Feed noch gar keine Spielzüge (Grund: "keine
    Extrapunkt-Versuche markiert" — die Review ist offenbar nicht abgeschlossen). Wird das noch
    nachgeliefert?
