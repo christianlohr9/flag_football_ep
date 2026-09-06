@@ -78,6 +78,37 @@ _PLAY_TYPE_FROM_OUTCOME: dict[str, str] = {
     "TRY": "extra_point",
 }
 
+# Fallback classifier for the outcome types _PLAY_TYPE_FROM_OUTCOME leaves at
+# null (TOUCHDOWN/TD, FLAG_PULL, TURNOVER, MIDDLE_LINE, SAFETY, penalty-only,
+# and the `outcome` key absent entirely) -- these still carry the play's own
+# `sequence` action list, which names the play form directly (2026-09-06
+# live-data finding, docs/ifaf-field-mapping.md yardage-derivation addendum).
+# e.g. a TOUCHDOWN whose sequence is `SNAP, QB_SET, PASS, COMPLETE,
+# TOUCHDOWN` is a pass play; `SNAP, QB_SET, HAND_OFF, RUSH, TOUCHDOWN` is a
+# run. Pass-shaped actions are checked before rush-shaped ones so a completed
+# catch followed by a RUSH token (yards after catch, not a designed running
+# play) still classifies as "pass". Only tokens already in
+# `canonical.PLAY_TYPE_VOCABULARY` are ever produced here -- no new contract
+# token is introduced. A sequence with none of these tokens (LATERAL-only,
+# SNAP/QB_SET-only, or empty) stays None, same as before this fallback existed.
+_SEQUENCE_PASS_ACTIONS = frozenset(
+    {"PASS", "COMPLETE", "INCOMPLETE_PASS", "INTERCEPTION", "SACK"}
+)
+_SEQUENCE_RUN_ACTIONS = frozenset({"RUSH", "HAND_OFF"})
+
+
+def _play_type_from_sequence(sequence: Any) -> str | None:
+    if not isinstance(sequence, list):
+        return None
+    actions = {
+        step.get("action") for step in sequence if isinstance(step, dict)
+    }
+    if actions & _SEQUENCE_PASS_ACTIONS:
+        return "pass"
+    if actions & _SEQUENCE_RUN_ACTIONS:
+        return "run"
+    return None
+
 # Live-data finding (docs/ifaf-field-mapping.md): `outcome.type` alone is not a
 # reliable scoring signal for these five types. "TOUCHDOWN" plays are sometimes
 # actually 1- or 2-point conversions (description.kind == "TRY" on those rows,
@@ -150,6 +181,7 @@ _WORKING_SCHEMA: dict[str, pl.DataType] = {
     "_missing_down": pl.Int32,
     "_missing_ballon": pl.Int32,
     "_missing_possession": pl.Int32,
+    "_sequence_play_type": pl.Utf8,
 }
 
 
@@ -347,6 +379,7 @@ def flatten_unified_plays(payload: list, game_meta: dict, game_id: str) -> pl.Da
                 "_missing_down": 0 if "down" in context else 1,
                 "_missing_ballon": 0 if "ballOn" in context else 1,
                 "_missing_possession": 0 if "possessionTeamId" in context else 1,
+                "_sequence_play_type": _play_type_from_sequence(play.get("sequence")),
             }
         )
 
@@ -376,7 +409,12 @@ def derive_outcome_columns(df: pl.DataFrame) -> pl.DataFrame:
     instead of any flag; `ingest_snapshots` folds that marker into `IngestNotices`.
     `play_type` is set from `_PLAY_TYPE_FROM_OUTCOME` for the form-unambiguous
     outcome types (RUN -> run; the pass-shaped types -> pass; XP1/XP2/TRY ->
-    extra_point) and stays null for everything else.
+    extra_point); where that leaves it null, `_sequence_play_type` (already
+    computed per-play in `flatten_unified_plays` from the play's own
+    `sequence` action list) fills in "run"/"pass" for TOUCHDOWN/TD,
+    FLAG_PULL, TURNOVER, MIDDLE_LINE, SAFETY and penalty-only plays where the
+    sequence names an unambiguous play form; stays null only when neither
+    source can determine one (see `_play_type_from_sequence`'s docstring).
     """
     result_raw = pl.col("result_raw")
     turnover = pl.col("_outcome_turnover")
@@ -425,15 +463,99 @@ def derive_outcome_columns(df: pl.DataFrame) -> pl.DataFrame:
             (result_raw.is_not_null() & (~result_raw.is_in(known_types)))
             .cast(pl.Int32)
             .alias("_unmapped_outcome"),
-            # Unambiguous outcome types get their canonical play_type; everything
-            # else (event-shaped or form-ambiguous types, unmapped values, null)
-            # stays null per the null-is-for-unparsed contract in docs/pipeline.md.
-            result_raw.replace_strict(
-                _PLAY_TYPE_FROM_OUTCOME, default=None, return_dtype=pl.Utf8
+            # Unambiguous outcome types get their canonical play_type first;
+            # where that is null, fall back to the sequence-derived classification
+            # (TOUCHDOWN/TD/FLAG_PULL/etc. with an unambiguous action list).
+            # Genuinely form-ambiguous plays (empty/LATERAL-only sequence, no
+            # outcome match) stay null per the null-is-for-unparsed contract in
+            # docs/pipeline.md.
+            pl.coalesce(
+                [
+                    result_raw.replace_strict(
+                        _PLAY_TYPE_FROM_OUTCOME, default=None, return_dtype=pl.Utf8
+                    ),
+                    pl.col("_sequence_play_type"),
+                ]
             ).alias("play_type"),
         ]
     )
     return df
+
+
+def derive_yardage_columns(df: pl.DataFrame) -> pl.DataFrame:
+    """Derive `yards_gained` from consecutive plays' `yardline_50` (`ballOn`)
+    within one game, ordered by `play_id` (already contiguous 1..N — see
+    `flatten_unified_plays`). Must run after `derive_outcome_columns` (needs
+    the `touchdown`/`safety`/`interception`/`def_touchdown`/
+    `defensive_two_point_conv` flags) on a single game's frame — this is not
+    grouped `.over("game_id")`, matching how `ingest_snapshots` already calls
+    every per-game derivation one game at a time.
+
+    Rules (docs/ifaf-field-mapping.md yardage-derivation addendum), in
+    priority order:
+
+    1. A play carrying the top-level `penalty` flag (`_penalty`) stays null —
+       a penalty can move the spot by rule, not by a real play result, and
+       must never produce a fabricated gain.
+    2. An offensive touchdown (`touchdown == 1`): `yards_gained = 50 -
+       yardline_50` (distance from the snap spot to the opponent goal line;
+       `yardline_50` is already "yards from own goal", so 50 is the opponent
+       goal in this project's convention — see the ballOn-semantics section).
+       This overrides the next-row lookup because the next row is a TRY/
+       kickoff at a reset spot, not a continuation of this drive. Checked
+       before the turnover-shaped rule below because `touchdown` and
+       `_outcome_turnover` are never both true for the same row (an
+       offensive touchdown is, by construction, not a turnover).
+    3. A safety (`safety == 1`): `yards_gained = -yardline_50` (tackled at the
+       offense's own goal line, spot 0). Checked before the turnover-shaped
+       rule below because a safety's own `outcome.turnover == True` (see
+       docs/ifaf-field-mapping.md's outcome-vocabulary section) would
+       otherwise be caught by the broader `_outcome_turnover` clause and
+       wrongly nulled.
+    4. A turnover-shaped play (`interception`, `def_touchdown`,
+       `defensive_two_point_conv`, `result_raw == "TURNOVER"`, or
+       `_outcome_turnover`) stays null — the next row's `yardline_50` belongs
+       to the new possession, not a gain by this play's own offense.
+    5. Otherwise, if the next row shares this row's `drive_id`: `yards_gained
+       = next.yardline_50 - yardline_50` (same team keeps possession; ballOn
+       already increases toward the opponent goal within one team's drive).
+    6. Otherwise (last play of a drive with no following same-drive row —
+       end of half/game, or a possession change with none of the flags
+       above, e.g. a plain `TURNOVER`/extra-point attempt): null.
+
+    A null `yardline_50` on this row or the next (a missing-`ballOn` context,
+    `_missing_ballon`) propagates to a null `yards_gained` automatically —
+    Polars arithmetic on a null operand yields null, no special-casing
+    needed.
+    """
+    turnover_like = (
+        (pl.col("interception") == 1)
+        | (pl.col("def_touchdown") == 1)
+        | (pl.col("defensive_two_point_conv") == 1)
+        | (pl.col("result_raw") == "TURNOVER")
+        | pl.col("_outcome_turnover").fill_null(False)
+    )
+
+    next_drive = pl.col("drive_id").shift(-1)
+    next_yardline = pl.col("yardline_50").shift(-1)
+    same_drive_next = next_drive == pl.col("drive_id")
+
+    gain = (
+        pl.when(pl.col("_penalty"))
+        .then(None)
+        .when(pl.col("touchdown") == 1)
+        .then(50 - pl.col("yardline_50"))
+        .when(pl.col("safety") == 1)
+        .then(-pl.col("yardline_50"))
+        .when(turnover_like)
+        .then(None)
+        .when(same_drive_next)
+        .then(next_yardline - pl.col("yardline_50"))
+        .otherwise(None)
+        .cast(pl.Int32)
+    )
+
+    return df.with_columns(gain.alias("yards_gained"))
 
 
 def _read_json_or_empty(path: Path) -> Any:
@@ -572,6 +694,7 @@ def ingest_snapshots(
 
             df = map_teams(df, team_mapping, "ifaf", ["posteam", "defteam", "home_team", "away_team"])
             df = derive_outcome_columns(df)
+            df = derive_yardage_columns(df)
 
             if df.height:
                 unmapped = (

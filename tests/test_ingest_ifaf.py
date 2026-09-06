@@ -24,7 +24,9 @@ from flag_football_ep.ingest.ifaf import (
     OUTCOME_MAP,
     UnparseablePayload,
     _play_sort_key,
+    _play_type_from_sequence,
     derive_outcome_columns,
+    derive_yardage_columns,
     flatten_unified_plays,
     ingest_snapshots,
     load_snapshot,
@@ -641,3 +643,203 @@ def test_module_does_not_reuse_hudl_or_sportapp_result_parsers():
     source = Path("src/flag_football_ep/ingest/ifaf.py").read_text(encoding="utf-8")
     assert "parse_result_tokens" not in source
     assert "action_title" not in source
+
+
+# ---------------------------------------------------------------------------
+# _play_type_from_sequence (2026-09-06: yardage/play_type derivation addendum)
+# ---------------------------------------------------------------------------
+
+
+def _seq(*actions: str) -> list[dict]:
+    return [{"id": i, "action": a} for i, a in enumerate(actions, start=1)]
+
+
+def test_play_type_from_sequence_pass_takes_priority_over_rush_after_catch():
+    # A completed catch followed by yards-after-catch running is still a pass
+    # play, not a run play.
+    assert _play_type_from_sequence(_seq("SNAP", "QB_SET", "PASS", "COMPLETE", "RUSH")) == "pass"
+
+
+def test_play_type_from_sequence_hand_off_only_is_run():
+    assert _play_type_from_sequence(_seq("SNAP", "QB_SET", "HAND_OFF", "TOUCHDOWN")) == "run"
+
+
+def test_play_type_from_sequence_interception_is_pass():
+    assert _play_type_from_sequence(_seq("SNAP", "QB_SET", "PASS", "INTERCEPTION")) == "pass"
+
+
+def test_play_type_from_sequence_ambiguous_lateral_only_stays_none():
+    assert _play_type_from_sequence(_seq("SNAP", "QB_SET", "LATERAL")) is None
+
+
+def test_play_type_from_sequence_empty_or_non_list_stays_none():
+    assert _play_type_from_sequence([]) is None
+    assert _play_type_from_sequence(None) is None
+
+
+def test_derive_outcome_columns_touchdown_play_type_from_sequence_pass_vs_run():
+    payload = [
+        {
+            "playNumber": 1,
+            "context": {"half": 1, "possessionTeamId": "w-usa"},
+            "outcome": {"type": "TOUCHDOWN", "turnover": False, "pointsScored": 6},
+            "sequence": _seq("SNAP", "QB_SET", "PASS", "COMPLETE", "TOUCHDOWN"),
+        },
+        {
+            "playNumber": 2,
+            "context": {"half": 1, "possessionTeamId": "w-usa"},
+            "outcome": {"type": "TD", "turnover": False, "pointsScored": 6},
+            "sequence": _seq("SNAP", "QB_SET", "HAND_OFF", "RUSH", "TOUCHDOWN"),
+        },
+        {
+            "playNumber": 3,
+            "context": {"half": 1, "possessionTeamId": "w-usa"},
+            "outcome": {"type": "TOUCHDOWN", "turnover": False},  # no pointsScored -> not credited
+            "sequence": _seq("SNAP", "QB_SET", "LATERAL"),  # ambiguous
+        },
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    df = derive_outcome_columns(df)
+    rows = df.sort("play_id").to_dicts()
+    assert rows[0]["play_type"] == "pass"
+    assert rows[1]["play_type"] == "run"
+    assert rows[2]["play_type"] is None
+
+
+def test_derive_outcome_columns_flag_pull_play_type_from_sequence():
+    """FLAG_PULL is the most common outcome value (1,289/4,057 in the live
+    corpus per docs/ifaf-field-mapping.md) and had no play_type before this
+    fallback -- most FLAG_PULL sequences do carry a PASS/COMPLETE or
+    RUSH/HAND_OFF token."""
+    payload = [
+        {
+            "playNumber": 1,
+            "context": {"half": 1, "possessionTeamId": "w-usa"},
+            "outcome": {"type": "FLAG_PULL"},
+            "sequence": _seq("SNAP", "QB_SET", "PASS", "COMPLETE", "FLAG_PULL"),
+        },
+    ]
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    df = derive_outcome_columns(df)
+    assert df.row(0, named=True)["play_type"] == "pass"
+
+
+# ---------------------------------------------------------------------------
+# derive_yardage_columns (2026-09-06: yardage derivation addendum)
+# ---------------------------------------------------------------------------
+
+
+def _run_through_outcome(payload: list[dict]) -> pl.DataFrame:
+    df = flatten_unified_plays(payload, _game_meta(), "g1")
+    return derive_outcome_columns(df)
+
+
+def test_derive_yardage_same_drive_gain_from_consecutive_ballon():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 10, "possessionTeamId": "w-usa"}},
+        {"playNumber": 2, "context": {"half": 1, "ballOn": 22, "possessionTeamId": "w-usa"}},
+    ]
+    df = derive_yardage_columns(_run_through_outcome(payload))
+    rows = df.sort("play_id")["yards_gained"].to_list()
+    assert rows[0] == 12
+    assert rows[1] is None  # last play of the drive, no following same-drive row
+
+
+def test_derive_yardage_touchdown_is_distance_to_goal_line():
+    payload = [
+        {
+            "playNumber": 1,
+            "context": {"half": 1, "ballOn": 46, "possessionTeamId": "w-usa"},
+            "outcome": {"type": "TOUCHDOWN", "turnover": False, "pointsScored": 6},
+        },
+        {
+            "playNumber": 2,
+            "context": {"half": 1, "ballOn": 45, "possessionTeamId": "w-usa"},
+            "outcome": {"type": "TRY", "pointsScored": 1},
+        },
+    ]
+    df = derive_yardage_columns(_run_through_outcome(payload))
+    assert df.sort("play_id")["yards_gained"].to_list()[0] == 4  # 50 - 46
+
+
+def test_derive_yardage_safety_is_negative_of_yardline():
+    payload = [
+        {
+            "playNumber": 1,
+            "context": {"half": 1, "ballOn": 3, "possessionTeamId": "w-usa"},
+            "outcome": {"type": "SAFETY", "turnover": True},
+        },
+    ]
+    df = derive_yardage_columns(_run_through_outcome(payload))
+    assert df.row(0, named=True)["yards_gained"] == -3
+
+
+def test_derive_yardage_turnover_stays_null_even_when_drive_id_matches():
+    # No possessionTeamId on the second play keeps drive_id unchanged (per
+    # flatten_unified_plays's own null-possession rule), so a naive same-drive
+    # lookup would produce a spurious gain here without the turnover-priority
+    # rule.
+    payload = [
+        {
+            "playNumber": 1,
+            "context": {"half": 1, "ballOn": 24, "possessionTeamId": "w-usa"},
+            "outcome": {"type": "INTERCEPTION", "turnover": True},
+        },
+        {"playNumber": 2, "context": {"half": 1, "ballOn": 36}},
+    ]
+    df = derive_yardage_columns(_run_through_outcome(payload))
+    assert df.sort("play_id")["yards_gained"].to_list()[0] is None
+
+
+def test_derive_yardage_defensive_touchdown_stays_null():
+    payload = [
+        {
+            "playNumber": 1,
+            "context": {"half": 1, "ballOn": 24, "possessionTeamId": "w-usa"},
+            "outcome": {"type": "TOUCHDOWN", "turnover": True, "pointsScored": 6},
+        },
+        {"playNumber": 2, "context": {"half": 1, "ballOn": 36}},
+    ]
+    df = derive_yardage_columns(_run_through_outcome(payload))
+    assert df.sort("play_id")["yards_gained"].to_list()[0] is None
+
+
+def test_derive_yardage_penalty_flag_stays_null_never_a_fake_gain():
+    payload = [
+        {
+            "playNumber": 1,
+            "context": {"half": 1, "ballOn": 20, "possessionTeamId": "w-usa"},
+            "penalty": True,
+        },
+        {"playNumber": 2, "context": {"half": 1, "ballOn": 35, "possessionTeamId": "w-usa"}},
+    ]
+    df = derive_yardage_columns(_run_through_outcome(payload))
+    assert df.sort("play_id")["yards_gained"].to_list()[0] is None
+
+
+def test_derive_yardage_last_play_of_game_stays_null():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 20, "possessionTeamId": "w-usa"}},
+    ]
+    df = derive_yardage_columns(_run_through_outcome(payload))
+    assert df.row(0, named=True)["yards_gained"] is None
+
+
+def test_derive_yardage_missing_ballon_propagates_null_not_crash():
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"}},  # no ballOn
+        {"playNumber": 2, "context": {"half": 1, "ballOn": 20, "possessionTeamId": "w-usa"}},
+    ]
+    df = derive_yardage_columns(_run_through_outcome(payload))
+    assert df.sort("play_id")["yards_gained"].to_list() == [None, None]
+
+
+def test_ingest_snapshots_wires_yards_gained_derivation(tmp_path):
+    payload = [
+        {"playNumber": 1, "context": {"half": 1, "ballOn": 10, "possessionTeamId": "w-usa"}},
+        {"playNumber": 2, "context": {"half": 1, "ballOn": 25, "possessionTeamId": "w-usa"}},
+    ]
+    raw_dir = _write_snapshot_dir(tmp_path, {"g1": payload})
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    _, df, _ = results[0]
+    assert df.sort("play_id")["yards_gained"].to_list()[0] == 15
