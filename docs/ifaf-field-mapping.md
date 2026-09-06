@@ -92,3 +92,69 @@ Evidence, all `observed` against the live snapshots:
 5. Possession-change discontinuity: when possession changes mid-drive (interception at USA's `ballOn = 24`, next play's context shows GER's `ballOn = 36`), the new team's `ballOn` does **not** mirror the previous team's value (`50 - 24 = 26 != 36`). This confirms `ballOn` already resets to the new possessing team's own-goal-relative frame on every possession change — exactly the same convention `yardline_50` uses elsewhere in this project — rather than needing a `50 - x` conversion. The gap between the mirrored value and the observed value (`36` vs `26`) is consistent with return yardage gained during the interception return itself, not a semantic error.
 
 No conservative fallback transform is needed: the evidence above settles the semantics as directly compatible with the canonical `yardline_50` definition already in use.
+
+## Nachtrag 2026-09-06 — full snapshot (both tournaments), redaction, yardage derivation, video marks
+
+**Scope of this addendum:** a full re-snapshot of every game cpx.studio exposes (not just `ffwc26-women`), two never-before-fetched endpoints (`/games/{id}`, `/games/{id}/plays`), PII redaction at the fetch layer, `yards_gained` derivation, and a per-play video-mark table. The 2026-08-17 snapshot (99 files, `ffwc26-women` only) is preserved unchanged at `data/raw/ifaf-snapshot-20260817/` (gitignored, reproducibility baseline) — every number below that says "before" refers to that snapshot; every "after" number refers to the 2026-09-06 refresh.
+
+### New endpoints and full-corpus snapshot
+
+`/games` exposes **96 games total across two tournaments**, not one: 48 `ffwc26-women` (already known) and 48 `ffwc26-men` (new — same competition structure, same schema, never previously fetched). Both are now snapshotted end to end: `unified-plays_{id}.json`, `events_{id}.json`, and the two new endpoints `game_{id}.json` (`GET /games/{id}` — full game document: rosters, per-player/per-team stat aggregates, current context) and `plays_{id}.json` (`GET /games/{id}/plays` — the reviewer-facing per-play feed: `ballOn`, `down`, `half`, `offenseTeamId`, `events[]` with `action`/`penaltyType`/`playerId`, `videoMark`, `nullified`, `officialScore`, `reconciliation`). All 96 games have all four files present (389 files total under `data/raw/ifaf/`, including the two tournaments' metadata docs). Fetched sequentially with a 0.2s pause between games and up to 3 retries on 429/5xx (none observed live — every request succeeded on the first attempt).
+
+**12 games are genuine zero-play forfeits**, all involving Nigeria, split evenly across both brackets: 6 women's (already known from the 2026-08-17 run) and 6 men's (new finding — same pattern: Nigeria lost every game 0-1 or 1-0 with an empty `unified-plays` array, `status: "FINAL"`). Not a fetch bug in either bracket.
+
+**A handful of additional plausible endpoints were probed for status only (no body parsed, no write):** `/tournaments` → 200, `/tournaments/{id}/games` → 404, `/games/{id}/unified-plays?includeSequence=true` → 200 (the `includeSequence` query param is accepted but the corpus already carries `sequence` on ~86% of plays without it), `/teams/{id}` → 200, `/players?teamId={id}` → 200. The last two are new, real, unauthenticated 200s worth a follow-up fetch in a future plan if per-player/roster data becomes useful — deliberately not fetched or parsed in this session (status-only probe, per scope).
+
+### PII redaction
+
+`/games/{id}/plays` and `/games/{id}/events` both carry real person-identifying fields, confirmed live: `lastEditedByEmail`/`reviewedByEmail` hold real operator email addresses (e.g. a `@gmail.com` address observed on a `plays` row), `lastEditedBy`/`reviewedBy` hold Firebase-style uids, and the events feed's `recordedByUserId` holds either the literal string `"venue-console"` (a system actor, not a person) or a Firebase-style uid (a real reviewer). `fetch/ifaf.py`'s `_write_json` now runs every payload through `redact_pii` before it touches disk — nulls `lastEditedBy(Email)`, `reviewedBy(Email)`, `recordedByUserId`, and any key ending in `Email`/`UserId` (defensive suffix match, in case a future endpoint adds a new person-identifying field), keeping the key present but nulled rather than deleting it. `videoMark`/`videoUrl`/`videoTimeSec` are untouched (they name a video asset, not a person). Player names inside `sequence`/`description`/`players` are deliberately **not** redacted — those live only in the gitignored `data/raw/` tree and are never committed, same policy `docs/ifaf-field-mapping.md`'s original mapping already relied on for the committed fixture (which was hand-trimmed and redacted separately).
+
+### Corpus data-quality regression, 2026-08-17 → 2026-09-06
+
+Comparing `unified-plays` play counts for the same 48 `ffwc26-women` games across the two snapshot dates: **37 games unchanged, 11 games changed** — 10 of those 11 *shrank* (e.g. `ffwc26-wc3`: 161 → 82 plays, `ffwc26-wb4`: 138 → 98, `ffwc26-wa3`: 129 → 103) and 1 grew (`ffwc26-wb6`: 100 → 104). This is consistent with a server-side "corrected"/review-consolidation pass merging or removing play fragments between the two fetch dates, not a fetch bug on our side (every request in both runs returned 200 with a well-formed payload).
+
+**More importantly, exactly those same 11 games newly show null `down` values that were not null before**: games with at least one null `down` value went from **10 (old snapshot) to 21 (new snapshot)**, out of 42 non-forfeit women's games — e.g. `ffwc26-wc3` had 0 null downs in the old snapshot and 9 in the new one; `ffwc26-wa3` went from 0 to 13. This directly drives a lower game-acceptance rate for the women's bracket in this session's re-ingest (see the ingest re-run section below) via the existing `downs_range` validation check (any null `down` value quarantines the whole game) — **this is a live-corpus regression on the provider's side, not a regression introduced by this session's code.** Flagged as the top open question for the provider (see "Open questions" below).
+
+### Yardage derivation (`yards_gained`)
+
+`ingest/ifaf.py::derive_yardage_columns` (run immediately after `derive_outcome_columns`, per game) diffs consecutive `yardline_50` (`ballOn`) values within a drive, with explicit priority rules — full docstring in the module, summarized here:
+
+1. A play carrying the top-level `penalty` flag → null (never a fabricated gain across a penalty).
+2. An offensive touchdown (`touchdown == 1`) → `50 - yardline_50` (distance from the snap to the opponent goal line).
+3. A safety (`safety == 1`) → `-yardline_50` (tackled at the offense's own goal line).
+4. A turnover-shaped play (`interception`, `def_touchdown`, `defensive_two_point_conv`, `result_raw == "TURNOVER"`, or `outcome.turnover`) → null (the next row's `ballOn` belongs to the new possession, not this offense's gain).
+5. Otherwise, if the next row shares this row's `drive_id` → `next.yardline_50 - yardline_50`.
+6. Otherwise (last play of a drive/game, no following same-drive row) → null.
+
+Live coverage on the accepted post-re-ingest corpus (46 games, both tournaments, 4,218 rows): **71.1% non-null `yards_gained`** (3,001/4,218).
+
+**Cross-check against the new `/plays` endpoint's own `ballOn`:** of the 42 non-forfeit women's games, 13 have a `/plays` response with **zero usable plays** (`reconciliation.reason: "no-tries-labelled"` — the reviewer never finished labeling that game) and 5 more have entries but every `ballOn` is `null`. Restricting to the 24 games where both sides have real, non-null `ballOn` values (1,924 comparable rows), the multiset overlap between `unified-plays`' `ballOn` and `/plays`' `ballOn` is **97.8% (1,881/1,924)** — most games agree at 100%, two show meaningfully lower agreement (`01a0062b-6782-...`: 38%, `ffwc26-wd5`: 46%), worth a closer per-play look in a future plan.
+
+**Cross-check against the `events` feed's `LOS_UPDATE` payload:** multiset overlap of `unified-plays`' `ballOn` against every non-reverted `LOS_UPDATE.payload.ballOn` in the same game is **54.7% (1,769/3,233, 42 games)** — meaningfully lower than the `/plays` comparison. This is expected, not concerning: `LOS_UPDATE` is a finer-grained bookkeeping stream (mid-drive spot corrections, marker resets) with many more events per game than `unified-plays` has rows, so a raw multiset comparison undercounts true agreement. The `/plays` endpoint's own `ballOn` (97.8%) is the stronger corroborating signal.
+
+**`yards_to_go` stays null — now confirmed across every field that could carry it.** `context.yardsToGo`, `games.json`'s `currentContext.yardsToGo`, and (new finding this session) the `events` feed's `DISTANCE_CHANGE.payload.yardsToGo` are **all** a hardcoded constant `10` — checked across all 1,632 `DISTANCE_CHANGE` events in the full 99-file 2026-08-17 snapshot, every single one reads `10`. There is no field anywhere in this API that carries real per-play distance-to-go data. **This blocks EP/WP scoring for this source structurally**, not just cosmetically: `yards_to_go` is a required input to `EP_FEATURES` (`model/hyperparams.py`), so every IFAF row's `ep`/`wp` model prediction is null (0% non-null, confirmed on the 4,218-row post-re-ingest corpus). The only IFAF rows with a non-null `epa` (217/4,218 = 5.1%) are successful 1-/2-point conversions, whose `epa` formula uses a fixed empirical constant (`pat_baselines`) and never touches the null `ep`/`yards_to_go` at all — this is not real EP-model output, and should not be read as "IFAF has 5% EPA coverage" so much as "IFAF has 0% real EP/WP coverage, plus a handful of conversion-attempt constants."
+
+**Play type coverage improved via the play's own `sequence`:** where the direct `outcome.type → play_type` mapping already left a play null (`TOUCHDOWN`/`TD`, `FLAG_PULL`, `TURNOVER`, `MIDDLE_LINE`, `SAFETY`, penalty-only, or no `outcome.type` at all), `_play_type_from_sequence` classifies the play's own `sequence` action list when it names an unambiguous run/pass form (`PASS`/`COMPLETE`/`INCOMPLETE_PASS`/`INTERCEPTION`/`SACK` → `pass`; `RUSH`/`HAND_OFF` → `run`; pass-shaped tokens checked first so yards-after-catch running doesn't misclassify a completed pass as a run). `FLAG_PULL` is the single most common outcome value (1,289/4,057 in the original corpus) and had no `play_type` at all before this addendum. Only tokens already in `canonical.PLAY_TYPE_VOCABULARY` are ever produced — no contract change. Coverage on the post-re-ingest corpus: **86.0% non-null `play_type`** (3,626/4,218), up from ~39.8% (1,268/3,191) before this session (direct outcome-mapping only).
+
+### Ingest/score re-run
+
+| | before (2026-08-17 snapshot, `ffwc26-women` only) | after (2026-09-06, both tournaments) |
+|---|---:|---:|
+| IFAF rows accepted | 3,191 | 4,218 |
+| IFAF games accepted / total non-forfeit | 32 / 42 | 46 / 84 (21 women + 25 men) |
+| non-null `yards_gained` | 0 (0%) | 3,001 (71.1%) |
+| non-null `play_type` | 1,268 (39.8%) | 3,626 (86.0%) |
+| non-null `epa` | not measured (structurally ~0% either way — see above) | 217 (5.1%, conversion-constant rows only) |
+
+Women's-bracket acceptance dropped from 32/48 to 21/48 games — entirely attributable to the corpus data-quality regression described above (more null `down` values in the refreshed snapshot), not to this session's derivation code (no new validation check was added; `downs_range` is unchanged). Men's bracket ingested for the first time: 25/48 accepted, 17/48 quarantined (same `downs_range` pattern) + 6 forfeits. Full-pipeline totals (all five sources): `plays.parquet` 29,282 rows, `games.parquet` 511 games (158 quarantined, mostly `hc_workbook` `half_assigned`/`downs_range` — unrelated to this session). Champion EP/WP models unchanged; scored via `ffep score` with no `--ep-run`/`--wp-run` override (resolves the existing `champion` MLflow alias, no promotion).
+
+### Video marks
+
+`ingest/ifaf_video_marks.py::build_video_marks_table` + the `ifaf-video-marks` CLI command build one row per play from the redacted `plays_{id}.json` snapshots: game/team/half/down/spot context, a compact `events[].action` join as the outcome label, and the video URL + timestamp (the play's own `videoMark` when present, else the game's single source recording + the play's own derived `videoTimeSec`). Live run: **5,522 plays across 62 games** (the 34 games with a zero-length `/plays` response — 12 forfeits + reconciliation gaps — contribute nothing), **70.0% with a resolvable `video_url`** (3,867/5,522). One sampled URL HEAD-checked (no download): `200`, `Content-Type: video/mp4`, `Content-Length: ~8.3GB` — the source recordings are hosted on a public Nextcloud/ownCloud share (`cloud.spontent.pro`) and reachable without authentication.
+
+### Open questions for the provider
+
+1. **Is real per-play distance-to-go ever tracked anywhere**, or does the IFAF 5v5/7v7 flag ruleset simply not use a "yards to go" concept (e.g. a zone-based first-down system instead)? This is the single blocker on EP/WP scoring for this source — `yards_to_go` is a hardcoded `10` in every field we've checked (`context`, `games.json`, and now the `events` feed too).
+2. **What happened between 2026-08-17 and 2026-09-06** to a specific subset of women's games (fewer total plays, more null `down` values in the survivors)? Was there a manual re-review/correction pass? Is `unified-plays[].corrected` a reliable signal of which plays to trust more?
+3. **Will the 13 non-forfeit games where `/games/{id}/plays` returns zero entries** (`reconciliation.reason: "no-tries-labelled"`) ever be completed by the review team, or is WM2026 play-by-play permanently partial for those games?
+4. `/teams/{id}` and `/players?teamId={id}` both return live 200s and were only status-probed this session — worth a follow-up fetch if roster/player-level data becomes useful for future work.
