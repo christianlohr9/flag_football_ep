@@ -81,6 +81,17 @@ class IfafSource:
     base_url: str
     tournament: str
     api_key_env: str
+    # 2026-09-06 addendum: which tournamentId(s) `pipeline.run_ingest` actually
+    # ingests into the canonical corpus, resolved per game via games.json --
+    # NOT just which tournament `ffep fetch-ifaf` snapshots (that's `tournament`
+    # above, and `fetch_tournament(all_games=True)` can still snapshot every
+    # tournament regardless of this setting). Defaults to `()` when unset,
+    # which `load_config` below resolves to `(tournament,)`; empty here means
+    # "no ingest-time tournament filter" for any Config built directly (tests,
+    # not the real ffep.toml) that doesn't set it. The corpus is safe by
+    # default: a tournament not listed here never reaches plays.parquet at all,
+    # not merely excluded from training.
+    ingest_tournaments: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -278,9 +289,18 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
     )
 
     ifaf_table = _table(data, "sources.ifaf")
-    ifaf = IfafSource(
-        **{key: _key(ifaf_table, "sources.ifaf", key) for key in _IFAF_KEYS}
+    ifaf_kwargs = {key: _key(ifaf_table, "sources.ifaf", key) for key in _IFAF_KEYS}
+    # ingest_tournaments is optional in the TOML -- defaults to just the
+    # snapshot `tournament` itself, so a config that never mentions it still
+    # gets a safe, non-empty default (not the "no filter, ingest everything"
+    # meaning an explicitly empty tuple has for a directly-constructed Config).
+    raw_ingest_tournaments = ifaf_table.get("ingest_tournaments")
+    ifaf_kwargs["ingest_tournaments"] = (
+        tuple(raw_ingest_tournaments)
+        if raw_ingest_tournaments
+        else (ifaf_kwargs["tournament"],)
     )
+    ifaf = IfafSource(**ifaf_kwargs)
 
     train_table = _table(data, "train")
     train = TrainSettings(

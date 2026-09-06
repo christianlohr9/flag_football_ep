@@ -327,7 +327,7 @@ def _ingest_sportapp(
 
 
 def _ingest_ifaf(
-    ifaf_dir: Path, team_mapping: pl.DataFrame
+    ifaf_dir: Path, team_mapping: pl.DataFrame, tournaments: Sequence[str] | None = None
 ) -> tuple[list[pl.DataFrame], list[str], dict[str, list[str]]]:
     """Dispatch the IFAF/cpx.studio source.
 
@@ -339,6 +339,12 @@ def _ingest_ifaf(
     genuine whole-source problem -- `_load_games_meta`/`_load_tournaments_meta`/
     directory access failing outright -- not for an individual game's data
     anomaly, and its notice says so explicitly.
+
+    `tournaments` (2026-09-06 addendum, `config.sources.ifaf.ingest_tournaments`)
+    restricts which resolved tournamentId(s) actually enter the canonical
+    corpus -- a snapshotted-but-not-opted-in tournament (e.g. `ffwc26-men` by
+    default) never reaches `plays.parquet` at all, the corpus is safe by
+    default rather than merely excluded downstream at training time.
     """
     frames: list[pl.DataFrame] = []
     source_notices: list[str] = []
@@ -349,7 +355,7 @@ def _ingest_ifaf(
         return frames, source_notices, game_notices
 
     try:
-        results = ingest_ifaf_snapshots(ifaf_dir, team_mapping)
+        results = ingest_ifaf_snapshots(ifaf_dir, team_mapping, tournaments=tournaments)
     except Exception as exc:  # noqa: BLE001
         source_notices.append(
             f"ifaf: source-level failure, all ifaf games dropped from this run: "
@@ -524,7 +530,11 @@ def run_ingest(
         game_notices.update(gn)
 
     if "ifaf" in sources:
-        f, n, gn = _ingest_ifaf(config.paths.raw_ifaf, team_mapping)
+        f, n, gn = _ingest_ifaf(
+            config.paths.raw_ifaf,
+            team_mapping,
+            tournaments=config.sources.ifaf.ingest_tournaments or None,
+        )
         frames.extend(f)
         notices.extend(n)
         game_notices.update(gn)

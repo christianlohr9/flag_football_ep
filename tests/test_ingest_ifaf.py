@@ -1071,3 +1071,77 @@ def test_ingest_snapshots_labels_women_and_men_games_with_distinct_competitions(
     assert men_competition == ["IFAF World Flag 2026 Men"]
     assert by_game["wgame"]["tournament_id"].unique().to_list() == ["ffwc26-women"]
     assert by_game["mgame"]["tournament_id"].unique().to_list() == ["ffwc26-men"]
+
+
+# ---------------------------------------------------------------------------
+# ingest_snapshots(tournaments=...) (2026-09-06, fourth follow-up) -- the
+# corpus is safe by default: a tournament not opted into never reaches the
+# canonical frame at all, not merely excluded downstream at training time.
+# ---------------------------------------------------------------------------
+
+
+def _write_two_tournament_dir(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    women_payload = [{"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"}}]
+    men_payload = [{"playNumber": 1, "context": {"half": 1, "possessionTeamId": "m-usa"}}]
+    (raw_dir / "unified-plays_wgame.json").write_text(json.dumps(women_payload), encoding="utf-8")
+    (raw_dir / "unified-plays_mgame.json").write_text(json.dumps(men_payload), encoding="utf-8")
+
+    games_meta = [
+        {"id": "wgame", "tournamentId": "ffwc26-women", "homeTeam": {"id": "w-usa"}, "awayTeam": {"id": "w-ger"}},
+        {"id": "mgame", "tournamentId": "ffwc26-men", "homeTeam": {"id": "m-usa"}, "awayTeam": {"id": "m-ger"}},
+    ]
+    (raw_dir / "games.json").write_text(json.dumps(games_meta), encoding="utf-8")
+
+    women_tournament = {"id": "ffwc26-women", "name": "IFAF World Flag 2026", "divisions": ["Women"]}
+    men_tournament = {"id": "ffwc26-men", "name": "IFAF World Flag 2026", "divisions": ["Men"]}
+    (raw_dir / "tournament_ffwc26-women.json").write_text(json.dumps(women_tournament), encoding="utf-8")
+    (raw_dir / "tournament_ffwc26-men.json").write_text(json.dumps(men_tournament), encoding="utf-8")
+
+    return raw_dir
+
+
+def _women_and_men_team_mapping() -> pl.DataFrame:
+    return pl.DataFrame(
+        {
+            "source": ["ifaf", "ifaf", "ifaf", "ifaf"],
+            "source_team": ["w-usa", "w-ger", "m-usa", "m-ger"],
+            "canonical_team": ["USA", "GER", "USA-M", "GER-M"],
+        }
+    )
+
+
+def test_ingest_snapshots_tournaments_none_ingests_both(tmp_path):
+    raw_dir = _write_two_tournament_dir(tmp_path)
+    results = ingest_snapshots(raw_dir, _women_and_men_team_mapping())
+    assert {gid for gid, _, _ in results} == {"wgame", "mgame"}
+
+
+def test_ingest_snapshots_tournaments_filter_excludes_unlisted_tournament(tmp_path):
+    raw_dir = _write_two_tournament_dir(tmp_path)
+    results = ingest_snapshots(raw_dir, _team_mapping(), tournaments=["ffwc26-women"])
+    assert {gid for gid, _, _ in results} == {"wgame"}
+
+
+def test_ingest_snapshots_tournaments_filter_can_opt_into_multiple(tmp_path):
+    raw_dir = _write_two_tournament_dir(tmp_path)
+    results = ingest_snapshots(
+        raw_dir, _women_and_men_team_mapping(), tournaments=["ffwc26-women", "ffwc26-men"]
+    )
+    assert {gid for gid, _, _ in results} == {"wgame", "mgame"}
+
+
+def test_ingest_snapshots_tournaments_filter_excludes_unresolvable_tournament_id(tmp_path):
+    """A game whose tournamentId cannot be resolved at all (no games.json
+    entry) is excluded too when the filter is active -- conservative default,
+    never silently included just because metadata is missing."""
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    payload = [{"playNumber": 1, "context": {"half": 1, "possessionTeamId": "w-usa"}}]
+    (raw_dir / "unified-plays_orphan.json").write_text(json.dumps(payload), encoding="utf-8")
+    # No games.json at all.
+    results = ingest_snapshots(raw_dir, _team_mapping(), tournaments=["ffwc26-women"])
+    assert results == []
+

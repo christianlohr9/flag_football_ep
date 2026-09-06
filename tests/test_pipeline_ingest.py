@@ -16,6 +16,7 @@ data availability.
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import shutil
 from pathlib import Path
@@ -602,6 +603,45 @@ def test_run_ingest_ifaf_malformed_play_does_not_drop_the_source(full_tree: Conf
     assert by_id["ifaf-TESTG1"].quarantined is False
     assert result.n_plays >= 3
     assert not any("source-level failure" in n for n in result.notices)
+
+
+def test_run_ingest_ifaf_tournament_filter_excludes_unopted_tournament(full_tree: Config) -> None:
+    """2026-09-06 addendum: sources.ifaf.ingest_tournaments restricts which
+    resolved tournamentId(s) actually enter plays.parquet -- a tournament not
+    opted into must never reach the canonical corpus, not merely be excluded
+    downstream at training time."""
+    ifaf_dir = full_tree.paths.raw_ifaf
+    men_plays = [
+        {
+            "gameId": "MENGAME", "playNumber": 1,
+            "context": {"gameClockMs": 100000, "half": 1, "down": 1, "ballOn": 20,
+                        "possessionTeamId": "m-ger", "score": {"home": 0, "away": 0}},
+            "outcome": {"type": "COMPLETE_PASS", "pointsScored": None, "turnover": False},
+            "penalty": False,
+        },
+    ]
+    (ifaf_dir / "unified-plays_MENGAME.json").write_text(json.dumps(men_plays), encoding="utf-8")
+    games_meta = [
+        {"id": "TESTG1", "tournamentId": "ffwc26-women", "homeTeam": {"id": "w-ger"}, "awayTeam": {"id": "w-usa"}},
+        {"id": "MENGAME", "tournamentId": "ffwc26-men", "homeTeam": {"id": "m-ger"}, "awayTeam": {"id": "m-usa"}},
+    ]
+    (ifaf_dir / "games.json").write_text(json.dumps(games_meta), encoding="utf-8")
+
+    scoped_config = dataclasses.replace(
+        full_tree,
+        sources=dataclasses.replace(
+            full_tree.sources,
+            ifaf=dataclasses.replace(
+                full_tree.sources.ifaf, ingest_tournaments=("ffwc26-women",)
+            ),
+        ),
+    )
+
+    result = run_ingest(scoped_config, ["ifaf"])
+
+    game_ids = {g.game_id for g in result.game_results}
+    assert "ifaf-TESTG1" in game_ids
+    assert "ifaf-MENGAME" not in game_ids
 
 
 def test_run_ingest_missing_source_directory_skipped_with_notice(tmp_path: Path, repo_root: Path) -> None:

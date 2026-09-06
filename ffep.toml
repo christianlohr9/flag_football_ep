@@ -44,6 +44,16 @@ api_key_env = "SPORTAPP_API_KEY"
 base_url = "https://us.cpx.studio/v1"
 tournament = "ffwc26-women"
 api_key_env = "CPX_API_KEY"
+# 2026-09-06 addendum: which tournamentId(s) pipeline.run_ingest actually
+# ingests into plays.parquet, resolved per game via games.json -- NOT just
+# which tournament `ffep fetch-ifaf` snapshots to disk. The ffwc26-men
+# tournament is snapshotted (fetch-ifaf --all-games) but deliberately not
+# ingested by default: m-ger/w-ger share the canonical team code GER
+# (data/reference/team_mapping.csv is now fixed with -M suffixes for the
+# opt-in case, but nothing downstream expects men's rows in the corpus by
+# default), so the corpus stays safe without needing per-report exclusion
+# lists. Add "ffwc26-men" here to opt in.
+ingest_tournaments = ["ffwc26-women"]
 
 [train]
 # Exclusion origin: models/ep_model.ipynb cell 3 filtered `game_id != 37`,
@@ -51,122 +61,9 @@ api_key_env = "CPX_API_KEY"
 # game ids for the legacy data_raw.csv corpus are `legacy-<game_id>`.
 ep_experiment = "ep_model"
 wp_experiment = "wp_model"
+exclude_games_ep = ["legacy-37"]
+exclude_games_wp = ["legacy-35"]
 
-# 2026-09-06 addendum: the 48 IFAF ffwc26-men games (competition_tier
-# "mens-international", data/reference/competition_tier.csv) are excluded
-# from both champion training sets by default -- the men's tournament stays
-# in plays.parquet/plays_scored.parquet (and can be scored), but never feeds
-# EP/WP training until a user decision says otherwise
-# (docs/ifaf-field-mapping.md). This list is the ffwc26-men game ids known
-# at 2026-09-06 -- a future refresh that adds more men's games needs this
-# list (or a tier-based exclusion mechanism, not yet built) updated too.
-exclude_games_ep = [
-    "legacy-37",
-    "ifaf-01a000d1-32cb-744a-bd02-6bee51a9d00f",
-    "ifaf-01a000d1-32fa-7378-b7f3-2187b658de03",
-    "ifaf-01a000d1-3410-715a-8b02-c2469045d2d4",
-    "ifaf-01a000d1-34e0-700c-9ad6-5fd75f3746f2",
-    "ifaf-01a000d1-3527-7279-b1c3-e15ab2fe07ba",
-    "ifaf-01a000d1-3543-73ec-ad80-6ce98210d2ea",
-    "ifaf-01a000d1-359e-76b9-bcea-d18f7021e676",
-    "ifaf-01a000d1-35ae-76b2-8bbe-f88cb14814fb",
-    "ifaf-01a00437-3c95-726a-9a5b-8774094c8fab",
-    "ifaf-01a00437-3da4-7028-b1a0-2150ed2c9562",
-    "ifaf-01a0047f-a8e3-723d-98d4-3aa4dd893332",
-    "ifaf-01a0047f-a8f9-732e-9152-81f58508a8bc",
-    "ifaf-01a00510-7f69-768a-a5eb-a2ce798cd7bd",
-    "ifaf-01a00510-7f8a-73ba-a134-d6f562e51699",
-    "ifaf-01a0055a-27fd-7615-976b-d22a30cd1a64",
-    "ifaf-01a0055a-2856-7041-b348-e7dee08c67cb",
-    "ifaf-01a00599-9f60-779c-ac07-5ad9021be855",
-    "ifaf-01a00599-9fbb-72f8-b360-f790aefb159a",
-    "ifaf-01a005e6-8778-7358-8b50-b490361f402f",
-    "ifaf-01a005e6-87c3-705c-bc77-ea1d94703620",
-    "ifaf-01a0067f-2d2c-777c-869e-491e4960b995",
-    "ifaf-01a0067f-2d4b-771b-ba4b-f26532c8c183",
-    "ifaf-01a006ce-1e3b-75cc-b95c-fac0851a53cc",
-    "ifaf-01a006ce-1ec0-77b9-bef2-d212af738fd2",
-    "ifaf-ffwc26-ma1",
-    "ifaf-ffwc26-ma2",
-    "ifaf-ffwc26-ma3",
-    "ifaf-ffwc26-ma4",
-    "ifaf-ffwc26-ma5",
-    "ifaf-ffwc26-ma6",
-    "ifaf-ffwc26-mb1",
-    "ifaf-ffwc26-mb2",
-    "ifaf-ffwc26-mb3",
-    "ifaf-ffwc26-mb4",
-    "ifaf-ffwc26-mb5",
-    "ifaf-ffwc26-mb6",
-    "ifaf-ffwc26-mc1",
-    "ifaf-ffwc26-mc2",
-    "ifaf-ffwc26-mc3",
-    "ifaf-ffwc26-mc4",
-    "ifaf-ffwc26-mc5",
-    "ifaf-ffwc26-mc6",
-    "ifaf-ffwc26-md1",
-    "ifaf-ffwc26-md2",
-    "ifaf-ffwc26-md3",
-    "ifaf-ffwc26-md4",
-    "ifaf-ffwc26-md5",
-    "ifaf-ffwc26-md6",
-]
-exclude_games_wp = [
-    "legacy-35",
-    "ifaf-01a000d1-32cb-744a-bd02-6bee51a9d00f",
-    "ifaf-01a000d1-32fa-7378-b7f3-2187b658de03",
-    "ifaf-01a000d1-3410-715a-8b02-c2469045d2d4",
-    "ifaf-01a000d1-34e0-700c-9ad6-5fd75f3746f2",
-    "ifaf-01a000d1-3527-7279-b1c3-e15ab2fe07ba",
-    "ifaf-01a000d1-3543-73ec-ad80-6ce98210d2ea",
-    "ifaf-01a000d1-359e-76b9-bcea-d18f7021e676",
-    "ifaf-01a000d1-35ae-76b2-8bbe-f88cb14814fb",
-    "ifaf-01a00437-3c95-726a-9a5b-8774094c8fab",
-    "ifaf-01a00437-3da4-7028-b1a0-2150ed2c9562",
-    "ifaf-01a0047f-a8e3-723d-98d4-3aa4dd893332",
-    "ifaf-01a0047f-a8f9-732e-9152-81f58508a8bc",
-    "ifaf-01a00510-7f69-768a-a5eb-a2ce798cd7bd",
-    "ifaf-01a00510-7f8a-73ba-a134-d6f562e51699",
-    "ifaf-01a0055a-27fd-7615-976b-d22a30cd1a64",
-    "ifaf-01a0055a-2856-7041-b348-e7dee08c67cb",
-    "ifaf-01a00599-9f60-779c-ac07-5ad9021be855",
-    "ifaf-01a00599-9fbb-72f8-b360-f790aefb159a",
-    "ifaf-01a005e6-8778-7358-8b50-b490361f402f",
-    "ifaf-01a005e6-87c3-705c-bc77-ea1d94703620",
-    "ifaf-01a0067f-2d2c-777c-869e-491e4960b995",
-    "ifaf-01a0067f-2d4b-771b-ba4b-f26532c8c183",
-    "ifaf-01a006ce-1e3b-75cc-b95c-fac0851a53cc",
-    "ifaf-01a006ce-1ec0-77b9-bef2-d212af738fd2",
-    "ifaf-ffwc26-ma1",
-    "ifaf-ffwc26-ma2",
-    "ifaf-ffwc26-ma3",
-    "ifaf-ffwc26-ma4",
-    "ifaf-ffwc26-ma5",
-    "ifaf-ffwc26-ma6",
-    "ifaf-ffwc26-mb1",
-    "ifaf-ffwc26-mb2",
-    "ifaf-ffwc26-mb3",
-    "ifaf-ffwc26-mb4",
-    "ifaf-ffwc26-mb5",
-    "ifaf-ffwc26-mb6",
-    "ifaf-ffwc26-mc1",
-    "ifaf-ffwc26-mc2",
-    "ifaf-ffwc26-mc3",
-    "ifaf-ffwc26-mc4",
-    "ifaf-ffwc26-mc5",
-    "ifaf-ffwc26-mc6",
-    "ifaf-ffwc26-md1",
-    "ifaf-ffwc26-md2",
-    "ifaf-ffwc26-md3",
-    "ifaf-ffwc26-md4",
-    "ifaf-ffwc26-md5",
-    "ifaf-ffwc26-md6",
-]
-
-# cycle_start_season is the documented "current cycle" boundary (Phase 1.4
-# CONTEXT.md left this to implementer discretion): seasons >= this value are
-# the current cycle in own-team player tables. own_team is the canonical
-# team code the own-team efficiency report is built for.
 [report]
 own_team = "GER"
 cycle_start_season = 2025

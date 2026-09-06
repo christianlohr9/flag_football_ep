@@ -742,6 +742,7 @@ def ingest_snapshots(
     raw_dir: Path,
     team_mapping: pl.DataFrame,
     game_ids: Sequence[str] | None = None,
+    tournaments: Sequence[str] | None = None,
 ) -> list[tuple[str, pl.DataFrame, IngestNotices]]:
     """Parse every `unified-plays_{game_id}.json` snapshot under `raw_dir` into a
     canonical frame.
@@ -759,6 +760,19 @@ def ingest_snapshots(
     `UnmappedTeamError` (T-1.2-15) rather than being folded into a notice, since
     it signals a reference-data gap that needs a human fix, not a per-game data
     anomaly.
+
+    `tournaments` (2026-09-06 addendum, `docs/ifaf-field-mapping.md`), when
+    given, restricts ingestion to games whose `games.json`-resolved
+    `tournamentId` is in the set -- a game whose tournamentId cannot be
+    resolved at all (missing `games.json` entry, or the entry lacks the key)
+    is silently excluded too when this filter is active, the same
+    conservative default as an unrecognized tournament (this corpus is meant
+    to be "safe by default": a tournament not explicitly opted into never
+    reaches the canonical frame, full stop, rather than merely being
+    excluded downstream). `None` (the default) ingests every snapshot
+    regardless of tournament, preserving the original no-filter contract for
+    any caller that doesn't pass it (existing tests, `game_ids`-scoped
+    single-game calls).
     """
     raw_dir = Path(raw_dir)
     games_meta = _load_games_meta(raw_dir)
@@ -766,6 +780,7 @@ def ingest_snapshots(
 
     unified_paths = sorted(raw_dir.glob("unified-plays_*.json"))
     wanted = set(game_ids) if game_ids is not None else None
+    wanted_tournaments = set(tournaments) if tournaments is not None else None
 
     results: list[tuple[str, pl.DataFrame, IngestNotices]] = []
 
@@ -773,6 +788,10 @@ def ingest_snapshots(
         gid = path.stem.removeprefix("unified-plays_")
         if wanted is not None and gid not in wanted:
             continue
+        if wanted_tournaments is not None:
+            game_tournament_id = games_meta.get(gid, {}).get("tournamentId")
+            if game_tournament_id not in wanted_tournaments:
+                continue
 
         notices = IngestNotices(game_id=gid)
 
