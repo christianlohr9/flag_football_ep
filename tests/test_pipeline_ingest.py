@@ -246,19 +246,33 @@ def _write_ifaf_fixture(ifaf_dir: Path) -> None:
             "penalty": False,
         },
         {
+            # No context.ballOn at all -- the CR-01 null-feature-row case
+            # (yardline_50/derive_yards_to_go both propagate to null when
+            # ballOn is missing, same as they always did; since 2026-09-06's
+            # yards_to_go derivation now fills a real value on every row
+            # with a real ballOn, this is the only way left to get a
+            # genuine null-feature row for this regression guard).
             "gameId": "TESTG1", "playNumber": 2,
-            "context": {"gameClockMs": 90000, "half": 1, "down": 2, "ballOn": 30,
+            "context": {"gameClockMs": 95000, "half": 1, "down": 1,
                         "possessionTeamId": "w-ger", "score": {"home": 0, "away": 0}},
-            "outcome": {"type": "TOUCHDOWN", "pointsScored": 6, "turnover": False},
-            "description": {"text": "play 2"},
+            "outcome": {"type": None, "pointsScored": None, "turnover": False},
+            "description": {"text": "missing ballOn"},
             "penalty": False,
         },
         {
             "gameId": "TESTG1", "playNumber": 3,
+            "context": {"gameClockMs": 90000, "half": 1, "down": 2, "ballOn": 30,
+                        "possessionTeamId": "w-ger", "score": {"home": 0, "away": 0}},
+            "outcome": {"type": "TOUCHDOWN", "pointsScored": 6, "turnover": False},
+            "description": {"text": "play 3"},
+            "penalty": False,
+        },
+        {
+            "gameId": "TESTG1", "playNumber": 4,
             "context": {"gameClockMs": 85000, "half": 1, "down": 0, "ballOn": 45,
                         "possessionTeamId": "w-ger", "score": {"home": 6, "away": 0}},
             "outcome": {"type": "XP1", "pointsScored": 1, "turnover": False},
-            "description": {"text": "play 3"},
+            "description": {"text": "play 4"},
             "penalty": False,
         },
     ]
@@ -566,9 +580,11 @@ def test_run_ingest_all_sources_n_plays_equals_sum_of_accepted_rows(full_tree: C
     result = run_ingest(full_tree, ["hudl", "legacy", "sportapp", "ifaf"])
 
     assert isinstance(result, IngestResult)
-    # clean hudl (3) + legacy (2, warn-only, both rows kept) + sportapp (6) + ifaf (3)
-    # -- the gapped hudl game (3 rows) is quarantined and excluded from n_plays.
-    assert result.n_plays == 3 + 2 + 6 + 3
+    # clean hudl (3) + legacy (2, warn-only, both rows kept) + sportapp (6) + ifaf (4,
+    # including the missing-ballOn CR-01 null-feature-row regression guard added
+    # 2026-09-06) -- the gapped hudl game (3 rows) is quarantined and excluded from
+    # n_plays.
+    assert result.n_plays == 3 + 2 + 6 + 4
 
 
 def test_run_ingest_ifaf_malformed_play_does_not_drop_the_source(full_tree: Config) -> None:

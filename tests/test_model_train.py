@@ -896,7 +896,9 @@ def test_real_competition_tier_csv_loads_and_every_tier_is_valid(repo_root: Path
 
     mapping = load_competition_tier(repo_root / "data" / "reference" / "competition_tier.csv")
 
-    assert mapping.height == 6
+    # 2026-09-06 addendum: the single ifaf row split into two (women/men), one
+    # net new row -- see docs/ifaf-field-mapping.md.
+    assert mapping.height == 7
     assert set(mapping["tier"].to_list()) <= set(COMPETITION_TIERS)
 
 
@@ -914,8 +916,12 @@ def test_real_competition_tier_csv_has_three_hc_workbook_rows_and_original_three
     original_pairs = set(
         zip(original_rows["source"].to_list(), original_rows["competition"].to_list())
     )
+    # 2026-09-06 addendum: the single ifaf row split into women/men (both
+    # tournaments share tournament.name, disambiguated by division) -- see
+    # docs/ifaf-field-mapping.md.
     assert original_pairs == {
-        ("ifaf", "IFAF World Flag 2026"),
+        ("ifaf", "IFAF World Flag 2026 Women"),
+        ("ifaf", "IFAF World Flag 2026 Men"),
         ("legacy", "legacy"),
         ("legacy-sportapp", "FlagWC"),
     }

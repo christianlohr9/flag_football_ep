@@ -699,9 +699,12 @@ def _build_game_meta(game_entry: dict, tournament_entry: dict) -> dict:
     end-to-end (competition_tier lookup, reporting, everything keyed on
     `competition`). `divisions[0]` ("Women"/"Men") is the reliable
     disambiguator -- appended to the base name when present
-    ("IFAF World Flag 2026 Women"); falls back to suffixing the raw
-    `tournamentId` slug in parentheses if a future tournament document ever
-    lacks `divisions` (defensive, not observed live).
+    ("IFAF World Flag 2026 Women"). When `divisions` is absent entirely
+    (a tournament document shape that predates this addendum, or a future
+    one that never sets it), `competition` stays exactly the bare
+    `tournament.name` -- unchanged from the pre-2026-09-06 behavior, since
+    there is no ambiguity to resolve for a single tournament with no
+    division info at all.
     `tournament_id` is kept as its own field (not just folded into
     `competition`) so downstream code can key on the stable machine
     identifier rather than parsing the human-readable competition string.
@@ -723,8 +726,6 @@ def _build_game_meta(game_entry: dict, tournament_entry: dict) -> dict:
 
     if base_name and division:
         competition = f"{base_name} {division}"
-    elif base_name and tournament_id:
-        competition = f"{base_name} ({tournament_id})"
     else:
         competition = base_name
 

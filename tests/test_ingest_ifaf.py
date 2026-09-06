@@ -1002,11 +1002,16 @@ def test_build_game_meta_women_and_men_tournaments_get_distinct_competition_labe
     assert men_meta["tournament_id"] == "ffwc26-men"
 
 
-def test_build_game_meta_falls_back_to_tournament_id_suffix_without_divisions():
+def test_build_game_meta_uses_bare_name_when_no_divisions_key():
+    """No divisions field at all (a shape predating this addendum, or a
+    single tournament with no division info) -- competition stays exactly
+    the bare tournament.name, unchanged from the pre-2026-09-06 behavior.
+    This is also what tests/test_pipeline_ingest.py's synthetic IFAF fixture
+    relies on (tournament_test.json has no divisions key)."""
     game_entry = {"tournamentId": "some-new-tourney", "homeTeam": {}, "awayTeam": {}}
     tournament_entry = {"id": "some-new-tourney", "name": "Some Cup"}  # no divisions key
     meta = _build_game_meta(game_entry, tournament_entry)
-    assert meta["competition"] == "Some Cup (some-new-tourney)"
+    assert meta["competition"] == "Some Cup"
     assert meta["gender"] is None
 
 
