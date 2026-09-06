@@ -119,6 +119,25 @@ Für dich heißt das: nichts an den bisherigen Frauen-Auswertungen ändert sich,
 Männer-Daten waren zwischenzeitlich unbemerkt mit eingeflossen und sind jetzt sauber
 getrennt.
 
+## Letzter Nachtrag: Männer-Daten jetzt komplett draußen, nicht nur vom Training
+
+Der Trainings-Ausschluss von eben reichte nicht: Die Männer-Spiele waren zwar vom Modell-
+Training ausgeschlossen, standen aber weiterhin im Gesamtdatensatz — mit demselben Team-
+Kürzel "GER" wie die Frauen. Jeder andere Bericht, der nach Team filtert (nicht nur das
+Training), hätte die beiden Teams also weiterhin vermischt.
+
+**Jetzt richtig gelöst:** Die Männer-Spiele werden gar nicht erst in den Datensatz
+übernommen, außer man schaltet das bewusst frei (ein neuer Schalter in der Konfiguration,
+`ingest_tournaments`, steht standardmäßig nur auf "Frauen"). Die Rohdaten bleiben weiterhin
+abgeholt (falls man sie später doch braucht), aber sie fließen nicht automatisch ein.
+Zusätzlich haben Männer-Teams jetzt eigene Kürzel (`GER-M` statt `GER`), falls jemand die
+Männer-Daten bewusst dazuschaltet — dann können sie nie mit den Frauen-Daten verschmelzen.
+
+**Ergebnis nach erneutem Lauf:** Datensatz hat jetzt wieder genau 32 Frauen-Spiele / 3.191
+Zeilen von IFAF, null Männer-Zeilen. Gesamtzahl aller Quellen zusammen: 28.255 Zeilen — genau
+der Stand von vor dieser ganzen IFAF-Aktion, nur jetzt mit besseren Frauen-Daten (Yardage,
+Distanz-bis-Erstdown, echte EP/WP-Werte).
+
 Alle Zahlen, Commits und der volle technische Nachtrag stehen in
 `.planning/phases/01.2-repo-to-pipeline/01.2-IFAF-FULL-SUMMARY.md` und
 `docs/ifaf-field-mapping.md`.
