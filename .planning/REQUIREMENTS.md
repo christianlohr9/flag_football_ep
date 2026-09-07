@@ -67,7 +67,7 @@ chain already AGPL-free per D-02).
 - [ ] **DATA-01**: Prüfsatz umfasst ≥3 Spiele mit je ≥40 Spielzügen (Multi-TB-Rohmaterial sichten + registrieren)
 - [ ] **DATA-02**: Spiele unterscheiden sich in Tageszeit, Flughöhe oder Gegner
 - [ ] **DATA-03**: Identitäts-Labels je Spielerin pro Spielzug (Prüfsatz-Arbeit, nicht ReID-Lösung)
-- [ ] **DATA-04**: Dev/Test nach SPIEL getrennt — ersetzt bei Erfolg das Clip-Split-Test-Set aus 2.2 (Re-Bundle; siehe ABGLEICH.md Konflikt 1)
+- [x] **DATA-04**: Dev/Test nach SPIEL getrennt (erfüllt 2026-09-02 durch Plan 02.2-21: Test-Set = 2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE, Dev-Set = Pilotspiel; siehe ABGLEICH.md Konflikt 1)
 - [ ] **DATA-05**: Labeln als Spurkorrektur, nicht Kästen-Neuzeichnen (CVAT-Kandidat)
 - [ ] **METR-01**: Stetige Kennzahl neben der Schwellenmetrik
 - [ ] **METR-02**: `score_tracks.py` gibt beide Kennzahlen in einem Lauf aus, getrennt nach Dev/Test
@@ -131,7 +131,8 @@ Derived 2026-09-03 from `docs/hc-notes-2026-09-03.md`; delivery anchor = October
 | REQ-S2-06 | Phase 2.5 | Deferred (stretch) |
 | RECHT-01..04 | Phase M2-1 | Pending |
 | BASE-01..04 | Phase M2-2 | Pending |
-| DATA-01..05 | Phase M2-3 | Pending |
+| DATA-04 | Phase 2.2 | Complete (Plan 02.2-21, 2026-09-02) |
+| DATA-01, DATA-02, DATA-03, DATA-05 | Phase M2-3 | Pending |
 | METR-01..04 | Phase M2-4 | Pending |
 | PACK-01..05 | Phase M2-5 | Pending |
 | HC-01, HC-02 | Phase M3-1 | Pending |

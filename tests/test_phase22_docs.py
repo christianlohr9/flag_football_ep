@@ -22,6 +22,7 @@ CAPTURE_PROTOCOL = REPO_ROOT / "docs" / "capture-protocol.md"
 CAPTURE_LEGAL = REPO_ROOT / "docs" / "capture-legal.md"
 HACKATHON_REID = REPO_ROOT / "docs" / "hackathon-challenge-reid.md"
 HACKATHON_PREP = REPO_ROOT / "docs" / "hackathon-challenge-prep.md"
+HACKATHON_BUNDLES = REPO_ROOT / "docs" / "hackathon-bundles.md"
 ROADMAP_MD = REPO_ROOT / ".planning" / "ROADMAP.md"
 REQUIREMENTS_MD = REPO_ROOT / ".planning" / "REQUIREMENTS.md"
 DATASET_PLAN = REPO_ROOT / "docs" / "dataset-plan.md"
@@ -163,4 +164,34 @@ def test_dataset_buildout_doc_exists_and_names_iteration_1() -> None:
     )
     assert "Labelling-Anleitung Iteration 1" in text, (
         "docs/dataset-buildout.md is missing the Labelling-Anleitung Iteration 1 subsection"
+    )
+
+
+def test_hackathon_bundles_names_puerto_rico_test_session() -> None:
+    """Plan 02.2-21: the test set is now the real second drone game, not a clip
+    subset of the pilot game -- the doc must name the Puerto Rico session id."""
+    text = _read(HACKATHON_BUNDLES)
+    assert "2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE" in text, (
+        "docs/hackathon-bundles.md does not name the Puerto Rico test session id"
+    )
+
+
+def test_hackathon_bundles_states_game_disjoint_property() -> None:
+    """DATA-04: dev and test must be documented as split by GAME, not by clip."""
+    text = _read(HACKATHON_BUNDLES)
+    assert "DATA-04" in text, "docs/hackathon-bundles.md does not reference DATA-04"
+    assert "SPIEL getrennt" in text, (
+        "docs/hackathon-bundles.md does not state the dev/test game-disjoint property"
+    )
+
+
+def test_hackathon_bundles_no_longer_describes_18_withheld_clips() -> None:
+    """The D-07 fallback (18 withheld pilot clips as the private test set) is
+    superseded by plan 02.2-21 and must not be described as the current test set."""
+    text = _read(HACKATHON_BUNDLES)
+    assert "43 von 61" not in text, (
+        "docs/hackathon-bundles.md still states the superseded 43-of-61 dev pool split"
+    )
+    assert "Die 18 Clips mit `private_test = true`" not in text, (
+        "docs/hackathon-bundles.md still describes the test set as 18 withheld pilot clips"
     )

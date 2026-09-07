@@ -68,18 +68,23 @@ Datenputzen.
 
 ### Verfügbare Daten
 
-- **Dev-Set (öffentlich für die Teams):** Pilotspiel GER vs. Panama Rojo, 16.05.2026, 61 Drohnen-Clips
-  (je ein Spielzug, 8–11 s, 1920×1080, 30 fps, ~10,5 min gesamt, ~250 MB), dazu:
+- **Dev-Set (öffentlich für die Teams):** Pilotspiel GER vs. Panama Rojo, 16.05.2026, alle 61
+  Drohnen-Clips (je ein Spielzug, 8–11 s, 1920×1080, 30 fps, ~10,5 min gesamt, ~250 MB) — seit
+  Plan 02.2-21 ohne Pool-Beschränkung, weil das Test-Set jetzt ein anderes Spiel ist (siehe
+  unten), dazu:
   - Detektionen des nachtrainierten Detektors pro Frame (Boxen, Klasse Spielerin/Schiedsrichterin,
     Konfidenz) — als Parquet; Teams müssen keinen Detektor trainieren.
   - Baseline-Tracks (BoT-SORT) mit Team-Zuordnung und Feldkoordinaten (Yards), ~354.000 Zeilen.
   - ~17.000 Spielerinnen-Crops (Oberkörper) als Trainingsmaterial für Erscheinungsmodelle.
   - Human-Benchmark: pro Clip das Urteil `pass`/`fail` für „≥ 90 % ohne Identitätswechsel" samt
-    Fehlerbeschreibung (z. B. „rot 3 wird nach Kreuzen mit rot 7 zu rot 30"); 250 hand-markierte
-    Fußpositionen; Homographie-Kalibrierung; Flag-Pull-Ereignisse (Zeitpunkt, beteiligte Nummern).
+    Fehlerbeschreibung (z. B. „rot 3 wird nach Kreuzen mit rot 7 zu rot 30"), für alle 61 Clips;
+    250 hand-markierte Fußpositionen; Homographie-Kalibrierung; Flag-Pull-Ereignisse (Zeitpunkt,
+    beteiligte Nummern).
   - Overlay-Videos (Boxen + Nummern) und Radar-Renderings zur Sichtprüfung.
-- **Test-Set (privat, Labels zurückgehalten):** ein zweites Drohnen-Spiel derselben Mannschaft,
-  identisch aufbereitet; Endwertung findet dort statt.
+- **Test-Set (privat, Labels zurückgehalten):** das echte zweite Drohnen-Spiel derselben
+  Mannschaft, GER vs. Puerto Rico, 16.05.2026, 61 Clips, dieselbe Drohnen-Aufbereitung, anderer
+  Gegner — dev und test sind seit Plan 02.2-21 durch das SPIEL getrennt (DATA-04), nicht durch
+  eine Clip-Zurückhaltung innerhalb desselben Spiels; Endwertung findet dort statt.
 - **Transfer-Material:** 60 GoPro-Seitenlinien-Clips (WM GER–MEX) und 51 TV-Clips (WM USA–AUS)
   aus dem Materialinventar, mit Detektionen.
 - **Formate:** MP4, Parquet, CSV, JPEG; Python-Paket mit CLI (`ffep cv …`) und Tests; alles läuft
@@ -147,7 +152,7 @@ daran hängt:
 | Set | Material | Labels | Zweck |
 |---|---|---|---|
 | Dev-Set (öffentlich) | Pilotspiel, 61 Clips, alle Artefakte der Phase 2.1 | Kontinuitäts-Urteile für alle 61 Clips, 250 GT-Fußpunkte, Flag-Pull-Ereignisse | Entwicklung, Tuning, Zwischenstände |
-| Test-Set (privat) | zweites Drohnenspiel, identisch aufbereitet (Detektionen, Baseline-Tracks, Overlays) | Kontinuitäts-Urteile + Flag-Pull-Ereignisse, **zurückgehalten** | Endwertung, verhindert Overfitting auf die 61 bekannten Clips |
+| Test-Set (privat) | zweites Drohnenspiel (GER vs. Puerto Rico, 16.05.2026, 61 Clips), identisch aufbereitet (Detektionen, Baseline-Tracks, Overlays) — **disjunkt vom Dev-Set nach SPIEL, nicht nach Clip (DATA-04)** | Kontinuitäts-Urteile + Flag-Pull-Ereignisse, **zurückgehalten** | Endwertung, verhindert Overfitting auf die 61 bekannten Clips durch ein anderes Spiel, nicht nur andere Clips desselben Spiels |
 | Transfer-Set | 60 GoPro- + 51 TV-Clips mit Detektionen | Kontinuitäts-Urteile auf einer Stichprobe (optional, falls Zeit) | Transfer-Wertung |
 | Transfer-Set 2 (geplant, verdeckt) | Bundeswehr-Inszenierung: 5 Uniformierte, Drohne schräg von oben (30–60 m Hover, Personen ~30–50 px), 10–20 Takes à 20–40 s | Ground Truth per Drehbuch (Reihenfolge rein/raus je Take) + diskretes, aus der Luft unsichtbares Merkmal zum Nachprüfen | Beweis der Übertragbarkeit auf den eigentlichen Anwendungsfall; als Überraschungs-Testset am letzten Tag |
 
@@ -214,10 +219,11 @@ Vollständiges Protokoll, Startbefehle und alle Vorbehalte: `docs/baseline-messu
   (61 Zeilen vorbefüllt). Pro Clip: `outcome` (`pull` / `incomplete` / `out_of_bounds` /
   `touchdown` / `other`), `pull_time_s` (Timecode im Player, ±0,5 s reicht), `carrier_track_id`,
   `puller_track_id` (Nummern aus dem Overlay-Video), `notes`.
-- **C — Zweites Spiel als Test-Set (~1,5 h, vor November):** Pipeline vorher vom Projekt auf die
-  zweite Session anwenden (Detektor, Baseline-Tracking, Overlays; prüft nebenbei die
-  Generalisierung des Detektors — relevant für Phase 2.2), dann A + B dort wiederholen. Labels
-  bleiben unter Verschluss.
+- **C — Zweites Spiel als Test-Set — erledigt 2026-09-07 (Plan 02.2-21):** Pipeline vom Projekt
+  auf die Puerto-Rico-Session angewandt (Detektor, Baseline-Tracking, Overlays), A + B dort
+  wiederholt: alle 61 Kontinuitäts-Urteile und 61 Flag-Pull-Zeilen erhoben und validiert.
+  Gemessene Baseline auf dem Test-Set: **12/61 = 19,67 %** (Kontinuität, BoT-SORT). Labels
+  bleiben unter Verschluss im lokalen Label-Tresor, nie in git, nie in einem Bundle.
 
 ### Datenschutz
 

@@ -17,18 +17,24 @@ Konflikt markiert wurde.
 
 ## Echte Konflikte / Entscheidungen, die Milestone 2 treffen muss
 
-1. **DATA-04 (Dev/Test disjunkt nach Spiel) vs. aktuelles Test-Set:** Das in 2.2
-   gebaute private Test-Set (18 zurückgehaltene Clips) stammt aus DEMSELBEN Spiel
-   wie das Dev-Set (D-07-Fallback, bewusst dokumentiert). DATA-04 verlangt Trennung
-   nach Spiel — dafür braucht es mindestens ein zweites gelabeltes Spiel (Phase M2-3).
-   Bis dahin bleibt das Clip-Split-Test-Set der ehrliche Platzhalter; bei Erfolg von
-   M2-3 wird `test-set`-Bundle und `frozen_eval_clips.csv` neu geschnitten
-   (Re-Bundle nötig, Leak-Vault wandert mit).
-2. **DATA-01 (≥3 Spiele à ≥40 Spielzüge):** Es ist genau EIN Drohnen-Spiel
-   registriert (`video_inventory.csv`). Der Entwurf nennt "mehrere Terabyte
-   Rohmaterial" — die Sichtung/Registrierung dieses Materials ist damit der erste
-   Arbeitsschritt von M2-3 (Auswahlfrage, keine Aufwandsfrage, aber Registrierung
-   + Hashing nach `docs/material-inventory.md`-Prozedur gehört dazu).
+1. **Konflikt 1 — DATA-04 (Dev/Test disjunkt nach Spiel) vs. aktuelles Test-Set — gelöst
+   2026-09-02/07 durch Plan 02.2-21:** Das echte zweite Drohnenspiel
+   (`2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE`, GER vs. Puerto Rico, 61 Clips)
+   traf am 2026-09-02 ein. Plan 02.2-21 hat den Hackathon-Split auf dieses Spiel
+   umgeschnitten (`data/reference/hackathon_split.csv`), die Session dauerhaft vom
+   Trainingspool ausgeschlossen (`data/reference/al_excluded_sessions.csv`), die
+   Puerto-Rico-Pipeline gelaufen lassen und beide Bundles neu gebaut. Dev und Test
+   sind seit 2026-09-07 durch das SPIEL getrennt, nicht mehr durch eine
+   Clip-Zurückhaltung innerhalb desselben Spiels. `data/reference/frozen_eval_clips.csv`
+   (unser Detektor-Eval-Split) ist davon unberührt, weil sie nie die Quelle der Wahrheit
+   für die Hackathon-Rollen war.
+2. **Konflikt 2 — DATA-01 (≥3 Spiele à ≥40 Spielzüge):** Es sind jetzt ZWEI Drohnen-Spiele
+   registriert (`video_inventory.csv`: Pilotspiel + Puerto Rico, Plan 02.2-21). Noch
+   nicht erfüllt — DATA-01 verlangt mindestens drei. Der Entwurf nennt "mehrere
+   Terabyte Rohmaterial" — die Sichtung/Registrierung eines dritten Spiels ist damit
+   weiterhin ein offener Arbeitsschritt von M2-3 (Auswahlfrage, keine Aufwandsfrage,
+   aber Registrierung + Hashing nach `docs/material-inventory.md`-Prozedur gehört
+   dazu).
 3. **Identitäts-Labels (DATA-03) vs. Hauptprojekt-Linie "ReID bleibt draußen":**
    Kein Widerspruch — die Abgrenzung des Hauptprojekts betraf das LÖSEN des
    ReID-Problems (Aufgabe der Teams). Identitäts-LABELS sind Prüfsatz-Arbeit des

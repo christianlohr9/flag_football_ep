@@ -1,8 +1,11 @@
-# Hackathon-Bundles — Inhalt, Aufbau, Reproduktion (Stand: 2026-09-01)
+# Hackathon-Bundles — Inhalt, Aufbau, Reproduktion (Stand: 2026-09-07)
 
-**Status: Alle drei Bundles gebaut und gehasht (Dev-Set Plan 02.2-10; Test-Set und
-Transfer-Set Plan 02.2-12, 2026-09-01). Kein zweites Drohnenspiel lag zum Build-Zeitpunkt
-vor — das Test-Set nutzt den D-07-Fallback (18 zurückgehaltene Pilotspiel-Clips).**
+**Status: Alle drei Bundles gebaut und gehasht. Transfer-Set unverändert seit Plan 02.2-12
+(2026-09-01). Dev-Set und Test-Set neu gebaut durch Plan 02.2-21 (2026-09-07): das
+Test-Set nutzt jetzt das echte zweite Drohnenspiel (GER vs. Puerto Rico, DATA-04) statt
+des früheren D-07-Fallbacks (18 zurückgehaltene Pilotspiel-Clips); der Dev-Set-Umfang ist
+entsprechend auf alle 61 Pilotspiel-Clips gewachsen (siehe `## Zweites Drohnenspiel —
+gelöst 2026-09-02/07` unten).**
 
 Dieses Dokument beschreibt, was jedes `ffep cv bundle --kind <kind>`-Archiv enthält, wie es
 aufgebaut ist, wie es reproduziert wird und unter welchen Regeln es an die Hackathon-Teams
@@ -13,11 +16,11 @@ geht (D-08/D-09). Der Builder selbst ist `src/flag_football_ep/cv/bundle.py::bui
 
 ## Dev-Set (öffentlich, fertig)
 
-**Archiv:** `data/bundles/dev-set_2026-09-01_ad412c5cffb9.zip` (~1,5 GB, 11.834 Dateien,
+**Archiv:** `data/bundles/dev-set_2026-09-07_08a55bd95b06.zip` (~2,10 GB, 17.191 Dateien,
 gitignored unter `data/bundles/`).
 
 **Content-Hash (`content_sha256`, aus `manifest.json`):**
-`ad412c5cffb9a9b54a49e4e7c0b3075c0e013304cf8d1b7fb45d7ed5e5db2a56`
+`08a55bd95b066f8850e36624963a120a416f9072533dd84b5d0419f7885e00c9`
 
 **Eingefrorener Detektor-Lauf:** `87a8a5222f7a472787875e974d089c44` (aus
 `data/reference/hackathon_freeze.json`, Dataset-Hash
@@ -25,19 +28,23 @@ gitignored unter `data/bundles/`).
 
 ### Inhalt
 
-Nur die Clips mit `role = pool` in `data/reference/frozen_eval_clips.csv` — **43 von 61**
-Drohnen-Clips des Pilotspiels GER vs. Panama Rojo (16.05.2026). Die restlichen 18 Clips
-(`role = frozen_eval`, `private_test = true`) sind das private Hackathon-Testset (D-07) und
-erscheinen in KEINEM öffentlichen Bundle. Verifiziert (siehe `## Verifikation` unten).
+Alle Clips mit `hackathon_role = dev` in `data/reference/hackathon_split.csv` — **61 von
+61** Drohnen-Clips des Pilotspiels GER vs. Panama Rojo (16.05.2026), vollständig. Seit
+Plan 02.2-21 gibt es keine Pool-Beschränkung mehr im Dev-Set: die vormalige `role =
+pool`-Einschränkung (43 der 61 Clips) betraf ausschließlich unseren eigenen
+Detektor-Trainings-/Eval-Split (`data/reference/frozen_eval_clips.csv`), nie die
+ReID-Aufgabe der Teams. Mit dem Test-Set jetzt in einem ANDEREN Spiel (Puerto Rico, siehe
+unten) gibt es keinen Grund mehr, Pilotspiel-Clips vor den Teams zurückzuhalten.
+Verifiziert (siehe `## Verifikation` unten).
 
 | Artefakt | Inhalt | Herkunft |
 |---|---|---|
-| `data/clips/clip_NNN.mp4` | 43 rohe Drohnen-Clips | `data/video/…` (Plan 02.0) |
+| `data/clips/clip_NNN.mp4` | 61 rohe Drohnen-Clips | `data/video/…` (Plan 02.0) |
 | `data/overlays/clip_NNN.mp4` | Boxen + Track-Nummern zur Sichtprüfung | Plan 02.1-14 |
 | `data/detections.parquet` | Pro-Frame-Detektionen des eingefrorenen Detektors | Plan 02.2-08 |
 | `data/tracks.parquet` | Baseline-Tracks (BoT-SORT), Team-Zuordnung, Feldkoordinaten | Phase 2.1 |
 | `data/crops/` (+`index.csv`, `crops_meta.json`) | Oberkörper-Crops je Track | Plan 02.2-08 |
-| `data/continuity_review.csv` | Human-Urteile pass/fail je Clip | Plan 02.2-03 |
+| `data/continuity_review.csv` | Human-Urteile pass/fail je Clip (61/61 vollständig) | Plan 02.2-03 |
 | `data/flag_pull_events.csv` | Flag-Pull-Ereignisse je Clip (Bonus) | Plan 02.2-03 |
 | `data/gt_positions.csv` | Hand-markierte Fußpositionen | Phase 2.1 |
 | `data/homography_calibration.csv` | Landmarken je Hover-Position | Phase 2.1 |
@@ -56,8 +63,8 @@ dev-set/
   README.md
   manifest.json
   data/
-    clips/clip_001.mp4 … (43 Dateien)
-    overlays/clip_001.mp4 … (43 Dateien)
+    clips/clip_001.mp4 … (61 Dateien)
+    overlays/clip_001.mp4 … (61 Dateien)
     detections.parquet
     tracks.parquet
     crops/clip_NNN/track_YYYY/frame_ZZZZZ.jpg …, index.csv, crops_meta.json
@@ -91,9 +98,9 @@ Zwei Läufe desselben Freeze-Pins über unveränderte Eingaben liefern denselben
 `content_sha256` (verifiziert in `tests/test_cv_bundle.py`, u. a.
 `test_build_bundle_content_hash_deterministic_across_two_builds`).
 
-### Baseline-Zahl dieses Bundles (nur die 43 Pool-Clips)
+### Baseline-Zahl dieses Bundles (alle 61 Clips)
 
-**Kontinuität (BoT-SORT-Baseline, menschlich bewertet): 10/43 = 23,26 %.** Reproduziert
+**Kontinuität (BoT-SORT-Baseline, menschlich bewertet): 15/61 = 24,59 %.** Reproduziert
 über:
 
 ```
@@ -102,12 +109,12 @@ uv run python scripts/hackathon/score_tracks.py \
   --review data/bundles/dev-set/data/continuity_review.csv
 ```
 
-Ausgabe: `Referenz-Baseline (Human-Urteile, aus --review): 10/43 (23.26%)` — exakt die oben
-genannte Zahl. Diese Pool-only-Zahl ist NICHT identisch mit der Vollspiel-Zahl in
-`docs/hackathon-challenge-reid.md` §Baseline-Zahlen (dort über alle 61 Clips inklusive der
-18 privaten Testset-Clips: 15/61 = 24,59 %) — beide sind korrekt, sie messen über
-unterschiedliche Denominatoren (43 vs. 61 Clips) aus demselben Grund: das private Testset
-ist im Dev-Bundle nicht enthalten.
+Ausgabe: `Referenz-Baseline (Human-Urteile, aus --review): 15/61 (24.59%)` — exakt die oben
+genannte Zahl, und exakt dieselbe Zahl (dieselbe 61-Clip-Vollspiel-Population, derselbe
+Denominator) wie in `docs/hackathon-challenge-reid.md` §Baseline-Zahlen. Seit Plan 02.2-21
+gibt es keinen kleineren Pool-only-Denominator mehr — die vormalige 43-Clip-Zahl (10/43 =
+23,26 %) galt nur, solange 18 Pilotspiel-Clips als Test-Set-Fallback aus dem Dev-Bundle
+zurückgehalten wurden.
 
 ### Delivery-Regeln
 
@@ -126,56 +133,66 @@ ist im Dev-Bundle nicht enthalten.
 uv run pytest tests/test_cv_bundle.py -q
 ```
 
-Kein Clip-Dateiname der 18 `private_test = true`-Clips erscheint im Archiv (geprüft per
-`unzip -l` gegen `data/reference/frozen_eval_clips.csv`s `private_test = true`-Zeilen für
-die Session `2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE`).
+Alle 61 Clip-Dateinamen im Archiv sind exakt die `hackathon_role = dev`-Zeilen von
+`data/reference/hackathon_split.csv` für die Session
+`2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE` (geprüft per `unzip -l`); keine Clip-Nummer
+des Puerto-Rico-Testspiels erscheint im Dev-Archiv (verschiedene Session-IDs, keine
+Namenskollision möglich).
 
 ---
 
 ## Test-Set (privat, fertig)
 
-**Archiv:** `data/bundles/test-set_2026-09-01_448c681c6e5c.zip` (~607 MB, 41 Dateien,
+**Archiv:** `data/bundles/test-set_2026-09-07_b455b642b951.zip` (~2,48 GB, 126 Dateien,
 gitignored unter `data/bundles/`).
 
 **Content-Hash (`content_sha256`, aus `manifest.json`):**
-`448c681c6e5c6945e67e78d3007642dc32e2fc42990525ab87fe51d0ec342811`
+`b455b642b95144598c9c15ee3dc2d84892d687a19b733983790565b3a547c4e5`
 
 **Eingefrorener Detektor-Lauf:** `87a8a5222f7a472787875e974d089c44` (derselbe Freeze-Pin
 wie das Dev-Set).
 
-**Zweites Drohnenspiel:** lag zum Build-Zeitpunkt (2026-09-01) nicht vor. Das Test-Set
-nutzt daher den in D-07 festgelegten Fallback: die 18 `private_test = true`-Clips des
-Pilotspiels GER vs. Panama Rojo, dieselben, die seit Plan 02.2-06 aus dem Dev-Set
-ausgeschlossen sind. Sollte ein zweites Drohnenspiel später eintreffen, ersetzt es diesen
-Fallback; die 18 Clips würden dann in den Pool zurückfallen (`data/reference/
-frozen_eval_clips.csv` neu einfrieren) und das Test-Set aus dem neuen Spiel neu gebaut.
+**Zweites Drohnenspiel:** eingetroffen und registriert am 2026-09-02
+(`2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE`, GER vs. Puerto Rico, 16.05.2026, 61
+WIDE-Clips). Plan 02.2-21 löst den bisherigen D-07-Fallback damit ab: das Test-Set ist ab
+sofort dieses ANDERE Spiel, nicht mehr eine Clip-Teilmenge des Pilotspiels. Dev und Test
+sind seit diesem Plan durch das SPIEL getrennt (DATA-04), nicht durch eine
+Clip-Zurückhaltung innerhalb desselben Spiels — Gegner, Trikotsatz, Lichtverhältnisse und
+Hover-Geometrie unterscheiden sich jetzt zwischen den beiden Sets, wodurch ein auf
+Erscheinungsbild memorisiertes Modell nicht mehr als "generalisiert" durchgeht (siehe
+`## Zweites Drohnenspiel — gelöst 2026-09-02/07` unten für die volle Begründung).
 
 ### Inhalt
 
-Die 18 Clips mit `private_test = true` in `data/reference/frozen_eval_clips.csv`
-(Clip-Nummern 5, 6, 7, 11, 15, 16, 21, 22, 28, 33, 36, 40, 43, 49, 52, 54, 55, 56) — nie
-eine fest codierte Liste, sondern immer aus der eingefrorenen Split-Datei aufgelöst
-(`cv/bundle.py::_private_test_clip_numbers`).
+Alle Clips mit `hackathon_role = private_test` in `data/reference/hackathon_split.csv` —
+**61 von 61** Drohnen-Clips der Puerto-Rico-Session, Clip-Nummern 1–56 und 59–63 (NICHT
+durchgehend 1..61 — nie eine fest codierte Liste, sondern immer aus der Split-Datei
+aufgelöst, `cv/bundle.py::_test_clip_numbers`).
 
 | Artefakt | Inhalt | Herkunft |
 |---|---|---|
-| `data/clips/clip_NNN.mp4` | 18 rohe Drohnen-Clips | `data/video/…` (Plan 02.0) |
+| `data/clips/clip_NNN.mp4` | 61 rohe Drohnen-Clips | `data/video/…` (Plan 02.0) |
 | `data/overlays/clip_NNN.mp4` | Boxen + Track-Nummern zur Sichtprüfung | Plan 02.1-14 |
-| `data/detections.parquet` | Pro-Frame-Detektionen des eingefrorenen Detektors | Plan 02.2-08 |
-| `data/tracks.parquet` | Baseline-Tracks (BoT-SORT), Team-Zuordnung, Feldkoordinaten | Phase 2.1 |
-| `data/homography_calibration.csv` | Landmarken je Hover-Position | Phase 2.1 |
+| `data/detections.parquet` | Pro-Frame-Detektionen des eingefrorenen Detektors | Plan 02.2-21 |
+| `data/tracks.parquet` | Baseline-Tracks (BoT-SORT), Team-Zuordnung | Plan 02.2-21 |
 | `README.md` | vom Builder generiert, deutsch | — |
 | `manifest.json` | Datei-für-Datei-Hashes + Gesamt-Content-Hash | — |
 
 **Was bewusst fehlt:** keine `continuity_review.csv`, keine `flag_pull_events.csv`, keine
-`gt_positions.csv`, keine Crops. Kontinuitäts- und Flag-Pull-Urteile für genau diese 18
-Clips sind die Endwertungs-Grundlage und dürfen niemals mit dem Bundle mitgehen; sie liegen
-stattdessen im lokalen, nicht versionierten Label-Tresor (siehe `### Label-Tresor` unten).
-Ground-Truth-Fußpositionen für diese Clips existieren in keinem Bundle, aus demselben Grund
-wie die Kontinuitäts-Urteile: sie wären genau das, was eine Positions-Genauigkeits-Wertung
-bräuchte. Crops sind nicht Teil des Test-Sets (Re-ID-Trainingsmaterial kommt ausschließlich
-aus dem Dev-Set — Teams entwickeln ihr Erscheinungsmodell dort, das Test-Set dient nur der
-Endwertung).
+`gt_positions.csv`, keine Crops, kein `homography_calibration.csv`. Kontinuitäts- und
+Flag-Pull-Urteile für genau diese 61 Clips sind die Endwertungs-Grundlage und dürfen
+niemals mit dem Bundle mitgehen; sie liegen stattdessen im lokalen, nicht versionierten
+Label-Tresor (siehe `### Label-Tresor` unten). Crops sind nicht Teil des Test-Sets
+(Re-ID-Trainingsmaterial kommt ausschließlich aus dem Dev-Set — Teams entwickeln ihr
+Erscheinungsmodell dort, das Test-Set dient nur der Endwertung).
+`homography_calibration.csv` fehlt aus einem anderen Grund als die Labels: die
+Kalibrierung ist per Hover-Position des PILOTEN-Spiels gemessen und wäre für dieses andere
+Spiel falsche Daten. Entsprechend werden für Puerto Rico keine Feldkoordinaten
+(`x_yards`/`y_yards`) erzeugt — Kontinuitäts- und Flag-Pull-Wertung bleiben für dieses
+Set im Pixel-Raum, und die Flag-Pull-Bonusmetrik fällt auf ihr dokumentiertes
+zeit-only-Fenster zurück (`scripts/hackathon/score_tracks.py` druckt den
+"ortsblinden"-Hinweis bereits, wenn `x_yards`/`y_yards` fehlen). Festgehalten als
+bekannte, bewusste Lücke, nicht als stille Auslassung.
 
 ### Verzeichnisstruktur (im Archiv)
 
@@ -184,11 +201,10 @@ test-set/
   README.md
   manifest.json
   data/
-    clips/clip_005.mp4 … (18 Dateien)
-    overlays/clip_005.mp4 … (18 Dateien)
+    clips/clip_001.mp4 … (61 Dateien, Nummern 1-56 und 59-63)
+    overlays/clip_001.mp4 … (61 Dateien)
     detections.parquet
     tracks.parquet
-    homography_calibration.csv
 ```
 
 ### Schemas
@@ -198,11 +214,20 @@ Identisch zum Dev-Set: `detections.parquet` folgt `cv.schema.DETECTION_COLUMNS`,
 
 ### Label-Tresor (nicht Teil des Bundles, nicht in git)
 
-Die zurückgehaltenen Kontinuitäts- und Flag-Pull-Zeilen für genau die 18 Test-Set-Clips
-liegen unter `data/private/test-labels/` (`continuity_review.csv`, `flag_pull_events.csv`,
-je 18 Datenzeilen) — lokal, gitignored (`data/private/*` in `.gitignore`, T-2.2-28), für
-die Endwertung nach dem Event. Geschrieben von `cv/bundle.py::_vault_withheld_labels` bei
-jedem `--kind test`-Build, atomar, außerhalb jedes Bundle-Baums.
+Die Kontinuitäts- und Flag-Pull-Urteile für genau die 61 Test-Set-Clips liegen unter
+`data/private/test-labels/2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE/`
+(`continuity_review.csv`, `flag_pull_events.csv`, je 61 Datenzeilen) — lokal, gitignored
+(`data/private/*` in `.gitignore`, T-2.2-28), für die Endwertung nach dem Event. Seit Plan
+02.2-21 ist der Tresor per Session unterverzeichnet (nicht mehr zwei flache Dateien) und
+wird vom NUTZER von Hand befüllt, nicht mehr aus einer öffentlichen Tabelle abgeleitet
+(`cv/bundle.py::_vault_withheld_labels`, das die Panama-Rojo-Zurückhaltung schrieb, ist
+entfernt). Skelette (automatische Spalten vorbefüllt, Human-Spalten leer) erzeugt
+`ffep cv test-labels --session <id> --tracks <pfad>`; ein `--kind test`-Build VERIFIZIERT
+den Tresor nur noch (`cv/bundle.py::_assert_test_labels_vaulted`, ruft
+`cv.testset.validate_test_labels`) und schlägt fehl, wenn er fehlt, unvollständig ist oder
+das falsche Clip-Set abdeckt — er schreibt ihn nicht mehr. Gemessene Baseline auf dem
+Test-Set (Plan 02.2-21, 2026-09-07): **Kontinuität (BoT-SORT-Baseline, menschlich
+bewertet) 12/61 = 19,67 %.**
 
 ### Leak-Schutz (T-2.2-28)
 
@@ -218,6 +243,14 @@ Zwei unabhängige Prüfungen, keine allein:
    umbenannte Label-Datei (z. B. `notes.csv`) würde die reine Namensprüfung durchrutschen;
    die Spaltenprüfung fängt sie trotzdem
    (`tests/test_cv_bundle.py::test_assert_no_label_leak_in_tree_catches_renamed_label_file`).
+
+Eine dritte, vorgelagerte Prüfung seit Plan 02.2-21: **`_assert_test_labels_vaulted`**
+verifiziert vor jedem `--kind test`-Build, dass der Tresor für die aktuelle Test-Session
+existiert, vollständig ist (61/61 Urteile und 61/61 Outcomes) und exakt das von
+`hackathon_split.csv` deklarierte Clip-Set abdeckt — ein Build bricht ab, statt mit einem
+leeren oder falschen Tresor fortzufahren. Das ist keine Leak-Prüfung im selben Sinn wie die
+beiden obigen (sie prüft Vollständigkeit/Korrektheit, nicht Auslecken), schließt aber die
+verwandte Gefahr, versehentlich gegen das falsche Spiel zu werten.
 
 Verifiziert für das reale Archiv: `unzip`+`grep` über alle CSV-Dateien und
 `pl.read_parquet_schema` über alle Parquet-Dateien im entpackten Archiv finden `verdict` in
@@ -241,11 +274,15 @@ vertraulich gehaltenen Urteile im Label-Tresor.
 uv run pytest tests/test_cv_bundle.py -q
 ```
 
-Entpackt und geprüft: `grep -r verdict` über alle CSV-Dateien im entpackten Archiv liefert
-keinen Treffer; `pl.read_parquet_schema` über `detections.parquet`/`tracks.parquet` enthält
-keine der sechs Leak-Spalten; die 18 Clip-Nummern im Archiv sind exakt die
-`private_test = true`-Zeilen; der Label-Tresor enthält exakt dieselben 18 Clip-Nummern und
-keine Pool-Clip-Zeile.
+Entpackt und geprüft (Plan 02.2-21, 2026-09-07): `grep -r verdict` über alle CSV-Dateien im
+entpackten Archiv liefert keinen Treffer (es gibt ohnehin keine CSV-Datei im Archiv);
+`pl.read_parquet_schema` über `detections.parquet`/`tracks.parquet` enthält keine der
+sechs Leak-Spalten; kein `homography_calibration.csv` im entpackten Baum; die 61
+Clip-Nummern im Archiv (1–56, 59–63) sind exakt die `hackathon_role = private_test`-Zeilen
+von `data/reference/hackathon_split.csv`; der Label-Tresor enthält exakt dieselben 61
+Clip-Nummern, validiert über `ffep cv test-labels --session
+2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE --validate` (61/61 Urteile, 61/61
+Outcomes).
 
 ---
 
@@ -336,15 +373,48 @@ und trägt durchgehend den eingefrorenen `detector_run_id`.
 
 ---
 
-## Zweites Drohnenspiel — Stand 2026-09-01
+## Zwei neue Referenztabellen (Plan 02.2-21)
 
-Kein zweites Drohnenspiel ist zum Build-Zeitpunkt dieses Dokuments eingetroffen. Das
-Test-Set nutzt daher, wie in D-07 als Fallback vorgesehen, die 18 zurückgehaltenen Clips des
-Pilotspiels. Diese Entscheidung ist nicht endgültig: sollte vor dem Hackathon (23.–27.
-November 2026) ein zweites Drohnenspiel des Teams zustande kommen, wird das Test-Set daraus
-neu gebaut und die 18 Pilotspiel-Clips fallen in den Dev-Pool zurück (`data/reference/
-frozen_eval_clips.csv` wird für dieses Szenario neu eingefroren, nicht von Hand editiert).
+Der Hackathon-Rollen-Split ist seit Plan 02.2-21 von Grund auf von unserem eigenen
+Detektor-Eval-Split getrennt — zwei Tabellen mit zwei unterschiedlichen Aufgaben:
+
+| Datei | Aufgabe | Zeilen |
+|---|---|---|
+| `data/reference/frozen_eval_clips.csv` | **UNVERÄNDERT.** Steuert nur unser eigenes Detektor-Training/-Eval: `role = pool` ist der AL-Kandidatenpool, `role = frozen_eval` misst mAP (Pläne 02.2-15/18). Ihre `private_test`-Spalte ist als Hackathon-Signal seit diesem Plan SUPERSEDIERT und wird von `cv/bundle.py` nicht mehr gelesen. | 61 (Pilotspiel) |
+| `data/reference/hackathon_split.csv` | **NEU.** Steuert nur die Hackathon-Bundles: Spalten `domain,session_id,clip_number,hackathon_role,frozen_at,note`; `hackathon_role` ∈ {`dev`, `private_test`}. | 122 (61 dev + 61 private_test) |
+| `data/reference/al_excluded_sessions.csv` | **NEU.** Session-weiter Trainingspool-Ausschluss (nicht clip-weise, weil Clip-Nummern zwischen den beiden Drohnenspielen kollidieren): eine Zeile, die Puerto-Rico-Session, `requirement = DATA-04`. `cv/active_learning.py::select_al_frames` liest sie vor jedem Detektor-Load und verweigert eine ausgeschlossene Session. | 1 |
+
+Reproduktionskommando für beide neuen Tabellen (nie von Hand editieren):
+
+```
+uv run --extra cv ffep cv hackathon-split --test-session 2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE
+```
+
+## Zweites Drohnenspiel — gelöst 2026-09-02/07
+
+Der Fallback aus `## Zweites Drohnenspiel — Stand 2026-09-01` (18 zurückgehaltene
+Pilotspiel-Clips als D-07-Behelfslösung) ist abgelöst. Das echte zweite Drohnenspiel
+(`2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE`, GER vs. Puerto Rico, 16.05.2026, 61
+WIDE-Clips) traf am **2026-09-02** ein und wurde gegen `data/reference/video_inventory.csv`
+verifiziert. Plan 02.2-21 hat daraufhin (2026-09-02 Split-Entscheidung, 2026-09-07
+Pipeline-Lauf + Label-Vault + Bundle-Rebuild):
+
+1. den Hackathon-Split neu geschnitten (Dev = alle 61 Pilotspiel-Clips, Test =
+   alle 61 Puerto-Rico-Clips) — Dev und Test sind jetzt durch das SPIEL getrennt
+   (DATA-04), nicht mehr durch eine Clip-Zurückhaltung innerhalb desselben Spiels;
+2. die Puerto-Rico-Session dauerhaft von der aktiven-Lern-Trainingspool ausgeschlossen
+   (`al_excluded_sessions.csv`);
+3. den eingefrorenen Detektor, BoT-SORT-Baseline-Tracking und Overlays für alle 61
+   Puerto-Rico-Clips erzeugt;
+4. die menschlichen Kontinuitäts- und Flag-Pull-Urteile für alle 61 Clips im
+   gitignored Label-Tresor erhoben und validiert (12/61 = 19,67 % Kontinuitäts-Baseline);
+5. beide Bundles (Dev, Test) neu gebaut und gehasht (siehe oben).
+
+`data/reference/frozen_eval_clips.csv` — unser eigener Detektor-Eval-Split — bleibt davon
+unberührt: diese Datei war nie die Quelle der Wahrheit für die Hackathon-Rollen, das war
+schon vor diesem Plan eine implizite Vermischung zweier unterschiedlicher Aufgaben, die
+`hackathon_split.csv` jetzt explizit auflöst.
 
 ---
 
-*Zuletzt aktualisiert: 2026-09-01 (Plan 02.2-12)*
+*Zuletzt aktualisiert: 2026-09-07 (Plan 02.2-21)*
