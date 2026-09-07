@@ -92,6 +92,25 @@ def downs_range(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
     check exactly as before. `play_type`/`penalty` null on either side of
     the `==`/`.fill_null(False)` comparisons never accidentally grants the
     exemption (Kleene-null-safe).
+
+    **events-ledger-synthetic exemption (2026-09-07, eighth follow-up,
+    docs/ifaf-field-mapping.md):** a null `down` is likewise tolerated on a
+    `score_source == "events-ledger-synthetic"` row -- a synthetic
+    touchdown/conversion `ingest.ifaf.apply_events_ledger` inserts for a
+    ledger-confirmed score with no `/plays` record at all has no down by
+    construction, not by a charting gap (there was never a real play to
+    record one for). Found the same day the exemption above was written:
+    without it, these synthetic rows were the exact rows still failing this
+    check for 7 of the 9 games the eighth follow-up otherwise fixed for
+    `score_reconstruction` -- their `downs_range` failure was a direct
+    consequence of the insertion, not a separate, pre-existing gap (that
+    claim, made in this same day's earlier Nachtrag, was wrong and is
+    corrected there). Scoped to exactly that `score_source` value -- every
+    other null `down` (a live play, a no-play row without `penalty == 1`,
+    or any other source's null down) still fails the check exactly as
+    before. A row cannot be double-counted into both exemptions (a
+    synthetic row's `play_type` is never `"no_play"`), but the two are kept
+    mutually exclusive in the boolean logic below regardless, for clarity.
     """
     df = plays.sort(["game_id", "play_id"])
     down_null = pl.col("down").is_null()
@@ -100,11 +119,17 @@ def downs_range(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
         & (pl.col("play_type") == "no_play").fill_null(False)
         & (pl.col("penalty") == 1).fill_null(False)
     )
-    offending_null = down_null & ~no_play_down_exempt
+    synthetic_down_exempt = (
+        down_null
+        & (pl.col("score_source") == "events-ledger-synthetic").fill_null(False)
+        & ~no_play_down_exempt
+    )
+    offending_null = down_null & ~no_play_down_exempt & ~synthetic_down_exempt
 
     agg = df.group_by("game_id", maintain_order=True).agg(
         n_null=offending_null.sum(),
         n_exempt=no_play_down_exempt.sum(),
+        n_synthetic_exempt=synthetic_down_exempt.sum(),
         offending_values=pl.col("down")
         .filter(pl.col("down").is_not_null() & ((pl.col("down") < 0) | (pl.col("down") > 4)))
         .unique()
@@ -120,15 +145,21 @@ def downs_range(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
         n_null = row["n_null"]
         n_out = row["n_out_of_range"]
         n_exempt = row["n_exempt"]
+        n_synthetic_exempt = row["n_synthetic_exempt"]
         n_offending = n_null + n_out
         if n_offending == 0:
-            if n_exempt:
+            if n_exempt or n_synthetic_exempt:
+                exempt_parts = []
+                if n_exempt:
+                    exempt_parts.append(f"{n_exempt} no-play penalty row(s)")
+                if n_synthetic_exempt:
+                    exempt_parts.append(f"{n_synthetic_exempt} events-ledger-synthetic row(s)")
                 results.append(
                     CheckResult(
                         game_id=game_id,
                         check="downs_range",
                         status=Status.PASS,
-                        detail=f"ok ({n_exempt} no-play penalty row(s) exempt from the down check)",
+                        detail=f"ok ({' and '.join(exempt_parts)} exempt from the down check)",
                         n_offending=0,
                     )
                 )
@@ -142,6 +173,8 @@ def downs_range(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
             parts.append(f"{n_null} null down value(s)")
         if n_exempt:
             parts.append(f"{n_exempt} no-play penalty row(s) exempt")
+        if n_synthetic_exempt:
+            parts.append(f"{n_synthetic_exempt} events-ledger-synthetic row(s) exempt")
         results.append(_fail(game_id, "downs_range", "; ".join(parts), n_offending))
     return results
 
