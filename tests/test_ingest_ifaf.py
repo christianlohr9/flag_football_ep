@@ -1,10 +1,16 @@
-"""Tests for `flag_football_ep.ingest.ifaf` — cpx.studio unified-plays -> canonical.
+"""Tests for `flag_football_ep.ingest.ifaf` — cpx.studio /plays -> canonical.
 
 Uses the committed fixture (`tests/fixtures/ifaf/unified-plays_sample.json`, real
-data trimmed and redacted from a live cpx.studio snapshot) for realistic coverage,
-plus small hand-built payload variants for the specific edge cases (unknown outcome
-value, missing context key, unparseable payload, possession-change drive_id) that
-the fixture alone does not exercise deterministically.
+data trimmed and redacted from a live cpx.studio snapshot) for realistic coverage
+of the `unified-plays` fallback path, plus small hand-built payload variants for
+the specific edge cases (unknown outcome value, missing context key, unparseable
+payload, possession-change drive_id) that fixture alone does not exercise
+deterministically.
+
+The `/plays` primary path (`flatten_plays_records`, `derive_yardage_columns_plays`)
+has no committed real-data fixture -- every test below uses small, entirely
+synthetic payloads (fabricated `w-xxx-pN` player ids and fabricated names like
+"Player One"), never real player names, per project PII policy.
 """
 
 from __future__ import annotations
@@ -24,13 +30,19 @@ from flag_football_ep.ingest.ifaf import (
     OUTCOME_MAP,
     UnparseablePayload,
     _build_game_meta,
+    _load_teams_meta,
     _play_sort_key,
+    _play_type_from_actions,
     _play_type_from_sequence,
+    _plays_record_sort_key,
     derive_outcome_columns,
     derive_yardage_columns,
+    derive_yardage_columns_plays,
     derive_yards_to_go,
+    flatten_plays_records,
     flatten_unified_plays,
     ingest_snapshots,
+    load_plays_snapshot,
     load_snapshot,
 )
 from flag_football_ep.reference import UnmappedTeamError, map_teams
@@ -68,18 +80,49 @@ def _write_snapshot_dir(
     games_meta: list[dict] | None = None,
     tournament: dict | None = None,
     write_games_json: bool = True,
+    reviewer_plays_by_game: dict[str, list] | None = None,
+    teams_roster: list[dict] | None = None,
+    write_unified: bool = True,
 ) -> Path:
-    """Build a minimal `data/raw/ifaf/`-shaped directory for `ingest_snapshots`."""
+    """Build a minimal `data/raw/ifaf/`-shaped directory for `ingest_snapshots`.
+
+    `plays_by_game` writes the legacy `unified-plays_{game_id}.json` fallback
+    snapshots (existing param, unchanged meaning). `reviewer_plays_by_game`
+    (new), when given, writes the primary `plays_{game_id}.json` snapshot for
+    each listed game id -- a value of `[]` or `{"plays": []}` produces a
+    real-but-empty response (exercises the fallback decision), and a missing
+    key produces no file at all (also exercises the fallback decision, via
+    "file absent"). `teams_roster` (new), when given, writes
+    `tournament_ffwc26-women_teams.json` with the given team/player list --
+    every name in this file MUST be synthetic (never a real player name; PII
+    stays out of committed fixtures/tests, per project policy).
+    `write_unified=False` skips writing `unified-plays_*.json` files
+    entirely, for a "plays-only" game id.
+    """
     raw_dir = tmp_path / "raw_ifaf"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    for game_id, plays in plays_by_game.items():
-        (raw_dir / f"unified-plays_{game_id}.json").write_text(
-            json.dumps(plays), encoding="utf-8"
+    if write_unified:
+        for game_id, plays in plays_by_game.items():
+            (raw_dir / f"unified-plays_{game_id}.json").write_text(
+                json.dumps(plays), encoding="utf-8"
+            )
+
+    if reviewer_plays_by_game is not None:
+        for game_id, plays in reviewer_plays_by_game.items():
+            (raw_dir / f"plays_{game_id}.json").write_text(
+                json.dumps({"plays": plays}), encoding="utf-8"
+            )
+
+    if teams_roster is not None:
+        (raw_dir / "tournament_ffwc26-women_teams.json").write_text(
+            json.dumps(teams_roster), encoding="utf-8"
         )
 
     if write_games_json:
         if games_meta is None:
+            all_gids = dict.fromkeys(plays_by_game)
+            all_gids.update(dict.fromkeys(reviewer_plays_by_game or {}))
             games_meta = [
                 {
                     "id": gid,
@@ -87,7 +130,7 @@ def _write_snapshot_dir(
                     "homeTeam": {"id": "w-usa"},
                     "awayTeam": {"id": "w-ger"},
                 }
-                for gid in plays_by_game
+                for gid in all_gids
             ]
         (raw_dir / "games.json").write_text(json.dumps(games_meta), encoding="utf-8")
 
@@ -1149,4 +1192,763 @@ def test_ingest_snapshots_tournaments_filter_excludes_unresolvable_tournament_id
     # No games.json at all.
     results = ingest_snapshots(raw_dir, _team_mapping(), tournaments=["ffwc26-women"])
     assert results == []
+
+
+# ---------------------------------------------------------------------------
+# /plays (the reviewer feed) — primary source, 2026-09-07.
+# ---------------------------------------------------------------------------
+
+
+def _ev(action: str, **kwargs) -> dict:
+    return {"action": action, **kwargs}
+
+
+def _play_record(
+    sequence,
+    half: int = 1,
+    down=1,
+    ball_on=5,
+    offense: str = "w-usa",
+    nullified: bool = False,
+    events: list | None = None,
+    started_at: int = 1000,
+) -> dict:
+    """Build one synthetic `/plays` record. `down`/`ball_on` may be passed as
+    `None` to model a genuine missing-field row; player ids used across this
+    test module are always fabricated (`w-xxx-pN`), never real."""
+    return {
+        "gameId": "g1",
+        "sequence": sequence,
+        "half": half,
+        "offenseTeamId": offense,
+        "startedAt": started_at,
+        "down": down,
+        "nullified": nullified,
+        "events": events or [],
+        "ballOn": ball_on,
+    }
+
+
+def _synthetic_roster() -> list[dict]:
+    """A small, entirely fabricated roster -- no real player names."""
+    return [
+        {
+            "id": "w-usa",
+            "name": "United States",
+            "players": [
+                {"id": "w-usa-p1", "name": "Player One", "number": "1"},
+                {"id": "w-usa-p2", "name": "Player Two", "number": "2"},
+                {"id": "w-usa-p3", "name": "Player Three", "number": "3"},
+            ],
+        },
+        {
+            "id": "w-ger",
+            "name": "Germany",
+            "players": [
+                {"id": "w-ger-p1", "name": "Spielerin Eins", "number": "1"},
+                {"id": "w-ger-p2", "name": "Spielerin Zwei", "number": "2"},
+            ],
+        },
+    ]
+
+
+def _empty_player_names() -> dict[str, str]:
+    return {}
+
+
+# --- _plays_record_sort_key / _play_type_from_actions (unit) ---------------
+
+
+def test_plays_record_sort_key_orders_by_sequence_value():
+    plays = [_play_record(30), _play_record(10), _play_record(20)]
+    ordered = sorted(
+        enumerate(plays), key=lambda pair: _plays_record_sort_key(pair[0], pair[1])
+    )
+    assert [p["sequence"] for _, p in ordered] == [10, 20, 30]
+
+
+def test_plays_record_sort_key_handles_inserted_half_sequence():
+    """A `.5`-suffixed inserted sequence (e.g. `907.5`) sorts between its
+    integer neighbors, matching the live corpus's insertion convention."""
+    plays = [_play_record(10), _play_record(20), _play_record(15.5)]
+    ordered = sorted(
+        enumerate(plays), key=lambda pair: _plays_record_sort_key(pair[0], pair[1])
+    )
+    assert [p["sequence"] for _, p in ordered] == [10, 15.5, 20]
+
+
+def test_plays_record_sort_key_missing_or_non_numeric_sequence_sorts_last():
+    bad = {"sequence": None}
+    ok = _play_record(5)
+    ordered = sorted(
+        enumerate([bad, ok]), key=lambda pair: _plays_record_sort_key(pair[0], pair[1])
+    )
+    assert [p.get("sequence") for _, p in ordered] == [5, None]
+
+
+def test_play_type_from_actions_no_play_wins_over_everything():
+    assert _play_type_from_actions({"PASS", "COMPLETE"}, has_try=True, is_no_play=True) == (
+        "no_play"
+    )
+
+
+def test_play_type_from_actions_try_wins_over_pass_and_run():
+    assert _play_type_from_actions({"PASS", "COMPLETE"}, has_try=True, is_no_play=False) == (
+        "extra_point"
+    )
+
+
+def test_play_type_from_actions_pass_wins_over_run_after_catch():
+    assert _play_type_from_actions({"COMPLETE", "PASS", "RUSH"}, False, False) == "pass"
+
+
+def test_play_type_from_actions_run_only():
+    assert _play_type_from_actions({"RUSH"}, False, False) == "run"
+
+
+def test_play_type_from_actions_ambiguous_stays_none():
+    assert _play_type_from_actions({"FLAG_PULL"}, False, False) is None
+    assert _play_type_from_actions(set(), False, False) is None
+
+
+# --- load_plays_snapshot ----------------------------------------------------
+
+
+def test_load_plays_snapshot_accepts_top_level_list(tmp_path):
+    path = tmp_path / "plays_g1.json"
+    path.write_text(json.dumps([_play_record(10)]), encoding="utf-8")
+    plays = load_plays_snapshot(path)
+    assert len(plays) == 1
+
+
+def test_load_plays_snapshot_accepts_wrapped_shape(tmp_path):
+    path = tmp_path / "plays_g1.json"
+    path.write_text(json.dumps({"plays": [_play_record(10)]}), encoding="utf-8")
+    plays = load_plays_snapshot(path)
+    assert len(plays) == 1
+
+
+def test_load_plays_snapshot_empty_list_is_valid(tmp_path):
+    path = tmp_path / "plays_g1.json"
+    path.write_text(json.dumps([]), encoding="utf-8")
+    assert load_plays_snapshot(path) == []
+
+
+def test_load_plays_snapshot_raises_on_unrecognized_shape(tmp_path):
+    path = tmp_path / "plays_bad.json"
+    path.write_text(json.dumps({"unexpected": "shape"}), encoding="utf-8")
+    with pytest.raises(UnparseablePayload) as exc_info:
+        load_plays_snapshot(path)
+    assert str(path) in str(exc_info.value)
+
+
+def test_load_plays_snapshot_raises_on_bad_json(tmp_path):
+    path = tmp_path / "plays_bad.json"
+    path.write_text("not json{", encoding="utf-8")
+    with pytest.raises(UnparseablePayload):
+        load_plays_snapshot(path)
+
+
+# --- _load_teams_meta --------------------------------------------------------
+
+
+def test_load_teams_meta_builds_player_id_to_name_dict(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    (raw_dir / "tournament_ffwc26-women_teams.json").write_text(
+        json.dumps(_synthetic_roster()), encoding="utf-8"
+    )
+    names = _load_teams_meta(raw_dir)
+    assert names["w-usa-p1"] == "Player One"
+    assert names["w-ger-p2"] == "Spielerin Zwei"
+
+
+def test_load_teams_meta_folds_multiple_roster_files(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    (raw_dir / "tournament_ffwc26-women_teams.json").write_text(
+        json.dumps([_synthetic_roster()[0]]), encoding="utf-8"
+    )
+    (raw_dir / "tournament_ffwc26-men_teams.json").write_text(
+        json.dumps([_synthetic_roster()[1]]), encoding="utf-8"
+    )
+    names = _load_teams_meta(raw_dir)
+    assert names["w-usa-p1"] == "Player One"
+    assert names["w-ger-p1"] == "Spielerin Eins"
+
+
+def test_load_teams_meta_no_roster_files_returns_empty_dict(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    assert _load_teams_meta(raw_dir) == {}
+
+
+def test_load_teams_meta_tolerates_malformed_entries(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    (raw_dir / "tournament_ffwc26-women_teams.json").write_text(
+        json.dumps([{"id": "w-usa", "players": [{"id": "w-usa-p1"}, "not-a-dict", None]}]),
+        encoding="utf-8",
+    )
+    names = _load_teams_meta(raw_dir)
+    # A player with no `name` key contributes nothing; malformed entries are skipped.
+    assert names == {}
+
+
+# --- flatten_plays_records ---------------------------------------------------
+
+
+def _game_meta_plays(home: str = "w-usa", away: str = "w-ger") -> dict:
+    return {
+        "home_team": home,
+        "away_team": away,
+        "competition": "IFAF World Flag 2026 Women",
+        "season": 2026,
+        "gender": "women",
+        "tournament_id": "ffwc26-women",
+    }
+
+
+def test_flatten_plays_records_one_row_per_record_gapless_play_id():
+    payload = [_play_record(10), _play_record(20), _play_record(30)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["play_id"].to_list() == [1, 2, 3]
+    assert df["source_play_sequence"].to_list() == [10.0, 20.0, 30.0]
+
+
+def test_flatten_plays_records_qf_regression_first_and_goal_to_midfield_sequence():
+    """Regression test for the bug that motivated this rewrite: the real
+    game's first three plays read 1st @5 -> 2nd @11 -> 3rd @31, not the
+    down-2/ballOn-4 default state the old unified-plays context produced."""
+    payload = [
+        _play_record(10, down=1, ball_on=5, events=[_ev("PASS"), _ev("COMPLETE")]),
+        _play_record(20, down=2, ball_on=11, events=[_ev("PASS"), _ev("COMPLETE")]),
+        _play_record(30, down=3, ball_on=31, events=[_ev("PASS"), _ev("COMPLETE")]),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    df = derive_yardage_columns_plays(df)
+    df = derive_yards_to_go(df)
+    assert df["down"].to_list() == [1, 2, 3]
+    assert df["yardline_50"].to_list() == [5, 11, 31]
+    # yards_to_go: midfield-targeting until yardline_50 >= 25, then goal-targeting.
+    assert df["yards_to_go"].to_list() == [20, 14, 19]
+
+
+def test_flatten_plays_records_try_sets_down_zero_even_when_raw_down_null():
+    payload = [_play_record(10, down=None, ball_on=45, events=[_ev("TRY", tryPoints=1, tryGood=True)])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["down"].to_list() == [0]
+    assert df["_missing_down"].to_list() == [0]  # a TRY's null down is not a "missing" gap
+
+
+def test_flatten_plays_records_nullified_becomes_no_play_all_flags_zero():
+    payload = [
+        _play_record(
+            10,
+            nullified=True,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=1, tryGood=True)],
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["play_type"] == "no_play"
+    assert row["complete_pass"] == 0
+    assert row["one_point_conv_success"] == 0
+    assert row["_nullified"] == 1
+    # Raw record still preserved for traceability, not silently dropped.
+    assert row["result_raw"] == "PASS, COMPLETE, TRY"
+
+
+def test_flatten_plays_records_penalty_only_is_no_play():
+    payload = [_play_record(10, events=[_ev("PENALTY", offendingTeamId="w-ger", penaltyType="OTHER")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["play_type"] == "no_play"
+    assert row["penalty"] == 1
+    assert row["penalty_type"] == "OTHER"
+
+
+def test_flatten_plays_records_penalty_on_live_play_keeps_real_play_type():
+    payload = [
+        _play_record(10, events=[_ev("PASS"), _ev("COMPLETE"), _ev("PENALTY", penaltyType="ILLEGAL_CONTACT")])
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["play_type"] == "pass"
+    assert row["complete_pass"] == 1
+    assert row["penalty"] == 1
+
+
+def test_flatten_plays_records_drive_id_increments_on_offense_change():
+    payload = [
+        _play_record(10, offense="w-usa"),
+        _play_record(20, offense="w-usa"),
+        _play_record(30, offense="w-ger"),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["drive_id"].to_list() == [1, 1, 2]
+
+
+def test_flatten_plays_records_touchdown_with_interception_is_defensive():
+    payload = [_play_record(10, events=[_ev("PASS"), _ev("INTERCEPTION"), _ev("TOUCHDOWN")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["def_touchdown"] == 1
+    assert row["touchdown"] == 0
+    assert row["interception"] == 1
+
+
+def test_flatten_plays_records_touchdown_without_interception_is_offensive():
+    payload = [_play_record(10, events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["touchdown"] == 1
+    assert row["def_touchdown"] == 0
+    assert row["play_type"] == "pass"
+
+
+def test_flatten_plays_records_touchdown_with_rush_is_run_play_type():
+    payload = [_play_record(10, events=[_ev("RUSH"), _ev("TOUCHDOWN")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["touchdown"] == 1
+    assert row["play_type"] == "run"
+
+
+def test_flatten_plays_records_touchdown_with_no_pass_or_run_signal_stays_type_none():
+    payload = [_play_record(10, events=[_ev("TOUCHDOWN")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["touchdown"] == 1
+    assert row["play_type"] is None
+
+
+@pytest.mark.parametrize(
+    "try_points,try_good,expected_one,expected_two",
+    [(1, True, 1, 0), (2, True, 0, 1), (1, False, 0, 0), (2, False, 0, 0), (None, None, 0, 0)],
+)
+def test_flatten_plays_records_try_points_good_sets_conversion_flags(
+    try_points, try_good, expected_one, expected_two
+):
+    payload = [
+        _play_record(
+            10,
+            down=None,
+            ball_on=45,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=try_points, tryGood=try_good)],
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["one_point_conv_success"] == expected_one
+    assert row["two_point_conv_success"] == expected_two
+    assert row["defensive_two_point_conv"] == 0
+
+
+def test_flatten_plays_records_sack_is_pass_play_type():
+    payload = [_play_record(10, down=4, events=[_ev("SACK")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["sack"] == 1
+    assert row["play_type"] == "pass"
+
+
+def test_flatten_plays_records_interception_alone_is_pass_play_type():
+    """A record with only an `INTERCEPTION` action (no `PASS` event captured,
+    a real live-corpus data gap) still classifies as a pass -- an
+    interception can only happen on a passing down."""
+    payload = [_play_record(10, events=[_ev("INTERCEPTION")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["interception"] == 1
+    assert row["play_type"] == "pass"
+
+
+def test_flatten_plays_records_safety_flag_and_ambiguous_play_type():
+    payload = [_play_record(10, events=[_ev("SAFETY")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["safety"] == 1
+    assert row["play_type"] is None  # no pass/run signal in this record
+
+
+def test_flatten_plays_records_empty_events_not_nullified_stays_unknown():
+    payload = [_play_record(10, events=[])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["play_type"] is None
+    assert row["result_raw"] is None
+    assert row["complete_pass"] == 0
+
+
+def test_flatten_plays_records_unknown_action_recorded_not_raised():
+    payload = [_play_record(10, events=[_ev("SOME_NEW_ACTION")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["_unknown_action"].to_list() == ["SOME_NEW_ACTION"]
+
+
+def test_flatten_plays_records_player_resolution_pass_complete():
+    payload = [
+        _play_record(
+            10,
+            events=[
+                _ev("PASS", playerId="w-usa-p1", intendedReceiverId="w-usa-p2"),
+                _ev("COMPLETE", playerId="w-usa-p2"),
+            ],
+        )
+    ]
+    names = {"w-usa-p1": "Player One", "w-usa-p2": "Player Two"}
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", names)
+    row = df.row(0, named=True)
+    assert row["qb"] == "Player One"
+    assert row["thrown_by"] == "Player One"
+    assert row["target"] == "Player Two"
+    assert row["received_by"] == "Player Two"
+
+
+def test_flatten_plays_records_player_resolution_falls_back_to_incomplete_pass_event():
+    """~1% of the live corpus records an `INCOMPLETE_PASS` action with no
+    accompanying `PASS` event -- `qb`/`target` still resolve from it."""
+    payload = [
+        _play_record(
+            10,
+            events=[_ev("INCOMPLETE_PASS", playerId="w-usa-p1", intendedReceiverId="w-usa-p2")],
+        )
+    ]
+    names = {"w-usa-p1": "Player One", "w-usa-p2": "Player Two"}
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", names)
+    row = df.row(0, named=True)
+    assert row["qb"] == "Player One"
+    assert row["target"] == "Player Two"
+    assert row["received_by"] is None  # nobody caught it
+
+
+def test_flatten_plays_records_rush_ball_carrier_maps_to_target():
+    payload = [_play_record(10, events=[_ev("RUSH", playerId="w-usa-p3")])]
+    names = {"w-usa-p3": "Player Three"}
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", names)
+    row = df.row(0, named=True)
+    assert row["target"] == "Player Three"
+    assert row["qb"] is None
+
+
+def test_flatten_plays_records_pass_side_depth_incomplete_reason_extras():
+    payload = [
+        _play_record(
+            10,
+            events=[
+                _ev(
+                    "INCOMPLETE_PASS",
+                    passSide="LEFT",
+                    passDepth="DEEP",
+                    incompleteReason="DROPPED",
+                )
+            ],
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["pass_side"] == "LEFT"
+    assert row["pass_depth"] == "DEEP"
+    assert row["incomplete_reason"] == "DROPPED"
+
+
+def test_flatten_plays_records_missing_down_and_ballon_counted_and_null():
+    payload = [_play_record(10, down=None, ball_on=None, events=[_ev("PASS"), _ev("COMPLETE")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["_missing_down"].to_list() == [1]
+    assert df["_missing_ballon"].to_list() == [1]
+    assert df["down"].to_list() == [None]
+    assert df["yardline_50"].to_list() == [None]
+
+
+def test_flatten_plays_records_missing_offense_counted():
+    payload = [
+        {
+            "gameId": "g1",
+            "sequence": 10,
+            "half": 1,
+            "startedAt": 1000,
+            "down": 1,
+            "nullified": False,
+            "events": [],
+            "ballOn": 5,
+        }
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["_missing_offense"].to_list() == [1]
+
+
+def test_flatten_plays_records_output_columns_match_working_schema_columns():
+    payload = [_play_record(10)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    # source_detail defaults to null on the primary path (stamped only on the
+    # unified-plays fallback path, by `ingest_snapshots`).
+    assert df["source_detail"].to_list() == [None]
+
+
+# --- derive_yardage_columns_plays -------------------------------------------
+
+
+def _plays_frame(rows: list[dict]) -> pl.DataFrame:
+    """Build a minimal already-flattened `/plays` working frame for
+    `derive_yardage_columns_plays` unit tests, filling every column the
+    function reads with a safe default when not given."""
+    defaults = {
+        "game_id": "ifaf-g1",
+        "play_id": 0,
+        "drive_id": 1,
+        "down": 1,
+        "yardline_50": 5,
+        "play_type": "pass",
+        "touchdown": 0,
+        "safety": 0,
+        "interception": 0,
+        "def_touchdown": 0,
+        "defensive_two_point_conv": 0,
+    }
+    full_rows = []
+    for i, row in enumerate(rows):
+        merged = {**defaults, **row}
+        merged["play_id"] = i + 1
+        full_rows.append(merged)
+    return pl.DataFrame(full_rows)
+
+
+def test_derive_yardage_plays_same_drive_gain():
+    df = _plays_frame(
+        [
+            {"drive_id": 1, "yardline_50": 5},
+            {"drive_id": 1, "yardline_50": 11},
+        ]
+    )
+    out = derive_yardage_columns_plays(df)
+    assert out["yards_gained"].to_list() == [6, None]
+
+
+def test_derive_yardage_plays_touchdown_distance_to_goal():
+    df = _plays_frame([{"yardline_50": 42, "touchdown": 1}])
+    out = derive_yardage_columns_plays(df)
+    assert out["yards_gained"].to_list() == [8]
+
+
+def test_derive_yardage_plays_safety_negative_of_yardline():
+    df = _plays_frame([{"yardline_50": 3, "safety": 1}])
+    out = derive_yardage_columns_plays(df)
+    assert out["yards_gained"].to_list() == [-3]
+
+
+def test_derive_yardage_plays_interception_stays_null():
+    df = _plays_frame(
+        [
+            {"drive_id": 1, "yardline_50": 24, "interception": 1},
+            {"drive_id": 2, "yardline_50": 36},
+        ]
+    )
+    out = derive_yardage_columns_plays(df)
+    assert out["yards_gained"].to_list() == [None, None]
+
+
+def test_derive_yardage_plays_def_touchdown_stays_null():
+    df = _plays_frame([{"yardline_50": 24, "def_touchdown": 1, "interception": 1}])
+    out = derive_yardage_columns_plays(df)
+    assert out["yards_gained"].to_list() == [None]
+
+
+def test_derive_yardage_plays_no_play_stays_null_never_fake_gain():
+    df = _plays_frame(
+        [
+            {"drive_id": 1, "yardline_50": 5, "play_type": "no_play"},
+            {"drive_id": 1, "yardline_50": 20},
+        ]
+    )
+    out = derive_yardage_columns_plays(df)
+    assert out["yards_gained"].to_list() == [None, None]
+
+
+def test_derive_yardage_plays_try_row_excluded_even_with_same_drive_next():
+    df = _plays_frame(
+        [
+            {"drive_id": 1, "down": 0, "yardline_50": 45, "play_type": "extra_point"},
+            {"drive_id": 1, "yardline_50": 5},
+        ]
+    )
+    out = derive_yardage_columns_plays(df)
+    assert out["yards_gained"].to_list() == [None, None]
+
+
+def test_derive_yardage_plays_penalty_between_plays_absorbs_adjustment():
+    """A dead-ball penalty record sitting between two real plays on the same
+    drive is this rule's own "next record" for the play immediately before
+    it -- its `ballOn` already reflects the enforced spot, so the diff
+    naturally includes the penalty adjustment with no special-casing."""
+    df = _plays_frame(
+        [
+            {"drive_id": 1, "yardline_50": 5},  # live play
+            {"drive_id": 1, "yardline_50": 18, "play_type": "no_play"},  # penalty no-play
+            {"drive_id": 1, "yardline_50": 30},  # next live play
+        ]
+    )
+    out = derive_yardage_columns_plays(df)
+    # First play's own gain reflects the spot after the penalty was enforced.
+    assert out["yards_gained"].to_list()[0] == 13
+    assert out["yards_gained"].to_list()[1] is None  # the no-play row itself
+
+
+def test_derive_yardage_plays_last_play_of_game_stays_null():
+    df = _plays_frame([{"drive_id": 1, "yardline_50": 20}])
+    out = derive_yardage_columns_plays(df)
+    assert out["yards_gained"].to_list() == [None]
+
+
+def test_derive_yardage_plays_missing_yardline_propagates_null():
+    df = _plays_frame(
+        [
+            {"drive_id": 1, "yardline_50": None},
+            {"drive_id": 1, "yardline_50": 20},
+        ]
+    )
+    out = derive_yardage_columns_plays(df)
+    assert out["yards_gained"].to_list() == [None, None]
+
+
+# --- ingest_snapshots: primary /plays vs unified-plays fallback ------------
+
+
+def test_ingest_snapshots_uses_plays_primary_when_usable(tmp_path):
+    reviewer_plays = {
+        "g1": [
+            _play_record(10, down=1, ball_on=5, events=[_ev("PASS"), _ev("COMPLETE")]),
+            _play_record(20, down=2, ball_on=11, events=[_ev("PASS"), _ev("COMPLETE")]),
+        ]
+    }
+    raw_dir = _write_snapshot_dir(
+        tmp_path,
+        plays_by_game={},
+        reviewer_plays_by_game=reviewer_plays,
+        write_unified=False,
+    )
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    assert len(results) == 1
+    gid, df, notices = results[0]
+    assert gid == "g1"
+    assert df.height == 2
+    assert df["down"].to_list() == [1, 2]
+    assert df["yardline_50"].to_list() == [5, 11]
+    assert df["source_detail"].to_list() == [None, None]
+    assert not notices.skipped
+
+
+def test_ingest_snapshots_falls_back_when_plays_file_missing(tmp_path):
+    unified_payload = [{"playNumber": 1, "context": {"half": 1, "down": 1, "ballOn": 5, "possessionTeamId": "w-usa"}}]
+    raw_dir = _write_snapshot_dir(tmp_path, plays_by_game={"g1": unified_payload})
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    assert len(results) == 1
+    gid, df, notices = results[0]
+    assert df.height == 1
+    assert df["source_detail"].to_list() == ["unified-plays-fallback"]
+    assert any("fell back to unified-plays" in m for m in notices.messages)
+
+
+def test_ingest_snapshots_falls_back_when_plays_response_is_empty(tmp_path):
+    unified_payload = [{"playNumber": 1, "context": {"half": 1, "down": 1, "ballOn": 5, "possessionTeamId": "w-usa"}}]
+    raw_dir = _write_snapshot_dir(
+        tmp_path,
+        plays_by_game={"g1": unified_payload},
+        reviewer_plays_by_game={"g1": []},
+    )
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    gid, df, notices = results[0]
+    assert df["source_detail"].to_list() == ["unified-plays-fallback"]
+
+
+def test_ingest_snapshots_falls_back_when_plays_file_unparseable(tmp_path):
+    unified_payload = [{"playNumber": 1, "context": {"half": 1, "down": 1, "ballOn": 5, "possessionTeamId": "w-usa"}}]
+    raw_dir = _write_snapshot_dir(tmp_path, plays_by_game={"g1": unified_payload})
+    (raw_dir / "plays_g1.json").write_text("not json{", encoding="utf-8")
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    gid, df, notices = results[0]
+    assert df["source_detail"].to_list() == ["unified-plays-fallback"]
+    assert any("could not read/parse JSON" in m for m in notices.messages)
+
+
+def test_ingest_snapshots_discovers_plays_only_game_with_no_unified_file(tmp_path):
+    """A game with only a `plays_{id}.json` file (no matching
+    `unified-plays_{id}.json`) is still discovered and ingested via the
+    primary path -- game discovery is the union of both snapshot kinds."""
+    reviewer_plays = {"g1": [_play_record(10)]}
+    raw_dir = _write_snapshot_dir(
+        tmp_path, plays_by_game={}, reviewer_plays_by_game=reviewer_plays, write_unified=False
+    )
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    assert [gid for gid, _, _ in results] == ["g1"]
+
+
+def test_ingest_snapshots_plays_unmapped_action_recorded_as_notice(tmp_path):
+    reviewer_plays = {"g1": [_play_record(10, events=[_ev("MYSTERY_ACTION")])]}
+    raw_dir = _write_snapshot_dir(
+        tmp_path, plays_by_game={}, reviewer_plays_by_game=reviewer_plays, write_unified=False
+    )
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    _, df, notices = results[0]
+    assert notices.unmapped_outcomes == {"MYSTERY_ACTION": 1}
+
+
+def test_ingest_snapshots_plays_nullified_count_recorded_as_notice(tmp_path):
+    reviewer_plays = {
+        "g1": [_play_record(10, nullified=True, events=[_ev("PASS"), _ev("COMPLETE")])]
+    }
+    raw_dir = _write_snapshot_dir(
+        tmp_path, plays_by_game={}, reviewer_plays_by_game=reviewer_plays, write_unified=False
+    )
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    _, df, notices = results[0]
+    assert any("1 nullified" in m for m in notices.messages)
+
+
+def test_ingest_snapshots_plays_missing_context_keys_notice(tmp_path):
+    reviewer_plays = {"g1": [_play_record(10, down=None, ball_on=None, events=[_ev("PASS")])]}
+    raw_dir = _write_snapshot_dir(
+        tmp_path, plays_by_game={}, reviewer_plays_by_game=reviewer_plays, write_unified=False
+    )
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    _, df, notices = results[0]
+    assert notices.missing_context_keys.get("down") == 1
+    assert notices.missing_context_keys.get("ballOn") == 1
+
+
+def test_ingest_snapshots_plays_output_columns_equal_canonical_columns(tmp_path):
+    reviewer_plays = {"g1": [_play_record(10)]}
+    raw_dir = _write_snapshot_dir(
+        tmp_path, plays_by_game={}, reviewer_plays_by_game=reviewer_plays, write_unified=False
+    )
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    _, df, _ = results[0]
+    assert df.columns == list(CANONICAL_COLUMNS)
+
+
+def test_ingest_snapshots_plays_resolves_player_names_via_roster(tmp_path):
+    reviewer_plays = {
+        "g1": [
+            _play_record(
+                10,
+                events=[
+                    _ev("PASS", playerId="w-usa-p1", intendedReceiverId="w-usa-p2"),
+                    _ev("COMPLETE", playerId="w-usa-p2"),
+                ],
+            )
+        ]
+    }
+    raw_dir = _write_snapshot_dir(
+        tmp_path,
+        plays_by_game={},
+        reviewer_plays_by_game=reviewer_plays,
+        teams_roster=_synthetic_roster(),
+        write_unified=False,
+    )
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    _, df, _ = results[0]
+    row = df.row(0, named=True)
+    assert row["qb"] == "Player One"
+    assert row["received_by"] == "Player Two"
 

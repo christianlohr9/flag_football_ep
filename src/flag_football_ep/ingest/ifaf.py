@@ -1,18 +1,32 @@
-"""cpx.studio (IFAF WM-2026) snapshot parser: `unified-plays` JSON -> canonical plays.
+"""cpx.studio (IFAF WM-2026) snapshot parser: `/plays` JSON -> canonical plays.
 
 Reads the raw snapshots `fetch/ifaf.py` already wrote to disk (`data/raw/ifaf/`);
 no network access happens here. Implements `docs/ifaf-field-mapping.md` exactly —
-see that document for the per-field evidence (`observed`/`documented`/`absent`)
-this parser is built against, including why `context.ballOn` maps onto
-`yardline_50` with an identity transform, and why `yards_to_go` is derived from
-field position (`derive_yards_to_go`) rather than trusted from the payload's own
-`context.yardsToGo` (a hardcoded constant, not real per-play distance data).
+see that document (Nachtrag 2026-09-07) for the per-field evidence this parser is
+built against.
+
+**Primary source, as of 2026-09-07: `/games/{id}/plays` (`plays_{id}.json`), not
+`unified-plays`.** The unified-plays `context` block (down/ballOn/yardsToGo) was
+found to not be a reliable pre-snap state — it alternates between pre- and
+post-play spots and a large share of rows sit on the endpoint's own literal
+default state. `/plays` is the reviewer-facing, per-play-reviewed feed: real
+pre-snap `down`/`ballOn`/`half`/`offenseTeamId`, a `nullified` flag, and an
+`events[]` action list this module derives every outcome flag and `play_type`
+from directly (`flatten_plays_records`). `flatten_unified_plays`/
+`derive_outcome_columns` (the pre-2026-09-07 primary path) are kept unchanged
+and now serve only as the fallback for a game with no usable `/plays` snapshot
+(`ingest_snapshots` picks per game, stamping `source_detail` on the fallback
+rows only) — every downstream derivation
+(`derive_yardage_columns`/`derive_yards_to_go`) still applies to that path
+exactly as before.
 
 Convergence with the other ingest sources (hudl, legacy, sportapp) happens only at
 `canonical.conform_to_canonical` — this module never reuses the Hudl `RESULT`
-token parser or the sportapp free-text summary parser. `OUTCOME_MAP` is this
-source's own, from-scratch vocabulary, driven entirely by the `outcome.type`
-values documented in the mapping doc's outcome-vocabulary section.
+token parser or the sportapp free-text summary parser. `OUTCOME_MAP` is the
+unified-plays fallback path's own, from-scratch vocabulary, driven entirely by
+the `outcome.type` values documented in the mapping doc's outcome-vocabulary
+section; the `/plays` primary path has its own action-list vocabulary
+(`_PLAYS_PASS_ACTIONS`/`_PLAYS_RUN_ACTIONS`/`_TRY_ACTION`), from-scratch too.
 """
 
 from __future__ import annotations
@@ -739,22 +753,600 @@ def _build_game_meta(game_entry: dict, tournament_entry: dict) -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# `/games/{id}/plays` (the reviewer-feed) — primary source, 2026-09-07.
+# ---------------------------------------------------------------------------
+
+# `events[].action` vocabulary observed on `/plays` records (docs/ifaf-field-
+# mapping.md Nachtrag 2026-09-07, full 5,522-record corpus, both tournaments):
+# PASS, COMPLETE, FLAG_PULL, INCOMPLETE_PASS, TOUCHDOWN, TRY, RUSH, PENALTY,
+# PASS_BREAK_UP, INTERCEPTION, SACK, SAFETY. `HAND_OFF` was never observed in
+# this corpus but is kept in `_PLAYS_RUN_ACTIONS` as a documented, harmless
+# synonym for `RUSH` (both would classify identically) in case a future
+# refresh's charting uses it.
+_TRY_ACTION = "TRY"
+_PLAYS_PASS_ACTIONS = frozenset(
+    {"PASS", "COMPLETE", "INCOMPLETE_PASS", "INTERCEPTION", "SACK", "PASS_BREAK_UP"}
+)
+_PLAYS_RUN_ACTIONS = frozenset({"RUSH", "HAND_OFF"})
+_KNOWN_PLAYS_ACTIONS = _PLAYS_PASS_ACTIONS | _PLAYS_RUN_ACTIONS | {
+    "TOUCHDOWN",
+    _TRY_ACTION,
+    "PENALTY",
+    "FLAG_PULL",
+    "SAFETY",
+}
+
+# Working frame schema for the `/plays`-derived primary path. Distinct from
+# `_WORKING_SCHEMA` (the unified-plays fallback path's frame) because the two
+# sources compute outcome flags directly at flatten time here (no separate
+# `derive_outcome_columns`-equivalent pass is needed — the `events[]` action
+# list is already fully resolved per play, unlike unified-plays' single
+# `outcome.type` string). `_`-prefixed columns are working-only and dropped by
+# `conform_to_canonical`'s final `select`, same convention as `_WORKING_SCHEMA`.
+_PLAYS_WORKING_SCHEMA: dict[str, pl.DataType] = {
+    "source": pl.Utf8,
+    "source_game_id": pl.Utf8,
+    "game_id": pl.Utf8,
+    "play_id": pl.Int32,
+    "drive_id": pl.Int32,
+    "half": pl.Int32,
+    "down": pl.Int32,
+    "yards_to_go": pl.Int32,
+    "yardline": pl.Int32,
+    "yardline_50": pl.Int32,
+    "yardline_50_after": pl.Int32,
+    "yardline_50_simple": pl.Int32,
+    "yards_to_go_simple": pl.Int32,
+    "yards_gained": pl.Int32,
+    "first_down": pl.Int32,
+    "game_clock_ms": pl.Int64,
+    "half_seconds_remaining": pl.Float64,
+    "posteam": pl.Utf8,
+    "posteam_after": pl.Utf8,
+    "home_team": pl.Utf8,
+    "away_team": pl.Utf8,
+    "defteam": pl.Utf8,
+    "play_type": pl.Utf8,
+    "result_raw": pl.Utf8,
+    "description": pl.Utf8,
+    "competition": pl.Utf8,
+    "season": pl.Int32,
+    "gender": pl.Utf8,
+    "tournament_id": pl.Utf8,
+    "complete_pass": pl.Int32,
+    "sack": pl.Int32,
+    "interception": pl.Int32,
+    "safety": pl.Int32,
+    "touchdown": pl.Int32,
+    "def_touchdown": pl.Int32,
+    "one_point_conv_success": pl.Int32,
+    "two_point_conv_success": pl.Int32,
+    "defensive_two_point_conv": pl.Int32,
+    "penalty": pl.Int32,
+    "qb": pl.Utf8,
+    "thrown_by": pl.Utf8,
+    "received_by": pl.Utf8,
+    "target": pl.Utf8,
+    "pass_side": pl.Utf8,
+    "pass_depth": pl.Utf8,
+    "incomplete_reason": pl.Utf8,
+    "penalty_type": pl.Utf8,
+    "source_detail": pl.Utf8,
+    "source_play_sequence": pl.Float64,
+    "_missing_down": pl.Int32,
+    "_missing_ballon": pl.Int32,
+    "_missing_offense": pl.Int32,
+    "_nullified": pl.Int32,
+    "_unknown_action": pl.Utf8,
+}
+
+
+def _extract_plays_records(payload: Any) -> list | None:
+    """Same tolerance as `_extract_plays_list`, but for the `/plays` response
+    shape: a top-level list, or an object wrapping the play array under
+    `plays` (the only wrapper key observed live for this endpoint)."""
+    if isinstance(payload, list):
+        return payload
+    if isinstance(payload, dict):
+        value = payload.get("plays")
+        if isinstance(value, list):
+            return value
+    return None
+
+
+def load_plays_snapshot(path: Path) -> list:
+    """Read one `plays_{game_id}.json` snapshot (the `/games/{id}/plays`
+    reviewer feed) from disk.
+
+    Accepts a top-level list or an object wrapping the play array under
+    `plays` (the observed shape). Raises `UnparseablePayload` naming the file
+    when neither shape is present or the file is not valid JSON. An empty list
+    is a valid, real payload (a reconciliation gap -- `reconciliation.reason
+    == "no-tries-labelled"` -- or a genuine forfeit), not an error; deciding
+    whether an empty/missing/unparseable `/plays` snapshot should fall back to
+    `unified-plays` is `ingest_snapshots`' job, not this function's.
+    """
+    path = Path(path)
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            payload = json.load(f)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise UnparseablePayload(f"{path}: could not read/parse JSON ({exc})") from exc
+
+    plays = _extract_plays_records(payload)
+    if plays is None:
+        raise UnparseablePayload(
+            f"{path}: unrecognized /plays payload shape "
+            "(expected a top-level list or an object with a 'plays' list)"
+        )
+    return plays
+
+
+def _load_teams_meta(raw_dir: Path) -> dict[str, str]:
+    """`playerId` -> player name, folded from every `tournament_*_teams.json`
+    roster file under `raw_dir`.
+
+    These roster files are gitignored (never committed) and carry real player
+    names (PII) -- this function only ever runs against a local `raw_dir` at
+    ingest time, never against a test fixture or anything that reaches a
+    commit. Player ids are team-code-prefixed (`w-esp-p16`) and observed
+    globally unique across every roster file in the live corpus, so every
+    file's players are folded into one flat dict with no collision handling
+    needed.
+    """
+    names: dict[str, str] = {}
+    for path in sorted(raw_dir.glob("tournament_*_teams.json")):
+        payload = _read_json_or_empty(path)
+        if not isinstance(payload, list):
+            continue
+        for team in payload:
+            if not isinstance(team, dict):
+                continue
+            for player in team.get("players") or []:
+                if not isinstance(player, dict):
+                    continue
+                pid = player.get("id")
+                name = player.get("name")
+                if pid and name:
+                    names[str(pid)] = str(name)
+    return names
+
+
+def _plays_record_sort_key(index: int, play: Any) -> tuple[float, int]:
+    """Sort key for one `/plays` record, resilient to malformed input --
+    mirrors `_play_sort_key`'s resilience contract but keys on `sequence`
+    (a float: inserted rows use a `.5` suffix, e.g. `907.5`) instead of
+    `playNumber`. A record with a usable numeric `sequence` sorts by that
+    value; everything else (missing/null/non-numeric `sequence`, or a
+    non-dict entry) sorts after all of those, in stable payload order.
+    """
+    seq = play.get("sequence") if isinstance(play, dict) else None
+    if isinstance(seq, (int, float)) and not isinstance(seq, bool):
+        return (float(seq), index)
+    return (float("inf"), index)
+
+
+def _play_type_from_actions(actions: set[str], has_try: bool, is_no_play: bool) -> str | None:
+    """Classify one `/plays` record's `play_type` from its `events[].action`
+    set. Priority: a no-play (nullified or penalty-only) record is always
+    `"no_play"`; a TRY-shaped record (any `TRY` action) is always
+    `"extra_point"` regardless of whether the attempt itself was thrown or
+    run (matches the unified-plays fallback path's `_PLAY_TYPE_FROM_OUTCOME`
+    convention for `XP1`/`XP2`/`TRY`); otherwise a pass-shaped action wins
+    over a run-shaped one (yards-after-catch running on a completed pass must
+    not misclassify it as a run -- same precedence
+    `_play_type_from_sequence` already uses for the fallback path); a record
+    with neither signal (an empty/ambiguous action list) stays null, per the
+    null-is-for-unparsed contract convention.
+    """
+    if is_no_play:
+        return "no_play"
+    if has_try:
+        return "extra_point"
+    if actions & _PLAYS_PASS_ACTIONS:
+        return "pass"
+    if actions & _PLAYS_RUN_ACTIONS:
+        return "run"
+    return None
+
+
+def flatten_plays_records(
+    payload: list, game_meta: dict, game_id: str, player_names: dict[str, str]
+) -> pl.DataFrame:
+    """Turn one game's `/plays` array into one canonical-shaped row per play
+    record.
+
+    `play_id` is assigned 1..N by sorting on the record's own `sequence`
+    (`_plays_record_sort_key`), not by trusting play-record order in the
+    payload. The raw `sequence` value is preserved verbatim as the
+    `source_play_sequence` extra. `drive_id` starts at 1 and increments only
+    when `offenseTeamId` changes between two records where it is known (same
+    convention `flatten_unified_plays` uses for `possessionTeamId`).
+
+    Every play record becomes exactly one canonical row -- never silently
+    dropped. A `nullified` record (the reviewer overturned it) or a
+    penalty-only record (its only `events[].action` is `PENALTY`, a dead-ball
+    foul with no live-play result) becomes a `play_type == "no_play"` row with
+    every outcome flag forced to 0 and `yards_gained` left for
+    `derive_yardage_columns_plays` to null explicitly -- the record's own raw
+    `result_raw` (a comma-joined action list) is still preserved for
+    traceability, but nothing it implies (a score, a turnover, a gain) is
+    ever trusted for a record the reviewer marked overturned or a record that
+    is pure penalty bookkeeping.
+
+    Outcome flags are read directly off the record's own `events[].action`
+    set (no separate `outcome.type`-style single field exists on this
+    endpoint): `complete_pass`/`sack`/`interception`/`safety`/`penalty` each
+    set from the matching action's presence; `touchdown` sets from a
+    `TOUCHDOWN` action, except when `INTERCEPTION` also appears on the same
+    record (a pick-six), which sets `def_touchdown` instead (no
+    `TOUCHDOWN`+`TRY` co-occurrence and no other turnover-shaped touchdown
+    signal was observed in the live corpus, so this is the only split
+    modeled); `one_point_conv_success`/`two_point_conv_success` come from the
+    `TRY` event's own `tryPoints`/`tryGood` fields (`tryGood is True` and
+    `tryPoints in {1, 2}`; a failed or unlabelled attempt sets neither).
+    `defensive_two_point_conv` is always 0 -- no record combining a failed
+    `TRY`'s defensive return with a score was observed live, so this flag
+    stays a documented-absent case for this source (see the field-mapping
+    doc), not a silently-wrong guess.
+
+    `qb`/`thrown_by` both resolve to the `PASS` event's own `playerId` (this
+    source carries exactly one passer identity per play, unlike Hudl's two
+    separately-charted `QB`/`THROWN BY` columns, so both extras get the same
+    value rather than leaving one perpetually null) -- falling back to an
+    `INCOMPLETE_PASS` event's `playerId` when no `PASS` event exists on the
+    record (a charting gap observed on ~1% of the live corpus: an incompletion
+    recorded with no separate `PASS` action, even though `INCOMPLETE_PASS`
+    itself carries the same `playerId`/`intendedReceiverId` shape). `target`
+    resolves the same way (`intendedReceiverId` off whichever of those two
+    events is present) when a pass was thrown, else to a `RUSH`/`HAND_OFF`
+    event's own `playerId` (the ball carrier) -- mirroring
+    `ingest/sportapp.py`'s existing `rusher -> target` convention, the
+    closest established precedent for a structured (non-charted-free-text)
+    source. `received_by` resolves to the `COMPLETE` event's `playerId` only
+    (the offense's own receiver; stays null on an incompletion or an
+    interception, where the offense never received the ball). All four are
+    resolved through `player_names` (`_load_teams_meta`'s local, gitignored
+    roster lookup) to a plain name string -- never left as a raw
+    `w-esp-p16`-style id.
+
+    A play record's own `down` is copied through as-is, except a TRY-shaped
+    record always gets `down = 0` (this project's existing PAT convention --
+    see `docs/data-contract.md`'s "DN = 0 markiert einen PAT-Play" and
+    `derive_yards_to_go`'s own `down == 0` branch) even when the record's raw
+    `down` field is itself null (observed on every TRY record in the live
+    corpus) -- this lets `derive_yards_to_go` run unchanged on this working
+    frame. A genuinely null `down` on a non-TRY record (a real data gap, a
+    handful of live plays in the corpus) stays null, per the
+    null-is-for-unparsed contract convention, and is counted in
+    `_missing_down` for `IngestNotices`.
+    """
+    home_raw = game_meta.get("home_team")
+    away_raw = game_meta.get("away_team")
+    competition = game_meta.get("competition")
+    season = game_meta.get("season")
+    gender = game_meta.get("gender")
+    tournament_id = game_meta.get("tournament_id")
+
+    ordered = sorted(
+        enumerate(payload), key=lambda pair: _plays_record_sort_key(pair[0], pair[1])
+    )
+
+    rows: list[dict] = []
+    prev_offense_raw: str | None = None
+    drive_id = 1
+
+    for play_id, (_, play) in enumerate(ordered, start=1):
+        if not isinstance(play, dict):
+            play = {}
+
+        events = play.get("events") or []
+        if not isinstance(events, list):
+            events = []
+        dict_events = [e for e in events if isinstance(e, dict)]
+        actions_seen = list(
+            dict.fromkeys(e.get("action") for e in dict_events if e.get("action"))
+        )
+        actions_set = set(actions_seen)
+
+        nullified = bool(play.get("nullified"))
+        is_penalty_only = actions_set == {"PENALTY"}
+        is_no_play = nullified or is_penalty_only
+        has_try = _TRY_ACTION in actions_set
+
+        offense_raw = play.get("offenseTeamId")
+        if offense_raw is not None:
+            if prev_offense_raw is not None and offense_raw != prev_offense_raw:
+                drive_id += 1
+            prev_offense_raw = offense_raw
+
+        down_raw = play.get("down")
+        down_working = 0 if has_try else down_raw
+        ball_on = play.get("ballOn")
+
+        play_type = _play_type_from_actions(actions_set, has_try, is_no_play)
+        result_raw = ", ".join(actions_seen) if actions_seen else None
+
+        unknown_action = next(
+            (a for a in actions_seen if a not in _KNOWN_PLAYS_ACTIONS), None
+        )
+
+        pass_event = next((e for e in dict_events if e.get("action") == "PASS"), None)
+        complete_event = next((e for e in dict_events if e.get("action") == "COMPLETE"), None)
+        rush_event = next(
+            (e for e in dict_events if e.get("action") in _PLAYS_RUN_ACTIONS), None
+        )
+        incomplete_event = next(
+            (e for e in dict_events if e.get("action") == "INCOMPLETE_PASS"), None
+        )
+        penalty_event = next((e for e in dict_events if e.get("action") == "PENALTY"), None)
+        try_event = next((e for e in dict_events if e.get("action") == _TRY_ACTION), None)
+
+        complete_pass = sack = interception = safety = touchdown = def_touchdown = 0
+        one_point = two_point = penalty = 0
+        if not nullified:
+            complete_pass = 1 if "COMPLETE" in actions_set else 0
+            sack = 1 if "SACK" in actions_set else 0
+            interception = 1 if "INTERCEPTION" in actions_set else 0
+            safety = 1 if "SAFETY" in actions_set else 0
+            penalty = 1 if "PENALTY" in actions_set else 0
+            if "TOUCHDOWN" in actions_set:
+                if "INTERCEPTION" in actions_set:
+                    def_touchdown = 1
+                else:
+                    touchdown = 1
+            if try_event is not None:
+                try_points = try_event.get("tryPoints")
+                try_good = try_event.get("tryGood")
+                if try_good is True and try_points == 1:
+                    one_point = 1
+                elif try_good is True and try_points == 2:
+                    two_point = 1
+
+        # A `PASS` event is the normal source for the passer/intended-receiver
+        # ids, but ~1% of the live corpus records an `INCOMPLETE_PASS` action
+        # with no accompanying `PASS` event at all (a charting gap, not a run
+        # play) -- `INCOMPLETE_PASS` events carry the same `playerId`/
+        # `intendedReceiverId` shape, so it is used as the fallback throw
+        # event rather than leaving `qb`/`target` null for a play that was,
+        # in fact, a pass attempt.
+        throw_event = pass_event if pass_event is not None else incomplete_event
+        qb_name = (
+            player_names.get(throw_event.get("playerId")) if throw_event is not None else None
+        )
+        target_id = None
+        if throw_event is not None:
+            target_id = throw_event.get("intendedReceiverId")
+        elif rush_event is not None:
+            target_id = rush_event.get("playerId")
+        target_name = player_names.get(target_id) if target_id else None
+        received_by_name = (
+            player_names.get(complete_event.get("playerId"))
+            if complete_event is not None
+            else None
+        )
+
+        pass_side = pass_depth = None
+        for e in dict_events:
+            if pass_side is None and e.get("passSide") is not None:
+                pass_side = e.get("passSide")
+            if pass_depth is None and e.get("passDepth") is not None:
+                pass_depth = e.get("passDepth")
+
+        incomplete_reason = (
+            incomplete_event.get("incompleteReason") if incomplete_event is not None else None
+        )
+        penalty_type = penalty_event.get("penaltyType") if penalty_event is not None else None
+
+        raw_sequence = play.get("sequence")
+        source_play_sequence = (
+            float(raw_sequence)
+            if isinstance(raw_sequence, (int, float)) and not isinstance(raw_sequence, bool)
+            else None
+        )
+
+        rows.append(
+            {
+                "source": "ifaf",
+                "source_game_id": str(game_id),
+                "game_id": make_game_id("ifaf", game_id),
+                "play_id": play_id,
+                "drive_id": drive_id,
+                "half": play.get("half"),
+                "down": down_working,
+                "yards_to_go": None,
+                "yardline": None,
+                "yardline_50": ball_on,
+                "yardline_50_after": None,
+                "yardline_50_simple": None,
+                "yards_to_go_simple": None,
+                "yards_gained": None,
+                "first_down": None,
+                "game_clock_ms": None,
+                "half_seconds_remaining": None,
+                "posteam": offense_raw,
+                "posteam_after": None,
+                "home_team": home_raw,
+                "away_team": away_raw,
+                "defteam": _other_team(offense_raw, home_raw, away_raw),
+                "play_type": play_type,
+                "result_raw": result_raw,
+                "description": None,
+                "competition": competition,
+                "season": season,
+                "gender": gender,
+                "tournament_id": tournament_id,
+                "complete_pass": complete_pass,
+                "sack": sack,
+                "interception": interception,
+                "safety": safety,
+                "touchdown": touchdown,
+                "def_touchdown": def_touchdown,
+                "one_point_conv_success": one_point,
+                "two_point_conv_success": two_point,
+                "defensive_two_point_conv": 0,
+                "penalty": penalty,
+                "qb": qb_name,
+                "thrown_by": qb_name,
+                "received_by": received_by_name,
+                "target": target_name,
+                "pass_side": pass_side,
+                "pass_depth": pass_depth,
+                "incomplete_reason": incomplete_reason,
+                "penalty_type": penalty_type,
+                "source_detail": None,
+                "source_play_sequence": source_play_sequence,
+                # Counted against `down_working`, not `down_raw`: a TRY row's
+                # raw `down` is always null in the live corpus, but
+                # `down_working` resolves it to 0 by convention above -- that
+                # is a resolved value, not a missing-data gap, so it must not
+                # inflate this notice.
+                "_missing_down": 0 if down_working is not None else 1,
+                "_missing_ballon": 0 if ball_on is not None else 1,
+                "_missing_offense": 0 if offense_raw is not None else 1,
+                "_nullified": 1 if nullified else 0,
+                "_unknown_action": unknown_action,
+            }
+        )
+
+    return pl.DataFrame(rows, schema=_PLAYS_WORKING_SCHEMA)
+
+
+def derive_yardage_columns_plays(df: pl.DataFrame) -> pl.DataFrame:
+    """Derive `yards_gained` for the `/plays`-primary working frame, from
+    consecutive plays' `yardline_50` (`ballOn`) within one game, ordered by
+    `play_id`. Must run after `flatten_plays_records` (needs the
+    `play_type`/`touchdown`/`safety`/`interception`/`def_touchdown`/
+    `defensive_two_point_conv` columns it already sets) and before
+    `derive_yards_to_go`, on a single game's frame (not grouped
+    `.over("game_id")` -- matches `ingest_snapshots`' one-game-at-a-time call
+    pattern for every other per-game derivation in this module).
+
+    Rules, in priority order (parallel to `derive_yardage_columns`'s rules for
+    the unified-plays fallback path, adapted for the columns this path
+    actually has):
+
+    1. `play_type == "no_play"` (nullified or penalty-only): null -- never a
+       fabricated gain for a record the reviewer overturned or a dead-ball
+       foul call.
+    2. `down == 0` (a TRY/PAT record, per `flatten_plays_records`'s down
+       convention): null, explicitly excluded -- a conversion attempt is not
+       a down-progression gain, and the next record's `ballOn` (the
+       following kickoff-equivalent possession) is not this attempt's own
+       result.
+    3. `touchdown == 1`: `50 - yardline_50` (distance from the snap spot to
+       the opponent goal line).
+    4. `safety == 1`: `-yardline_50` (tackled at the offense's own goal
+       line).
+    5. A turnover-shaped record (`interception`, `def_touchdown`, or
+       `defensive_two_point_conv`): null -- the next record's `ballOn`
+       belongs to the new possession, not this offense's own gain.
+    6. Otherwise, if the next record (by `play_id`) shares this record's
+       `drive_id`: `next.yardline_50 - yardline_50`. This also correctly
+       absorbs a live-ball or dead-ball penalty's yardage adjustment with no
+       special-casing: when a no-play penalty record sits between two real
+       plays on the same drive, it is *this* rule's own "next record" for
+       the live play immediately before it -- the penalty record's own
+       `ballOn` already reflects the server-tracked, enforced spot, so the
+       diff naturally includes whatever the penalty moved.
+    7. Otherwise (last play of a drive/game, or a possession change with
+       none of the flags above): null.
+
+    A null `yardline_50` on this row or the next (a missing-`ballOn` record --
+    `_missing_ballon`) propagates to a null `yards_gained` automatically, same
+    as `derive_yardage_columns`.
+    """
+    turnover_like = (
+        (pl.col("interception") == 1)
+        | (pl.col("def_touchdown") == 1)
+        | (pl.col("defensive_two_point_conv") == 1)
+    )
+
+    next_drive = pl.col("drive_id").shift(-1)
+    next_yardline = pl.col("yardline_50").shift(-1)
+    same_drive_next = next_drive == pl.col("drive_id")
+
+    gain = (
+        pl.when(pl.col("play_type") == "no_play")
+        .then(None)
+        .when(pl.col("down") == 0)
+        .then(None)
+        .when(pl.col("touchdown") == 1)
+        .then(50 - pl.col("yardline_50"))
+        .when(pl.col("safety") == 1)
+        .then(-pl.col("yardline_50"))
+        .when(turnover_like)
+        .then(None)
+        .when(same_drive_next)
+        .then(next_yardline - pl.col("yardline_50"))
+        .otherwise(None)
+        .cast(pl.Int32)
+    )
+
+    return df.with_columns(gain.alias("yards_gained"))
+
+
+def _load_usable_plays_records(
+    raw_dir: Path, game_id: str, notices: IngestNotices
+) -> list | None:
+    """Return this game's `/plays` record list if usable, else `None`.
+
+    "Usable" means: the file exists, parses, is shaped as a play list, and
+    that list is non-empty. A missing file, an unparseable file, or a real
+    but empty response (a reconciliation gap -- `no-tries-labelled` -- or a
+    genuine forfeit) all return `None`, the single signal `ingest_snapshots`
+    uses to fall back to `unified-plays` for this game. Any of the
+    non-"missing" unusable cases appends a explanatory message to `notices`
+    before returning `None`.
+    """
+    path = raw_dir / f"plays_{game_id}.json"
+    if not path.exists():
+        return None
+    try:
+        records = load_plays_snapshot(path)
+    except UnparseablePayload as exc:
+        notices.messages.append(str(exc))
+        return None
+    if not records:
+        notices.messages.append(
+            f"{path}: /plays snapshot present but empty (reconciliation gap or forfeit)"
+        )
+        return None
+    return records
+
+
 def ingest_snapshots(
     raw_dir: Path,
     team_mapping: pl.DataFrame,
     game_ids: Sequence[str] | None = None,
     tournaments: Sequence[str] | None = None,
 ) -> list[tuple[str, pl.DataFrame, IngestNotices]]:
-    """Parse every `unified-plays_{game_id}.json` snapshot under `raw_dir` into a
-    canonical frame.
+    """Parse every IFAF snapshot under `raw_dir` into a canonical frame, one
+    game at a time.
+
+    **Primary source, per game: `plays_{game_id}.json`** (the `/games/{id}/plays`
+    reviewer feed — `flatten_plays_records`). **Fallback, only when that
+    snapshot is unusable** (missing file, unparseable, or a real-but-empty
+    reconciliation gap/forfeit — `_load_usable_plays_records`):
+    `unified-plays_{game_id}.json` (`flatten_unified_plays`, unchanged from
+    the pre-2026-09-07 primary path). Every fallback row is stamped
+    `source_detail = "unified-plays-fallback"` so it stays distinguishable
+    downstream; a primary-path row's `source_detail` stays null. Game
+    discovery is the union of both snapshot kinds' filenames under `raw_dir`
+    (a game with only a `plays_*.json` file, or only a `unified-plays_*.json`
+    file, is still discovered), not just `unified-plays_*.json` as before.
 
     `games.json` and `tournament_*.json` (if present in `raw_dir`) supply
     home/away team labels and competition/season/gender per game; their absence
-    degrades gracefully to null metadata rather than raising. A snapshot whose
+    degrades gracefully to null metadata rather than raising. `tournament_*_teams.json`
+    roster files (if present) supply the `qb`/`thrown_by`/`received_by`/`target`
+    player-name resolution for the primary path (`_load_teams_meta`); their
+    absence degrades to null player names, not a raised error. A snapshot whose
     payload is unparseable is recorded as a skipped, zero-row, still-canonical-
     shaped result with a notice — it never aborts the remaining games. A snapshot
     with a real but empty play array (a forfeit) is not a skip; it is a genuine
-    zero-row game. Any failure in the per-game chain from `flatten_unified_plays`
+    zero-row game. Any failure in the per-game chain from the flatten step
     through `conform_to_canonical` -- not just an unparseable payload -- likewise
     skips exactly that game with a notice naming the exception class, and never
     the whole run (T-1.2-44 / T-1.2-45). An unmapped team label still raises
@@ -778,15 +1370,17 @@ def ingest_snapshots(
     raw_dir = Path(raw_dir)
     games_meta = _load_games_meta(raw_dir)
     tournaments_meta = _load_tournaments_meta(raw_dir)
+    player_names = _load_teams_meta(raw_dir)
 
-    unified_paths = sorted(raw_dir.glob("unified-plays_*.json"))
+    discovered_ids = {
+        p.stem.removeprefix("unified-plays_") for p in raw_dir.glob("unified-plays_*.json")
+    } | {p.stem.removeprefix("plays_") for p in raw_dir.glob("plays_*.json")}
     wanted = set(game_ids) if game_ids is not None else None
     wanted_tournaments = set(tournaments) if tournaments is not None else None
 
     results: list[tuple[str, pl.DataFrame, IngestNotices]] = []
 
-    for path in unified_paths:
-        gid = path.stem.removeprefix("unified-plays_")
+    for gid in sorted(discovered_ids):
         if wanted is not None and gid not in wanted:
             continue
         if wanted_tournaments is not None:
@@ -796,8 +1390,91 @@ def ingest_snapshots(
 
         notices = IngestNotices(game_id=gid)
 
+        game_entry = games_meta.get(gid, {})
+        tournament_entry = tournaments_meta.get(game_entry.get("tournamentId"), {})
+        game_meta = _build_game_meta(game_entry, tournament_entry)
+
+        plays_records = _load_usable_plays_records(raw_dir, gid, notices)
+
+        if plays_records is not None:
+            # Primary path: `/plays`. Same per-game exception containment as
+            # the fallback path below (T-1.2-44 / T-1.2-45) -- any failure
+            # anywhere in this chain skips only this game, with a notice.
+            try:
+                df = flatten_plays_records(plays_records, game_meta, gid, player_names)
+
+                notices.missing_context_keys = {
+                    "down": int(df["_missing_down"].sum()) if df.height else 0,
+                    "ballOn": int(df["_missing_ballon"].sum()) if df.height else 0,
+                    "offenseTeamId": int(df["_missing_offense"].sum()) if df.height else 0,
+                }
+                notices.missing_context_keys = {
+                    k: v for k, v in notices.missing_context_keys.items() if v
+                }
+
+                df = map_teams(
+                    df, team_mapping, "ifaf", ["posteam", "defteam", "home_team", "away_team"]
+                )
+                df = derive_yardage_columns_plays(df)
+                df = derive_yards_to_go(df)
+
+                if df.height:
+                    unmapped = (
+                        df.filter(pl.col("_unknown_action").is_not_null())
+                        .group_by("_unknown_action")
+                        .agg(pl.len().alias("count"))
+                    )
+                    if unmapped.height:
+                        notices.unmapped_outcomes = dict(
+                            zip(
+                                unmapped["_unknown_action"].to_list(),
+                                unmapped["count"].to_list(),
+                            )
+                        )
+                        notices.messages.append(
+                            f"{unmapped.height} unmapped /plays action value(s): "
+                            f"{notices.unmapped_outcomes}"
+                        )
+                    nullified_count = int(df["_nullified"].sum())
+                    if nullified_count:
+                        notices.messages.append(
+                            f"{nullified_count} nullified /plays record(s) folded in as "
+                            "no_play rows"
+                        )
+
+                df = add_scoring_play_team(df, credit_defense=True)
+                df = add_score_columns(df)
+
+                df, conform_report = conform_to_canonical(df, "ifaf")
+                if conform_report.cast_failures:
+                    notices.messages.append(f"cast failures: {conform_report.cast_failures}")
+            except (
+                TypeError,
+                AttributeError,
+                ValueError,
+                KeyError,
+                pl.exceptions.PolarsError,
+            ) as exc:
+                notices.skipped = True
+                notices.skip_reason = f"{type(exc).__name__}: {exc}"
+                notices.messages.append(f"game {gid}: {type(exc).__name__}: {exc}")
+                results.append((gid, _empty_canonical_frame(), notices))
+                continue
+
+            results.append((gid, df, notices))
+            continue
+
+        # Fallback path: no usable `/plays` snapshot for this game -- fall
+        # back to `unified-plays` (the pre-2026-09-07 primary path,
+        # unchanged). Every row this branch produces is stamped
+        # `source_detail = "unified-plays-fallback"`.
+        notices.messages.append(
+            f"game {gid}: no usable /plays snapshot -- fell back to unified-plays"
+        )
+
+        unified_path = raw_dir / f"unified-plays_{gid}.json"
         try:
-            payload, _ = load_snapshot(path)
+            payload, _ = load_snapshot(unified_path)
         except UnparseablePayload as exc:
             payload = []
             notices.skipped = True
@@ -817,10 +1494,6 @@ def ingest_snapshots(
         # must keep aborting loudly per CONTEXT.md's team-identity decision
         # (T-1.2-15); see test_ingest_snapshots_unmapped_team_raises.
         try:
-            game_entry = games_meta.get(gid, {})
-            tournament_entry = tournaments_meta.get(game_entry.get("tournamentId"), {})
-            game_meta = _build_game_meta(game_entry, tournament_entry)
-
             df = flatten_unified_plays(payload, game_meta, gid)
 
             notices.missing_context_keys = {
@@ -895,6 +1568,7 @@ def ingest_snapshots(
             df, conform_report = conform_to_canonical(df, "ifaf")
             if conform_report.cast_failures:
                 notices.messages.append(f"cast failures: {conform_report.cast_failures}")
+            df = df.with_columns(pl.lit("unified-plays-fallback").alias("source_detail"))
         except (TypeError, AttributeError, ValueError, KeyError, pl.exceptions.PolarsError) as exc:
             notices.skipped = True
             notices.skip_reason = f"{type(exc).__name__}: {exc}"
