@@ -354,13 +354,13 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6)*
 
-- [ ] 02.2-21-PLAN.md — Private test set switches to the real second drone game (GER vs Puerto Rico), dev bundle back to 61 clips, game-disjoint dev/test (DATA-04)
+- [x] 02.2-21-PLAN.md — Private test set switches to the real second drone game (GER vs Puerto Rico), dev bundle back to 61 clips, game-disjoint dev/test (DATA-04)
 - [x] 02.2-15-PLAN.md — AL iteration 1: retrain and per-domain evaluation against the stopping rule
 
 **Wave 8** *(blocked on Wave 7)*
 
-- [ ] 02.2-14-PLAN.md — OTC OBS bundle delivery and participant delivery docs (delivers the plan-21 bundles)
-- [ ] 02.2-16-PLAN.md — AL iteration 2: selection and prelabelled CVAT push
+- [x] 02.2-14-PLAN.md — OTC OBS bundle delivery and participant delivery docs (delivers the plan-21 bundles)
+- [x] 02.2-16-PLAN.md — AL iteration 2: selection and prelabelled CVAT push
 
 **Wave 9** *(blocked on Wave 8)*
 
@@ -507,7 +507,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
 | 2.0 Capture Protocol | 4/4 | Complete    | 2026-08-24 |
 | 2.1 CV Pilot (Gate) | 17/17 | Complete    | 2026-08-31 |
-| 2.2 Dataset Buildout | 13/21 | In progress (v1.2 = 572 frames; iteration-1 retrain not promoted; 21 partial) | - |
+| 2.2 Dataset Buildout | 16/21 | In progress (AL-2 labelling gate: CVAT 8/9/10; OTC upload staged; 17–20 pending) | - |
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
 | 2.4 Player Identity | 0/TBD | Not started (gated) | - |
 | 2.5 Broadcast Footage | 0/TBD | Deferred (stretch) | - |
