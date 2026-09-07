@@ -583,3 +583,103 @@ The QF's `play_id 5` (the annulled try) now reads `play_type == "extra_point"`, 
 ### Test coverage (this follow-up)
 
 New tests: `_events_score_ledger_summary` (no events file, no `SCORE` events, matching/disagreeing/reverted-event totals, missing official score), an `ingest_snapshots`-level end-to-end test confirming the notice surfaces without changing accepted rows, and the nullified-extra-point `play_type` carve-out (`extra_point` for a nullified try, `no_play` unchanged for a nullified non-extra-point record). Full suite passes after this change.
+
+## Nachtrag 2026-09-07 (sixth follow-up, same day) — user-authorized: missing conversions filled from the events ledger, as synthetic rows
+
+The fifth follow-up above measured the events ledger at 41/48 (85.4%) exact-final-score agreement and declined to use it for anything beyond a diagnostic report line, citing this project's 95% adoption bar. **The user (project owner, domain expert) reviewed that finding directly and pointed out the bar was misapplied**: 6 of the 7 "misses" are zero-event forfeits — games with no ledger data at all, not games where the ledger made a wrong prediction — and do not belong in the denominator, the same way `score_reconstruction` itself reports `SKIPPED` rather than `FAIL` for a game with no reference entry. Restricted to the 42 games that actually have `SCORE` events, the ledger agrees with `games.json` on **41/42 (97.6%)** — clearing the bar. On that basis the user explicitly authorized promoting the events ledger from a diagnostic-only signal to the authoritative scoring source for ledger-consistent games, including inserting a synthetic row for a ledger-confirmed conversion `/plays` never recorded at all. This is a deliberate, informed, user-level design decision — not one this fix would have made unilaterally (the fifth follow-up's caution about fabricating rows into the canonical corpus was itself correct engineering judgment; it has now been superseded by the person who owns the trade-off, with the corrected statistic in hand).
+
+### The alignment algorithm (`ingest.ifaf.apply_events_ledger`)
+
+For a game whose ledger total (non-reverted `SCORE` events, summed per team) matches `games.json`'s official score exactly: `touchdown`/`def_touchdown`/`one_point_conv_success`/`two_point_conv_success` are reset to 0 for every row and re-derived **solely** from the ledger (never from `officialScore` again for that game — `officialScore` is retained as a new `official_score` audit extra, for every row, on every game, ledger-driven or not). `safety` is left untouched (already unconditional on the `SAFETY` action, independent of `officialScore`/the ledger).
+
+The ledger's own `SCORE` events (`eventType == "SCORE"`, non-`reverted`, sorted by `sequenceNumber`) are walked in order, matching each to a `/plays` row:
+
+- **`TD`**: the next unused, non-nullified touchdown-shaped row (`TOUCHDOWN` action, or `officialScore == "TD"` — but never a row with `officialScore` `XP1`/`XP2`, and never a `TRY`-actioned row even if its own `officialScore` happens to read `"TD"`, the fourth follow-up's 21-record quirk) whose credited team (offense, or defense when `INTERCEPTION` is on the row — a pick-six) matches the ledger event's `teamId`.
+- **`XP1`/`XP2`**: the next unused, non-nullified TRY-shaped row (`TRY` action, or a TOUCHDOWN-actioned PAT catch with `officialScore` `XP1`/`XP2`) for that team, searched *strictly before that team's own next touchdown-shaped row* — without this bound, a genuinely missing PAT would incorrectly steal a later touchdown's own real PAT record instead of correctly falling through to a synthetic insertion (found and fixed during this follow-up's corpus validation, see below). An `XP2` with no TRY candidate instead checks for an unused `SAFETY`-actioned row where that team is the defense — a safety, not a conversion, matching the confirmed `officialScore` encoding for it; if found, only `score_source` changes (the `safety` flag is already correct).
+- **No candidate found**: a `TD` with nothing to match is logged and left unscored — not observed once in the live corpus (see below), so this path is defensive, never fabricating an entire touchdown play with no field-position/action basis. An `XP1`/`XP2` with nothing to match (and no safety candidate, for `XP2`) is inserted as a **synthetic row** immediately after its own TD's matched row: `play_type = "extra_point"`, `posteam` the scoring team, `half`/`drive_id`/game metadata copied from the anchor TD row, `down = 0`, `yardline_50 = null` (no real spot to report), `nullified = null` (not `0` — nullification does not apply to a row that was never a real reviewed play), `result_raw` a clearly-labelled synthetic marker, `score_source = "events-ledger-synthetic"`. `play_id` is renumbered gapless 1..N across the whole game after every insertion.
+
+Matching uses **per-team**, not a single shared, row-index floor: a shared floor let one team's own match jump past a row the *other* team's own next candidate still needed, whenever the two teams' scoring events don't interleave 1:1 positionally between the ledger and `/plays` (empirically real and corpus-confirmed, not hypothetical — see the debugging note below). Each team's own candidates are still required to appear in `/plays` row order among themselves, which is what correctness here actually depends on.
+
+### Two real alignment bugs found and fixed during corpus validation (not shipped un-tested)
+
+Both were found by validating the algorithm against the *whole* accepted corpus, not just the QF, and are covered by the new test suite:
+
+1. **A missing PAT could steal a later touchdown's own PAT.** The QF's own sequence 110 (MEX's first touchdown) has no PAT record in `/plays` at all — the ledger confirms one happened. Before the fix, `find_try`'s unbounded forward search walked straight past MEX's *next* touchdown (sequence 190) and matched its real PAT (sequence 200) to sequence 110's ledger XP1 instead, leaving sequence 190's own conversion nowhere to go. Fixed by bounding the try search to end strictly before that team's own next touchdown-shaped row (see above).
+2. **A shared row-index floor could skip a team's own valid earlier candidate.** In a same-day corpus game (`019ffff1-a8f8-7656-aaca-5f8856c4c8a4`), GER's touchdowns and USA's did not interleave 1:1 between the ledger and `/plays` row order; a single shared floor, advanced by USA's matches, skipped past GER's own next real candidate before GER's own search ran. Fixed by tracking the match floor per team instead of globally.
+
+**A related, pre-existing bug was found and fixed in the fourth follow-up's own within-`/plays` backfill pass** (the officialScore-only path, used when the ledger doesn't apply): its anchor search for a TRY record's borrowed `"TD"` label used the same too-loose "nearest preceding `TOUCHDOWN`-actioned record" rule `find_td` originally had, before excluding `officialScore` `XP1`/`XP2` and `TRY`-actioned rows from candidacy. Fixed identically. This game (`ffwc26-wc2`) happens to be ledger-driven so the fix does not change its own final score (the ledger overrides the backfill result there regardless), but the backfill path is still live for every non-ledger-driven game (`ffwc26-wd4`, any fallback-path game with no events snapshot), where this bug would otherwise have picked the wrong anchor row.
+
+### `official_score` and `score_source`: two new canonical extras
+
+`official_score` (`NULLABLE_EXTRAS`, `Utf8`) copies the record's raw `officialScore` through verbatim on every row, ledger-driven or not, scored or not — an audit trail of what the reviewer feed itself said, independent of what the ledger ultimately decided. `score_source` (`NULLABLE_EXTRAS`, `Utf8`) is `"events-ledger"` for a real `/plays` row the ledger matched, `"events-ledger-synthetic"` for an inserted row, and `null` everywhere else (every non-ifaf row, every ifaf row from a non-ledger-driven game, every ifaf row the ledger never touched).
+
+### Corpus-wide result (women's tournament, `sources.ifaf.ingest_tournaments = ["ffwc26-women"]`, `ffep ingest` + `ffep score` re-run)
+
+`plays.parquet`'s IFAF women's rows grow by **33** (all `score_source == "events-ledger-synthetic"`) across the 29 `/plays`-primary games. `score_reconstruction`: **18 PASS / 11 FAIL** (up from 9 PASS / 20 FAIL in the diagnostic-only fifth follow-up; the accepted/quarantined split moves from 8/29 to **15/29 OK, 14/29 QUARANTINED**). `ffwc26-wd4` — the one game the ledger itself disagrees with — is, as required, untouched and still FAIL.
+
+The 11 remaining FAILs, checked individually — none are alignment-algorithm bugs; every one is a genuine, ledger-corroborated gap the synthetic-row scope (missing *conversions* only, confirmed by a matched TD anchor) deliberately does not reach:
+
+| game_id | reconstructed | reference | cause |
+|---|---:|---:|---|
+| `ffwc26-wd4` | 13–31 | 13–37 | ledger itself disagrees with `games.json` (25–37) — untouched by design |
+| `019ffff1-a8f8-7656-aaca-5f8856c4c8a4` | 28–34 | 35–34 | USA's 5th ledger touchdown has no `/plays` candidate at all (only 4 real USA touchdown records exist) — an entire touchdown play missing from the reviewer feed, not just its PAT |
+| `ffwc26-wc3` | 25–19 | 25–26 | GBR's final touchdown (ledger sequence 382) has no `/plays` candidate — the reviewer feed's own record stream for this game ends mid-drive, before the scoring play was ever charted; a separate ledger-internal anomaly (a standalone `XP1` at sequence 272 with no preceding un-consumed GBR touchdown, immediately followed one tick later by a `TD` event for the same team) is left unmatched rather than guessed at |
+| `01a00140-b679-7659-b3c9-c837309e1522` | 7–34 | 8–46 | this game's raw ledger itself is visibly malformed for CHN (six consecutive `XP2` events at sequences 203/205/206/207/208/209, and two standalone `XP1`s at sequences 21/64 with no touchdown anywhere near them) — the algorithm correctly leaves the spurious excess events unmatched rather than inventing rows for them; 3 genuine conversions *were* still recovered and inserted |
+| `ffwc26-wa3`, `ffwc26-wa4`, `ffwc26-wa5`, `ffwc26-wb4`, `ffwc26-wb6`, `ffwc26-wc1`, `ffwc26-wc2` | (see report) | (see report) | each has at least one ledger touchdown with no `/plays` candidate at all (an entire missing touchdown record, confirmed per-game the same way as `a8f8`/`wc3` above) — out of scope for a fix aimed at missing *conversions*, and not fabricated |
+
+### The 21 `officialScore == "TD"` TRY records: resolved with ledger evidence (the user's open question 2)
+
+Re-running the fourth follow-up's 21 ambiguous records through the ledger-aware alignment gives a direct answer, per case, to whether the ledger has a touchdown at that point:
+
+| game_id | seq | ledger available | resolution |
+|---|---:|---|---|
+| `019ffff1-a8f8-7656-aaca-5f8856c4c8a4` | 80 | yes | anchor confirmed (`TD`, `score_source=events-ledger`) |
+| `019ffff1-add2-766d-93c1-b7db007230b9` | 410 | yes | anchor confirmed |
+| `01a000d1-35ae-76b2-8bbe-f88cb14814fb` | 740 | yes | anchor confirmed |
+| `01a006ce-1ec0-77b9-bef2-d212af738fd2` | 690 | yes | anchor confirmed |
+| `ffwc26-mc1` | 710 | yes | anchor confirmed |
+| `ffwc26-mc3` | 60 | yes | anchor confirmed, try itself also scores (real 1-pt conversion, `tryGood`) |
+| `ffwc26-mc3` | 80 | yes | neither anchor nor try confirmed by the ledger at this point — stays unresolved (0) |
+| `ffwc26-mc4` | 20 | yes | anchor confirmed |
+| `ffwc26-wa3` | 140 | yes | anchor confirmed |
+| `ffwc26-wa3` | 878.75 | yes | anchor confirmed as `def_touchdown` (interception return), try itself also scores (real 1-pt conversion) |
+| `ffwc26-wa4` | 180 | yes | anchor confirmed |
+| `ffwc26-wa4` | 530 | yes | anchor confirmed, try itself also scores (real 2-pt conversion) |
+| `ffwc26-wb4` | 560 | yes | anchor confirmed |
+| `ffwc26-wb6` | 960 | yes | anchor confirmed |
+| `ffwc26-wc1` | 210 | yes | anchor confirmed |
+| `ffwc26-wc2` | 315 | yes | neither anchor nor try confirmed by the ledger at this point — stays unresolved (0); this game's own within-`/plays` backfill anchor search bug (see above) also would have picked the wrong row here, now fixed regardless of the ledger result |
+| `ffwc26-wc2` | 570 | yes | anchor confirmed, try itself also scores (real 1-pt conversion) |
+| `ffwc26-wc3` | 540 | yes | neither anchor nor try confirmed — stays unresolved (0), consistent with this game's other ledger anomalies above |
+| `ffwc26-wd4` | 520 | **no** (ledger disagrees with `games.json`) | untouched — this game's own within-`/plays` backfill result stands (anchor already correctly resolved to `touchdown = 1` from the fourth follow-up's fix) |
+| `ffwc26-ma1` | 390 | yes | neither anchor nor try confirmed by the ledger at this point — stays unresolved (0) |
+| `ffwc26-ma3` | 710 | yes | anchor confirmed |
+
+**16 of 21 resolve cleanly to "the preceding TOUCHDOWN-actioned record is the real touchdown, the try record's own borrowed `\"TD\"` label is a bled/duplicate artifact"** — confirming the fourth follow-up's original backfill hypothesis was right for the large majority of cases; of those 16, 4 additionally have the try record itself score a genuine conversion (`tryGood`/`tryPoints`, cross-confirmed by the ledger's own `XP1`/`XP2` event right after). **4 remain genuinely unresolved even with ledger data present** (`mc3`/80, `wc2`/315, `wc3`/540, `ma1`/390) — the ledger simply does not confirm a touchdown at that specific point for either candidate row, and no points are fabricated for either. **1 (`wd4`) has no ledger to check against at all**, per the untouched-by-design rule. 16 + 4 + 1 = 21.
+
+### QF game: exact 27–26, both synthetic rows shown
+
+`data/processed/exports/ifaf_wm2026_pbp.csv`, `game_id == "ifaf-019ffff1-a8db-73ed-91ff-068fd964194c"` (`play_id` renumbered after the two insertions):
+
+| play_id | down | yardline_50 | posteam | play_type | result_raw | touchdown | one_point_conv_success | score_source | posteam_score | defteam_score |
+|---:|---:|---:|---|---|---|---:|---:|---|---:|---:|
+| 4 | 2 | 33 | ESP | pass | PASS, COMPLETE, TOUCHDOWN | 1 | 0 | events-ledger | 6 | 0 |
+| 5 | 0 | 45 | ESP | extra_point | PASS, COMPLETE, TRY | 0 | 0 | null (annulled, correctly 0) | 6 | 0 |
+| 6 | null | 45 | ESP | no_play | PENALTY | 0 | 0 | null | 6 | 0 |
+| 13 (synthetic) | 0 | null | MEX | extra_point | SYNTHETIC (events-ledger XP1) | 0 | 1 | events-ledger-synthetic | — | — |
+| 20 | 2 | 37 | MEX | pass | PASS, COMPLETE, FLAG_PULL | 0 | 0 | null | 7 | 6 |
+| 21 | 2 | 46 | MEX | pass | PASS, COMPLETE, TOUCHDOWN | 1 | 0 | events-ledger | 13 | 6 |
+| 22 | 0 | 45 | MEX | extra_point | PASS, COMPLETE, TOUCHDOWN | 0 | 1 | events-ledger | 14 | 6 |
+| 73 (synthetic) | 0 | null | ESP | extra_point | SYNTHETIC (events-ledger XP1) | 0 | 1 | events-ledger-synthetic | — | — |
+
+Final: home (MEX) 27, away (ESP) 26 — exact.
+
+### Training-frame exclusion, verified, not just asserted
+
+`make_ep_model_mutations`'s existing `.filter(yardline_50.is_not_null(), yards_to_go.is_not_null())` (a synthetic row's `yardline_50` is always `null`) and `model/train.py`'s existing unscoped `.drop_nulls()` after `make_wp_model_mutations` (a synthetic row's `half_seconds_remaining`/`yardline_50`/`yards_to_go` are all `null`) already exclude a synthetic row from both EP and WP training — no new exclusion code was needed, only proof the existing mechanism actually reaches this new row shape. `tests/test_features_mutations.py::TestSyntheticLedgerRowsExcludedFromTraining` builds a real game frame with one synthetic row appended and runs it through the actual production `prepare_ep_data`/`make_ep_model_mutations` and `prepare_wp_data`/`make_wp_model_mutations` (mirroring `model/train.py`'s own call shape exactly), asserting the synthetic row's `play_id` never survives into the training frame while every real row does.
+
+One cosmetic observation, not a training-integrity issue: the export's `epa` column is non-null for a handful of synthetic rows (`ep`/`wp` are correctly null throughout). This is pre-existing, unrelated behavior — every `down == 0` row's `epa`, real or synthetic, comes from the empirically-estimated PAT baseline formula (`add_ep_variables`, REQ-S1-10), not from a model prediction requiring `yardline_50`, so it was never gated on a real field position to begin with.
+
+### Test coverage (this follow-up)
+
+`tests/test_ingest_ifaf.py` gained `apply_events_ledger` tests: no-events/forfeit/mismatched-total no-ops, reverted events ignored, a real TD+XP1 match, synthetic-row insertion (every field, `play_id` renumbering), a TD with no candidate left unscored, an XP2-matches-safety case, and the TD-on-try resolution case. `tests/test_features_mutations.py` gained the training-frame exclusion tests described above. Full suite passes after this change (re-verified against the real corpus via `ffep ingest`/`ffep score`, not just synthetic fixtures).

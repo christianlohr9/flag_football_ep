@@ -368,3 +368,56 @@ Extrapunktversuch (wie Spaniens erster Versuch im MEX-ESP-Spiel) heißt jetzt ko
 schon vorher korrekt bei 0), nur die Klassifizierung wird ehrlicher.
 
 Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
+
+## Nachtrag 2026-09-07 (Teil 6, noch am selben Tag) — auf deine ausdrückliche Entscheidung hin: fehlende Extrapunkte werden jetzt ergänzt
+
+Du hast dir Teil 5 direkt angesehen und einen Rechenfehler in meiner eigenen 95%-Schwelle
+gefunden: 6 der 7 "Fehltreffer" beim Punktestand-Protokoll sind Nichtantritte ganz ohne
+Protokoll-Daten — die gehören nicht in den Nenner, genau wie unsere eigene Punktestand-Prüfung
+selbst zwischen "übersprungen" (keine Referenz) und "durchgefallen" unterscheidet. Auf die 42
+Spiele mit echten Protokolldaten gerechnet, stimmt das Protokoll bei **41 von 42 (97,6%)** —
+über der Schwelle. Auf dieser Basis hast du ausdrücklich entschieden: fehlende Extrapunkte, die
+das Protokoll eindeutig bestätigt, werden jetzt als eigene (klar markierte) Zeile ergänzt, statt
+nur als Kommentar im Bericht zu stehen.
+
+**Umgesetzt:** Für jedes Spiel, dessen Protokoll-Gesamtsumme exakt zum offiziellen Endstand
+passt, kommt der Punktestand jetzt ausschließlich aus dem Protokoll (nicht mehr aus
+`officialScore`). Fehlt für einen bestätigten Extrapunkt die passende Zeile im Reviewer-Feed
+komplett, wird sie direkt nach dem zugehörigen Touchdown ergänzt — als klar markierte
+"synthetische" Zeile (eigene Spalte `score_source`, Wert `"events-ledger-synthetic"`; echte,
+im Protokoll bestätigte Zeilen bekommen `"events-ledger"`). Ein fehlender ganzer Touchdown wird
+weiterhin **nicht** erfunden — nur der Extrapunktversuch danach, und nur, wenn das Protokoll ihn
+eindeutig bestätigt.
+
+**Für dein MEX-ESP-Spiel: jetzt exakt 27:26.** Beide fehlenden Extrapunkte (nach Mexikos erstem
+und Spaniens drittem Touchdown) sind jetzt als synthetische Zeilen ergänzt.
+
+**Zwei echte Programmierfehler beim Abgleich gefunden und behoben** (nicht einfach ungetestet
+übernommen): Erstens konnte eine fehlende PAT-Zeile fälschlich die PAT-Zeile eines *späteren*
+Touchdowns "stehlen", wenn die Suche nicht an der nächsten eigenen Touchdown-Zeile derselben
+Mannschaft gestoppt wurde — genau das war beim MEX-ESP-Spiel selbst der Fall. Zweitens konnte
+ein gemeinsamer Fortschritts-Zeiger über beide Mannschaften hinweg eine echte, frühere
+Kandidaten-Zeile der einen Mannschaft überspringen, wenn die Reihenfolge zwischen Protokoll und
+Reviewer-Feed nicht 1:1 zusammenpasste (in einem echten Spiel im Datensatz beobachtet) — jetzt
+zählt jede Mannschaft ihren eigenen Fortschritt getrennt. Ein verwandter, bereits vorher
+bestehender Fehler in der alten (nur-`officialScore`)-Ergänzungslogik aus Teil 4 wurde beim
+Testen ebenfalls gefunden und genauso behoben.
+
+**Ergebnis über den ganzen Frauen-Datensatz:** Die Punktestand-Prüfung geht von 9 auf **18 von
+29** korrekt bestätigten Spielen (die übrigen 11, inklusive deines schon bekannten `wd4`, haben
+alle einen genau benannten, echten Grund — meist ein *komplett* fehlender Touchdown-Datensatz,
+nicht nur ein fehlender Extrapunkt; einmal ein sichtbar fehlerhaftes Protokoll für ein Team;
+Details mit Ursache pro Spiel im technischen Nachtrag).
+
+**Wichtig geprüft, nicht nur behauptet:** Die neuen synthetischen Zeilen fließen nie ins
+Modelltraining ein (EP und WP) — das war schon vorher durch bestehende Mechanismen so (leere
+Spalten führen automatisch zum Ausschluss), aber ich habe das jetzt mit einem echten Test
+bewiesen, nicht nur angenommen.
+
+Auch die offene Frage von Teil 4 (die 21 Fälle, bei denen ein Extrapunktversuch selbst fälschlich
+ein "TD"-Etikett trägt) ist jetzt mit echten Protokolldaten beantwortet: 16 von 21 bestätigen den
+vorherigen Touchdown als den echten (4 davon zusätzlich mit einem echten Extrapunkt danach), 4
+bleiben auch mit Protokolldaten ungeklärt (bewusst nicht erfunden), 1 (`wd4`) hat gar kein
+verlässliches Protokoll. Volle Tabelle mit jedem Einzelfall: `docs/ifaf-field-mapping.md`.
+
+Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
