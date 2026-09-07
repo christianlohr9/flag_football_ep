@@ -1,0 +1,314 @@
+"""Worksheets for manually re-spotting IFAF women's games with a null `ballOn`.
+
+Builds one local, gitignored, PII-carrying "helper view" per partially spotted
+women's game (`data/raw/ifaf/spot_fill_worksheets/<game_id>.csv`) so the project
+owner can locate each null-`ballOn` play in the broadcast video quickly (video
+URL + timestamp, down/offense/passer/receiver context, the last known real
+spot for orientation) while typing the re-spotted yard line into the committed,
+PII-free `data/reference/ifaf_spot_fill/<game_id>.csv` fill file
+(`ifaf.apply_spot_fill` reads that one, never this module's own output).
+
+Never wired into the ingest path itself -- this is authoring tooling only, run
+on demand (`ffep ifaf spot-fill-worksheets` / `scripts/ifaf_spot_fill_worksheets.py`).
+Reuses `ingest.ifaf`'s own private per-game metadata/classification helpers
+(`_load_games_meta`, `_load_tournaments_meta`, `_build_game_meta`,
+`_load_usable_plays_records`, `flatten_plays_records`) rather than
+re-implementing them, so "which games/records are in scope" always matches
+what `ingest_snapshots` itself would compute -- and `ingest.ifaf_video_marks`'s
+own `_video_fields` for the video URL/timestamp resolution, so the fallback
+(document-level `videoUrl` + the play's own derived `videoTimeSec`) behaves
+identically to the committed `ifaf_video_marks.parquet` table.
+"""
+
+from __future__ import annotations
+
+import csv
+import json
+from pathlib import Path
+from typing import Any
+
+import polars as pl
+
+from flag_football_ep.canonical import make_game_id
+from flag_football_ep.ingest.ifaf import (
+    IngestNotices,
+    _build_game_meta,
+    _load_games_meta,
+    _load_teams_meta,
+    _load_tournaments_meta,
+    _load_usable_plays_records,
+    _plays_record_sort_key,
+    flatten_plays_records,
+)
+from flag_football_ep.ingest.ifaf_video_marks import _video_fields
+
+WORKSHEET_COLUMNS: tuple[str, ...] = (
+    "game_id",
+    "sequence",
+    "play_id",
+    "half",
+    "down",
+    "offense_team",
+    "passer",
+    "receiver",
+    "result_raw",
+    "prev_ballOn",
+    "video_url",
+    "video_time_s",
+    "video_time_mmss",
+    "ballOn",
+    "note",
+    "spot_status",
+)
+
+
+def _mmss(seconds: Any) -> str | None:
+    """`123.4` -> `"2:03"`. `None` for a non-numeric/absent value."""
+    if not isinstance(seconds, (int, float)) or isinstance(seconds, bool):
+        return None
+    total = int(round(seconds))
+    minutes, secs = divmod(total, 60)
+    return f"{minutes}:{secs:02d}"
+
+
+def _fmt_sequence(seq: Any) -> str:
+    """`24` and `24.0` both format as `"24"`; a genuine `.5`-suffixed
+    inserted-row sequence (e.g. `907.5`) keeps its fraction. Used both for
+    the worksheet's own `sequence` cell and as the merge key against an
+    existing worksheet on disk, so a prior run's `"24"` and a fresh run's
+    `24.0` compare equal."""
+    if isinstance(seq, bool) or seq is None:
+        return ""
+    if isinstance(seq, float) and seq.is_integer():
+        return str(int(seq))
+    return str(seq)
+
+
+def find_partially_spotted_women_games(raw_dir: Path) -> dict[str, dict[str, Any]]:
+    """Identify every accepted-or-quarantined IFAF women's game whose
+    `/plays` reviewer feed has at least one real record with a null
+    `ballOn` -- "accepted-or-quarantined" meaning it actually reaches
+    `ingest_snapshots`' `/plays`-primary path (excludes a game whose
+    snapshot is missing/unparseable/a structured "not reviewed" signal, or
+    that falls back to `unified-plays`, since the manual-fill workflow this
+    module supports is scoped to the reviewer feed's own null `ballOn`
+    records).
+
+    Returns `{source_game_id: {"canonical_game_id", "null_ballon_count",
+    "total_records", "with_video_url"}}`, sorted by nothing in particular
+    (the caller sorts as needed) -- `with_video_url` counts how many of the
+    null-`ballOn` records resolve a video URL via `_video_fields` (own
+    `videoMark`, or the document-level `videoUrl` + the record's own
+    derived `videoTimeSec`), so a caller can report video-mark coverage
+    without downloading anything.
+    """
+    raw_dir = Path(raw_dir)
+    games_meta = _load_games_meta(raw_dir)
+    tournaments_meta = _load_tournaments_meta(raw_dir)
+
+    result: dict[str, dict[str, Any]] = {}
+    for path in sorted(raw_dir.glob("plays_*.json")):
+        gid = path.stem.removeprefix("plays_")
+        game_entry = games_meta.get(gid, {})
+        tournament_entry = tournaments_meta.get(game_entry.get("tournamentId"), {})
+        game_meta = _build_game_meta(game_entry, tournament_entry)
+        if game_meta.get("gender") != "women":
+            continue
+
+        notices = IngestNotices(game_id=gid)
+        records, exclude_reason = _load_usable_plays_records(raw_dir, gid, notices)
+        if records is None:
+            continue  # excluded entirely, or falls back to unified-plays -- out of scope
+
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        doc_video_url = payload.get("videoUrl") if isinstance(payload, dict) else None
+
+        null_records = [r for r in records if isinstance(r, dict) and r.get("ballOn") is None]
+        if not null_records:
+            continue
+
+        with_video_url = 0
+        for r in null_records:
+            video_url, _time, _source = _video_fields(r, doc_video_url)
+            if video_url is not None:
+                with_video_url += 1
+
+        result[gid] = {
+            "canonical_game_id": make_game_id("ifaf", gid),
+            "null_ballon_count": len(null_records),
+            "total_records": len(records),
+            "with_video_url": with_video_url,
+        }
+
+    return result
+
+
+def build_worksheet_rows(
+    raw_dir: Path,
+    gid: str,
+    team_lookup: dict[str, str],
+    player_names: dict[str, str],
+) -> list[dict]:
+    """Build one game's worksheet rows: every real `/plays` record with a
+    null `ballOn` (`spot_status = "missing"`, `ballOn` left empty), plus the
+    one real record immediately before and after each null-`ballOn` run
+    (`spot_status = "real"`, `ballOn` shown for orientation) -- the
+    "neighbouring rows" deliverable calls out. `prev_ballOn` is the last
+    known real spot strictly before each shown row (computed over every
+    record in sequence order, not just the shown ones), for orientation
+    even deep inside a long null run.
+
+    Returns `[]` for a game with no usable `/plays` snapshot -- callers are
+    expected to have already filtered via `find_partially_spotted_women_games`.
+    """
+    raw_dir = Path(raw_dir)
+    games_meta = _load_games_meta(raw_dir)
+    tournaments_meta = _load_tournaments_meta(raw_dir)
+    game_entry = games_meta.get(gid, {})
+    tournament_entry = tournaments_meta.get(game_entry.get("tournamentId"), {})
+    game_meta = _build_game_meta(game_entry, tournament_entry)
+
+    notices = IngestNotices(game_id=gid)
+    records, _exclude_reason = _load_usable_plays_records(raw_dir, gid, notices)
+    if not records:
+        return []
+
+    plays_path = raw_dir / f"plays_{gid}.json"
+    try:
+        payload = json.loads(plays_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        payload = {}
+    doc_video_url = payload.get("videoUrl") if isinstance(payload, dict) else None
+
+    canonical_df = flatten_plays_records(records, game_meta, gid, player_names)
+    canonical_rows = canonical_df.to_dicts()
+
+    ordered = [
+        rec
+        for _, rec in sorted(
+            enumerate(records), key=lambda pair: _plays_record_sort_key(pair[0], pair[1])
+        )
+    ]
+    n = len(ordered)
+    is_null = [not isinstance(r, dict) or r.get("ballOn") is None for r in ordered]
+
+    prev_real_at: list[int | None] = []
+    last_real: int | None = None
+    for r, null in zip(ordered, is_null):
+        prev_real_at.append(last_real)
+        if not null:
+            last_real = r.get("ballOn")
+
+    include_idx: set[int] = set()
+    for i, null in enumerate(is_null):
+        if null:
+            include_idx.add(i)
+            if i - 1 >= 0 and not is_null[i - 1]:
+                include_idx.add(i - 1)
+            if i + 1 < n and not is_null[i + 1]:
+                include_idx.add(i + 1)
+
+    canonical_id = make_game_id("ifaf", gid)
+    rows_out: list[dict] = []
+    for i in sorted(include_idx):
+        raw_record = ordered[i]
+        crow = canonical_rows[i]
+        ball_on = raw_record.get("ballOn") if isinstance(raw_record, dict) else None
+        offense_raw = raw_record.get("offenseTeamId") if isinstance(raw_record, dict) else None
+        offense_code = team_lookup.get(offense_raw, offense_raw)
+        video_url, video_time_sec, _source = _video_fields(raw_record, doc_video_url)
+
+        rows_out.append(
+            {
+                "game_id": canonical_id,
+                "sequence": _fmt_sequence(raw_record.get("sequence") if isinstance(raw_record, dict) else None),
+                "play_id": crow.get("play_id"),
+                "half": raw_record.get("half") if isinstance(raw_record, dict) else None,
+                "down": raw_record.get("down") if isinstance(raw_record, dict) else None,
+                "offense_team": offense_code,
+                "passer": crow.get("qb"),
+                "receiver": crow.get("received_by"),
+                "result_raw": crow.get("result_raw"),
+                "prev_ballOn": prev_real_at[i],
+                "video_url": video_url,
+                "video_time_s": video_time_sec,
+                "video_time_mmss": _mmss(video_time_sec),
+                "ballOn": "" if ball_on is None else ball_on,
+                "note": "",
+                "spot_status": "missing" if ball_on is None else "real",
+            }
+        )
+
+    return rows_out
+
+
+def _read_existing_csv(path: Path) -> dict[str, dict]:
+    """Read an existing worksheet into `{sequence_key: row_dict}` (one file
+    is always scoped to a single game, so `sequence` alone is a unique key)."""
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8", newline="") as f:
+        return {row.get("sequence", ""): row for row in csv.DictReader(f)}
+
+
+def _write_worksheet(path: Path, rows: list[dict]) -> None:
+    """Write one game's worksheet, merging in any `ballOn`/`note` the owner
+    already typed into the existing file on disk (matched on `sequence`) --
+    idempotent, never destroys prior work. A row no longer present in the
+    freshly computed set (e.g. the underlying snapshot changed) is dropped,
+    same as every other IFAF ingest recompute-from-source convention."""
+    existing = _read_existing_csv(path)
+
+    merged: list[dict] = []
+    for row in rows:
+        prior = existing.get(row["sequence"])
+        if prior:
+            if prior.get("ballOn"):
+                row = {**row, "ballOn": prior["ballOn"]}
+            if prior.get("note"):
+                row = {**row, "note": prior["note"]}
+        merged.append(row)
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(WORKSHEET_COLUMNS), lineterminator="\n")
+        writer.writeheader()
+        for row in merged:
+            writer.writerow({col: row.get(col, "") for col in WORKSHEET_COLUMNS})
+
+
+def generate_worksheets(
+    raw_dir: Path,
+    worksheet_dir: Path,
+    team_mapping: pl.DataFrame,
+) -> dict[str, dict[str, Any]]:
+    """(Re)generate the per-game spot-fill worksheets for every partially
+    spotted IFAF women's game under `raw_dir`. Idempotent: re-running never
+    overwrites a `ballOn`/`note` cell the owner already typed into a
+    worksheet on disk (`_write_worksheet`'s own merge).
+
+    Returns the same report shape as `find_partially_spotted_women_games`,
+    with `worksheet_path` (str) added per game.
+    """
+    raw_dir = Path(raw_dir)
+    worksheet_dir = Path(worksheet_dir)
+    player_names = _load_teams_meta(raw_dir)
+
+    ifaf_map = team_mapping.filter(pl.col("source") == "ifaf")
+    team_lookup = dict(
+        zip(ifaf_map["source_team"].to_list(), ifaf_map["canonical_team"].to_list())
+    )
+
+    games = find_partially_spotted_women_games(raw_dir)
+
+    report: dict[str, dict[str, Any]] = {}
+    for gid, info in sorted(games.items()):
+        rows = build_worksheet_rows(raw_dir, gid, team_lookup, player_names)
+        worksheet_path = worksheet_dir / f"{info['canonical_game_id']}.csv"
+        _write_worksheet(worksheet_path, rows)
+        report[gid] = {**info, "worksheet_path": str(worksheet_path)}
+
+    return report

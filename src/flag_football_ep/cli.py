@@ -219,6 +219,47 @@ def ifaf_video_marks(
     typer.echo(f"video marks: {out_path} ({df.height} rows, {df['game_id'].n_unique()} games)")
 
 
+@app.command(name="ifaf-spot-fill-worksheets")
+def ifaf_spot_fill_worksheets(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    out_dir: Optional[Path] = typer.Option(
+        None,
+        "--out-dir",
+        help="Worksheet output directory (default: data/raw/ifaf/spot_fill_worksheets)",
+    ),
+) -> None:
+    """(Re)generate the local, PII-carrying spot-fill worksheets for every
+    partially spotted IFAF women's game (null ballOn on a real /plays
+    record) -- one CSV per game, used to locate each play in the broadcast
+    video while filling in data/reference/ifaf_spot_fill/<game_id>.csv.
+    Idempotent: never overwrites a ballOn/note cell already typed in.
+    """
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    from flag_football_ep.reference import load_team_mapping
+    from flag_football_ep.ingest.ifaf_spot_fill_worksheets import generate_worksheets
+
+    team_mapping = load_team_mapping(cfg.reference.team_mapping)
+    worksheet_dir = out_dir or (cfg.paths.raw_ifaf / "spot_fill_worksheets")
+
+    report = generate_worksheets(cfg.paths.raw_ifaf, worksheet_dir, team_mapping)
+
+    if not report:
+        typer.echo("spot-fill worksheets: no partially spotted women's games found")
+        return
+
+    for gid, info in sorted(report.items()):
+        typer.echo(
+            f"spot-fill worksheets: {info['canonical_game_id']} -- "
+            f"{info['null_ballon_count']}/{info['total_records']} null ballOn, "
+            f"{info['with_video_url']} with a resolvable video url -- "
+            f"{info['worksheet_path']}"
+        )
+    typer.echo(f"spot-fill worksheets: {len(report)} game(s) written to {worksheet_dir}")
+
+
 @app.command()
 def train(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
