@@ -1468,6 +1468,24 @@ def test_flatten_plays_records_penalty_only_is_no_play():
     assert row["penalty_type"] == "OTHER"
 
 
+def test_flatten_plays_records_nullified_penalty_only_still_sets_penalty_flag():
+    """`penalty` is a record-shape classification, not a scoring/turnover
+    effect -- it must survive nullification, or the downs_range no-play
+    exemption (play_type == "no_play" AND penalty == 1) can never recognize
+    an overturned dead-ball penalty entry (a real case in the live corpus:
+    a PENALTY-only record the reviewer also marked nullified)."""
+    payload = [
+        _play_record(
+            10, nullified=True, down=None, events=[_ev("PENALTY", penaltyType="OTHER")]
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["play_type"] == "no_play"
+    assert row["penalty"] == 1
+    assert row["down"] is None
+
+
 def test_flatten_plays_records_penalty_on_live_play_keeps_real_play_type():
     payload = [
         _play_record(10, events=[_ev("PASS"), _ev("COMPLETE"), _ev("PENALTY", penaltyType="ILLEGAL_CONTACT")])

@@ -79,10 +79,32 @@ def _bounded(values: list, limit: int = _MAX_EXAMPLES) -> str:
 
 
 def downs_range(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
-    """PASS when every `down` is 0..4; FAIL on out-of-range or null values."""
+    """PASS when every `down` is 0..4; FAIL on out-of-range or null values.
+
+    **No-play exemption (2026-09-07, docs/data-contract.md "No-play down
+    exemption"):** a null `down` is tolerated -- not counted as offending --
+    exactly on a no-play penalty row (`play_type == "no_play"` AND
+    `penalty == 1`): a dead-ball foul call has no down of its own by
+    definition (it never reaches a snap), so a source that honestly leaves
+    `down` null there is not reporting a data gap. This is a classification
+    exemption for exactly that one row shape -- every other null `down`
+    (a live play, or a no-play row without `penalty == 1`) still fails the
+    check exactly as before. `play_type`/`penalty` null on either side of
+    the `==`/`.fill_null(False)` comparisons never accidentally grants the
+    exemption (Kleene-null-safe).
+    """
     df = plays.sort(["game_id", "play_id"])
+    down_null = pl.col("down").is_null()
+    no_play_down_exempt = (
+        down_null
+        & (pl.col("play_type") == "no_play").fill_null(False)
+        & (pl.col("penalty") == 1).fill_null(False)
+    )
+    offending_null = down_null & ~no_play_down_exempt
+
     agg = df.group_by("game_id", maintain_order=True).agg(
-        n_null=pl.col("down").is_null().sum(),
+        n_null=offending_null.sum(),
+        n_exempt=no_play_down_exempt.sum(),
         offending_values=pl.col("down")
         .filter(pl.col("down").is_not_null() & ((pl.col("down") < 0) | (pl.col("down") > 4)))
         .unique()
@@ -97,15 +119,29 @@ def downs_range(plays: pl.DataFrame, **ctx) -> list[CheckResult]:
         game_id = row["game_id"]
         n_null = row["n_null"]
         n_out = row["n_out_of_range"]
+        n_exempt = row["n_exempt"]
         n_offending = n_null + n_out
         if n_offending == 0:
-            results.append(_pass(game_id, "downs_range"))
+            if n_exempt:
+                results.append(
+                    CheckResult(
+                        game_id=game_id,
+                        check="downs_range",
+                        status=Status.PASS,
+                        detail=f"ok ({n_exempt} no-play penalty row(s) exempt from the down check)",
+                        n_offending=0,
+                    )
+                )
+            else:
+                results.append(_pass(game_id, "downs_range"))
             continue
         parts = []
         if n_out:
             parts.append(f"out-of-range down value(s) {_bounded(row['offending_values'])} in {n_out} row(s)")
         if n_null:
             parts.append(f"{n_null} null down value(s)")
+        if n_exempt:
+            parts.append(f"{n_exempt} no-play penalty row(s) exempt")
         results.append(_fail(game_id, "downs_range", "; ".join(parts), n_offending))
     return results
 

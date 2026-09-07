@@ -968,12 +968,21 @@ def flatten_plays_records(
     dropped. A `nullified` record (the reviewer overturned it) or a
     penalty-only record (its only `events[].action` is `PENALTY`, a dead-ball
     foul with no live-play result) becomes a `play_type == "no_play"` row with
-    every outcome flag forced to 0 and `yards_gained` left for
+    every scoring/turnover flag (`complete_pass`/`sack`/`interception`/
+    `safety`/`touchdown`/`def_touchdown`/`one_point_conv_success`/
+    `two_point_conv_success`) forced to 0 and `yards_gained` left for
     `derive_yardage_columns_plays` to null explicitly -- the record's own raw
     `result_raw` (a comma-joined action list) is still preserved for
     traceability, but nothing it implies (a score, a turnover, a gain) is
     ever trusted for a record the reviewer marked overturned or a record that
-    is pure penalty bookkeeping.
+    is pure penalty bookkeeping. `penalty` is the one exception to "every
+    flag forced to 0": it is a classification of the record shape itself
+    (was this entry a foul call, at all), not an effect, so it is set from
+    `events[].action` unconditionally, including on a nullified record -- a
+    nullified PENALTY-only record still IS a penalty call with no down of
+    its own, and `validation.checks.downs_range`'s no-play exemption
+    (`play_type == "no_play"` AND `penalty == 1`) depends on this flag
+    surviving nullification to recognize it.
 
     Outcome flags are read directly off the record's own `events[].action`
     set (no separate `outcome.type`-style single field exists on this
@@ -1084,13 +1093,22 @@ def flatten_plays_records(
         try_event = next((e for e in dict_events if e.get("action") == _TRY_ACTION), None)
 
         complete_pass = sack = interception = safety = touchdown = def_touchdown = 0
-        one_point = two_point = penalty = 0
+        one_point = two_point = 0
+        # `penalty` is a classification of what kind of dead-ball record this
+        # is, not a scoring/turnover effect -- unlike every other flag below,
+        # it is set unconditionally, including on a nullified record. A
+        # nullified PENALTY-only record (the reviewer overturned the whole
+        # entry, not just its outcome) still IS a penalty call with no down
+        # of its own; suppressing this flag on nullified rows would silently
+        # break `validation.checks.downs_range`'s no-play exemption (which
+        # keys on `play_type == "no_play"` AND `penalty == 1`) for exactly
+        # the record shape that exemption exists to cover.
+        penalty = 1 if "PENALTY" in actions_set else 0
         if not nullified:
             complete_pass = 1 if "COMPLETE" in actions_set else 0
             sack = 1 if "SACK" in actions_set else 0
             interception = 1 if "INTERCEPTION" in actions_set else 0
             safety = 1 if "SAFETY" in actions_set else 0
-            penalty = 1 if "PENALTY" in actions_set else 0
             if "TOUCHDOWN" in actions_set:
                 if "INTERCEPTION" in actions_set:
                     def_touchdown = 1

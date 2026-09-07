@@ -61,6 +61,76 @@ class TestDownsRange:
         assert result.status == Status.FAIL
         assert result.n_offending == 1
 
+    def test_pass_when_null_down_is_a_no_play_penalty_row(self):
+        """No-play exemption (2026-09-07): a dead-ball penalty row has no
+        down of its own by definition -- a null `down` there is not an
+        offending gap."""
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "down": [1, None, 2, 3],
+                "play_type": ["pass", "no_play", "pass", "pass"],
+                "penalty": [0, 1, 0, 0],
+            },
+        )
+        results = downs_range(df)
+        result = results[0]
+        assert result.status == Status.PASS
+        assert result.n_offending == 0
+        assert "exempt" in result.detail
+
+    def test_fail_when_null_down_is_no_play_but_not_penalty(self):
+        """The exemption requires BOTH play_type == "no_play" AND
+        penalty == 1 -- a no_play row without the penalty flag (e.g. a
+        nullified/overturned play) still fails, no loosening beyond the
+        one documented shape."""
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "down": [1, None, 2, 3],
+                "play_type": ["pass", "no_play", "pass", "pass"],
+                "penalty": [0, 0, 0, 0],
+            },
+        )
+        results = downs_range(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert result.n_offending == 1
+
+    def test_fail_when_null_down_has_penalty_but_not_no_play_type(self):
+        """The exemption requires BOTH conditions -- a penalty flag on a
+        live (non-no_play) play with a null down still fails."""
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "down": [1, None, 2, 3],
+                "play_type": ["pass", "pass", "pass", "pass"],
+                "penalty": [0, 1, 0, 0],
+            },
+        )
+        results = downs_range(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert result.n_offending == 1
+
+    def test_mixed_exempt_and_real_null_down_only_real_one_offends(self):
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "down": [None, None, 2, 3],
+                "play_type": ["no_play", "pass", "pass", "pass"],
+                "penalty": [1, 0, 0, 0],
+            },
+        )
+        results = downs_range(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert result.n_offending == 1
+
 
 class TestYardlineRange:
     def test_pass_when_all_within_0_50(self):

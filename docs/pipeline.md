@@ -109,7 +109,7 @@ regeneration step -- every loader reads the file fresh on each `ffep` invocation
 
 | Check | PASS condition |
 |---|---|
-| `downs_range` | every `down` is 0..4, never null |
+| `downs_range` | every `down` is 0..4, never null -- **except** a no-play penalty row (`play_type == "no_play"` AND `penalty == 1`), which is exempt: a dead-ball foul call never reaches a snap, so it has no down of its own by definition (2026-09-07, see `docs/data-contract.md`'s "No-play down exemption") |
 | `yardline_range` | every `yardline_50` is in [0, 50] |
 | `half_assigned` | every `half` is 1 or 2 (needs a `half_boundaries.csv` row) |
 | `monotonic_drive_ids` | `drive_id` starts at 1 and never decreases across ascending `play_id` |
@@ -174,7 +174,13 @@ with `result_raw` as the record, since the type string carries no play form.
 **Real-run baseline:** the phase 01.2-17 run above quarantined 10 games, all IFAF, all
 `downs_range` failures from null `down` values on penalty/PAT plays -- a real property of
 that feed, confirmed not a validation bug. 6 games (5 `legacy-sportapp`, 1 `legacy`) carried
-warnings on a warn-only source and were still accepted.
+warnings on a warn-only source and were still accepted. **Stale as of 2026-09-07:** this
+baseline predates both the `/plays`-primary IFAF rewrite and the `downs_range` no-play
+exemption above -- a null `down` on a dead-ball penalty row (exactly the "penalty/PAT plays"
+case this baseline describes) is no longer counted as offending, so a fresh run of this same
+check against current IFAF data quarantines IFAF games only for a null `down` on a genuine
+live play, not a no-play penalty record. See `docs/ifaf-field-mapping.md`'s 2026-09-07
+Nachtrag for the current numbers.
 
 ## 5. Adding a new export
 
