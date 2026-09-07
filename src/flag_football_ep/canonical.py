@@ -128,6 +128,18 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     # reproduce the official score, and every ifaf row the ledger simply
     # never touched).
     "score_source": pl.Utf8,
+    # Game-level completeness flag (docs/ifaf-field-mapping.md Nachtrag
+    # 2026-09-07, eighth follow-up: user-authorized synthetic touchdown
+    # rows): `1` on every row of a game where `apply_events_ledger` had to
+    # insert at least one synthetic touchdown (a ledger-confirmed score with
+    # no `/plays` record at all -- a whole missing drive, not just a missing
+    # conversion), else null. A row-level flag deliberately kept on the
+    # `plays` table's own extensible-with-null-default extras rather than
+    # `games.parquet` (a fixed, cross-source schema every source's own
+    # games-table test asserts against exactly -- the seventh follow-up's
+    # own reasoning for declining a `games.parquet` column still holds; this
+    # extra is the cheaper carrier the same follow-up named as the fallback).
+    "plays_incomplete": pl.Int32,
     # Int32
     "yac": pl.Int32,
     "drive_success": pl.Int32,

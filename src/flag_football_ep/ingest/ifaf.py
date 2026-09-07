@@ -953,30 +953,122 @@ def apply_events_ledger(
     independent of `officialScore`/the ledger. Only when neither a TRY nor
     a SAFETY candidate exists is a synthetic row inserted.
 
-    A `TD` event with no candidate at all is logged (both a per-event
-    notice and, once per game, an aggregate count/points summary) and left
-    unscored -- a whole touchdown is never fabricated as a row, unlike a
-    missing conversion. This is a deliberate, considered line, not an
-    oversight: a missing conversion's own touchdown is always a real,
-    reviewed `/plays` record (only its trivial one-line follow-up went
-    unrecorded), while a "synthetic touchdown" would have no down, no
-    field position, no charted action, and only an approximate row
-    position at best -- a scoreboard adjustment dressed up as a play, not
-    a play. The user was asked directly whether to fabricate this class of
-    row too (2026-09-07 seventh follow-up, same trade-off framing as the
-    sixth follow-up's conversion fill) and this fix declined, standing by
-    the reasoning above -- see `docs/ifaf-field-mapping.md`'s Nachtrag for
-    the full discussion. It IS observed in the live corpus (10 women's
-    games), unlike the conversion case.
+    **2026-09-07, eighth follow-up -- overrides the seventh follow-up below.**
+    A `TD` event with no candidate at all now ALSO gets a synthetic row,
+    exactly like a missing conversion: `touchdown = 1`, `play_type = null`
+    (unlike a conversion row, there is no `"extra_point"` action to claim),
+    `posteam` the scoring team, `defteam` the other team, `down`/
+    `yardline_50`/`yards_to_go`/`yards_gained` all `null`, `half` copied from
+    the nearest preceding real `/plays` row (see the placement note below),
+    `result_raw = "SYNTHETIC TD (events ledger)"`, `score_source =
+    "events-ledger-synthetic"`. The ledger's own immediate follow-up
+    `XP1`/`XP2` for that team (if the ledger has one, and it too has no
+    `/plays` candidate -- the QF-style common case) becomes a second
+    synthetic row right after it, via the exact same mechanism the sixth
+    follow-up already established for a missing conversion with a REAL TD
+    anchor. Every affected game also gets `plays_incomplete = 1` on every
+    one of its rows (`canonical.NULLABLE_EXTRAS`, real and synthetic alike)
+    and a per-game aggregate notice naming the synthetic TD/conversion
+    counts.
 
-    Every synthetic row: `play_type = "extra_point"`, `posteam` the
-    scoring team, `half`/`drive_id`/game-level metadata copied from the
-    anchor TD row, `down = 0`, `yardline_50 = null` (no real spot to
-    report), `nullified = null` (not `0` -- nullification is not
-    applicable to a row that was never a real reviewed play),
-    `source_play_sequence = null`, `result_raw` a clearly-labelled
-    synthetic marker (never mistaken for a real action list). `play_id` is
-    renumbered gapless 1..N across the whole game after every insertion.
+    This is a direct, explicit, user-level reversal of the seventh
+    follow-up's decline, immediately below -- **read that section's
+    reasoning first; it is not repeated or re-litigated here.** The project
+    owner (a flag-football domain expert) was shown that exact trade-off
+    again on 2026-09-07 and decided the other way: a correct running score
+    for every later real play's `score_differential`/WP features (point 3
+    of the seventh follow-up's own objection) is judged more valuable than
+    leaving these 9 games' `score_reconstruction` failing outright over 9
+    single-drive gaps, given the row is flagged on every axis available
+    (`score_source`, `plays_incomplete`, and structural exclusion from
+    EP/WP training -- see `docs/ifaf-field-mapping.md`'s Nachtrag for the
+    full discussion) rather than silently blended in. `score_reconstruction`
+    passing for one of these games is therefore no longer proof every real
+    play in it was independently reviewed end to end -- it is proof the
+    real reviewed plays plus a small number of ledger-only, clearly-marked
+    score adjustments reproduce the official total. `ffwc26-wd4` (ledger
+    disagrees with `games.json`) and `01a00140-b679-...` (this game's own
+    ledger is internally malformed -- duplicate `XP2` events with no
+    touchdown anywhere near them -- so even its orphaned conversions have no
+    TD to anchor a synthetic row to) are each untouched by this change for
+    reasons that predate it and still apply unchanged.
+
+    **Placement of a synthetic touchdown row is honestly approximate.**
+    There is no shared key between the events feed's own `sequenceNumber`
+    and `/plays`' own row order: the events feed's `DOWN_UPDATE`/
+    `LOS_UPDATE`/`POSSESSION_CHANGE` stream carries no `playId` at all
+    (verified against the live corpus), and a prior attempt at cross-feed
+    placement via `clientTimestamp`/`startedAt` proximity was independently
+    measured and rejected elsewhere in this module as unreliable (a
+    ~51-hour epoch offset was found on one game -- see the module's own
+    Nachtrag). The exact spot is therefore always ambiguous by this
+    project's own already-established bar, so the rule falls back to
+    inserting at the END of that team's own possession segment, computed as
+    "immediately before the next `/plays` row this same alignment walk
+    matched to ANY later ledger event, in `sequenceNumber` order" -- i.e.,
+    as late as possible while never sorting after a `/plays` row a
+    known-real, later ledger event already precedes. When no later match
+    exists at all for either team (the common case in the live corpus --
+    every one of the 9 affected games' missing touchdowns is that team's
+    own last recorded score), this collapses to the very end of the
+    `/plays` feed. `half` is copied from that same preceding row, honestly
+    satisfying "nearest preceding record in feed order" precisely because
+    that is exactly what the resolved anchor row is.
+
+    Every synthetic row (conversion or touchdown): `posteam` the scoring
+    team, `half`/`drive_id`/game-level metadata copied from the anchor row,
+    `yardline_50 = null` (no real spot to report), `nullified = null` (not
+    `0` -- nullification is not applicable to a row that was never a real
+    reviewed play), `source_play_sequence = null`, `result_raw` a
+    clearly-labelled synthetic marker (never mistaken for a real action
+    list). A conversion row keeps the sixth follow-up's original shape
+    (`play_type = "extra_point"`, `down = 0`); a touchdown row uses
+    `play_type = null`, `down = null` (spec'd as such -- there is no real
+    play at all behind it, not even a resolved-by-convention down number).
+    `play_id` is renumbered gapless 1..N across the whole game after every
+    insertion.
+
+    ---
+
+    ## Nachtrag 2026-09-07 (seventh follow-up, same day) -- declined,
+    then overridden the same day (eighth follow-up, above)
+
+    A further request came in with the same framing as the sixth
+    follow-up's authorization (an explicit user decision, trade-offs
+    shown): for the games where the ledger names a touchdown with no
+    matching `/plays` record at all, insert a synthetic touchdown row too.
+
+    **This fix declined the request** at the time and kept the sixth
+    follow-up's boundary exactly where it was drawn: `apply_events_ledger`
+    logged a TD with no candidate and left it unscored, never fabricating a
+    row for it. The reasoning, preserved verbatim for the record (now
+    superseded by the user's own eighth-follow-up decision above, not by
+    this fix reversing its own judgment):
+
+    1. **A missing conversion and a missing touchdown are not the same
+       class of gap.** Every conversion the sixth follow-up fills has a
+       real, reviewed `/plays` record right next to it -- the touchdown
+       itself is charted, actioned, spotted; only its one-line PAT
+       follow-up is missing. A "synthetic touchdown" has none of that: no
+       down, no field position, no charted action, not even a confirmed row
+       position -- only an approximate placement, honestly disclosed above.
+    2. **It makes `score_reconstruction` pass by construction for exactly
+       the games where it matters most**, rather than by every play being
+       independently verified. This is now an accepted, disclosed trade-off
+       (see the `score_source`/`plays_incomplete` flags above), not an
+       unstated one.
+    3. **"Right" running-score continuity for later real plays means
+       "consistent with a ledger-confirmed event," not "consistent with
+       what was independently reviewed and charted."** The user was shown
+       this exact framing directly and chose it anyway, given the row is
+       clearly marked, not silently blended in.
+
+    The per-game aggregate notice this decline originally shipped instead
+    (naming the missing-points total without fabricating anything) is
+    superseded by the new synthetic-row-count notice described above for
+    every game that gets a synthetic touchdown; it is unchanged for a game
+    whose only gap is an orphaned conversion with no TD anchor at all (a
+    different failure shape this fix still does not fabricate a row for).
     """
     notices: list[str] = []
     if df.height == 0:
@@ -1105,29 +1197,31 @@ def apply_events_ledger(
                 return i
         return None
 
-    # Per-team, not a single shared pointer: a shared floor lets one team's
-    # match advance past a row the OTHER team's own next candidate still
-    # needs, when the two feeds' relative interleaving between different
-    # teams' scores doesn't line up 1:1 positionally (empirically real --
-    # verified corpus-wide, see the module Nachtrag). Each team's own
-    # candidates are still found strictly in /plays row order among
-    # themselves, which is what actually matters for correctness here.
     team_floor: dict[str, int] = {}
-    last_td_idx: dict[str, int | None] = {}
-    # (anchor_row_index, team, score_type) for a ledger score with no /plays
-    # match -- inserted only after the whole ledger walk finishes, so this
-    # loop's own row indices never shift underneath it.
+    # Per-team open anchor: an `int` is a real, matched `/plays` row index
+    # (the sixth follow-up's original conversion-fill anchor); a `dict` is a
+    # pending synthetic-touchdown group (eighth follow-up, this team's own
+    # touchdown had no `/plays` candidate at all, so there is no real row to
+    # anchor a follow-up conversion to yet -- resolved to a real insertion
+    # point only after the whole walk finishes, see below); `None` means no
+    # open anchor for this team right now.
+    last_td_idx: dict[str, int | dict | None] = {}
+    # (anchor_row_index, team, score_type) for a ledger conversion with a
+    # REAL matched touchdown anchor but no /plays record of its own --
+    # inserted only after the whole ledger walk finishes, so this loop's own
+    # row indices never shift underneath it.
     pending_synthetic: list[tuple[int, str, str]] = []
-    # Aggregated for the summary notice below -- a whole missing touchdown is
-    # never fabricated as a row (2026-09-07 seventh follow-up: the user was
-    # asked directly whether to do so, given the same conversion-fill
-    # trade-off framing as the sixth follow-up, and declined -- see the
-    # docstring above and the Nachtrag for the full reasoning). Individual
-    # per-event notices above still name every occurrence; this adds one
-    # aggregate line per game so the total missing-points impact is visible
-    # without counting messages by hand.
-    missing_td_count = 0
-    missing_td_points = 0
+    # Missing-touchdown groups (2026-09-07, eighth follow-up): each entry
+    # anchors one ledger TD event with no /plays candidate, plus its own
+    # immediate ledger follow-up XP1/XP2 (if any, and it too has no /plays
+    # candidate). `anchor_idx` is resolved once, after the whole walk
+    # finishes -- see the placement-rule docstring above.
+    pending_td_groups: list[dict] = []
+    # (sequenceNumber, row_index) for every event this walk actually matched
+    # to a real /plays row (TD, try, or safety) -- ascending sequenceNumber
+    # order by construction, since score_events is walked in that order.
+    # Used only to resolve `pending_td_groups`' placement below.
+    matched_seq_idx: list[tuple[float, int]] = []
     orphaned_conversion_count = 0
     orphaned_conversion_points = 0
 
@@ -1135,23 +1229,27 @@ def apply_events_ledger(
         payload = ev.get("payload") or {}
         team = payload.get("teamId")
         score_type = payload.get("scoreType")
+        seq = ev.get("sequenceNumber")
         if team is None or score_type not in _LEDGER_SCORE_TYPES:
             continue
 
         if score_type == "TD":
             idx = find_td(team, team_floor.get(team, 0))
             if idx is None:
-                notices.append(
-                    f"events-ledger: TD for {team!r} (sequenceNumber "
-                    f"{ev.get('sequenceNumber')}) has no /plays candidate -- left unscored, "
-                    "not fabricated"
-                )
-                missing_td_count += 1
-                missing_td_points += 6
-                last_td_idx[team] = None
+                # User-authorized (2026-09-07, eighth follow-up, overriding
+                # the seventh follow-up's decline -- see the docstring
+                # above): a whole touchdown the reviewer feed never charted
+                # is now inserted as a synthetic row too, not just logged
+                # and left unscored. `anchor_idx` can only be resolved once
+                # the rest of this walk (and its real matches) is known, so
+                # this just opens a pending group for now.
+                group: dict = {"sequence": seq, "team": team, "score_types": ["TD"]}
+                pending_td_groups.append(group)
+                last_td_idx[team] = group
                 continue
             used[idx] = True
             team_floor[team] = max(team_floor.get(team, 0), idx)
+            matched_seq_idx.append((seq, idx))
             if "INTERCEPTION" in actions_of(rows[idx]):
                 rows[idx]["def_touchdown"] = 1
             else:
@@ -1161,10 +1259,11 @@ def apply_events_ledger(
             continue
 
         anchor_idx = last_td_idx.get(team)
-        idx = find_try(team, anchor_idx + 1) if anchor_idx is not None else None
+        idx = find_try(team, anchor_idx + 1) if isinstance(anchor_idx, int) else None
         if idx is not None:
             used[idx] = True
             team_floor[team] = max(team_floor.get(team, 0), idx)
+            matched_seq_idx.append((seq, idx))
             if score_type == "XP1":
                 rows[idx]["one_point_conv_success"] = 1
             else:
@@ -1178,9 +1277,19 @@ def apply_events_ledger(
             if safety_idx is not None:
                 used[safety_idx] = True
                 team_floor[team] = max(team_floor.get(team, 0), safety_idx)
+                matched_seq_idx.append((seq, safety_idx))
                 rows[safety_idx]["score_source"] = "events-ledger"
                 last_td_idx[team] = None
                 continue
+
+        if isinstance(anchor_idx, dict):
+            # This team's own immediately-preceding touchdown was itself a
+            # missing-/plays-record synthetic insertion -- its conversion
+            # joins the same group, placed right after the synthetic
+            # touchdown once the group's anchor is resolved below.
+            anchor_idx["score_types"].append(score_type)
+            last_td_idx[team] = None
+            continue
 
         if anchor_idx is None:
             notices.append(
@@ -1196,31 +1305,42 @@ def apply_events_ledger(
         pending_synthetic.append((anchor_idx, team, score_type))
         last_td_idx[team] = None
 
-    if missing_td_count or orphaned_conversion_count:
-        missing_points = missing_td_points + orphaned_conversion_points
+    if orphaned_conversion_count:
         notices.append(
-            f"events-ledger: {missing_td_count} touchdown(s) ({missing_td_points} points) and "
-            f"{orphaned_conversion_count} conversion(s) ({orphaned_conversion_points} points) "
-            "confirmed by the ledger have no /plays record at all and were left unscored, not "
-            f"fabricated -- {missing_points} total points missing from this game's reconstructed "
-            "score from that point in the game onward (score_differential/WP features on later "
-            "real plays reflect the incomplete /plays feed, not a code error)"
+            f"events-ledger: {orphaned_conversion_count} conversion(s) "
+            f"({orphaned_conversion_points} points) confirmed by the ledger have no TD "
+            "anchor and no /plays record at all -- left unscored, not fabricated (a "
+            "standalone conversion event with no preceding touchdown of its own -- distinct "
+            "from a missing touchdown's own immediate follow-up conversion, which IS now "
+            "fabricated as part of that touchdown's synthetic group, see below)"
         )
 
-    if not pending_synthetic:
+    if not pending_synthetic and not pending_td_groups:
         return pl.DataFrame(rows, schema=_PLAYS_WORKING_SCHEMA), notices
 
-    by_anchor: dict[int, list[dict]] = {}
-    for anchor_idx, team, score_type in pending_synthetic:
-        anchor = rows[anchor_idx]
-        synthetic = {
+    # Resolve each pending group's real insertion point -- see the
+    # docstring's placement-rule paragraph for the full reasoning. In short:
+    # insert immediately before the next /plays row this same walk matched
+    # to ANY later ledger event (by sequenceNumber), or at the very end of
+    # the game's /plays rows when no later match exists at all.
+    for group in pending_td_groups:
+        next_real_idx = None
+        for seq, ridx in matched_seq_idx:
+            if seq > group["sequence"]:
+                next_real_idx = ridx
+                break
+        group["anchor_idx"] = (next_real_idx - 1) if next_real_idx is not None else (n - 1)
+
+    def _synthetic_row(anchor: dict, team: str, score_type: str) -> dict:
+        is_td = score_type == "TD"
+        return {
             "source": anchor["source"],
             "source_game_id": anchor["source_game_id"],
             "game_id": anchor["game_id"],
             "play_id": None,  # renumbered below, once every insertion is known
             "drive_id": anchor["drive_id"],
             "half": anchor["half"],
-            "down": 0,
+            "down": None if is_td else 0,
             "yards_to_go": None,
             "yardline": None,
             "yardline_50": None,
@@ -1236,8 +1356,12 @@ def apply_events_ledger(
             "home_team": anchor["home_team"],
             "away_team": anchor["away_team"],
             "defteam": _other_team(team, anchor["home_team"], anchor["away_team"]),
-            "play_type": "extra_point",
-            "result_raw": f"SYNTHETIC (events-ledger {score_type})",
+            "play_type": None if is_td else "extra_point",
+            "result_raw": (
+                "SYNTHETIC TD (events ledger)"
+                if is_td
+                else f"SYNTHETIC (events-ledger {score_type})"
+            ),
             "description": None,
             "competition": anchor["competition"],
             "season": anchor["season"],
@@ -1247,7 +1371,7 @@ def apply_events_ledger(
             "sack": 0,
             "interception": 0,
             "safety": 0,
-            "touchdown": 0,
+            "touchdown": 1 if is_td else 0,
             "def_touchdown": 0,
             "one_point_conv_success": 1 if score_type == "XP1" else 0,
             "two_point_conv_success": 1 if score_type == "XP2" else 0,
@@ -1266,20 +1390,70 @@ def apply_events_ledger(
             "nullified": None,
             "official_score": None,
             "score_source": "events-ledger-synthetic",
-            "_missing_down": 0,
+            # `None` by default here -- only stamped 1 below, on every row
+            # (real and synthetic) of a game that actually got a synthetic
+            # *touchdown*. A pure missing-conversion synthetic row (the
+            # original sixth follow-up shape, a REAL touchdown anchor) does
+            # not, by itself, warrant the game-level completeness flag this
+            # column exists for.
+            "plays_incomplete": None,
+            "_missing_down": 1 if is_td else 0,
             "_missing_ballon": 1,
             "_missing_offense": 0,
             "_nullified": 0,
             "_unknown_action": None,
         }
+
+    by_anchor: dict[int, list[dict]] = {}
+    n_synthetic_td = 0
+    n_synthetic_conv = 0
+
+    for anchor_idx, team, score_type in pending_synthetic:
+        anchor = rows[anchor_idx]
+        synthetic = _synthetic_row(anchor, team, score_type)
         by_anchor.setdefault(anchor_idx, []).append(synthetic)
+        n_synthetic_conv += 1
         notices.append(
             f"events-ledger: {score_type} for {team!r} confirmed by the ledger but absent "
             f"from /plays -- inserted as a synthetic extra_point row after play_id "
             f"{anchor['play_id']}"
         )
 
-    new_rows: list[dict] = []
+    for group in pending_td_groups:
+        anchor_idx = group["anchor_idx"]
+        # `anchor_idx` can be -1 (this group's touchdown precedes every real
+        # match this walk found for either team -- not observed in the live
+        # corpus, see the docstring, but handled honestly rather than
+        # assumed away): metadata falls back to the game's own first row,
+        # the nearest available context when there truly is no preceding one.
+        anchor = rows[max(anchor_idx, 0)]
+        for score_type in group["score_types"]:
+            synthetic = _synthetic_row(anchor, group["team"], score_type)
+            synthetic["plays_incomplete"] = 1
+            by_anchor.setdefault(anchor_idx, []).append(synthetic)
+            if score_type == "TD":
+                n_synthetic_td += 1
+            else:
+                n_synthetic_conv += 1
+        notices.append(
+            f"events-ledger: TD for {group['team']!r} (sequenceNumber {group['sequence']}) "
+            "confirmed by the ledger but absent from /plays -- inserted as a synthetic "
+            f"touchdown row after play_id {anchor['play_id']}"
+        )
+
+    if pending_td_groups:
+        for row in rows:
+            row["plays_incomplete"] = 1
+        notices.append(
+            f"events-ledger: {n_synthetic_td} synthetic TD row(s) and {n_synthetic_conv} "
+            'synthetic conversion row(s) inserted from the events ledger -- flagged '
+            'score_source="events-ledger-synthetic"/plays_incomplete=1 and excluded from '
+            "EP/WP training, but do feed the reconstructed running score so later real "
+            "plays' score_differential/WP features reflect it correctly"
+        )
+
+    leading = by_anchor.pop(-1, [])
+    new_rows: list[dict] = list(leading)
     for i, row in enumerate(rows):
         new_rows.append(row)
         new_rows.extend(by_anchor.get(i, []))
@@ -1426,6 +1600,7 @@ _PLAYS_WORKING_SCHEMA: dict[str, pl.DataType] = {
     "nullified": pl.Int32,
     "official_score": pl.Utf8,
     "score_source": pl.Utf8,
+    "plays_incomplete": pl.Int32,
     "_missing_down": pl.Int32,
     "_missing_ballon": pl.Int32,
     "_missing_offense": pl.Int32,
@@ -1926,6 +2101,11 @@ def flatten_plays_records(
                 # that ever sets it to `"events-ledger"`/`"events-ledger-synthetic"`.
                 "official_score": official_score,
                 "score_source": None,
+                # `apply_events_ledger` is the only place that ever sets this
+                # to 1 (a whole synthetic-touchdown insertion happened
+                # somewhere in this game); null everywhere else, including
+                # every non-ifaf row (canonical.NULLABLE_EXTRAS default).
+                "plays_incomplete": None,
                 "_missing_down": 0 if down_working is not None else 1,
                 "_missing_ballon": 0 if ball_on is not None else 1,
                 "_missing_offense": 0 if offense_raw is not None else 1,
