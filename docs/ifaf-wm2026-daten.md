@@ -232,4 +232,27 @@ gestern) mit der unzuverlässigen alten Quelle akzeptiert zu werden. Frauen-Date
 24 von 42 nicht-kampflos-verlorenen Spielen akzeptiert, 2.198 Zeilen — alle davon aus dem
 neuen, geprüften Reviewer-Feed, keine einzige mehr aus der alten unsicheren Quelle.
 
+## Nachtrag 2026-09-07 (Teil 3, noch am selben Tag) — ein gezielter Reparaturversuch, ehrlich gescheitert
+
+In 8 der 24 akzeptierten Frauen-Spiele fehlt bei rund 576 echten Spielzügen die Ballposition,
+obwohl der Down-Wert da ist (dein MEX-ESP-Spiel gehört dazu — allerdings bei den *späteren*
+Spielzügen, nicht den ersten drei, die du geprüft hattest). Das drückt die EP/WP-Abdeckung
+weiterhin auf rund 69 %.
+
+Wir haben versucht, die fehlende Ballposition aus dem rohen Events-Log zu ergänzen — diesmal
+nicht über Zeitstempel (die hatten sich als unzuverlässig erwiesen), sondern über die
+*Reihenfolge* innerhalb einer Ballbesitz-Serie: der x-te Down-Schritt im Reviewer-Feed sollte
+zum x-ten Down-Schritt im Events-Log passen. Ehrlich gegengecheckt an den 16 bereits
+vollständigen Spielen (deren echte Ballposition wir kennen): Die einfache Version stimmt nur
+zu 59 % überein, eine verfeinerte Version (die auch Neustarts der Down-Zählung nach
+Mittellinien-Überquerung berücksichtigt) sogar nur zu 31 % — schlechter, nicht besser. Beides
+liegt weit unter der Schwelle von 95 %, die wir uns vorher gesetzt hatten.
+
+**Konsequenz: Kein Reparaturversuch wird übernommen.** Die 576 Zeilen bleiben ehrlich ohne
+Ballposition, statt sie zu erfinden. Die EP/WP-Zahlen ändern sich dadurch nicht. Auffällig:
+Genau diese 8 Spiele haben durchgehend den Down-Wert, aber nur einen Bruchteil der
+Ballpositionen — das sieht nach einer unvollständigen Einspielung im Reviewer-Werkzeug für
+genau diese 8 Spiele aus, nicht nach einem Zufallsmuster. Das wäre eine gute Frage an IFAF/
+cpx.studio direkt.
+
 Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
