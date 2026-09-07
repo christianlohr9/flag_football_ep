@@ -131,6 +131,57 @@ class TestDownsRange:
         assert result.status == Status.FAIL
         assert result.n_offending == 1
 
+    def test_pass_when_null_down_is_an_events_ledger_synthetic_row(self):
+        """events-ledger-synthetic exemption (2026-09-07, eighth follow-up):
+        a synthetic touchdown/conversion row (`ingest.ifaf.
+        apply_events_ledger`) has no down by construction -- there was
+        never a real play to record one for -- so a null down there is not
+        an offending gap, distinct from the no-play penalty exemption
+        above (this row's `play_type` is null, not `"no_play"`)."""
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=4,
+            overrides={"down": [1, None, 2, 3], "play_type": ["pass", None, "pass", "pass"]},
+            extras={"score_source": [None, "events-ledger-synthetic", None, None]},
+        )
+        results = downs_range(df)
+        result = results[0]
+        assert result.status == Status.PASS
+        assert result.n_offending == 0
+        assert "events-ledger-synthetic" in result.detail
+
+    def test_fail_when_null_down_is_not_synthetic_or_penalty_exempt(self):
+        """The events-ledger-synthetic exemption is scoped to exactly that
+        `score_source` value -- a null down on an ordinary ifaf row (no
+        score_source stamp at all) still fails, no loosening beyond the
+        one documented row shape."""
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=4,
+            overrides={"down": [1, None, 2, 3]},
+            extras={"score_source": [None, None, None, None]},
+        )
+        results = downs_range(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert result.n_offending == 1
+
+    def test_mixed_synthetic_and_real_null_down_only_real_one_offends(self):
+        df = canonical_plays(
+            n_games=1,
+            plays_per_game=4,
+            overrides={
+                "down": [None, None, 2, 3],
+                "play_type": [None, "pass", "pass", "pass"],
+            },
+            extras={"score_source": ["events-ledger-synthetic", None, None, None]},
+        )
+        results = downs_range(df)
+        result = results[0]
+        assert result.status == Status.FAIL
+        assert result.n_offending == 1
+        assert "events-ledger-synthetic" in result.detail
+
 
 class TestYardlineRange:
     def test_pass_when_all_within_0_50(self):
