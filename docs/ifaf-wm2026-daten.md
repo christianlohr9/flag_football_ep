@@ -424,6 +424,13 @@ Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
 
 ## Nachtrag 2026-09-07 (Teil 7, noch am selben Tag) — abgelehnt: einen ganz fehlenden Touchdown als erfundene Zeile ergänzen
 
+> **Am selben Tag noch einmal vorgelegt und diesmal anders entschieden (Teil 8, unten).** Du
+> hast dieselbe Abwägung noch einmal direkt gesehen und dich für die korrekte Punktestand-Fortführung
+> entschieden, nicht für das Zurückhalten der Zeile — mit derselben Kennzeichnung (eigene Spalte,
+> vom Training ausgeschlossen), die unten schon beschrieben ist. Die Begründung hier bleibt
+> unverändert stehen, sie war zum Zeitpunkt der Entscheidung richtig und wird nicht zurückgenommen,
+> nur durch deine eigene Entscheidung überstimmt. Für das tatsächliche Verhalten gilt Teil 8.
+
 Die nächste Anfrage kam mit derselben Begründung wie Teil 6 (eine ausdrückliche
 Nutzer-Entscheidung, Abwägung gezeigt): Für die Spiele, bei denen das Protokoll einen Touchdown
 zeigt, der im Reviewer-Feed gar nicht existiert, sollte jetzt auch eine erfundene Touchdown-Zeile
@@ -459,5 +466,43 @@ bewussten Grenze: Die verbleibende Lücke bei diesen 10 Spielen ist eine echte, 
 benannte Lücke im Reviewer-Feed selbst, kein Programmfehler — und sie so zu schließen, würde
 entweder Zeilen erfinden (abgelehnt) oder eine Nachlieferung durch IFAF/cpx.studio selbst
 brauchen, die Frage gehört an den Anbieter, nicht in diese Ingest-Schicht.
+
+Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
+
+## Nachtrag 2026-09-07 (Teil 8, noch am selben Tag) — deine Entscheidung: fehlende Touchdowns werden jetzt doch ergänzt
+
+Du hast die Abwägung aus Teil 7 noch einmal direkt vorgelegt bekommen und dich diesmal anders
+entschieden: eine korrekte Punktestand-Fortführung für alle späteren echten Spielzüge dieser 9
+Spiele ist dir wichtiger als das Zurückhalten der Zeile — auch wenn sie so gut wie keinen echten
+Spielinhalt hat (kein Down, keine Ballposition, keine Spielaktion). Die Zeile bleibt dabei auf
+jeder Ebene klar erkennbar: eigene Spalte (`score_source = "events-ledger-synthetic"`), eine neue
+spielweite Markierung (`plays_incomplete`, s.u.) und komplett ausgeschlossen vom Modelltraining.
+
+**Umgesetzt:** Fehlt für einen vom Protokoll bestätigten Touchdown die passende Zeile im
+Reviewer-Feed komplett, wird jetzt eine synthetische Touchdown-Zeile ergänzt — kein Down, keine
+Ballposition, kein Spielzugtyp, aber `Touchdown = 1` und die richtige Mannschaft. Folgt im
+Protokoll direkt danach auch noch ein fehlender Extrapunkt für dieselbe Mannschaft, wird der
+genauso ergänzt wie schon in Teil 6. Die genaue Stelle im Spiel ist ehrlich gesagt nicht exakt
+bekannt (dazu unten mehr) — sie wird so spät wie möglich eingefügt, aber immer noch vor dem
+nächsten Spielzug, den das Protokoll bereits echt bestätigt hat.
+
+**Zwei Spiele bleiben bewusst unangetastet:** `wd4` (dessen eigenes Protokoll dem offiziellen
+Endstand schon widerspricht) und `01a00140-b679` (dessen Protokoll für ein Team sichtbar
+fehlerhaft ist — hier fehlt gar kein ganzer Touchdown, nur mehrere nicht zuordenbare
+Extrapunkt-Ereignisse ohne jeden Touchdown in der Nähe, die weiterhin nicht erfunden werden).
+
+**Ergebnis über den ganzen Frauen-Datensatz:** Die Punktestand-Prüfung geht von 18 auf **26 von
+29** korrekt bestätigten Spielen. Ein Spiel (`ffwc26-wc3`) bleibt trotz der neuen Zeile um genau
+1 Punkt daneben — dort gibt es zusätzlich noch einen ganz anderen, schon aus Teil 5 bekannten
+Protokollfehler (ein Extrapunkt-Ereignis ganz ohne zugehörigen Touchdown, an einer anderen Stelle
+im Spiel), den diese Änderung bewusst nicht mit anpackt, weil er nichts mit dem hier behandelten
+fehlenden Touchdown zu tun hat. `wd4` und `01a00140-b679` bleiben aus den schon genannten,
+unveränderten Gründen ebenfalls daneben — macht 26 von 29, nicht 29 von 29.
+
+**Wichtig, ehrlich eingeordnet:** Dass die Punktestand-Prüfung jetzt öfter bestätigt, bedeutet
+nicht automatisch mehr Spiele im tatsächlich genutzten Datensatz — 8 dieser 9 Spiele bleiben aus
+einem ganz anderen, schon vorher bekannten Grund (einzelne fehlende Down-Werte) draußen, den
+diese Änderung nicht behebt. Was sich ändert, ist der korrekt fortgeführte Punktestand selbst,
+nicht automatisch, welche Spiele am Ende im Trainingsdatensatz landen.
 
 Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
