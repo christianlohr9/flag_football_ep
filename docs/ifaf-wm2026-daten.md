@@ -506,3 +506,7 @@ diese Änderung nicht behebt. Was sich ändert, ist der korrekt fortgeführte Pu
 nicht automatisch, welche Spiele am Ende im Trainingsdatensatz landen.
 
 Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
+
+## Nachtrag 2026-09-07 (Teil 9, noch am selben Tag) — Korrektur: die neuen Zeilen waren der Grund, nicht nebensächlich
+
+Die Aussage oben ("8 dieser 9 Spiele bleiben aus einem ganz anderen Grund draußen") war falsch: bei 6 der 9 Spiele war der fehlende Down-Wert genau die neu eingefügte synthetische Zeile selbst, kein separates Problem. Die Down-Prüfung akzeptiert jetzt zusätzlich synthetische Zeilen (`score_source = "events-ledger-synthetic"`) ohne Down-Wert — genau wie sie das schon für zurückgenommene Strafspielzüge tut. Ergebnis: **21 von 29 Spielen jetzt im Datensatz** (vorher 15), EPA-Abdeckung darauf **70,0%** (vorher 58,7%). Zwei Spiele (`wb4`, `wc1`) bleiben wegen je eines echten, unabhängigen fehlenden Down-Werts draußen; ein Spiel (`wc3`) bleibt aus dem schon in Teil 8 genannten, eigenen Punktestand-Grund draußen.
