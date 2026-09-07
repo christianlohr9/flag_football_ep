@@ -797,9 +797,25 @@ def _load_tournaments_meta(raw_dir: Path) -> dict[str, dict]:
     return meta
 
 
+def _load_events_list(raw_dir: Path, game_id: str) -> list | None:
+    """Read one `events_{id}.json` snapshot's top-level event array, or
+    `None` when the file is absent, unparseable, or not the expected shape
+    (a top-level list, or an object wrapping the array under `events`) --
+    shared by `_events_score_ledger_summary` (diagnostic report) and
+    `apply_events_ledger` (the authorized synthetic-row fill)."""
+    events_path = raw_dir / f"events_{game_id}.json"
+    if not events_path.exists():
+        return None
+    payload = _read_json_or_empty(events_path)
+    events = payload if isinstance(payload, list) else (
+        payload.get("events") if isinstance(payload, dict) else None
+    )
+    return events if isinstance(events, list) else None
+
+
 def _events_score_ledger_summary(raw_dir: Path, game_id: str, game_entry: dict) -> str | None:
-    """Diagnostic-only cross-check for a `score_reconstruction` mismatch:
-    sum the game's own `events_{id}.json` `SCORE`-type events (non-reverted
+    """Diagnostic report line for a `score_reconstruction` mismatch: sum
+    the game's own `events_{id}.json` `SCORE`-type events (non-reverted
     only) per team and compare against `games.json`'s own `currentScore`.
 
     2026-09-07 (fifth follow-up, same day): the events feed carries an
@@ -808,34 +824,33 @@ def _events_score_ledger_summary(raw_dir: Path, game_id: str, game_entry: dict) 
     `TD`/`XP1`/`XP2` only, no distinct `SAFETY` type; a safety is logged as
     a `SCORE` event with `scoreType: "XP2"`, `points: 2`, same encoding
     `officialScore` already uses for it). Summed per team, non-reverted
-    events reproduce `games.json`'s final score exactly for 41 of 48
-    women's games (verified 2026-09-07); the 6 misses are genuine
-    zero-event forfeits (no `SCORE` events at all) and one game
-    (`ffwc26-wd4`) where the ledger itself disagrees with the official
-    score -- confirming the ledger is a strong, but not universally
-    trustworthy, signal, well short of the 95% per-game exact-match bar
-    this project requires before trusting a *reconstructed* source (the
-    third and fourth follow-ups above; see the same-day Nachtrag for the
-    full discussion of why this signal is used only as a diagnostic report
-    line here, never to fill or fabricate a canonical row).
+    events reproduce `games.json`'s final score exactly for 41 of the 42
+    women's games that have any `SCORE` events at all (verified
+    2026-09-07; a further 6 games are zero-event forfeits, structurally
+    outside this check's scope, not a ledger failure) -- 97.6% on the
+    denominator that actually applies, clearing this project's own 95%
+    per-game exact-match bar. Following that finding, the user (project
+    owner, domain expert) explicitly authorized promoting the ledger from
+    a diagnostic-only signal to the authoritative scoring source for
+    ledger-consistent games, including inserting a synthetic row for a
+    ledger-confirmed conversion `/plays` never recorded -- see
+    `apply_events_ledger` (sixth follow-up) for that implementation. This
+    function stays a pure diagnostic report line (used for every game,
+    including the one -- `ffwc26-wd4` -- whose ledger itself disagrees
+    with `games.json`, which `apply_events_ledger` never touches).
 
     Returns `None` when there is nothing to report (no events snapshot, no
     parseable `SCORE` events, or no official score to compare against --
     e.g. a forfeit). Otherwise returns one human-readable line: either the
     ledger CONFIRMS the official score (meaning a `score_reconstruction`
-    mismatch on this game is a real gap or misattribution in `/plays`
-    itself, not a bad reference), or the ledger itself DISAGREES with the
-    official score (meaning the ledger cannot be trusted to diagnose this
-    specific game's mismatch, `ffwc26-wd4`-style).
+    mismatch on this game means `/plays` is missing or misattributing a
+    scoring record, not the reference itself), or the ledger itself
+    DISAGREES with the official score (meaning the ledger cannot be
+    trusted to diagnose or fill this specific game's mismatch,
+    `ffwc26-wd4`-style).
     """
-    events_path = raw_dir / f"events_{game_id}.json"
-    if not events_path.exists():
-        return None
-    payload = _read_json_or_empty(events_path)
-    events = payload if isinstance(payload, list) else (
-        payload.get("events") if isinstance(payload, dict) else None
-    )
-    if not isinstance(events, list):
+    events = _load_events_list(raw_dir, game_id)
+    if events is None:
         return None
 
     score_events = [
@@ -883,6 +898,360 @@ def _events_score_ledger_summary(raw_dir: Path, game_id: str, game_entry: dict) 
         f"official games.json score ({official_home}-{official_away}) -- the ledger itself is "
         "unreliable for this game; do not use it to diagnose a score_reconstruction mismatch here"
     )
+
+
+_LEDGER_SCORE_TYPES = frozenset({"TD", "XP1", "XP2"})
+
+
+def apply_events_ledger(
+    df: pl.DataFrame,
+    events: list,
+    home_raw: str | None,
+    away_raw: str | None,
+    official_home: int | None,
+    official_away: int | None,
+) -> tuple[pl.DataFrame, list[str]]:
+    """User-authorized design decision (2026-09-07, sixth follow-up,
+    `docs/ifaf-field-mapping.md`): for a game whose events feed's own
+    `SCORE` ledger (summed per team, non-reverted events only) reproduces
+    `games.json`'s official final score exactly, the ledger becomes the
+    SOLE source of `touchdown`/`def_touchdown`/`one_point_conv_success`/
+    `two_point_conv_success` for that game -- overriding `officialScore`
+    entirely (kept only as the `official_score` audit extra). A ledger
+    score with no matching `/plays` record (a conversion the ledger
+    confirms happened but the reviewer feed never logged at all -- a
+    different problem than an *existing* record's `officialScore` being
+    wrong) is inserted as a synthetic row, `score_source =
+    "events-ledger-synthetic"`; a matched real row is stamped
+    `score_source = "events-ledger"`.
+
+    A game whose ledger does NOT reproduce the official score (or has no
+    events at all -- forfeits, or a `/plays`-fallback game with no
+    `events_{id}.json`) is returned **unchanged**: this function is a
+    strict no-op for it, every row keeps whatever `officialScore`-driven
+    scoring `flatten_plays_records` already computed, and `ffwc26-wd4`
+    (the one live game whose ledger itself disagrees with `games.json`) is
+    never patched by hand.
+
+    Alignment walks the ledger's own `SCORE` events in `sequenceNumber`
+    order, maintaining a single `used` mask over `/plays` rows (never
+    matching the same row to two ledger events) and one "current TD
+    anchor" row index per team: a `TD` event finds the next unused,
+    non-nullified touchdown-shaped row (`TOUCHDOWN` action or
+    `officialScore == "TD"`) whose credited team (offense, or defense when
+    `INTERCEPTION` is also on the row -- a pick-six) matches the ledger
+    event's `teamId`; an `XP1`/`XP2` event first looks for the next
+    unused, non-nullified TRY-actioned row for that team *after* its own
+    most recent TD anchor (consuming the anchor either way, so a second XP
+    for the same team without an intervening new TD never reuses a stale
+    one); an `XP2` event that finds no TRY candidate instead checks for an
+    unused SAFETY-actioned row where that team is the defense (a safety,
+    not a conversion -- the app's own confirmed `officialScore` encoding
+    for a safety is the same `XP2` value) -- if found, `score_source` is
+    stamped but nothing else changes, since `safety`/`add_scoring_play_team`
+    already credit the defense unconditionally from the `SAFETY` action,
+    independent of `officialScore`/the ledger. Only when neither a TRY nor
+    a SAFETY candidate exists is a synthetic row inserted.
+
+    A `TD` event with no candidate at all is logged as a notice and left
+    unscored rather than fabricating an entire touchdown play with no
+    action/team/field-position basis whatsoever -- not observed once in
+    the live corpus (every real touchdown's `/plays` record exists; only
+    its own conversion attempt can go missing), so this path is defensive,
+    not exercised by real data.
+
+    Every synthetic row: `play_type = "extra_point"`, `posteam` the
+    scoring team, `half`/`drive_id`/game-level metadata copied from the
+    anchor TD row, `down = 0`, `yardline_50 = null` (no real spot to
+    report), `nullified = null` (not `0` -- nullification is not
+    applicable to a row that was never a real reviewed play),
+    `source_play_sequence = null`, `result_raw` a clearly-labelled
+    synthetic marker (never mistaken for a real action list). `play_id` is
+    renumbered gapless 1..N across the whole game after every insertion.
+    """
+    notices: list[str] = []
+    if df.height == 0:
+        return df, notices
+
+    score_events = sorted(
+        (
+            e
+            for e in events
+            if isinstance(e, dict) and e.get("eventType") == "SCORE" and not e.get("reverted")
+        ),
+        key=lambda e: (
+            e.get("sequenceNumber")
+            if isinstance(e.get("sequenceNumber"), (int, float))
+            and not isinstance(e.get("sequenceNumber"), bool)
+            else float("inf")
+        ),
+    )
+    if not score_events:
+        return df, notices
+
+    totals: dict[str, int] = {}
+    for e in score_events:
+        payload = e.get("payload") or {}
+        team = payload.get("teamId")
+        points = payload.get("points")
+        score_type = payload.get("scoreType")
+        if (
+            team is None
+            or score_type not in _LEDGER_SCORE_TYPES
+            or not isinstance(points, int)
+            or isinstance(points, bool)
+        ):
+            continue
+        totals[team] = totals.get(team, 0) + points
+
+    if (
+        home_raw is None
+        or away_raw is None
+        or not isinstance(official_home, int)
+        or isinstance(official_home, bool)
+        or not isinstance(official_away, int)
+        or isinstance(official_away, bool)
+        or totals.get(home_raw, 0) != official_home
+        or totals.get(away_raw, 0) != official_away
+    ):
+        notices.append(
+            "events-ledger not used for scoring (does not confirm the official games.json "
+            "score, or no official score to check against) -- officialScore-driven scoring "
+            "left unchanged"
+        )
+        return df, notices
+
+    rows = df.to_dicts()
+    n = len(rows)
+
+    def actions_of(row: dict) -> set[str]:
+        raw = row.get("result_raw")
+        return set(raw.split(", ")) if raw else set()
+
+    # Reset every ledger-affected flag; `safety` is deliberately untouched
+    # (already unconditional on the SAFETY action, independent of
+    # officialScore/the ledger).
+    for row in rows:
+        row["touchdown"] = 0
+        row["def_touchdown"] = 0
+        row["one_point_conv_success"] = 0
+        row["two_point_conv_success"] = 0
+
+    used = [False] * n
+
+    def find_td(team: str, start: int) -> int | None:
+        for i in range(start, n):
+            if used[i] or rows[i]["nullified"]:
+                continue
+            official = rows[i].get("official_score")
+            acts = actions_of(rows[i])
+            if official in ("XP1", "XP2") or "TRY" in acts:
+                # A PAT catch the reviewer feed charted with a TOUCHDOWN
+                # action instead of TRY (docs/ifaf-field-mapping.md Nachtrag
+                # 2026-09-07, fourth follow-up) is try-shaped despite the
+                # action, not a touchdown candidate. The converse also
+                # happens (the same Nachtrag's 21-record quirk): a
+                # TRY-actioned record whose own `officialScore` reads "TD"
+                # is never really a 6-point touchdown either -- a TRY
+                # action always means try-shaped, regardless of what
+                # officialScore claims on that one record shape.
+                continue
+            is_td_shaped = "TOUCHDOWN" in acts or official == "TD"
+            if not is_td_shaped:
+                continue
+            scoring_team = rows[i]["defteam"] if "INTERCEPTION" in acts else rows[i]["posteam"]
+            if scoring_team == team:
+                return i
+        return None
+
+    def find_try(team: str, start: int) -> int | None:
+        # Bounded to strictly before this team's own NEXT touchdown-shaped
+        # row (if any) -- without this bound, a genuinely missing PAT (the
+        # QF's own sequence 110: no try record at all before the team's
+        # *next* touchdown) would incorrectly steal that next touchdown's
+        # own, real, later PAT record instead of correctly falling through
+        # to a synthetic insertion. `find_td` is read-only (never mutates
+        # `used`), so calling it again here just to find the boundary is
+        # safe and free of side effects.
+        boundary = find_td(team, start)
+        end = boundary if boundary is not None else n
+        for i in range(start, end):
+            if used[i] or rows[i]["nullified"]:
+                continue
+            acts = actions_of(rows[i])
+            official = rows[i].get("official_score")
+            # Same TOUCHDOWN-actioned-PAT quirk as `find_td` above, from the
+            # other side: officialScore XP1/XP2 makes a row try-shaped even
+            # without a literal TRY action.
+            is_try_shaped = "TRY" in acts or official in ("XP1", "XP2")
+            if is_try_shaped and rows[i]["posteam"] == team:
+                return i
+        return None
+
+    def find_safety(team: str, start: int) -> int | None:
+        for i in range(start, n):
+            if used[i] or rows[i]["nullified"]:
+                continue
+            if "SAFETY" in actions_of(rows[i]) and rows[i]["defteam"] == team:
+                return i
+        return None
+
+    # Per-team, not a single shared pointer: a shared floor lets one team's
+    # match advance past a row the OTHER team's own next candidate still
+    # needs, when the two feeds' relative interleaving between different
+    # teams' scores doesn't line up 1:1 positionally (empirically real --
+    # verified corpus-wide, see the module Nachtrag). Each team's own
+    # candidates are still found strictly in /plays row order among
+    # themselves, which is what actually matters for correctness here.
+    team_floor: dict[str, int] = {}
+    last_td_idx: dict[str, int | None] = {}
+    # (anchor_row_index, team, score_type) for a ledger score with no /plays
+    # match -- inserted only after the whole ledger walk finishes, so this
+    # loop's own row indices never shift underneath it.
+    pending_synthetic: list[tuple[int, str, str]] = []
+
+    for ev in score_events:
+        payload = ev.get("payload") or {}
+        team = payload.get("teamId")
+        score_type = payload.get("scoreType")
+        if team is None or score_type not in _LEDGER_SCORE_TYPES:
+            continue
+
+        if score_type == "TD":
+            idx = find_td(team, team_floor.get(team, 0))
+            if idx is None:
+                notices.append(
+                    f"events-ledger: TD for {team!r} (sequenceNumber "
+                    f"{ev.get('sequenceNumber')}) has no /plays candidate -- left unscored, "
+                    "not fabricated"
+                )
+                last_td_idx[team] = None
+                continue
+            used[idx] = True
+            team_floor[team] = max(team_floor.get(team, 0), idx)
+            if "INTERCEPTION" in actions_of(rows[idx]):
+                rows[idx]["def_touchdown"] = 1
+            else:
+                rows[idx]["touchdown"] = 1
+            rows[idx]["score_source"] = "events-ledger"
+            last_td_idx[team] = idx
+            continue
+
+        anchor_idx = last_td_idx.get(team)
+        idx = find_try(team, anchor_idx + 1) if anchor_idx is not None else None
+        if idx is not None:
+            used[idx] = True
+            team_floor[team] = max(team_floor.get(team, 0), idx)
+            if score_type == "XP1":
+                rows[idx]["one_point_conv_success"] = 1
+            else:
+                rows[idx]["two_point_conv_success"] = 1
+            rows[idx]["score_source"] = "events-ledger"
+            last_td_idx[team] = None
+            continue
+
+        if score_type == "XP2":
+            safety_idx = find_safety(team, team_floor.get(team, 0))
+            if safety_idx is not None:
+                used[safety_idx] = True
+                team_floor[team] = max(team_floor.get(team, 0), safety_idx)
+                rows[safety_idx]["score_source"] = "events-ledger"
+                last_td_idx[team] = None
+                continue
+
+        if anchor_idx is None:
+            notices.append(
+                f"events-ledger: {score_type} for {team!r} (sequenceNumber "
+                f"{ev.get('sequenceNumber')}) has no TD anchor and no /plays candidate -- "
+                "left unscored, not fabricated"
+            )
+            last_td_idx[team] = None
+            continue
+
+        pending_synthetic.append((anchor_idx, team, score_type))
+        last_td_idx[team] = None
+
+    if not pending_synthetic:
+        return pl.DataFrame(rows, schema=_PLAYS_WORKING_SCHEMA), notices
+
+    by_anchor: dict[int, list[dict]] = {}
+    for anchor_idx, team, score_type in pending_synthetic:
+        anchor = rows[anchor_idx]
+        synthetic = {
+            "source": anchor["source"],
+            "source_game_id": anchor["source_game_id"],
+            "game_id": anchor["game_id"],
+            "play_id": None,  # renumbered below, once every insertion is known
+            "drive_id": anchor["drive_id"],
+            "half": anchor["half"],
+            "down": 0,
+            "yards_to_go": None,
+            "yardline": None,
+            "yardline_50": None,
+            "yardline_50_after": None,
+            "yardline_50_simple": None,
+            "yards_to_go_simple": None,
+            "yards_gained": None,
+            "first_down": None,
+            "game_clock_ms": None,
+            "half_seconds_remaining": None,
+            "posteam": team,
+            "posteam_after": None,
+            "home_team": anchor["home_team"],
+            "away_team": anchor["away_team"],
+            "defteam": _other_team(team, anchor["home_team"], anchor["away_team"]),
+            "play_type": "extra_point",
+            "result_raw": f"SYNTHETIC (events-ledger {score_type})",
+            "description": None,
+            "competition": anchor["competition"],
+            "season": anchor["season"],
+            "gender": anchor["gender"],
+            "tournament_id": anchor["tournament_id"],
+            "complete_pass": 0,
+            "sack": 0,
+            "interception": 0,
+            "safety": 0,
+            "touchdown": 0,
+            "def_touchdown": 0,
+            "one_point_conv_success": 1 if score_type == "XP1" else 0,
+            "two_point_conv_success": 1 if score_type == "XP2" else 0,
+            "defensive_two_point_conv": 0,
+            "penalty": 0,
+            "qb": None,
+            "thrown_by": None,
+            "received_by": None,
+            "target": None,
+            "pass_side": None,
+            "pass_depth": None,
+            "incomplete_reason": None,
+            "penalty_type": None,
+            "source_detail": None,
+            "source_play_sequence": None,
+            "nullified": None,
+            "official_score": None,
+            "score_source": "events-ledger-synthetic",
+            "_missing_down": 0,
+            "_missing_ballon": 1,
+            "_missing_offense": 0,
+            "_nullified": 0,
+            "_unknown_action": None,
+        }
+        by_anchor.setdefault(anchor_idx, []).append(synthetic)
+        notices.append(
+            f"events-ledger: {score_type} for {team!r} confirmed by the ledger but absent "
+            f"from /plays -- inserted as a synthetic extra_point row after play_id "
+            f"{anchor['play_id']}"
+        )
+
+    new_rows: list[dict] = []
+    for i, row in enumerate(rows):
+        new_rows.append(row)
+        new_rows.extend(by_anchor.get(i, []))
+
+    for play_id, row in enumerate(new_rows, start=1):
+        row["play_id"] = play_id
+
+    return pl.DataFrame(new_rows, schema=_PLAYS_WORKING_SCHEMA), notices
 
 
 def _build_game_meta(game_entry: dict, tournament_entry: dict) -> dict:
@@ -1019,6 +1388,8 @@ _PLAYS_WORKING_SCHEMA: dict[str, pl.DataType] = {
     "source_detail": pl.Utf8,
     "source_play_sequence": pl.Float64,
     "nullified": pl.Int32,
+    "official_score": pl.Utf8,
+    "score_source": pl.Utf8,
     "_missing_down": pl.Int32,
     "_missing_ballon": pl.Int32,
     "_missing_offense": pl.Int32,
@@ -1512,6 +1883,13 @@ def flatten_plays_records(
                 # is a resolved value, not a missing-data gap, so it must not
                 # inflate this notice.
                 "nullified": 1 if nullified else 0,
+                # Raw `officialScore` verbatim (kept as an audit extra even on
+                # rows the events-ledger alignment below overrides or leaves
+                # unscored -- 2026-09-07 sixth follow-up). `score_source`
+                # starts null here; `apply_events_ledger` is the only place
+                # that ever sets it to `"events-ledger"`/`"events-ledger-synthetic"`.
+                "official_score": official_score,
+                "score_source": None,
                 "_missing_down": 0 if down_working is not None else 1,
                 "_missing_ballon": 0 if ball_on is not None else 1,
                 "_missing_offense": 0 if offense_raw is not None else 1,
@@ -1531,7 +1909,21 @@ def flatten_plays_records(
         if not (meta["has_try"] and meta["official_score"] == "TD" and not meta["nullified"]):
             continue
         anchor_idx = next(
-            (j for j in range(idx - 1, -1, -1) if score_meta[j]["has_td"]), None
+            (
+                j
+                for j in range(idx - 1, -1, -1)
+                if score_meta[j]["has_td"]
+                # Excludes a TOUCHDOWN-actioned record that is itself
+                # try-shaped (officialScore XP1/XP2, or -- belt and braces
+                # -- a TRY action too): the seq-200-style PAT-catch-charted-
+                # as-touchdown quirk is not a valid backfill anchor either,
+                # same exclusion `apply_events_ledger.find_td` already
+                # applies for the ledger-driven path (2026-09-07, sixth
+                # follow-up finding: this search had the identical gap).
+                and score_meta[j]["official_score"] not in ("XP1", "XP2")
+                and "TRY" not in score_meta[j]["actions_set"]
+            ),
+            None,
         )
         if anchor_idx is None:
             continue
@@ -1843,6 +2235,29 @@ def ingest_snapshots(
                 notices.missing_context_keys = {
                     k: v for k, v in notices.missing_context_keys.items() if v
                 }
+
+                # User-authorized (2026-09-07, sixth follow-up): for a game
+                # whose events-feed SCORE ledger reproduces games.json's
+                # official score, the ledger becomes the sole scoring
+                # source, including inserting a synthetic row for a
+                # ledger-confirmed conversion /plays never recorded. Must
+                # run before map_teams -- the ledger's own teamId values
+                # are raw cpx ids, matching posteam/defteam/home_team/
+                # away_team here, not yet the canonical codes map_teams
+                # produces. A strict no-op for every other game
+                # (ffwc26-wd4, forfeits, any game with no events snapshot).
+                events_list = _load_events_list(raw_dir, gid)
+                if events_list is not None:
+                    official = game_entry.get("currentScore") or {}
+                    df, ledger_notices = apply_events_ledger(
+                        df,
+                        events_list,
+                        game_meta.get("home_team"),
+                        game_meta.get("away_team"),
+                        official.get("home"),
+                        official.get("away"),
+                    )
+                    notices.messages.extend(ledger_notices)
 
                 df = map_teams(
                     df, team_mapping, "ifaf", ["posteam", "defteam", "home_team", "away_team"]

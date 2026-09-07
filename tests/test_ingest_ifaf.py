@@ -32,6 +32,7 @@ from flag_football_ep.ingest.ifaf import (
     _build_game_meta,
     _events_score_ledger_summary,
     _load_teams_meta,
+    apply_events_ledger,
     _play_sort_key,
     _play_type_from_actions,
     _play_type_from_sequence,
@@ -2450,4 +2451,178 @@ def test_ingest_snapshots_plays_resolves_player_names_via_roster(tmp_path):
     row = df.row(0, named=True)
     assert row["qb"] == "Player One"
     assert row["received_by"] == "Player Two"
+
+
+# --- apply_events_ledger ------------------------------------------------------
+
+
+def _score_ev(seq, team, score_type, points, reverted=False):
+    return {
+        "eventType": "SCORE",
+        "sequenceNumber": seq,
+        "reverted": reverted,
+        "payload": {"teamId": team, "scoreType": score_type, "points": points},
+    }
+
+
+def _base_ledger_df():
+    """One game: TD (w-usa, seq10) + XP1 (w-usa, seq20) -- both real /plays
+    records -- built via `flatten_plays_records` so `apply_events_ledger`
+    sees the same working-schema columns (`result_raw`/`official_score`/
+    `posteam`/`defteam`) production code produces."""
+    payload = [
+        _play_record(
+            10, offense="w-usa", events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")],
+            official_score="TD",
+        ),
+        _play_record(
+            20, offense="w-usa", down=None, ball_on=45,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY")], official_score="XP1",
+        ),
+    ]
+    return flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+
+
+def test_apply_events_ledger_no_events_is_noop():
+    df = _base_ledger_df()
+    out, notices = apply_events_ledger(df, [], "w-usa", "w-ger", 7, 0)
+    assert out.height == df.height
+    assert notices == []
+    assert out["score_source"].to_list() == [None, None]
+
+
+def test_apply_events_ledger_forfeit_no_score_events_is_noop():
+    df = _base_ledger_df()
+    events = [{"eventType": "POSSESSION_CHANGE", "payload": {"teamId": "w-usa"}}]
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 0)
+    assert out.height == df.height
+    assert notices == []
+
+
+def test_apply_events_ledger_mismatched_total_is_noop_and_notices():
+    """The ledger disagreeing with games.json (ffwc26-wd4-style) must never
+    be patched -- officialScore-driven scoring from `flatten_plays_records`
+    is preserved exactly, no row mutated."""
+    df = _base_ledger_df()
+    before = df.to_dicts()
+    events = [_score_ev(10, "w-usa", "TD", 6)]  # ledger total 6-0, official says 7-0
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 0)
+    assert out.to_dicts() == before
+    assert any("does not confirm" in n for n in notices)
+
+
+def test_apply_events_ledger_ignores_reverted_score_events():
+    df = _base_ledger_df()
+    events = [
+        _score_ev(10, "w-usa", "TD", 6),
+        _score_ev(20, "w-usa", "XP1", 1),
+        _score_ev(30, "w-usa", "TD", 6, reverted=True),  # undone -- must not count
+    ]
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 0)
+    assert out.height == 2  # no synthetic row -- the reverted event is invisible
+    assert out["touchdown"].to_list() == [1, 0]
+    assert out["one_point_conv_success"].to_list() == [0, 1]
+
+
+def test_apply_events_ledger_real_match_stamps_score_source():
+    df = _base_ledger_df()
+    events = [_score_ev(10, "w-usa", "TD", 6), _score_ev(20, "w-usa", "XP1", 1)]
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 0)
+    assert out.height == 2
+    assert out["score_source"].to_list() == ["events-ledger", "events-ledger"]
+    assert out["touchdown"].to_list() == [1, 0]
+    assert out["one_point_conv_success"].to_list() == [0, 1]
+    assert notices == []
+
+
+def test_apply_events_ledger_inserts_synthetic_row_for_missing_conversion():
+    """The QF's own pattern: a TD with no XP record anywhere in /plays, but
+    the ledger confirms a successful XP1 -- inserted as a synthetic row
+    immediately after the TD, `play_id` renumbered gapless."""
+    payload = [
+        _play_record(10, offense="w-usa", events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")], official_score="TD"),
+        _play_record(20, offense="w-ger", events=[_ev("PASS"), _ev("COMPLETE")]),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    events = [_score_ev(10, "w-usa", "TD", 6), _score_ev(20, "w-usa", "XP1", 1)]
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 0)
+
+    assert out.height == 3
+    assert any("inserted as a synthetic" in n for n in notices)
+    synthetic = out.row(1, named=True)
+    assert synthetic["play_id"] == 2
+    assert synthetic["play_type"] == "extra_point"
+    assert synthetic["down"] == 0
+    assert synthetic["yardline_50"] is None
+    assert synthetic["posteam"] == "w-usa"
+    assert synthetic["defteam"] == "w-ger"
+    assert synthetic["one_point_conv_success"] == 1
+    assert synthetic["two_point_conv_success"] == 0
+    assert synthetic["nullified"] is None
+    assert synthetic["official_score"] is None
+    assert synthetic["score_source"] == "events-ledger-synthetic"
+    assert synthetic["source_play_sequence"] is None
+    # play_id stays gapless 1..N across the whole game after insertion.
+    assert out["play_id"].to_list() == [1, 2, 3]
+
+
+def test_apply_events_ledger_td_with_no_candidate_left_unscored_not_fabricated():
+    """A TD with no /plays candidate at all (not observed live, but a real
+    possibility -- e.g. an entirely missing touchdown record) is logged and
+    left unscored, never fabricated as a whole touchdown play."""
+    df = _base_ledger_df()
+    events = [
+        _score_ev(10, "w-usa", "TD", 6),
+        _score_ev(20, "w-usa", "XP1", 1),
+        _score_ev(30, "w-ger", "TD", 6),  # no w-ger candidate exists in this fixture
+    ]
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 6)
+    assert out.height == 2  # no fabricated touchdown row
+    assert any("has no /plays candidate" in n and "TD" in n for n in notices)
+
+
+def test_apply_events_ledger_xp2_matches_safety_row_without_double_counting():
+    """A ledger XP2 with no TD anchor for that team matches a SAFETY-actioned
+    row instead of being treated as a missing conversion -- `safety` is
+    already correctly set by the SAFETY action alone, so nothing more
+    changes on that row beyond `score_source`."""
+    payload = [
+        _play_record(10, offense="w-usa", events=[_ev("SACK"), _ev("SAFETY")], official_score="XP2"),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["safety"].to_list() == [1]
+    events = [_score_ev(10, "w-ger", "XP2", 2)]  # w-ger is the defense -> credited
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 0, 2)
+    assert out.height == 1  # no synthetic row inserted
+    assert out["safety"].to_list() == [1]
+    assert out["score_source"].to_list() == ["events-ledger"]
+    assert not any("inserted as a synthetic" in n for n in notices)
+
+
+def test_apply_events_ledger_td_on_try_record_resolved_by_ledger():
+    """The 21-record live-corpus quirk (docs/ifaf-field-mapping.md fourth
+    follow-up): a TRY-actioned record whose own officialScore reads "TD".
+    With ledger data available, the ledger's own TD event resolves which
+    record is the real touchdown (the preceding TOUCHDOWN-actioned one,
+    officialScore NONE despite the action) -- never the try record itself,
+    regardless of its borrowed "TD" label."""
+    payload = [
+        _play_record(10, offense="w-usa", events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")], official_score="NONE"),
+        _play_record(
+            20, offense="w-usa", down=None, ball_on=45,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=1, tryGood=True)],
+            official_score="TD",
+        ),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    events = [_score_ev(10, "w-usa", "TD", 6), _score_ev(20, "w-usa", "XP1", 1)]
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 0)
+
+    assert out.height == 2  # both real records matched -- no synthetic insertion
+    anchor, try_row = out.row(0, named=True), out.row(1, named=True)
+    assert anchor["touchdown"] == 1
+    assert anchor["score_source"] == "events-ledger"
+    assert try_row["touchdown"] == 0
+    assert try_row["one_point_conv_success"] == 1
+    assert try_row["score_source"] == "events-ledger"
 

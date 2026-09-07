@@ -12,6 +12,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from flag_football_ep.canonical import add_score_columns, add_scoring_play_team
 from flag_football_ep.testing import canonical_plays, canonical_plays_with_scores
 from flag_football_ep.features.mutations import (
     EP_HALF_UNKNOWN_SENTINEL,
@@ -36,8 +37,10 @@ from flag_football_ep.features.mutations import (
     prepare_wp_data,
 )
 from flag_football_ep.model.hyperparams import (
+    EP_FEATURES,
     RECENCY_HALF_LIFE_DAYS_GRID,
     RECENCY_NULL_DATE_WEIGHT,
+    WP_FEATURES,
     WP_SELECTED_COLUMNS,
 )
 from flag_football_ep.reference import COMPETITION_TIERS, UnmappedCompetitionError
@@ -1793,3 +1796,100 @@ class TestHalfSentinelLabelConstruction:
         )
         assert set(counts["n"].to_list()) == {1}
         assert counts.height == 2
+
+
+class TestSyntheticLedgerRowsExcludedFromTraining:
+    """2026-09-07 (sixth follow-up, docs/ifaf-field-mapping.md): a synthetic
+    `score_source == "events-ledger-synthetic"` row (`ingest.ifaf.
+    apply_events_ledger`, inserted for a ledger-confirmed conversion `/plays`
+    never recorded) must never reach EP/WP model training -- it has no real
+    field position, game clock, or reviewed action behind it, only a
+    fabricated point value. This is enforced by EXISTING null-filter
+    machinery already in this module (`make_ep_model_mutations`'s own
+    `yardline_50`/`yards_to_go` filter; `model/train.py`'s `drop_nulls()`
+    after `make_wp_model_mutations`), not new code written for this fix --
+    these tests prove that existing mechanism actually excludes this new
+    row shape, not just assert it by construction.
+    """
+
+    def _game_with_synthetic_pat(self, plays_per_game: int = 12) -> pl.DataFrame:
+        # Mid-half touchdown (not the first/last drive) so Drive_Score_Dist
+        # and score_differential both vary -- avoids DegenerateWeightRange,
+        # same shape `_multi_drive_ep_frame` above already uses.
+        touchdown = [0] * plays_per_game
+        touchdown[5] = 1
+        base = canonical_plays_with_scores(
+            n_games=1, plays_per_game=plays_per_game, overrides={"touchdown": touchdown}
+        )
+        game_id = base["game_id"][0]
+        scoring_team = base["posteam"][5]
+        other_team = base["defteam"][5]
+        # Mirrors exactly what `apply_events_ledger` builds for a
+        # ledger-confirmed-but-/plays-missing conversion: down 0, no real
+        # spot, `score_source` stamped, `nullified`/clock left null.
+        synthetic = canonical_plays(
+            n_games=1,
+            plays_per_game=1,
+            overrides={
+                "game_id": game_id,
+                "play_id": plays_per_game + 1,
+                "drive_id": base["drive_id"][5],
+                "half": base["half"][5],
+                "down": 0,
+                "yardline_50": None,
+                "yardline": None,
+                "yards_to_go": None,
+                "posteam": scoring_team,
+                "defteam": other_team,
+                "home_team": "HOME",
+                "away_team": "AWAY",
+                "play_type": "extra_point",
+                "one_point_conv_success": 1,
+            },
+            extras={
+                "score_source": "events-ledger-synthetic",
+                "nullified": None,
+                "half_seconds_remaining": None,
+            },
+        )
+        combined = pl.concat([base, synthetic], how="vertical")
+        combined = add_scoring_play_team(combined, credit_defense=True)
+        combined = add_score_columns(combined)
+        return combined
+
+    def test_synthetic_row_excluded_from_ep_training_frame(self):
+        df = self._game_with_synthetic_pat()
+        synthetic_play_id = int(df["play_id"].max())
+        assert df.filter(pl.col("score_source") == "events-ledger-synthetic").height == 1
+        # Tier one-hots are built by a separate step this test does not
+        # exercise -- see the WP test's identical note below.
+        ep_features = [f for f in EP_FEATURES if not f.startswith("tier_")]
+
+        prepared = prepare_ep_data(df)
+        model_data = make_ep_model_mutations(
+            prepared, ["game_id", "play_id", "label", *ep_features, "Total_W_Scaled"]
+        )
+
+        assert model_data.filter(pl.col("play_id") == synthetic_play_id).height == 0
+        # Every real play still makes it through -- this is an exclusion of
+        # exactly the synthetic row, not a symptom of a broken frame.
+        assert model_data.height > 0
+
+    def test_synthetic_row_excluded_from_wp_training_frame(self):
+        df = self._game_with_synthetic_pat()
+        synthetic_play_id = int(df["play_id"].max())
+        # Tier one-hots (`TIER_FEATURE_COLUMNS`) are built by a separate
+        # step (`model/train.py::_build_competition_tier`) this test does
+        # not exercise -- excluded here to isolate exactly the null-based
+        # exclusion this test is about, not competition-tier plumbing.
+        wp_features = [f for f in WP_FEATURES if not f.startswith("tier_")]
+
+        prepared = prepare_wp_data(df)
+        # Mirrors model/train.py's own `mutate_fn(prepared, selected_columns).drop_nulls()`
+        # step exactly -- the real production exclusion path, not a re-implementation.
+        model_data = make_wp_model_mutations(
+            prepared, ["game_id", "play_id", "label", *wp_features]
+        ).drop_nulls()
+
+        assert model_data.filter(pl.col("play_id") == synthetic_play_id).height == 0
+        assert model_data.height > 0

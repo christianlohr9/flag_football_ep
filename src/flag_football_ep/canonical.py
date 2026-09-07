@@ -108,6 +108,26 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     "pass_depth": pl.Utf8,
     "incomplete_reason": pl.Utf8,
     "penalty_type": pl.Utf8,
+    # `/plays` record's own raw `officialScore` verbatim (docs/ifaf-field-
+    # mapping.md Nachtrag 2026-09-07, sixth follow-up: events-ledger scoring):
+    # audit-only -- kept even on a row the events-ledger alignment overrides
+    # or leaves unscored, so a human can see what the reviewer feed itself
+    # said versus what the ledger-cross-checked score actually is. Null for
+    # a synthetic row (fabricated, no raw officialScore to audit) and for
+    # every source other than ifaf.
+    "official_score": pl.Utf8,
+    # Provenance for exactly how a scoring flag on this row was decided:
+    # `"events-ledger"` (a real `/plays` record the events-feed SCORE ledger
+    # matched, for a game whose ledger total reproduces `games.json`'s final
+    # score), `"events-ledger-synthetic"` (a fabricated row inserted because
+    # the ledger names a score with no matching `/plays` record at all --
+    # `nullified` is null on these, not 0, since nullification is not
+    # applicable to a row that was never a real reviewed play), or null
+    # (officialScore-only scoring, unaffected by the events ledger -- every
+    # non-ifaf row, every ifaf row from a game whose ledger doesn't
+    # reproduce the official score, and every ifaf row the ledger simply
+    # never touched).
+    "score_source": pl.Utf8,
     # Int32
     "yac": pl.Int32,
     "drive_success": pl.Int32,
