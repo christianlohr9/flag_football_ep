@@ -830,3 +830,54 @@ No `ballOn` value is fabricated from this reconstruction. `replay_events_los_sta
 ### Test coverage (this follow-up)
 
 `tests/test_ingest_ifaf.py` gained 21 new tests covering `replay_events_los_states`' own event semantics (first-down default, LOS_UPDATE-finalizes-subsequent-down, unchanged-spot-down flush, orphan-LOS_UPDATE implicit increment, TRY_DOWN's own ballOn, MANUAL_EDIT no-op-but-counted, reverted-event skipping, POSSESSION_CHANGE reset, LOS_UPDATE-before-first-DOWN_UPDATE), `_extract_real_down_records`/`_segment_records_by_team` (no-play exclusion, TRY-shaped down=0, nullified-extra-point kept, team-change segmentation), `align_events_los_states` (exact match, bounded-lookahead skip of an extra state, unmatched real record, never matching across a segment boundary), and the gate itself (`validate_events_los_fill` adopts on a synthetic perfect-reconstruction fixture, declines below threshold on a synthetic wrong-value fixture, and handles a missing events file; `diagnose_partial_los_fill`'s own counts). Every fixture is small and entirely synthetic (fabricated team/player ids, never real data). Full repository test suite passes after this change.
+
+## Nachtrag 2026-09-07 (eleventh follow-up, same day) — manual spot-fill: `ifaf.apply_spot_fill`, `ifaf_spot_fill_worksheets`, `data/reference/ifaf_spot_fill/`
+
+**Decision (project owner, direct request).** After three independently-designed events-feed reconstruction attempts (the third follow-up's own two positional-alignment variants, and the tenth follow-up's structural state-machine alignment) each measured well under this project's required 95% bar, the owner decided the null-`ballOn` gap on the affected women's games is closed by hand: re-spot each play from the broadcast video, using the video mark the reviewer feed already carries per play (`videoMark`/`videoTimeSec`, the same fields `ingest.ifaf_video_marks` already surfaces). This follow-up builds the supporting tooling — no `ballOn` value is fabricated by this or any prior attempt.
+
+### Scope: 12 games, not 8
+
+`ifaf_spot_fill_worksheets.find_partially_spotted_women_games` identifies every accepted-or-quarantined `/plays`-primary women's game with >= 1 real record whose `ballOn` is null — a broader definition than the tenth follow-up's "8 partially spotted games" table (which only counted a game as "partially spotted" when the gap was large enough to matter for that follow-up's own validation scoping). Recomputed against the live corpus:
+
+| game_id | null `ballOn` | total records | with resolvable video url |
+|---|---:|---:|---:|
+| `019ffff1-a8db-73ed-91ff-068fd964194c` (the QF) | 71 | 93 | 71 |
+| `019ffff1-a998-7548-ad06-7810b8a4ac85` | 85 | 85 | 0 |
+| `019ffff1-add2-766d-93c1-b7db007230b9` | 4 | 79 | 4 |
+| `01a00140-b679-7659-b3c9-c837309e1522` | 92 | 92 | 0 |
+| `01a00140-b68c-739c-9d8b-aba8e5099ae8` | 107 | 107 | 0 |
+| `01a0062b-6706-727b-b8c4-18f7fdc023c8` | 2 | 84 | 0 |
+| `01a0062b-6782-7353-902b-08bba8fea5ab` | 47 | 79 | 0 |
+| `ffwc26-wa5` | 1 | 95 | 1 |
+| `ffwc26-wb6` | 1 | 105 | 1 |
+| `ffwc26-wc6` | 88 | 88 | 0 |
+| `ffwc26-wd5` | 69 | 106 | 69 |
+| `ffwc26-wd6` | 96 | 96 | 0 |
+| **total** | **663** | **1,109** | **146** |
+
+The 8 games from the tenth follow-up's own table are exactly the 8 rows above with the largest gaps; the 4 additional games (`019ffff1-add2-...`, `01a0062b-6706-...`, `ffwc26-wa5`, `ffwc26-wb6`) each have only 1-4 null records. "With resolvable video url" checks `ingest.ifaf_video_marks._video_fields`'s own fallback (a record's own `videoMark`, else the snapshot's document-level `videoUrl` + the record's own derived `videoTimeSec`) — never a download, and never requires the record's own `videoMark` specifically (5 of these 12 games' null records resolve a URL entirely via the document-level fallback, with `videoTimeSource == "derived"`). The other 7 games' snapshots carry no document-level `videoUrl` at all (`payload.get("videoUrl")` is absent), so 0 of their null records resolve a URL through either path. Every resolved URL observed is hosted on `cloud.spontent.pro` or `www.youtube.com`.
+
+### What shipped
+
+**`ingest.ifaf.load_spot_fill`/`apply_spot_fill`** (`src/flag_football_ep/ingest/ifaf.py`): `load_spot_fill(path)` reads one game's `data/reference/ifaf_spot_fill/<game_id>.csv` (`game_id,sequence,ballOn,note`), returning an empty typed frame when the file does not exist (the normal, not-yet-touched-by-the-owner state, not an error). `apply_spot_fill(df, fill_dir)` matches each fill row to a working-frame row by `sequence` == `source_play_sequence`, and:
+
+- an empty `ballOn` cell: silently skipped (the worksheet's own not-yet-filled-in state, not a notice);
+- a `game_id` that does not match this frame's own `game_id` (and is non-empty): a notice, row ignored;
+- an unmatched `sequence`: a notice naming it, row ignored;
+- `ballOn` outside `[0, 50]`: a notice naming the sequence and value, row ignored;
+- the matched row already has a real (non-null) `yardline_50`: a notice, fill ignored — **a real spot is never overwritten**;
+- otherwise: `yardline_50` is set from the fill, `spot_source` is stamped `"manual"`, and the working `_missing_ballon` marker is cleared so `ingest_snapshots`' own missing-context notice reflects the post-fill state.
+
+Called right after `flatten_plays_records` and before `apply_events_ledger`/`derive_yardage_columns_plays`/`derive_yards_to_go` — a filled spot is indistinguishable from a real one to every downstream derivation, since neither reads `spot_source`. A synthetic row `apply_events_ledger` might insert always carries a null `source_play_sequence`, so it structurally can never match a fill row. Never raises: an unparseable fill file surfaces as a notice via `ingest_snapshots`' existing per-game exception containment (T-1.2-44/T-1.2-45), same as any other failure in that chain.
+
+`canonical.NULLABLE_EXTRAS` gains `spot_source: pl.Utf8` — null for a real spot and every non-ifaf row, `"manual"` for a filled one, `"events-ledger"`/`"events-ledger-synthetic"` from `score_source` unaffected (a separate column, orthogonal provenance).
+
+**Wiring:** `ingest_snapshots(..., spot_fill_dir: Path | None = None)` — `None` (the default) is a strict no-op, so every existing caller/test keeps its exact prior behavior. `pipeline._ingest_ifaf` gained the same optional parameter, threaded from a new `config.reference.ifaf_spot_fill` path (`config.py`'s `ReferenceFiles`, defaulting to `data/reference/ifaf_spot_fill` — same optional-with-default-and-fallback pattern `hc_games`/`hc_splits` already established, so a pre-existing `ffep.toml` that doesn't declare this key keeps loading unchanged). `ffep.toml` now declares it explicitly under `[reference]`.
+
+**`ingest.ifaf_spot_fill_worksheets`** (new module) + the `ffep ifaf-spot-fill-worksheets` CLI command: `find_partially_spotted_women_games` (the scan above), `build_worksheet_rows` (one game's worksheet content: every null-`ballOn` record plus the one real record immediately before/after each null run, `spot_status` marking which is which, `prev_ballOn` computed by walking every record in sequence order so it stays correct even deep inside a long null run), and `generate_worksheets`/`_write_worksheet` (idempotent regeneration: merges in any `ballOn`/`note` already typed into the worksheet on disk, matched by `sequence`, never clobbers it). Reuses `ingest.ifaf`'s own private per-game classification helpers (`_load_games_meta`/`_load_tournaments_meta`/`_build_game_meta`/`_load_usable_plays_records`/`flatten_plays_records`) so "which games/records are in scope" always matches what `ingest_snapshots` itself computes, and `ingest.ifaf_video_marks._video_fields` for identical video-URL resolution. Output: `data/raw/ifaf/spot_fill_worksheets/<game_id>.csv` — local, gitignored (`data/raw/ifaf/` is already wholesale-ignored), carries real player names for context (passer/receiver), comma/LF-delimited, no semicolons.
+
+**`data/reference/ifaf_spot_fill/`** (committed): one empty-but-headered `<game_id>.csv` per game in the scope table above (12 files), plus a German `README.md` documenting the `ballOn` convention (0-50 from the offense's own goal line: own 5 = 5, midfield = 25, opponent 5 = 45), that only null-spot plays need a value, and the exact video-timestamp workflow. No player names in any committed file.
+
+### Test coverage (this follow-up)
+
+`tests/test_ingest_ifaf.py` gained coverage for `load_spot_fill`/`apply_spot_fill`: no-op when `fill_dir` is `None` or the game has no fill file, a fill applied and `spot_source` stamped, derived `yards_gained`/`yards_to_go` on a filled spot identical to a real one, a real spot never overwritten, an unknown sequence and an out-of-range `ballOn` each producing a notice rather than a crash, an empty `ballOn` cell silently skipped, a mismatched `game_id` row producing a notice, and an end-to-end `ingest_snapshots(spot_fill_dir=...)` case. A new `tests/test_ingest_ifaf_spot_fill_worksheets.py` covers `find_partially_spotted_women_games` (identifies a game with a null `ballOn`, excludes a fully-spotted game, excludes a men's tournament), `build_worksheet_rows` (missing + neighbour rows, canonical `play_id` numbering matching `flatten_plays_records`' own, no PII leak when no roster is supplied), and `generate_worksheets` (idempotent merge preserving a typed-in value, comma/LF-no-semicolon CSV output). Every fixture is small and entirely synthetic (fabricated team/player ids), per this module's existing PII policy. Full repository test suite passes after this change.

@@ -548,3 +548,42 @@ viele Positions-Ereignisse das Events-Log für dieses Spiel überhaupt hat) stat
 Rateversuchs.
 
 Voller technischer Nachtrag mit allen Zahlen und der Spiel-für-Spiel-Tabelle: `docs/ifaf-field-mapping.md`.
+
+## Nachtrag 2026-09-07 (Teil 11, noch am selben Tag) — deine Entscheidung: die fehlenden Ballpositionen werden von Hand nachgespottet
+
+Nach drei unabhängigen, alle gescheiterten Rekonstruktionsversuchen (Teil 3, Teil 10 und den beiden
+Varianten aus dem dritten technischen Nachtrag) hast du dich entschieden, die Lücke anders zu
+schließen: Du spottest die fehlenden Ballpositionen der betroffenen Frauen-Spiele selbst nach, aus
+dem Broadcast-Video, mit dem Video-Zeitstempel, den der Reviewer-Feed pro Spielzug ohnehin schon
+mitliefert. Diese Ergänzung baut das Werkzeug dafür, damit du dabei wirklich nur eine Zahl pro
+Spielzug eintippen musst.
+
+**Programmatisch gefunden: 12 betroffene Frauen-Spiele** (mindestens ein echter Spielzug mit
+fehlender `ballOn`) — das ist mehr als die 8 Spiele aus Teil 10, weil dort nur Spiele mit einer
+größeren, zusammenhängenden Lücke gezählt wurden; die 4 zusätzlichen Spiele haben nur 1–4 fehlende
+Zeilen. Bei 5 der 12 Spiele lässt sich für jede fehlende Zeile eine Video-URL auflösen (eigener
+Video-Marker oder die im Spieldokument hinterlegte Aufnahme + der abgeleitete Zeitstempel der
+Zeile selbst); bei den anderen 7 Spielen fehlt im Snapshot die Video-URL komplett — die
+Arbeits-Übersicht bleibt für diese Spiele trotzdem nützlich (Down, Team, letzte bekannte Position),
+nur eben ohne anklickbaren Video-Link.
+
+**Was jetzt geht:**
+
+1. **Arbeits-Übersicht pro Spiel** (`ffep ifaf-spot-fill-worksheets`, schreibt nach
+   `data/raw/ifaf/spot_fill_worksheets/<game_id>.csv` — lokal, git-ignoriert, mit echten
+   Spielernamen für den Kontext): eine Zeile pro fehlendem Spielzug, plus die jeweils
+   letzte/nächste echte Zeile drumherum zur Orientierung. Spalten: Spielzug-Nummer, Down,
+   Offense-Team, Passer/Receiver, letzte bekannte echte Position, Video-URL und -Zeitstempel.
+   Erneutes Ausführen überschreibt nie einen bereits eingetragenen Wert.
+2. **Die eigentliche Eintragung** passiert in `data/reference/ifaf_spot_fill/<game_id>.csv` —
+   eine committete, PII-freie Datei pro Spiel (`game_id,sequence,ballOn,note`), aktuell leer bis
+   auf die Kopfzeile. Die genaue Konvention (0–50 ab eigener Torlinie) und der Workflow stehen im
+   `README.md` desselben Verzeichnisses.
+3. **Beim nächsten Ingest-Lauf** liest `ingest.ifaf.apply_spot_fill` diese Datei automatisch mit
+   ein und trägt den Wert in `yardline_50` ein — mit einer neuen Spalte `spot_source = "manual"`,
+   damit für immer erkennbar bleibt, welche Position echt vom Reviewer stammt und welche von Hand
+   nachgetragen wurde. Ein bereits echt gespotteter Wert wird dabei nie überschrieben (nur ein
+   Hinweis im Log, kein Fehler), und `yards_gained`/`yards_to_go` behandeln eine nachgetragene
+   Position exakt wie eine echte.
+
+Voller technischer Nachtrag mit der Spiel-für-Spiel-Tabelle: `docs/ifaf-field-mapping.md`.
