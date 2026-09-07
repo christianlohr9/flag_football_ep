@@ -36,6 +36,7 @@ section; the `/plays` primary path has its own action-list vocabulary
 from __future__ import annotations
 
 import json
+from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Sequence
@@ -2259,6 +2260,466 @@ _RECONSTRUCTION_EXCLUSION_REASON = (
     "games (below the 95% bar), so this game is excluded rather than accepted on "
     "unreliable pre-snap state"
 )
+
+
+# 2026-09-07 (tenth follow-up, same day) -- a THIRD, structurally-driven
+# reconstruction attempt, distinct from both the timestamp-based replay above
+# (77.5%/46.8%) and the third follow-up's own two positional-alignment
+# variants (`docs/ifaf-field-mapping.md`: whole-drive 58.8%, down-cycle
+# 31.4%). Rather than matching by `clientTimestamp`/`startedAt` proximity or
+# by a fixed positional index within a drive/cycle, this attempt replays the
+# events feed as an explicit pre-snap state machine and aligns the emitted
+# state sequence to `/plays`' own real records by *structure* -- team and
+# down, walked in parallel, tolerating a bounded (`lookahead=1`) count
+# mismatch on either side, never crossing a `POSSESSION_CHANGE` boundary.
+#
+# **Measured, not adopted.** Validated by blinding the real `ballOn` on every
+# women's `/plays`-primary game with zero null `ballOn` on its own real plays
+# (21 such games in the live corpus -- more than the 16 anticipated when this
+# attempt was scoped, since some games the 2026-09-07 third follow-up counted
+# among the 24 "accepted" games are quarantined for unrelated reasons
+# (`score_reconstruction`/`downs_range`) that don't affect `ballOn`
+# completeness; using all 21 is strictly more validation power, not a
+# methodology change) and re-deriving each one's `ballOn` from its own events
+# feed: **16.8% exact agreement (292/1,735 comparable rows)**, `down`
+# agreement 41.8% (this state machine's own down-tracking, not `/plays`' own
+# down field, which is copied through unchanged and never recomputed), `|Δ| ≤
+# 2` agreement 18.9% -- all three well under the 95% bar, and the exact-match
+# figure alone is *worse* than every one of the three previously-measured
+# reconstructions above, not an improvement. See `validate_events_los_fill`'s
+# own docstring for the root cause (found live, not assumed): the events
+# feed's `LOS_UPDATE` stream fires at a finer granularity than `/plays`' own
+# review-level down structure, and a genuinely dead spot (no yardage change
+# between two consecutive downs -- an incomplete pass, a sack at the line)
+# produces no `LOS_UPDATE` at all for that down, silently misattributing the
+# *next* `LOS_UPDATE`'s spot to the wrong down once one gap opens. **No
+# `ballOn` value is fabricated from this reconstruction.** The state machine,
+# the alignment, and the validation gate below are kept as tested,
+# permanently-available diagnostic tooling (this module's own established
+# precedent for a measured-and-declined reconstruction, e.g. the fallback
+# path exclusion above) -- never wired into `flatten_plays_records`/
+# `ingest_snapshots`, and no `spot_source` extra was added, since the fill
+# was never adopted.
+_LOS_FILL_GATE_THRESHOLD = 0.95
+
+
+def replay_events_los_states(events: list) -> tuple[list[list[dict]], Counter]:
+    """Replay one game's `events_{id}.json` array as an explicit pre-snap
+    state machine, walked in `sequenceNumber` order (`reverted == true`
+    events skipped -- none were observed in the live corpus, but this is a
+    correctness requirement, not an assumption).
+
+    Returns `(segments, manual_edit_keys)`: `segments` is one list per
+    `POSSESSION_CHANGE` event (in event order), each entry a `{"team",
+    "down", "ballOn"}` state in the order it was emitted; `manual_edit_keys`
+    is a `Counter` over every key seen under a `MANUAL_EDIT` event's own
+    `payload.edits` dict, across the whole game -- see the "MANUAL_EDIT" case
+    below for what this event type was found to actually carry.
+
+    **Event semantics, verified against the live corpus (not the literal
+    reading originally hypothesized -- see the docstring's own correction
+    note at the end):**
+
+    - `POSSESSION_CHANGE`: starts a new segment. Resets every piece of
+      per-possession state (`team`, `down`, `ballOn`, and the "first down
+      still pending" flag) -- a possession never inherits state from the one
+      before it.
+    - `DOWN_UPDATE` (`payload.down`): the FIRST `DOWN_UPDATE` of a possession
+      emits its state immediately, using whatever `ballOn` is already known
+      (the "5" default, or an earlier `LOS_UPDATE` that fired before this
+      possession's first down -- the literal reading of "ballOn defaults to
+      5 unless a LOS_UPDATE follows before the first DOWN_UPDATE"). Every
+      SUBSEQUENT `DOWN_UPDATE` in the same possession does NOT emit
+      immediately -- it only records the new down number and waits for the
+      `LOS_UPDATE` that finalizes it (see below). If a down was already
+      pending (a prior `DOWN_UPDATE` fired but no `LOS_UPDATE` closed it
+      yet) when *another* `DOWN_UPDATE` arrives, the still-open down is
+      flushed first, using its own last-known `ballOn` (unchanged from the
+      previous down) -- this is required for a real, corpus-wide play
+      shape: a down with literally no yardage change (an incomplete pass, a
+      sack at the line) gets no `LOS_UPDATE` of its own at all, only the
+      next `DOWN_UPDATE`.
+    - `LOS_UPDATE` (`payload.ballOn`): if a down is currently open/pending
+      (its own `DOWN_UPDATE` already fired, not yet flushed), this closes
+      and emits it with the given `ballOn`. If no down is pending yet at all
+      this possession (a `LOS_UPDATE` firing before the very first
+      `DOWN_UPDATE`), it only overrides the "5" default the first down will
+      use. Otherwise (a down was already closed/emitted, and a further
+      `LOS_UPDATE` fires with no intervening `DOWN_UPDATE`) it is treated as
+      an implicit down increment -- `down + 1` -- and emits immediately;
+      this recovers the corpus's own "1, 2, 3, 2" reviewer-down-sequence
+      inconsistency case (`docs/ifaf-field-mapping.md`'s first Nachtrag),
+      where a genuine down was recorded via `LOS_UPDATE` alone with no
+      matching `DOWN_UPDATE` at all.
+    - `TRY_DOWN` (`payload.ballOn`): emits a `down = 0` try-state directly
+      from the event's own `ballOn` field. Corpus-wide, every `TRY_DOWN`
+      event carries a non-null `ballOn` (707/707 checked) -- the "defaults to
+      45/40 by `tryPoints`" fallback this function's own initial design
+      anticipated is dead code in the live corpus and intentionally not
+      implemented; `payload.ballOn` is used directly.
+    - `SCORE`: a boundary only -- closes out the possession's scoring, but
+      emits no state of its own (the scoring play's own down/spot was
+      already emitted by the `DOWN_UPDATE`/`LOS_UPDATE` pair that preceded
+      it).
+    - `MANUAL_EDIT`: inspected directly against the live corpus (required by
+      this fix's own method, not assumed) -- every `payload.edits` key
+      observed corpus-wide is UI/bookkeeping state with no down/ballOn/team
+      information at all: `penaltyFlag` (a flag-on-the-field toggle),
+      `tryDownPending`/`tryPointValue`/`currentContext.tryType` (clearing the
+      try-attempt UI state once a try resolves), and a handful of
+      end-of-game `halfTimeScore.*`/`periodScores.*` corrections. None of
+      these carry a spot, a down, or a team -- `MANUAL_EDIT` is therefore a
+      verified no-op for this state machine, not an unhandled case.
+    - `CLOCK_START`/`CLOCK_ADJUST`/`CLOCK_STOP`/`TIMEOUT`/`DISTANCE_CHANGE`/
+      `STATUS_CHANGE`: also ignored for state purposes -- none of them carry
+      down/ballOn/team information relevant to this replay (`STATUS_CHANGE`
+      carries `HALF_TIME`/`IN_PROGRESS`/`FINAL`/`OVERTIME` only, useful for
+      half-tracking but not needed by the alignment this function feeds).
+
+    **Correction from this fix's own original design.** The method this fix
+    was scoped against hypothesized that `DOWN_UPDATE` itself emits a state
+    immediately in every case, with `LOS_UPDATE` only ever setting up the
+    *next* state. Checked against the live QF game's own event stream, this
+    is wrong for every down after the first one in a possession: real
+    `DOWN_UPDATE`s fire with a stale, not-yet-updated `ballOn` (the previous
+    down's own spot), and the correct spot for that down only arrives via
+    the `LOS_UPDATE` that follows it -- confirmed by manually tracing the
+    QF's own opening ESP/MEX drives against `/plays`' own already-known
+    (non-null) `ballOn` values for those exact plays. This function
+    implements the corrected, verified semantics above, not the original
+    hypothesis (Rule 1 -- the original design was a bug, not a valid
+    alternative reading).
+    """
+    segments: list[list[dict]] = []
+    manual_edit_keys: Counter = Counter()
+
+    cur_seg: list[dict] | None = None
+    team: str | None = None
+    first_down_pending = True
+    cur_down: int | None = None
+    cur_ballon: float | int | None = None
+    down_emitted = True
+
+    for e in sorted(
+        (e for e in events if isinstance(e, dict) and not e.get("reverted")),
+        key=lambda e: (
+            e.get("sequenceNumber")
+            if isinstance(e.get("sequenceNumber"), (int, float))
+            and not isinstance(e.get("sequenceNumber"), bool)
+            else float("inf")
+        ),
+    ):
+        et = e.get("eventType")
+        payload = e.get("payload") or {}
+
+        if et == "POSSESSION_CHANGE":
+            cur_seg = []
+            segments.append(cur_seg)
+            team = payload.get("teamId")
+            first_down_pending = True
+            cur_down = None
+            cur_ballon = None
+            down_emitted = True
+            continue
+
+        if cur_seg is None:
+            # No possession opened yet -- not observed live, but a state
+            # emitted with no team is worse than dropping it.
+            continue
+
+        if et == "DOWN_UPDATE":
+            k = payload.get("down")
+            if first_down_pending:
+                ballon = cur_ballon if cur_ballon is not None else 5
+                cur_seg.append({"down": k, "ballOn": ballon, "team": team})
+                cur_down, cur_ballon, down_emitted = k, ballon, True
+                first_down_pending = False
+            else:
+                if not down_emitted:
+                    cur_seg.append({"down": cur_down, "ballOn": cur_ballon, "team": team})
+                cur_down = k
+                down_emitted = False
+            continue
+
+        if et == "LOS_UPDATE":
+            v = payload.get("ballOn")
+            if first_down_pending:
+                cur_ballon = v
+            else:
+                cur_ballon = v
+                if not down_emitted:
+                    cur_seg.append({"down": cur_down, "ballOn": v, "team": team})
+                    down_emitted = True
+                else:
+                    cur_down = (cur_down or 0) + 1
+                    cur_seg.append({"down": cur_down, "ballOn": v, "team": team})
+                    down_emitted = True
+            continue
+
+        if et == "TRY_DOWN":
+            cur_seg.append({"down": 0, "ballOn": payload.get("ballOn"), "team": team})
+            continue
+
+        if et == "SCORE":
+            continue
+
+        if et == "MANUAL_EDIT":
+            for k in payload.get("edits") or {}:
+                manual_edit_keys[k] += 1
+            continue
+
+        # CLOCK_START/CLOCK_ADJUST/CLOCK_STOP/TIMEOUT/DISTANCE_CHANGE/
+        # STATUS_CHANGE -- verified no-op for this state machine, see
+        # docstring above.
+
+    return segments, manual_edit_keys
+
+
+def _extract_real_down_records(plays_records: list) -> list[dict]:
+    """Extract the real (non-`no_play`) down-having records from one game's
+    raw `/plays` payload, sorted by `sequence`, for structural alignment
+    against `replay_events_los_states`' own emitted states.
+
+    Mirrors `flatten_plays_records`' own `no_play`/`is_extra_point`
+    classification exactly (a `nullified` non-extra-point record, or a
+    penalty-only record, is excluded -- it never had a real down of its
+    own), but is intentionally a separate, read-only helper: this function
+    feeds a diagnostic/validation path only (`validate_events_los_fill`/
+    `diagnose_partial_los_fill`), never the canonical ingest, so it must
+    not risk a behavior change in `flatten_plays_records` itself by sharing
+    mutable state or being imported into that function's own hot path.
+    """
+    out: list[dict] = []
+    for play in sorted(
+        (p for p in plays_records if isinstance(p, dict)),
+        key=lambda p: (
+            p.get("sequence") if isinstance(p.get("sequence"), (int, float)) else float("inf")
+        ),
+    ):
+        events_on_play = [e for e in (play.get("events") or []) if isinstance(e, dict)]
+        actions = {e.get("action") for e in events_on_play if e.get("action")}
+        nullified = bool(play.get("nullified"))
+        is_penalty_only = actions == {"PENALTY"}
+        has_try = _TRY_ACTION in actions
+        official = play.get("officialScore")
+        is_extra_point = has_try or official in ("XP1", "XP2")
+        if is_penalty_only or (nullified and not is_extra_point):
+            continue
+        down = 0 if is_extra_point else play.get("down")
+        out.append(
+            {
+                "sequence": play.get("sequence"),
+                "team": play.get("offenseTeamId"),
+                "down": down,
+                "ballOn": play.get("ballOn"),
+            }
+        )
+    return out
+
+
+def _segment_records_by_team(records: list[dict]) -> list[list[dict]]:
+    """Split a game's real down-having records into possession-shaped
+    segments at every offense-team change, mirroring `flatten_plays_records`'
+    own `drive_id` convention (increments only when `offenseTeamId`
+    changes) -- the natural counterpart to `replay_events_los_states`' own
+    `POSSESSION_CHANGE`-bounded segments."""
+    segments: list[list[dict]] = []
+    cur: list[dict] | None = None
+    prev_team: str | None = None
+    for r in records:
+        if r["team"] != prev_team:
+            cur = []
+            segments.append(cur)
+            prev_team = r["team"]
+        cur.append(r)
+    return segments
+
+
+def align_events_los_states(
+    real_segments: list[list[dict]],
+    emitted_segments: list[list[dict]],
+    lookahead: int = 1,
+) -> list[tuple[dict, dict | None]]:
+    """Align real `/plays` down-having records to `replay_events_los_states`'
+    own emitted state sequence, segment-by-segment (never matching across a
+    possession boundary -- each real segment is only checked against the
+    emitted segment at the same position).
+
+    Within one segment, walks both sides in parallel: for the current real
+    record, checks the emitted state at the current position and up to
+    `lookahead` states ahead for a `down` match (tolerating an emitted state
+    the real feed has no counterpart for -- e.g. a duplicate `TRY_DOWN` from
+    an operator retry, or the implicit-down-increment case's own occasional
+    off-by-one). A match consumes every emitted state up to and including
+    the matched one; no match leaves the real record's own aligned state
+    `None` (a diagnostic miss, never filled with a wrong guess) and does not
+    consume any emitted state, so the next real record gets a fresh look at
+    the same position.
+
+    Returns a list of `(real_record, matched_state_or_None)` pairs, in the
+    same order as the concatenated real segments.
+    """
+    pairs: list[tuple[dict, dict | None]] = []
+    for seg_idx, real_seg in enumerate(real_segments):
+        emitted_seg = emitted_segments[seg_idx] if seg_idx < len(emitted_segments) else []
+        ei = 0
+        for r in real_seg:
+            matched = None
+            for skip in range(lookahead + 1):
+                if ei + skip < len(emitted_seg) and emitted_seg[ei + skip]["down"] == r["down"]:
+                    matched = emitted_seg[ei + skip]
+                    ei = ei + skip + 1
+                    break
+            pairs.append((r, matched))
+    return pairs
+
+
+def validate_events_los_fill(raw_dir: Path, game_ids: Sequence[str]) -> dict:
+    """Gate check for `replay_events_los_states`/`align_events_los_states`:
+    for every game in `game_ids` (expected to already have zero null
+    `ballOn` on its own real plays -- the caller's job to select those),
+    blind the real `ballOn` (never touch it, only compare against it) and
+    measure how often the aligned events-feed state would have reproduced
+    it exactly, within `|Δ| <= 2`, and how often `down` alone agrees (a
+    sanity check of the alignment independent of the flip/granularity
+    issues that affect `ballOn` specifically).
+
+    Returns `{"per_game": {game_id: {...}}, "overall": {...}, "adopted":
+    bool}` -- `adopted` is `True` only when the overall exact-agreement rate
+    is `>= _LOS_FILL_GATE_THRESHOLD` (0.95). A game with zero comparable
+    (non-`None`-matched) rows contributes zeros to its own per-game rates
+    without dividing by zero.
+
+    **Root cause of the measured failure (16.8% exact -- 292/1,735 -- run
+    2026-09-07 against 21 zero-null-ballOn women's games) --
+    found live, not assumed:** the events feed's `LOS_UPDATE` stream is
+    strictly finer-grained than `/plays`' own reviewed down structure. A
+    real down with literally no yardage change (an incomplete pass, a sack
+    at the line) fires no `LOS_UPDATE` of its own at all -- `/plays`' next
+    real down still gets its own correct spot from ITS `LOS_UPDATE`, but the
+    state machine has no way to know a down was "skipped" for LOS_UPDATE
+    purposes until the down changes again, and one such gap immediately
+    misaligns every state for the rest of that possession (`down`
+    agreement collapses right along with `ballOn` on the same rows, ruling
+    out a `ballOn`-only granularity story). Games recorded under the
+    short-slug `ffwc26-w*` id shape measure consistently worse (4.7%-24.5%
+    exact) than the UUID-shaped ids (18.8%-71.2%) -- checked directly
+    against a hypothesized fixed-scale `ballOn` flip (`50 - ballOn`, found
+    on ~21% of `TRY_DOWN` events corpus-wide, but only ever on 1 game's own
+    `/plays` `ballOn` field, i.e. not a real ambiguity in the trusted
+    source) as a possible explanation: applying the flip to every game and
+    keeping whichever direction scores higher (an oracle upper bound no
+    real caller could compute without already knowing the answer) barely
+    moves the overall figure at all (16.8% -> 16.8%, per-game deltas all
+    zero) -- the flip is not the cause of the low agreement in these games;
+    the gap-then-cascade failure mode above is.
+    """
+    per_game: dict[str, dict] = {}
+    totals = {"total": 0, "down_match": 0, "exact": 0, "delta2": 0}
+
+    for gid in game_ids:
+        events = _load_events_list(raw_dir, gid)
+        plays_path = raw_dir / f"plays_{gid}.json"
+        if events is None or not plays_path.exists():
+            continue
+        plays_payload = _read_json_or_empty(plays_path)
+        plays_records = _extract_plays_records(plays_payload)
+        if not plays_records:
+            continue
+
+        emitted_segments, _ = replay_events_los_states(events)
+        real_records = _extract_real_down_records(plays_records)
+        real_segments = _segment_records_by_team(real_records)
+        pairs = align_events_los_states(real_segments, emitted_segments)
+
+        g_total = g_down = g_exact = g_delta2 = 0
+        for r, m in pairs:
+            if r.get("ballOn") is None:
+                # This validation only means something on rows where the
+                # real value is known -- a caller passing a partially-spotted
+                # game here would silently deflate its own denominator.
+                continue
+            g_total += 1
+            if m is None:
+                continue
+            g_down += 1
+            if m["ballOn"] == r["ballOn"]:
+                g_exact += 1
+            if isinstance(m["ballOn"], (int, float)) and abs(m["ballOn"] - r["ballOn"]) <= 2:
+                g_delta2 += 1
+
+        per_game[gid] = {
+            "total": g_total,
+            "down_match_rate": (g_down / g_total) if g_total else 0.0,
+            "exact_rate": (g_exact / g_total) if g_total else 0.0,
+            "delta2_rate": (g_delta2 / g_total) if g_total else 0.0,
+        }
+        totals["total"] += g_total
+        totals["down_match"] += g_down
+        totals["exact"] += g_exact
+        totals["delta2"] += g_delta2
+
+    overall_total = totals["total"]
+    overall = {
+        "total": overall_total,
+        "down_match_rate": (totals["down_match"] / overall_total) if overall_total else 0.0,
+        "exact_rate": (totals["exact"] / overall_total) if overall_total else 0.0,
+        "delta2_rate": (totals["delta2"] / overall_total) if overall_total else 0.0,
+    }
+    return {
+        "per_game": per_game,
+        "overall": overall,
+        "adopted": overall["exact_rate"] >= _LOS_FILL_GATE_THRESHOLD,
+    }
+
+
+def diagnose_partial_los_fill(raw_dir: Path, game_ids: Sequence[str]) -> dict:
+    """Per-game diagnostic for a partially-spotted game (real plays with a
+    null `ballOn` in `/plays`), for the provider question this fix's method
+    calls for when the reconstruction gate fails: counts of null-`ballOn`
+    real records, `LOS_UPDATE` events available in the game's own events
+    feed, and how many of those null records this module's own structural
+    alignment could even find a same-down candidate state for (a count of
+    *candidates*, never a count of *correct fills* -- `validate_events_los_fill`'s
+    own 16.8% exact-agreement rate on games where the truth is known applies
+    identically here; a "matched" null record below is NOT more likely to be
+    right than a "matched" row was on the validation set).
+
+    Returns `{game_id: {"n_real_records", "n_null_ballon", "n_los_update_events",
+    "n_null_structurally_matched", "n_null_unmatched"}}`. No `ballOn` value is
+    ever written back anywhere by this function -- it is read-only reporting.
+    """
+    report: dict[str, dict] = {}
+    for gid in game_ids:
+        events = _load_events_list(raw_dir, gid)
+        plays_path = raw_dir / f"plays_{gid}.json"
+        if events is None or not plays_path.exists():
+            continue
+        plays_payload = _read_json_or_empty(plays_path)
+        plays_records = _extract_plays_records(plays_payload)
+        if not plays_records:
+            continue
+
+        n_los_events = sum(
+            1
+            for e in events
+            if isinstance(e, dict) and e.get("eventType") == "LOS_UPDATE" and not e.get("reverted")
+        )
+
+        emitted_segments, _ = replay_events_los_states(events)
+        real_records = _extract_real_down_records(plays_records)
+        real_segments = _segment_records_by_team(real_records)
+        pairs = align_events_los_states(real_segments, emitted_segments)
+
+        null_pairs = [(r, m) for r, m in pairs if r.get("ballOn") is None]
+        report[gid] = {
+            "n_real_records": len(real_records),
+            "n_null_ballon": len(null_pairs),
+            "n_los_update_events": n_los_events,
+            "n_null_structurally_matched": sum(1 for _, m in null_pairs if m is not None),
+            "n_null_unmatched": sum(1 for _, m in null_pairs if m is None),
+        }
+    return report
 
 
 def _load_usable_plays_records(

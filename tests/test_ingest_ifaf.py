@@ -31,8 +31,12 @@ from flag_football_ep.ingest.ifaf import (
     UnparseablePayload,
     _build_game_meta,
     _events_score_ledger_summary,
+    _extract_real_down_records,
     _load_teams_meta,
+    _segment_records_by_team,
+    align_events_los_states,
     apply_events_ledger,
+    diagnose_partial_los_fill,
     _play_sort_key,
     _play_type_from_actions,
     _play_type_from_sequence,
@@ -47,6 +51,8 @@ from flag_football_ep.ingest.ifaf import (
     load_ifaf_final_scores,
     load_plays_snapshot,
     load_snapshot,
+    replay_events_los_states,
+    validate_events_los_fill,
 )
 from flag_football_ep.reference import UnmappedTeamError, map_teams
 
@@ -2740,4 +2746,343 @@ def test_apply_events_ledger_td_on_try_record_resolved_by_ledger():
     assert try_row["touchdown"] == 0
     assert try_row["one_point_conv_success"] == 1
     assert try_row["score_source"] == "events-ledger"
+
+
+# --- replay_events_los_states / align_events_los_states / the LOS-fill gate ----
+#
+# 2026-09-07 (tenth follow-up): a structurally-aligned events-feed pre-snap
+# state machine, measured against the live corpus and NOT adopted (16.8%
+# exact agreement, well under the 95% bar -- see the module's own Nachtrag
+# above `_LOS_FILL_GATE_THRESHOLD`). These tests cover the state machine's
+# event semantics, the alignment's bounded-lookahead tolerance, and the gate
+# threshold logic itself with small synthetic fixtures -- never real
+# player/game data.
+
+
+def _state_ev(seq, event_type, payload=None, reverted=False):
+    return {
+        "eventType": event_type,
+        "sequenceNumber": seq,
+        "reverted": reverted,
+        "payload": payload or {},
+    }
+
+
+def test_replay_events_los_states_first_down_uses_default_five():
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+    ]
+    segments, edits = replay_events_los_states(events)
+    assert segments == [[{"down": 1, "ballOn": 5, "team": "w-usa"}]]
+    assert edits == {}
+
+
+def test_replay_events_los_states_los_update_finalizes_subsequent_down():
+    """The second down of a possession does NOT emit on its own DOWN_UPDATE
+    -- only once the following LOS_UPDATE finalizes its real spot (verified
+    against the live QF game, see the function's own docstring)."""
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+        _state_ev(3, "DOWN_UPDATE", {"down": 2}),
+        _state_ev(4, "LOS_UPDATE", {"ballOn": 11}),
+    ]
+    segments, _ = replay_events_los_states(events)
+    assert segments == [
+        [
+            {"down": 1, "ballOn": 5, "team": "w-usa"},
+            {"down": 2, "ballOn": 11, "team": "w-usa"},
+        ]
+    ]
+
+
+def test_replay_events_los_states_flushes_unchanged_spot_down_on_next_down_update():
+    """An incomplete pass / sack-at-the-line down gets no LOS_UPDATE of its
+    own at all -- only the next DOWN_UPDATE. That down must still be
+    emitted, with its own carried-over (unchanged) ballOn, not silently
+    dropped."""
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+        _state_ev(3, "DOWN_UPDATE", {"down": 2}),  # down 1 -> 2, no LOS_UPDATE fired
+        _state_ev(4, "DOWN_UPDATE", {"down": 3}),
+        _state_ev(5, "LOS_UPDATE", {"ballOn": 14}),
+    ]
+    segments, _ = replay_events_los_states(events)
+    assert segments == [
+        [
+            {"down": 1, "ballOn": 5, "team": "w-usa"},
+            {"down": 2, "ballOn": 5, "team": "w-usa"},  # flushed unchanged
+            {"down": 3, "ballOn": 14, "team": "w-usa"},
+        ]
+    ]
+
+
+def test_replay_events_los_states_orphan_los_update_implies_down_increment():
+    """A LOS_UPDATE with no pending DOWN_UPDATE (the down was already
+    emitted) is the live corpus's own "1, 2, 3, 2" reviewer-down-sequence
+    gap -- treated as an implicit down+1, not dropped."""
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+        _state_ev(3, "DOWN_UPDATE", {"down": 2}),
+        _state_ev(4, "LOS_UPDATE", {"ballOn": 11}),
+        _state_ev(5, "LOS_UPDATE", {"ballOn": 31}),  # no DOWN_UPDATE(3) fired
+    ]
+    segments, _ = replay_events_los_states(events)
+    assert segments == [
+        [
+            {"down": 1, "ballOn": 5, "team": "w-usa"},
+            {"down": 2, "ballOn": 11, "team": "w-usa"},
+            {"down": 3, "ballOn": 31, "team": "w-usa"},
+        ]
+    ]
+
+
+def test_replay_events_los_states_try_down_uses_own_ballon_directly():
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "SCORE", {"teamId": "w-usa", "scoreType": "TD", "points": 6}),
+        _state_ev(3, "TRY_DOWN", {"tryPoints": 1, "ballOn": 45}),
+    ]
+    segments, _ = replay_events_los_states(events)
+    assert segments == [[{"down": 0, "ballOn": 45, "team": "w-usa"}]]
+
+
+def test_replay_events_los_states_manual_edit_is_noop_but_counted():
+    """Verified against the live corpus (see the function's own docstring):
+    every observed MANUAL_EDIT payload is UI bookkeeping with no down/
+    ballOn/team information -- a no-op for state, but its edit keys are
+    still reported for visibility."""
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+        _state_ev(3, "MANUAL_EDIT", {"edits": {"penaltyFlag": True}, "reason": "Flag on the field"}),
+        _state_ev(4, "MANUAL_EDIT", {"edits": {"penaltyFlag": False}, "reason": "Flag cleared"}),
+    ]
+    segments, edits = replay_events_los_states(events)
+    assert segments == [[{"down": 1, "ballOn": 5, "team": "w-usa"}]]
+    assert edits == {"penaltyFlag": 2}
+
+
+def test_replay_events_los_states_skips_reverted_events():
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+        _state_ev(3, "DOWN_UPDATE", {"down": 2}, reverted=True),
+        _state_ev(4, "LOS_UPDATE", {"ballOn": 99}, reverted=True),
+        _state_ev(5, "DOWN_UPDATE", {"down": 2}),
+        _state_ev(6, "LOS_UPDATE", {"ballOn": 11}),
+    ]
+    segments, _ = replay_events_los_states(events)
+    assert segments == [
+        [
+            {"down": 1, "ballOn": 5, "team": "w-usa"},
+            {"down": 2, "ballOn": 11, "team": "w-usa"},
+        ]
+    ]
+
+
+def test_replay_events_los_states_possession_change_resets_state():
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+        _state_ev(3, "DOWN_UPDATE", {"down": 2}),
+        _state_ev(4, "LOS_UPDATE", {"ballOn": 40}),
+        _state_ev(5, "POSSESSION_CHANGE", {"teamId": "w-ger"}),
+        _state_ev(6, "DOWN_UPDATE", {"down": 1}),
+    ]
+    segments, _ = replay_events_los_states(events)
+    assert segments == [
+        [
+            {"down": 1, "ballOn": 5, "team": "w-usa"},
+            {"down": 2, "ballOn": 40, "team": "w-usa"},
+        ],
+        [{"down": 1, "ballOn": 5, "team": "w-ger"}],  # back to the default, not 40
+    ]
+
+
+def test_replay_events_los_states_los_update_before_first_down_overrides_default():
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "LOS_UPDATE", {"ballOn": 20}),  # fires before any DOWN_UPDATE
+        _state_ev(3, "DOWN_UPDATE", {"down": 1}),
+    ]
+    segments, _ = replay_events_los_states(events)
+    assert segments == [[{"down": 1, "ballOn": 20, "team": "w-usa"}]]
+
+
+def test_extract_real_down_records_excludes_no_play_rows():
+    payload = [
+        _play_record(10, offense="w-usa", down=1, ball_on=5, events=[_ev("PASS"), _ev("COMPLETE")]),
+        _play_record(20, offense="w-usa", down=None, events=[_ev("PENALTY")]),  # penalty-only, excluded
+        _play_record(
+            30, offense="w-usa", down=2, ball_on=11, nullified=True,
+            events=[_ev("PASS"), _ev("COMPLETE")],
+        ),  # nullified non-extra-point, excluded
+    ]
+    out = _extract_real_down_records(payload)
+    assert out == [{"sequence": 10, "team": "w-usa", "down": 1, "ballOn": 5}]
+
+
+def test_extract_real_down_records_try_shaped_record_is_down_zero():
+    payload = [
+        _play_record(
+            10, offense="w-usa", down=None, ball_on=45,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY")], official_score="XP1",
+        ),
+    ]
+    out = _extract_real_down_records(payload)
+    assert out == [{"sequence": 10, "team": "w-usa", "down": 0, "ballOn": 45}]
+
+
+def test_extract_real_down_records_nullified_extra_point_kept_as_down_zero():
+    payload = [
+        _play_record(
+            10, offense="w-usa", down=None, ball_on=45, nullified=True,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY")], official_score="NONE",
+        ),
+    ]
+    out = _extract_real_down_records(payload)
+    assert out == [{"sequence": 10, "team": "w-usa", "down": 0, "ballOn": 45}]
+
+
+def test_segment_records_by_team_splits_on_team_change():
+    records = [
+        {"sequence": 10, "team": "w-usa", "down": 1, "ballOn": 5},
+        {"sequence": 20, "team": "w-usa", "down": 2, "ballOn": 11},
+        {"sequence": 30, "team": "w-ger", "down": 1, "ballOn": 5},
+    ]
+    segments = _segment_records_by_team(records)
+    assert segments == [
+        [
+            {"sequence": 10, "team": "w-usa", "down": 1, "ballOn": 5},
+            {"sequence": 20, "team": "w-usa", "down": 2, "ballOn": 11},
+        ],
+        [{"sequence": 30, "team": "w-ger", "down": 1, "ballOn": 5}],
+    ]
+
+
+def test_align_events_los_states_exact_match():
+    real = [{"sequence": 10, "team": "w-usa", "down": 1, "ballOn": 5}]
+    emitted = [{"down": 1, "ballOn": 5, "team": "w-usa"}]
+    pairs = align_events_los_states([real], [emitted])
+    assert pairs == [(real[0], emitted[0])]
+
+
+def test_align_events_los_states_lookahead_skips_one_extra_emitted_state():
+    """A duplicate emitted state (e.g. an operator's `TRY_DOWN` retry) sits
+    between two real records -- `lookahead=1` skips it and still matches the
+    real record right after it."""
+    real = [
+        {"sequence": 10, "team": "w-usa", "down": 1, "ballOn": 5},
+        {"sequence": 20, "team": "w-usa", "down": 2, "ballOn": 11},
+    ]
+    emitted = [
+        {"down": 1, "ballOn": 5, "team": "w-usa"},
+        {"down": 1, "ballOn": 5, "team": "w-usa"},  # extra/duplicate, wrong down for real[1]
+        {"down": 2, "ballOn": 11, "team": "w-usa"},
+    ]
+    pairs = align_events_los_states([real], [emitted])
+    assert pairs == [(real[0], emitted[0]), (real[1], emitted[2])]
+
+
+def test_align_events_los_states_unmatched_real_record_is_none():
+    real = [{"sequence": 10, "team": "w-usa", "down": 3, "ballOn": 31}]
+    emitted = [{"down": 1, "ballOn": 5, "team": "w-usa"}]  # down never matches, beyond lookahead
+    pairs = align_events_los_states([real], [emitted])
+    assert pairs == [(real[0], None)]
+
+
+def test_align_events_los_states_never_matches_across_segment_boundary():
+    real_seg_1 = [{"sequence": 10, "team": "w-usa", "down": 1, "ballOn": 5}]
+    real_seg_2 = [{"sequence": 20, "team": "w-ger", "down": 1, "ballOn": 5}]
+    emitted_seg_1 = []  # no emitted states in this possession's own segment
+    emitted_seg_2 = [{"down": 1, "ballOn": 5, "team": "w-ger"}]
+    pairs = align_events_los_states([real_seg_1, real_seg_2], [emitted_seg_1, emitted_seg_2])
+    # real_seg_1's own record must NOT borrow emitted_seg_2's state
+    assert pairs == [(real_seg_1[0], None), (real_seg_2[0], emitted_seg_2[0])]
+
+
+def _write_events_and_plays(raw_dir: Path, game_id: str, events: list, plays: list) -> None:
+    (raw_dir / f"events_{game_id}.json").write_text(json.dumps(events), encoding="utf-8")
+    (raw_dir / f"plays_{game_id}.json").write_text(json.dumps({"plays": plays}), encoding="utf-8")
+
+
+def test_validate_events_los_fill_adopts_when_reconstruction_is_perfect(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+        _state_ev(3, "DOWN_UPDATE", {"down": 2}),
+        _state_ev(4, "LOS_UPDATE", {"ballOn": 11}),
+    ]
+    plays = [
+        _play_record(10, offense="w-usa", down=1, ball_on=5, events=[_ev("PASS"), _ev("COMPLETE")]),
+        _play_record(20, offense="w-usa", down=2, ball_on=11, events=[_ev("PASS"), _ev("COMPLETE")]),
+    ]
+    _write_events_and_plays(raw_dir, "g1", events, plays)
+
+    result = validate_events_los_fill(raw_dir, ["g1"])
+    assert result["overall"]["exact_rate"] == 1.0
+    assert result["overall"]["down_match_rate"] == 1.0
+    assert result["adopted"] is True
+    assert result["per_game"]["g1"]["exact_rate"] == 1.0
+
+
+def test_validate_events_los_fill_declines_below_threshold(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+        _state_ev(3, "DOWN_UPDATE", {"down": 2}),
+        _state_ev(4, "LOS_UPDATE", {"ballOn": 999}),  # deliberately wrong
+    ]
+    plays = [
+        _play_record(10, offense="w-usa", down=1, ball_on=5, events=[_ev("PASS"), _ev("COMPLETE")]),
+        _play_record(20, offense="w-usa", down=2, ball_on=11, events=[_ev("PASS"), _ev("COMPLETE")]),
+    ]
+    _write_events_and_plays(raw_dir, "g1", events, plays)
+
+    result = validate_events_los_fill(raw_dir, ["g1"])
+    assert result["overall"]["exact_rate"] == 0.5
+    assert result["adopted"] is False
+
+
+def test_validate_events_los_fill_skips_games_with_no_events_file(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    plays = [_play_record(10, offense="w-usa", down=1, ball_on=5, events=[_ev("PASS"), _ev("COMPLETE")])]
+    (raw_dir / "plays_g1.json").write_text(json.dumps({"plays": plays}), encoding="utf-8")
+
+    result = validate_events_los_fill(raw_dir, ["g1"])
+    assert result["overall"]["total"] == 0
+    assert result["per_game"] == {}
+    assert result["adopted"] is False
+
+
+def test_diagnose_partial_los_fill_reports_null_and_los_update_counts(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    events = [
+        _state_ev(1, "POSSESSION_CHANGE", {"teamId": "w-usa"}),
+        _state_ev(2, "DOWN_UPDATE", {"down": 1}),
+        _state_ev(3, "DOWN_UPDATE", {"down": 2}),
+        _state_ev(4, "LOS_UPDATE", {"ballOn": 11}),
+    ]
+    plays = [
+        _play_record(10, offense="w-usa", down=1, ball_on=None, events=[_ev("PASS"), _ev("COMPLETE")]),
+        _play_record(20, offense="w-usa", down=2, ball_on=None, events=[_ev("PASS"), _ev("COMPLETE")]),
+    ]
+    _write_events_and_plays(raw_dir, "g1", events, plays)
+
+    result = diagnose_partial_los_fill(raw_dir, ["g1"])
+    assert result["g1"]["n_real_records"] == 2
+    assert result["g1"]["n_null_ballon"] == 2
+    assert result["g1"]["n_los_update_events"] == 1
+    assert result["g1"]["n_null_structurally_matched"] == 2
+    assert result["g1"]["n_null_unmatched"] == 0
 
