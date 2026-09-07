@@ -1089,7 +1089,251 @@ Der neue Iteration-1-Lauf (`be854a1adebf4eb4b01d98dc39022ee1`) bleibt als regist
 einen künftigen Vergleich (z. B. nach Iteration 2, wenn ein Val-Split-fähiger Trainingslauf
 existiert) verfügbar, ohne den aktuellen Produktionsstand zu beeinflussen.
 
-## Iteration 2
+## Iteration 2 (Plan 02.2-16)
 
-Noch nicht gezogen — folgt in Plan 02.2-17, nach Abschluss der Iteration-1-Korrektursitzung
-(Plan 02.2-13) und ihrer Auswirkung auf das Abbruchkriterium (`docs/dataset-plan.md` `## 3`).
+Gezogen mit dem aktuellen Champion-Detektor (`87a8a5222f7a472787875e974d089c44` — Iteration 1
+wurde nicht promoviert, siehe `### Promotion-Entscheidung` oben), also demselben Lauf wie
+Iteration 1. Das ist beabsichtigt, nicht ein Versehen: "mit dem Iteration-1-Detektor ziehen"
+(dieses Plans eigene Formulierung) bedeutet "mit dem aktuell besten verfügbaren Detektor", und
+das bleibt der Champion, solange kein neuer Lauf promoviert wurde — ein AL-Zug mit einem
+schwächeren, nicht promovierten Modell würde absichtlich schlechtere Uncertainty-Signale
+erzeugen.
+
+### Vorab-Korrektur: Per-Clip-Cap gesenkt (12 → 6)
+
+Vor der Ziehung wurde `active_learning.py::_MAX_CANDIDATES_PER_CLIP` von 12 auf 6 gesenkt — die
+im Diagnose-Nachtrag oben (`### Nachtrag 2026-09-04 (Diagnose, Korrektur)`) benannte Konsequenz
+für diesen Plan: Iteration 1 landete bei der Drohne einen Median von ~10,5 Frames/Clip (nahe am
+alten 12er-Deckel) über nur 43 Pool-Clips, während der Champion sein eigenes Trainingsset mit
+einem Median von 7/Clip über 46 Clips streute — korrelierte Frames aus demselben Clip liefern
+weniger unabhängiges Trainingssignal als dieselbe Frame-Zahl über mehr Clips verteilt. Der Cap
+ist ein privates Modul-Konstantum, nicht Teil von `select_al_frames`s eingefrorener Signatur
+(`tests/test_cv_contracts.py`) — zwischen Iterationen frei justierbar. Ein bestehender Test
+(`test_select_al_frames_iteration_2_excludes_iteration_1_selection`) nahm den alten Cap-Wert an
+und wurde entsprechend angepasst (Commit `2c4cbf2`).
+
+### Ziel-Ableitung
+
+Domänen-Floors (`docs/dataset-plan.md` `## 1`, Mix Drohne 60 % / GoPro-Hinterfeld 26,7 % /
+TV-Broadcast 13,3 % von 1.500): Drohne 900, GoPro/Hinterfeld 400, TV/Broadcast 200. Aktueller
+verifizierter Stand (Datensatz v1.2, siehe `### Nachtrag 2026-09-04: GoPro-Nachsitzung` oben):
+Drohne 450, GoPro/Hinterfeld 22, TV/Broadcast 100 — macht in Summe 572/1.500 (38 %).
+
+**Verdikt je Domäne (Task 1s eigene Regel: `ja` → weiter zum geplanten Mix, `nein`/nicht
+anwendbar → nur bis zum Floor):** Drohnes formales Abbruchkriterium-Verdikt ist `nein`
+(`### Abbruchkriterium-Verdikt` oben, Delta `mAP_50_95` = -0,0476) — floor-only. GoPro/Hinterfeld
+und TV/Broadcast hatten zum Zeitpunkt des Verdikts kein anwendbares Ergebnis
+("Abbruchkriterium ... (noch) nicht anwendbar") — nach `docs/dataset-plan.md` `## 3` gilt für
+beide ohnehin: "labelt daher immer bis mindestens zum Floor, unabhängig vom Abbruchkriterium".
+**Alle drei Domänen ziehen für Iteration 2 also floor-only, keine über den Floor hinausgehende
+Mix-Fortsetzung.**
+
+Floor-Restbedarf je Domäne (Floor minus aktueller verifizierter Stand):
+
+| Domäne | Floor | Verifiziert (v1.2) | Restbedarf zum Floor |
+|---|---:|---:|---:|
+| Drohne | 900 | 450 | 450 |
+| GoPro/Hinterfeld | 400 | 22 | 378 |
+| TV/Broadcast | 200 | 100 | 100 |
+| **Summe** | **1.500** | **572** | **928** |
+
+Bei vollständiger Umsetzung dieses Restbedarfs läge der projizierte Datensatz nach Iteration 2
+bei 572 + 928 = **1.500** — exakt am Floor, innerhalb von [1.500, 3.000].
+
+**Abweichung von der reinen Restbedarfs-Rechnung bei GoPro/Hinterfeld (dokumentierte
+Entscheidung, nicht Teil der ursprünglichen Plan-Formel):** GoPro/Hinterfeld erhält NICHT den
+vollen Restbedarf (378) als Ziehungs-Ziel, sondern bewusst nur **150** — deutlich unter sogar
+Iteration 1s eigenem Roh-Ziel von 200. Grund: Iteration 1 zog 200 rohe GoPro-Frames, von denen
+nur 22 (11 %) tatsächlich nah-/mittelfeld und damit labelbar waren (`### Nachtrag 2026-09-04:
+GoPro-Nachsitzung` oben) — die Nutzerin fand die Fernfeld-lastige Sichtung dieser Aufgabe
+spürbar mühsamer als die anderen Domänen. Ein rohes Ziel von 378 hätte bei ähnlicher Ausbeute zu
+einer erneut sehr großen, überwiegend unbrauchbaren Aufgabe geführt. Der gesenkte Per-Clip-Cap
+(6 statt 12) UND das kleinere Ziel wirken zusammen: mehr distinkte Clips (47 von 48, gegenüber
+40 von 48 in Iteration 1), aber insgesamt spürbar weniger rohe Frames zu sichten. Der volle
+GoPro-Restbedarf wird dadurch in dieser Iteration NICHT geschlossen — ehrlich festgehalten, kein
+stiller Verzicht: eine künftige Iteration oder eine dedizierte GoPro-Nachsitzung bleibt nötig,
+denselben Rahmen, den `### Nachtrag 2026-09-02: GoPro-Fernfeld wird übersprungen` bereits als
+"Iteration 2 bleibt der Ort, an dem der GoPro-Rückstand strukturiert aufgeholt wird" ankündigte —
+strukturiert heißt hier: in bewusst kleineren, labelbaren Schritten, nicht in einem einzigen
+großen Zug.
+
+**Seed:** `20260516` (derselbe Seed wie Iteration 1 und `frozen_eval_clips.csv`, aus
+Nachvollziehbarkeits- statt technischen Gründen wiederverwendet).
+
+### Ausführung: `ffep cv active-learn --iteration 2`
+
+Eine technische Vorbedingung musste vor der ersten Ziehung gelöst werden: `select_al_frames`s
+Iteration-1-Ausschluss liest `out_dir.parent / f"iteration-{iteration - 1}" /
+"selection_manifest.json"` — ein Geschwisterverzeichnis exakt namens `iteration-<N-1>` neben
+`out_dir`. Iteration 1s reale Verzeichnisse (`data/labels/al-iteration-1/<domain>`) folgen dieser
+Konvention nicht (Domäne als letztes Pfadsegment, nicht `iteration-1`). Vor der Ziehung wurde
+deshalb ein einziges, alle drei Domänen zusammenfassendes Manifest
+(`data/labels/al-iteration-2/iteration-1/selection_manifest.json`, 750 Frames, alle drei
+Iteration-1-Sessions) aus den drei realen Iteration-1-Manifesten zusammengesetzt (per
+`write_selection_manifest`, keine Handbearbeitung) und dort abgelegt, wo jeder der drei
+Iteration-2-Aufrufe (gemeinsamer Elternordner `data/labels/al-iteration-2/`) es erwartet. Frames
+aus anderen Domänen im kombinierten Manifest sind harmlos — der Ausschluss vergleicht
+`(session_id, clip_number, frame_index)`-Tupel, die nie domänenübergreifend kollidieren.
+
+```bash
+uv run --extra cv ffep cv active-learn --iteration 2 --target 450 --seed 20260516 \
+  --session 2026-05-16_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE \
+  --out-dir data/labels/al-iteration-2/drone
+
+uv run --extra cv ffep cv active-learn --iteration 2 --target 150 --seed 20260516 \
+  --session 2026-08-14_WC-GER-vs-MEX-GOPRO \
+  --out-dir data/labels/al-iteration-2/sideline
+
+uv run --extra cv ffep cv active-learn --iteration 2 --target 100 --seed 20260516 \
+  --session 2026-08-14_WC-USA-vs-AUS-TV \
+  --out-dir data/labels/al-iteration-2/broadcast
+```
+
+### Pool-Sicherheit (T-2.2-32) und Ausschluss-Nachweis
+
+Nach jeder Ziehung geprüft: Schnittmenge mit `role = frozen_eval`-Clips der jeweiligen Domäne,
+und Schnittmenge der `(session_id, clip_number, frame_index)`-Schlüssel mit der jeweiligen
+Iteration-1-Ziehung derselben Domäne.
+
+| Domäne | Schnittmenge mit `frozen_eval` | Schnittmenge mit Iteration-1-Auswahl (derselbe Session/Domäne) |
+|---|---|---|
+| Drohne | `set()` — leer | 0 von 450 (Iteration 1) / 183 (Iteration 2) |
+| GoPro/Hinterfeld | `set()` — leer | 0 von 200 (Iteration 1) / 150 (Iteration 2) |
+| TV/Broadcast | `set()` — leer | 0 von 100 (Iteration 1) / 101 (Iteration 2) |
+
+Die Puerto-Rico-Session wurde in keinem der drei Aufrufe genannt — sie ist ohnehin über
+`data/reference/al_excluded_sessions.csv` session-weit gesperrt (Plan 02.2-21,
+`select_al_frames` würde vor jedem Clip-Öffnen mit `ActiveLearningError` abbrechen).
+
+### Ergebnis pro Domäne
+
+| Domäne | Ziel (angefragt) | Tatsächlich gezogen | Distinkte Clips (von Pool-Clips) | Median Frames/Clip | Max Frames/Clip | Uncertainty min / median / max |
+|---|---:|---:|---:|---:|---:|---|
+| Drohne | 450 | **183** | 43 (von 43) | 4 | 5 | 0,164 / 0,298 / 0,491 |
+| GoPro/Hinterfeld | 150 | **150** | 47 (von 48) | 3 | 6 | 0,469 / 0,597 / 1,000 |
+| TV/Broadcast | 100 | **101** | 43 (von 51) | 2 | 5 | 0,101 / 0,406 / 0,853 |
+
+**Warum "tatsächlich gezogen" unter dem angefragten Ziel liegt (Drohne, GoPro/Hinterfeld):** der
+gesenkte Per-Clip-Cap (6) begrenzt die Kandidatenmenge selbst hart — bei 43 Drohnen-Pool-Clips
+sind maximal 43 × 6 = 258 Kandidaten überhaupt möglich, abzüglich der mit Iteration 1
+überlappenden Rasterpunkte blieben real 183 übrig. Das ist beabsichtigtes Verhalten, kein Fehler:
+`select_al_frames` liefert bei einem `target`, das die Kandidatenmenge übersteigt, einfach alle
+verfügbaren Kandidaten statt eines Fehlers. TV/Broadcast lag mit 101 minimal ÜBER dem Ziel von
+100 (die Mindestens-1-pro-nichtleerem-Stratum-Regel plus die anschließende Auffüll-Logik).
+
+**Vergleich mit Iteration 1 (Median Frames/Clip, direkter Diversitäts-Nachweis der Cap-Senkung):**
+
+| Domäne | Iteration 1 (Cap 12) | Iteration 2 (Cap 6) |
+|---|---:|---:|
+| Drohne | ~10,5 (450/43) | **4** |
+| GoPro/Hinterfeld | ~5,0 (200/40 berührter Clips) | **3** (über MEHR Clips: 47 statt 40) |
+| TV/Broadcast | ~2,4 (100/41) | **2** |
+
+**Uncertainty-Verteilung ggü. Iteration 1** — durchweg niedrigerer Median, das erwartete Signal
+eines Detektors, der bereits einmal auf ähnlichem Material feingetunt wurde:
+
+| Domäne | Iteration 1 Median | Iteration 2 Median | Differenz |
+|---|---:|---:|---:|
+| Drohne | 0,323 | 0,298 | -0,025 |
+| GoPro/Hinterfeld | 0,724 | 0,597 | -0,127 |
+| TV/Broadcast | 0,463 | 0,406 | -0,057 |
+
+Der Rückgang ist bei GoPro/Hinterfeld am größten — plausibel, da genau diese Domäne seit
+Iteration 1 zusätzliches echtes Trainingsmaterial erhalten hat (22 statt 8 verifizierte Frames,
+`### Nachtrag 2026-09-04: GoPro-Nachsitzung`), auch wenn kein neuer Detektor-Lauf promoviert
+wurde (derselbe Champion-Lauf war für beide Iterationen aktiv — der Rückgang spiegelt also die
+tatsächliche Verteilung der neu gezogenen Kandidaten wider, nicht eine Modelländerung). Kein
+Domänen-Median fiel auf 0 oder blieb unverändert — ein Detektor, der sich gar nicht verändert
+hätte, würde eine identische Verteilung zeigen.
+
+### Ehrlicher Floor-Stand nach dieser Ziehung (vor der Verifizierung)
+
+**Wichtig: diese Zahlen sind ROH gezogene, noch NICHT von der Nutzerin gesichtete/verifizierte
+Frames — D-17 gilt unverändert (kein Frame zählt zum Datensatz, ohne dass ein Mensch ihn
+tatsächlich gesehen hat).** Optimistische Projektion (alle rohen Frames würden verifiziert, die
+Methodik, die auch Iteration 1s eigene Zielableitung verwendete):
+
+572 (v1.2, verifiziert) + 183 (Drohne, roh) + 150 (GoPro/Hinterfeld, roh) + 101 (TV/Broadcast,
+roh) = **1.006 projiziert, optimistisch** — unter dem 1.500-Floor. Iteration 1s eigene reale
+Verifizierungsquote lag bei 76 % (572 von 750 rohen Frames) fürs Ganze, aber sehr uneinheitlich
+über die Domänen (Drohne/Broadcast nahe 100 %, GoPro/Hinterfeld nur 11 %) — eine einzelne globale
+Quote auf Iteration 2 zu übertragen wäre irreführend. Der ehrliche Stand: diese Ziehung schließt
+den 1.500-Floor NICHT vollständig, selbst im optimistischen Fall. Für die Drohne begrenzt der
+feste 43-Clip-Pool (kein drittes registriertes Drohnenspiel, DATA-01 weiterhin offen, siehe
+`.planning/imported/challenge-haertung/ABGLEICH.md` Konflikt 2) den bei Cap 6 maximal möglichen
+Ertrag auf 258 — der volle Drohnen-Restbedarf (450) ist mit dem aktuellen Pool und dem
+diversitätsfreundlicheren Cap in einer einzelnen Iteration gar nicht erreichbar. Der GoPro-Rest
+(228 von 378) und ein möglicher Drohnen-Top-up bleiben offene Posten für eine künftige Sitzung.
+
+### Vorlabeln mit dem Champion-Detektor
+
+```bash
+uv run --extra cv ffep cv prelabel --frames data/labels/al-iteration-2/<domain> \
+  --out data/labels/al-iteration-2/<domain>-prelabel --backend finetuned
+```
+
+| Domäne | Frames | Boxen gesamt | Boxen/Frame | `player` | `referee` | Frames ohne Detektion | Laufzeit |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Drohne | 183 | 3418 | 18,68 | 3058 | 360 | 0/183 (0 %) | 5,8 s |
+| GoPro/Hinterfeld | 150 | 882 | 5,88 | 641 | 241 | 10/150 (6,7 %) | 4,6 s |
+| TV/Broadcast | 101 | 1489 | 14,74 | 1432 | 57 | 0/101 (0 %) | 3,3 s |
+
+**Vergleich mit Iteration 1 (Boxen/Frame, Zero-Detection-Rate):**
+
+| Domäne | Boxen/Frame Iter. 1 | Boxen/Frame Iter. 2 | Zero-Det. Iter. 1 | Zero-Det. Iter. 2 |
+|---|---:|---:|---:|---:|
+| Drohne | 19,22 | 18,68 | 0/450 (0 %) | 0/183 (0 %) |
+| GoPro/Hinterfeld | 4,08 | 5,88 | 11/200 (5,5 %) | 10/150 (6,7 %) |
+| TV/Broadcast | 13,75 | 14,74 | 0/100 (0 %) | 0/101 (0 %) |
+
+GoPro/Hinterfeld zeigt eine höhere Boxen/Frame-Zahl als Iteration 1 (5,88 vs. 4,08) — konsistent
+mit dem zusätzlichen echten GoPro-Trainingsmaterial aus der Nachsitzung (22 statt 8 Frames), auch
+ohne einen neuen promovierten Detektor-Lauf. Die Zero-Detection-Rate bleibt in derselben
+Größenordnung (6,7 % vs. 5,5 %) — GoPro/Hinterfeld bleibt die mit Abstand am stärksten vom
+Domain-Shift betroffene Domäne, exakt der erwartete, nicht-neue Befund.
+
+### CVAT-Aufgaben
+
+Push via `ffep cv cvat-push --coco <domain>-prelabel --name al-2-<domain>-1 --max-images 300`
+gegen den lokalen, ausschließlich auf Loopback erreichbaren CVAT-Stack. Alle drei Domänen liegen
+unter dem 300-Frames-Deckel, jede Domäne wurde daher als eine einzelne Aufgabe gepusht (kein
+Split nötig):
+
+| Aufgabe | Task-ID | Frames | Domäne |
+|---|---:|---:|---|
+| `al-2-drone-1-1` | **8** | 183 | Drohne |
+| `al-2-sideline-1-1` | **9** | 150 | GoPro/Hinterfeld |
+| `al-2-broadcast-1-1` | **10** | 101 | TV/Broadcast |
+
+(Der Namens-Suffix `-1` nach der angefragten Task-Bezeichnung stammt von
+`dataset.split_coco_for_task_upload`s Teil-Nummerierung — auch bei genau einem Teil vergeben,
+konsistent mit Iteration 1s eigener Namensgebung.)
+
+Kein Zugangsdatenwert erscheint in irgendeiner Ausgabe (`secret()`-Auflösung, T-2.2-33).
+`git status --porcelain data/labels` bleibt leer — alle Artefakte liegen unter dem gitignoreten
+`data/labels/`-Baum.
+
+## Labelling-Anleitung Iteration 2
+
+Dieselbe Konvention wie Iteration 1 (`## Labelling-Anleitung Iteration 1` oben), mit einer
+Ergänzung aus der GoPro-Erfahrung:
+
+- **Drohne (Aufgabe `al-2-drone-1-1`, 183 Frames) und TV/Broadcast (Aufgabe
+  `al-2-broadcast-1-1`, 101 Frames):** jeden Frame sichten, Vorlabel-Boxen bestätigen oder
+  korrigieren, fehlende Boxen (Spielerin/Schiedsrichterin) ergänzen. Kein Frame gilt als Teil des
+  Datensatzes, ohne gesehen worden zu sein (D-17).
+- **GoPro/Hinterfeld (Aufgabe `al-2-sideline-1-1`, 150 Frames) — Fernfeld-Regel bleibt
+  bindend (Nachtrag 2026-09-02, bestätigt in der Nachsitzung 2026-09-04):** nur Frames mit
+  Spielerinnen im nahen/mittleren Feldbereich korrigieren. Fernfeld-Frames (stark verpixelt,
+  Spielerinnen kaum erkennbar) bleiben **unberührt** — kein Kasten, kein Tag, einfach
+  überspringen. Ein unberührter Frame ist kein Fehler und kein "vergessen", er wird beim Merge
+  automatisch ausgeschlossen, genau wie in Iteration 1. Durch den gesenkten Per-Clip-Cap und die
+  breitere Clip-Streuung (47 von 48 Pool-Clips statt 40 von 48) ist die Erwartung, dass ein
+  größerer ANTEIL der 150 Frames nah/mittelfeld ist als in Iteration 1 (dort 22 von 200 = 11 %)
+  — eine Vorhersage, die erst nach der Sichtung überprüfbar ist, nicht vorab garantiert.
+- **Budget-Erwartung:** deutlich kürzer als Iteration 1s ~3,5 h, da insgesamt weniger Rohframes
+  (434 gegenüber 750) und die Drohnen-/Broadcast-Aufgaben bereits vertraute, schnelle Sichtungen
+  sind (Bestätigen häufiger als Neuzeichnen, siehe Iteration-1-Erfahrung).
+- **Nach der Sichtung:** `ffep cv cvat-pull --task 8|9|10 --out data/labels/al-iteration-2/<domain>-corrected`
+  je Aufgabe, dann Merge nach demselben Diff-basierten "berührt vs. unberührt"-Verfahren wie
+  Iteration 1/die Nachsitzung (kein Frame ohne bestätigten Datei-Diff als verifiziert gezählt).
