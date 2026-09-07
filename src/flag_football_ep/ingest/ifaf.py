@@ -10,9 +10,13 @@ built against.
 found to not be a reliable pre-snap state — it alternates between pre- and
 post-play spots and a large share of rows sit on the endpoint's own literal
 default state. `/plays` is the reviewer-facing, per-play-reviewed feed: real
-pre-snap `down`/`ballOn`/`half`/`offenseTeamId`, a `nullified` flag, and an
-`events[]` action list this module derives every outcome flag and `play_type`
-from directly (`flatten_plays_records`). `flatten_unified_plays`/
+pre-snap `down`/`ballOn`/`half`/`offenseTeamId`, a `nullified` flag, an
+`officialScore` verdict (`"TD"`/`"XP1"`/`"XP2"`/`"NONE"`/absent -- the sole
+source of scoring flags, 2026-09-07 second same-day fix; never the
+`TOUCHDOWN`/`TRY` action names, which are frequently misleading for point
+value), and an `events[]` action list this module derives every other
+outcome flag and `play_type` from directly (`flatten_plays_records`).
+`flatten_unified_plays`/
 `derive_outcome_columns` (the pre-2026-09-07 primary path) are kept unchanged
 and now serve only as the fallback for a game with no usable `/plays` snapshot
 (`ingest_snapshots` picks per game, stamping `source_detail` on the fallback
@@ -690,6 +694,98 @@ def _load_games_meta(raw_dir: Path) -> dict[str, dict]:
     return meta
 
 
+# Schema for `load_ifaf_final_scores`'s returned frame -- matches
+# `reference._FINAL_SCORES_SCHEMA` column-for-column (that constant is
+# private to `reference.py`, so this module keeps its own equal copy rather
+# than importing a private name; `pipeline.run_ingest` concatenates the two
+# frames, which requires the schemas to line up exactly).
+_IFAF_FINAL_SCORES_SCHEMA: dict[str, pl.DataType] = {
+    "game_id": pl.Utf8,
+    "home_team": pl.Utf8,
+    "away_team": pl.Utf8,
+    "home_score": pl.Int32,
+    "away_score": pl.Int32,
+    "note": pl.Utf8,
+}
+
+
+def _empty_final_scores_frame() -> pl.DataFrame:
+    return pl.DataFrame(schema=dict(_IFAF_FINAL_SCORES_SCHEMA))
+
+
+def load_ifaf_final_scores(
+    raw_dir: Path, team_mapping: pl.DataFrame
+) -> tuple[pl.DataFrame, list[str]]:
+    """Build a final-score reference frame from `games.json`'s own
+    `currentScore.home`/`currentScore.away`, for `validation.checks.
+    score_reconstruction` to check every IFAF game's reconstructed score
+    against the official result -- `data/reference/final_scores.csv` carries
+    zero `ifaf-*` rows (2026-09-07 finding), so without this every IFAF game
+    was silently SKIPPED by that check rather than actually validated.
+
+    Only `status == "FINAL"` entries are used (every one of the 96 games in
+    the live `games.json` snapshot is `"FINAL"`, but a future snapshot could
+    carry an in-progress game whose `currentScore` is not yet the real
+    result). Team ids are resolved through `team_mapping` (source="ifaf"),
+    the same mapping `map_teams` uses for `posteam`/`defteam`/`home_team`/
+    `away_team` on the play-level frame -- but unlike `map_teams`, an
+    unmapped team id here is *skipped* (with a notice naming it), not raised:
+    a missing mapping for a scores-only reference should never abort the
+    whole ingest run the way `map_teams`'s hard-fail contract is meant to for
+    the play-level path, where an unmapped team would otherwise pass through
+    silently into the canonical corpus.
+    """
+    notices: list[str] = []
+    games_meta = _load_games_meta(raw_dir)
+    if not games_meta:
+        return _empty_final_scores_frame(), notices
+
+    ifaf_map = team_mapping.filter(pl.col("source") == "ifaf")
+    lookup = dict(zip(ifaf_map["source_team"].to_list(), ifaf_map["canonical_team"].to_list()))
+
+    rows: list[dict] = []
+    unmapped: set[str] = set()
+    for gid, entry in games_meta.items():
+        if entry.get("status") != "FINAL":
+            continue
+        score = entry.get("currentScore") or {}
+        home_score, away_score = score.get("home"), score.get("away")
+        if not isinstance(home_score, int) or isinstance(home_score, bool):
+            continue
+        if not isinstance(away_score, int) or isinstance(away_score, bool):
+            continue
+        home_raw = (entry.get("homeTeam") or {}).get("id")
+        away_raw = (entry.get("awayTeam") or {}).get("id")
+        if not home_raw or not away_raw:
+            continue
+        home_code = lookup.get(home_raw)
+        away_code = lookup.get(away_raw)
+        if home_code is None or away_code is None:
+            unmapped.update(x for x in (home_raw, away_raw) if lookup.get(x) is None)
+            continue
+        rows.append(
+            {
+                "game_id": make_game_id("ifaf", gid),
+                "home_team": home_code,
+                "away_team": away_code,
+                "home_score": home_score,
+                "away_score": away_score,
+                "note": "games.json currentScore",
+            }
+        )
+
+    if unmapped:
+        notices.append(
+            "ifaf: final-score reference skipped for unmapped team id(s) "
+            f"{sorted(unmapped)}"
+        )
+
+    if not rows:
+        return _empty_final_scores_frame(), notices
+
+    return pl.DataFrame(rows, schema=_IFAF_FINAL_SCORES_SCHEMA), notices
+
+
 def _load_tournaments_meta(raw_dir: Path) -> dict[str, dict]:
     meta: dict[str, dict] = {}
     for path in sorted(raw_dir.glob("tournament_*.json")):
@@ -834,6 +930,7 @@ _PLAYS_WORKING_SCHEMA: dict[str, pl.DataType] = {
     "penalty_type": pl.Utf8,
     "source_detail": pl.Utf8,
     "source_play_sequence": pl.Float64,
+    "nullified": pl.Int32,
     "_missing_down": pl.Int32,
     "_missing_ballon": pl.Int32,
     "_missing_offense": pl.Int32,
@@ -927,22 +1024,25 @@ def _plays_record_sort_key(index: int, play: Any) -> tuple[float, int]:
     return (float("inf"), index)
 
 
-def _play_type_from_actions(actions: set[str], has_try: bool, is_no_play: bool) -> str | None:
+def _play_type_from_actions(
+    actions: set[str], is_extra_point: bool, is_no_play: bool
+) -> str | None:
     """Classify one `/plays` record's `play_type` from its `events[].action`
     set. Priority: a no-play (nullified or penalty-only) record is always
-    `"no_play"`; a TRY-shaped record (any `TRY` action) is always
-    `"extra_point"` regardless of whether the attempt itself was thrown or
-    run (matches the unified-plays fallback path's `_PLAY_TYPE_FROM_OUTCOME`
-    convention for `XP1`/`XP2`/`TRY`); otherwise a pass-shaped action wins
-    over a run-shaped one (yards-after-catch running on a completed pass must
-    not misclassify it as a run -- same precedence
-    `_play_type_from_sequence` already uses for the fallback path); a record
-    with neither signal (an empty/ambiguous action list) stays null, per the
-    null-is-for-unparsed contract convention.
+    `"no_play"`; an extra-point-shaped record (`is_extra_point` -- a TRY
+    action, or `officialScore in {"XP1", "XP2"}` on its own; see
+    `flatten_plays_records`) is always `"extra_point"` regardless of whether
+    the attempt itself was thrown or run (matches the unified-plays fallback
+    path's `_PLAY_TYPE_FROM_OUTCOME` convention for `XP1`/`XP2`/`TRY`);
+    otherwise a pass-shaped action wins over a run-shaped one (yards-after-
+    catch running on a completed pass must not misclassify it as a run --
+    same precedence `_play_type_from_sequence` already uses for the fallback
+    path); a record with neither signal (an empty/ambiguous action list)
+    stays null, per the null-is-for-unparsed contract convention.
     """
     if is_no_play:
         return "no_play"
-    if has_try:
+    if is_extra_point:
         return "extra_point"
     if actions & _PLAYS_PASS_ACTIONS:
         return "pass"
@@ -984,21 +1084,35 @@ def flatten_plays_records(
     (`play_type == "no_play"` AND `penalty == 1`) depends on this flag
     surviving nullification to recognize it.
 
-    Outcome flags are read directly off the record's own `events[].action`
-    set (no separate `outcome.type`-style single field exists on this
-    endpoint): `complete_pass`/`sack`/`interception`/`safety`/`penalty` each
-    set from the matching action's presence; `touchdown` sets from a
-    `TOUCHDOWN` action, except when `INTERCEPTION` also appears on the same
-    record (a pick-six), which sets `def_touchdown` instead (no
-    `TOUCHDOWN`+`TRY` co-occurrence and no other turnover-shaped touchdown
-    signal was observed in the live corpus, so this is the only split
-    modeled); `one_point_conv_success`/`two_point_conv_success` come from the
-    `TRY` event's own `tryPoints`/`tryGood` fields (`tryGood is True` and
-    `tryPoints in {1, 2}`; a failed or unlabelled attempt sets neither).
-    `defensive_two_point_conv` is always 0 -- no record combining a failed
-    `TRY`'s defensive return with a score was observed live, so this flag
-    stays a documented-absent case for this source (see the field-mapping
-    doc), not a silently-wrong guess.
+    `complete_pass`/`sack`/`interception`/`safety`/`penalty` are read
+    directly off the record's own `events[].action` set (no separate
+    `outcome.type`-style single field exists on this endpoint for those).
+    **Scoring is different: `touchdown`/`def_touchdown`/
+    `one_point_conv_success`/`two_point_conv_success` are read from the
+    record's own `officialScore` field (`"TD"`/`"XP1"`/`"XP2"`/`"NONE"`/
+    absent), the reviewer's per-record scoring verdict -- never from the
+    `TOUCHDOWN`/`TRY` action names alone** (2026-09-07 fix, see
+    docs/ifaf-field-mapping.md's same-day Nachtrag: the live corpus has
+    hundreds of `TOUCHDOWN`-actioned records whose `officialScore` is
+    `"XP1"`/`"XP2"`/`"NONE"`, not 6 points -- e.g. a PAT catch the reviewer
+    tool sometimes charts as `PASS, COMPLETE, TOUCHDOWN` instead of using a
+    `TRY` action, distinguishable only by `officialScore`). `officialScore ==
+    "TD"` on a non-TRY record sets `touchdown`, except when `INTERCEPTION`
+    also appears on the same record (a pick-six), which sets `def_touchdown`
+    instead. `officialScore == "XP1"`/`"XP2"` sets `one_point_conv_success`/
+    `two_point_conv_success` respectively, on either a TRY-actioned record or
+    a TOUCHDOWN-actioned one. A TRY-actioned record whose own `officialScore`
+    reads `"TD"` (21 in the live corpus) is itself a data-entry quirk, not a
+    6-point try -- see the backfill pass after the main per-record loop for
+    how it is resolved (using the TRY event's own `tryPoints`/`tryGood`
+    fields as the fallback signal for that record's own points, and crediting
+    the real 6 points to the touchdown record it evidences). `officialScore
+    == "NONE"`/absent sets nothing (a failed try, an overturned/no-score
+    touchdown, or an ordinary non-scoring play). `defensive_two_point_conv`
+    is always 0 -- no record combining a failed `TRY`'s defensive return
+    with a score was observed live, so this flag stays a documented-absent
+    case for this source (see the field-mapping doc), not a silently-wrong
+    guess.
 
     `qb`/`thrown_by` both resolve to the `PASS` event's own `playerId` (this
     source carries exactly one passer identity per play, unlike Hudl's two
@@ -1020,16 +1134,24 @@ def flatten_plays_records(
     roster lookup) to a plain name string -- never left as a raw
     `w-esp-p16`-style id.
 
-    A play record's own `down` is copied through as-is, except a TRY-shaped
-    record always gets `down = 0` (this project's existing PAT convention --
-    see `docs/data-contract.md`'s "DN = 0 markiert einen PAT-Play" and
-    `derive_yards_to_go`'s own `down == 0` branch) even when the record's raw
-    `down` field is itself null (observed on every TRY record in the live
-    corpus) -- this lets `derive_yards_to_go` run unchanged on this working
-    frame. A genuinely null `down` on a non-TRY record (a real data gap, a
-    handful of live plays in the corpus) stays null, per the
-    null-is-for-unparsed contract convention, and is counted in
+    A play record's own `down` is copied through as-is, except an
+    extra-point-shaped record always gets `down = 0` (this project's existing
+    PAT convention -- see `docs/data-contract.md`'s "DN = 0 markiert einen
+    PAT-Play" and `derive_yards_to_go`'s own `down == 0` branch) even when
+    the record's raw `down` field is itself non-null (a TOUCHDOWN-actioned
+    PAT catch, see above) or null (observed on every TRY-actioned record in
+    the live corpus) -- this lets `derive_yards_to_go` run unchanged on this
+    working frame. "Extra-point-shaped" is a TRY action, or `officialScore in
+    {"XP1", "XP2"}` on its own (same broadened signal `play_type` uses -- see
+    `is_extra_point` below). A genuinely null `down` on a non-extra-point
+    record (a real data gap, a handful of live plays in the corpus) stays
+    null, per the null-is-for-unparsed contract convention, and is counted in
     `_missing_down` for `IngestNotices`.
+
+    `nullified` (a new nullable extra, distinct from the `no_play`
+    `play_type` it also drives) copies the record's own `nullified` flag
+    through verbatim -- kept visible downstream so a genuinely overturned
+    record stays distinguishable from an ordinary no-play penalty entry.
     """
     home_raw = game_meta.get("home_team")
     away_raw = game_meta.get("away_team")
@@ -1045,6 +1167,11 @@ def flatten_plays_records(
     rows: list[dict] = []
     prev_offense_raw: str | None = None
     drive_id = 1
+
+    # Per-row bookkeeping the officialScore backfill pass below needs but that
+    # never reaches the canonical frame -- kept as a parallel list (same index
+    # as `rows`) rather than folded into the row dicts themselves.
+    score_meta: list[dict] = []
 
     for play_id, (_, play) in enumerate(ordered, start=1):
         if not isinstance(play, dict):
@@ -1063,6 +1190,15 @@ def flatten_plays_records(
         is_penalty_only = actions_set == {"PENALTY"}
         is_no_play = nullified or is_penalty_only
         has_try = _TRY_ACTION in actions_set
+        has_td_action = "TOUCHDOWN" in actions_set
+        official_score = play.get("officialScore")
+        # A try-shaped record for play_type/down purposes is either a TRY
+        # action, or an officialScore of XP1/XP2 on its own -- the reviewer
+        # feed sometimes charts a PAT catch with a TOUCHDOWN action instead
+        # of TRY (docs/ifaf-field-mapping.md Nachtrag 2026-09-07), and
+        # officialScore is the only reliable signal telling those apart from
+        # a real 6-point touchdown.
+        is_extra_point = has_try or official_score in ("XP1", "XP2")
 
         offense_raw = play.get("offenseTeamId")
         if offense_raw is not None:
@@ -1071,10 +1207,10 @@ def flatten_plays_records(
             prev_offense_raw = offense_raw
 
         down_raw = play.get("down")
-        down_working = 0 if has_try else down_raw
+        down_working = 0 if is_extra_point else down_raw
         ball_on = play.get("ballOn")
 
-        play_type = _play_type_from_actions(actions_set, has_try, is_no_play)
+        play_type = _play_type_from_actions(actions_set, is_extra_point, is_no_play)
         result_raw = ", ".join(actions_seen) if actions_seen else None
 
         unknown_action = next(
@@ -1109,18 +1245,69 @@ def flatten_plays_records(
             sack = 1 if "SACK" in actions_set else 0
             interception = 1 if "INTERCEPTION" in actions_set else 0
             safety = 1 if "SAFETY" in actions_set else 0
-            if "TOUCHDOWN" in actions_set:
-                if "INTERCEPTION" in actions_set:
-                    def_touchdown = 1
-                else:
-                    touchdown = 1
-            if try_event is not None:
-                try_points = try_event.get("tryPoints")
-                try_good = try_event.get("tryGood")
-                if try_good is True and try_points == 1:
+
+            # Scoring comes from the reviewer's own per-record verdict
+            # (`officialScore` in {"TD", "XP1", "XP2", "NONE"}, or absent/
+            # null for an ordinary non-scoring play) -- never from the
+            # `TOUCHDOWN`/`TRY` action names alone (docs/ifaf-field-mapping.md
+            # Nachtrag 2026-09-07: those actions appear on plenty of records
+            # `officialScore` marks as worth 1, 2, or 0 points, not 6 -- e.g.
+            # a `PASS, COMPLETE, TOUCHDOWN` record can be the try attempt
+            # right after the real touchdown, `officialScore: XP1`).
+            if has_try:
+                if official_score == "TD":
+                    # Ambiguous: a TRY-actioned record's own officialScore
+                    # can never really mean "this try is worth 6" -- it is
+                    # either a duplicate of the preceding real touchdown's
+                    # own officialScore (already handled there) or evidence
+                    # that record was mislabeled and the real 6 points
+                    # belong to it instead (the backfill pass below). This
+                    # row's own points, if any, come from the TRY event's
+                    # own tryGood/tryPoints fields, which the live corpus
+                    # shows agree with the *other* try records' officialScore
+                    # closely enough to trust as the fallback signal here.
+                    if try_event is not None:
+                        try_points = try_event.get("tryPoints")
+                        try_good = try_event.get("tryGood")
+                        if try_good is True and try_points == 1:
+                            one_point = 1
+                        elif try_good is True and try_points == 2:
+                            two_point = 1
+                elif official_score == "XP1":
                     one_point = 1
-                elif try_good is True and try_points == 2:
+                elif official_score == "XP2":
                     two_point = 1
+                # officialScore NONE/null -> failed/overturned try, 0 points.
+            elif has_td_action:
+                if official_score == "TD":
+                    if "INTERCEPTION" in actions_set:
+                        def_touchdown = 1
+                    else:
+                        touchdown = 1
+                elif official_score == "XP1":
+                    # A PAT catch the reviewer feed charted with a TOUCHDOWN
+                    # action instead of TRY (seen live, e.g. sequence 200 of
+                    # the ESP-MEX QF) -- officialScore is authoritative.
+                    one_point = 1
+                elif official_score == "XP2":
+                    two_point = 1
+                # officialScore NONE/null on a TOUCHDOWN-actioned record: no
+                # points, unless a later TRY record's officialScore == "TD"
+                # names this exact record as the real touchdown (the
+                # backfill pass below).
+            # officialScore XP1/XP2 with neither a TRY nor a TOUCHDOWN action
+            # (4 live-corpus SAFETY-only records) is not a conversion -- the
+            # `safety` flag above already books the 2 points to the defense.
+
+        score_meta.append(
+            {
+                "has_try": has_try,
+                "has_td": has_td_action,
+                "official_score": official_score,
+                "nullified": nullified,
+                "actions_set": actions_set,
+            }
+        )
 
         # A `PASS` event is the normal source for the passer/intended-receiver
         # ids, but ~1% of the live corpus records an `INCOMPLETE_PASS` action
@@ -1220,6 +1407,7 @@ def flatten_plays_records(
                 # `down_working` resolves it to 0 by convention above -- that
                 # is a resolved value, not a missing-data gap, so it must not
                 # inflate this notice.
+                "nullified": 1 if nullified else 0,
                 "_missing_down": 0 if down_working is not None else 1,
                 "_missing_ballon": 0 if ball_on is not None else 1,
                 "_missing_offense": 0 if offense_raw is not None else 1,
@@ -1227,6 +1415,31 @@ def flatten_plays_records(
                 "_unknown_action": unknown_action,
             }
         )
+
+    # Backfill: a TRY record whose own officialScore reads "TD" names the
+    # nearest preceding TOUCHDOWN-actioned record as the real touchdown --
+    # either confirming it (that record's own officialScore is already
+    # "TD", a duplicate, nothing to do) or correcting it (that record's own
+    # officialScore reads "NONE"/null despite the TOUCHDOWN action, and the
+    # real 6 points belong there). See the scoring block above for the full
+    # rationale; this is the second half of that same data-entry-quirk fix.
+    for idx, meta in enumerate(score_meta):
+        if not (meta["has_try"] and meta["official_score"] == "TD" and not meta["nullified"]):
+            continue
+        anchor_idx = next(
+            (j for j in range(idx - 1, -1, -1) if score_meta[j]["has_td"]), None
+        )
+        if anchor_idx is None:
+            continue
+        anchor_meta = score_meta[anchor_idx]
+        if anchor_meta["nullified"] or anchor_meta["official_score"] == "TD":
+            continue
+        anchor_row = rows[anchor_idx]
+        if anchor_row["touchdown"] == 0 and anchor_row["def_touchdown"] == 0:
+            if "INTERCEPTION" in anchor_meta["actions_set"]:
+                anchor_row["def_touchdown"] = 1
+            else:
+                anchor_row["touchdown"] = 1
 
     return pl.DataFrame(rows, schema=_PLAYS_WORKING_SCHEMA)
 

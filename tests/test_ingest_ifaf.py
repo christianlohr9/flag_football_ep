@@ -42,6 +42,7 @@ from flag_football_ep.ingest.ifaf import (
     flatten_plays_records,
     flatten_unified_plays,
     ingest_snapshots,
+    load_ifaf_final_scores,
     load_plays_snapshot,
     load_snapshot,
 )
@@ -1212,10 +1213,15 @@ def _play_record(
     nullified: bool = False,
     events: list | None = None,
     started_at: int = 1000,
+    official_score: str | None = None,
 ) -> dict:
     """Build one synthetic `/plays` record. `down`/`ball_on` may be passed as
     `None` to model a genuine missing-field row; player ids used across this
-    test module are always fabricated (`w-xxx-pN`), never real."""
+    test module are always fabricated (`w-xxx-pN`), never real.
+    `official_score` models the reviewer feed's own per-record scoring
+    verdict (`"TD"`/`"XP1"`/`"XP2"`/`"NONE"`/`None`) that `flatten_plays_records`
+    reads scoring from (2026-09-07 fix) -- most non-scoring fixtures leave it
+    at the default `None` (absent field, "no score")."""
     return {
         "gameId": "g1",
         "sequence": sequence,
@@ -1226,6 +1232,7 @@ def _play_record(
         "nullified": nullified,
         "events": events or [],
         "ballOn": ball_on,
+        "officialScore": official_score,
     }
 
 
@@ -1287,13 +1294,13 @@ def test_plays_record_sort_key_missing_or_non_numeric_sequence_sorts_last():
 
 
 def test_play_type_from_actions_no_play_wins_over_everything():
-    assert _play_type_from_actions({"PASS", "COMPLETE"}, has_try=True, is_no_play=True) == (
+    assert _play_type_from_actions({"PASS", "COMPLETE"}, is_extra_point=True, is_no_play=True) == (
         "no_play"
     )
 
 
 def test_play_type_from_actions_try_wins_over_pass_and_run():
-    assert _play_type_from_actions({"PASS", "COMPLETE"}, has_try=True, is_no_play=False) == (
+    assert _play_type_from_actions({"PASS", "COMPLETE"}, is_extra_point=True, is_no_play=False) == (
         "extra_point"
     )
 
@@ -1393,6 +1400,101 @@ def test_load_teams_meta_tolerates_malformed_entries(tmp_path):
     names = _load_teams_meta(raw_dir)
     # A player with no `name` key contributes nothing; malformed entries are skipped.
     assert names == {}
+
+
+# --- load_ifaf_final_scores --------------------------------------------------
+
+
+def _write_games_json(raw_dir: Path, games: list[dict]) -> None:
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    (raw_dir / "games.json").write_text(json.dumps(games), encoding="utf-8")
+
+
+def test_load_ifaf_final_scores_no_games_json_returns_empty(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    df, notices = load_ifaf_final_scores(raw_dir, _team_mapping())
+    assert df.height == 0
+    assert notices == []
+
+
+def test_load_ifaf_final_scores_maps_team_codes_and_game_id(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    _write_games_json(
+        raw_dir,
+        [
+            {
+                "id": "g1",
+                "status": "FINAL",
+                "homeTeam": {"id": "w-usa"},
+                "awayTeam": {"id": "w-ger"},
+                "currentScore": {"home": 27, "away": 26},
+            }
+        ],
+    )
+    df, notices = load_ifaf_final_scores(raw_dir, _team_mapping())
+    assert notices == []
+    row = df.row(0, named=True)
+    assert row["game_id"] == "ifaf-g1"
+    assert row["home_team"] == "USA"
+    assert row["away_team"] == "GER"
+    assert row["home_score"] == 27
+    assert row["away_score"] == 26
+
+
+def test_load_ifaf_final_scores_skips_non_final_status(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    _write_games_json(
+        raw_dir,
+        [
+            {
+                "id": "g1",
+                "status": "IN_PROGRESS",
+                "homeTeam": {"id": "w-usa"},
+                "awayTeam": {"id": "w-ger"},
+                "currentScore": {"home": 6, "away": 0},
+            }
+        ],
+    )
+    df, notices = load_ifaf_final_scores(raw_dir, _team_mapping())
+    assert df.height == 0
+
+
+def test_load_ifaf_final_scores_skips_unmapped_team_with_notice(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    _write_games_json(
+        raw_dir,
+        [
+            {
+                "id": "g1",
+                "status": "FINAL",
+                "homeTeam": {"id": "w-usa"},
+                "awayTeam": {"id": "w-unknown"},
+                "currentScore": {"home": 10, "away": 0},
+            }
+        ],
+    )
+    df, notices = load_ifaf_final_scores(raw_dir, _team_mapping())
+    assert df.height == 0
+    assert any("w-unknown" in n for n in notices)
+
+
+def test_load_ifaf_final_scores_skips_missing_score(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    _write_games_json(
+        raw_dir,
+        [
+            {
+                "id": "g1",
+                "status": "FINAL",
+                "homeTeam": {"id": "w-usa"},
+                "awayTeam": {"id": "w-ger"},
+                "currentScore": {"home": None, "away": None},
+            }
+        ],
+    )
+    df, notices = load_ifaf_final_scores(raw_dir, _team_mapping())
+    assert df.height == 0
 
 
 # --- flatten_plays_records ---------------------------------------------------
@@ -1508,7 +1610,16 @@ def test_flatten_plays_records_drive_id_increments_on_offense_change():
 
 
 def test_flatten_plays_records_touchdown_with_interception_is_defensive():
-    payload = [_play_record(10, events=[_ev("PASS"), _ev("INTERCEPTION"), _ev("TOUCHDOWN")])]
+    """Scoring is driven by `officialScore`, not the `TOUCHDOWN` action alone
+    (2026-09-07 fix) -- a `TOUCHDOWN`-actioned record with no `officialScore`
+    at all (the ordinary "not a scoring play" case) sets no scoring flag."""
+    payload = [
+        _play_record(
+            10,
+            events=[_ev("PASS"), _ev("INTERCEPTION"), _ev("TOUCHDOWN")],
+            official_score="TD",
+        )
+    ]
     df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
     row = df.row(0, named=True)
     assert row["def_touchdown"] == 1
@@ -1516,8 +1627,24 @@ def test_flatten_plays_records_touchdown_with_interception_is_defensive():
     assert row["interception"] == 1
 
 
-def test_flatten_plays_records_touchdown_without_interception_is_offensive():
+def test_flatten_plays_records_touchdown_action_without_official_score_scores_nothing():
+    """The bug this fix corrects: a `TOUCHDOWN` action alone is not enough --
+    a record whose `officialScore` doesn't say "TD" never scores 6, even
+    with a clean pass-and-catch action list."""
     payload = [_play_record(10, events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")])]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["touchdown"] == 0
+    assert row["def_touchdown"] == 0
+    assert row["play_type"] == "pass"
+
+
+def test_flatten_plays_records_touchdown_without_interception_is_offensive():
+    payload = [
+        _play_record(
+            10, events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")], official_score="TD"
+        )
+    ]
     df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
     row = df.row(0, named=True)
     assert row["touchdown"] == 1
@@ -1526,7 +1653,7 @@ def test_flatten_plays_records_touchdown_without_interception_is_offensive():
 
 
 def test_flatten_plays_records_touchdown_with_rush_is_run_play_type():
-    payload = [_play_record(10, events=[_ev("RUSH"), _ev("TOUCHDOWN")])]
+    payload = [_play_record(10, events=[_ev("RUSH"), _ev("TOUCHDOWN")], official_score="TD")]
     df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
     row = df.row(0, named=True)
     assert row["touchdown"] == 1
@@ -1534,26 +1661,87 @@ def test_flatten_plays_records_touchdown_with_rush_is_run_play_type():
 
 
 def test_flatten_plays_records_touchdown_with_no_pass_or_run_signal_stays_type_none():
-    payload = [_play_record(10, events=[_ev("TOUCHDOWN")])]
+    payload = [_play_record(10, events=[_ev("TOUCHDOWN")], official_score="TD")]
     df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
     row = df.row(0, named=True)
     assert row["touchdown"] == 1
     assert row["play_type"] is None
 
 
+def test_flatten_plays_records_touchdown_action_xp1_official_score_is_one_point_pat():
+    """A PAT catch the reviewer feed charts with a `TOUCHDOWN` action instead
+    of `TRY` (seq 200 of the ESP-MEX QF, the concrete live-corpus bug this
+    fix was written for): `officialScore == "XP1"` is authoritative, worth 1
+    point, not 6, and the record is `extra_point`/`down == 0` for
+    down/play_type purposes even though its own raw `down` is a real (non-
+    null) value."""
+    payload = [
+        _play_record(
+            10,
+            down=2,
+            ball_on=45,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")],
+            official_score="XP1",
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["touchdown"] == 0
+    assert row["one_point_conv_success"] == 1
+    assert row["two_point_conv_success"] == 0
+    assert row["play_type"] == "extra_point"
+    assert row["down"] == 0
+
+
+def test_flatten_plays_records_touchdown_action_xp2_official_score_is_two_point_pat():
+    payload = [
+        _play_record(
+            10,
+            down=2,
+            ball_on=40,
+            events=[_ev("RUSH"), _ev("TOUCHDOWN")],
+            official_score="XP2",
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["touchdown"] == 0
+    assert row["two_point_conv_success"] == 1
+    assert row["play_type"] == "extra_point"
+    assert row["down"] == 0
+
+
+def test_flatten_plays_records_safety_xp2_official_score_stays_safety_not_conversion():
+    """The 4 live-corpus SAFETY-only records carry `officialScore == "XP2"`
+    (the app's own encoding for a safety) -- these must book as `safety`
+    (2 points to the defense already set from the `SAFETY` action), never as
+    a two-point conversion for the offense."""
+    payload = [_play_record(10, events=[_ev("SACK"), _ev("SAFETY")], official_score="XP2")]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["safety"] == 1
+    assert row["two_point_conv_success"] == 0
+    assert row["touchdown"] == 0
+
+
 @pytest.mark.parametrize(
-    "try_points,try_good,expected_one,expected_two",
-    [(1, True, 1, 0), (2, True, 0, 1), (1, False, 0, 0), (2, False, 0, 0), (None, None, 0, 0)],
+    "official_score,expected_one,expected_two",
+    [("XP1", 1, 0), ("XP2", 0, 1), ("NONE", 0, 0), (None, 0, 0)],
 )
-def test_flatten_plays_records_try_points_good_sets_conversion_flags(
-    try_points, try_good, expected_one, expected_two
+def test_flatten_plays_records_try_official_score_sets_conversion_flags(
+    official_score, expected_one, expected_two
 ):
+    """A TRY-actioned record's own points come from `officialScore`, not the
+    TRY event's `tryGood`/`tryPoints` fields directly -- the live corpus has
+    dozens of records where those disagree (`officialScore` is the
+    reviewer's final call, e.g. a successful catch called back on review)."""
     payload = [
         _play_record(
             10,
             down=None,
             ball_on=45,
-            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=try_points, tryGood=try_good)],
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=1, tryGood=True)],
+            official_score=official_score,
         )
     ]
     df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
@@ -1561,6 +1749,99 @@ def test_flatten_plays_records_try_points_good_sets_conversion_flags(
     assert row["one_point_conv_success"] == expected_one
     assert row["two_point_conv_success"] == expected_two
     assert row["defensive_two_point_conv"] == 0
+
+
+@pytest.mark.parametrize(
+    "try_points,try_good,expected_one,expected_two",
+    [(1, True, 1, 0), (2, True, 0, 1), (1, False, 0, 0), (2, False, 0, 0), (None, None, 0, 0)],
+)
+def test_flatten_plays_records_try_ambiguous_td_official_score_falls_back_to_try_event(
+    try_points, try_good, expected_one, expected_two
+):
+    """The 21-record live-corpus quirk: a TRY-actioned record whose own
+    `officialScore` reads "TD" (never a valid verdict for a try -- see the
+    backfill test below) scores from the TRY event's own `tryPoints`/
+    `tryGood` fields instead, since `officialScore` on this one record shape
+    is unusable directly."""
+    payload = [
+        _play_record(
+            10,
+            down=None,
+            ball_on=45,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=try_points, tryGood=try_good)],
+            official_score="TD",
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["one_point_conv_success"] == expected_one
+    assert row["two_point_conv_success"] == expected_two
+    assert row["defensive_two_point_conv"] == 0
+    assert row["touchdown"] == 0
+
+
+def test_flatten_plays_records_try_td_official_score_backfills_preceding_touchdown():
+    """The other half of the same quirk: when the TRY record's borrowed "TD"
+    label evidences that the *preceding* TOUCHDOWN-actioned record was
+    itself mislabeled (`officialScore == "NONE"` despite the TOUCHDOWN
+    action), the real 6 points are credited there, not fabricated on the
+    try row itself."""
+    payload = [
+        _play_record(
+            10,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")],
+            official_score="NONE",
+        ),
+        _play_record(
+            20,
+            down=None,
+            ball_on=45,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=1, tryGood=False)],
+            official_score="TD",
+        ),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    anchor, try_row = df.row(0, named=True), df.row(1, named=True)
+    assert anchor["touchdown"] == 1
+    assert try_row["touchdown"] == 0
+    assert try_row["one_point_conv_success"] == 0  # tryGood False on the try itself
+
+
+def test_flatten_plays_records_try_td_official_score_duplicate_anchor_already_scored():
+    """When the preceding TOUCHDOWN-actioned record's own `officialScore`
+    already reads "TD" (it was never mislabeled), a following try record's
+    own "TD" label is a duplicate -- the anchor is not double-counted."""
+    payload = [
+        _play_record(
+            10,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")],
+            official_score="TD",
+        ),
+        _play_record(
+            20,
+            down=None,
+            ball_on=40,
+            events=[_ev("SACK"), _ev("TRY", tryPoints=2, tryGood=False)],
+            official_score="TD",
+        ),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    anchor, try_row = df.row(0, named=True), df.row(1, named=True)
+    assert anchor["touchdown"] == 1
+    assert try_row["touchdown"] == 0
+    assert try_row["two_point_conv_success"] == 0
+
+
+def test_flatten_plays_records_nullified_flag_exposed_as_extra():
+    payload = [
+        _play_record(
+            10,
+            nullified=True,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=1, tryGood=True)],
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["nullified"].to_list() == [1]
 
 
 def test_flatten_plays_records_sack_is_pass_play_type():

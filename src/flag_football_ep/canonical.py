@@ -114,6 +114,12 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     # HC workbooks (HC-D01, M3-01-02).
     "air_yards": pl.Int32,
     "efficiency": pl.Int32,
+    # `/plays` record's own `nullified` flag (docs/ifaf-field-mapping.md
+    # Nachtrag 2026-09-07, scoring-from-officialScore fix): kept visible as
+    # its own extra, not just folded into `play_type == "no_play"`, so a
+    # nullified record stays distinguishable from a plain no-play penalty
+    # entry downstream. Null (not 0) for every source other than ifaf.
+    "nullified": pl.Int32,
     # Float64
     "half_seconds_remaining": pl.Float64,
     # `sequence` from the IFAF /plays record: possibly non-integer (inserted
