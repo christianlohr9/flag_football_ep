@@ -2567,9 +2567,15 @@ def test_apply_events_ledger_inserts_synthetic_row_for_missing_conversion():
 
 
 def test_apply_events_ledger_td_with_no_candidate_left_unscored_not_fabricated():
-    """A TD with no /plays candidate at all (not observed live, but a real
-    possibility -- e.g. an entirely missing touchdown record) is logged and
-    left unscored, never fabricated as a whole touchdown play."""
+    """A TD with no /plays candidate at all -- an entire touchdown record
+    the reviewer feed never charted, observed in 9 of the live corpus's 42
+    women's games -- is logged and left unscored, never fabricated as a
+    whole touchdown row. The user was asked directly whether to fabricate
+    this class of row too (seventh follow-up, same trade-off framing as
+    the sixth follow-up's conversion fill) and declined: unlike a missing
+    conversion, a synthetic touchdown would have no down, no field
+    position, no charted action, and only an approximate row position --
+    a scoreboard adjustment, not a play."""
     df = _base_ledger_df()
     events = [
         _score_ev(10, "w-usa", "TD", 6),
@@ -2579,6 +2585,28 @@ def test_apply_events_ledger_td_with_no_candidate_left_unscored_not_fabricated()
     out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 6)
     assert out.height == 2  # no fabricated touchdown row
     assert any("has no /plays candidate" in n and "TD" in n for n in notices)
+    assert any(
+        "1 touchdown(s) (6 points)" in n and "not fabricated" in n for n in notices
+    )
+
+
+def test_apply_events_ledger_aggregate_notice_sums_missing_td_and_orphaned_conversion():
+    """The per-game aggregate notice sums both a whole missing touchdown
+    AND an orphaned conversion (an XP with no TD anchor at all, a
+    different failure shape) into one total-points-missing line."""
+    df = _base_ledger_df()  # w-usa TD (seq10) + XP1 (seq20), both real
+    events = [
+        _score_ev(10, "w-usa", "TD", 6),
+        _score_ev(20, "w-usa", "XP1", 1),
+        _score_ev(30, "w-ger", "TD", 6),  # missing TD -- 6 points
+        _score_ev(40, "w-ger", "XP2", 2),  # orphaned (no TD anchor) -- 2 points
+    ]
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 8)
+    assert out.height == 2
+    summary = next(n for n in notices if "touchdown(s)" in n and "conversion(s)" in n)
+    assert "1 touchdown(s) (6 points)" in summary
+    assert "1 conversion(s) (2 points)" in summary
+    assert "8 total points missing" in summary
 
 
 def test_apply_events_ledger_xp2_matches_safety_row_without_double_counting():

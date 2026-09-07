@@ -953,12 +953,21 @@ def apply_events_ledger(
     independent of `officialScore`/the ledger. Only when neither a TRY nor
     a SAFETY candidate exists is a synthetic row inserted.
 
-    A `TD` event with no candidate at all is logged as a notice and left
-    unscored rather than fabricating an entire touchdown play with no
-    action/team/field-position basis whatsoever -- not observed once in
-    the live corpus (every real touchdown's `/plays` record exists; only
-    its own conversion attempt can go missing), so this path is defensive,
-    not exercised by real data.
+    A `TD` event with no candidate at all is logged (both a per-event
+    notice and, once per game, an aggregate count/points summary) and left
+    unscored -- a whole touchdown is never fabricated as a row, unlike a
+    missing conversion. This is a deliberate, considered line, not an
+    oversight: a missing conversion's own touchdown is always a real,
+    reviewed `/plays` record (only its trivial one-line follow-up went
+    unrecorded), while a "synthetic touchdown" would have no down, no
+    field position, no charted action, and only an approximate row
+    position at best -- a scoreboard adjustment dressed up as a play, not
+    a play. The user was asked directly whether to fabricate this class of
+    row too (2026-09-07 seventh follow-up, same trade-off framing as the
+    sixth follow-up's conversion fill) and this fix declined, standing by
+    the reasoning above -- see `docs/ifaf-field-mapping.md`'s Nachtrag for
+    the full discussion. It IS observed in the live corpus (10 women's
+    games), unlike the conversion case.
 
     Every synthetic row: `play_type = "extra_point"`, `posteam` the
     scoring team, `half`/`drive_id`/game-level metadata copied from the
@@ -1109,6 +1118,18 @@ def apply_events_ledger(
     # match -- inserted only after the whole ledger walk finishes, so this
     # loop's own row indices never shift underneath it.
     pending_synthetic: list[tuple[int, str, str]] = []
+    # Aggregated for the summary notice below -- a whole missing touchdown is
+    # never fabricated as a row (2026-09-07 seventh follow-up: the user was
+    # asked directly whether to do so, given the same conversion-fill
+    # trade-off framing as the sixth follow-up, and declined -- see the
+    # docstring above and the Nachtrag for the full reasoning). Individual
+    # per-event notices above still name every occurrence; this adds one
+    # aggregate line per game so the total missing-points impact is visible
+    # without counting messages by hand.
+    missing_td_count = 0
+    missing_td_points = 0
+    orphaned_conversion_count = 0
+    orphaned_conversion_points = 0
 
     for ev in score_events:
         payload = ev.get("payload") or {}
@@ -1125,6 +1146,8 @@ def apply_events_ledger(
                     f"{ev.get('sequenceNumber')}) has no /plays candidate -- left unscored, "
                     "not fabricated"
                 )
+                missing_td_count += 1
+                missing_td_points += 6
                 last_td_idx[team] = None
                 continue
             used[idx] = True
@@ -1165,11 +1188,24 @@ def apply_events_ledger(
                 f"{ev.get('sequenceNumber')}) has no TD anchor and no /plays candidate -- "
                 "left unscored, not fabricated"
             )
+            orphaned_conversion_count += 1
+            orphaned_conversion_points += 2 if score_type == "XP2" else 1
             last_td_idx[team] = None
             continue
 
         pending_synthetic.append((anchor_idx, team, score_type))
         last_td_idx[team] = None
+
+    if missing_td_count or orphaned_conversion_count:
+        missing_points = missing_td_points + orphaned_conversion_points
+        notices.append(
+            f"events-ledger: {missing_td_count} touchdown(s) ({missing_td_points} points) and "
+            f"{orphaned_conversion_count} conversion(s) ({orphaned_conversion_points} points) "
+            "confirmed by the ledger have no /plays record at all and were left unscored, not "
+            f"fabricated -- {missing_points} total points missing from this game's reconstructed "
+            "score from that point in the game onward (score_differential/WP features on later "
+            "real plays reflect the incomplete /plays feed, not a code error)"
+        )
 
     if not pending_synthetic:
         return pl.DataFrame(rows, schema=_PLAYS_WORKING_SCHEMA), notices
