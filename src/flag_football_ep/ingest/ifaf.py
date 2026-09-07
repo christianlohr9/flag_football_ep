@@ -797,6 +797,94 @@ def _load_tournaments_meta(raw_dir: Path) -> dict[str, dict]:
     return meta
 
 
+def _events_score_ledger_summary(raw_dir: Path, game_id: str, game_entry: dict) -> str | None:
+    """Diagnostic-only cross-check for a `score_reconstruction` mismatch:
+    sum the game's own `events_{id}.json` `SCORE`-type events (non-reverted
+    only) per team and compare against `games.json`'s own `currentScore`.
+
+    2026-09-07 (fifth follow-up, same day): the events feed carries an
+    explicit scoring ledger (`eventType == "SCORE"`, `payload.teamId`/
+    `scoreType`/`points` -- `scoreType` vocabulary observed corpus-wide:
+    `TD`/`XP1`/`XP2` only, no distinct `SAFETY` type; a safety is logged as
+    a `SCORE` event with `scoreType: "XP2"`, `points: 2`, same encoding
+    `officialScore` already uses for it). Summed per team, non-reverted
+    events reproduce `games.json`'s final score exactly for 41 of 48
+    women's games (verified 2026-09-07); the 6 misses are genuine
+    zero-event forfeits (no `SCORE` events at all) and one game
+    (`ffwc26-wd4`) where the ledger itself disagrees with the official
+    score -- confirming the ledger is a strong, but not universally
+    trustworthy, signal, well short of the 95% per-game exact-match bar
+    this project requires before trusting a *reconstructed* source (the
+    third and fourth follow-ups above; see the same-day Nachtrag for the
+    full discussion of why this signal is used only as a diagnostic report
+    line here, never to fill or fabricate a canonical row).
+
+    Returns `None` when there is nothing to report (no events snapshot, no
+    parseable `SCORE` events, or no official score to compare against --
+    e.g. a forfeit). Otherwise returns one human-readable line: either the
+    ledger CONFIRMS the official score (meaning a `score_reconstruction`
+    mismatch on this game is a real gap or misattribution in `/plays`
+    itself, not a bad reference), or the ledger itself DISAGREES with the
+    official score (meaning the ledger cannot be trusted to diagnose this
+    specific game's mismatch, `ffwc26-wd4`-style).
+    """
+    events_path = raw_dir / f"events_{game_id}.json"
+    if not events_path.exists():
+        return None
+    payload = _read_json_or_empty(events_path)
+    events = payload if isinstance(payload, list) else (
+        payload.get("events") if isinstance(payload, dict) else None
+    )
+    if not isinstance(events, list):
+        return None
+
+    score_events = [
+        e
+        for e in events
+        if isinstance(e, dict) and e.get("eventType") == "SCORE" and not e.get("reverted")
+    ]
+    if not score_events:
+        return None
+
+    home_raw = (game_entry.get("homeTeam") or {}).get("id")
+    away_raw = (game_entry.get("awayTeam") or {}).get("id")
+    official = game_entry.get("currentScore") or {}
+    official_home, official_away = official.get("home"), official.get("away")
+    if (
+        home_raw is None
+        or away_raw is None
+        or not isinstance(official_home, int)
+        or isinstance(official_home, bool)
+        or not isinstance(official_away, int)
+        or isinstance(official_away, bool)
+    ):
+        return None
+
+    totals: dict[str, int] = {}
+    for e in score_events:
+        event_payload = e.get("payload") or {}
+        team = event_payload.get("teamId")
+        points = event_payload.get("points")
+        if team is None or not isinstance(points, int) or isinstance(points, bool):
+            continue
+        totals[team] = totals.get(team, 0) + points
+
+    ledger_home = totals.get(home_raw, 0)
+    ledger_away = totals.get(away_raw, 0)
+
+    if ledger_home == official_home and ledger_away == official_away:
+        return (
+            f"events-ledger SCORE-event totals ({ledger_home}-{ledger_away}) confirm the "
+            "official games.json score -- a score_reconstruction mismatch on this game means "
+            "/plays is missing or misattributing a scoring record, not the reference itself"
+        )
+    return (
+        f"events-ledger SCORE-event totals ({ledger_home}-{ledger_away}) do NOT match the "
+        f"official games.json score ({official_home}-{official_away}) -- the ledger itself is "
+        "unreliable for this game; do not use it to diagnose a score_reconstruction mismatch here"
+    )
+
+
 def _build_game_meta(game_entry: dict, tournament_entry: dict) -> dict:
     """Build per-game metadata, keyed off both the `/games` entry and its
     resolved `/tournaments/{id}` document.
@@ -1188,7 +1276,6 @@ def flatten_plays_records(
 
         nullified = bool(play.get("nullified"))
         is_penalty_only = actions_set == {"PENALTY"}
-        is_no_play = nullified or is_penalty_only
         has_try = _TRY_ACTION in actions_set
         has_td_action = "TOUCHDOWN" in actions_set
         official_score = play.get("officialScore")
@@ -1199,6 +1286,23 @@ def flatten_plays_records(
         # officialScore is the only reliable signal telling those apart from
         # a real 6-point touchdown.
         is_extra_point = has_try or official_score in ("XP1", "XP2")
+        # A play is charted as it happened; a penalty is a separate, later
+        # record (2026-09-07 domain-expert review, corpus-wide confirmed:
+        # every PENALTY-only record has a preceding play, 30.8% of the time
+        # annulling it). An annulled record keeps its own identity -- at
+        # minimum, a nullified extra-point-shaped record (e.g. a successful
+        # try called back by a following offensive foul, the QF's own
+        # sequence 50) is still `"extra_point"`, not `"no_play"`: the attempt
+        # happened, `officialScore`/`nullified` already correctly zero its
+        # points, and `down` is already forced to 0 for it below -- nothing
+        # about `no_play`'s null-down semantics was ever needed for this
+        # record shape. A nullified non-extra-point record (a live pass/run
+        # play overturned on review) is unaffected -- still `no_play`, since
+        # this fix is scoped to the one record shape the review explicitly
+        # named, not a blanket "nullified keeps play_type" rule (a broader
+        # change to every play_type would need its own review of every
+        # dependent no-play convention across this module).
+        is_no_play = is_penalty_only or (nullified and not is_extra_point)
 
         offense_raw = play.get("offenseTeamId")
         if offense_raw is not None:
@@ -1704,6 +1808,13 @@ def ingest_snapshots(
         game_entry = games_meta.get(gid, {})
         tournament_entry = tournaments_meta.get(game_entry.get("tournamentId"), {})
         game_meta = _build_game_meta(game_entry, tournament_entry)
+
+        # Diagnostic only -- never affects which rows reach the canonical
+        # frame. See `_events_score_ledger_summary`'s docstring for why this
+        # stays a report line, not a source of fabricated rows.
+        ledger_message = _events_score_ledger_summary(raw_dir, gid, game_entry)
+        if ledger_message:
+            notices.messages.append(ledger_message)
 
         plays_records, exclude_reason = _load_usable_plays_records(raw_dir, gid, notices)
 

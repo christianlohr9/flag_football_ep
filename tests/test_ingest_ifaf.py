@@ -30,6 +30,7 @@ from flag_football_ep.ingest.ifaf import (
     OUTCOME_MAP,
     UnparseablePayload,
     _build_game_meta,
+    _events_score_ledger_summary,
     _load_teams_meta,
     _play_sort_key,
     _play_type_from_actions,
@@ -1497,6 +1498,139 @@ def test_load_ifaf_final_scores_skips_missing_score(tmp_path):
     assert df.height == 0
 
 
+# --- _events_score_ledger_summary --------------------------------------------
+
+
+def _write_events_json(raw_dir: Path, game_id: str, events: list[dict]) -> None:
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    (raw_dir / f"events_{game_id}.json").write_text(json.dumps(events), encoding="utf-8")
+
+
+def _score_event(seq: int, team: str, score_type: str, points: int, reverted: bool = False) -> dict:
+    return {
+        "eventType": "SCORE",
+        "sequenceNumber": seq,
+        "reverted": reverted,
+        "payload": {"teamId": team, "scoreType": score_type, "points": points},
+    }
+
+
+def test_events_score_ledger_summary_no_events_file_returns_none(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir()
+    game_entry = {
+        "homeTeam": {"id": "w-usa"},
+        "awayTeam": {"id": "w-ger"},
+        "currentScore": {"home": 7, "away": 0},
+    }
+    assert _events_score_ledger_summary(raw_dir, "g1", game_entry) is None
+
+
+def test_events_score_ledger_summary_no_score_events_returns_none(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    _write_events_json(raw_dir, "g1", [{"eventType": "POSSESSION_CHANGE", "payload": {}}])
+    game_entry = {
+        "homeTeam": {"id": "w-usa"},
+        "awayTeam": {"id": "w-ger"},
+        "currentScore": {"home": 7, "away": 0},
+    }
+    assert _events_score_ledger_summary(raw_dir, "g1", game_entry) is None
+
+
+def test_events_score_ledger_summary_matches_official_score(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    _write_events_json(
+        raw_dir,
+        "g1",
+        [
+            _score_event(10, "w-usa", "TD", 6),
+            _score_event(15, "w-usa", "XP1", 1),
+        ],
+    )
+    game_entry = {
+        "homeTeam": {"id": "w-usa"},
+        "awayTeam": {"id": "w-ger"},
+        "currentScore": {"home": 7, "away": 0},
+    }
+    msg = _events_score_ledger_summary(raw_dir, "g1", game_entry)
+    assert msg is not None
+    assert "confirm the official" in msg
+    assert "7-0" in msg
+
+
+def test_events_score_ledger_summary_disagrees_with_official_score(tmp_path):
+    raw_dir = tmp_path / "raw_ifaf"
+    _write_events_json(raw_dir, "g1", [_score_event(10, "w-usa", "TD", 6)])
+    game_entry = {
+        "homeTeam": {"id": "w-usa"},
+        "awayTeam": {"id": "w-ger"},
+        "currentScore": {"home": 7, "away": 0},
+    }
+    msg = _events_score_ledger_summary(raw_dir, "g1", game_entry)
+    assert msg is not None
+    assert "do NOT match" in msg
+
+
+def test_events_score_ledger_summary_ignores_reverted_events(tmp_path):
+    """A reverted SCORE event (undone by the reviewer) must not count --
+    otherwise a real 7-0 game with one undone extra phantom touchdown would
+    wrongly report a ledger/official disagreement."""
+    raw_dir = tmp_path / "raw_ifaf"
+    _write_events_json(
+        raw_dir,
+        "g1",
+        [
+            _score_event(10, "w-usa", "TD", 6),
+            _score_event(15, "w-usa", "XP1", 1),
+            _score_event(20, "w-usa", "TD", 6, reverted=True),
+        ],
+    )
+    game_entry = {
+        "homeTeam": {"id": "w-usa"},
+        "awayTeam": {"id": "w-ger"},
+        "currentScore": {"home": 7, "away": 0},
+    }
+    msg = _events_score_ledger_summary(raw_dir, "g1", game_entry)
+    assert msg is not None
+    assert "confirm the official" in msg
+
+
+def test_events_score_ledger_summary_no_official_score_returns_none(tmp_path):
+    """A forfeit-shaped or in-progress game entry with no currentScore has
+    nothing to compare against."""
+    raw_dir = tmp_path / "raw_ifaf"
+    _write_events_json(raw_dir, "g1", [_score_event(10, "w-usa", "TD", 6)])
+    game_entry = {"homeTeam": {"id": "w-usa"}, "awayTeam": {"id": "w-ger"}}
+    assert _events_score_ledger_summary(raw_dir, "g1", game_entry) is None
+
+
+def test_ingest_snapshots_surfaces_ledger_summary_as_game_notice(tmp_path):
+    """End-to-end: `ingest_snapshots` folds the ledger diagnostic into the
+    per-game `IngestNotices.messages`, without changing which rows reach
+    the canonical frame."""
+    raw_dir = tmp_path / "raw_ifaf"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    plays = [_play_record(10, events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")], official_score="TD")]
+    (raw_dir / "plays_g1.json").write_text(json.dumps(plays), encoding="utf-8")
+    games_meta = [
+        {
+            "id": "g1",
+            "tournamentId": "test",
+            "homeTeam": {"id": "w-usa"},
+            "awayTeam": {"id": "w-ger"},
+            "currentScore": {"home": 6, "away": 0},
+        }
+    ]
+    (raw_dir / "games.json").write_text(json.dumps(games_meta), encoding="utf-8")
+    _write_events_json(raw_dir, "g1", [_score_event(10, "w-usa", "TD", 6)])
+
+    results = ingest_snapshots(raw_dir, _team_mapping(), tournaments=None)
+    gid, df, notices = results[0]
+    assert gid == "g1"
+    assert df.height == 1  # ledger check never changes accepted rows
+    assert any("confirm the official" in m for m in notices.messages)
+
+
 # --- flatten_plays_records ---------------------------------------------------
 
 
@@ -1543,20 +1677,51 @@ def test_flatten_plays_records_try_sets_down_zero_even_when_raw_down_null():
     assert df["_missing_down"].to_list() == [0]  # a TRY's null down is not a "missing" gap
 
 
-def test_flatten_plays_records_nullified_becomes_no_play_all_flags_zero():
+def test_flatten_plays_records_nullified_non_extra_point_becomes_no_play_all_flags_zero():
+    """A nullified live pass/run play (no extra-point signal) collapses to
+    `no_play`, every scoring/turnover flag zeroed -- unaffected by the
+    narrower `nullified` extra-point carve-out below."""
     payload = [
         _play_record(
             10,
             nullified=True,
-            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=1, tryGood=True)],
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")],
+            official_score="TD",
         )
     ]
     df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
     row = df.row(0, named=True)
     assert row["play_type"] == "no_play"
     assert row["complete_pass"] == 0
-    assert row["one_point_conv_success"] == 0
+    assert row["touchdown"] == 0
     assert row["_nullified"] == 1
+    # Raw record still preserved for traceability, not silently dropped.
+    assert row["result_raw"] == "PASS, COMPLETE, TOUCHDOWN"
+
+
+def test_flatten_plays_records_nullified_extra_point_keeps_extra_point_play_type():
+    """2026-09-07 domain-expert review: an annulled play keeps its own
+    identity -- a nullified try (e.g. the QF's own sequence 50: a
+    successful catch called back by a following offensive penalty) is
+    still `extra_point`, not `no_play`. Points still come from
+    `officialScore`/`nullified` (0 here), and `down` is already 0 for this
+    record shape regardless of nullification -- nothing about `no_play`'s
+    null-down semantics was ever needed for it."""
+    payload = [
+        _play_record(
+            10,
+            nullified=True,
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TRY", tryPoints=1, tryGood=True)],
+            official_score="NONE",
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    row = df.row(0, named=True)
+    assert row["play_type"] == "extra_point"
+    assert row["down"] == 0
+    assert row["complete_pass"] == 0
+    assert row["one_point_conv_success"] == 0
+    assert row["nullified"] == 1
     # Raw record still preserved for traceability, not silently dropped.
     assert row["result_raw"] == "PASS, COMPLETE, TRY"
 
