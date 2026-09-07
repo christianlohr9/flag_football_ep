@@ -98,6 +98,16 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     # numeric 1 in that cell would not be counted by his own sheet, so
     # storing the raw charted text preserves that distinction.
     "drop": pl.Utf8,
+    # IFAF /plays reviewer-feed columns (2026-09-07, docs/ifaf-field-mapping.md):
+    # per-event detail the unified-plays `context`/`outcome` objects never
+    # carried. `source_detail` is null for the ordinary case and stamped
+    # `"unified-plays-fallback"` only when a game had no usable `/plays`
+    # snapshot and `ingest_snapshots` fell back to `unified-plays` for it.
+    "source_detail": pl.Utf8,
+    "pass_side": pl.Utf8,
+    "pass_depth": pl.Utf8,
+    "incomplete_reason": pl.Utf8,
+    "penalty_type": pl.Utf8,
     # Int32
     "yac": pl.Int32,
     "drive_success": pl.Int32,
@@ -106,6 +116,11 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     "efficiency": pl.Int32,
     # Float64
     "half_seconds_remaining": pl.Float64,
+    # `sequence` from the IFAF /plays record: possibly non-integer (inserted
+    # rows use a `.5` suffix, e.g. `907.5`), preserved as its own extra once
+    # `flatten_plays_records` renumbers the canonical `play_id` gapless 1..N --
+    # the raw value stays available for cross-referencing back to the snapshot.
+    "source_play_sequence": pl.Float64,
     # Int64
     "game_clock_ms": pl.Int64,
 }
