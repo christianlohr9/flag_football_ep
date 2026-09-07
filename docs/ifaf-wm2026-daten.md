@@ -421,3 +421,43 @@ bleiben auch mit Protokolldaten ungeklärt (bewusst nicht erfunden), 1 (`wd4`) h
 verlässliches Protokoll. Volle Tabelle mit jedem Einzelfall: `docs/ifaf-field-mapping.md`.
 
 Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
+
+## Nachtrag 2026-09-07 (Teil 7, noch am selben Tag) — abgelehnt: einen ganz fehlenden Touchdown als erfundene Zeile ergänzen
+
+Die nächste Anfrage kam mit derselben Begründung wie Teil 6 (eine ausdrückliche
+Nutzer-Entscheidung, Abwägung gezeigt): Für die Spiele, bei denen das Protokoll einen Touchdown
+zeigt, der im Reviewer-Feed gar nicht existiert, sollte jetzt auch eine erfundene Touchdown-Zeile
+eingefügt werden — mit leerem Spielfeld-Wert für so gut wie jedes echte Feld (kein Down, keine
+Ballposition, keine echte Spielaktion), an einer nur ungefähr geschätzten Stelle im Spiel.
+
+**Diese Anfrage wird abgelehnt.** Der Unterschied zu Teil 6 ist real, nicht nur graduell: Ein
+fehlender Extrapunkt hängt direkt an einem echten, geprüften Touchdown — nur die eine folgende
+Zeile fehlt, und wo sie hingehört, ist eindeutig. Eine "erfundene Touchdown-Zeile" hätte dagegen
+so gut wie keinen echten Inhalt außer der Punktzahl und dem Team — nicht mal die genaue Stelle
+im Spiel ist bekannt (die eigene Platzierungsregel der Anfrage gibt das selbst zu: "wenn die
+genaue Stelle unklar ist"). Das wäre keine erfundene Zeile, die eine Lücke schließt, sondern eine
+Korrektur des Punktestands, als Spielzug verkleidet — und würde unsere eigene Punktestand-Prüfung
+für genau die Spiele bedeutungslos machen, bei denen sie am wichtigsten wäre: Sie würde dann nicht
+mehr echt nachrechnen, sondern nur noch bestätigen, was wir selbst vorher eingefügt haben.
+
+**Umgesetzt stattdessen:** Ein zusammenfassender Hinweis pro Spiel, der ehrlich sagt, wie viele
+Punkte fehlen und warum ("N Touchdown(s) und M Extrapunkt(e), vom Protokoll bestätigt, aber ohne
+jede Zeile im Reviewer-Feed — nicht erfunden"). Geprüft am echten Datensatz: **10 von 29
+Frauen-Spielen** betroffen — 9 davon mit mindestens einem wirklich fehlenden Touchdown-Datensatz,
+1 Spiel (`01a00140-b679`, das schon aus Teil 6 bekannte Spiel mit dem sichtbar fehlerhaften
+Protokoll) ohne fehlenden Touchdown, aber mit 8 nicht zuordenbaren Extrapunkt-Ereignissen.
+
+Eine spielweite Markierung ("dieses Spiel hat eine unvollständige Datengrundlage") wurde geprüft,
+aber nicht umgesetzt — dafür müsste die Spiele-Tabelle (`games.parquet`), die von allen fünf
+Datenquellen gemeinsam genutzt wird, erweitert werden, was deutlich mehr Code an mehr Stellen
+verändern würde als für diese eine Quelle nötig ist. Genau für diesen Fall war in der Anfrage
+selbst schon "sonst nur ein Hinweis" als Rückfalloption genannt — das wird umgesetzt.
+
+**Der Punktestand-Abgleich bleibt bei 18 von 29 bestätigten Spielen**, nicht bei den
+angepeilten 28. Das ist keine unerledigte Aufgabe, sondern die ehrliche Konsequenz einer
+bewussten Grenze: Die verbleibende Lücke bei diesen 10 Spielen ist eine echte, jetzt klar
+benannte Lücke im Reviewer-Feed selbst, kein Programmfehler — und sie so zu schließen, würde
+entweder Zeilen erfinden (abgelehnt) oder eine Nachlieferung durch IFAF/cpx.studio selbst
+brauchen, die Frage gehört an den Anbieter, nicht in diese Ingest-Schicht.
+
+Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
