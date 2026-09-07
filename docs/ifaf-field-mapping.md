@@ -252,3 +252,108 @@ The third follow-up's fix (a dedicated `mens-international` competition tier, ex
 The women's-only numbers above differ slightly from the third follow-up's "women" row (which already isolated women's rows via the competition label) only in percentage terms — the underlying women's 3,191 rows and their `yards_gained`/`yards_to_go`/`play_type`/`ep`/`epa`/`wp`/`wpa` values are identical; this table just reflects that the denominator context (whole-corpus vs. women-only) changed, not the women's data itself.
 
 **To opt into the men's tournament** for any future analysis: add `"ffwc26-men"` to `ingest_tournaments` in `ffep.toml`, re-run `ffep ingest`. The resulting corpus will have men's rows with their own `GER-M`-style team codes, their own `mens-international` competition tier, and their own `"IFAF World Flag 2026 Men"` competition label — nothing merges with the women's data automatically, but every report/script that scopes by team code or competition should still be checked case-by-case for whether it needs its own explicit exclusion (mirroring `scripts/explosiveness_comparison.py`'s tier filter), since there is no single central "corpus scope" chokepoint downstream of ingest.
+
+## Nachtrag 2026-09-07 — `unified-plays.context` was never a reliable pre-snap state; `/plays` is now the primary IFAF source
+
+**The bug, confirmed against real data.** The user reported that `ifaf-019ffff1-a8db-73ed-91ff-068fd964194c` (women's QF, MEX vs. ESP) showed a broken per-play sequence: the first three rows all read `down 2` / `yards_to_go 21` / `yardline_50 4`, and play 9 → play 10 jumped from `down 2` straight to `down 4`. Re-running the pre-2026-09-07 `flatten_unified_plays` → `derive_outcome_columns` → `derive_yardage_columns` → `derive_yards_to_go` chain against this exact game reproduces it precisely:
+
+| play_id | down (old) | yardline_50 (old) | yards_to_go (old) |
+|---:|---:|---:|---:|
+| 1 | 2 | 4 | 21 |
+| 2 | 2 | 4 | 21 |
+| 3 | 2 | 4 | 21 |
+| 4 | 2 | 31 | 19 |
+| 5 | 2 | 4 | 21 |
+| 6 | 2 | 33 | 17 |
+| 7 | 0 | 45 | 5 |
+| 8 | 2 | 4 | 21 |
+| 9 | 2 | 4 | 21 |
+| 10 | 4 | 19 | 6 |
+
+`(down=2, ballOn=4)` is not this game's real pre-snap state repeating six times in ten plays — it is `unified-plays`' own literal default/placeholder state (the payload's `context` object clearly isn't populated for many rows, and something upstream fills it with a constant rather than leaving it null). Measured across the full women's `unified-plays` corpus (42 non-forfeit games, 4,057 rows, files currently on disk): **106 rows (2.6%) sit on exactly this literal default state** (`context.down == 2 and context.ballOn == 4`); this one game alone accounts for 43 of the 93 rows in its own `unified-plays` snapshot (46%) — the worst-affected game found, which is exactly the one the user happened to check. The `context` block genuinely alternates between real pre-snap spots, real post-play spots, and this default state row by row, with no reliable way to tell which is which from `unified-plays` alone.
+
+**This invalidates the 2026-09-06 Nachtrag's own agreement-rate claims, and they must not be trusted going forward.** The 98.2% `yards_to_go`/`MIDDLE`-`GOAL` marker agreement and the 71.1%/65.0%/61.3% `yards_gained` coverage numbers reported above were all computed with `unified-plays.context.ballOn`/`context.down` as both the *input* to the derivation being validated *and* (indirectly, via the events-feed cross-check) part of what was being validated against — a source now known to be structurally unreliable for a meaningful share of rows, including this exact game. Re-running the same two derivations (`derive_yardage_columns`/`derive_yards_to_go`, unchanged code, still the fallback path below) against **the correct, /plays-derived pre-snap state confirms the arithmetic and field-position rules themselves were right**; what was wrong was trusting `unified-plays.context` as ground truth for the per-play state those rules were fed.
+
+### The fix: `/games/{id}/plays` (the reviewer feed) is now the primary source
+
+`/games/{id}/plays` (`plays_{game_id}.json`, first snapshotted 2026-09-06) is the human-reviewed, per-play feed cpx.studio itself uses for game reconciliation — real pre-snap `down`, `ballOn`, `half`, `offenseTeamId`, an explicit `nullified` flag for overturned plays, and an `events[]` action list this ingest now derives every outcome flag and `play_type` from directly. Re-running the same game through the new primary path:
+
+| play_id | down (new) | yardline_50 (new) | yards_to_go (new) | posteam | play_type |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 1 | 5 | 20 | ESP | pass |
+| 2 | 2 | 11 | 14 | ESP | pass |
+| 3 | 3 | 31 | 19 | ESP | pass |
+| 4 | 2 | 33 | 17 | ESP | pass (TD) |
+| 5 | 0 | 45 | 5 | ESP | no_play (nullified TRY) |
+| 6 | null | 45 | 5 | ESP | no_play (penalty) |
+| 7 | 1 | 5 | 20 | MEX | pass |
+
+1st @5 → 2nd @11 → 3rd @31 → TD, exactly matching what `/games/{id}/plays` itself shows and what the user expected. Row 5 is the reviewer's own nullified TRY (no fake conversion credited); row 6 is a dead-ball penalty with a genuinely missing raw `down` — both preserved as real `no_play` rows, never dropped, never a fabricated result.
+
+### `flatten_plays_records` mapping table
+
+| `/plays` field | canonical column | transform |
+|---|---|---|
+| `sequence` | `play_id` (renumbered gapless 1..N, sort key) + `source_play_sequence` (raw value preserved, `Float64` — inserted rows use a `.5` suffix, e.g. `907.5`) | sort by `sequence` ascending; a missing/non-numeric `sequence` sorts last, stable |
+| `half` | `half` | direct copy |
+| `down` | `down` | direct copy, **except** a `TRY`-shaped record always gets `down = 0` (this project's existing PAT convention) even when the record's own `down` is null (true for every observed `TRY` record) |
+| `ballOn` | `yardline_50` | direct copy |
+| `offenseTeamId` | `posteam` (mapped via `map_teams`) | direct copy |
+| `offenseTeamId` vs. `games.json` home/away | `defteam` | whichever of `home_team`/`away_team` isn't `posteam` |
+| `nullified` | folds into `play_type == "no_play"` and forces every outcome flag to 0 | never dropped — the raw record (`result_raw`) is still preserved |
+| `events[].action` set, only when `{"PENALTY"}` exactly | folds into `play_type == "no_play"`, `penalty = 1` | a dead-ball foul call with no live-play result |
+| `events[].action` set (general) | `play_type`, `complete_pass`/`sack`/`interception`/`safety`/`penalty` flags | see `_play_type_from_actions`/`flatten_plays_records` docstrings in `ingest/ifaf.py` |
+| `TOUCHDOWN` action, without `INTERCEPTION` | `touchdown = 1` | offensive touchdown |
+| `TOUCHDOWN` action, with `INTERCEPTION` | `def_touchdown = 1` (not `touchdown`) | pick-six; no other turnover-shaped touchdown signal exists in this source |
+| `TRY` event's `tryPoints`/`tryGood` | `one_point_conv_success` / `two_point_conv_success` | `tryGood is True` and `tryPoints in {1, 2}`; anything else (failed/unlabelled) sets neither. `defensive_two_point_conv` stays permanently 0 for this source — no record combining a failed `TRY`'s defensive return with a score was observed live (documented-absent, not a silently-wrong guess) |
+| `PASS` event's `playerId` (fallback: `INCOMPLETE_PASS` event's `playerId`, for the ~1% of records with no separate `PASS` event) | `qb` and `thrown_by` (both set identically — this source carries one passer identity per play, unlike Hudl's two separately-charted columns) | resolved through the local roster JSON (`_load_teams_meta`) to a plain name string |
+| `PASS`/`INCOMPLETE_PASS` event's `intendedReceiverId`, else a `RUSH`/`HAND_OFF` event's `playerId` | `target` | mirrors `ingest/sportapp.py`'s existing `rusher -> target` convention |
+| `COMPLETE` event's `playerId` | `received_by` | null on an incompletion or interception — the offense never received the ball |
+| `PASS`/`INCOMPLETE_PASS` event's `passSide`/`passDepth` | `pass_side`/`pass_depth` (new nullable extras) | direct copy |
+| `INCOMPLETE_PASS` event's `incompleteReason` | `incomplete_reason` (new nullable extra) | direct copy |
+| `PENALTY` event's `penaltyType` | `penalty_type` (new nullable extra) | direct copy |
+| `videoMark`/`videoUrl`/`videoTimeSec` | not mapped | already covered by the standalone video-marks table (`ingest/ifaf_video_marks.py`) |
+| (fallback games only) | `source_detail = "unified-plays-fallback"` (new nullable extra) | stamped only when `ingest_snapshots` fell back to `unified-plays` for a game — null on every primary-path row |
+
+`yards_gained` (`derive_yardage_columns_plays`) reuses the same priority-ordered rule set as before (penalty/no-play excluded first, then touchdown, safety, turnover, same-drive-next diff, else null) with one addition: `down == 0` (a TRY row) is explicitly excluded, and a dead-ball penalty record sitting between two live plays absorbs its own yardage adjustment for free (it is simply the preceding play's own "next row", and its `ballOn` already reflects the enforced spot). `yards_to_go` (`derive_yards_to_go`) is **reused completely unchanged** — the `down == 0` PAT convention above is exactly what that function already expected.
+
+### Validated derivation rules, honest rates (this session, 29 primary-path women's games, 2,645 rows, before pipeline validation quarantine)
+
+- **`yards_to_go`/goal-to-go phase, cross-checked against the `/plays` record's own `marker` field** (`MIDDLE`/`GOAL`, a value the reviewer feed carries directly per play, independent of the derivation): **98.2% (823/838)** of the plays that carry a `marker` value agree with the derived `yardline_50 >= 25` rule. This reproduces the 2026-09-06 Nachtrag's number almost exactly — reassuring, since it is now measured against the correct source, not the flawed one.
+- **`down`, cross-checked against the events feed's `DOWN_UPDATE` stream** (nearest-preceding `clientTimestamp` before the play's own `startedAt`, within the same game): **82.4% (1,995/2,422)**.
+- **`ballOn`, cross-checked against the events feed's `LOS_UPDATE` stream** the same way: **44.6% (853/1,914)**. Lower than `down`, expected for the same reason the 2026-09-06 Nachtrag already flagged for this exact comparison: `LOS_UPDATE` is a much finer-grained bookkeeping stream (mid-drive spot corrections fire far more often than there are `/plays` records), so a nearest-timestamp match undercounts true agreement — this is a known limitation of timestamp-based matching against a finer-grained event stream, not a sign `/plays`' own `ballOn` is unreliable (see the `marker` cross-check above, which doesn't depend on timestamp matching at all and agrees at 98.2%).
+- **Explicit event-level `yardsGained`** (an occasional field some `RUSH`/other events carry directly): exactly **1 occurrence** in the entire women's `/plays` corpus (`ffwc26-wa5`, sequence 960, `RUSH` for `-1`). It sits on the final play of that game, where `derive_yardage_columns_plays` is null by rule (no following same-drive row to diff against) — 0/1 recoverable via the diff method, which is a structural limitation of the diff approach on a game's last play, not a disagreement with the value itself.
+- **How often `/plays`' own `down` field already reflects a reset after crossing midfield**: of 197 detected within-drive transitions where a play's own `yardline_50` crosses from `< 25` to `>= 25`, the immediately following play's `down` reads `1` (a genuine fresh-set reset) in **189/197 (95.9%)** of cases. The residual 8 include this session's own QF game (its `down` sequence goes `1, 2, 3, 2` across the ESP opening drive — a reviewer inconsistency, not a crossing-detection gap) — this ingest deliberately trusts `/plays`' own `down` field as-given rather than recomputing it from field position, precisely because the reviewed feed itself is not perfectly self-consistent and re-deriving it would be presumptuous, not a correction.
+
+### Fallback categories (48 women's games)
+
+- **29 games** use the primary `/plays` path.
+- **13 games** fall back to `unified-plays` — all 13 for the same reason: a real but empty `/plays` response (`reconciliation.reason == "no-tries-labelled"`, the reviewer never finished labelling that game).
+- **6 games** are genuine zero-play forfeits (all Nigeria), contributing nothing to either path.
+
+No game in this corpus falls back due to a missing or unparseable `plays_{id}.json` file — every one of the 48 women's games has that file on disk (2026-09-06 full snapshot), so every fallback observed live is the reconciliation-gap case, not a fetch gap.
+
+### Ingest/score re-run
+
+Re-ran `ffep ingest` + `ffep score` (women's tournament only, `sources.ifaf.ingest_tournaments = ["ffwc26-women"]`, unchanged):
+
+| | before (this session, unified-plays for every game) | after (this session, `/plays` primary + fallback) |
+|---|---:|---:|
+| IFAF games accepted / total non-forfeit | 32 / 42 | **25 / 42** |
+| IFAF rows accepted (`plays.parquet`) | 3,191 | **2,264** |
+| non-null `down` | 3,191 (100%) | 2,264 (100%) |
+| non-null `yards_to_go`/`yardline_50` | 3,191 (100%) | 1,727 (76.3%) |
+| non-null `yards_gained` | 1,957 (61.3%) | 1,247 (55.1%) |
+| non-null `play_type` | 2,578 (80.8%) | 2,068 (91.3%) |
+| non-null `ep`/`epa` | 3,127 (98.0%) | 1,689 / 1,688 (74.6%) |
+| non-null `wp`/`wpa` | 3,191 (100%) / 3,159 (99.0%) | 1,727 (76.3%) / 1,707 (75.4%) |
+
+**The accepted-game count drops from 32/42 to 25/42, and this is the correct, honest trade-off, not a regression to fix.** Every game's acceptance is still gated by the unchanged `downs_range` validation check (any null `down` value quarantines the whole game). Under the old, `unified-plays`-only path, 32 games happened to have zero null `down` values — but as the bug above shows, a non-null `down` from `unified-plays.context` was frequently just a wrong or default value, not a real one. Under the new primary path, **17 games now fail `downs_range`** because `/plays` — the reviewed, authoritative feed — genuinely has at least one null `down` value in them (e.g. the QF game's own dead-ball penalty record, `play_id 6` above, whose raw `down` is null in the reviewer feed itself). This ingest does not fabricate a value to keep those games passing; a real gap in the reviewed data is now surfaced as a real gap, exactly as the validation check is designed to do. The coverage drops on `yards_to_go`/`yards_gained`/`ep`/`wp` in the table above are a direct, expected consequence of `ballOn` being genuinely absent on roughly a quarter of `/plays` rows in the accepted games (not every play in this reviewer feed carries a spot) — a smaller but *correct* number, not the previous higher-but-wrong one. `play_type` coverage actually improves (80.8% → 91.3%), since the `/plays` action list gives an unambiguous run/pass signal on far more rows than `unified-plays`' `outcome.type` + `sequence` fallback ever did.
+
+**The QF game itself (`ifaf-019ffff1-a8db-73ed-91ff-068fd964194c`) is one of the 17 quarantined games** in `plays.parquet` (that same `play_id 6` null `down`) — it is still visible, fully corrected, in `data/processed/exports/ifaf_wm2026_pbp.csv` (built directly from `ingest_snapshots`, bypassing the pipeline's validation gate, same as before this session), which is what a user re-checking this specific game should use.
+
+Full pipeline (all five sources): `plays.parquet` **27,328 rows** (down from 28,255 — exactly the 927-row drop from 3,191 → 2,264 IFAF rows), `games.parquet` **469 games (137 quarantined)**.
+
+### Test coverage
+
+`tests/test_ingest_ifaf.py` gained ~67 new tests (140 total, up from 73) covering `flatten_plays_records`, `derive_yardage_columns_plays`, `load_plays_snapshot`, `_load_teams_meta`, and the `ingest_snapshots` primary/fallback branching — every fixture uses fabricated player ids/names (`w-xxx-pN` / "Player One"), never real player data. The full repository test suite (1,951 test functions) passes with zero failures/errors after this change.

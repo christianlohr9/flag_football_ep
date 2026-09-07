@@ -148,3 +148,53 @@ zu tun haben (Kamera-Tracking/Hackathon-Scoring).
 Alle Zahlen, Commits und der volle technische Nachtrag stehen in
 `.planning/phases/01.2-repo-to-pipeline/01.2-IFAF-FULL-SUMMARY.md` und
 `docs/ifaf-field-mapping.md`.
+
+## Nachtrag 2026-09-07 — die Play-by-Play-Zeilen waren an vielen Stellen falsch, jetzt korrigiert
+
+Du hattest bei einem konkreten Spiel (Frauen-Viertelfinale MEX–ESP) gemeldet, dass die ersten
+drei Spielzüge alle identisch aussahen (down 2, 21 Yards bis zum ersten Down, Ballposition 4) —
+und dass ein späterer Spielzug von down 2 direkt auf down 4 sprang, obwohl der Reviewer-Feed
+selbst (`/games/{id}/plays`) eine ganz normale Sequenz zeigt (1. Versuch von der eigenen
+5-Yard-Linie, dann 2. Versuch bei 11, 3. Versuch bei 31, …). Du hattest recht: Das war kein
+Einzelfall bei diesem einen Spiel, sondern ein echter Fehler in der bisherigen Datenquelle.
+
+**Was kaputt war:** Die bisher genutzte `unified-plays`-Quelle liefert pro Spielzug ein
+`context`-Feld mit Down/Ballposition — aber dieses Feld ist nicht zuverlässig der Zustand *vor*
+dem Snap. Es springt zwischen "vor dem Spielzug", "nach dem Spielzug" und einem reinen
+Platzhalter-Wert (down 2, Ballposition 4) hin und her, ohne erkennbares Muster. Bei genau
+diesem MEX-ESP-Spiel steht fast die Hälfte aller Zeilen (43 von 93) auf diesem Platzhalter —
+das schlechteste Spiel im ganzen Frauen-Datensatz, und zufällig genau das, das du dir angesehen
+hast. Über den gesamten Frauen-Datensatz hinweg betrifft das rund 2,6 % aller Zeilen.
+
+**Die Lösung:** Wir nutzen jetzt `/games/{id}/plays` — den vom Reviewer geprüften Feed — als
+primäre Quelle, nicht mehr `unified-plays`. Dieser Feed trägt Down, Ballposition und Halbzeit
+direkt und zuverlässig, plus eine Liste der tatsächlichen Spielereignisse (Pass, Fang,
+Interception, Touchdown, Strafe, …), aus der wir jetzt Spielergebnis und Spieltyp direkt
+ableiten, statt sie zu erraten. Vom Reviewer als "ungültig" markierte Spielzüge (z. B. ein
+zurückgenommener Extrapunkt) werden jetzt korrekt als "kein echter Spielzug" behandelt — nie
+stillschweigend gelöscht, aber auch nie mit einem erfundenen Ergebnis versehen.
+
+**Für das MEX-ESP-Spiel sieht die korrigierte Sequenz jetzt genau so aus, wie der
+Reviewer-Feed sie zeigt:** 1. Versuch von der 5 → 2. Versuch bei 11 → 3. Versuch bei 31 →
+Touchdown → (ein vom Reviewer zurückgenommener Extrapunktversuch) → (eine Strafe) → Mexiko
+übernimmt bei der eigenen 5.
+
+**Der Preis, offen benannt:** Nicht jeder Spielzug im neuen Reviewer-Feed trägt eine
+Ballposition (rund ein Viertel der Zeilen in den akzeptierten Spielen nicht) — dadurch sinkt
+die Abdeckung bei Yards-Werten und EP/WP-Werten gegenüber vorher, und mehr Spiele fallen jetzt
+bei der Qualitätsprüfung durch (25 von 42 statt vorher 32 von 42 nicht-kampflos-verlorenen
+Spielen), weil der Reviewer-Feed selbst an einzelnen Stellen keinen Down-Wert einträgt (z. B.
+bei einer stehenden Strafe ohne Spielzug). Das ist kein Rückschritt, sondern der ehrliche
+Tausch: weniger, aber dafür echte Daten statt mehr, aber teils falsche. Das MEX-ESP-Spiel
+selbst gehört zu diesen 25 zurückgestellten Spielen (wegen genau einer fehlenden
+Down-Angabe bei einer Strafe) — es taucht aber weiterhin vollständig und korrigiert in den
+CSV-Exports auf, falls du es dir noch mal ansehen willst.
+
+**Gegengecheckt, ehrlich berichtet:** Die "Mittellinie überquert/noch nicht überquert"-Logik
+stimmt zu 98,2 % mit dem eigenen `marker`-Feld des Reviewer-Feeds überein (fast identisch zur
+vorherigen Zahl — jetzt aber gegen die richtige Quelle gemessen). Der Abgleich mit dem
+unabhängigen Events-Log ist gemischt: bei "welcher Down ist das" 82 % Übereinstimmung, bei der
+genauen Ballposition nur 45 % — Letzteres liegt am Events-Log selbst (es protokolliert viel
+feinteiliger als es Spielzüge gibt, nicht an einer Unzuverlässigkeit der neuen Quelle).
+
+Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
