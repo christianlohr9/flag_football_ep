@@ -510,3 +510,41 @@ Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
 ## Nachtrag 2026-09-07 (Teil 9, noch am selben Tag) — Korrektur: die neuen Zeilen waren der Grund, nicht nebensächlich
 
 Die Aussage oben ("8 dieser 9 Spiele bleiben aus einem ganz anderen Grund draußen") war falsch: bei 6 der 9 Spiele war der fehlende Down-Wert genau die neu eingefügte synthetische Zeile selbst, kein separates Problem. Die Down-Prüfung akzeptiert jetzt zusätzlich synthetische Zeilen (`score_source = "events-ledger-synthetic"`) ohne Down-Wert — genau wie sie das schon für zurückgenommene Strafspielzüge tut. Ergebnis: **21 von 29 Spielen jetzt im Datensatz** (vorher 15), EPA-Abdeckung darauf **70,0%** (vorher 58,7%). Zwei Spiele (`wb4`, `wc1`) bleiben wegen je eines echten, unabhängigen fehlenden Down-Werts draußen; ein Spiel (`wc3`) bleibt aus dem schon in Teil 8 genannten, eigenen Punktestand-Grund draußen.
+
+## Nachtrag 2026-09-07 (Teil 10, noch am selben Tag) — ein dritter Reparaturversuch für die fehlende Ballposition, wieder ehrlich gescheitert
+
+Du hast das offene Problem aus Teil 3 noch einmal aufgegriffen, konkret an deinem eigenen
+MEX-ESP-Viertelfinale (`ifaf-019ffff1-a8db-73ed-91ff-068fd964194c`): ab Spielzug 24 ist dort
+alles Positionsbezogene leer, weil `ballOn` bei 71 von 93 Zeilen fehlt. Wir haben einen dritten,
+methodisch anderen Versuch unternommen, diese Lücke aus dem Events-Log zu füllen: nicht mehr
+über eine feste Position innerhalb der Ballbesitz-Serie (Teil 3), sondern über eine echte
+Zustandsmaschine, die das Events-Log Schritt für Schritt nachspielt (wer hat den Ball, welcher
+Down, welche Position) und das Ergebnis strukturell — über Mannschaft und Down, nicht über
+Zeitstempel oder feste Position — mit den echten `/plays`-Zeilen abgleicht.
+
+**Ehrlich gegengecheckt an 21 bereits vollständigen Spielen** (mehr als die ursprünglich
+angenommenen 16 — die zusätzlichen 5 sind Spiele, die aus ganz anderen, hier nicht relevanten
+Gründen ohnehin schon aussortiert sind, aber trotzdem eine vollständige eigene Ballposition
+haben und sich deshalb genauso gut zur Kontrolle eignen): **16,8 % exakte Übereinstimmung**
+(292 von 1.735 vergleichbaren Zeilen), der Down-Wert selbst nur 41,9 %. Das liegt nicht nur
+unter der 95-%-Schwelle, sondern ist sogar schlechter als alle drei bisherigen Versuche
+(59 %, 31 %, 46,8 %) — kein Fortschritt, ein weiterer, unabhängiger Beleg, dass sich das
+Events-Log nicht zuverlässig auf die vom Reviewer geprüfte Zeilenstruktur abbilden lässt.
+
+Der Grund, diesmal direkt an den echten Daten gefunden: Ein Spielzug ganz ohne Raumgewinn
+(ein unvollständiger Pass, ein Sack am Anspiellinie) erzeugt im Events-Log gar kein eigenes
+Positions-Update — erst der *übernächste* Positions-Eintrag wird dann versehentlich dem
+falschen Down zugeordnet, und sobald das einmal passiert, verschiebt sich der Rest der ganzen
+Ballbesitz-Serie mit. Ein vermuteter Seitenwechsel-Fehler in der Ballposition (manche Spiele
+speichern sie spiegelverkehrt) wurde ebenfalls direkt geprüft und schließt sich als Erklärung
+aus — selbst mit einer nachträglichen Korrektur in beide Richtungen bleibt die Trefferquote
+exakt gleich.
+
+**Konsequenz: Auch dieser dritte Versuch wird nicht übernommen.** Keine Ballposition wird
+erfunden. Die Werkzeuge (Zustandsmaschine, Abgleich, Prüfschwelle) bleiben getestet im Code,
+aber fest verdrahtet auf "nicht anwenden" — für den Fall, dass sich die Rohdaten irgendwann
+ändern. Pro betroffenem Spiel gibt es jetzt eine genaue Diagnose (wie viele Zeilen fehlen, wie
+viele Positions-Ereignisse das Events-Log für dieses Spiel überhaupt hat) statt eines weiteren
+Rateversuchs.
+
+Voller technischer Nachtrag mit allen Zahlen und der Spiel-für-Spiel-Tabelle: `docs/ifaf-field-mapping.md`.

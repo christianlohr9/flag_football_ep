@@ -753,3 +753,80 @@ A coordinator review caught what the eighth follow-up's own corpus-wide result s
 ### Test coverage (this follow-up)
 
 `tests/test_validation_checks.py::TestDownsRange` gained `test_pass_when_null_down_is_an_events_ledger_synthetic_row`, `test_fail_when_null_down_is_not_synthetic_or_penalty_exempt`, and `test_mixed_synthetic_and_real_null_down_only_real_one_offends`. Full suite passes; corpus numbers re-verified against the real corpus, not just fixtures.
+
+## Nachtrag 2026-09-07 (tenth follow-up, same day) — a third, structurally-aligned `ballOn` reconstruction attempt, measured and declined
+
+The owner (a flag-football expert) re-raised the QF's own null-`ballOn` gap directly: from play 24 on (`sequence 220` in the raw feed), every position-related field is empty because `/plays`' own `ballOn` is null there, even though `down`, teams, players, and results are all present. The live scorekeeper `events_{id}.json` feed carries the spots for the whole game (`LOS_UPDATE.payload.ballOn`, `DOWN_UPDATE.payload.down`, `POSSESSION_CHANGE.payload.teamId`, `TRY_DOWN.payload.ballOn`, `SCORE`, `MANUAL_EDIT`, all ordered by `sequenceNumber`) — the same source the third follow-up above already tried twice (whole-drive 58.8%, down-cycle 31.4%) and the events-feed timestamp replay already tried once (77.5% down / 46.8% ballOn), both declined for being under this project's 95% bar.
+
+This was authorized as one more, methodically different attempt: replay the events feed as an explicit pre-snap state machine (not a fixed positional index, not a timestamp match) and align the emitted state sequence to `/plays`' own real records *structurally* — matching on team and down within each `POSSESSION_CHANGE`-bounded possession, tolerating a bounded (`lookahead = 1`) count mismatch on either side, never matching across a possession boundary. Implemented as `replay_events_los_states`/`_extract_real_down_records`/`_segment_records_by_team`/`align_events_los_states`/`validate_events_los_fill`/`diagnose_partial_los_fill` in `ingest/ifaf.py`.
+
+### Event semantics, corrected from the method's own original hypothesis
+
+The method as scoped assumed `DOWN_UPDATE` always emits a pre-snap state immediately, with `LOS_UPDATE` only ever setting up the *next* one. Checked directly against the QF's own opening ESP/MEX drives (whose `ballOn` is real, not null, so directly checkable): this is wrong for every down after the first one in a possession. A real `DOWN_UPDATE` fires with the *previous* down's own stale spot still in effect; the correct spot for the new down only arrives via the `LOS_UPDATE` that follows it. `replay_events_los_states` implements the corrected, verified semantics instead (Rule 1 — the original hypothesis was a bug, not a valid alternative reading):
+
+- The **first** `DOWN_UPDATE` of a possession emits immediately, using the "5" default (or an earlier `LOS_UPDATE` that fired before it, if any — the literal "unless a LOS_UPDATE follows before the first DOWN_UPDATE" case).
+- Every **subsequent** `DOWN_UPDATE` only records the new down and waits — the following `LOS_UPDATE` closes and emits it. If another `DOWN_UPDATE` arrives before that `LOS_UPDATE` does (a down with genuinely no yardage change — an incomplete pass, a sack at the line — gets no `LOS_UPDATE` of its own at all), the still-open down is flushed first with its own carried-over, unchanged `ballOn`, so it is never silently dropped.
+- An "orphan" `LOS_UPDATE` (no down currently pending) is treated as an implicit down increment — this recovers the corpus's own already-documented "1, 2, 3, 2" reviewer-down-sequence gap (first Nachtrag above), where a real down was recorded via `LOS_UPDATE` alone with no matching `DOWN_UPDATE` at all.
+- `TRY_DOWN` emits a `down = 0` state directly from its own `payload.ballOn` — checked corpus-wide, every one of 707 `TRY_DOWN` events carries a non-null `ballOn` (the "defaults to 45/40 by `tryPoints`" fallback the method anticipated is dead code and was not implemented).
+- `MANUAL_EDIT` was inspected directly against the live corpus, as the method required: every `payload.edits` key observed (`penaltyFlag`, `tryDownPending`/`tryPointValue`/`currentContext.tryType`, a handful of end-of-game `halfTimeScore.*`/`periodScores.*` corrections) is UI/bookkeeping state with no down/ballOn/team information at all — a verified no-op for this state machine, not an unhandled case.
+- `reverted == true` events are skipped (none were observed live, but this is a correctness requirement); `SCORE` and `CLOCK_*`/`TIMEOUT`/`DISTANCE_CHANGE`/`STATUS_CHANGE` carry no state-relevant information either and are ignored.
+
+### Validation: 21 zero-null-`ballOn` women's games, not 16
+
+The task was scoped against an expected 16 "complete" validation games (8 partial + 16 complete = 24 accepted). Recomputing live: of the corpus's 29 `/plays`-primary women's games, **8 are partially spotted** (some real plays have a null `ballOn`, matching the third follow-up's own list exactly) and **21 have zero null `ballOn`** on their own real plays. The gap between 16 and 21 is games this project's *other*, unrelated validation checks (`score_reconstruction`/`downs_range`) already quarantine for reasons that have nothing to do with `ballOn` completeness — using all 21 as the validation set is strictly more statistical power than restricting to 16, not a methodology change, and every one of the 8 partially-spotted games matches the third follow-up's own list exactly (`576` real-play-with-null-`ballOn` rows there vs. `567` here, on the current corpus snapshot — a small drift from unrelated fixes since that follow-up, not a discrepancy in which games are affected).
+
+Blinding each of the 21 complete games' own real `ballOn` and re-deriving it from its own events feed:
+
+| game_id | real plays checked | down agreement | exact ballOn agreement | \|Δ\| ≤ 2 agreement |
+|---|---:|---:|---:|---:|
+| `019ffff1-a8f8-7656-aaca-5f8856c4c8a4` | 80 | 66.2% | 18.8% | 18.8% |
+| `019ffff1-a919-75ce-9cdf-c19538028ab3` | 73 | 93.2% | 71.2% | 75.3% |
+| `019ffff1-add2-766d-93c1-b7db007230b9` | 75 | 84.0% | 45.3% | 52.0% |
+| `01a004ca-f289-7090-81ad-18c9c234e96b` | 82 | 90.2% | 56.1% | 67.1% |
+| `01a0062b-6706-727b-b8c4-18f7fdc023c8` | 82 | 58.5% | 24.4% | 31.7% |
+| `ffwc26-wa1` | 78 | 29.5% | 9.0% | 9.0% |
+| `ffwc26-wa2` | 92 | 30.4% | 8.7% | 10.9% |
+| `ffwc26-wa3` | 95 | 31.6% | 7.4% | 7.4% |
+| `ffwc26-wa4` | 80 | 26.2% | 8.8% | 10.0% |
+| `ffwc26-wa5` | 83 | 32.5% | 12.0% | 13.3% |
+| `ffwc26-wb1` | 73 | 27.4% | 9.6% | 9.6% |
+| `ffwc26-wb4` | 89 | 28.1% | 7.9% | 7.9% |
+| `ffwc26-wb6` | 98 | 59.2% | 24.5% | 26.5% |
+| `ffwc26-wc1` | 75 | 32.0% | 9.3% | 10.7% |
+| `ffwc26-wc2` | 81 | 27.2% | 8.6% | 12.3% |
+| `ffwc26-wc3` | 74 | 28.4% | 6.8% | 6.8% |
+| `ffwc26-wc4` | 86 | 30.2% | 4.7% | 4.7% |
+| `ffwc26-wd1` | 90 | 30.0% | 6.7% | 6.7% |
+| `ffwc26-wd2` | 88 | 28.4% | 5.7% | 8.0% |
+| `ffwc26-wd3` | 78 | 28.2% | 9.0% | 10.3% |
+| `ffwc26-wd4` | 83 | 26.5% | 8.4% | 8.4% |
+| **overall** | **1,735** | **41.9%** | **16.8%** (292/1,735) | **18.9%** |
+
+**16.8% exact agreement — well under the 95% bar, and worse than every one of the three previously-measured reconstructions**, not an improvement. `down` agreement (41.9%) collapses on the same rows `ballOn` does, ruling out a `ballOn`-only granularity story: once a single gap opens (a dead-spot down with no `LOS_UPDATE` of its own — see the semantics above), every state for the rest of that possession's alignment cascades out of sync, and neither `down` nor `ballOn` recovers until the next `POSSESSION_CHANGE` resets both.
+
+**A hypothesized `ballOn` scale flip does not explain the gap.** Games recorded under the short-slug `ffwc26-w*` id shape measure consistently worse (4.7%–24.5% exact) than the UUID-shaped ids (18.8%–71.2%) — and separately, ~21% of `TRY_DOWN` events corpus-wide carry a `ballOn` on the mirrored `50 - x` scale (e.g. `5` instead of `45` for a 1-point try) rather than the majority convention, concentrated by game, not by team. Checked directly: applying the flip to every game's own emitted states and keeping whichever direction (flipped or not) scores higher per game — an oracle upper bound no real caller could compute without already knowing the answer — moves the overall figure from 16.8% to exactly 16.8% again; no single game's own exact-rate improves under the flip. The scale flip is real (and only ever observed on one game's own trusted `/plays` `ballOn` value corpus-wide, so it is not a live ambiguity in the source everyone already trusts), but it is not the cause of the `ffwc26-w*` games' worse performance — the gap-then-cascade failure mode above is.
+
+### Decision: the fill is not adopted
+
+No `ballOn` value is fabricated from this reconstruction. `replay_events_los_states`/`align_events_los_states`/`validate_events_los_fill`/`diagnose_partial_los_fill` are kept as tested, permanently-available diagnostic tooling (`_LOS_FILL_GATE_THRESHOLD = 0.95`, `validate_events_los_fill(...)["adopted"]` returns `False` on the live corpus) — never wired into `flatten_plays_records`/`ingest_snapshots`. No `spot_source` extra was added, matching the third follow-up's own precedent for a measured-and-declined fill. `ep`/`epa`/`wp`/`wpa` coverage is unchanged.
+
+### Per-game diagnostic for the 8 partially-spotted games
+
+`diagnose_partial_los_fill` reports, per game: how many of its real plays have a null `ballOn`, how many `LOS_UPDATE` events its own events feed carries in total, and how many of those null records this attempt's structural alignment could find a same-down *candidate* state for — a count of candidates, never a count of correct fills; the 16.8% exact-agreement rate measured above on games where the truth is already known applies identically here, so a "matched" null record below is no more likely to be right than a "matched" row was on the validation set.
+
+| game_id | real plays | null `ballOn` | `LOS_UPDATE` events (whole game) | null records structurally matched | null records unmatched |
+|---|---:|---:|---:|---:|---:|
+| `01a00140-b68c-739c-9d8b-aba8e5099ae8` | 107 | 107 | 130 | 62 | 45 |
+| `ffwc26-wd6` | 96 | 96 | 81 | 44 | 52 |
+| `ffwc26-wc6` | 88 | 88 | 89 | 39 | 49 |
+| `01a00140-b679-7659-b3c9-c837309e1522` | 92 | 92 | 57 | 43 | 49 |
+| `019ffff1-a998-7548-ad06-7810b8a4ac85` | 85 | 85 | 49 | 49 | 36 |
+| `ffwc26-wd5` | 102 | 69 | 35 | 45 | 24 |
+| `019ffff1-a8db-73ed-91ff-068fd964194c` (the QF) | 92 | 71 | 71 | 31 | 40 |
+| `01a0062b-6782-7353-902b-08bba8fea5ab` | 76 | 47 | 89 | 36 | 11 |
+
+**Open question for the provider (reiterated, now reinforced by a second and third independently-designed reconstruction method also failing the same 95% bar):** these 8 games' `/plays` records carry `down` reliably but `ballOn` on only a fraction of their real plays, and their own `events_{id}.json` feed cannot be reliably compressed into a 1:1 correspondence with the reviewed feed's down structure either — three structurally different alignment strategies (whole-drive position, down-cycle position, and now team/down-matched state-machine structure) and one timestamp-based replay have all been tried and independently measured well under this project's own 95% bar. This is worth asking IFAF/cpx.studio directly: does the reviewer tool's own internal state for these 8 games' missing stretches exist anywhere else (a different endpoint, an export format not yet fetched), or is the spotting pass for these specific games genuinely incomplete at the source?
+
+### Test coverage (this follow-up)
+
+`tests/test_ingest_ifaf.py` gained 21 new tests covering `replay_events_los_states`' own event semantics (first-down default, LOS_UPDATE-finalizes-subsequent-down, unchanged-spot-down flush, orphan-LOS_UPDATE implicit increment, TRY_DOWN's own ballOn, MANUAL_EDIT no-op-but-counted, reverted-event skipping, POSSESSION_CHANGE reset, LOS_UPDATE-before-first-DOWN_UPDATE), `_extract_real_down_records`/`_segment_records_by_team` (no-play exclusion, TRY-shaped down=0, nullified-extra-point kept, team-change segmentation), `align_events_los_states` (exact match, bounded-lookahead skip of an extra state, unmatched real record, never matching across a segment boundary), and the gate itself (`validate_events_los_fill` adopts on a synthetic perfect-reconstruction fixture, declines below threshold on a synthetic wrong-value fixture, and handles a missing events file; `diagnose_partial_los_fill`'s own counts). Every fixture is small and entirely synthetic (fabricated team/player ids, never real data). Full repository test suite passes after this change.
