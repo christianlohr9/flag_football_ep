@@ -517,7 +517,7 @@ Corrected export rows (`data/processed/exports/ifaf_wm2026_pbp.csv`, `game_id ==
 | play_id | down | yardline_50 | posteam | play_type | result_raw | touchdown | one_point_conv_success | posteam_score | defteam_score |
 |---:|---:|---:|---|---|---|---:|---:|---:|---:|
 | 4 | 2 | 33 | ESP | pass | PASS, COMPLETE, TOUCHDOWN | 1 | 0 | 6 | 0 |
-| 5 | 0 | 45 | ESP | no_play | PASS, COMPLETE, TRY | 0 | 0 | 6 | 0 (nullified by the penalty below) |
+| 5 | 0 | 45 | ESP | extra_point | PASS, COMPLETE, TRY | 0 | 0 | 6 | 0 (nullified by the penalty below; see the fifth follow-up below for the `play_type` fix) |
 | 6 | null | 45 | ESP | no_play | PENALTY | 0 | 0 | 6 | 0 |
 | 20 | 2 | 46 | MEX | pass | PASS, COMPLETE, TOUCHDOWN | 1 | 0 | 12 | 6 |
 | 21 | 0 | 45 | MEX | extra_point | PASS, COMPLETE, TOUCHDOWN | 0 | 1 | 13 | 6 |
@@ -527,3 +527,59 @@ Final: home (MEX) 26, away (ESP) 25; official 27–26.
 ### Test coverage
 
 `tests/test_ingest_ifaf.py` gained new tests for every `officialScore` branch (`TD`/`XP1`/`XP2`/`NONE`/absent, on both TRY- and TOUCHDOWN-actioned records), the safety-vs-XP2 distinction, the TRY-record `officialScore == "TD"` backfill and duplicate cases, the `nullified` canonical extra, and `load_ifaf_final_scores` (team mapping, `status != "FINAL"` exclusion, unmapped-team skip-with-notice, missing-score skip). `tests/test_pipeline_ingest.py` gained a `run_ingest`-level regression test confirming a `games.json`-only-referenced IFAF game with a mismatched score is quarantined with a `score_reconstruction` reason. Full suite (all `pytest` tests) passes after this change.
+
+## Nachtrag 2026-09-07 (fifth follow-up, same day) — an explicit SCORE ledger confirms the QF's exact gap; why it still isn't fabricated into the corpus
+
+The coordinator relayed a further lead: the events feed (`events_{id}.json`) carries an explicit scoring ledger distinct from both `officialScore` and the action list — `eventType == "SCORE"` events, `payload: {teamId, scoreType, points}`. Verified corpus-wide, women's tournament (48 games, non-reverted `SCORE` events only):
+
+- **`scoreType` vocabulary: `TD` (337), `XP1` (151), `XP2` (40) only — no distinct `SAFETY` type.** A safety is logged as a `SCORE` event with `scoreType: "XP2"`, `points: 2` — the same encoding `officialScore` already uses for it (confirms the fourth follow-up's finding above from an independent source).
+- **Summed per team, the ledger reproduces `games.json`'s final score exactly for 41 of 48 women's games.** The 7 misses: 6 genuine zero-event forfeits (no `SCORE` events at all — `019ffff1-ac27-758d-bfd6-81108ccdae81`, `01a0010e-44fa-733a-bdcc-36fd72bcb563`, `01a0054e-fc82-753a-9854-ab8551f3e73b`, `ffwc26-wb2`, `ffwc26-wb3`, `ffwc26-wb5`) and one game where the ledger itself disagrees with the official score (`ffwc26-wd4`: ledger 25–37, official 13–37 — flagged, not corrected by hand; see below).
+
+### The QF's ledger, and a correction to this Nachtrag's own earlier root-cause claim
+
+The QF game's ledger has 13 events and sums to **27–26 (MEX–ESP), exactly the official score**:
+
+```
+ESP TD(seq 12)                                        = 6
+MEX TD(31) XP1(35)                                    = 7
+MEX TD(53) XP1(55)                                    = 7
+MEX TD(80)                                             = 6   (no XP1 -- confirmed 0 both ways, see below)
+ESP TD(165) XP1(168)                                   = 7
+ESP TD(219) XP1(221)                                   = 7
+ESP TD(241)                                            = 6   (no XP1 -- confirmed 0 both ways)
+MEX TD(275) XP1(283)                                   = 7
+```
+MEX = 7+7+6+7 = 27. ESP = 6+7+7+6 = 26.
+
+Aligning this ledger, in order, against the `/plays` scoring records used in the fourth follow-up's table above (`play_id` order: 4/5/6 ESP TD+annulled-try, 20/21 MEX TD+XP1, plus the two `/plays` TDs with no visible PAT — one MEX (`sequence 110`, first MEX TD), one MEX (`sequence 310`, third MEX TD)) shows **the earlier root-cause claim in this Nachtrag (fourth follow-up) was itself imprecise**: it attributed the gap to ESP's *first* TD (sequence 40) and MEX's *third* TD (sequence 310). The ledger corrects this:
+
+- **ESP's first TD (`/plays` sequence 40, ledger event 12) is correctly 0 extra points on both sides** — the ledger's own next ESP event isn't an XP1 either, confirming (independently of `/plays`' own `nullified`/`officialScore` fields) that the annulled try at `/plays` sequence 50 legitimately scored nothing. No gap here after all.
+- **MEX's first TD (`/plays` sequence 110) is the actual missing point on MEX's side.** The ledger's matching event, `TD(31)`, is immediately followed by `XP1(35)` — a real, successful conversion the ledger confirms happened — but no corresponding TRY record exists anywhere in `/plays` between sequence 110 and the next scoring record (sequence 190). This is a `/plays` recording gap, not the sequence-310 drive this Nachtrag originally (and incorrectly) pointed to.
+- **MEX's third TD (`/plays` sequence 310) is correctly 0 extra points, confirmed by the ledger** (`TD(80)` has no following `XP1`/`XP2` event either) — the "1, 2, 3, 2" reviewer down-sequence anomaly recorded at that point in `/plays` is a genuine charting oddity, but it does not correspond to a missing scoring event; MEX legitimately scored nothing extra there (went for it and failed, most likely, though the ledger cannot distinguish "missed" from "didn't attempt").
+- **ESP's third TD (`/plays` sequence 700) is the actual missing point on ESP's side**, by the same reasoning as MEX's first TD above: the ledger's matching event `TD(219)` is followed by a confirmed `XP1(221)`, but `/plays` records no TRY at all between sequence 700 and the next scoring record (sequence 780).
+
+Both of the real gaps are therefore **missing TRY records entirely absent from `/plays`** (sequences 110 and 700's own follow-up conversions), not the two records this Nachtrag originally singled out. The total conclusion — 26–25 reconstructed, a genuine 1-point-per-side `/plays` recording gap, not a code bug — is unchanged; only the specific play attribution is corrected here.
+
+### Decision: the ledger stays a diagnostic signal, not a source for synthetic canonical rows
+
+The coordinator's follow-up proposed inserting a synthetic `extra_point` row for each ledger-confirmed-but-`/plays`-missing conversion, stamped with a new `score_source` extra distinguishing real (`"events-ledger"`-matched) from fabricated (`"events-ledger-synthetic"`) rows. **This is not implemented.** Reasoning:
+
+1. **The ledger's own corpus-wide reliability (41/48 = 85.4% exact-final-score agreement) is below the 95% bar this project has required, repeatedly and explicitly, before adopting *any* reconstructed/derived signal into the canonical corpus** — the second follow-up's events-feed down/ballOn reconstruction (77.5%/46.8%) and the third follow-up's order-based `ballOn` fill (58.8%/31.4%) were both rejected at even lower rates using exactly this bar; `ffwc26-wd4`'s ledger itself is wrong at the same level of confidence the QF's ledger is right, and nothing about reading a `SCORE` event structurally distinguishes a reliable game from an unreliable one ahead of time. A general "align ledger to `/plays`, insert what's missing" implementation would necessarily run across the whole corpus, not just the QF where it happens to check out, and would inherit that ~15% real-game unreliability directly into the canonical table.
+2. **Inserting a row is qualitatively different from filling a null feature value**, the class of fix this project has repeatedly declined to do even at higher agreement rates (see the third follow-up above, `"No ballOn value is fabricated for these 576 rows"`). A synthetic row does not describe a real, reviewed play — it has no `ballOn`, no reviewer timestamp, no video mark, and its `play_id`/`drive_id` placement is an assumption about where in the sequence it belongs, not an observed fact. Once written to `plays.parquet`, nothing downstream (EPA/WP training, reporting) can tell it apart from a genuinely charted play without the new `score_source` extra being checked everywhere, a burden this fix does not introduce.
+3. **This is an architectural decision — new row semantics in the canonical schema — not a bounded correctness fix**, and belongs with the user's explicit sign-off, not a mid-session instruction relay. The diagnostic value the coordinator asked for (which mismatches are confirmed real `/plays` gaps vs. requiring further investigation) is fully served by the notice added below, without mutating what reaches `plays.parquet`.
+
+**What is implemented instead:** `ingest.ifaf._events_score_ledger_summary` sums each game's non-reverted `SCORE` events per team and compares the total against `games.json`'s own `currentScore`, folded into that game's `IngestNotices.messages` (surfaced in the validation report, `notice: ifaf/{game_id}: ...` on the console) — a report line only, never a source of rows. Re-running `ffep ingest` with this wired in, over the 42 non-forfeit women's games the corpus actually ingests (`sources.ifaf.ingest_tournaments = ["ffwc26-women"]`): **all 41 ledger-consistent games report "events-ledger SCORE-event totals ... confirm the official games.json score"** (the QF included, `27-26`), and `ffwc26-wd4` correctly reports the disagreement instead (`"... do NOT match ... do not use it to diagnose a score_reconstruction mismatch here"`) — 41 + 1 = 42, exactly the non-forfeit game count. The accepted/quarantined counts and the score_reconstruction PASS/FAIL table from the fourth follow-up are unchanged (8/29 accepted, 9 PASS / 20 FAIL), since this notice never touches which rows reach `plays.parquet`.
+
+### An annulled play keeps its own identity — narrowly, for the extra-point case
+
+Also requested: an annulled play (nullified by a following penalty, e.g. the QF's own successful-but-called-back try at `/plays` sequence 50) should keep its own `play_type`, not collapse to `"no_play"`. Corpus-wide confirmation (260 penalty-only records, women's + men's, requested by the earlier domain-expert review): every one has a preceding play record (never first in a game/possession); 80 (30.8%) precede a `nullified == true` record, 180 (69.2%) precede a non-nullified one (the penalty was enforced without erasing the preceding result); 25 immediately follow a TRY-actioned record specifically.
+
+Implemented narrowly, as requested "at minimum": `flatten_plays_records`' `is_no_play` computation now excludes a nullified record that is also extra-point-shaped (`is_extra_point` — TRY action, or `officialScore` in `{"XP1", "XP2"}`) — that record keeps `play_type == "extra_point"` instead of collapsing to `"no_play"`. A nullified *non*-extra-point record (an overturned live pass/run play) is unaffected, still `"no_play"` — the broader "every nullified play keeps its own play_type" change proposed in the earlier review remains deferred (see the fourth follow-up above), since it has a much wider blast radius this narrow carve-out does not.
+
+**`downs_range`'s no-play exemption needed no change.** The concern was that broadening `play_type` away from `"no_play"` for these rows could strand a null `down` value outside the exemption's `play_type == "no_play"` check — but a TRY-shaped record's `down` is *always* forced to `0` in `flatten_plays_records` (never left null), nullified or not, so no nullified extra-point row can ever carry a null `down` in the first place. Verified empirically: re-running `ffep ingest` after this change produces the identical `downs_range` finding counts as before it (same 8/29 accepted, same specific games quarantined for `downs_range`) — confirmed, not assumed.
+
+The QF's `play_id 5` (the annulled try) now reads `play_type == "extra_point"`, `nullified == 1`, still `one_point_conv_success == 0` (unchanged — `officialScore`/`nullified` already correctly zero it).
+
+### Test coverage (this follow-up)
+
+New tests: `_events_score_ledger_summary` (no events file, no `SCORE` events, matching/disagreeing/reverted-event totals, missing official score), an `ingest_snapshots`-level end-to-end test confirming the notice surfaces without changing accepted rows, and the nullified-extra-point `play_type` carve-out (`extra_point` for a nullified try, `no_play` unchanged for a nullified non-extra-point record). Full suite passes after this change.

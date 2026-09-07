@@ -327,3 +327,44 @@ aber nicht durch echte Daten bestätigt.
 
 Voller technischer Nachtrag mit allen Zahlen (inkl. der vollständigen Liste aller 20
 verbleibenden Punktestand-Abweichungen): `docs/ifaf-field-mapping.md`.
+
+## Nachtrag 2026-09-07 (Teil 5, noch am selben Tag) — ein zweites, unabhängiges Punktestand-Protokoll bestätigt die genaue Lücke, wird aber bewusst nicht in den Datensatz geschrieben
+
+Der Events-Feed hat noch ein drittes Punktestand-Signal, unabhängig von `officialScore` und
+den Spielaktionen: explizite "SCORE"-Ereignisse mit Team, Punktart (TD/XP1/XP2) und
+Punktzahl. Über den ganzen Frauen-Datensatz gegengecheckt: **41 von 48 Spielen** stimmen mit
+dem offiziellen Endstand exakt überein, 6 Ausnahmen sind Nichtantritte (keine Ereignisse), und
+bei genau einem Spiel (`ffwc26-wd4`) widerspricht das Protokoll selbst dem offiziellen
+Ergebnis — dieses eine Spiel wird als unzuverlässig markiert, nicht von Hand korrigiert.
+
+**Für das MEX-ESP-Spiel bestätigt dieses Protokoll exakt 27:26** — und korrigiert dabei eine
+kleine Ungenauigkeit aus Teil 4 oben: Die fehlenden Punkte sitzen nicht dort, wo ich zuerst
+vermutet hatte (Spaniens erster Touchdown / Mexikos dritter Touchdown), sondern bei Mexikos
+*erstem* Touchdown und Spaniens *drittem* Touchdown — beide Male fehlt im Reviewer-Feed der
+komplette Extrapunktversuch, obwohl das unabhängige Ereignis-Protokoll bestätigt, dass er
+stattfand und erfolgreich war. Die Gesamtaussage bleibt: **26:25 rekonstruiert, zwei echte,
+im Reviewer-Feed fehlende Datensätze, kein Rechenfehler** — nur die genaue Zuordnung, welche
+zwei Touchdowns betroffen sind, war vorher ungenau.
+
+**Bewusste Entscheidung: Wir schreiben diese beiden fehlenden Punkte NICHT als erfundene
+Zeilen in den Datensatz**, auch wenn das Protokoll sie für dieses eine Spiel eindeutig
+bestätigt. Grund: Das Protokoll selbst stimmt nur bei 41 von 48 Spielen (85%) — deutlich unter
+der 95%-Schwelle, die wir uns für jede rekonstruierte Quelle in dieser Session gesetzt haben
+(und mit der wir bereits zwei andere Rekonstruktionsversuche verworfen haben, siehe Teil 2 und
+Teil 3 oben). Für ein einzelnes Spiel mag das Protokoll stimmen — aber eine allgemeine Regel
+("füge ein, was das Protokoll zeigt, aber der Reviewer-Feed nicht") müsste über den ganzen
+Datensatz laufen, nicht nur beim MEX-ESP-Spiel, und würde damit auch die 15%-Fehlerquote mit
+einschleppen. Eine erfundene Zeile ist außerdem etwas grundsätzlich anderes als ein leerer
+Wert: Sie hätte keine echte Ballposition, keinen Video-Zeitstempel, keine echte Reviewer-
+Prüfung — und nichts würde sie später von einem echten, geprüften Spielzug unterscheiden, wenn
+sie einmal im Datensatz steht. Stattdessen gibt es jetzt für jedes Spiel eine reine
+Diagnose-Zeile im Bericht ("Protokoll bestätigt/widerspricht den offiziellen Endstand") — hilft
+beim Verstehen, verändert aber nie, welche Zeilen tatsächlich in den Datensatz kommen.
+
+**Zusätzlich umgesetzt, auf ausdrücklichen Wunsch:** Ein durch eine nachfolgende Strafe
+zurückgenommener Spielzug behält jetzt seine eigene Spielform — ein zurückgenommener
+Extrapunktversuch (wie Spaniens erster Versuch im MEX-ESP-Spiel) heißt jetzt korrekt
+"Extrapunkt", nicht mehr "kein Spielzug". Der Punktestand ändert sich dadurch nicht (der war
+schon vorher korrekt bei 0), nur die Klassifizierung wird ehrlicher.
+
+Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
