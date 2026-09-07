@@ -1391,6 +1391,9 @@ def apply_events_ledger(
             "nullified": None,
             "official_score": None,
             "score_source": "events-ledger-synthetic",
+            # Never a manual-fill target -- a synthetic row has no raw
+            # `source_play_sequence` for a fill file to match against.
+            "spot_source": None,
             # `None` by default here -- only stamped 1 below, on every row
             # (real and synthetic) of a game that actually got a synthetic
             # *touchdown*. A pure missing-conversion synthetic row (the
@@ -1601,6 +1604,7 @@ _PLAYS_WORKING_SCHEMA: dict[str, pl.DataType] = {
     "nullified": pl.Int32,
     "official_score": pl.Utf8,
     "score_source": pl.Utf8,
+    "spot_source": pl.Utf8,
     "plays_incomplete": pl.Int32,
     "_missing_down": pl.Int32,
     "_missing_ballon": pl.Int32,
@@ -2102,6 +2106,11 @@ def flatten_plays_records(
                 # that ever sets it to `"events-ledger"`/`"events-ledger-synthetic"`.
                 "official_score": official_score,
                 "score_source": None,
+                # `apply_spot_fill` is the only place that ever sets this to
+                # `"manual"` (a null `ballOn` filled in from
+                # `data/reference/ifaf_spot_fill/<game_id>.csv`); null here
+                # and for every real spot -- see canonical.NULLABLE_EXTRAS.
+                "spot_source": None,
                 # `apply_events_ledger` is the only place that ever sets this
                 # to 1 (a whole synthetic-touchdown insertion happened
                 # somewhere in this game); null everywhere else, including
@@ -2155,6 +2164,162 @@ def flatten_plays_records(
                 anchor_row["touchdown"] = 1
 
     return pl.DataFrame(rows, schema=_PLAYS_WORKING_SCHEMA)
+
+
+# ---------------------------------------------------------------------------
+# Manual spot fill (docs/ifaf-wm2026-daten.md, 2026-09-07): the project owner
+# (a flag-football domain expert) re-spots the null-`ballOn` records of a
+# "partially spotted" women's game by hand from the broadcast video, using
+# each play's own video mark -- after three separate events-feed
+# reconstruction attempts were measured and declined (see
+# `_RECONSTRUCTION_EXCLUSION_REASON` and the `_LOS_FILL_GATE_THRESHOLD`
+# docstring above `replay_events_los_states`). `ifaf_spot_fill_worksheets.py`
+# builds the (gitignored, PII-carrying) worksheets that make locating each
+# play in the video cheap; the functions below apply the resulting,
+# PII-free `data/reference/ifaf_spot_fill/<game_id>.csv` fill files to the
+# ingest path itself.
+# ---------------------------------------------------------------------------
+
+_SPOT_FILL_SCHEMA: dict[str, pl.DataType] = {
+    "game_id": pl.Utf8,
+    "sequence": pl.Float64,
+    "ballOn": pl.Int32,
+    "note": pl.Utf8,
+}
+
+
+def load_spot_fill(path: Path) -> pl.DataFrame:
+    """Load one game's manual `ballOn` fill file.
+
+    `game_id,sequence,ballOn,note` -- `game_id` is the canonical id (this
+    frame's own `game_id`, e.g. `ifaf-<uuid>`; may be left empty per row,
+    treated as "this file's own game" by `apply_spot_fill`), `sequence` is
+    the raw `/plays` record's own `sequence` field (matches this frame's
+    `source_play_sequence`), `ballOn` is the owner's re-spotted yard line
+    (0-50 from the offense's own goal line) or empty when not yet filled
+    in, `note` is free text. See `data/reference/ifaf_spot_fill/README.md`
+    for the full convention.
+
+    Returns an empty, correctly-typed frame when `path` does not exist -- a
+    game with no fill file at all is the normal, pre-populated-committed-
+    but-still-header-only case, not an error.
+    """
+    path = Path(path)
+    if not path.exists():
+        return pl.DataFrame(schema=dict(_SPOT_FILL_SCHEMA))
+    return pl.read_csv(path, schema_overrides=_SPOT_FILL_SCHEMA)
+
+
+def apply_spot_fill(df: pl.DataFrame, fill_dir: Path | None) -> tuple[pl.DataFrame, list[str]]:
+    """Apply the owner's manually re-spotted yard lines to this game's
+    `/plays`-primary working frame, matched on the raw record's own
+    `sequence` (this frame's own `source_play_sequence`).
+
+    Must run right after `flatten_plays_records`, on that function's own
+    working frame (needs `yardline_50`/`source_play_sequence`/`spot_source`/
+    `_missing_ballon` already present) and before `apply_events_ledger` (a
+    fill only ever targets a real reviewed `/plays` record -- a synthetic
+    row `apply_events_ledger` might insert always carries a null
+    `source_play_sequence`, so it can never match a fill row's `sequence`
+    anyway, but running the fill first keeps that guarantee structural
+    rather than incidental) and before `derive_yardage_columns_plays`/
+    `derive_yards_to_go`, so a filled spot flows through those derivations
+    exactly like a real one -- neither function distinguishes `spot_source`.
+
+    A strict no-op when `fill_dir` is `None` or the game has no fill file
+    (`load_spot_fill` already degrades an absent file to an empty frame) --
+    every existing caller/test that doesn't pass `fill_dir` keeps its exact
+    prior behavior.
+
+    For each fill row (file order):
+    - an empty `ballOn` cell (the not-yet-filled-in state every row starts
+      in): silently skipped, not a notice -- the expected state for every
+      row the owner hasn't reached yet.
+    - a non-empty `game_id` that does not match this frame's own `game_id`:
+      a per-file notice, row ignored (a copy-paste mistake across files).
+    - `sequence` matching no record's own `source_play_sequence` in this
+      game: a per-file notice naming the sequence, row ignored (a typo, or
+      a stale row from before the underlying snapshot changed).
+    - `ballOn` outside `[0, 50]`: a per-file notice naming the sequence and
+      the out-of-range value, row ignored.
+    - the matched record already has a real (non-null) `yardline_50`: a
+      per-file notice -- a real spot is NEVER overwritten by a fill, even
+      when the fill file carries a value for it.
+    - otherwise: `yardline_50` is set to the fill's `ballOn`, `spot_source`
+      is stamped `"manual"`, and the matching `_missing_ballon` working
+      marker is cleared, so `ingest_snapshots`' own missing-context notice
+      reflects the post-fill state rather than the pre-fill gap this fill
+      just closed.
+
+    Never raises -- an unparseable fill file surfaces as a notice via
+    `ingest_snapshots`' existing per-game exception containment (T-1.2-44/
+    T-1.2-45), same as any other failure in that chain; this function's own
+    validation is scoped to row-level content problems in an otherwise-
+    readable file.
+    """
+    notices: list[str] = []
+    if fill_dir is None or df.height == 0:
+        return df, notices
+
+    game_id = df["game_id"][0]
+    fill_path = Path(fill_dir) / f"{game_id}.csv"
+    fill = load_spot_fill(fill_path)
+    if fill.height == 0:
+        return df, notices
+
+    seq_to_idx: dict[float, int] = {}
+    for idx, seq in enumerate(df["source_play_sequence"].to_list()):
+        if seq is not None and seq not in seq_to_idx:
+            seq_to_idx[seq] = idx
+
+    yardline_50 = df["yardline_50"].to_list()
+    spot_source = df["spot_source"].to_list()
+    missing_ballon = df["_missing_ballon"].to_list()
+    applied = 0
+
+    for fgame_id, fseq, fball, _fnote in fill.select(["game_id", "sequence", "ballOn", "note"]).rows():
+        if fgame_id is not None and fgame_id != game_id:
+            notices.append(
+                f"{fill_path.name}: row game_id {fgame_id!r} does not match {game_id!r}, ignored"
+            )
+            continue
+        if fball is None:
+            continue
+        if fseq is None:
+            notices.append(f"{fill_path.name}: ballOn={fball} with no sequence, ignored")
+            continue
+        idx = seq_to_idx.get(fseq)
+        if idx is None:
+            notices.append(
+                f"{fill_path.name}: sequence {fseq} not found in this game's /plays records, ignored"
+            )
+            continue
+        if not (0 <= fball <= 50):
+            notices.append(
+                f"{fill_path.name}: sequence {fseq} ballOn={fball} out of range [0, 50], ignored"
+            )
+            continue
+        if yardline_50[idx] is not None:
+            notices.append(
+                f"{fill_path.name}: sequence {fseq} already has a real ballOn spot, fill ignored"
+            )
+            continue
+        yardline_50[idx] = int(fball)
+        spot_source[idx] = "manual"
+        missing_ballon[idx] = 0
+        applied += 1
+
+    if applied:
+        df = df.with_columns(
+            [
+                pl.Series("yardline_50", yardline_50, dtype=pl.Int32),
+                pl.Series("spot_source", spot_source, dtype=pl.Utf8),
+                pl.Series("_missing_ballon", missing_ballon, dtype=pl.Int32),
+            ]
+        )
+        notices.append(f"{fill_path.name}: applied {applied} manual ballOn fill(s)")
+
+    return df, notices
 
 
 def derive_yardage_columns_plays(df: pl.DataFrame) -> pl.DataFrame:
@@ -2790,9 +2955,19 @@ def ingest_snapshots(
     team_mapping: pl.DataFrame,
     game_ids: Sequence[str] | None = None,
     tournaments: Sequence[str] | None = None,
+    spot_fill_dir: Path | None = None,
 ) -> list[tuple[str, pl.DataFrame, IngestNotices]]:
     """Parse every IFAF snapshot under `raw_dir` into a canonical frame, one
     game at a time.
+
+    `spot_fill_dir` (2026-09-07, `docs/ifaf-wm2026-daten.md`'s spot-fill
+    how-to), when given, points at `data/reference/ifaf_spot_fill/` --
+    `apply_spot_fill` runs right after `flatten_plays_records` on the
+    `/plays`-primary path only (the manual re-spotting workflow this
+    supports is scoped to that reviewer feed's own null `ballOn` records;
+    the `unified-plays` fallback path is unaffected). `None` (the default)
+    is a strict no-op, preserving every existing caller's exact prior
+    behavior.
 
     **Primary source, per game: `plays_{game_id}.json`** (the `/games/{id}/plays`
     reviewer feed — `flatten_plays_records`). When that snapshot is unusable,
@@ -2903,6 +3078,9 @@ def ingest_snapshots(
             # anywhere in this chain skips only this game, with a notice.
             try:
                 df = flatten_plays_records(plays_records, game_meta, gid, player_names)
+
+                df, spot_fill_notices = apply_spot_fill(df, spot_fill_dir)
+                notices.messages.extend(spot_fill_notices)
 
                 notices.missing_context_keys = {
                     "down": int(df["_missing_down"].sum()) if df.height else 0,

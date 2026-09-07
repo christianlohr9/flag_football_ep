@@ -15,6 +15,7 @@ synthetic payloads (fabricated `w-xxx-pN` player ids and fabricated names like
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -36,6 +37,7 @@ from flag_football_ep.ingest.ifaf import (
     _segment_records_by_team,
     align_events_los_states,
     apply_events_ledger,
+    apply_spot_fill,
     diagnose_partial_los_fill,
     _play_sort_key,
     _play_type_from_actions,
@@ -51,6 +53,7 @@ from flag_football_ep.ingest.ifaf import (
     load_ifaf_final_scores,
     load_plays_snapshot,
     load_snapshot,
+    load_spot_fill,
     replay_events_los_states,
     validate_events_los_fill,
 )
@@ -2457,6 +2460,167 @@ def test_ingest_snapshots_plays_resolves_player_names_via_roster(tmp_path):
     row = df.row(0, named=True)
     assert row["qb"] == "Player One"
     assert row["received_by"] == "Player Two"
+
+
+# --- load_spot_fill / apply_spot_fill (manual ballOn re-spotting) -----------
+
+
+def _write_spot_fill_csv(fill_dir: Path, game_id: str, rows: list[dict]) -> Path:
+    fill_dir.mkdir(parents=True, exist_ok=True)
+    path = fill_dir / f"{game_id}.csv"
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["game_id", "sequence", "ballOn", "note"])
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+    return path
+
+
+def test_load_spot_fill_missing_file_returns_empty_typed_frame(tmp_path):
+    df = load_spot_fill(tmp_path / "does-not-exist.csv")
+    assert df.height == 0
+    assert df.columns == ["game_id", "sequence", "ballOn", "note"]
+
+
+def test_apply_spot_fill_noop_when_fill_dir_none():
+    payload = [_play_record(10, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    out, notices = apply_spot_fill(df, None)
+    assert out["yardline_50"].to_list() == [None]
+    assert notices == []
+
+
+def test_apply_spot_fill_noop_when_no_fill_file_for_this_game(tmp_path):
+    payload = [_play_record(10, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    out, notices = apply_spot_fill(df, tmp_path / "ifaf_spot_fill")
+    assert out["yardline_50"].to_list() == [None]
+    assert notices == []
+
+
+def test_apply_spot_fill_fills_null_ballon_and_stamps_manual_source(tmp_path):
+    payload = [
+        _play_record(10, down=1, ball_on=5),
+        _play_record(20, down=2, ball_on=None),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv(
+        fill_dir, "ifaf-g1", [{"game_id": "ifaf-g1", "sequence": 20, "ballOn": 11, "note": "LOS read off video"}]
+    )
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [5, 11]
+    assert out["spot_source"].to_list() == [None, "manual"]
+    assert out["_missing_ballon"].to_list() == [0, 0]
+    assert any("applied 1 manual ballOn fill" in n for n in notices)
+
+
+def test_apply_spot_fill_derived_yards_and_distance_treat_filled_spot_like_real(tmp_path):
+    """Deliverable: derive_yardage_columns_plays/derive_yards_to_go must not
+    distinguish a manually filled spot from a reviewer-spotted one."""
+    payload = [
+        _play_record(10, down=1, ball_on=5, events=[_ev("PASS"), _ev("COMPLETE")]),
+        _play_record(20, down=2, ball_on=None, events=[_ev("PASS"), _ev("COMPLETE")]),
+        _play_record(30, down=3, ball_on=31, events=[_ev("PASS"), _ev("COMPLETE")]),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv(fill_dir, "ifaf-g1", [{"game_id": "ifaf-g1", "sequence": 20, "ballOn": 11, "note": ""}])
+
+    df, _ = apply_spot_fill(df, fill_dir)
+    df = derive_yardage_columns_plays(df)
+    df = derive_yards_to_go(df)
+
+    assert df["yardline_50"].to_list() == [5, 11, 31]
+    assert df["yards_gained"].to_list() == [6, 20, None]
+    assert df["yards_to_go"].to_list() == [20, 14, 19]
+
+
+def test_apply_spot_fill_never_overwrites_a_real_spot(tmp_path):
+    payload = [_play_record(10, down=1, ball_on=5)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv(fill_dir, "ifaf-g1", [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": 40, "note": ""}])
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [5]
+    assert out["spot_source"].to_list() == [None]
+    assert any("already has a real ballOn spot, fill ignored" in n for n in notices)
+
+
+def test_apply_spot_fill_unknown_sequence_is_notice_not_crash(tmp_path):
+    payload = [_play_record(10, down=1, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv(fill_dir, "ifaf-g1", [{"game_id": "ifaf-g1", "sequence": 999, "ballOn": 20, "note": ""}])
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [None]
+    assert any("sequence 999.0 not found" in n for n in notices)
+
+
+def test_apply_spot_fill_out_of_range_ballon_is_notice_not_crash(tmp_path):
+    payload = [_play_record(10, down=1, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv(fill_dir, "ifaf-g1", [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": 57, "note": ""}])
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [None]
+    assert any("out of range [0, 50]" in n for n in notices)
+
+
+def test_apply_spot_fill_empty_ballon_cell_silently_skipped(tmp_path):
+    """A worksheet row the owner hasn't reached yet -- not a notice."""
+    payload = [_play_record(10, down=1, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv(fill_dir, "ifaf-g1", [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": "", "note": ""}])
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [None]
+    assert notices == []
+
+
+def test_apply_spot_fill_mismatched_game_id_row_is_notice_and_ignored(tmp_path):
+    payload = [_play_record(10, down=1, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv(
+        fill_dir, "ifaf-g1", [{"game_id": "ifaf-other-game", "sequence": 10, "ballOn": 20, "note": ""}]
+    )
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [None]
+    assert any("does not match" in n for n in notices)
+
+
+def test_ingest_snapshots_wires_spot_fill_dir_end_to_end(tmp_path):
+    reviewer_plays = {
+        "g1": [
+            _play_record(10, down=1, ball_on=5, events=[_ev("PASS"), _ev("COMPLETE")]),
+            _play_record(20, down=2, ball_on=None, events=[_ev("PASS"), _ev("COMPLETE")]),
+        ]
+    }
+    raw_dir = _write_snapshot_dir(
+        tmp_path, plays_by_game={}, reviewer_plays_by_game=reviewer_plays, write_unified=False
+    )
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv(fill_dir, "ifaf-g1", [{"game_id": "ifaf-g1", "sequence": 20, "ballOn": 11, "note": ""}])
+
+    results = ingest_snapshots(raw_dir, _team_mapping(), spot_fill_dir=fill_dir)
+
+    gid, df, notices = results[0]
+    assert df["yardline_50"].to_list() == [5, 11]
+    assert df["spot_source"].to_list() == [None, "manual"]
+    assert notices.missing_context_keys.get("ballOn", 0) == 0
 
 
 # --- apply_events_ledger ------------------------------------------------------

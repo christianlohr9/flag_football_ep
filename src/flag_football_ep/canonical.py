@@ -128,6 +128,18 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     # reproduce the official score, and every ifaf row the ledger simply
     # never touched).
     "score_source": pl.Utf8,
+    # Provenance for a manually re-spotted `ballOn` (docs/ifaf-wm2026-daten.md's
+    # spot-fill how-to, 2026-09-07): `"manual"` when `ifaf.apply_spot_fill`
+    # filled a `/plays` record's null `yardline_50` from
+    # `data/reference/ifaf_spot_fill/<game_id>.csv` (the project owner's own
+    # re-spotting from the broadcast video, after three events-feed
+    # reconstruction attempts were measured and declined -- see
+    # `ifaf._RECONSTRUCTION_EXCLUSION_REASON` and the `_LOS_FILL_GATE_THRESHOLD`
+    # docstring immediately above `replay_events_los_states`). Null for every
+    # real (reviewer-spotted) row and every non-ifaf row -- a fill NEVER
+    # overwrites a real spot, so this column and a real `yardline_50` are
+    # never both meaningfully set from two different sources of truth.
+    "spot_source": pl.Utf8,
     # Game-level completeness flag (docs/ifaf-field-mapping.md Nachtrag
     # 2026-09-07, eighth follow-up: user-authorized synthetic touchdown
     # rows): `1` on every row of a game where `apply_events_ledger` had to

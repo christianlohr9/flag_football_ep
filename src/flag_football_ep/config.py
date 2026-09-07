@@ -68,6 +68,13 @@ class ReferenceFiles:
     # maintained camp/competition row-window table; nothing loads it until
     # the player-analysis report plans (M3-04-03..05) wire it in.
     hc_splits: Path = Path("data/reference/hc_splits.csv")
+    # 2026-09-07 addendum: optional, same pre-existing-config-compat
+    # rationale as hc_games/hc_splits above. A directory (not a single
+    # file), one `<game_id>.csv` per partially-spotted IFAF women's game --
+    # see `data/reference/ifaf_spot_fill/README.md` and
+    # `ifaf.apply_spot_fill`. Nothing loads it until `pipeline._ingest_ifaf`
+    # passes it through as `ingest_snapshots(spot_fill_dir=...)`.
+    ifaf_spot_fill: Path = Path("data/reference/ifaf_spot_fill")
 
 
 @dataclass(frozen=True)
@@ -280,6 +287,13 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
         # docstring): same pre-M3-04-compat fallback as hc_games above.
         hc_splits=_resolve(
             base_dir, reference_table.get("hc_splits", "data/reference/hc_splits.csv")
+        ),
+        # Not in _REFERENCE_KEYS/_key() deliberately (see
+        # ReferenceFiles.ifaf_spot_fill docstring): same pre-existing-config
+        # compat fallback as hc_games/hc_splits above.
+        ifaf_spot_fill=_resolve(
+            base_dir,
+            reference_table.get("ifaf_spot_fill", "data/reference/ifaf_spot_fill"),
         ),
     )
 
