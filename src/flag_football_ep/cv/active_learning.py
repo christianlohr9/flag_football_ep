@@ -103,7 +103,18 @@ _NONEMPTY_UNCERTAINTY_EPSILON = 1e-6
 # most this many *candidates* in the first place (the grid `_grid_indices` draws from
 # its decoded frames), which in turn upper-bounds how many of its frames the final
 # selection can ever include.
-_MAX_CANDIDATES_PER_CLIP = 12
+#
+# Lowered 12 -> 6 for iteration 2 (plan 02.2-16), per the iteration-1 diagnosis
+# (`docs/dataset-buildout.md` "Nachtrag 2026-09-04 (Diagnose, Korrektur)"): iteration
+# 1's drone selection landed a median of 12 frames/clip (near the old cap) across only
+# 43 pool clips, while the champion's own pilot training set spread 322 frames over 46
+# clips at a median of 7/clip -- correlated, same-clip frames carry less independent
+# training signal than the same frame count spread over more distinct clips. Halving
+# the cap forces any single-iteration draw to spread across more clips instead of
+# repeatedly exhausting a few highly-uncertain ones. Private module constant, not part
+# of `select_al_frames`'s frozen public signature (`tests/test_cv_contracts.py`) --
+# free to tune between iterations.
+_MAX_CANDIDATES_PER_CLIP = 6
 
 _MANIFEST_FILENAME = "selection_manifest.json"
 

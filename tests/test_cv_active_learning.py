@@ -22,7 +22,6 @@ would fail loudly with a decode error, not silently pass.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import numpy as np
@@ -515,16 +514,23 @@ def test_select_al_frames_iteration_2_excludes_iteration_1_selection(
 
     monkeypatch.setattr(detect, "load_detector", load_detector_factory)
 
+    # target = 3 (half of `_MAX_CANDIDATES_PER_CLIP` = 6, plan 02.2-16's lowered cap):
+    # the single test clip's grid yields exactly `_MAX_CANDIDATES_PER_CLIP` candidates
+    # (12 decoded frames >= cap), so a target equal to half the cap leaves exactly the
+    # other half available -- disjoint iteration-1/iteration-2 draws without an
+    # exhausted candidate pool. A target equal to the full cap (as this test used
+    # before the cap was lowered from 12) would consume every grid candidate in
+    # iteration 1, leaving none for iteration 2's exclusion-disjoint proof.
     out_dir_1 = tmp_path / "al" / "iteration-1"
-    selection_1 = select_al_frames(cfg, [session_id], 1, 6, 1, out_dir_1)
+    selection_1 = select_al_frames(cfg, [session_id], 1, 3, 1, out_dir_1)
 
     out_dir_2 = tmp_path / "al" / "iteration-2"
-    selection_2 = select_al_frames(cfg, [session_id], 2, 6, 1, out_dir_2)
+    selection_2 = select_al_frames(cfg, [session_id], 2, 3, 1, out_dir_2)
 
     keys_1 = {(f.session_id, f.clip_number, f.frame_index) for f in selection_1.frames}
     keys_2 = {(f.session_id, f.clip_number, f.frame_index) for f in selection_2.frames}
     assert keys_1.isdisjoint(keys_2)
-    assert len(keys_2) == 6
+    assert len(keys_2) == 3
 
 
 def test_select_al_frames_same_seed_identical_bytes_different_seed_differs(
