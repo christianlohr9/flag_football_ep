@@ -1868,7 +1868,11 @@ def test_ingest_snapshots_falls_back_when_plays_file_missing(tmp_path):
     assert any("fell back to unified-plays" in m for m in notices.messages)
 
 
-def test_ingest_snapshots_falls_back_when_plays_response_is_empty(tmp_path):
+def test_ingest_snapshots_falls_back_when_plays_response_is_empty_forfeit(tmp_path):
+    """An empty /plays response with NO reconciliation reason (a genuine
+    zero-play forfeit) still falls back to unified-plays -- there is no
+    structured "known-incomplete" signal to act on here, unlike the
+    reconciliation-gap case below."""
     unified_payload = [{"playNumber": 1, "context": {"half": 1, "down": 1, "ballOn": 5, "possessionTeamId": "w-usa"}}]
     raw_dir = _write_snapshot_dir(
         tmp_path,
@@ -1878,6 +1882,37 @@ def test_ingest_snapshots_falls_back_when_plays_response_is_empty(tmp_path):
     results = ingest_snapshots(raw_dir, _team_mapping())
     gid, df, notices = results[0]
     assert df["source_detail"].to_list() == ["unified-plays-fallback"]
+
+
+def test_ingest_snapshots_excludes_reconciliation_gap_never_falls_back(tmp_path):
+    """A real, structured 'not reviewed' /plays response (a non-null
+    reconciliation.reason on an empty play list, e.g. `no-tries-labelled`)
+    is excluded entirely -- 2026-09-07 fix: unified-plays.context is known-
+    unreliable, and an events-feed reconstruction was measured and found not
+    accurate enough (77.5%/46.8% down/ballOn agreement, below the 95% bar),
+    so this case must NEVER fall back to accepting unified-plays rows."""
+    unified_payload = [{"playNumber": 1, "context": {"half": 1, "down": 1, "ballOn": 5, "possessionTeamId": "w-usa"}}]
+    raw_dir = _write_snapshot_dir(tmp_path, plays_by_game={"g1": unified_payload}, write_unified=True)
+    (raw_dir / "plays_g1.json").write_text(
+        json.dumps(
+            {
+                "plays": [],
+                "reconciliation": {
+                    "ok": False,
+                    "reason": "no-tries-labelled",
+                    "message": "No conversion is labelled TRY.",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    results = ingest_snapshots(raw_dir, _team_mapping())
+    gid, df, notices = results[0]
+    assert df.height == 0
+    assert df.columns == list(CANONICAL_COLUMNS)
+    assert notices.skipped is True
+    assert "no-tries-labelled" in notices.skip_reason
+    assert "95%" in notices.skip_reason
 
 
 def test_ingest_snapshots_falls_back_when_plays_file_unparseable(tmp_path):

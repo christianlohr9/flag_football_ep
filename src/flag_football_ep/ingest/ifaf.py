@@ -1305,33 +1305,98 @@ def derive_yardage_columns_plays(df: pl.DataFrame) -> pl.DataFrame:
     return df.with_columns(gain.alias("yards_gained"))
 
 
+# 2026-09-07 (events-feed reconstruction proof, see docs/ifaf-field-mapping.md's
+# same-day Nachtrag): an events-feed-based reconstruction of pre-snap state
+# (replaying POSSESSION_CHANGE/DOWN_UPDATE/LOS_UPDATE/TRY_DOWN/STATUS_CHANGE/
+# MANUAL_EDIT in `sequenceNumber` order) was built and measured against the 29
+# women's games that have real `/plays` data to check against: **77.5% down
+# agreement, 46.8% ballOn agreement** (nearest-preceding-event match against
+# each play's own `startedAt`) -- both well under the 95% bar required before
+# a reconstructed source may feed the canonical corpus. At least one game
+# (`ffwc26-wb1`) showed a multi-hour `clientTimestamp`/`startedAt` epoch
+# offset that alone explains a large share of its mismatches, and the
+# remaining noise matches the already-documented finding that `LOS_UPDATE`
+# fires far more often than there are real plays. The reconstruction is
+# therefore NOT wired into this module: a game whose `/plays` response is a
+# real, structured "not reviewed yet" signal (a non-null `reconciliation.reason`
+# on an empty response, e.g. `no-tries-labelled`) is excluded from the
+# canonical corpus entirely (`notices.skipped = True`, zero rows) rather than
+# accepted on `unified-plays.context`, which round 1 of this same fix already
+# proved unreliable. A `/plays` snapshot that is simply missing, unparseable,
+# or empty with no reconciliation reason at all (a genuine zero-play forfeit)
+# still falls back to `unified-plays` exactly as before -- there is no
+# structured "this game's data is known-incomplete" signal in those cases,
+# unlike a named reconciliation gap.
+_RECONSTRUCTION_EXCLUSION_REASON = (
+    "no usable /plays snapshot ({reconciliation_reason!r}) -- unified-plays.context "
+    "is known-unreliable (2026-09-07 finding) and an events-feed reconstruction was "
+    "measured at only 77.5% down / 46.8% ballOn agreement against 29 verified /plays "
+    "games (below the 95% bar), so this game is excluded rather than accepted on "
+    "unreliable pre-snap state"
+)
+
+
 def _load_usable_plays_records(
     raw_dir: Path, game_id: str, notices: IngestNotices
-) -> list | None:
-    """Return this game's `/plays` record list if usable, else `None`.
+) -> tuple[list | None, str | None]:
+    """Classify this game's `/plays` snapshot, returning `(records, exclude_reason)`.
 
-    "Usable" means: the file exists, parses, is shaped as a play list, and
-    that list is non-empty. A missing file, an unparseable file, or a real
-    but empty response (a reconciliation gap -- `no-tries-labelled` -- or a
-    genuine forfeit) all return `None`, the single signal `ingest_snapshots`
-    uses to fall back to `unified-plays` for this game. Any of the
-    non-"missing" unusable cases appends a explanatory message to `notices`
-    before returning `None`.
+    Three outcomes:
+
+    1. Usable (file exists, parses, non-empty play list): `(records, None)` --
+       the primary path.
+    2. A real, structured "not reviewed" signal -- the file parses to an empty
+       play list AND carries a non-null `reconciliation.reason` (e.g.
+       `no-tries-labelled`): `(None, exclude_reason)` -- `ingest_snapshots`
+       excludes this game entirely rather than falling back to
+       `unified-plays` (see `_RECONSTRUCTION_EXCLUSION_REASON`'s docstring
+       for why the fallback is no longer trusted for this case).
+    3. Anything else unusable (missing file, unparseable file, or an empty
+       play list with no reconciliation reason at all -- a genuine zero-play
+       forfeit): `(None, None)` -- `ingest_snapshots` falls back to
+       `unified-plays` exactly as before; there is no structured signal here
+       that the game's data is specifically known-incomplete, only that this
+       particular endpoint has nothing for it.
+
+    Any of the non-"missing file" unusable cases appends an explanatory
+    message to `notices`.
     """
     path = raw_dir / f"plays_{game_id}.json"
     if not path.exists():
-        return None
+        return None, None
     try:
-        records = load_plays_snapshot(path)
-    except UnparseablePayload as exc:
-        notices.messages.append(str(exc))
-        return None
-    if not records:
+        with path.open("r", encoding="utf-8") as f:
+            payload = json.load(f)
+    except (OSError, json.JSONDecodeError) as exc:
+        notices.messages.append(f"{path}: could not read/parse JSON ({exc})")
+        return None, None
+
+    records = _extract_plays_records(payload)
+    if records is None:
         notices.messages.append(
-            f"{path}: /plays snapshot present but empty (reconciliation gap or forfeit)"
+            f"{path}: unrecognized /plays payload shape "
+            "(expected a top-level list or an object with a 'plays' list)"
         )
-        return None
-    return records
+        return None, None
+    if records:
+        return records, None
+
+    reconciliation_reason = None
+    if isinstance(payload, dict):
+        reconciliation_reason = (payload.get("reconciliation") or {}).get("reason")
+
+    if reconciliation_reason:
+        exclude_reason = _RECONSTRUCTION_EXCLUSION_REASON.format(
+            reconciliation_reason=reconciliation_reason
+        )
+        notices.messages.append(f"{path}: {exclude_reason}")
+        return None, exclude_reason
+
+    notices.messages.append(
+        f"{path}: /plays snapshot present but empty, no reconciliation reason given "
+        "(a genuine zero-play forfeit) -- falling back to unified-plays"
+    )
+    return None, None
 
 
 def ingest_snapshots(
@@ -1344,16 +1409,31 @@ def ingest_snapshots(
     game at a time.
 
     **Primary source, per game: `plays_{game_id}.json`** (the `/games/{id}/plays`
-    reviewer feed — `flatten_plays_records`). **Fallback, only when that
-    snapshot is unusable** (missing file, unparseable, or a real-but-empty
-    reconciliation gap/forfeit — `_load_usable_plays_records`):
-    `unified-plays_{game_id}.json` (`flatten_unified_plays`, unchanged from
-    the pre-2026-09-07 primary path). Every fallback row is stamped
-    `source_detail = "unified-plays-fallback"` so it stays distinguishable
-    downstream; a primary-path row's `source_detail` stays null. Game
-    discovery is the union of both snapshot kinds' filenames under `raw_dir`
-    (a game with only a `plays_*.json` file, or only a `unified-plays_*.json`
-    file, is still discovered), not just `unified-plays_*.json` as before.
+    reviewer feed — `flatten_plays_records`). When that snapshot is unusable,
+    `_load_usable_plays_records` classifies why and `ingest_snapshots` picks
+    one of two different responses (2026-09-07, see that function's own
+    docstring and `_RECONSTRUCTION_EXCLUSION_REASON`'s for the full reasoning):
+
+    - **A real, structured "not reviewed" signal** (the response parses to an
+      empty play list AND carries a non-null `reconciliation.reason`, e.g.
+      `no-tries-labelled`): the game is **excluded entirely** -- zero rows,
+      `notices.skipped = True`, `skip_reason` naming the excluded game. An
+      events-feed reconstruction of pre-snap state was built and measured
+      against this exact scenario and found unreliable (77.5%/46.8% down/
+      ballOn agreement, both under the required 95% bar), so this case is
+      never accepted on `unified-plays.context` either -- that source was
+      already proven unreliable by the 2026-09-07 `/plays`-primary rewrite.
+    - **Anything else unusable** (missing file, unparseable file, or an empty
+      play list with no reconciliation reason at all -- a genuine zero-play
+      forfeit): falls back to `unified-plays_{game_id}.json`
+      (`flatten_unified_plays`, unchanged from the pre-2026-09-07 primary
+      path), stamped `source_detail = "unified-plays-fallback"` so those rows
+      stay distinguishable. A primary-path row's `source_detail` stays null.
+
+    Game discovery is the union of both snapshot kinds' filenames under
+    `raw_dir` (a game with only a `plays_*.json` file, or only a
+    `unified-plays_*.json` file, is still discovered), not just
+    `unified-plays_*.json` as before.
 
     `games.json` and `tournament_*.json` (if present in `raw_dir`) supply
     home/away team labels and competition/season/gender per game; their absence
@@ -1412,7 +1492,17 @@ def ingest_snapshots(
         tournament_entry = tournaments_meta.get(game_entry.get("tournamentId"), {})
         game_meta = _build_game_meta(game_entry, tournament_entry)
 
-        plays_records = _load_usable_plays_records(raw_dir, gid, notices)
+        plays_records, exclude_reason = _load_usable_plays_records(raw_dir, gid, notices)
+
+        if exclude_reason is not None:
+            # A real, structured "not reviewed" signal from `/plays` -- never
+            # accepted on unified-plays.context (see `_load_usable_plays_records`'s
+            # docstring). Excluded exactly like an unparseable snapshot: zero
+            # rows, `skipped = True`, reason named in `skip_reason`.
+            notices.skipped = True
+            notices.skip_reason = exclude_reason
+            results.append((gid, _empty_canonical_frame(), notices))
+            continue
 
         if plays_records is not None:
             # Primary path: `/plays`. Same per-game exception containment as
