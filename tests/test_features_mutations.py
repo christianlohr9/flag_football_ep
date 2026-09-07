@@ -1893,3 +1893,83 @@ class TestSyntheticLedgerRowsExcludedFromTraining:
 
         assert model_data.filter(pl.col("play_id") == synthetic_play_id).height == 0
         assert model_data.height > 0
+
+    def _game_with_synthetic_td(self, plays_per_game: int = 12) -> pl.DataFrame:
+        """2026-09-07 (eighth follow-up, docs/ifaf-field-mapping.md): a
+        synthetic touchdown row (`ingest.ifaf.apply_events_ledger`, inserted
+        for a ledger-confirmed touchdown `/plays` never recorded at all) has
+        even less real signal than the missing-conversion case above --
+        `play_type`/`down` are both null, not just `yardline_50` -- and must
+        be excluded from training by the same existing mechanism."""
+        # Mid-half touchdown (not the first/last drive) so Drive_Score_Dist
+        # and score_differential both vary -- avoids DegenerateWeightRange,
+        # same shape `_game_with_synthetic_pat` above already uses.
+        touchdown = [0] * plays_per_game
+        touchdown[5] = 1
+        base = canonical_plays_with_scores(
+            n_games=1, plays_per_game=plays_per_game, overrides={"touchdown": touchdown}
+        )
+        game_id = base["game_id"][0]
+        scoring_team = base["posteam"][5]
+        other_team = base["defteam"][5]
+        # Mirrors exactly what `apply_events_ledger` builds for a
+        # ledger-confirmed-but-/plays-missing touchdown: no down, no field
+        # position, no play_type at all.
+        synthetic = canonical_plays(
+            n_games=1,
+            plays_per_game=1,
+            overrides={
+                "game_id": game_id,
+                "play_id": plays_per_game + 1,
+                "drive_id": base["drive_id"][5],
+                "half": base["half"][5],
+                "down": None,
+                "yardline_50": None,
+                "yardline": None,
+                "yards_to_go": None,
+                "yards_gained": None,
+                "posteam": scoring_team,
+                "defteam": other_team,
+                "home_team": "HOME",
+                "away_team": "AWAY",
+                "play_type": None,
+                "touchdown": 1,
+            },
+            extras={
+                "score_source": "events-ledger-synthetic",
+                "plays_incomplete": 1,
+                "nullified": None,
+                "half_seconds_remaining": None,
+            },
+        )
+        combined = pl.concat([base, synthetic], how="vertical")
+        combined = add_scoring_play_team(combined, credit_defense=True)
+        combined = add_score_columns(combined)
+        return combined
+
+    def test_synthetic_td_row_excluded_from_ep_training_frame(self):
+        df = self._game_with_synthetic_td()
+        synthetic_play_id = int(df["play_id"].max())
+        assert df.filter(pl.col("score_source") == "events-ledger-synthetic").height == 1
+        ep_features = [f for f in EP_FEATURES if not f.startswith("tier_")]
+
+        prepared = prepare_ep_data(df)
+        model_data = make_ep_model_mutations(
+            prepared, ["game_id", "play_id", "label", *ep_features, "Total_W_Scaled"]
+        )
+
+        assert model_data.filter(pl.col("play_id") == synthetic_play_id).height == 0
+        assert model_data.height > 0
+
+    def test_synthetic_td_row_excluded_from_wp_training_frame(self):
+        df = self._game_with_synthetic_td()
+        synthetic_play_id = int(df["play_id"].max())
+        wp_features = [f for f in WP_FEATURES if not f.startswith("tier_")]
+
+        prepared = prepare_wp_data(df)
+        model_data = make_wp_model_mutations(
+            prepared, ["game_id", "play_id", "label", *wp_features]
+        ).drop_nulls()
+
+        assert model_data.filter(pl.col("play_id") == synthetic_play_id).height == 0
+        assert model_data.height > 0

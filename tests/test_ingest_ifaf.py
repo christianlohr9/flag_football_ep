@@ -2562,51 +2562,138 @@ def test_apply_events_ledger_inserts_synthetic_row_for_missing_conversion():
     assert synthetic["official_score"] is None
     assert synthetic["score_source"] == "events-ledger-synthetic"
     assert synthetic["source_play_sequence"] is None
+    # A pure missing-conversion synthetic row (a REAL touchdown anchor) does
+    # not, by itself, trigger the game-level plays_incomplete flag -- that
+    # is reserved for a game that got a synthetic *touchdown* (eighth
+    # follow-up, below).
+    assert synthetic["plays_incomplete"] is None
+    assert out["plays_incomplete"].to_list() == [None, None, None]
     # play_id stays gapless 1..N across the whole game after insertion.
     assert out["play_id"].to_list() == [1, 2, 3]
 
 
-def test_apply_events_ledger_td_with_no_candidate_left_unscored_not_fabricated():
-    """A TD with no /plays candidate at all -- an entire touchdown record
-    the reviewer feed never charted, observed in 9 of the live corpus's 42
-    women's games -- is logged and left unscored, never fabricated as a
-    whole touchdown row. The user was asked directly whether to fabricate
-    this class of row too (seventh follow-up, same trade-off framing as
-    the sixth follow-up's conversion fill) and declined: unlike a missing
-    conversion, a synthetic touchdown would have no down, no field
-    position, no charted action, and only an approximate row position --
-    a scoreboard adjustment, not a play."""
-    df = _base_ledger_df()
+def test_apply_events_ledger_inserts_synthetic_td_row_for_missing_touchdown():
+    """2026-09-07 (eighth follow-up, user-authorized, overriding the
+    seventh follow-up's decline below): a TD with no /plays candidate at
+    all -- an entire touchdown record the reviewer feed never charted,
+    observed in 9 of the live corpus's 42 women's games -- is now inserted
+    as a synthetic touchdown row, flagged on every axis (score_source,
+    plays_incomplete, exclusion from EP/WP training) rather than left
+    unscored."""
+    df = _base_ledger_df()  # w-usa TD (seq10) + XP1 (seq20), both real
     events = [
         _score_ev(10, "w-usa", "TD", 6),
         _score_ev(20, "w-usa", "XP1", 1),
         _score_ev(30, "w-ger", "TD", 6),  # no w-ger candidate exists in this fixture
     ]
     out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 6)
-    assert out.height == 2  # no fabricated touchdown row
-    assert any("has no /plays candidate" in n and "TD" in n for n in notices)
+    assert out.height == 3
+    synthetic = out.row(2, named=True)
+    assert synthetic["play_id"] == 3
+    assert synthetic["play_type"] is None
+    assert synthetic["down"] is None
+    assert synthetic["yardline_50"] is None
+    assert synthetic["yards_to_go"] is None
+    assert synthetic["yards_gained"] is None
+    assert synthetic["posteam"] == "w-ger"
+    assert synthetic["defteam"] == "w-usa"
+    assert synthetic["touchdown"] == 1
+    assert synthetic["result_raw"] == "SYNTHETIC TD (events ledger)"
+    assert synthetic["score_source"] == "events-ledger-synthetic"
+    assert synthetic["nullified"] is None
+    assert synthetic["source_play_sequence"] is None
+    # half copied from the nearest preceding real /plays row (the
+    # placement anchor), satisfying "nearest preceding record in feed
+    # order" precisely.
+    assert synthetic["half"] == out.row(1, named=True)["half"]
+    assert synthetic["plays_incomplete"] == 1
+    # every row of this game is flagged, not just the synthetic one.
+    assert out["plays_incomplete"].to_list() == [1, 1, 1]
     assert any(
-        "1 touchdown(s) (6 points)" in n and "not fabricated" in n for n in notices
+        "inserted as a synthetic touchdown row" in n and "w-ger" in n for n in notices
+    )
+    assert any(
+        "1 synthetic TD row(s) and 0 synthetic conversion row(s)" in n for n in notices
     )
 
 
-def test_apply_events_ledger_aggregate_notice_sums_missing_td_and_orphaned_conversion():
-    """The per-game aggregate notice sums both a whole missing touchdown
-    AND an orphaned conversion (an XP with no TD anchor at all, a
-    different failure shape) into one total-points-missing line."""
-    df = _base_ledger_df()  # w-usa TD (seq10) + XP1 (seq20), both real
+def test_apply_events_ledger_synthetic_td_group_includes_its_own_missing_conversion():
+    """The ledger's immediate follow-up XP1/XP2 for a missing touchdown's
+    own team joins the same synthetic group, exactly like the sixth
+    follow-up's real-anchor conversion fill -- both rows inserted together,
+    in order."""
+    df = _base_ledger_df()
     events = [
         _score_ev(10, "w-usa", "TD", 6),
         _score_ev(20, "w-usa", "XP1", 1),
-        _score_ev(30, "w-ger", "TD", 6),  # missing TD -- 6 points
-        _score_ev(40, "w-ger", "XP2", 2),  # orphaned (no TD anchor) -- 2 points
+        _score_ev(30, "w-ger", "TD", 6),
+        _score_ev(40, "w-ger", "XP1", 1),  # also missing -- joins the same group
     ]
-    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 8)
-    assert out.height == 2
-    summary = next(n for n in notices if "touchdown(s)" in n and "conversion(s)" in n)
-    assert "1 touchdown(s) (6 points)" in summary
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 7)
+    assert out.height == 4
+    td_row, conv_row = out.row(2, named=True), out.row(3, named=True)
+    assert td_row["touchdown"] == 1
+    assert td_row["play_type"] is None
+    assert td_row["score_source"] == "events-ledger-synthetic"
+    assert conv_row["touchdown"] == 0
+    assert conv_row["one_point_conv_success"] == 1
+    assert conv_row["play_type"] == "extra_point"
+    assert conv_row["down"] == 0
+    assert conv_row["score_source"] == "events-ledger-synthetic"
+    assert any(
+        "1 synthetic TD row(s) and 1 synthetic conversion row(s)" in n for n in notices
+    )
+
+
+def test_apply_events_ledger_synthetic_td_placed_before_later_real_match():
+    """Placement rule (docs/ifaf-field-mapping.md Nachtrag, eighth
+    follow-up): when a later ledger event for either team DOES match a
+    real /plays row, the synthetic touchdown sorts before it, not after --
+    mirrors the live corpus's wa3/wa4/wb4/wc1 pattern (a missing touchdown
+    followed later in the same game by the other team's own real, matched
+    score)."""
+    payload = [
+        _play_record(
+            10, offense="w-usa",
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")], official_score="TD",
+        ),
+        _play_record(
+            20, offense="w-ger",
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")], official_score="TD",
+        ),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    events = [
+        _score_ev(10, "w-usa", "TD", 6),
+        _score_ev(20, "w-usa", "TD", 6),  # no second w-usa candidate -- missing
+        _score_ev(30, "w-ger", "TD", 6),  # real, later in ledger sequence
+    ]
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 12, 6)
+    assert out.height == 3
+    rows = out.to_dicts()
+    assert rows[0]["posteam"] == "w-usa" and rows[0]["score_source"] == "events-ledger"
+    assert rows[1]["posteam"] == "w-usa" and rows[1]["score_source"] == "events-ledger-synthetic"
+    assert rows[2]["posteam"] == "w-ger" and rows[2]["score_source"] == "events-ledger"
+    assert out["play_id"].to_list() == [1, 2, 3]
+
+
+def test_apply_events_ledger_orphaned_conversion_with_no_td_anchor_still_not_fabricated():
+    """A standalone conversion event with no touchdown anywhere in the
+    ledger for that team is still left unscored, not fabricated -- a
+    genuinely different failure shape from a missing touchdown's own
+    immediate follow-up conversion, which IS now fabricated as part of
+    that touchdown's synthetic group (see above)."""
+    df = _base_ledger_df()
+    events = [
+        _score_ev(10, "w-usa", "TD", 6),
+        _score_ev(20, "w-usa", "XP1", 1),
+        _score_ev(30, "w-ger", "XP2", 2),  # no TD anywhere for w-ger
+    ]
+    out, notices = apply_events_ledger(df, events, "w-usa", "w-ger", 7, 2)
+    assert out.height == 2  # no fabricated row
+    assert any("has no TD anchor and no /plays candidate" in n for n in notices)
+    summary = next(n for n in notices if "conversion(s)" in n and "TD anchor" in n)
     assert "1 conversion(s) (2 points)" in summary
-    assert "8 total points missing" in summary
 
 
 def test_apply_events_ledger_xp2_matches_safety_row_without_double_counting():
