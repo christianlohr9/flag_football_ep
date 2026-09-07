@@ -621,6 +621,55 @@ def test_run_ingest_ifaf_malformed_play_does_not_drop_the_source(full_tree: Conf
     assert not any("source-level failure" in n for n in result.notices)
 
 
+def test_run_ingest_ifaf_games_json_score_feeds_score_reconstruction(full_tree: Config) -> None:
+    """2026-09-07 fix: `data/reference/final_scores.csv` carries zero
+    `ifaf-*` rows, so without `games.json`'s own `currentScore` folded into
+    the same reference frame, every IFAF game was silently SKIPPED by
+    `score_reconstruction` rather than actually checked. A game with no CSV
+    entry, and whose `games.json` `currentScore` disagrees with the
+    reconstructed score, is now quarantined with a score_reconstruction
+    FAIL, exactly like any other source."""
+    ifaf_dir = full_tree.paths.raw_ifaf
+    mismatched_plays = [
+        {
+            "gameId": "TESTG3", "playNumber": 1,
+            "context": {"gameClockMs": 100000, "half": 1, "down": 2, "ballOn": 30,
+                        "possessionTeamId": "w-ger", "score": {"home": 0, "away": 0}},
+            "outcome": {"type": "TOUCHDOWN", "pointsScored": 6, "turnover": False},
+            "description": {"text": "lone touchdown, no PAT"},
+            "penalty": False,
+        },
+    ]
+    (ifaf_dir / "unified-plays_TESTG3.json").write_text(
+        json.dumps(mismatched_plays), encoding="utf-8"
+    )
+    games_meta = [
+        {"id": "TESTG1", "tournamentId": "test", "homeTeam": {"id": "w-ger"}, "awayTeam": {"id": "w-usa"}},
+        {
+            "id": "TESTG3",
+            "tournamentId": "test",
+            "status": "FINAL",
+            "homeTeam": {"id": "w-ger"},
+            "awayTeam": {"id": "w-usa"},
+            # Reconstructed score from the lone touchdown above is 6-0 --
+            # deliberately disagrees with this official result.
+            "currentScore": {"home": 20, "away": 0},
+        },
+    ]
+    (ifaf_dir / "games.json").write_text(json.dumps(games_meta), encoding="utf-8")
+
+    result = run_ingest(full_tree, ["ifaf"])
+
+    by_id = {g.game_id: g for g in result.game_results}
+    assert "ifaf-TESTG3" in by_id
+    testg3 = by_id["ifaf-TESTG3"]
+    assert testg3.quarantined is True
+    assert any("score_reconstruction" in reason for reason in testg3.reasons)
+    # TESTG1's own CSV-sourced final_scores.csv row is untouched by the
+    # games.json-derived reference (no id collision in this fixture).
+    assert by_id["ifaf-TESTG1"].quarantined is False
+
+
 def test_run_ingest_ifaf_tournament_filter_excludes_unopted_tournament(full_tree: Config) -> None:
     """2026-09-06 addendum: sources.ifaf.ingest_tournaments restricts which
     resolved tournamentId(s) actually enter plays.parquet -- a tournament not

@@ -58,6 +58,7 @@ from flag_football_ep.ingest.hc_dedupe import dedupe_hc_rows
 from flag_football_ep.ingest.hc_workbook import SHEET_NAMES, SheetNotFoundError, ingest_workbook
 from flag_football_ep.ingest.hudl import ingest_dir
 from flag_football_ep.ingest.ifaf import ingest_snapshots as ingest_ifaf_snapshots
+from flag_football_ep.ingest.ifaf import load_ifaf_final_scores
 from flag_football_ep.ingest.legacy import ingest_legacy
 from flag_football_ep.ingest.sportapp import read_mutated_sportapp_snapshot
 from flag_football_ep.ingest.sportapp import ingest_snapshots as ingest_sportapp_snapshots
@@ -530,6 +531,31 @@ def run_ingest(
         game_notices.update(gn)
 
     if "ifaf" in sources:
+        # `data/reference/final_scores.csv` carries zero `ifaf-*` rows --
+        # `games.json`'s own `currentScore` is the official-result reference
+        # for this source instead, folded into the same `final_scores` frame
+        # `score_reconstruction` (validation.checks) already checks every
+        # game against, so an IFAF game whose reconstructed score disagrees
+        # is quarantined with a named reason exactly like any other source
+        # (docs/ifaf-field-mapping.md Nachtrag 2026-09-07).
+        ifaf_final_scores, ifaf_score_notices = load_ifaf_final_scores(
+            config.paths.raw_ifaf, team_mapping
+        )
+        notices.extend(ifaf_score_notices)
+        if ifaf_final_scores.height:
+            existing_ids = set(final_scores["game_id"].to_list()) if final_scores.height else set()
+            new_scores = (
+                ifaf_final_scores.filter(~pl.col("game_id").is_in(sorted(existing_ids)))
+                if existing_ids
+                else ifaf_final_scores
+            )
+            if new_scores.height:
+                final_scores = (
+                    pl.concat([final_scores, new_scores], how="vertical")
+                    if final_scores.height
+                    else new_scores
+                )
+
         f, n, gn = _ingest_ifaf(
             config.paths.raw_ifaf,
             team_mapping,
