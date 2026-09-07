@@ -31,11 +31,13 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
+from flag_football_ep.cv import bundle as bundle_module
 from flag_football_ep.cv.bundle import (
     BundleError,
     BundleResult,
     build_bundle,
     bundle_manifest,
+    deliver_bundle,
 )
 from flag_football_ep.cv.freeze import FreezePin
 from flag_football_ep.cv.schema import (
@@ -809,3 +811,152 @@ def test_build_bundle_archive_contains_no_test_session_clip(tmp_path: Path) -> N
     # The dev archive's own manifest/README never name the private test session.
     manifest_text = (tmp_path / "out" / "dev-set" / "manifest.json").read_text(encoding="utf-8")
     assert TEST_SESSION_ID not in manifest_text
+
+
+# --- deliver_bundle (plan 02.2-14: OTC OBS upload) -----------------------------------
+
+_FAKE_SECRET_VALUE = "otc-secret-do-not-leak-9f3a7c"  # noqa: S105 -- test fixture value
+
+
+class _FakeS3FileSystem:
+    """Monkeypatch target for `bundle._build_s3_client` -- mirrors
+    `tests/test_cv_cvat.py`'s fake-client seam pattern so `deliver_bundle` is
+    tested without any network access."""
+
+    def __init__(self, *, size: int | None = None, raise_on_put: Exception | None = None) -> None:
+        self._size = size
+        self._raise_on_put = raise_on_put
+        self.put_calls: list[tuple[str, str]] = []
+
+    def put(self, local: str, remote: str) -> None:
+        if self._raise_on_put is not None:
+            raise self._raise_on_put
+        self.put_calls.append((local, remote))
+
+    def info(self, remote: str) -> dict:
+        size = self._size if self._size is not None else Path(self.put_calls[-1][0]).stat().st_size
+        return {"size": size}
+
+
+def _fake_archive(tmp_path: Path, name: str = "dev-set_2026-09-07_abc123.zip") -> Path:
+    archive = tmp_path / name
+    archive.write_bytes(b"fake-bundle-archive-bytes")
+    return archive
+
+
+def test_deliver_bundle_uploads_and_verifies_size(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _make_config(tmp_path)
+    archive = _fake_archive(tmp_path)
+    monkeypatch.setenv("OTC_OBS_ACCESS_KEY_ID", "fake-access-key")
+    monkeypatch.setenv("OTC_OBS_SECRET_ACCESS_KEY", _FAKE_SECRET_VALUE)
+
+    fake_fs = _FakeS3FileSystem()
+    monkeypatch.setattr(bundle_module, "_build_s3_client", lambda *a, **kw: fake_fs)
+
+    remote_uri = deliver_bundle(config, archive, "s3://test-bucket/flag-football-datasets")
+
+    assert remote_uri == "s3://test-bucket/flag-football-datasets/dev-set/dev-set_2026-09-07_abc123.zip"
+    assert fake_fs.put_calls == [
+        (str(archive), "test-bucket/flag-football-datasets/dev-set/dev-set_2026-09-07_abc123.zip")
+    ]
+    assert _FAKE_SECRET_VALUE not in remote_uri
+
+
+def test_deliver_bundle_client_uses_configured_endpoint_not_aws_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _make_config(tmp_path)
+    archive = _fake_archive(tmp_path)
+    monkeypatch.setenv("OTC_OBS_ACCESS_KEY_ID", "fake-access-key")
+    monkeypatch.setenv("OTC_OBS_SECRET_ACCESS_KEY", _FAKE_SECRET_VALUE)
+
+    captured: dict = {}
+
+    def _spy_build_s3_client(endpoint_url: str, access_key: str, secret_key: str):
+        captured["endpoint_url"] = endpoint_url
+        captured["access_key"] = access_key
+        captured["secret_key"] = secret_key
+        return _FakeS3FileSystem()
+
+    monkeypatch.setattr(bundle_module, "_build_s3_client", _spy_build_s3_client)
+
+    deliver_bundle(config, archive, "s3://test-bucket/flag-football-datasets")
+
+    assert captured["endpoint_url"] == config.cv.dvc_remote_endpoint
+    assert captured["endpoint_url"] != "https://s3.amazonaws.com"
+    assert captured["access_key"] == "fake-access-key"
+    assert captured["secret_key"] == _FAKE_SECRET_VALUE
+
+
+def test_deliver_bundle_missing_access_key_env_raises_naming_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _make_config(tmp_path)
+    archive = _fake_archive(tmp_path)
+    monkeypatch.delenv("OTC_OBS_ACCESS_KEY_ID", raising=False)
+    monkeypatch.delenv("OTC_OBS_SECRET_ACCESS_KEY", raising=False)
+
+    with pytest.raises(BundleError, match="OTC_OBS_ACCESS_KEY_ID"):
+        deliver_bundle(config, archive, "s3://test-bucket/flag-football-datasets")
+
+
+def test_deliver_bundle_size_mismatch_raises(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    config = _make_config(tmp_path)
+    archive = _fake_archive(tmp_path)
+    monkeypatch.setenv("OTC_OBS_ACCESS_KEY_ID", "fake-access-key")
+    monkeypatch.setenv("OTC_OBS_SECRET_ACCESS_KEY", _FAKE_SECRET_VALUE)
+
+    fake_fs = _FakeS3FileSystem(size=archive.stat().st_size + 1)
+    monkeypatch.setattr(bundle_module, "_build_s3_client", lambda *a, **kw: fake_fs)
+
+    with pytest.raises(BundleError, match="size mismatch"):
+        deliver_bundle(config, archive, "s3://test-bucket/flag-football-datasets")
+
+
+def test_deliver_bundle_missing_archive_raises(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    config = _make_config(tmp_path)
+    monkeypatch.setenv("OTC_OBS_ACCESS_KEY_ID", "fake-access-key")
+    monkeypatch.setenv("OTC_OBS_SECRET_ACCESS_KEY", _FAKE_SECRET_VALUE)
+
+    with pytest.raises(BundleError, match="not found"):
+        deliver_bundle(config, tmp_path / "does-not-exist.zip", "s3://test-bucket/flag-football-datasets")
+
+
+def test_deliver_bundle_upload_failure_never_leaks_secret_and_names_remedies(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _make_config(tmp_path)
+    archive = _fake_archive(tmp_path)
+    monkeypatch.setenv("OTC_OBS_ACCESS_KEY_ID", "fake-access-key")
+    monkeypatch.setenv("OTC_OBS_SECRET_ACCESS_KEY", _FAKE_SECRET_VALUE)
+
+    fake_fs = _FakeS3FileSystem(raise_on_put=ConnectionError("signature mismatch on PUT"))
+    monkeypatch.setattr(bundle_module, "_build_s3_client", lambda *a, **kw: fake_fs)
+
+    with pytest.raises(BundleError) as exc_info:
+        deliver_bundle(config, archive, "s3://test-bucket/flag-football-datasets")
+
+    message = str(exc_info.value)
+    assert _FAKE_SECRET_VALUE not in message
+    assert "addressing" in message
+    assert "listobjects" in message
+
+
+def test_deliver_bundle_object_key_derives_kind_from_archive_name(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _make_config(tmp_path)
+    archive = _fake_archive(tmp_path, name="test-set_2026-09-07_deadbeef.zip")
+    monkeypatch.setenv("OTC_OBS_ACCESS_KEY_ID", "fake-access-key")
+    monkeypatch.setenv("OTC_OBS_SECRET_ACCESS_KEY", _FAKE_SECRET_VALUE)
+
+    fake_fs = _FakeS3FileSystem()
+    monkeypatch.setattr(bundle_module, "_build_s3_client", lambda *a, **kw: fake_fs)
+
+    remote_uri = deliver_bundle(config, archive, "s3://test-bucket/flag-football-datasets")
+
+    assert remote_uri == (
+        "s3://test-bucket/flag-football-datasets/test-set/test-set_2026-09-07_deadbeef.zip"
+    )

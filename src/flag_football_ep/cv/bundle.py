@@ -1041,10 +1041,85 @@ def bundle_manifest(root: Path) -> dict:
     return data
 
 
-def deliver_bundle(config: Config, archive: Path, remote: str) -> str:
-    """Upload `archive` to `remote` (an OTC OBS URI), returning the remote URI it was
-    written to. Never echoes a credential value (T-2.2-13).
-
-    Implemented by plan 02.2-14.
+def _build_s3_client(endpoint_url: str, access_key: str, secret_key: str):
+    """Construct the S3-compatible client used by `deliver_bundle`. The single
+    network seam this module exposes for monkeypatching in tests (mirrors
+    `cv.dataset._build_client`'s CVAT seam) -- never called with a literal
+    endpoint or a literal credential.
     """
-    raise NotImplementedError("implemented by plan 02.2-14")
+    import s3fs
+
+    return s3fs.S3FileSystem(
+        key=access_key,
+        secret=secret_key,
+        client_kwargs={"endpoint_url": endpoint_url},
+    )
+
+
+def deliver_bundle(config: Config, archive: Path, remote: str) -> str:
+    """Upload `archive` to `remote` (an OTC OBS bucket/prefix URI), returning the
+    remote object URI it was written to. Never echoes a credential value
+    (T-2.2-13, T-2.2-42): credentials are resolved by env-var NAME only through
+    `config.secret()`, and no exception message or return value ever carries the
+    resolved value.
+
+    The object key is deterministic from the archive's own filename:
+    `<remote>/<kind>-set/<archive filename>`, where `kind` is read off the
+    `{kind}-set_...` prefix `build_bundle` already gives every archive -- never a
+    literal per-kind path.
+
+    Built on the S3 client stack `dvc-s3` already installs (`s3fs`/`botocore`) --
+    no hand-rolled request signing. The client is constructed with the configured
+    `endpoint_url` (`config.cv.dvc_remote_endpoint`), never the AWS default, so an
+    OTC OBS-shaped host is never silently swapped for `s3.amazonaws.com`.
+    """
+    from flag_football_ep.config import ConfigError, secret
+
+    archive = Path(archive)
+    if not archive.is_file():
+        raise BundleError(f"bundle archive not found: {archive}")
+
+    try:
+        access_key = secret(config.cv.otc_obs_access_key_env)
+        secret_key = secret(config.cv.otc_obs_secret_key_env)
+    except ConfigError as exc:
+        # Re-raised as BundleError so callers only ever catch one error type from
+        # this module; the underlying message already names the missing env var
+        # by NAME only, never a value (`config.secret`'s own contract).
+        raise BundleError(str(exc)) from None
+
+    stem = archive.stem
+    kind = stem.split("-set_", 1)[0] if "-set_" in stem else stem.split("_", 1)[0]
+
+    remote_root = remote.removeprefix("s3://").rstrip("/")
+    object_key = f"{remote_root}/{kind}-set/{archive.name}"
+
+    try:
+        fs = _build_s3_client(config.cv.dvc_remote_endpoint, access_key, secret_key)
+        fs.put(str(archive), object_key)
+        remote_info = fs.info(object_key)
+    except Exception as exc:
+        # Exception TYPE only (never the raw message, which some S3-compatible
+        # endpoints echo the request signature or host into) -- see
+        # `cv.dataset.create_cvat_task`'s matching handler for the rationale.
+        # The two documented first remedies for an S3-compatibility mismatch
+        # (RESEARCH Pitfall 3): path-style vs virtual-hosted addressing, and
+        # DVC's `listobjects` option if the endpoint's LIST semantics differ.
+        raise BundleError(
+            f"bundle delivery to {object_key} via {config.cv.dvc_remote_endpoint} "
+            f"failed ({type(exc).__name__}) -- first remedies: force path-style "
+            "addressing (s3fs `client_kwargs={'addressing_style': 'path'}` / "
+            "boto3 `s3={'addressing_style': 'path'}`) or DVC's `listobjects` "
+            "config option if the endpoint's bucket listing behaves non-standard"
+        ) from None
+
+    local_size = archive.stat().st_size
+    remote_size = remote_info.get("size") if isinstance(remote_info, dict) else None
+    if remote_size != local_size:
+        raise BundleError(
+            f"delivered object size mismatch for {object_key}: "
+            f"local {local_size} bytes vs remote {remote_size!r} bytes -- "
+            "upload may be truncated or corrupted, re-run delivery"
+        )
+
+    return f"s3://{object_key}"
