@@ -417,4 +417,78 @@ schon vor diesem Plan eine implizite Vermischung zweier unterschiedlicher Aufgab
 
 ---
 
-*Zuletzt aktualisiert: 2026-09-07 (Plan 02.2-21)*
+## Auslieferung — Stand 2026-09-07 (Plan 02.2-14)
+
+**Status: `deliver_bundle` implementiert und getestet (`src/flag_football_ep/cv/bundle.py`,
+S3-kompatibel über `s3fs`/`dvc-s3`, Zugangsdaten ausschließlich über `config.secret()`
+aufgelöst, T-2.2-42). Der eigentliche Upload in die Open Telekom Cloud steht noch aus —
+`OTC_OBS_ACCESS_KEY_ID`/`OTC_OBS_SECRET_ACCESS_KEY` liegen in dieser Umgebung nicht vor
+und werden es voraussichtlich für längere Zeit nicht. Alle drei Bundles sind stattdessen
+lokal vollständig für die Auslieferung vorbereitet ("gestaged"), ohne Netzwerkzugriff.**
+
+### Lokale Staging (bereits erledigt)
+
+```
+uv run --extra cv ffep cv stage-delivery --bundles-dir data/bundles
+```
+
+Erzeugt `data/processed/hackathon-delivery/<datum>/` (gitignored) mit einem Hardlink auf
+jedes der drei Archive, einem `manifest.json` (Größe + voller SHA-256 je Archiv, plus dem
+geplanten Objekt-Schlüssel) und einem deutschen `README.md` für die Teams. Kein
+zusätzlicher Plattenplatz für die mehrere-GB-Archive (`os.link`, Fallback: Kopie über
+Dateisystemgrenzen hinweg). Für die "test"-Art wird die Datei-Namensliste des gestageten
+Archivs zusätzlich gegen die vier Label-/GT-/Homographie-Dateinamen geprüft
+(defense-in-depth zu `build_bundle`s eigenem Leak-Schutz, siehe `### Leak-Schutz` oben).
+
+### Objekt-Schlüssel-Schema
+
+`<bucket-prefix>/<kind>-set/<archiv-dateiname>` — deterministisch aus dem Archivnamen,
+nie ein literaler Pfad je Bundle-Art. Konkret (Bucket-Präfix noch der Platzhalter
+`ffep-datasets-PLACEHOLDER`, siehe unten):
+
+| Bundle | Objekt-Schlüssel |
+|---|---|
+| Dev-Set | `flag-football-datasets/dev-set/dev-set_2026-09-07_08a55bd95b06.zip` |
+| Test-Set | `flag-football-datasets/test-set/test-set_2026-09-07_b455b642b951.zip` |
+| Transfer-Set | `flag-football-datasets/transfer-set/transfer-set_2026-09-01_82c955898fe4.zip` |
+
+### Sobald Zugangsdaten vorliegen
+
+Vollständiger, ausführbarer Ablauf (beide Wege: Projekt-CLI und AWS-CLI/obsutil-Fallback,
+inklusive Post-Upload-Verifikation und was danach an die Teams geht):
+**`docs/hackathon-otc-upload.md`**. Kurzfassung des Projekt-Wegs:
+
+```
+# Beide Zugangsdaten-Variablen zuvor exportiert (Namen und der volle Befehl in
+# docs/hackathon-otc-upload.md, niemals ein Wert in diesem Dokument):
+uv run --extra cv --extra versioning ffep cv deliver \
+  --archive data/processed/hackathon-delivery/<datum>/dev-set/<archiv>.zip \
+  --remote s3://<BUCKET>/flag-football-datasets
+```
+
+`deliver_bundle` verifiziert nach jedem Upload die Objekt-Größe gegen die lokale Datei und
+bricht mit `BundleError` ab, statt eine unvollständige Übertragung stillschweigend als
+Erfolg zu melden. Kein Zugangsdatenwert erscheint jemals in Log, Fehlermeldung oder
+Rückgabewert.
+
+### Verifikation für Teilnehmende
+
+Nach dem Download: `sha256sum <archiv>.zip` muss exakt dem vollen SHA-256 entsprechen, der
+zum jeweiligen Bundle veröffentlicht wird (aus dem Staging-`manifest.json`s Feld
+`archive_sha256` — der Hash der ZIP-Datei selbst, nicht zu verwechseln mit dem kürzeren,
+den Inhalt hashenden `content_sha256` weiter oben in diesem Dokument).
+
+### Zugriffsregeln
+
+- Zugriff nur für registrierte Hackathon-Teams, zweckgebunden (Verbandsfreigabe vom
+  2026-08-31, `docs/capture-legal.md`); keine Weitergabe außerhalb des Event-Kontexts.
+- Die privaten Test-Set-Labels (`continuity_review.csv`, `flag_pull_events.csv` für die
+  Puerto-Rico-Session) sind in KEINEM Objekt enthalten — sie verlassen die lokale Maschine
+  nie (siehe `### Label-Tresor` oben).
+- Der Bucket muss vor dem ersten Upload als privat bestätigt sein (kein öffentliches
+  Lese-/Schreibrecht) — Teil des Runbooks in `docs/hackathon-otc-upload.md`.
+- Löschung/Rückgabe nach dem Event.
+
+---
+
+*Zuletzt aktualisiert: 2026-09-07 (Pläne 02.2-21, 02.2-14)*

@@ -1123,3 +1123,187 @@ def deliver_bundle(config: Config, archive: Path, remote: str) -> str:
         )
 
     return f"s3://{object_key}"
+
+
+def _sha256_file(path: Path, *, chunk_size: int = 1 << 20) -> str:
+    """Stream-hash a (potentially multi-GB) file without loading it fully into
+    memory -- unlike `_hash_tree`'s `path.read_bytes()`, which is fine for the small
+    per-file entries of an unpacked staging tree but wrong for a whole zip archive.
+    """
+    hasher = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(chunk_size), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+# Filenames a "test"-kind archive must never contain (T-2.2-28) -- re-checked here at
+# staging time as defense-in-depth against a staging-time archive swap, on top of
+# `build_bundle`'s own build-time name- and column-level guards.
+_TEST_KIND_LEAK_FILENAMES = frozenset(
+    {"continuity_review.csv", "flag_pull_events.csv", "gt_positions.csv", "homography_calibration.csv"}
+)
+
+
+@dataclass(frozen=True)
+class StagingResult:
+    """Where `stage_bundles_for_delivery` wrote its self-contained local mirror of
+    the participant-facing bundles, ready for either the `ffep cv deliver` upload
+    path or the AWS-CLI/obsutil fallback documented in `docs/hackathon-otc-upload.md`.
+    """
+
+    staging_dir: Path
+    manifest_path: Path
+    readme_path: Path
+    staged_files: tuple[dict, ...]
+
+
+def _render_staging_readme(staged_at: str, staged_files: list[dict]) -> str:
+    lines = [
+        f"# Hackathon-Auslieferung — lokal vorbereitet ({staged_at})",
+        "",
+        "**Status: lokal fertig gestellt, noch nicht in die Open Telekom Cloud",
+        "hochgeladen.** Diese Dateien sind byte-identisch mit dem, was später unter",
+        "den unten genannten Objekt-Schlüsseln in der OTC OBS liegen wird — der Upload",
+        "folgt, sobald die Zugangsdaten vorliegen (siehe `docs/hackathon-otc-upload.md`",
+        "für den genauen Ablauf, beide Wege: Projekt-CLI und AWS-CLI/obsutil-Fallback).",
+        "",
+        "## Enthaltene Archive",
+        "",
+        "| Set | Datei | Größe | SHA-256 (voller Archiv-Hash) |",
+        "|---|---|---:|---|",
+    ]
+    for entry in staged_files:
+        size_mb = entry["size_bytes"] / (1024 * 1024)
+        lines.append(
+            f"| {entry['kind']} | `{entry['filename']}` | {size_mb:,.1f} MB | "
+            f"`{entry['archive_sha256']}` |"
+        )
+    lines += [
+        "",
+        "## Verifikation nach dem Download",
+        "",
+        "```",
+        "sha256sum <archiv>.zip",
+        "```",
+        "",
+        "Der Wert muss exakt dem vollen SHA-256 im Feld `archive_sha256` von",
+        "`manifest.json` (in diesem Verzeichnis) entsprechen — das ist der Hash der",
+        "ZIP-Datei selbst, NICHT der kürzere `content_sha256` in",
+        "`docs/hackathon-bundles.md`, der den entpackten Inhalt hasht (beide sind",
+        "korrekt, sie messen unterschiedliche Dinge: Archiv-Bytes vs. Datei-Inhalt).",
+        "",
+        "## Zugriffsregeln",
+        "",
+        "- Nur für die Hackathon-Challenge, zweckgebunden (Verbandsfreigabe vom",
+        "  2026-08-31, `docs/capture-legal.md`); keine Weitergabe außerhalb des",
+        "  Event-Kontexts, keine weiteren Cloud-Uploads durch die Teams.",
+        "- Das Test-Set-Archiv enthält keine Kontinuitäts-/Flag-Pull-Urteile und keine",
+        "  Ground-Truth-Fußpositionen — diese bleiben ausschließlich im lokalen, nicht",
+        "  versionierten Label-Tresor (siehe `docs/hackathon-bundles.md`).",
+        "- Löschung/Rückgabe nach dem Event.",
+        "",
+        "Vollständige Inhaltsbeschreibung je Bundle: `docs/hackathon-bundles.md`.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def stage_bundles_for_delivery(
+    config: Config, bundles_dir: Path, out_dir: Path, *, kinds: tuple[str, ...] = BUNDLE_KINDS
+) -> StagingResult:
+    """Build a self-contained local staging directory holding every participant-facing
+    bundle archive exactly as it will be uploaded, plus a manifest (size + SHA-256 per
+    archive) and a German README -- all without any network access, so delivery can be
+    prepared and verified before OTC OBS credentials exist (`docs/hackathon-otc-upload.md`
+    covers the two upload paths once they do).
+
+    Reads the already-built archives from `bundles_dir` (`ffep cv bundle --kind ...`'s
+    output) -- never rebuilds them. Hardlinks each archive into `out_dir` when the two
+    directories share a filesystem (`os.link`: same bytes, no duplicated disk usage for
+    the multi-GB archives); falls back to a full copy across filesystems (`OSError`, e.g.
+    `EXDEV`). For the "test" kind, defense-in-depth re-checks the staged archive's own
+    file listing for the four label/GT/homography filenames `build_bundle` already
+    guarantees never ship in it (T-2.2-28) -- catches a stale/swapped archive at staging
+    time, not just a leak at build time.
+    """
+    bundles_dir = Path(bundles_dir)
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    staged_files: list[dict] = []
+    remote_root = config.cv.dvc_remote_url.removeprefix("s3://").rstrip("/")
+
+    for kind in kinds:
+        kind_dir = bundles_dir / f"{kind}-set"
+        manifest = bundle_manifest(kind_dir)
+        archive_candidates = sorted(bundles_dir.glob(f"{kind}-set_*.zip"))
+        if not archive_candidates:
+            raise BundleError(
+                f"no built {kind}-set archive found under {bundles_dir} -- run "
+                f"`ffep cv bundle --kind {kind}` first"
+            )
+        # Prefer the archive whose filename embeds the manifest's own content hash
+        # (guards against a stale archive sitting next to a freshly rebuilt
+        # kind-set/ directory); fall back to the most recently built one.
+        archive_path = next(
+            (p for p in archive_candidates if manifest["content_sha256"][:12] in p.name),
+            archive_candidates[-1],
+        )
+
+        if kind == "test":
+            with zipfile.ZipFile(archive_path) as zf:
+                names = {Path(n).name for n in zf.namelist()}
+            leaked = names & _TEST_KIND_LEAK_FILENAMES
+            if leaked:
+                raise BundleError(
+                    f"staging refused: {archive_path.name} contains {sorted(leaked)} -- "
+                    "a test-set archive must never ship label/GT/homography files"
+                )
+
+        dest_path = out_dir / f"{kind}-set" / archive_path.name
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        if dest_path.exists():
+            dest_path.unlink()
+        try:
+            os.link(archive_path, dest_path)
+        except OSError:
+            shutil.copy2(archive_path, dest_path)
+
+        size_bytes = dest_path.stat().st_size
+        archive_sha256 = _sha256_file(dest_path)
+        object_key = f"{remote_root}/{kind}-set/{archive_path.name}"
+
+        staged_files.append(
+            {
+                "kind": kind,
+                "filename": archive_path.name,
+                "staged_path": str(dest_path.relative_to(out_dir)),
+                "size_bytes": size_bytes,
+                "archive_sha256": archive_sha256,
+                "content_sha256": manifest["content_sha256"],
+                "detector_run_id": manifest["detector_run_id"],
+                "planned_object_key": object_key,
+            }
+        )
+
+    staged_at = datetime.now(UTC).isoformat()
+    manifest_doc = {
+        "staged_at": staged_at,
+        "remote_prefix": f"s3://{remote_root}",
+        "endpoint": config.cv.dvc_remote_endpoint,
+        "files": staged_files,
+    }
+    manifest_path = out_dir / "manifest.json"
+    _atomic_write_bytes(
+        manifest_path, json.dumps(manifest_doc, indent=2, sort_keys=True).encode("utf-8")
+    )
+
+    readme_path = out_dir / "README.md"
+    _atomic_write_bytes(readme_path, _render_staging_readme(staged_at, staged_files).encode("utf-8"))
+
+    return StagingResult(
+        staging_dir=out_dir,
+        manifest_path=manifest_path,
+        readme_path=readme_path,
+        staged_files=tuple(staged_files),
+    )

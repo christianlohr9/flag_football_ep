@@ -864,6 +864,40 @@ def deliver(
     typer.echo(f"delivered: {remote_uri}")
 
 
+@cv_app.command(name="stage-delivery")
+def stage_delivery(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    bundles_dir: Path = typer.Option(
+        Path("data/bundles"), "--bundles-dir", help="Directory holding the built bundle archives"
+    ),
+    out: Optional[Path] = typer.Option(
+        None,
+        "--out",
+        help="Staging output directory (default: data/processed/hackathon-delivery/<today>)",
+    ),
+) -> None:
+    """Stage every built bundle for delivery: a self-contained local mirror with a
+    checksum manifest and a participant README, no network access required. Run this
+    before OTC OBS credentials exist so delivery is fully prepared in advance
+    (see docs/hackathon-otc-upload.md for the actual upload once they do)."""
+    from datetime import UTC, datetime
+
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    from flag_football_ep.cv.bundle import stage_bundles_for_delivery
+
+    today = datetime.now(UTC).date().isoformat()
+    out_dir = out or (cfg.paths.processed / "hackathon-delivery" / today)
+
+    result = stage_bundles_for_delivery(cfg, bundles_dir, out_dir)
+
+    typer.echo(f"staged: {result.staging_dir} ({len(result.staged_files)} archives)")
+    for entry in result.staged_files:
+        typer.echo(f"  {entry['kind']}: {entry['filename']} ({entry['size_bytes']} bytes)")
+
+
 @cv_app.command(name="active-learn")
 def active_learn(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),

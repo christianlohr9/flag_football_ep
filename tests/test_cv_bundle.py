@@ -960,3 +960,89 @@ def test_deliver_bundle_object_key_derives_kind_from_archive_name(
     assert remote_uri == (
         "s3://test-bucket/flag-football-datasets/test-set/test-set_2026-09-07_deadbeef.zip"
     )
+
+
+# --- stage_bundles_for_delivery (plan 02.2-14: local staging, no network) -----------
+
+
+def test_stage_bundles_for_delivery_is_complete_without_network(tmp_path: Path) -> None:
+    """The dry-run proof: staging both built kinds produces a manifest + README +
+    hardlinked archives with correct sizes/hashes, entirely offline."""
+    config = _populate_fixture(tmp_path)
+    bundles_dir = tmp_path / "bundles"
+    build_bundle(config, "dev", _pin(), bundles_dir)
+    build_bundle(config, "test", _pin(), bundles_dir)
+
+    out_dir = tmp_path / "staging"
+    result = bundle_module.stage_bundles_for_delivery(
+        config, bundles_dir, out_dir, kinds=("dev", "test")
+    )
+
+    assert result.staging_dir == out_dir
+    assert result.manifest_path.is_file()
+    assert result.readme_path.is_file()
+    assert len(result.staged_files) == 2
+
+    manifest_doc = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    assert len(manifest_doc["files"]) == 2
+
+    for entry in result.staged_files:
+        staged_path = out_dir / entry["staged_path"]
+        assert staged_path.is_file()
+        assert staged_path.stat().st_size == entry["size_bytes"]
+        # Re-hash independently -- proves the recorded checksum matches the actual
+        # staged bytes, not just an internally-consistent but wrong value.
+        import hashlib
+
+        actual_sha256 = hashlib.sha256(staged_path.read_bytes()).hexdigest()
+        assert actual_sha256 == entry["archive_sha256"]
+        assert entry["planned_object_key"].startswith("test-bucket/flag-football-datasets/")
+
+    readme_text = result.readme_path.read_text(encoding="utf-8")
+    assert "sha256sum" in readme_text
+    assert "Label-Tresor" in readme_text
+
+
+def test_stage_bundles_for_delivery_test_kind_never_leaks_labels(tmp_path: Path) -> None:
+    config = _populate_fixture(tmp_path)
+    bundles_dir = tmp_path / "bundles"
+    build_bundle(config, "dev", _pin(), bundles_dir)
+    build_bundle(config, "test", _pin(), bundles_dir)
+
+    out_dir = tmp_path / "staging"
+    result = bundle_module.stage_bundles_for_delivery(
+        config, bundles_dir, out_dir, kinds=("dev", "test")
+    )
+
+    import zipfile
+
+    test_entry = next(e for e in result.staged_files if e["kind"] == "test")
+    with zipfile.ZipFile(out_dir / test_entry["staged_path"]) as zf:
+        names = {Path(n).name for n in zf.namelist()}
+    assert not (names & bundle_module._TEST_KIND_LEAK_FILENAMES)
+
+
+def test_stage_bundles_for_delivery_missing_archive_raises_named_kind(tmp_path: Path) -> None:
+    config = _populate_fixture(tmp_path)
+    bundles_dir = tmp_path / "bundles"
+    build_bundle(config, "dev", _pin(), bundles_dir)
+    # "test" kind deliberately not built.
+
+    with pytest.raises(BundleError, match="test-set"):
+        bundle_module.stage_bundles_for_delivery(config, bundles_dir, tmp_path / "staging", kinds=("dev", "test"))
+
+
+def test_stage_bundles_for_delivery_hardlinks_not_copies_on_same_filesystem(tmp_path: Path) -> None:
+    """Same-inode proof: staging must not duplicate multi-GB archives on disk when
+    source and destination share a filesystem."""
+    config = _populate_fixture(tmp_path)
+    bundles_dir = tmp_path / "bundles"
+    build_bundle(config, "dev", _pin(), bundles_dir)
+
+    out_dir = tmp_path / "staging"
+    result = bundle_module.stage_bundles_for_delivery(config, bundles_dir, out_dir, kinds=("dev",))
+
+    staged_path = out_dir / result.staged_files[0]["staged_path"]
+    source_candidates = list(bundles_dir.glob("dev-set_*.zip"))
+    assert len(source_candidates) == 1
+    assert staged_path.stat().st_ino == source_candidates[0].stat().st_ino
