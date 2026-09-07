@@ -357,3 +357,44 @@ Full pipeline (all five sources): `plays.parquet` **27,328 rows** (down from 28,
 ### Test coverage
 
 `tests/test_ingest_ifaf.py` gained ~67 new tests (140 total, up from 73) covering `flatten_plays_records`, `derive_yardage_columns_plays`, `load_plays_snapshot`, `_load_teams_meta`, and the `ingest_snapshots` primary/fallback branching — every fixture uses fabricated player ids/names (`w-xxx-pN` / "Player One"), never real player data. The full repository test suite (1,951 test functions) passes with zero failures/errors after this change.
+
+## Nachtrag 2026-09-07 (second follow-up, same day) — a no-play down exemption, and the fallback path proven unreliable
+
+A coordinator audit of the first 2026-09-07 fix found two further gaps, both fixed the same day.
+
+### 1. `downs_range`'s null-`down` check didn't know about no-play penalty rows
+
+17 of the 29 `/plays`-primary women's games were quarantined by `downs_range` solely because of 46 null-`down` rows. Auditing those rows: **38 of 46 are penalty-only no-play records** (`play_type == "no_play"`, a dead-ball foul that never reaches a snap and therefore has no down of its own by definition) — a classification gap in the validation check, not a real data gap. `downs_range` (`flag_football_ep.validation.checks`) now tolerates a null `down` exactly on that record shape (`play_type == "no_play"` AND `penalty == 1`); every other null `down` still fails the check exactly as before. Documented as the "No-play down exemption" in `docs/data-contract.md` and `docs/pipeline.md` §4.
+
+**A related bug surfaced while auditing this**: `flatten_plays_records` was zeroing the `penalty` flag on every nullified record (the same suppression applied to `complete_pass`/`touchdown`/etc.), so a *nullified* penalty-only record lost its `penalty` flag and the new exemption couldn't recognize it. `penalty` is a classification of the record shape itself (was this entry a foul call at all), not a scoring/turnover effect, so it is now set unconditionally, including on nullified records — every other flag stays suppressed on a nullified row exactly as before.
+
+**The remaining 8 null-`down` rows are real charting gaps**, left as-is (never fabricated): 4 in `019ffff1-add2-766d-93c1-b7db007230b9` (genuinely empty `/plays` records — no `ballOn`, no `events`, not nullified), 3 on live pass plays with a missing `down` (`ffwc26-wb4` play 1, `ffwc26-wc1` play 1, `ffwc26-wd2` play 22), and 1 on a nullified live pass play in `ffwc26-wb1` (overturned, but not a penalty call, so the exemption correctly does not apply). **These 5 games remain quarantined** after the fix: `019ffff1-add2-766d-93c1-b7db007230b9`, `ffwc26-wb1`, `ffwc26-wb4`, `ffwc26-wc1`, `ffwc26-wd2`.
+
+**The user's QF game (`ifaf-019ffff1-a8db-73ed-91ff-068fd964194c`) failed on exactly 1 null-`down` row: `play_id 6`, `result_raw == "PENALTY"`, a dead-ball foul with `penalty == 1`.** It is exactly the shape the exemption exists for — the QF game now passes `downs_range` and is fully accepted into `plays.parquet` (93 rows), not just visible via the CSV export.
+
+### 2. The 13 `unified-plays`-fallback games were accepted on a source already proven unreliable
+
+The 13 games falling back to `unified-plays` (1,171 rows, `source_detail = "unified-plays-fallback"`) were being *accepted* although their pre-snap state came from `unified-plays.context` — exactly the source the first 2026-09-07 fix had already shown was unreliable. This was the inverse of "safe by construction."
+
+**Attempted fix: reconstruct pre-snap state from the events feed.** `events_{id}.json` carries a rich per-event log (`POSSESSION_CHANGE`, `DOWN_UPDATE`, `LOS_UPDATE`, `DISTANCE_CHANGE`, `SCORE`, `TRY_DOWN`, `TIMEOUT`, `CLOCK_*`, `STATUS_CHANGE`, `MANUAL_EDIT`), and most events additionally carry their own top-level `down`/`ballOn`/`half`/`yardsToGo` snapshot fields (the value immediately *before* that event's own effect — confirmed empirically: a `DOWN_UPDATE` event's own top-level `down` is the old value, its `payload.down` is the new one). A reconstruction was built: replay every non-`reverted` event in `sequenceNumber` order, tracking `down`/`ballOn`/`half`/`possession`, overwriting from each event's own top-level fields when present and advancing state from each event type's own payload otherwise (`DOWN_UPDATE.payload.down`, `LOS_UPDATE.payload.ballOn`, `POSSESSION_CHANGE.payload.teamId`, `TRY_DOWN` forcing `down = 0`, `STATUS_CHANGE.payload.status == "HALF_TIME"` advancing `half`, `MANUAL_EDIT.payload.edits` overriding any of the above). `unified-plays`' own `sources.gameEventIds` field resolves cleanly into this feed (305/305 event ids for the QF game, for example) — confirming the linkage mechanism itself is sound, for games where it would be used.
+
+**PROVEN, and it fails the bar.** Measured against the 29 women's games that have real `/plays` data to check against (nearest-preceding-event match to each play's own `startedAt`, same methodology as the first Nachtrag's cross-checks): **down agreement 77.5% (1,877/2,422)**, **ballOn agreement 46.8% (896/1,914)** — both well under the 95% threshold required before a reconstructed source may feed the canonical corpus. Per-game agreement varies enormously (16.2%–85.9% for down, 2.2%–85.2% for ballOn), and at least one game (`ffwc26-wb1`) shows a **~51-hour offset between the events feed's `clientTimestamp` and `/plays`' own `startedAt`** for a stretch of the game — a real epoch misalignment that alone invalidates timestamp-based matching for that stretch, not a flaw in the reconstruction logic itself. This is consistent with (and extends) the already-documented finding that `LOS_UPDATE` fires far more often than there are real plays.
+
+**Decision: the reconstruction does not feed the corpus.** Per the required gate, since overall agreement is below 95%, the 13 games are **excluded entirely** rather than accepted on either `unified-plays.context` (already proven unreliable) or the events-feed reconstruction (now also proven insufficiently accurate). `ingest_snapshots` (`_load_usable_plays_records`) now distinguishes two different "unusable `/plays`" cases:
+
+- **A real, structured "not reviewed" signal** — the response parses to an empty play list AND carries a non-null `reconciliation.reason` (e.g. `no-tries-labelled`, the case for all 13 games): the game is **excluded** (`notices.skipped = True`, zero rows, `skip_reason` naming the exclusion and citing the measured agreement rates).
+- **Anything else unusable** (missing file, unparseable file, or an empty response with *no* reconciliation reason at all — a genuine zero-play forfeit): still falls back to `unified-plays` exactly as before. There is no structured "this game's data is known-incomplete" signal in those cases, unlike a named reconciliation gap — this preserves the fallback path for the scenario it was originally built for (defensive/legacy coverage), while removing it for the one scenario now known to be a real correctness problem.
+
+### Ingest/score re-run (both fixes applied)
+
+| | before this follow-up | after |
+|---|---:|---:|
+| IFAF games accepted / non-forfeit (42) | 25 | **24** |
+| IFAF rows accepted | 2,264 | **2,198** |
+| accepted rows by `source_detail` | `null` (primary): 1,093; `unified-plays-fallback`: 1,171 | **`null` (primary): 2,198; `unified-plays-fallback`: 0** |
+| non-null `ep`/`epa` | 74.6% | **68.7%** |
+| non-null `wp`/`wpa` | 76.3% / 75.4% | **70.2% / 69.3%** |
+
+The accepted-game count moves from 25 to 24 net (not up to 29, and not the same 25) because two independent effects run in opposite directions: the no-play exemption *saves* 12 games that were previously quarantined only by exempt rows (25 → 37 candidates), while the fallback exclusion *removes* all 13 `unified-plays`-fallback games that were previously accepted (37 → 24). **Every accepted IFAF row now comes from the `/plays`-primary path — zero rows in the accepted corpus derive from `unified-plays.context` any longer.** The coverage drop on `ep`/`wp` reflects a smaller but now fully `/plays`-sourced denominator, not a new data-quality problem — the 13 excluded games' rows (1,171 of them) never had a genuinely reliable pre-snap state to begin with; they are simply no longer silently included as if they did.
+
+Full pipeline (all five sources): `plays.parquet` **27,262 rows**, `games.parquet` **456 games (125 quarantined)**.

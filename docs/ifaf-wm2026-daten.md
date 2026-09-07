@@ -198,3 +198,38 @@ genauen Ballposition nur 45 % — Letzteres liegt am Events-Log selbst (es proto
 feinteiliger als es Spielzüge gibt, nicht an einer Unzuverlässigkeit der neuen Quelle).
 
 Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
+
+## Nachtrag 2026-09-07 (Teil 2, noch am selben Tag) — zwei Nachbesserungen
+
+Eine Prüfung des gestrigen Fixes hat zwei weitere Lücken gefunden, beide noch am selben Tag
+behoben.
+
+**1. Eine Strafe ohne Spielzug braucht keinen Down-Wert.** 17 der 29 Frauen-Spiele, die den
+neuen Reviewer-Feed nutzen, sind an der Qualitätsprüfung gescheitert, weil einzelne Zeilen
+keinen Down-Wert hatten. Bei 38 von 46 dieser Zeilen war das aber gar keine Datenlücke,
+sondern nur eine unvollständige Einordnung unsererseits: Eine stehende Strafe ohne echten
+Spielzug (z. B. eine Strafe zwischen zwei Downs) hat per Definition keinen eigenen Down —
+niemand hat gesnappt. Die Qualitätsprüfung akzeptiert das jetzt explizit als das, was es ist,
+statt es als Lücke zu werten. **Dein MEX-ESP-Spiel war genau so ein Fall** — die einzige
+blockierende Zeile war exakt diese eine stehende Strafe. Das Spiel ist jetzt vollständig
+akzeptiert (93 Zeilen), nicht nur im CSV-Export sichtbar. 12 weitere Spiele sind dadurch
+ebenfalls jetzt akzeptiert. Fünf Spiele bleiben zurückgestellt — dort sind es echte
+Charting-Lücken (fehlender Down-Wert auf einem echten Spielzug), die wir bewusst nicht
+erfinden.
+
+**2. Die 13 Ausweich-Spiele (die noch die alte, unzuverlässige Quelle nutzten) sind jetzt
+ganz draußen, nicht mehr "notdürftig akzeptiert".** Wir haben versucht, für diese 13 Spiele
+den Vor-Snap-Zustand stattdessen aus dem rohen Events-Log selbst zu rekonstruieren (das ist
+die Quelle, aus der der Reviewer-Feed selbst gebaut wird) — und das ehrlich gegengecheckt: bei
+den 29 Spielen, wo wir echte Reviewer-Daten zum Vergleichen haben, stimmt die rekonstruierte
+Down-Angabe nur zu 77,5 % und die Ballposition nur zu 47 % überein — beides deutlich unter der
+Schwelle von 95 %, die wir uns vorher gesetzt hatten, um so etwas überhaupt zu verwenden. Ein
+Spiel zeigte sogar eine rund 51-stündige Zeitversatz zwischen zwei internen Uhren — ein klares
+Zeichen, dass diese Rekonstruktion nicht verlässlich genug ist.
+
+**Konsequenz: Diese 13 Spiele fließen jetzt gar nicht mehr in den Datensatz ein**, statt (wie
+gestern) mit der unzuverlässigen alten Quelle akzeptiert zu werden. Frauen-Datensatz jetzt:
+24 von 42 nicht-kampflos-verlorenen Spielen akzeptiert, 2.198 Zeilen — alle davon aus dem
+neuen, geprüften Reviewer-Feed, keine einzige mehr aus der alten unsicheren Quelle.
+
+Voller technischer Nachtrag mit allen Zahlen: `docs/ifaf-field-mapping.md`.
