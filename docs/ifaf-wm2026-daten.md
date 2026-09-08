@@ -603,3 +603,8 @@ beauftragter Reviewer) mit menschlichem Tempo (Stunden pro Spiel), teils „mark
 Konsequenz: Die Frage an den Anbieter lautet nicht „welcher Endpunkt“, sondern „wird der
 Review-Durchgang für die offenen und abgebrochenen Spiele nachgeholt“. Bis dahin: manuelles
 Nachtragen der Spots über die Video-Marken (Teil 11) für die Spiele mit Video-URL.
+
+**Nachtrag 2026-09-08 zu Teil 11:** Die Fill-Dateien unter `data/reference/ifaf_spot_fill/` werden
+jetzt anhand der `game_id`-Spalte gelesen, nicht mehr am Dateinamen erkannt — eine Datei darf
+beliebig heißen (auch spiel-übergreifend), und `ffep ifaf-spot-fill-worksheets --collect` übernimmt
+bereits in der Arbeits-Übersicht eingetragene Werte automatisch in die Fill-Datei.

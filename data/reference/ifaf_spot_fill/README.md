@@ -53,20 +53,47 @@ game_id,sequence,ballOn,note
 - `ballOn`: der abgelesene Wert (0–50), leer solange noch nicht bearbeitet.
 - `note`: freier Text, optional (z. B. "Spot unsicher, Kamera verdeckt").
 
+## Zwei gleichwertige Wege, den Wert einzutragen
+
+Es ist egal, ob die Yard-Linie direkt in eine Datei hier oder in die zugehörige
+Arbeits-Übersicht (`data/raw/ifaf/spot_fill_worksheets/<game_id>.csv`) getippt wird — beide
+Wege werden gelesen:
+
+- **Direkt hier eintragen** (Workflow unten): der Wert steht sofort in der committeten Datei,
+  ohne einen weiteren Schritt.
+- **In der Arbeits-Übersicht eintragen, dann `ffep ifaf-spot-fill-worksheets --collect` laufen
+  lassen**: kopiert jeden dort bereits eingetragenen `ballOn`/`note`-Wert (nur Zeilen mit
+  `spot_status != real`) automatisch in die passende Fill-Datei — praktisch, wenn beim
+  Video-Schauen ohnehin schon die Arbeits-Übersicht offen ist. Idempotent, überschreibt nie
+  einen bereits eingetragenen, abweichenden Fill-Wert (nur ein Hinweis, kein Fehler).
+
+## Dateinamen sind frei
+
+Eine Fill-Datei wird **nicht** über ihren Dateinamen einem Spiel zugeordnet, sondern über die
+`game_id`-Spalte in jeder Zeile. Eine Datei darf also umbenannt werden (z. B. beim Bearbeiten
+versehentlich mit einem Präfix versehen) — sie wird beim nächsten Ingest-Lauf trotzdem gefunden.
+Ein Spiel darf seine Zeilen auch auf mehrere Dateien verteilt haben (z. B. eine Datei pro
+Bearbeitungs-Sitzung); alle `*.csv`-Dateien in diesem Verzeichnis werden gelesen und nach
+`game_id` zusammengeführt. Tragen zwei Dateien für dieselbe Sequenz unterschiedliche `ballOn`-Werte
+ein, gewinnt die zuerst (alphabetisch nach Dateiname) gelesene Datei — der Widerspruch erscheint
+als benannter Hinweis in der Ingest-Zusammenfassung, nie stillschweigend.
+
 ## Workflow
 
 1. Arbeits-Übersicht für das Spiel öffnen (`data/raw/ifaf/spot_fill_worksheets/<game_id>.csv`,
-   lokal erzeugt via `ffep ifaf spot-fill-worksheets`) — sie zeigt pro fehlender Zeile
+   lokal erzeugt via `ffep ifaf-spot-fill-worksheets`) — sie zeigt pro fehlender Zeile
    `video_url`, `video_time_s`/`video_time_mmss` (wo im Video der Spielzug beginnt), Down,
    Offense-Team, Passer/Receiver und die letzte bekannte echte Position (`prev_ballOn`) zur
    Orientierung.
 2. Video an der angegebenen Zeit öffnen, die Line of Scrimmage ablesen.
-3. Die Yard-Linie (0–50, siehe Konvention oben) in diese Datei eintragen — eine Zeile mit
-   `game_id,sequence,ballOn,note` je Spielzug (die ersten drei Spalten lassen sich direkt aus der
-   Arbeits-Übersicht übernehmen, effektiv wird pro Spielzug nur die eine `ballOn`-Zahl neu
-   getippt).
+3. Die Yard-Linie (0–50, siehe Konvention oben) entweder direkt in eine Datei in diesem
+   Verzeichnis eintragen — eine Zeile mit `game_id,sequence,ballOn,note` je Spielzug (die ersten
+   drei Spalten lassen sich direkt aus der Arbeits-Übersicht übernehmen, effektiv wird pro
+   Spielzug nur die eine `ballOn`-Zahl neu getippt) — oder in die `ballOn`/`note`-Spalte der
+   Arbeits-Übersicht selbst eintragen und danach `ffep ifaf-spot-fill-worksheets --collect`
+   laufen lassen.
 4. Beim nächsten Ingest-Lauf (`ffep ingest` bzw. `pipeline.run_ingest`) liest
-   `ifaf.apply_spot_fill` diese Datei automatisch mit ein, sofern in `ffep.toml`
+   `ifaf.apply_spot_fill` jede Fill-Datei automatisch mit ein, sofern in `ffep.toml`
    `[reference] ifaf_spot_fill` auf dieses Verzeichnis zeigt (Standard). Jede angewandte Zeile
    bekommt `spot_source = "manual"` in `plays.parquet` — so bleibt jederzeit erkennbar, welche
    Position echt vom Reviewer stammt und welche von Hand nachgetragen wurde.
