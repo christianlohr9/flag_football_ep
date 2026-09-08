@@ -18,6 +18,8 @@ object across arms would be meaningless.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
@@ -118,6 +120,39 @@ class ArmResult:
     logloss_improvement: float
     per_source_metrics_path: str
     oof_snapshot_path: str
+    corpus_fingerprint: str = ""
+    git_commit: str = ""
+
+
+def compute_corpus_fingerprint(plays: pl.DataFrame) -> str:
+    """SHA-256 over the sorted `(game_id, play_id, source)` key set of the full raw,
+    ingested corpus (`with_hc`, i.e. `plays.parquet` as loaded, before any arm split or
+    per-model null-dropping) -- identifies WHICH rows the whole ablation run saw, independent
+    of `training_data_sha256` (which hashes one arm's post-`drop_nulls()` training frame and
+    therefore differs by model/arm on purpose). Logged as an MLflow param on every run
+    alongside `git_commit` so a re-run of this script can be told apart from a re-run against
+    a changed corpus, even when the measured metrics land close together.
+    """
+    keys = plays.select("game_id", "play_id", "source").sort(["game_id", "play_id", "source"])
+    return hashlib.sha256(keys.write_csv().encode("utf-8")).hexdigest()
+
+
+def git_commit_sha() -> str:
+    """The current `HEAD` commit, logged as an MLflow param alongside `corpus_fingerprint`
+    (same rationale: ties a measured run to the exact code + data pairing that produced it).
+    Falls back to `"unknown"` rather than raising if `git` is unavailable in the runtime
+    environment -- a missing provenance tag must never fail a training run."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
 
 
 def build_arms(plays: pl.DataFrame) -> dict[str, pl.DataFrame]:
@@ -156,7 +191,14 @@ def _reconstruct_labeled_frame(frame: pl.DataFrame, config: Config, model: str) 
 
 
 def run_arm(
-    model: str, arm_name: str, frame: pl.DataFrame, config: Config, snapshot_dir: Path
+    model: str,
+    arm_name: str,
+    frame: pl.DataFrame,
+    config: Config,
+    snapshot_dir: Path,
+    *,
+    corpus_fingerprint: str | None = None,
+    git_commit: str | None = None,
 ) -> ArmResult:
     """Fit one arm via the matching `train_ep`/`train_wp`, tag the run, and snapshot its
     out-of-fold predictions before the next arm's run overwrites the shared
@@ -164,6 +206,11 @@ def run_arm(
     always writes the same filename -- the with-head-coach arm's file is the one left on
     disk for M3-02-06, per this plan's ordering, so a caller needing the without-arm's
     out-of-fold predictions later must read this snapshot, not the live path).
+
+    `corpus_fingerprint`/`git_commit`, when given, are logged as MLflow params (not just
+    tags) -- provenance for a re-run against a possibly-changed corpus/codebase, distinct
+    from `training_data_sha256` (which hashes this arm's own post-`drop_nulls()` frame, not
+    the raw corpus every arm/model was measured against).
 
     Never calls anything in `flag_football_ep.model.registry` -- no alias is ever moved.
     """
@@ -175,6 +222,10 @@ def run_arm(
     client.set_tag(run_id, "corpus_arm", arm_name)
     client.set_tag(run_id, "gsd_phase", "M3-02")
     client.set_tag(run_id, "plan", "M3-02-05")
+    if corpus_fingerprint is not None:
+        client.log_param(run_id, "corpus_fingerprint", corpus_fingerprint)
+    if git_commit is not None:
+        client.log_param(run_id, "git_commit", git_commit)
 
     run = client.get_run(run_id)
     params = run.data.params
@@ -205,6 +256,8 @@ def run_arm(
         logloss_improvement=float(metrics["logloss_improvement"]),
         per_source_metrics_path=str(per_source_path),
         oof_snapshot_path=str(oof_snapshot),
+        corpus_fingerprint=corpus_fingerprint or "",
+        git_commit=git_commit or "",
     )
 
 
@@ -414,12 +467,24 @@ def main(argv: list[str] | None = None) -> int:
 
     models = ["ep", "wp"] if args.model == "both" else [args.model]
 
+    corpus_fingerprint = compute_corpus_fingerprint(plays)
+    git_commit = git_commit_sha()
+    print(f"corpus_fingerprint={corpus_fingerprint} git_commit={git_commit}")
+
     snapshot_dir = Path(tempfile.mkdtemp(prefix="hc_corpus_ablation_"))
     all_results: list[ArmResult] = []
     for model in models:
         for arm_name in ARMS:  # without_hc then with_hc: the with_hc oof file is the one
             frame = arms[arm_name]  # left on disk for M3-02-06 to consume.
-            result = run_arm(model, arm_name, frame, config, snapshot_dir)
+            result = run_arm(
+                model,
+                arm_name,
+                frame,
+                config,
+                snapshot_dir,
+                corpus_fingerprint=corpus_fingerprint,
+                git_commit=git_commit,
+            )
             all_results.append(result)
             print(
                 f"{model}/{arm_name}: run={result.run_id} n_plays={result.n_plays} "
@@ -444,6 +509,8 @@ def main(argv: list[str] | None = None) -> int:
             "naive_metric_name": r.naive_metric_name,
             "naive_value": r.naive_value,
             "logloss_improvement": r.logloss_improvement,
+            "corpus_fingerprint": r.corpus_fingerprint,
+            "git_commit": r.git_commit,
         }
         for r in all_results
     ]
