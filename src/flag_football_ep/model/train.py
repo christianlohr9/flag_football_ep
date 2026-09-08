@@ -71,6 +71,7 @@ from flag_football_ep.features.mutations import (
 )
 from flag_football_ep.model import freeze, mlflow_store, registry
 from flag_football_ep.model.evaluate import (
+    calibration_max_deviation,
     naive_baseline_logloss,
     per_source_metrics,
     reliability_curves,
@@ -87,6 +88,7 @@ from flag_football_ep.model.hyperparams import (
     HYPEROPT_SPACE,
     INNER_CV_FOLDS,
     LOGO_GROUP_COLUMN,
+    TIER_FEATURE_COLUMNS,
     TUNE_EARLY_STOPPING_ROUNDS,
     WP_FEATURES,
     WP_PARAMS,
@@ -106,6 +108,12 @@ _TUNE_STRUCTURAL_KEYS = ("booster", "objective", "eval_metric", "num_class")
 # M3-05-03: src/flag_football_ep/model/train.py -> model -> flag_football_ep -> src ->
 # repo root -- same convention as `model/freeze.py::_REPO_ROOT`.
 _REPO_ROOT = Path(__file__).resolve().parents[3]
+
+# M3-05-03: Timeout / Offsetting Penalties / Penalty -- the three no-play RESULT tokens,
+# copied verbatim from `scripts/hc_corpus_ablation.py::_NO_PLAY_TOKENS` (see that module's
+# comment: "Penalty" is never a substring of "Offsetting Penalties", so the three counts
+# never double-count a row).
+_NO_PLAY_TOKENS: tuple[str, ...] = ("Timeout", "Offsetting Penalties", "Penalty")
 
 
 def _compute_corpus_fingerprint(plays: pl.DataFrame) -> str:
@@ -270,7 +278,9 @@ def _train(
 
     M3-05-03: `git_commit`/`corpus_fingerprint` (the latter over the FULL `plays` argument,
     before any filtering) are logged as params on every run, plus a `freeze_manifest`
-    citation when given -- adds observability only, changes zero existing measured number.
+    citation when given, and calibration/per-tier/no-play-share metrics alongside the
+    existing LOGO/naive/per-source metrics -- adds observability only, changes zero existing
+    measured number.
     """
     corpus_fingerprint = _compute_corpus_fingerprint(plays)
     git_commit = _git_commit_sha()
@@ -398,6 +408,51 @@ def _train(
         metrics[f"logo_logloss_by_source_{safe_source}"] = row["logloss"]
     if sanitized_notes:
         params["sanitized_source_metric_keys"] = ",".join(sanitized_notes)
+
+    # M3-05-03: scalar calibration -- same `curves` object built for the reliability
+    # figure above, no second calibration computation.
+    for class_name, deviation in calibration_max_deviation(curves).items():
+        safe_class = _METRIC_KEY_UNSAFE.sub("_", class_name)
+        metrics[f"calibration_max_deviation_{safe_class}"] = deviation
+
+    # M3-05-03: per-tier log-loss -- derived from model_data's existing tier_* one-hot
+    # columns (TIER_FEATURE_COLUMNS, already part of EP_FEATURES/WP_FEATURES), reusing
+    # per_source_metrics generically with the tier array standing in for the source array.
+    # Guarded no-op (matches the `half`-sentinel guard discipline in mutations.py) when the
+    # columns are not all present -- e.g. a narrower frame from a future caller.
+    if all(col in model_data.columns for col in TIER_FEATURE_COLUMNS):
+        tier_matrix = model_data.select(list(TIER_FEATURE_COLUMNS)).to_numpy()
+        tier_names = [col.removeprefix("tier_") for col in TIER_FEATURE_COLUMNS]
+        tier_array = np.array([tier_names[idx] for idx in tier_matrix.argmax(axis=1)])
+        tier_table = per_source_metrics(logo.oof_pred, logo.oof_label, tier_array, report_num_class)
+        for row in tier_table.iter_rows(named=True):
+            if row["source"] == "__pooled__":
+                continue
+            safe_tier = _METRIC_KEY_UNSAFE.sub("_", row["source"])
+            metrics[f"per_tier_logloss_{safe_tier}"] = row["logloss"]
+            metrics[f"per_tier_naive_logloss_{safe_tier}"] = row["naive_logloss"]
+            metrics[f"per_tier_improvement_{safe_tier}"] = row["improvement"]
+
+    # M3-05-03: no-play share -- the aggregate fraction of model_data's rows whose
+    # result_raw matches any of the three no-play RESULT tokens. result_raw is not one of
+    # EP_TRAINING_COLUMNS/WP_TRAINING_COLUMNS (mutate_fn's final `.select` drops it), so it
+    # is resolved by joining model_data's own (game_id, play_id, source) keys -- already
+    # present via GROUP_COLUMNS -- back onto `filtered` (the pre-prepare/mutate frame,
+    # which still carries the raw canonical `result_raw` column). Guarded no-op when either
+    # side lacks the columns this needs.
+    group_cols = ["game_id", "play_id", "source"]
+    if all(col in filtered.columns for col in (*group_cols, "result_raw")) and all(
+        col in model_data.columns for col in group_cols
+    ):
+        no_play_lookup = filtered.select(*group_cols, "result_raw").unique(subset=group_cols)
+        joined = model_data.select(*group_cols).join(no_play_lookup, on=group_cols, how="left")
+        any_token_expr = None
+        for token in _NO_PLAY_TOKENS:
+            token_expr = pl.col("result_raw").fill_null("").str.contains(token, literal=True)
+            any_token_expr = token_expr if any_token_expr is None else (any_token_expr | token_expr)
+        metrics["no_play_share"] = float(
+            joined.select(any_token_expr.alias("no_play")).to_series().mean()
+        )
 
     figure = render_reliability_figure(
         curves, f"{model_prefix.upper()} reliability (out-of-fold, leave-one-game-out)"

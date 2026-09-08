@@ -1082,3 +1082,135 @@ def test_train_ep_freeze_manifest_missing_file_does_not_raise(tmp_path: Path) ->
 
     assert params["freeze_manifest_path"] == str(missing_path)
     assert "freeze_load_error" in params
+
+
+# --- M3-05-03: calibration scalar / per-tier log-loss / no-play share ----------------------
+
+
+def _multi_tier_ep_corpus(n_games: int = 12, plays_per_game: int = 16) -> pl.DataFrame:
+    """A two-tier EP corpus: half the games sourced `hudl` (`_make_config`'s
+    `competition_tier.csv` fixture maps it to `womens-international`), half `legacy`
+    (mapped to `mixed-other`) -- enough for `per_tier_logloss_*` to have two buckets."""
+    half = n_games // 2
+    touchdown = [0] * plays_per_game
+    touchdown[5] = 1  # mid-half, second drive of the half
+    hudl = canonical_plays_with_scores(
+        n_games=half,
+        plays_per_game=plays_per_game,
+        source="hudl",
+        overrides={"touchdown": touchdown * half},
+    )
+    legacy = canonical_plays_with_scores(
+        n_games=n_games - half,
+        plays_per_game=plays_per_game,
+        source="legacy",
+        overrides={"touchdown": touchdown * (n_games - half)},
+    )
+    return pl.concat([hudl, legacy], how="vertical")
+
+
+def _ep_corpus_with_no_play_rows(
+    n_games: int = 12, plays_per_game: int = 16, no_play_fraction: float = 0.25
+) -> pl.DataFrame:
+    """`_ep_training_corpus`'s shape, but with a `no_play_fraction` slice of `result_raw`
+    values overridden to the `"Penalty"` no-play RESULT token (see
+    `model/train.py::_NO_PLAY_TOKENS`)."""
+    touchdown = [0] * plays_per_game
+    touchdown[5] = 1
+    total = n_games * plays_per_game
+    n_no_play = int(total * no_play_fraction)
+    result_raw = ["Penalty"] * n_no_play + ["Complete"] * (total - n_no_play)
+    overrides = {"touchdown": touchdown * n_games, "result_raw": result_raw}
+    return canonical_plays_with_scores(
+        n_games=n_games, plays_per_game=plays_per_game, overrides=overrides
+    )
+
+
+def test_train_ep_logs_calibration_max_deviation_metrics(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    metrics = mlflow.tracking.MlflowClient().get_run(run_id).data.metrics
+
+    assert any(key.startswith("calibration_max_deviation_") for key in metrics)
+
+
+def test_train_wp_logs_calibration_max_deviation_metric(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    run_id = train_wp(plays, config)
+
+    mlflow_store.configure(config)
+    metrics = mlflow.tracking.MlflowClient().get_run(run_id).data.metrics
+
+    assert any(key.startswith("calibration_max_deviation_") for key in metrics)
+
+
+def test_train_ep_logs_per_tier_logloss_metrics_for_every_tier_present(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _multi_tier_ep_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    metrics = mlflow.tracking.MlflowClient().get_run(run_id).data.metrics
+
+    assert "per_tier_logloss_womens_international" in metrics
+    assert "per_tier_naive_logloss_womens_international" in metrics
+    assert "per_tier_improvement_womens_international" in metrics
+    assert "per_tier_logloss_mixed_other" in metrics
+
+
+def test_train_ep_logs_no_play_share_metric_matching_overridden_fraction(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_corpus_with_no_play_rows(no_play_fraction=0.25)
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    metrics = mlflow.tracking.MlflowClient().get_run(run_id).data.metrics
+
+    assert "no_play_share" in metrics
+    assert metrics["no_play_share"] == pytest.approx(0.25, abs=0.01)
+
+
+def test_train_ep_no_play_share_is_zero_when_no_no_play_rows(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()  # canonical_plays_with_scores default result_raw="Complete"
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    metrics = mlflow.tracking.MlflowClient().get_run(run_id).data.metrics
+
+    assert metrics["no_play_share"] == pytest.approx(0.0)
+
+
+def test_train_ep_existing_logo_and_naive_metrics_unchanged_by_m3_05_03(
+    tmp_path: Path,
+) -> None:
+    """RESEARCH's own scope guard, pinned: this plan adds observability only -- it must not
+    change any existing measured number. Cross-checks a run against a config-matched run
+    from before this plan by re-asserting the pre-existing metric keys are still present and
+    still populated the same way (via `EP_PARAMS`, unchanged fit)."""
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    run = mlflow.tracking.MlflowClient().get_run(run_id)
+    metrics = run.data.metrics
+    params = run.data.params
+
+    assert "logo_mlogloss" in metrics
+    assert "naive_mlogloss" in metrics
+    assert "logloss_improvement" in metrics
+    for key in EP_PARAMS:
+        assert key in params

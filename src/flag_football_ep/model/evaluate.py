@@ -228,6 +228,26 @@ def reliability_curves(
     return curves
 
 
+def calibration_max_deviation(curves: Sequence[ReliabilityCurve]) -> dict[str, float]:
+    """`{curve.name: max(abs(prob_true - prob_pred))}` for every curve in `curves`.
+
+    The genuine gap RESEARCH Q2 identified: `reliability_curves` already produces the data
+    a scalar calibration metric needs, but until this function nothing turned it into one --
+    only a reliability-curve PNG existed. A gate can read this directly as an MLflow metric
+    instead of eyeballing a figure. `{}` for an empty `curves` sequence; a curve with zero
+    bins (`calibration_curve` can return empty `prob_true`/`prob_pred` arrays for a
+    degenerate input) contributes `0.0` for that curve rather than raising.
+    """
+    result: dict[str, float] = {}
+    for curve in curves:
+        if len(curve.prob_true) == 0:
+            result[curve.name] = 0.0
+            continue
+        deviations = np.abs(np.asarray(curve.prob_true) - np.asarray(curve.prob_pred))
+        result[curve.name] = float(np.max(deviations))
+    return result
+
+
 def per_source_metrics(
     oof_pred: np.ndarray,
     oof_label: np.ndarray,

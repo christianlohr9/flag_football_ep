@@ -43,6 +43,7 @@ from flag_football_ep.model.evaluate import (
     EvaluationError,
     LogoResult,
     ReliabilityCurve,
+    calibration_max_deviation,
     naive_baseline_logloss,
     oof_frame,
     per_source_metrics,
@@ -540,6 +541,61 @@ def test_render_reliability_figure_returns_figure_with_one_subplot_per_curve() -
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert len(fig.axes) == len(curves)
+
+
+# --- calibration_max_deviation ----------------------------------------------------------------
+
+
+def test_calibration_max_deviation_empty_curves_returns_empty_dict() -> None:
+    assert calibration_max_deviation([]) == {}
+
+
+def test_calibration_max_deviation_one_key_per_curve_name() -> None:
+    rng = np.random.default_rng(7)
+    n = 200
+    oof_label = rng.integers(0, 5, size=n)
+    oof_pred = rng.dirichlet(np.ones(5), size=n)
+    curves = reliability_curves(oof_pred, oof_label, EP_PROB_LABELS, n_bins=5)
+
+    result = calibration_max_deviation(curves)
+
+    assert set(result.keys()) == {curve.name for curve in curves}
+
+
+def test_calibration_max_deviation_equals_max_abs_difference_per_curve() -> None:
+    curve = ReliabilityCurve(
+        name="wp",
+        prob_true=np.array([0.1, 0.5, 0.9]),
+        prob_pred=np.array([0.2, 0.5, 0.6]),
+        n_bins=3,
+    )
+
+    result = calibration_max_deviation([curve])
+
+    assert result["wp"] == pytest.approx(0.3)
+
+
+def test_calibration_max_deviation_perfect_calibration_is_zero() -> None:
+    curve = ReliabilityCurve(
+        name="wp",
+        prob_true=np.array([0.1, 0.5, 0.9]),
+        prob_pred=np.array([0.1, 0.5, 0.9]),
+        n_bins=3,
+    )
+
+    result = calibration_max_deviation([curve])
+
+    assert result["wp"] == pytest.approx(0.0)
+
+
+def test_calibration_max_deviation_zero_bins_curve_contributes_zero_not_raise() -> None:
+    curve = ReliabilityCurve(
+        name="empty", prob_true=np.array([]), prob_pred=np.array([]), n_bins=0
+    )
+
+    result = calibration_max_deviation([curve])
+
+    assert result["empty"] == 0.0
 
 
 # --- oof_frame -------------------------------------------------------------------------------
