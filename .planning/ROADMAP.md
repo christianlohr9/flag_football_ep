@@ -488,7 +488,11 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - [x] `M3-04-07-PLAN.md` — `docs/hc-sync-2026-10.md`, the three Zusatzfragen (Frage 7-9) appended without breaking the six existing Fragen, and the human review before the October sync (HC-05)
   - Note (M3-4 planning, 2026-09-03): the "Was gewinnt ein Spiel?" exploratory cut is NOT planned — it stays in the backlog (BL-04) per M3-04-CONTEXT.md's Deferred Ideas. No WR/receiver table is planned either: the head coach's tab has none (verified from the workbook formula cells), so a receiver table would be extension, not reproduction. Two research findings are handled inside the phase rather than deferred: his camp splits are hard-coded row windows (not derivable from `hc_games.csv`), and the `drop` extras mapping is missing from the ingest layer. The handout's EPA half depends on M3-02-07/08 and degrades to a dated placeholder if they have not landed.
 
-**Execution Order (M3):** M3-1 → M3-2 → M3-3 → M3-4 (M3-3 research may start in parallel to M3-1).
+- [ ] **Phase M3-5: EPA-Modell als Produkt — Reproduzierbarkeit, Beförderungs-Gate, Modellkarte, Plattform-Entscheidung** - Coach-facing transparency (German model card per champion, MLflow UI with a how-to), engineering hygiene (lineage on every run: corpus fingerprint + git commit + config; dated corpus freeze before every retrain; automated promotion gate replacing manual `ffep promote`; CI run of the pipeline on fixtures), and ONE deliberate architecture decision record (`docs/adr/0001-modell-plattform.md`): batch + MLflow on one machine vs. containerised services on OTC vs. Kubernetes, feature store yes/no, multi-tenant data model for U17–Seniors and other programmes, PII/auth boundaries — decided with the user, with costs and a migration path. Context: `.planning/phases/M3-05-epa-plattform/M3-05-CONTEXT.md` (2026-09-08).
+  - **Plans:** TBD (research → plan after the M3-2 re-run of 2026-09-08 and the champion decision)
+  - **Goal:** A coach can see which EP/WP model is in production, why, how good it is and since when; every retrain is reproducible from a dated corpus freeze; promotion is gated, not judged by hand; and the platform question (feature store, Kubernetes, multi-team) is answered once, in writing, before the web app (BL-02) is built on it.
+
+**Execution Order (M3):** M3-1 → M3-2 → M3-3 → M3-4 → M3-5 (M3-3 research may start in parallel to M3-1; M3-5 after the M3-2 re-run of 2026-09-08).
 
 **Backlog (captured 2026-09-03, not scheduled):** game clock + score from TV broadcast via CV/OCR (heals WP's synthetic clock, C-08 — needs GER games with a scorebug on TV); coach-facing web app replacing the HC's Excel (product, multi-team); automated PBP stat collection from CV (blocked on ball tracking / ball chip — document feasibility conditions); "Was gewinnt ein Flag-Football-Spiel?" win-driver analysis; Timo Riske (PFF) question list on team factors in advanced stats.
 
@@ -520,3 +524,4 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M3-2 EPA-Refinement | 7/8 | Reviewed 2026-09-04; champion promotion decision pending (M3-02-08 task 2) | - |
 | M3-3 Explosiveness & Efficiency | 3/3 | Complete (variant b adopted 2026-09-04, recalibrated on the enlarged corpus) | - |
 | M3-4 Player-Analysis-Report | 7/7 | Complete (handout reviewed 2026-09-04) | - |
+| M3-5 EPA-Modell als Produkt | 0/TBD | Not started (context 2026-09-08; research next) | - |
