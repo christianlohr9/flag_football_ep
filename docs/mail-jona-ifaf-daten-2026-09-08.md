@@ -18,15 +18,15 @@ Was ich herausgefunden habe:
 1. Die Daten entstehen in zwei Schritten: Live-Erfassung am Spielfeld (Down, Spot, Score) und
    danach ein Review-Durchgang, in dem die Ballpositionen und Spielzüge bestätigt werden. Nur der
    Review-Durchgang liefert verlässliche Feldpositionen. Bei 13 Spielen wurde dieser Durchgang gar
-   nicht gemacht, bei weiteren Spielen nur teilweise. Beim Viertelfinale ESP–MEX hört der Review
-   nach 22 Spielzügen einfach auf; ab da fehlt jede Ballposition. Das Spiel trage ich gerade selbst
-   am Video nach.
+   nicht gemacht, darunter zwei von uns: GER–PAN (15.08.) und AUT–GER (16.08.). Bei weiteren
+   Spielen ist er unvollständig. Beim Viertelfinale MEX–ESP hört der Review nach 22 Spielzügen
+   einfach auf; ab da fehlt jede Ballposition. Das Spiel trage ich gerade selbst am Video nach.
 2. In 9 Spielen fehlen im Review einzelne Touchdown-Spielzüge samt Try komplett, obwohl die
    Statistiker die Punkte live korrekt eingetragen haben (das Live-Ereignisprotokoll der IFAF-App
    kennt Team, Art und Punkte). Das passiert auch in Spielen, die ansonsten vollständig reviewt
-   sind, es wurde also schlicht ein Spielzug ausgelassen. Die Punkte habe ich aus dem
-   Live-Protokoll ergänzt (als solche markiert), damit der Spielstand stimmt; der Spielzug selbst
-   bleibt ohne Details.
+   sind, es wurde also schlicht ein Spielzug ausgelassen, unter anderem bei USA–GER (15.08.) und
+   ITA–GER (13.08.). Die Punkte habe ich aus dem Live-Protokoll ergänzt (als solche markiert),
+   damit der Spielstand stimmt; der Spielzug selbst bleibt ohne Details.
 3. Bei Japan gegen Panama (13.08., Vorrunde) widersprechen sich Live-Protokoll und offizieller
    Endstand: Das Live-Protokoll ergibt 25–37, offiziell steht es 13–37. Zwei Touchdowns für Japan
    wurden also live gebucht, zählen offiziell aber nicht. Das Spiel lasse ich draußen, bis das
@@ -40,7 +40,7 @@ Was ich herausgefunden habe:
 Was das für dich heißt: Für gut 20 der 48 Frauen-Spiele haben wir vollständige, belastbare
 Daten inklusive EPA. Die restlichen Spiele sind entweder unvollständig (Positionen fehlen) oder
 ganz ohne Review. Ich bin dran, das Viertelfinale und ein weiteres Spiel per Video zu
-vervollständigen; für sechs Spiele haben wir nicht einmal die Video-Marken.
+vervollständigen; für sieben Spiele haben wir nicht einmal die Video-Marken.
 
 Falls du einen Draht zur IFAF-Statistik hast: Die Fragen, die wir stellen müssten, sind (a) ob der
 Review-Durchgang für die 13 offenen Spiele noch nachgeholt wird, (b) warum bei einigen Spielen der
@@ -54,32 +54,37 @@ Christian
 
 ## Anhang: betroffene Spiele (Frauen, Stand 2026-09-08)
 
-Kennungen sind die Spiel-IDs der IFAF-API; Teamkürzel aus `games.json`.
+Teamkürzel und Datum aus der IFAF-API; Heimteam zuerst.
 
 **A. Review-Durchgang nie gemacht (13 Spiele, keine verlässlichen Ballpositionen):**
-Spiele, deren `/plays`-Datensatz leer ist (`reconciliation.reason = no-tries-labelled`). Liste in
-`docs/ifaf-wm2026-daten.md`, Teil 3.
+MEX–ITA (14.08.), FRA–CHN (14.08.), AUS–SLO (14.08.), CHN–BRA (14.08.), ITA–JPN (15.08.),
+MEX–CAN (15.08.), ESP–AUT (15.08.), **GER–PAN (15.08.)**, FRA–SLO (15.08.), JPN–CHN (16.08.),
+ITA–AUS (16.08.), **AUT–GER (16.08.)**, ESP–PAN (16.08.).
 
-**B. Review-Durchgang abgebrochen oder unvollständig (Frauen, mit Anzahl fehlender Positionen):**
+**B. Review-Durchgang abgebrochen oder unvollständig (mit Anzahl fehlender Ballpositionen):**
 
-| Spiel | Plays ohne Position | Review endet bei Sequenz | Video-Marken vorhanden |
-|---|---:|---:|---|
-| `019ffff1-a8db…` (VF ESP–MEX) | 71 von 93 | 220 (nach 22 Plays) | ja |
-| `ffwc26-wd5` | 69 | – | ja |
-| `019ffff1-add2…` | 4 | – | ja |
-| `ffwc26-wa5`, `ffwc26-wb6` | je 1 | – | ja |
-| `019ffff1-a998…` | 85 | nie begonnen | nein |
-| `01a00140-b679…` | 92 | nie begonnen | nein |
-| `01a00140-b68c…` | 107 | nie begonnen | nein |
-| `01a0062b-6706…` | 2 | – | nein |
-| `01a0062b-6782…` | 47 | ab Sequenz 310 | nein |
-| `ffwc26-wc6` | 88 | – | nein |
-| `ffwc26-wd6` | 96 | – | nein |
+| Spiel | Datum | Plays ohne Position | Review | Video-Marken |
+|---|---|---:|---|---|
+| MEX–ESP (Viertelfinale) | 15.08. | 71 von 93 | endet nach 22 Plays | ja |
+| PAN–BRA | 14.08. | 69 | unvollständig | ja |
+| JPN–FRA | 14.08. | 4 | fast vollständig | ja |
+| GER–SLO | 14.08. | 1 | fast vollständig | ja |
+| USA–ESP | 14.08. | 1 | fast vollständig | ja |
+| CAN–AUT | 15.08. | 85 | nie begonnen | nein |
+| AUS–CHN | 15.08. | 92 | nie begonnen | nein |
+| SLO–BRA | 15.08. | 107 | nie begonnen | nein |
+| CAN–USA | 16.08. | 2 | fast vollständig | nein |
+| MEX–GBR | 16.08. | 47 | bricht mittendrin ab | nein |
+| GBR–AUT | 14.08. | 88 | unvollständig | nein |
+| CAN–JPN | 14.08. | 96 | unvollständig | nein |
 
-**C. Fehlende Touchdown-Spielzüge (Punkte aus dem Live-Protokoll ergänzt):** 9 Spiele, 8 TD- und
-19 Try-Ergänzungen; Liste in `docs/ifaf-field-mapping.md` (Nachtrag 2026-09-07, Ledger).
+**C. Fehlende Touchdown-Spielzüge (Punkte aus dem Live-Protokoll ergänzt), im akzeptierten
+Korpus:** USA–GER (15.08.), SLO–MEX (13.08.), ITA–GER (13.08.), GER–SLO (14.08.), USA–ESP (14.08.),
+AUT–CHN (13.08., drei Spielzüge); weitere in quarantänierten Spielen. Details in
+`docs/ifaf-field-mapping.md` (Nachtrag 2026-09-07, Ledger).
 
-**D. Widerspruch Live-Protokoll vs. Endstand:** Japan–Panama, 13.08. (`ffwc26-wd4`): Live-Protokoll 25–37, offiziell 13–37; ausgeschlossen.
+**D. Widerspruch Live-Protokoll vs. Endstand:** JPN–PAN (13.08.): Live-Protokoll 25–37,
+offiziell 13–37; ausgeschlossen.
 
 **E. Nachträglich veränderte Daten des Anbieters:** 11 Spiele, älterer Stand vom 17.08. genutzt
 (`data/raw/ifaf/snapshot_manifest.json`).
