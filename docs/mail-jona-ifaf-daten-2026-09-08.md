@@ -21,9 +21,12 @@ Was ich herausgefunden habe:
    nicht gemacht, bei weiteren Spielen nur teilweise. Beim Viertelfinale ESP–MEX hört der Review
    nach 22 Spielzügen einfach auf; ab da fehlt jede Ballposition. Das Spiel trage ich gerade selbst
    am Video nach.
-2. In 9 Spielen fehlen komplette Touchdown-Spielzüge samt Try, obwohl der Spielstand im
-   Live-Protokoll korrekt ist. Die Punkte habe ich aus dem Live-Protokoll ergänzt (als solche
-   markiert), damit der Spielstand stimmt; der Spielzug selbst bleibt aber ohne Details.
+2. In 9 Spielen fehlen im Review einzelne Touchdown-Spielzüge samt Try komplett, obwohl die
+   Statistiker die Punkte live korrekt eingetragen haben (das Live-Ereignisprotokoll der IFAF-App
+   kennt Team, Art und Punkte). Das passiert auch in Spielen, die ansonsten vollständig reviewt
+   sind, es wurde also schlicht ein Spielzug ausgelassen. Die Punkte habe ich aus dem
+   Live-Protokoll ergänzt (als solche markiert), damit der Spielstand stimmt; der Spielzug selbst
+   bleibt ohne Details.
 3. Bei einem Spiel widersprechen sich Live-Protokoll und offizieller Endstand um 12 Punkte. Das
    Spiel lasse ich draußen, bis das geklärt ist.
 4. Die API liefert keine Yards. Raumgewinn und Distanz zum nächsten First Down leite ich aus den
