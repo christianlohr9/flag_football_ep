@@ -692,6 +692,11 @@ this phase's scope; the ADR's job is to decide *when*, not *whether*, that chang
      this phase's Wave 1 should either (a) explicitly defer to the user's M3-02-08 checkpoint
      completing first, or (b) build the model card/gate generically enough that it describes
      "whichever run is currently aliased `champion`" rather than hard-coding a specific run id.
+   - **Resolved (2026-09-08):** `M3-05-01-PLAN.md` is the phase's first plan, wave 1, and
+     resolves this via an explicit `checkpoint:human-verify` before any later plan gates or
+     describes a champion — option (b) is additionally satisfied throughout: `M3-05-02`'s model
+     card and `M3-05-06`'s gate both resolve "whichever run is currently aliased `champion`" at
+     their own execution time, never a hard-coded run id.
 
 2. **Does `docs/epa-modellkarte.md` already exist, or is it still to be written?**
    - What we know: CONTEXT (dated 2026-09-08) describes it as "being written today" and
@@ -705,6 +710,11 @@ this phase's scope; the ADR's job is to decide *when*, not *whether*, that chang
      re-check immediately before planning, and if still absent, treat "define the model card's
      German structure from scratch" as this phase's own Wave 1 task rather than "port an
      existing template."
+   - **Resolved (2026-09-08):** the file exists (landed via `M3-02-RERUN-2026-09-08-SUMMARY.md`,
+     commit `ee46207`, hand-written) — confirmed present at plan-write time. `M3-05-02-PLAN.md`
+     (wave 1, no dependencies, the phase's coach-facing quick win) treats it as the v1
+     hand-written card and turns it into a generated artifact via `scripts/render_model_card.py`,
+     preserving its German section structure and prose tone rather than starting from scratch.
 
 3. **Should the freeze manifest's snapshot-date field for IFAF/HC-workbook sources be
    best-effort (file mtime) or require a new sidecar write in the fetch layer?**
@@ -715,6 +725,10 @@ this phase's scope; the ADR's job is to decide *when*, not *whether*, that chang
    - Recommendation: Claude's discretion per CONTEXT — recommend the best-effort mtime approach
      for this phase (Pitfall 3 option a), explicitly labelled as approximate in the manifest,
      with the sidecar write flagged as a fast-follow.
+   - **Resolved (2026-09-08):** `M3-05-03-PLAN.md` task 1 implements option (a) — best-effort
+     per-source file mtime, explicitly labelled `"approximate": true` in the manifest schema.
+     The fetch-layer `_fetched_at.json` sidecar remains an explicit, out-of-scope fast-follow,
+     not built by this phase.
 
 4. **What exact OTC OBS bucket/pricing tier would host an MLflow artifact store, and has
    anyone priced it against the OTC calculator (not this research's order-of-magnitude
@@ -731,6 +745,10 @@ this phase's scope; the ADR's job is to decide *when*, not *whether*, that chang
      the CV bundle sizes that motivated the existing OBS integration), but the user should run
      the actual calculator before signing the ADR's cost line if that line needs a number rather
      than "small."
+   - **Resolved (2026-09-08):** `M3-05-05-PLAN.md` (the ADR) carries every OTC cost figure
+     flagged `[ASSUMED, order-of-magnitude]` and its task-2 checkpoint explicitly instructs the
+     user to run the real OTC calculator before signing if precision matters — deferred to the
+     user by design, not answered by this research.
 
 ## Environment Availability
 
