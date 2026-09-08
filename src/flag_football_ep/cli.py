@@ -294,6 +294,35 @@ def ifaf_spot_fill_worksheets(
     typer.echo(f"spot-fill worksheets: {len(report)} game(s) written to {worksheet_dir}")
 
 
+@app.command(name="freeze-corpus")
+def freeze_corpus(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+) -> None:
+    """Write a dated, fingerprinted corpus freeze manifest from the ingested corpus."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+
+    import polars as pl
+
+    plays = pl.read_parquet(cfg.paths.processed / "plays.parquet")
+
+    from flag_football_ep.model import freeze as freeze_module
+
+    manifest = freeze_module.build_freeze_manifest(plays, cfg)
+    manifest_path = freeze_module.write_freeze_manifest(manifest, cfg)
+
+    typer.echo(f"freeze: {manifest_path}")
+    typer.echo(f"corpus_fingerprint: {manifest['corpus_fingerprint']}")
+    typer.echo(f"git_commit: {manifest['git_commit']}")
+    for source, count in sorted(manifest["per_source_row_counts"].items()):
+        typer.echo(f"  {source}: {count} rows")
+    typer.echo(
+        f"games: {manifest['games']['accepted']} accepted, "
+        f"{manifest['games']['quarantined']} quarantined"
+    )
+
+
 @app.command()
 def train(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),

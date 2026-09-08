@@ -1,0 +1,39 @@
+{
+  "corpus_fingerprint": "ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd",
+  "date": "2026-09-08",
+  "games": {
+    "accepted": 328,
+    "quarantined": 128,
+    "total": 456
+  },
+  "git_commit": "8dc1b170436eba249c79a2f4c5b4a6b583f3153c",
+  "per_source_row_counts": {
+    "hc_workbook:offense-analytics-2026-camps-and-competitions:data": 1183,
+    "hc_workbook:scoring-probability-by-situation-2023-2026:data": 5635,
+    "ifaf": 1951,
+    "legacy": 3701,
+    "legacy-sportapp": 14545
+  },
+  "per_source_snapshot_date": {
+    "hc_workbook:offense-analytics-2026-camps-and-competitions:data": {
+      "approximate": true,
+      "date": "2026-09-08T11:14:04.177531+00:00"
+    },
+    "hc_workbook:scoring-probability-by-situation-2023-2026:data": {
+      "approximate": true,
+      "date": "2026-09-08T11:14:04.177531+00:00"
+    },
+    "ifaf": {
+      "approximate": true,
+      "date": "2026-09-07T19:24:32.764707+00:00"
+    },
+    "legacy": {
+      "approximate": true,
+      "date": "2026-08-17T15:38:19.459822+00:00"
+    },
+    "legacy-sportapp": {
+      "approximate": true,
+      "date": "2026-08-17T15:38:19.459822+00:00"
+    }
+  }
+}

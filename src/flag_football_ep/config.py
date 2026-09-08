@@ -44,6 +44,10 @@ class Paths:
     # config written before M3 (missing this key entirely) keeps loading and
     # no pre-existing test fixture TOML needs an edit.
     raw_hc_files: Path = Path("data/raw/hc_files")
+    # M3-05-03: optional, same pre-existing-config-compat rationale as
+    # raw_hc_files above. Directory `ffep freeze-corpus` writes dated,
+    # fingerprinted freeze manifests into (model/freeze.py).
+    corpus_freeze: Path = Path("data/reference/corpus_freeze")
 
 
 @dataclass(frozen=True)
@@ -269,6 +273,11 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
         # pre-M3 ffep.toml doesn't declare this key.
         raw_hc_files=_resolve(
             base_dir, paths_table.get("raw_hc_files", "data/raw/hc_files")
+        ),
+        # Not in _PATH_KEYS/_key() deliberately (see Paths.corpus_freeze
+        # docstring): same pre-M3-05-compat fallback as raw_hc_files above.
+        corpus_freeze=_resolve(
+            base_dir, paths_table.get("corpus_freeze", "data/reference/corpus_freeze")
         ),
     )
 
