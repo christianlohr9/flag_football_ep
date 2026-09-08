@@ -2176,8 +2176,21 @@ def flatten_plays_records(
 # docstring above `replay_events_los_states`). `ifaf_spot_fill_worksheets.py`
 # builds the (gitignored, PII-carrying) worksheets that make locating each
 # play in the video cheap; the functions below apply the resulting,
-# PII-free `data/reference/ifaf_spot_fill/<game_id>.csv` fill files to the
-# ingest path itself.
+# PII-free `data/reference/ifaf_spot_fill/*.csv` fill files to the ingest
+# path itself.
+#
+# 2026-09-08 addendum -- filename-agnostic discovery: a fill file's NAME
+# carries no meaning. Earlier, `apply_spot_fill` read exactly one file,
+# `<fill_dir>/<game_id>.csv`, so the filename had to match the game it
+# covered. The project owner renaming a committed fill file (e.g. adding a
+# `fill_` prefix while editing) silently broke that convention -- the
+# renamed file was never looked up again, and the game's real fill values
+# stopped applying with no error at all. `load_spot_fill_for_game` below
+# now scans every `*.csv` under the fill dir and keys rows by their own
+# `game_id` cell instead, so a fill file may be named anything, and one
+# game's fill values may legitimately be spread across several files (e.g.
+# one file per review session). See that function's docstring for the
+# cross-file merge/duplicate-notice contract.
 # ---------------------------------------------------------------------------
 
 _SPOT_FILL_SCHEMA: dict[str, pl.DataType] = {
@@ -2189,25 +2202,124 @@ _SPOT_FILL_SCHEMA: dict[str, pl.DataType] = {
 
 
 def load_spot_fill(path: Path) -> pl.DataFrame:
-    """Load one game's manual `ballOn` fill file.
+    """Load one fill CSV file, verbatim, no game filtering.
 
-    `game_id,sequence,ballOn,note` -- `game_id` is the canonical id (this
-    frame's own `game_id`, e.g. `ifaf-<uuid>`; may be left empty per row,
-    treated as "this file's own game" by `apply_spot_fill`), `sequence` is
-    the raw `/plays` record's own `sequence` field (matches this frame's
-    `source_play_sequence`), `ballOn` is the owner's re-spotted yard line
-    (0-50 from the offense's own goal line) or empty when not yet filled
-    in, `note` is free text. See `data/reference/ifaf_spot_fill/README.md`
-    for the full convention.
+    `game_id,sequence,ballOn,note` -- `game_id` is the canonical id (e.g.
+    `ifaf-<uuid>`; may be left empty per row -- see
+    `load_spot_fill_for_game`'s docstring for what an empty cell means),
+    `sequence` is the raw `/plays` record's own `sequence` field (matches a
+    working frame's `source_play_sequence`), `ballOn` is the owner's
+    re-spotted yard line (0-50 from the offense's own goal line) or empty
+    when not yet filled in, `note` is free text. See
+    `data/reference/ifaf_spot_fill/README.md` for the full convention.
 
-    Returns an empty, correctly-typed frame when `path` does not exist -- a
-    game with no fill file at all is the normal, pre-populated-committed-
-    but-still-header-only case, not an error.
+    Returns an empty, correctly-typed frame when `path` does not exist --
+    a missing file is the normal, pre-populated-committed-but-still-
+    header-only case, not an error.
+
+    This is a single-file, unfiltered read. `apply_spot_fill` does not call
+    this directly for discovery any more (2026-09-08: fill file names are no
+    longer meaningful -- see `load_spot_fill_for_game`); it is kept as the
+    low-level per-file reader that function builds on, and is still used
+    directly wherever a caller already knows the exact file to read.
     """
     path = Path(path)
     if not path.exists():
         return pl.DataFrame(schema=dict(_SPOT_FILL_SCHEMA))
     return pl.read_csv(path, schema_overrides=_SPOT_FILL_SCHEMA)
+
+
+def _spot_fill_csv_paths(fill_dir: Path) -> list[Path]:
+    """Every `*.csv` fill file directly under `fill_dir`, sorted by filename
+    for a deterministic first-file-wins merge order (`load_spot_fill_for_game`).
+
+    A fill file's name carries no meaning any more (2026-09-08) -- only the
+    `game_id` column inside it does, so a game's committed fill file can be
+    renamed freely (e.g. the owner prefixing it while editing) without
+    breaking discovery. `README.md` is already excluded by the `.csv` glob;
+    an absent/non-directory `fill_dir` returns `[]`, matching the prior
+    single-file behavior of degrading a missing fill file to "nothing to
+    apply" rather than an error.
+    """
+    fill_dir = Path(fill_dir)
+    if not fill_dir.is_dir():
+        return []
+    return sorted(fill_dir.glob("*.csv"))
+
+
+def load_spot_fill_for_game(fill_dir: Path, game_id: str) -> tuple[list[dict], list[str]]:
+    """Collect every fill row for `game_id` across every `*.csv` file under
+    `fill_dir` (filename-agnostic -- 2026-09-08, see the module's manual
+    spot fill section above for why).
+
+    A row's own `game_id` cell selects it: a non-empty value must equal
+    `game_id` exactly (a non-matching value means the row belongs to a
+    different game sharing this fill dir -- silently not this call's
+    concern, since a fill dir can now legitimately hold every game's rows
+    across a handful of shared files); an empty/null cell is treated as
+    "this call's own game" (the original single-game-file convenience,
+    still honored, just no longer tied to the filename).
+
+    Files are read in sorted-filename order, rows within a file in file
+    order -- that is the "first wins" order for two rows sharing the same
+    `sequence`. A later row with the same `sequence` but a DIFFERENT
+    `ballOn` produces a notice (never silently dropped -- the point of the
+    game being spread over several files is that a conflict between them
+    must surface, not disappear); the same `ballOn` value twice (e.g. the
+    owner copy-pasted a row into a new file) is a harmless duplicate,
+    deduped without a notice. A row with no usable `sequence` at all is
+    passed through unfiltered -- `apply_spot_fill`'s own row-level
+    validation (unchanged) is what turns that into a notice, this function
+    only handles cross-file discovery and merge.
+
+    Returns `([], [])` for a game with no matching fill row anywhere.
+    """
+    notices: list[str] = []
+    seen: dict[float, tuple[Any, str]] = {}
+    rows_out: list[dict] = []
+
+    for path in _spot_fill_csv_paths(fill_dir):
+        file_df = load_spot_fill(path)
+        if file_df.height == 0:
+            continue
+        for fgame_id, fseq, fball, fnote in file_df.select(
+            ["game_id", "sequence", "ballOn", "note"]
+        ).rows():
+            if fgame_id is not None and fgame_id != game_id:
+                continue
+            if fseq is None:
+                rows_out.append(
+                    {
+                        "game_id": fgame_id,
+                        "sequence": fseq,
+                        "ballOn": fball,
+                        "note": fnote,
+                        "source_file": path.name,
+                    }
+                )
+                continue
+            prior = seen.get(fseq)
+            if prior is not None:
+                prior_ball, prior_file = prior
+                if fball != prior_ball:
+                    notices.append(
+                        f"duplicate fill for game {game_id!r} sequence {fseq}: "
+                        f"{path.name} has ballOn={fball}, {prior_file} already set "
+                        f"ballOn={prior_ball} -- {prior_file}'s value wins"
+                    )
+                continue
+            seen[fseq] = (fball, path.name)
+            rows_out.append(
+                {
+                    "game_id": fgame_id,
+                    "sequence": fseq,
+                    "ballOn": fball,
+                    "note": fnote,
+                    "source_file": path.name,
+                }
+            )
+
+    return rows_out, notices
 
 
 def apply_spot_fill(df: pl.DataFrame, fill_dir: Path | None) -> tuple[pl.DataFrame, list[str]]:
@@ -2226,30 +2338,32 @@ def apply_spot_fill(df: pl.DataFrame, fill_dir: Path | None) -> tuple[pl.DataFra
     `derive_yards_to_go`, so a filled spot flows through those derivations
     exactly like a real one -- neither function distinguishes `spot_source`.
 
-    A strict no-op when `fill_dir` is `None` or the game has no fill file
-    (`load_spot_fill` already degrades an absent file to an empty frame) --
-    every existing caller/test that doesn't pass `fill_dir` keeps its exact
-    prior behavior.
+    A strict no-op when `fill_dir` is `None` or the game has no fill row
+    anywhere in it (`load_spot_fill_for_game` already degrades that to an
+    empty list) -- every existing caller/test that doesn't pass `fill_dir`
+    keeps its exact prior behavior.
 
-    For each fill row (file order):
+    Row discovery/merge across possibly several files (which `*.csv` files
+    exist, which rows belong to this game, first-file-wins on a duplicate
+    `sequence`) is `load_spot_fill_for_game`'s job, not this function's --
+    see that docstring. For each row it returns (in its own merge order):
     - an empty `ballOn` cell (the not-yet-filled-in state every row starts
       in): silently skipped, not a notice -- the expected state for every
       row the owner hasn't reached yet.
-    - a non-empty `game_id` that does not match this frame's own `game_id`:
-      a per-file notice, row ignored (a copy-paste mistake across files).
     - `sequence` matching no record's own `source_play_sequence` in this
-      game: a per-file notice naming the sequence, row ignored (a typo, or
+      game: a per-row notice naming the sequence, row ignored (a typo, or
       a stale row from before the underlying snapshot changed).
-    - `ballOn` outside `[0, 50]`: a per-file notice naming the sequence and
+    - `ballOn` outside `[0, 50]`: a per-row notice naming the sequence and
       the out-of-range value, row ignored.
     - the matched record already has a real (non-null) `yardline_50`: a
-      per-file notice -- a real spot is NEVER overwritten by a fill, even
+      per-row notice -- a real spot is NEVER overwritten by a fill, even
       when the fill file carries a value for it.
     - otherwise: `yardline_50` is set to the fill's `ballOn`, `spot_source`
       is stamped `"manual"`, and the matching `_missing_ballon` working
       marker is cleared, so `ingest_snapshots`' own missing-context notice
       reflects the post-fill state rather than the pre-fill gap this fill
-      just closed.
+      just closed. One "applied N manual ballOn fill(s)" notice is emitted
+      per contributing source file.
 
     Never raises -- an unparseable fill file surfaces as a notice via
     `ingest_snapshots`' existing per-game exception containment (T-1.2-44/
@@ -2262,9 +2376,9 @@ def apply_spot_fill(df: pl.DataFrame, fill_dir: Path | None) -> tuple[pl.DataFra
         return df, notices
 
     game_id = df["game_id"][0]
-    fill_path = Path(fill_dir) / f"{game_id}.csv"
-    fill = load_spot_fill(fill_path)
-    if fill.height == 0:
+    fill_rows, discovery_notices = load_spot_fill_for_game(fill_dir, game_id)
+    notices.extend(discovery_notices)
+    if not fill_rows:
         return df, notices
 
     seq_to_idx: dict[float, int] = {}
@@ -2275,41 +2389,39 @@ def apply_spot_fill(df: pl.DataFrame, fill_dir: Path | None) -> tuple[pl.DataFra
     yardline_50 = df["yardline_50"].to_list()
     spot_source = df["spot_source"].to_list()
     missing_ballon = df["_missing_ballon"].to_list()
-    applied = 0
+    applied_by_file: dict[str, int] = {}
 
-    for fgame_id, fseq, fball, _fnote in fill.select(["game_id", "sequence", "ballOn", "note"]).rows():
-        if fgame_id is not None and fgame_id != game_id:
-            notices.append(
-                f"{fill_path.name}: row game_id {fgame_id!r} does not match {game_id!r}, ignored"
-            )
-            continue
+    for row in fill_rows:
+        fseq = row["sequence"]
+        fball = row["ballOn"]
+        source_file = row["source_file"]
         if fball is None:
             continue
         if fseq is None:
-            notices.append(f"{fill_path.name}: ballOn={fball} with no sequence, ignored")
+            notices.append(f"{source_file}: ballOn={fball} with no sequence, ignored")
             continue
         idx = seq_to_idx.get(fseq)
         if idx is None:
             notices.append(
-                f"{fill_path.name}: sequence {fseq} not found in this game's /plays records, ignored"
+                f"{source_file}: sequence {fseq} not found in this game's /plays records, ignored"
             )
             continue
         if not (0 <= fball <= 50):
             notices.append(
-                f"{fill_path.name}: sequence {fseq} ballOn={fball} out of range [0, 50], ignored"
+                f"{source_file}: sequence {fseq} ballOn={fball} out of range [0, 50], ignored"
             )
             continue
         if yardline_50[idx] is not None:
             notices.append(
-                f"{fill_path.name}: sequence {fseq} already has a real ballOn spot, fill ignored"
+                f"{source_file}: sequence {fseq} already has a real ballOn spot, fill ignored"
             )
             continue
         yardline_50[idx] = int(fball)
         spot_source[idx] = "manual"
         missing_ballon[idx] = 0
-        applied += 1
+        applied_by_file[source_file] = applied_by_file.get(source_file, 0) + 1
 
-    if applied:
+    if applied_by_file:
         df = df.with_columns(
             [
                 pl.Series("yardline_50", yardline_50, dtype=pl.Int32),
@@ -2317,7 +2429,8 @@ def apply_spot_fill(df: pl.DataFrame, fill_dir: Path | None) -> tuple[pl.DataFra
                 pl.Series("_missing_ballon", missing_ballon, dtype=pl.Int32),
             ]
         )
-        notices.append(f"{fill_path.name}: applied {applied} manual ballOn fill(s)")
+        for fname in sorted(applied_by_file):
+            notices.append(f"{fname}: applied {applied_by_file[fname]} manual ballOn fill(s)")
 
     return df, notices
 

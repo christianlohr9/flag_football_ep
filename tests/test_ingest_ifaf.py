@@ -2466,8 +2466,12 @@ def test_ingest_snapshots_plays_resolves_player_names_via_roster(tmp_path):
 
 
 def _write_spot_fill_csv(fill_dir: Path, game_id: str, rows: list[dict]) -> Path:
+    return _write_spot_fill_csv_named(fill_dir, f"{game_id}.csv", rows)
+
+
+def _write_spot_fill_csv_named(fill_dir: Path, filename: str, rows: list[dict]) -> Path:
     fill_dir.mkdir(parents=True, exist_ok=True)
-    path = fill_dir / f"{game_id}.csv"
+    path = fill_dir / filename
     with path.open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["game_id", "sequence", "ballOn", "note"])
         writer.writeheader()
@@ -2588,7 +2592,11 @@ def test_apply_spot_fill_empty_ballon_cell_silently_skipped(tmp_path):
     assert notices == []
 
 
-def test_apply_spot_fill_mismatched_game_id_row_is_notice_and_ignored(tmp_path):
+def test_apply_spot_fill_row_for_a_different_game_id_is_ignored_without_a_notice(tmp_path):
+    """A row explicitly tagged for another game (sharing this fill dir) is
+    simply not this game's concern -- filename-agnostic discovery (2026-09-08)
+    means a fill dir routinely holds every game's rows across a handful of
+    shared files, so this is normal, not a copy-paste mistake worth flagging."""
     payload = [_play_record(10, down=1, ball_on=None)]
     df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
     fill_dir = tmp_path / "ifaf_spot_fill"
@@ -2599,7 +2607,90 @@ def test_apply_spot_fill_mismatched_game_id_row_is_notice_and_ignored(tmp_path):
     out, notices = apply_spot_fill(df, fill_dir)
 
     assert out["yardline_50"].to_list() == [None]
-    assert any("does not match" in n for n in notices)
+    assert notices == []
+
+
+def test_apply_spot_fill_finds_a_renamed_fill_file_by_game_id_column(tmp_path):
+    """The owner renaming the committed fill file (e.g. adding a `fill_`
+    prefix while editing) must not silently stop it from being applied."""
+    payload = [_play_record(10, down=1, ball_on=5), _play_record(20, down=2, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv_named(
+        fill_dir,
+        "fill_ifaf-g1.csv",
+        [{"game_id": "ifaf-g1", "sequence": 20, "ballOn": 11, "note": ""}],
+    )
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [5, 11]
+    assert out["spot_source"].to_list() == [None, "manual"]
+    assert any("fill_ifaf-g1.csv: applied 1 manual ballOn fill" in n for n in notices)
+
+
+def test_apply_spot_fill_tolerates_one_game_spread_over_several_files(tmp_path):
+    payload = [
+        _play_record(10, down=1, ball_on=None),
+        _play_record(20, down=2, ball_on=None),
+        _play_record(30, down=3, ball_on=None),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv_named(
+        fill_dir, "session1.csv", [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": 5, "note": ""}]
+    )
+    _write_spot_fill_csv_named(
+        fill_dir, "session2.csv", [{"game_id": "ifaf-g1", "sequence": 20, "ballOn": 11, "note": ""}]
+    )
+    _write_spot_fill_csv_named(
+        fill_dir, "session3.csv", [{"game_id": "ifaf-g1", "sequence": 30, "ballOn": 31, "note": ""}]
+    )
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [5, 11, 31]
+    assert out["spot_source"].to_list() == ["manual", "manual", "manual"]
+    applied_notices = [n for n in notices if "applied" in n]
+    assert len(applied_notices) == 3
+
+
+def test_apply_spot_fill_conflicting_duplicate_across_files_is_a_notice_first_wins(tmp_path):
+    payload = [_play_record(10, down=1, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv_named(
+        fill_dir, "a_first.csv", [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": 15, "note": ""}]
+    )
+    _write_spot_fill_csv_named(
+        fill_dir, "b_second.csv", [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": 22, "note": ""}]
+    )
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    # a_first.csv sorts before b_second.csv -- first wins.
+    assert out["yardline_50"].to_list() == [15]
+    assert any(
+        "duplicate fill for game 'ifaf-g1' sequence 10.0" in n and "a_first.csv" in n
+        for n in notices
+    )
+
+
+def test_apply_spot_fill_duplicate_same_value_across_files_is_silently_deduped(tmp_path):
+    payload = [_play_record(10, down=1, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv_named(
+        fill_dir, "a_first.csv", [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": 15, "note": ""}]
+    )
+    _write_spot_fill_csv_named(
+        fill_dir, "b_second.csv", [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": 15, "note": ""}]
+    )
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [15]
+    assert not any("duplicate fill" in n for n in notices)
 
 
 def test_ingest_snapshots_wires_spot_fill_dir_end_to_end(tmp_path):
