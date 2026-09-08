@@ -491,9 +491,9 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 - [ ] **Phase M3-5: EPA-Modell als Produkt — Reproduzierbarkeit, Beförderungs-Gate, Modellkarte, Plattform-Entscheidung** - Coach-facing transparency (German model card per champion, MLflow UI with a how-to), engineering hygiene (lineage on every run: corpus fingerprint + git commit + config; dated corpus freeze before every retrain; automated promotion gate replacing manual `ffep promote`; CI run of the pipeline on fixtures), and ONE deliberate architecture decision record (`docs/adr/0001-modell-plattform.md`): batch + MLflow on one machine vs. containerised services on OTC vs. Kubernetes, feature store yes/no, multi-tenant data model for U17–Seniors and other programmes, PII/auth boundaries — decided with the user, with costs and a migration path. Context: `.planning/phases/M3-05-epa-plattform/M3-05-CONTEXT.md` (2026-09-08).
   - **Plans:** 8 plans (waves 1-4; plans 01, 05 and 07 end in user checkpoints; quick wins first per CONTEXT)
   - [ ] `M3-05-01-PLAN.md` — champion-promotion checkpoint: the pending M3-02-08 decision (both/wp/none) taken explicitly before any gate is applied (PROD-01)
-  - [ ] `M3-05-02-PLAN.md` — coach-facing quick win: `docs/mlflow-ui-howto.md` and the first GENERATED model card (`scripts/render_model_card.py` from the live champion + 2026-09-08 CSVs, degrading gracefully where newer metrics are missing) (PROD-02)
+  - [x] `M3-05-02-PLAN.md` — coach-facing quick win: `docs/mlflow-ui-howto.md` and the first GENERATED model card (`scripts/render_model_card.py` from the live champion + 2026-09-08 CSVs, degrading gracefully where newer metrics are missing) (PROD-02)
   - [ ] `M3-05-03-PLAN.md` — corpus freeze manifest (`ffep freeze-corpus`, `model/freeze.py`) and training lineage (git commit, corpus fingerprint, config hash) plus gate metrics (scalar calibration, per-tier log-loss, no-play share) in the shared `_log_run` path, `ffep train --freeze` citation (PROD-03, PROD-04)
-  - [ ] `M3-05-04-PLAN.md` — CI on fixtures (`.github/workflows/ci.yml`, no secrets) (PROD-05)
+  - [x] `M3-05-04-PLAN.md` — CI on fixtures (`.github/workflows/ci.yml`, no secrets) (PROD-05)
   - [ ] `M3-05-05-PLAN.md` — platform ADR `docs/adr/0001-modell-plattform.md` (German): single machine now with a migration trigger vs small OTC VM vs Kubernetes/feature store (deliberately out for now), costs, burden, migration path; user signs (PROD-06)
   - [ ] `M3-05-06-PLAN.md` — the promotion gate (`model/gate.py`, `[promotion_gate]` in `ffep.toml`, `ffep promote --force --reason` logged as an MLflow tag) (PROD-07)
   - [ ] `M3-05-07-PLAN.md` — the extra-point training-leak fix as a measured methodology change: fresh four-arm LOGO re-run, before/after, through the gate before any promotion (PROD-08)
@@ -531,4 +531,4 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M3-2 EPA-Refinement | 7/8 | Reviewed 2026-09-04; champion promotion decision pending (M3-02-08 task 2) | - |
 | M3-3 Explosiveness & Efficiency | 3/3 | Complete (variant b adopted 2026-09-04, recalibrated on the enlarged corpus) | - |
 | M3-4 Player-Analysis-Report | 7/7 | Complete (handout reviewed 2026-09-04) | - |
-| M3-5 EPA-Modell als Produkt | 0/8 | Checked 2026-09-08; wave 1 executing (02/03/04), 01 + 05 wait for the user | - |
+| M3-5 EPA-Modell als Produkt | 2/8 | In progress (02 card+UI, 04 CI done; 03 running; 01 promotion=both pending 03; 05 ADR at user sign-off) | - |
