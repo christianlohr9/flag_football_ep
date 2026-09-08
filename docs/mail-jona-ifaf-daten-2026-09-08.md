@@ -27,8 +27,10 @@ Was ich herausgefunden habe:
    sind, es wurde also schlicht ein Spielzug ausgelassen. Die Punkte habe ich aus dem
    Live-Protokoll ergänzt (als solche markiert), damit der Spielstand stimmt; der Spielzug selbst
    bleibt ohne Details.
-3. Bei einem Spiel widersprechen sich Live-Protokoll und offizieller Endstand um 12 Punkte. Das
-   Spiel lasse ich draußen, bis das geklärt ist.
+3. Bei Japan gegen Panama (13.08., Vorrunde) widersprechen sich Live-Protokoll und offizieller
+   Endstand: Das Live-Protokoll ergibt 25–37, offiziell steht es 13–37. Zwei Touchdowns für Japan
+   wurden also live gebucht, zählen offiziell aber nicht. Das Spiel lasse ich draußen, bis das
+   geklärt ist.
 4. Die API liefert keine Yards. Raumgewinn und Distanz zum nächsten First Down leite ich aus den
    Ballpositionen und den Regeln (Mittellinie, dann Endzone) ab; das stimmt in 98 % der prüfbaren
    Fälle mit den Markern der Statistiker überein.
@@ -77,7 +79,7 @@ Spiele, deren `/plays`-Datensatz leer ist (`reconciliation.reason = no-tries-lab
 **C. Fehlende Touchdown-Spielzüge (Punkte aus dem Live-Protokoll ergänzt):** 9 Spiele, 8 TD- und
 19 Try-Ergänzungen; Liste in `docs/ifaf-field-mapping.md` (Nachtrag 2026-09-07, Ledger).
 
-**D. Widerspruch Live-Protokoll vs. Endstand:** `ffwc26-wd4` (25–37 vs. 13–37), ausgeschlossen.
+**D. Widerspruch Live-Protokoll vs. Endstand:** Japan–Panama, 13.08. (`ffwc26-wd4`): Live-Protokoll 25–37, offiziell 13–37; ausgeschlossen.
 
 **E. Nachträglich veränderte Daten des Anbieters:** 11 Spiele, älterer Stand vom 17.08. genutzt
 (`data/raw/ifaf/snapshot_manifest.json`).
