@@ -227,22 +227,56 @@ def ifaf_spot_fill_worksheets(
         "--out-dir",
         help="Worksheet output directory (default: data/raw/ifaf/spot_fill_worksheets)",
     ),
+    collect: bool = typer.Option(
+        False,
+        "--collect",
+        help=(
+            "Instead of (re)generating worksheets, copy ballOn/note values already typed "
+            "into each worksheet into that game's fill file under data/reference/ifaf_spot_fill/"
+        ),
+    ),
 ) -> None:
     """(Re)generate the local, PII-carrying spot-fill worksheets for every
     partially spotted IFAF women's game (null ballOn on a real /plays
     record) -- one CSV per game, used to locate each play in the broadcast
     video while filling in data/reference/ifaf_spot_fill/<game_id>.csv.
     Idempotent: never overwrites a ballOn/note cell already typed in.
+
+    `--collect` does the opposite direction instead: it never touches the
+    worksheets, and copies whatever ballOn/note the owner already typed
+    into them straight into the committed fill file(s) -- so typing a spot
+    into the worksheet works just as well as typing it directly into the
+    fill file (both are read; `--collect` just moves worksheet values over).
     """
     from flag_football_ep.config import load_config
 
     cfg = load_config(config)
+    worksheet_dir = out_dir or (cfg.paths.raw_ifaf / "spot_fill_worksheets")
+
+    if collect:
+        from flag_football_ep.ingest.ifaf_spot_fill_worksheets import collect_worksheet_fills
+
+        report, notices = collect_worksheet_fills(worksheet_dir, cfg.reference.ifaf_spot_fill)
+
+        for notice in notices:
+            typer.echo(f"spot-fill collect: {notice}")
+
+        if not report:
+            typer.echo("spot-fill collect: no new ballOn values found in the worksheets")
+            return
+
+        for gid, count in sorted(report.items()):
+            typer.echo(f"spot-fill collect: {gid} -- {count} value(s) collected")
+        typer.echo(
+            f"spot-fill collect: {sum(report.values())} value(s) across {len(report)} "
+            f"game(s) written to {cfg.reference.ifaf_spot_fill}"
+        )
+        return
 
     from flag_football_ep.reference import load_team_mapping
     from flag_football_ep.ingest.ifaf_spot_fill_worksheets import generate_worksheets
 
     team_mapping = load_team_mapping(cfg.reference.team_mapping)
-    worksheet_dir = out_dir or (cfg.paths.raw_ifaf / "spot_fill_worksheets")
 
     report = generate_worksheets(cfg.paths.raw_ifaf, worksheet_dir, team_mapping)
 

@@ -17,6 +17,7 @@ import polars as pl
 from flag_football_ep.ingest.ifaf_spot_fill_worksheets import (
     WORKSHEET_COLUMNS,
     build_worksheet_rows,
+    collect_worksheet_fills,
     find_partially_spotted_women_games,
     generate_worksheets,
 )
@@ -254,6 +255,144 @@ def test_generate_worksheets_is_idempotent_and_preserves_typed_values(tmp_path):
     filled = next(r for r in rows_after if r["sequence"] == "20")
     assert filled["ballOn"] == "11"
     assert filled["note"] == "read off video"
+
+
+# --- collect_worksheet_fills (--collect) ------------------------------------
+
+
+def _write_worksheet_csv(worksheet_dir: Path, game_id: str, rows: list[dict]) -> Path:
+    """A minimal worksheet CSV -- only the columns `collect_worksheet_fills`
+    itself reads (`game_id`, `sequence`, `ballOn`, `note`, `spot_status`)
+    need real values; the rest of `WORKSHEET_COLUMNS` is filled with `""`."""
+    worksheet_dir.mkdir(parents=True, exist_ok=True)
+    path = worksheet_dir / f"{game_id}.csv"
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(WORKSHEET_COLUMNS), lineterminator="\n")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({col: row.get(col, "") for col in WORKSHEET_COLUMNS})
+    return path
+
+
+def _read_fill_csv(path: Path) -> list[dict]:
+    return list(csv.DictReader(path.open(encoding="utf-8")))
+
+
+def test_collect_worksheet_fills_creates_new_fill_file(tmp_path):
+    worksheet_dir = tmp_path / "worksheets"
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_worksheet_csv(
+        worksheet_dir,
+        "ifaf-g1",
+        [
+            {"game_id": "ifaf-g1", "sequence": "10", "spot_status": "real", "ballOn": "5"},
+            {
+                "game_id": "ifaf-g1",
+                "sequence": "20",
+                "spot_status": "missing",
+                "ballOn": "11",
+                "note": "LOS read off video",
+            },
+        ],
+    )
+
+    report, notices = collect_worksheet_fills(worksheet_dir, fill_dir)
+
+    assert report == {"ifaf-g1": 1}
+    assert notices == []
+    fill_path = fill_dir / "ifaf-g1.csv"
+    assert fill_path.exists()
+    rows = _read_fill_csv(fill_path)
+    assert rows == [
+        {"game_id": "ifaf-g1", "sequence": "20", "ballOn": "11", "note": "LOS read off video"}
+    ]
+
+
+def test_collect_worksheet_fills_skips_real_rows(tmp_path):
+    worksheet_dir = tmp_path / "worksheets"
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_worksheet_csv(
+        worksheet_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": "10", "spot_status": "real", "ballOn": "5"}],
+    )
+
+    report, notices = collect_worksheet_fills(worksheet_dir, fill_dir)
+
+    assert report == {}
+    assert notices == []
+    assert not (fill_dir / "ifaf-g1.csv").exists()
+
+
+def test_collect_worksheet_fills_is_idempotent(tmp_path):
+    worksheet_dir = tmp_path / "worksheets"
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_worksheet_csv(
+        worksheet_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": "20", "spot_status": "missing", "ballOn": "11"}],
+    )
+
+    first_report, _ = collect_worksheet_fills(worksheet_dir, fill_dir)
+    assert first_report == {"ifaf-g1": 1}
+
+    second_report, second_notices = collect_worksheet_fills(worksheet_dir, fill_dir)
+    assert second_report == {}
+    assert second_notices == []
+
+    rows = _read_fill_csv(fill_dir / "ifaf-g1.csv")
+    assert rows == [{"game_id": "ifaf-g1", "sequence": "20", "ballOn": "11", "note": ""}]
+
+
+def test_collect_worksheet_fills_never_overwrites_a_conflicting_existing_value(tmp_path):
+    worksheet_dir = tmp_path / "worksheets"
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    fill_dir.mkdir(parents=True, exist_ok=True)
+    with (fill_dir / "ifaf-g1.csv").open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["game_id", "sequence", "ballOn", "note"], lineterminator="\n")
+        writer.writeheader()
+        writer.writerow({"game_id": "ifaf-g1", "sequence": "20", "ballOn": "9", "note": "already reviewed"})
+
+    _write_worksheet_csv(
+        worksheet_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": "20", "spot_status": "missing", "ballOn": "11"}],
+    )
+
+    report, notices = collect_worksheet_fills(worksheet_dir, fill_dir)
+
+    assert report == {}
+    assert any("conflicts with existing fill value" in n for n in notices)
+    rows = _read_fill_csv(fill_dir / "ifaf-g1.csv")
+    assert rows == [{"game_id": "ifaf-g1", "sequence": "20", "ballOn": "9", "note": "already reviewed"}]
+
+
+def test_collect_worksheet_fills_merges_into_an_existing_fill_file_under_any_name(tmp_path):
+    """A fill file for this game already exists (renamed, filename-agnostic
+    discovery -- 2026-09-08); --collect must append there, not create a
+    second, differently named file for the same game."""
+    worksheet_dir = tmp_path / "worksheets"
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    fill_dir.mkdir(parents=True, exist_ok=True)
+    with (fill_dir / "fill_ifaf-g1.csv").open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["game_id", "sequence", "ballOn", "note"], lineterminator="\n")
+        writer.writeheader()
+        writer.writerow({"game_id": "ifaf-g1", "sequence": "10", "ballOn": "5", "note": ""})
+
+    _write_worksheet_csv(
+        worksheet_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": "20", "spot_status": "missing", "ballOn": "11"}],
+    )
+
+    report, notices = collect_worksheet_fills(worksheet_dir, fill_dir)
+
+    assert report == {"ifaf-g1": 1}
+    assert notices == []
+    assert not (fill_dir / "ifaf-g1.csv").exists()
+    rows = _read_fill_csv(fill_dir / "fill_ifaf-g1.csv")
+    assert {"game_id": "ifaf-g1", "sequence": "10", "ballOn": "5", "note": ""} in rows
+    assert {"game_id": "ifaf-g1", "sequence": "20", "ballOn": "11", "note": ""} in rows
 
 
 def test_generate_worksheets_csv_is_comma_lf_no_semicolons(tmp_path):

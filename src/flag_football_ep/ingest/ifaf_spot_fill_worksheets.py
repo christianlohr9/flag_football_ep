@@ -280,6 +280,142 @@ def _write_worksheet(path: Path, rows: list[dict]) -> None:
             writer.writerow({col: row.get(col, "") for col in WORKSHEET_COLUMNS})
 
 
+_FILL_COLUMNS: tuple[str, ...] = ("game_id", "sequence", "ballOn", "note")
+
+
+def _read_fill_rows(path: Path) -> list[dict]:
+    """Read one fill CSV's rows as plain dicts (string cells, no type
+    coercion) -- `--collect`'s own merge logic below works on the raw text,
+    same as `_read_existing_csv`/`_write_worksheet` above do for worksheets;
+    `ifaf.load_spot_fill` (typed, `pl.DataFrame`) stays the ingest-path
+    reader and is not reused here."""
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def _write_fill_rows(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(_FILL_COLUMNS), lineterminator="\n")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({col: row.get(col, "") for col in _FILL_COLUMNS})
+
+
+def _find_fill_file_for_game(fill_dir: Path, game_id: str) -> Path | None:
+    """The existing fill file (any name -- filenames are free, 2026-09-08)
+    that already carries at least one row for `game_id`, or `None` if no
+    fill file under `fill_dir` mentions this game yet."""
+    fill_dir = Path(fill_dir)
+    if not fill_dir.is_dir():
+        return None
+    for path in sorted(fill_dir.glob("*.csv")):
+        for row in _read_fill_rows(path):
+            if row.get("game_id") == game_id:
+                return path
+    return None
+
+
+def collect_worksheet_fills(worksheet_dir: Path, fill_dir: Path) -> tuple[dict[str, int], list[str]]:
+    """Copy every `ballOn`/`note` value the project owner has already typed
+    into a worksheet (`data/raw/ifaf/spot_fill_worksheets/<game_id>.csv`,
+    rows with `spot_status != "real"` only -- a `"real"` row is orientation
+    context, never a value to collect) into that game's committed fill file
+    under `fill_dir`.
+
+    Creates `<game_id>.csv` if no fill file mentions this game yet;
+    otherwise appends/merges into whichever existing fill file already
+    does (any name -- `_find_fill_file_for_game`), leaving that file's
+    other rows (this game's own already-filled rows, or another game's
+    rows it happens to also carry) untouched.
+
+    Idempotent: re-running never overwrites a fill `ballOn` already present
+    with a DIFFERENT number -- that is a notice (never silent), and the
+    existing fill value wins, same "never silently overwritten" contract
+    `ifaf.apply_spot_fill` already applies on the ingest side. The same
+    value twice is a harmless no-op, not a notice. A worksheet cell with no
+    `ballOn` yet (only a `note`, or genuinely empty) contributes its `note`
+    once a `ballOn` exists for that row but is never counted as collected
+    on its own.
+
+    Returns `({game_id: collected_count}, notices)` -- `collected_count` is
+    only for rows that gained a NEW `ballOn` value in the fill file this
+    run (an unchanged existing value is not re-counted).
+    """
+    worksheet_dir = Path(worksheet_dir)
+    fill_dir = Path(fill_dir)
+    report: dict[str, int] = {}
+    notices: list[str] = []
+
+    if not worksheet_dir.is_dir():
+        return report, notices
+
+    for wpath in sorted(worksheet_dir.glob("*.csv")):
+        with wpath.open("r", encoding="utf-8", newline="") as f:
+            wrows = list(csv.DictReader(f))
+        if not wrows:
+            continue
+        game_id = wrows[0].get("game_id") or ""
+        if not game_id:
+            continue
+
+        candidates = [
+            row
+            for row in wrows
+            if row.get("spot_status") != "real"
+            and ((row.get("ballOn") or "").strip() or (row.get("note") or "").strip())
+        ]
+        if not candidates:
+            continue
+
+        target_path = _find_fill_file_for_game(fill_dir, game_id) or (fill_dir / f"{game_id}.csv")
+        existing_rows = _read_fill_rows(target_path)
+        by_key = {(r.get("game_id", ""), r.get("sequence", "")): r for r in existing_rows}
+
+        collected = 0
+        changed = False
+        for wrow in candidates:
+            seq = wrow.get("sequence", "")
+            ball = (wrow.get("ballOn") or "").strip()
+            note = (wrow.get("note") or "").strip()
+            key = (game_id, seq)
+            prior = by_key.get(key)
+
+            if prior is None:
+                if not ball:
+                    continue  # note-only row, nothing to collect yet
+                new_row = {"game_id": game_id, "sequence": seq, "ballOn": ball, "note": note}
+                by_key[key] = new_row
+                existing_rows.append(new_row)
+                collected += 1
+                changed = True
+                continue
+
+            prior_ball = (prior.get("ballOn") or "").strip()
+            if ball and prior_ball and ball != prior_ball:
+                notices.append(
+                    f"{target_path.name}: worksheet ballOn={ball!r} for {game_id} sequence "
+                    f"{seq!r} conflicts with existing fill value {prior_ball!r}, kept existing"
+                )
+                continue
+            if not prior_ball and ball:
+                prior["ballOn"] = ball
+                collected += 1
+                changed = True
+            if note and not (prior.get("note") or "").strip():
+                prior["note"] = note
+                changed = True
+
+        if changed:
+            _write_fill_rows(target_path, existing_rows)
+        if collected:
+            report[game_id] = report.get(game_id, 0) + collected
+
+    return report, notices
+
+
 def generate_worksheets(
     raw_dir: Path,
     worksheet_dir: Path,
