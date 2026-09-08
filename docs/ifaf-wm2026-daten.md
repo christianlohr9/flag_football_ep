@@ -587,3 +587,19 @@ nur eben ohne anklickbaren Video-Link.
    Position exakt wie eine echte.
 
 Voller technischer Nachtrag mit der Spiel-für-Spiel-Tabelle: `docs/ifaf-field-mapping.md`.
+
+## Nachtrag 2026-09-08: Fehlende Ballpositionen = nicht reviewte Spielzüge
+
+Befund: In jedem betroffenen Spiel fallen die Datensätze ohne `ballOn` **exakt** mit den
+Datensätzen ohne `reviewedAt` zusammen (z. B. VF ESP–MEX: 62 von 82 echten Plays ohne Spot, alle
+62 ohne Review, beide ab Sequenz 220; mehrere Spiele ohne jeden Review ab Sequenz 10). Die
+Ballposition wird also erst im menschlichen Review-Durchgang der Reviewer-App gesetzt; wo der
+Review abbricht, enden die Spots. Der Review lief für alle Spiele unter einem einzigen
+Reviewer-Konto (Gmail-Plus-Alias einer Person, vermutlich der App-Entwickler bzw. ein
+beauftragter Reviewer) mit menschlichem Tempo (Stunden pro Spiel), teils „marked“, teils
+„derived“ Video-Zeiten; ein automatischer Abgleich (`reconciliation`: `no-tries-labelled`,
+`score-mismatch`) markiert nur Probleme. Kein Hinweis auf automatische CV-Erfassung.
+
+Konsequenz: Die Frage an den Anbieter lautet nicht „welcher Endpunkt“, sondern „wird der
+Review-Durchgang für die offenen und abgebrochenen Spiele nachgeholt“. Bis dahin: manuelles
+Nachtragen der Spots über die Video-Marken (Teil 11) für die Spiele mit Video-URL.
