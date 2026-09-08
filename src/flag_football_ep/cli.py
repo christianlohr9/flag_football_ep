@@ -336,6 +336,11 @@ def train(
         "--export-pkl/--no-export-pkl",
         help="Also export a .pkl alongside the MLflow run",
     ),
+    freeze: Optional[Path] = typer.Option(
+        None,
+        "--freeze",
+        help="Corpus freeze manifest to cite (default: the latest under data/reference/corpus_freeze, if any)",
+    ),
 ) -> None:
     """Train the EP and/or WP models from the canonical Parquet dataset."""
     if model not in {"ep", "wp", "both"}:
@@ -349,12 +354,17 @@ def train(
 
     plays = pl.read_parquet(cfg.paths.processed / "plays.parquet")
 
+    from flag_football_ep.model import freeze as freeze_module
     from flag_football_ep.model.train import train_ep, train_wp
 
+    # `freeze` above is the CLI option's value (a bare Path or None); named so it does not
+    # shadow the `freeze_module` import (M3-05-03 interfaces note).
+    freeze_path = freeze or freeze_module.latest_freeze_manifest(cfg)
+
     if model in {"ep", "both"}:
-        train_ep(plays, cfg, tune, max_evals, export_pkl)
+        train_ep(plays, cfg, tune, max_evals, export_pkl, freeze_manifest=freeze_path)
     if model in {"wp", "both"}:
-        train_wp(plays, cfg, tune, max_evals, export_pkl)
+        train_wp(plays, cfg, tune, max_evals, export_pkl, freeze_manifest=freeze_path)
 
 
 @app.command()

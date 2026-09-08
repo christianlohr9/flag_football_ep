@@ -45,6 +45,7 @@ import hashlib
 import io
 import pickle
 import re
+import subprocess
 from collections.abc import Callable, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
@@ -68,7 +69,7 @@ from flag_football_ep.features.mutations import (
     prepare_ep_data,
     prepare_wp_data,
 )
-from flag_football_ep.model import mlflow_store, registry
+from flag_football_ep.model import freeze, mlflow_store, registry
 from flag_football_ep.model.evaluate import (
     naive_baseline_logloss,
     per_source_metrics,
@@ -102,6 +103,43 @@ _METRIC_KEY_UNSAFE = re.compile(r"[^A-Za-z0-9_]")
 # key are intentionally dropped, matching the notebooks' refit cells.
 _TUNE_STRUCTURAL_KEYS = ("booster", "objective", "eval_metric", "num_class")
 
+# M3-05-03: src/flag_football_ep/model/train.py -> model -> flag_football_ep -> src ->
+# repo root -- same convention as `model/freeze.py::_REPO_ROOT`.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _compute_corpus_fingerprint(plays: pl.DataFrame) -> str:
+    """SHA-256 over the sorted `(game_id, play_id, source)` key set of the FULL `plays`
+    frame `train_ep`/`train_wp` were called with -- before `exclude_ids`/`build_fn`/
+    `prepare_fn`/`mutate_fn`, deliberately different in scope from `training_data_sha256`
+    (which hashes one model's post-`drop_nulls()` training frame). Copied verbatim from
+    `scripts/hc_corpus_ablation.py::compute_corpus_fingerprint` / `model/freeze.py`'s copy
+    of the same function -- relocation, not a new hashing scheme, so a freeze manifest's
+    `corpus_fingerprint` and a training run's `corpus_fingerprint` are directly comparable
+    when computed over the same `plays` frame.
+    """
+    keys = plays.select("game_id", "play_id", "source").sort(["game_id", "play_id", "source"])
+    return hashlib.sha256(keys.write_csv().encode("utf-8")).hexdigest()
+
+
+def _git_commit_sha() -> str:
+    """The current `HEAD` commit, `"unknown"` if `git` is unavailable -- a missing
+    provenance tag must never fail a training run. Copied verbatim from `scripts/
+    hc_corpus_ablation.py::git_commit_sha` (Pitfall 2: MLflow's automatic git-commit tag
+    never fires for the installed `ffep` console-script entry point, so every `ffep train`
+    run must capture this explicitly)."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=_REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+
 
 class MissingTrainingColumns(ValueError):
     """Raised when the input frame lacks a column `train_ep`/`train_wp` needs."""
@@ -127,8 +165,15 @@ def train_ep(
     tune: bool = False,
     max_evals: int = 100,
     export_pkl: bool = False,
+    freeze_manifest: Path | None = None,
 ) -> str:
-    """Fit the EP model on `plays` and log the run to MLflow. Returns the MLflow run id."""
+    """Fit the EP model on `plays` and log the run to MLflow. Returns the MLflow run id.
+
+    `freeze_manifest`, when given, is the path to a `model/freeze.py`-written corpus freeze
+    manifest to cite on this run (M3-05-03). `None` (the default) changes nothing about what
+    a run logs -- every existing caller, including `scripts/hc_corpus_ablation.py`, is
+    byte-for-byte unaffected.
+    """
     return _train(
         plays=plays,
         config=config,
@@ -147,6 +192,7 @@ def train_ep(
         max_evals=max_evals,
         export_pkl=export_pkl,
         build_fn=_build_competition_tier,
+        freeze_manifest=freeze_manifest,
     )
 
 
@@ -156,11 +202,12 @@ def train_wp(
     tune: bool = False,
     max_evals: int = 100,
     export_pkl: bool = False,
+    freeze_manifest: Path | None = None,
 ) -> str:
     """Fit the WP model on `plays` and log the run to MLflow. Returns the MLflow run id.
 
     Unlike `train_ep`, the WP fit uses no sample weights -- `wp_model.ipynb` cell 6 (and its
-    tuned refit, cell 12) fit without one.
+    tuned refit, cell 12) fit without one. `freeze_manifest`: see `train_ep`.
     """
     return _train(
         plays=plays,
@@ -180,6 +227,7 @@ def train_wp(
         max_evals=max_evals,
         export_pkl=export_pkl,
         build_fn=_build_competition_tier,
+        freeze_manifest=freeze_manifest,
     )
 
 
@@ -202,6 +250,7 @@ def _train(
     max_evals: int,
     export_pkl: bool,
     build_fn: Callable[[pl.DataFrame, Config], pl.DataFrame] | None = None,
+    freeze_manifest: Path | None = None,
 ) -> str:
     """Shared EP/WP fit-and-log pipeline.
 
@@ -218,7 +267,14 @@ def _train(
     adoption hook (`_build_competition_tier`) for a candidate whose extra columns need raw
     canonical columns `prepare_fn`/`mutate_fn` would otherwise have already dropped. `None`
     (the default) is the pre-REQ-S1-09 pipeline shape, byte-for-byte.
+
+    M3-05-03: `git_commit`/`corpus_fingerprint` (the latter over the FULL `plays` argument,
+    before any filtering) are logged as params on every run, plus a `freeze_manifest`
+    citation when given -- adds observability only, changes zero existing measured number.
     """
+    corpus_fingerprint = _compute_corpus_fingerprint(plays)
+    git_commit = _git_commit_sha()
+
     try:
         filtered = (
             plays.filter(~pl.col("game_id").is_in(exclude_ids)) if exclude_ids else plays
@@ -302,9 +358,29 @@ def _train(
         "tuned": tune,
         "max_evals": max_evals,
         "oof_predictions_path": str(oof_path),
+        # M3-05-03: lineage -- corpus_fingerprint is scoped to the FULL plays frame this
+        # run was called with (before exclude_ids/build_fn/prepare_fn/mutate_fn),
+        # deliberately different in scope from training_data_sha256 above (one model's
+        # post-drop_nulls() training frame).
+        "git_commit": git_commit,
+        "corpus_fingerprint": corpus_fingerprint,
     }
     if best_params is not None:
         params.update({f"best_{key}": value for key, value in best_params.items()})
+
+    # M3-05-03: freeze citation -- informative only, never raises. `freeze_manifest=None`
+    # (the default) leaves params byte-for-byte unchanged from before this plan.
+    if freeze_manifest is not None:
+        try:
+            manifest = freeze.load_freeze_manifest(freeze_manifest)
+            params["freeze_manifest_path"] = str(freeze_manifest)
+            params["freeze_date"] = manifest.get("date", "")
+            params["freeze_fingerprint_matches_corpus"] = str(
+                manifest.get("corpus_fingerprint") == corpus_fingerprint
+            ).lower()
+        except (OSError, ValueError) as exc:
+            params["freeze_manifest_path"] = str(freeze_manifest)
+            params["freeze_load_error"] = str(exc)
 
     naive_metric_name = f"naive_{metric_name.removeprefix('logo_')}"
     metrics = {

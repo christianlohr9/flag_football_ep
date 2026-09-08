@@ -10,6 +10,7 @@ model quality -- the corpus is synthetic and small on purpose so the suite stays
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -28,7 +29,7 @@ from flag_football_ep.config import (
     SportappSource,
     TrainSettings,
 )
-from flag_football_ep.model import mlflow_store, registry
+from flag_football_ep.model import freeze, mlflow_store, registry
 from flag_football_ep.model.hyperparams import EP_FEATURES, EP_PARAMS, WP_FEATURES, WP_PARAMS
 from flag_football_ep.model.train import MissingTrainingColumns, train_ep, train_wp
 from flag_football_ep.reference import UnmappedCompetitionError
@@ -925,3 +926,159 @@ def test_real_competition_tier_csv_has_three_hc_workbook_rows_and_original_three
         ("legacy", "legacy"),
         ("legacy-sportapp", "FlagWC"),
     }
+
+
+# --- M3-05-03: git lineage / corpus fingerprint / freeze citation --------------------------
+
+
+def test_train_ep_logs_git_commit_and_corpus_fingerprint_params(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    params = client.get_run(run_id).data.params
+
+    assert "git_commit" in params and params["git_commit"]
+    assert "corpus_fingerprint" in params and params["corpus_fingerprint"]
+
+
+def test_train_wp_logs_git_commit_and_corpus_fingerprint_params(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _wp_training_corpus()
+
+    run_id = train_wp(plays, config)
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    params = client.get_run(run_id).data.params
+
+    assert "git_commit" in params and params["git_commit"]
+    assert "corpus_fingerprint" in params and params["corpus_fingerprint"]
+
+
+def test_train_ep_corpus_fingerprint_computed_over_full_plays_not_post_filter(
+    tmp_path: Path,
+) -> None:
+    """`corpus_fingerprint` must match `freeze.compute_corpus_fingerprint` over the FULL
+    `plays` frame `train_ep` was called with -- before `exclude_ids` filtering -- and must
+    therefore be identical whether or not games are excluded (unlike `training_data_sha256`,
+    which does change)."""
+    plays = _ep_training_corpus(n_games=6)
+    excluded_game_id = plays["game_id"].unique().sort().to_list()[0]
+    expected_fingerprint = freeze.compute_corpus_fingerprint(plays)
+
+    config_no_exclude = _make_config(tmp_path / "a")
+    run_id_no_exclude = train_ep(plays, config_no_exclude)
+
+    config_excluded = _make_config(tmp_path / "b", exclude_games_ep=[excluded_game_id])
+    run_id_excluded = train_ep(plays, config_excluded)
+
+    mlflow_store.configure(config_no_exclude)
+    params_no_exclude = mlflow.tracking.MlflowClient().get_run(run_id_no_exclude).data.params
+    mlflow_store.configure(config_excluded)
+    params_excluded = mlflow.tracking.MlflowClient().get_run(run_id_excluded).data.params
+
+    assert params_no_exclude["corpus_fingerprint"] == expected_fingerprint
+    assert params_excluded["corpus_fingerprint"] == expected_fingerprint
+    # training_data_sha256, by contrast, must differ once a game is excluded.
+    assert params_no_exclude["training_data_sha256"] != params_excluded["training_data_sha256"]
+
+
+def test_train_ep_git_commit_matches_freeze_module_git_commit_sha(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    params = mlflow.tracking.MlflowClient().get_run(run_id).data.params
+
+    assert params["git_commit"] == freeze.git_commit_sha()
+
+
+def test_train_ep_two_calls_same_plays_log_identical_lineage_params(tmp_path: Path) -> None:
+    plays = _ep_training_corpus()
+
+    config_a = _make_config(tmp_path / "a")
+    run_id_a = train_ep(plays, config_a)
+    config_b = _make_config(tmp_path / "b")
+    run_id_b = train_ep(plays, config_b)
+
+    mlflow_store.configure(config_a)
+    params_a = mlflow.tracking.MlflowClient().get_run(run_id_a).data.params
+    mlflow_store.configure(config_b)
+    params_b = mlflow.tracking.MlflowClient().get_run(run_id_b).data.params
+
+    assert params_a["corpus_fingerprint"] == params_b["corpus_fingerprint"]
+    assert params_a["git_commit"] == params_b["git_commit"]
+
+
+def test_train_ep_freeze_manifest_none_by_default_omits_freeze_params(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+
+    run_id = train_ep(plays, config)
+
+    mlflow_store.configure(config)
+    params = mlflow.tracking.MlflowClient().get_run(run_id).data.params
+
+    assert "freeze_manifest_path" not in params
+    assert "freeze_date" not in params
+    assert "freeze_fingerprint_matches_corpus" not in params
+
+
+def test_train_ep_freeze_manifest_given_logs_freeze_citation_params(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+
+    manifest_path = tmp_path / "freeze_manifest.json"
+    manifest = {
+        "date": "2026-09-08",
+        "corpus_fingerprint": freeze.compute_corpus_fingerprint(plays),
+        "git_commit": freeze.git_commit_sha(),
+    }
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    run_id = train_ep(plays, config, freeze_manifest=manifest_path)
+
+    mlflow_store.configure(config)
+    params = mlflow.tracking.MlflowClient().get_run(run_id).data.params
+
+    assert params["freeze_manifest_path"] == str(manifest_path)
+    assert params["freeze_date"] == "2026-09-08"
+    assert params["freeze_fingerprint_matches_corpus"] == "true"
+
+
+def test_train_ep_freeze_manifest_mismatched_fingerprint_logs_freeze_fingerprint_matches_corpus_false(
+    tmp_path: Path,
+) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+
+    manifest_path = tmp_path / "freeze_manifest.json"
+    manifest = {"date": "2026-09-01", "corpus_fingerprint": "0" * 64, "git_commit": "unknown"}
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    run_id = train_ep(plays, config, freeze_manifest=manifest_path)
+
+    mlflow_store.configure(config)
+    params = mlflow.tracking.MlflowClient().get_run(run_id).data.params
+
+    assert params["freeze_fingerprint_matches_corpus"] == "false"
+
+
+def test_train_ep_freeze_manifest_missing_file_does_not_raise(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    plays = _ep_training_corpus()
+    missing_path = tmp_path / "does_not_exist.json"
+
+    run_id = train_ep(plays, config, freeze_manifest=missing_path)
+
+    mlflow_store.configure(config)
+    params = mlflow.tracking.MlflowClient().get_run(run_id).data.params
+
+    assert params["freeze_manifest_path"] == str(missing_path)
+    assert "freeze_load_error" in params
