@@ -36,11 +36,21 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 DOC = REPO_ROOT / "docs" / "epa-refinement-2026-10.md"
 RUECKFRAGEN = REPO_ROOT / "docs" / "hc-rueckfragen-2026-09.md"
+MODELLKARTE = REPO_ROOT / "docs" / "epa-modellkarte.md"
 ROSTER = REPO_ROOT / "data" / "reference" / "roster.csv"
 EPA_DIR = REPO_ROOT / "data" / "reference" / "epa_refinement"
 ABLATION_CSV = EPA_DIR / "ablation_summary.csv"
 PER_SOURCE_EP_CSV = EPA_DIR / "per_source_metrics_ep.csv"
 PER_SOURCE_WP_CSV = EPA_DIR / "per_source_metrics_wp.csv"
+
+# 2026-09-08 re-measurement (post-IFAF-correction) -- a dated subfolder, never overwriting
+# the 2026-09-04 CSVs above so the reviewed, freigegeben document stays byte-reproducible.
+# See "## Nachtrag: Stand 2026-09-08" in DOC.
+RERUN_DIR = EPA_DIR / "2026-09-08"
+RERUN_ABLATION_CSV = RERUN_DIR / "ablation_summary.csv"
+RERUN_PER_SOURCE_EP_CSV = RERUN_DIR / "per_source_metrics_ep.csv"
+RERUN_PER_SOURCE_WP_CSV = RERUN_DIR / "per_source_metrics_wp.csv"
+NACHTRAG_SECTION_MARKER = "## Nachtrag: Stand 2026-09-08"
 
 _RUN_ID_RE = re.compile(r"\b[0-9a-f]{32}\b")
 _MIN_SURNAME_LEN = 6
@@ -145,10 +155,18 @@ def _load_roster_names() -> tuple[set[str], set[str]]:
 
 
 def test_run_ids_match_ablation_summary_bidirectionally() -> None:
+    """Scoped to the main (2026-09-04) report only -- everything in the document up to
+    `NACHTRAG_SECTION_MARKER`. The 2026-09-08 Nachtrag cites four different run ids from a
+    different CSV (`RERUN_ABLATION_CSV`), checked separately by
+    `test_rerun_run_ids_match_rerun_ablation_summary_bidirectionally` below -- a single
+    document-wide scan would incorrectly flag either section's run ids as "extra" relative
+    to the other section's CSV.
+    """
     doc_text = _read(DOC)
+    main_report_text = doc_text.split(NACHTRAG_SECTION_MARKER, 1)[0]
     ablation_rows = _csv_rows(ABLATION_CSV)
 
-    doc_run_ids = _run_ids_in_text(doc_text)
+    doc_run_ids = _run_ids_in_text(main_report_text)
     csv_run_ids = {row["run_id"] for row in ablation_rows}
 
     missing_from_doc = csv_run_ids - doc_run_ids
@@ -159,6 +177,29 @@ def test_run_ids_match_ablation_summary_bidirectionally() -> None:
     )
     assert not extra_in_doc, (
         f"{DOC.name} quotes run id(s) not present in ablation_summary.csv: {extra_in_doc}"
+    )
+
+
+def test_rerun_run_ids_match_rerun_ablation_summary_bidirectionally() -> None:
+    """The 2026-09-08 Nachtrag section's own run-id agreement check, mirroring
+    `test_run_ids_match_ablation_summary_bidirectionally` but scoped to
+    `NACHTRAG_SECTION_MARKER` onward and `RERUN_ABLATION_CSV`."""
+    doc_text = _read(DOC)
+    assert NACHTRAG_SECTION_MARKER in doc_text, f"{DOC.name} has no {NACHTRAG_SECTION_MARKER!r} section"
+    nachtrag_text = doc_text.split(NACHTRAG_SECTION_MARKER, 1)[1]
+    ablation_rows = _csv_rows(RERUN_ABLATION_CSV)
+
+    doc_run_ids = _run_ids_in_text(nachtrag_text)
+    csv_run_ids = {row["run_id"] for row in ablation_rows}
+
+    missing_from_doc = csv_run_ids - doc_run_ids
+    extra_in_doc = doc_run_ids - csv_run_ids
+
+    assert not missing_from_doc, (
+        f"{RERUN_ABLATION_CSV} has run id(s) never quoted in the Nachtrag: {missing_from_doc}"
+    )
+    assert not extra_in_doc, (
+        f"the Nachtrag quotes run id(s) not present in {RERUN_ABLATION_CSV}: {extra_in_doc}"
     )
 
 
@@ -226,6 +267,97 @@ def test_per_source_table_figures_match_per_source_csvs() -> None:
 
 
 # ---------------------------------------------------------------------------
+# 2026-09-08 Nachtrag: figure agreement against the rerun CSVs
+# ---------------------------------------------------------------------------
+
+
+def _nachtrag_text() -> str:
+    doc_text = _read(DOC)
+    assert NACHTRAG_SECTION_MARKER in doc_text, f"{DOC.name} has no {NACHTRAG_SECTION_MARKER!r} section"
+    return doc_text.split(NACHTRAG_SECTION_MARKER, 1)[1]
+
+
+def test_rerun_ablation_table_figures_match_rerun_ablation_summary_csv() -> None:
+    nachtrag_text = _nachtrag_text()
+    ablation_rows = _csv_rows(RERUN_ABLATION_CSV)
+    by_run_id = {row["run_id"]: row for row in ablation_rows}
+
+    rows = _find_table(nachtrag_text, "Naive Grundrate")
+    header, data_rows = rows[0], rows[1:]
+    assert len(header) == 8, f"unexpected rerun ablation table header shape: {header}"
+
+    checked = 0
+    for cells in data_rows:
+        _, _, _, _, metric_cell, naive_cell, impr_cell, run_id_cell = cells
+        run_id = run_id_cell.strip("`")
+        assert run_id in by_run_id, f"run id {run_id!r} in Nachtrag table has no {RERUN_ABLATION_CSV} row"
+        csv_row = by_run_id[run_id]
+
+        _assert_figure_matches(metric_cell, float(csv_row["metric_value"]), f"{run_id} metric_value")
+        _assert_figure_matches(naive_cell, float(csv_row["naive_value"]), f"{run_id} naive_value")
+        _assert_figure_matches(
+            impr_cell, float(csv_row["logloss_improvement"]), f"{run_id} logloss_improvement"
+        )
+        checked += 1
+
+    assert checked == len(ablation_rows), (
+        f"expected {len(ablation_rows)} rerun ablation rows checked, got {checked}"
+    )
+
+
+def test_rerun_per_source_table_figures_match_rerun_per_source_csvs() -> None:
+    nachtrag_text = _nachtrag_text()
+    ep_rows = {
+        row["source"]: row for row in _csv_rows(RERUN_PER_SOURCE_EP_CSV) if row["arm"] == "with_hc"
+    }
+    wp_rows = {
+        row["source"]: row for row in _csv_rows(RERUN_PER_SOURCE_WP_CSV) if row["arm"] == "with_hc"
+    }
+
+    rows = _find_table(nachtrag_text, "EP Verbesserung")
+    header, data_rows = rows[0], rows[1:]
+    assert len(header) == 9, f"unexpected rerun per-source table header shape: {header}"
+
+    assert data_rows, "rerun per-source comparison table has no data rows"
+    for cells in data_rows:
+        source_cell, _, ep_ll, ep_naive, ep_impr, _, wp_ll, wp_naive, wp_impr = cells
+        source = source_cell.strip("`")
+
+        assert source in ep_rows, f"source {source!r} in Nachtrag table has no rerun EP CSV row"
+        assert source in wp_rows, f"source {source!r} in Nachtrag table has no rerun WP CSV row"
+
+        ep_row, wp_row = ep_rows[source], wp_rows[source]
+        _assert_figure_matches(ep_ll, float(ep_row["logloss"]), f"{source} rerun EP logloss")
+        _assert_figure_matches(ep_naive, float(ep_row["naive_logloss"]), f"{source} rerun EP naive")
+        _assert_figure_matches(ep_impr, float(ep_row["improvement"]), f"{source} rerun EP improvement")
+        _assert_figure_matches(wp_ll, float(wp_row["logloss"]), f"{source} rerun WP logloss")
+        _assert_figure_matches(wp_naive, float(wp_row["naive_logloss"]), f"{source} rerun WP naive")
+        _assert_figure_matches(wp_impr, float(wp_row["improvement"]), f"{source} rerun WP improvement")
+
+
+def test_nachtrag_records_corpus_fingerprint_and_git_commit() -> None:
+    """Task-1 requirement: every rerun MLflow param set includes `corpus_fingerprint` and
+    `git_commit` (`scripts/hc_corpus_ablation.py::run_arm`) -- this test checks the
+    human-facing side of that: the exact same values are quoted in the Nachtrag prose, not
+    just buried in the CSV/MLflow store."""
+    nachtrag_text = _nachtrag_text()
+    ablation_rows = _csv_rows(RERUN_ABLATION_CSV)
+    assert ablation_rows, f"{RERUN_ABLATION_CSV} has no rows"
+
+    fingerprints = {row["corpus_fingerprint"] for row in ablation_rows}
+    commits = {row["git_commit"] for row in ablation_rows}
+    assert len(fingerprints) == 1, f"expected one shared corpus_fingerprint across all arms, got {fingerprints}"
+    assert len(commits) == 1, f"expected one shared git_commit across all arms, got {commits}"
+
+    (fingerprint,) = fingerprints
+    (commit,) = commits
+    assert fingerprint and fingerprint != "unknown", "corpus_fingerprint missing/empty in rerun CSV"
+    assert commit and commit != "unknown", "git_commit missing/empty in rerun CSV"
+    assert fingerprint in nachtrag_text, f"corpus_fingerprint {fingerprint!r} not quoted in the Nachtrag"
+    assert commit in nachtrag_text, f"git_commit {commit!r} not quoted in the Nachtrag"
+
+
+# ---------------------------------------------------------------------------
 # Every measured CSV under data/reference/epa_refinement/ is referenced
 # ---------------------------------------------------------------------------
 
@@ -241,6 +373,20 @@ def test_document_references_every_epa_refinement_csv() -> None:
     assert not missing, f"{DOC.name} never names these committed CSVs: {missing}"
 
 
+def test_document_references_every_rerun_csv() -> None:
+    """The 2026-09-08 Nachtrag's own CSV-coverage guard, mirroring
+    `test_document_references_every_epa_refinement_csv` but scoped to `RERUN_DIR` -- never
+    loosens the original guard, adds an equivalent one for the dated subfolder."""
+    doc_text = _read(DOC)
+    if not RERUN_DIR.exists():
+        pytest.skip(f"{RERUN_DIR} does not exist -- run the 2026-09-08 rerun scripts first")
+    csv_files = sorted(RERUN_DIR.glob("*.csv"))
+    assert csv_files, f"{RERUN_DIR} has no committed CSVs"
+
+    missing = [f"{RERUN_DIR.name}/{p.name}" for p in csv_files if p.name not in doc_text]
+    assert not missing, f"{DOC.name} never names these committed rerun CSVs: {missing}"
+
+
 # ---------------------------------------------------------------------------
 # PII gate
 # ---------------------------------------------------------------------------
@@ -249,7 +395,7 @@ def test_document_references_every_epa_refinement_csv() -> None:
 def test_no_roster_player_name_in_committed_docs() -> None:
     full_names, surnames = _load_roster_names()
 
-    for path in (DOC, RUECKFRAGEN):
+    for path in (DOC, RUECKFRAGEN, MODELLKARTE):
         text = _read(path)
         lower = text.lower()
         for name in full_names:
