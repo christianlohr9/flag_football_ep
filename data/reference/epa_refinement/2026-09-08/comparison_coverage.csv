@@ -1,0 +1,5 @@
+down,distance_bin,field_half,hc_published_sp,hc_published_n,hc_published_ep,hc_recomputed_n,hc_recomputed_sp,hc_recomputed_thin,ours_n,ours_sp,ours_thin,model_ep,model_n,missing_in,abs_diff_hc_vs_model,abs_diff_hc_published_vs_hc_recomputed,reason,axis
+1,25+,opponent,1.0,1,6.0,,,,,,,,,ours,,,down/distance-bin/field-half combination absent from our corpus (after the down==0 PAT exclusion),clustered
+2,25+,opponent,0.3333333333,18,2.0,,,,,,,,,ours,,,down/distance-bin/field-half combination absent from our corpus (after the down==0 PAT exclusion),clustered
+3,25+,opponent,0.0,16,0.0,,,,,,,,,ours,,,down/distance-bin/field-half combination absent from our corpus (after the down==0 PAT exclusion),clustered
+4,25+,opponent,0.0,9,0.0,,,,,,,,,ours,,,down/distance-bin/field-half combination absent from our corpus (after the down==0 PAT exclusion),clustered
