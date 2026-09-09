@@ -69,6 +69,40 @@ block, one run should report every differing column and its delta, not just the 
        (beats the control, so the union is adopted rather than the single best-performing
        subset)
 
+5. **Frozen baseline predates M3-05-07's extra-point exclusion** -- `make_ep_model_mutations`/
+   `make_wp_model_mutations` gained a `play_type == "extra_point"` filter on 2026-09-09
+   (M3-05-07, "exclude every extra-point row from EP/WP training"), closing a methodology leak
+   where a FAILED PAT attempt kept a real `label` and stayed in training while only a
+   SUCCESSFUL one was dropped. `tests/fixtures/baseline_{ep,wp}_model_data.parquet` were
+   frozen before this fix, so they still carry every PAT row -- this is a real population
+   change on both sides, not a "known delta" like items 1-3 or a feature-set change like item
+   4, and the comparison below must account for it without weakening the assertion. Rather
+   than regenerate the frozen fixtures (which would mean re-running
+   `scripts/capture_notebook_baseline.py` against the unmodified `Python/` helpers -- the
+   whole point of freezing them is staying byte-identical to what the original notebook
+   produced), the tests below apply the identical exclusion to the baseline at comparison
+   time, via `_align_and_exclude_extra_point`:
+     - The baseline fixtures never carried a `play_type` column (only the final model-input
+       columns), so the exclusion can't be applied to the baseline by filtering its own
+       `play_type` directly.
+     - `down == 0` looks like an equivalent proxy (`estimate_pat_baselines` above uses exactly
+       this predicate to identify PAT attempts) but is not exact on this corpus: `down == 0`
+       matches 344 rows where `play_type == "extra_point"` matches only 331 -- 13 rows where
+       `ingest.legacy`'s `play_type` derivation classifies a `down == 0` row as `run`/
+       `no_play`/`qb_kneel` instead (a Rush/Penalty/KNEEL result takes precedence over the
+       `down == 0` -> `extra_point` branch in that `pl.when` chain). Using it here would
+       silently exclude the wrong 13 rows.
+     - Instead, the tests below re-run the same `ingest_legacy` -> `prepare_*` chain the
+       comparison already runs to build the package's own `model_data`, but capture the frame
+       one step earlier -- before `make_*_model_mutations` drops `play_type` in its final
+       `.select()` -- and prove (zero tolerance, every row) that this pre-filter frame is in
+       the same row order as the baseline, via columns present in both that the extra-point
+       filter itself never touches (`down`/`yards_to_go`/`yardline_50` for WP;
+       `yards_to_go`/`yardline_50` for EP's legacy subset -- EP's baseline has no raw `down`
+       column, only the `down0`..`down4` one-hots). Once that positional alignment is proven,
+       the pre-filter frame's real `play_type == "extra_point"` mask -- the actual signal the
+       fix uses, not an approximation of it -- is applied to the baseline by position.
+
 Any delta on a column NOT in this list is a real port bug and must fail the test.
 
 The WR-02 fix to `canonical.add_score_columns` (evaluating the scoring branch before the
@@ -234,6 +268,51 @@ def _load_fixtures(repo_root: Path) -> tuple[dict, pl.DataFrame, pl.DataFrame, P
     return manifest, baseline_ep, baseline_wp, legacy_csv
 
 
+def _align_and_exclude_extra_point(
+    prepared_with_play_type: pl.DataFrame,
+    baseline: pl.DataFrame,
+    align_columns: list[str],
+) -> tuple[pl.DataFrame, pl.Series]:
+    """Apply M3-05-07's `play_type == "extra_point"` exclusion to `baseline` (module
+    docstring, known delta #5), without ever touching the frozen fixture file.
+
+    `prepared_with_play_type` must be the package's own pre-`make_*_model_mutations` frame
+    (still has `play_type`) for the *same* input/exclusions as `baseline`, and must have the
+    same height as `baseline` -- the frozen baseline predates the M3-05-07 fix, so it has one
+    row per row of the pre-filter package frame, not the post-filter one.
+
+    Proves, at zero tolerance over every row, that the two frames are in the same row order
+    by comparing `align_columns` -- columns present on both sides that the extra-point filter
+    itself never touches (it only removes rows; it never rewrites `down`/`yards_to_go`/
+    `yardline_50`). Only once that positional alignment is proven does it build the
+    `play_type == "extra_point"` mask from `prepared_with_play_type` and apply it to
+    `baseline` by position, returning the excluded baseline and the mask (the mask is also
+    used by the dedicated count-and-identity tests below).
+    """
+    assert prepared_with_play_type.height == baseline.height, (
+        f"row count mismatch ({prepared_with_play_type.height} != {baseline.height}) -- "
+        "the pre-filter package frame and the baseline must have one row per row before "
+        "position-based extra-point exclusion is valid"
+    )
+    for col in align_columns:
+        a = prepared_with_play_type[col]
+        b = baseline[col]
+        null_mismatches = int((a.is_null() != b.is_null()).sum())
+        assert null_mismatches == 0, (
+            f"row-position alignment proof failed on {col!r}: {null_mismatches} rows have "
+            "mismatched null-ness between the package frame and the baseline"
+        )
+        diff = (a.cast(pl.Float64) - b.cast(pl.Float64)).abs()
+        value_mismatches = int(diff.fill_null(0.0).gt(_FLOAT_TOL).sum())
+        assert value_mismatches == 0, (
+            f"row-position alignment proof failed on {col!r}: {value_mismatches} rows differ "
+            "-- the package frame and the baseline are not in the same row order, so "
+            "position-based extra-point exclusion would remove the wrong rows"
+        )
+    extra_point_mask = prepared_with_play_type["play_type"] == "extra_point"
+    return baseline.filter(~extra_point_mask), extra_point_mask
+
+
 # --- self-check: the mismatch helper actually reports column + delta ----------------------
 
 
@@ -280,6 +359,12 @@ def test_wp_model_data_matches_baseline_within_tolerance(repo_root: Path) -> Non
     wp_prepared = prepare_wp_data(wp_input)
     wp_model_data = make_wp_model_mutations(wp_prepared, WP_SELECTED_COLUMNS)
 
+    # Known delta #5: the frozen baseline predates M3-05-07's extra-point exclusion, so
+    # apply the identical exclusion to it here rather than regenerating the fixture.
+    baseline_wp, _extra_point_mask = _align_and_exclude_extra_point(
+        wp_prepared, baseline_wp, ["down", "yards_to_go", "yardline_50"]
+    )
+
     # REQ-S1-09 adoption (known delta #4): `WP_SELECTED_COLUMNS` gained the tier columns
     # after the baseline was captured -- the frozen baseline has none of them.
     expected_columns = [*baseline_wp.columns, *_WP_ADOPTED_COLUMNS]
@@ -301,6 +386,40 @@ def test_wp_model_data_matches_baseline_within_tolerance(repo_root: Path) -> Non
     assert set(tier_sum.unique().to_list()) == {1}, (
         "exactly one tier column must be 1 per row"
     )
+
+
+def test_wp_baseline_extra_point_exclusion_matches_package_exactly(repo_root: Path) -> None:
+    """Separately proves the known-delta-#5 exclusion `_align_and_exclude_extra_point`
+    applies to the baseline (used by the equivalence test above) removes exactly the same
+    rows -- by count and by row identity -- as the package's own `make_wp_model_mutations`
+    filter, not merely a coincidentally-matching row count."""
+    skip_reason = _skip_reason_if_fixtures_missing(repo_root)
+    if skip_reason:
+        pytest.skip(skip_reason)
+
+    manifest, _baseline_ep, baseline_wp, legacy_csv = _load_fixtures(repo_root)
+
+    conformed, _notices = ingest_legacy(legacy_csv, team_mapping=None)
+    conformed = _with_competition_tier(conformed, repo_root)
+    wp_exclude_id = make_game_id("legacy", manifest["excluded_games"]["wp"])
+    wp_input = conformed.filter(pl.col("game_id") != wp_exclude_id)
+    wp_prepared = prepare_wp_data(wp_input)
+    wp_model_data = make_wp_model_mutations(wp_prepared, WP_SELECTED_COLUMNS)
+
+    baseline_wp_excl_pat, extra_point_mask = _align_and_exclude_extra_point(
+        wp_prepared, baseline_wp, ["down", "yards_to_go", "yardline_50"]
+    )
+
+    # Count: this legacy corpus (WP's excluded-game set) has exactly 331 extra-point rows.
+    # Frozen alongside `data_raw.csv`'s sha256 in `baseline_manifest.json` -- a corpus change
+    # would trip `_skip_reason_if_fixtures_missing`'s hash check before this is reached.
+    assert int(extra_point_mask.sum()) == 331
+
+    # Identity: the row count the package's own filter removes from `wp_prepared` equals the
+    # mask's count, and the baseline excluded by that same mask lands on the same row count
+    # as the package's post-filter output -- not two numbers that merely happen to agree.
+    assert wp_prepared.height - wp_model_data.height == int(extra_point_mask.sum())
+    assert baseline_wp_excl_pat.height == wp_model_data.height
 
 
 def test_wp_label_and_receive_2h_ko_documented_delta(repo_root: Path) -> None:
@@ -339,11 +458,14 @@ def test_wp_label_and_receive_2h_ko_documented_delta(repo_root: Path) -> None:
 def test_ep_model_data_matches_baseline_legacy_subset_within_tolerance(repo_root: Path) -> None:
     """Runs the legacy-only EP chain and compares it against the *legacy portion* of the
     baseline's combined legacy+WC24 frame. `n_legacy` (the subset boundary) is derived by
-    running the package's own legacy-only chain and taking its row count, rather than
-    hardcoding a row number -- `scripts/capture_notebook_baseline.py`'s `build_ep_frame`
-    concatenates legacy rows before WC24 rows (`pl.concat([df, df_wc], how="diagonal")`)
-    and neither `prepare_ep_data` nor `make_ep_model_mutations` reorders rows, so the
-    baseline's first `n_legacy` rows are exactly the legacy portion.
+    running the package's own legacy-only chain up to (but not including) M3-05-07's
+    extra-point filter and taking its row count, rather than hardcoding a row number --
+    `scripts/capture_notebook_baseline.py`'s `build_ep_frame` concatenates legacy rows before
+    WC24 rows (`pl.concat([df, df_wc], how="diagonal")`) and neither `prepare_ep_data` nor
+    `make_ep_model_mutations` reorders rows, so the baseline's first `n_legacy` rows are
+    exactly the legacy portion. The boundary uses the *pre*-extra-point-filter row count
+    (known delta #5, module docstring) because the frozen baseline predates that filter and
+    still has one row per pre-filter package row.
     """
     skip_reason = _skip_reason_if_fixtures_missing(repo_root)
     if skip_reason:
@@ -358,12 +480,25 @@ def test_ep_model_data_matches_baseline_legacy_subset_within_tolerance(repo_root
     ep_prepared = prepare_ep_data(ep_input)
     ep_model_data = make_ep_model_mutations(ep_prepared, EP_SELECTED_COLUMNS)
 
-    n_legacy = ep_model_data.height
+    # Pre-extra-point-filter frame: the same null filters `make_ep_model_mutations` applies,
+    # minus the `play_type != "extra_point"` predicate it added in M3-05-07 -- this is the
+    # population the frozen baseline's legacy portion actually matches (known delta #5).
+    ep_prefilter = ep_prepared.filter(
+        pl.col("yardline_50").is_not_null(), pl.col("yards_to_go").is_not_null()
+    )
+    n_legacy = ep_prefilter.height
     assert n_legacy <= baseline_ep.height, (
-        "the legacy-only chain produced more rows than the combined legacy+WC24 baseline "
-        "-- the corpora are not in the expected legacy-before-WC24 order"
+        "the legacy-only chain produced more pre-filter rows than the combined legacy+WC24 "
+        "baseline -- the corpora are not in the expected legacy-before-WC24 order"
     )
     baseline_legacy_subset = baseline_ep.head(n_legacy)
+    baseline_legacy_subset, _extra_point_mask = _align_and_exclude_extra_point(
+        ep_prefilter, baseline_legacy_subset, ["yards_to_go", "yardline_50"]
+    )
+    assert ep_model_data.height == baseline_legacy_subset.height, (
+        f"post-filter row count mismatch ({ep_model_data.height} != "
+        f"{baseline_legacy_subset.height}) after excluding extra-point rows from both sides"
+    )
 
     # REQ-S1-09 adoption (known delta #4): `EP_SELECTED_COLUMNS` appends `half` and the tier
     # columns right before the trailing `Total_W_Scaled` -- the frozen baseline has none of
@@ -398,6 +533,43 @@ def test_ep_model_data_matches_baseline_legacy_subset_within_tolerance(repo_root
     assert set(tier_sum.unique().to_list()) == {1}, (
         "exactly one tier column must be 1 per row"
     )
+
+
+def test_ep_baseline_extra_point_exclusion_matches_package_exactly(repo_root: Path) -> None:
+    """EP sibling of `test_wp_baseline_extra_point_exclusion_matches_package_exactly` --
+    proves the exclusion applied to the baseline's legacy subset matches the package's own
+    filter by count and by row identity."""
+    skip_reason = _skip_reason_if_fixtures_missing(repo_root)
+    if skip_reason:
+        pytest.skip(skip_reason)
+
+    manifest, baseline_ep, _baseline_wp, legacy_csv = _load_fixtures(repo_root)
+
+    conformed, _notices = ingest_legacy(legacy_csv, team_mapping=None)
+    conformed = _with_competition_tier(conformed, repo_root)
+    ep_exclude_id = make_game_id("legacy", manifest["excluded_games"]["ep"])
+    ep_input = conformed.filter(pl.col("game_id") != ep_exclude_id)
+    ep_prepared = prepare_ep_data(ep_input)
+    ep_model_data = make_ep_model_mutations(ep_prepared, EP_SELECTED_COLUMNS)
+
+    ep_prefilter = ep_prepared.filter(
+        pl.col("yardline_50").is_not_null(), pl.col("yards_to_go").is_not_null()
+    )
+    n_legacy = ep_prefilter.height
+    baseline_legacy_subset_prefilter = baseline_ep.head(n_legacy)
+    baseline_legacy_subset_excl_pat, extra_point_mask = _align_and_exclude_extra_point(
+        ep_prefilter, baseline_legacy_subset_prefilter, ["yards_to_go", "yardline_50"]
+    )
+
+    # Count: the EP chain excludes a different single game than the WP chain
+    # (`manifest["excluded_games"]["ep"]` != `["wp"]`), so its extra-point count (333)
+    # legitimately differs from the WP corpus's 331 -- both frozen by the same
+    # manifest/CSV sha256 gate.
+    assert int(extra_point_mask.sum()) == 333
+
+    # Identity, same shape as the WP sibling above.
+    assert n_legacy - ep_model_data.height == int(extra_point_mask.sum())
+    assert baseline_legacy_subset_excl_pat.height == ep_model_data.height
 
 
 def test_ep_total_w_scaled_documented_corpus_dependent_delta(repo_root: Path) -> None:
