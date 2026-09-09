@@ -63,6 +63,13 @@ RERUN_PER_SOURCE_EP_CSV = RERUN_DIR / "per_source_metrics_ep.csv"
 RERUN_PER_SOURCE_WP_CSV = RERUN_DIR / "per_source_metrics_wp.csv"
 NACHTRAG_SECTION_MARKER = "## Nachtrag: Stand 2026-09-08"
 
+# M3-05-07: the extra-point training-leak fix, measured as its own dated methodology-change
+# section -- a dated subfolder like RERUN_DIR above, never overwriting the 2026-09-08 CSVs.
+# See "## Methodenaenderung: Extrapunkt-Ausschluss" in DOC.
+EXTRA_POINT_FIX_DIR = EPA_DIR / "2026-09-09"
+EXTRA_POINT_FIX_ABLATION_CSV = EXTRA_POINT_FIX_DIR / "ablation_summary.csv"
+EXTRA_POINT_SECTION_MARKER = "## Methodenaenderung: Extrapunkt-Ausschluss"
+
 _RUN_ID_RE = re.compile(r"\b[0-9a-f]{32}\b")
 _MIN_SURNAME_LEN = 6
 
@@ -194,10 +201,15 @@ def test_run_ids_match_ablation_summary_bidirectionally() -> None:
 def test_rerun_run_ids_match_rerun_ablation_summary_bidirectionally() -> None:
     """The 2026-09-08 Nachtrag section's own run-id agreement check, mirroring
     `test_run_ids_match_ablation_summary_bidirectionally` but scoped to
-    `NACHTRAG_SECTION_MARKER` onward and `RERUN_ABLATION_CSV`."""
-    doc_text = _read(DOC)
-    assert NACHTRAG_SECTION_MARKER in doc_text, f"{DOC.name} has no {NACHTRAG_SECTION_MARKER!r} section"
-    nachtrag_text = doc_text.split(NACHTRAG_SECTION_MARKER, 1)[1]
+    `NACHTRAG_SECTION_MARKER` onward and `RERUN_ABLATION_CSV`.
+
+    Bounded at `EXTRA_POINT_SECTION_MARKER` (via `_nachtrag_text()`, M3-05-07) so the later
+    dated methodology-change section's own, different run ids are never counted as "extra"
+    here -- mirrors this exact re-scoping pattern's own precedent
+    (`test_run_ids_match_ablation_summary_bidirectionally` was re-scoped the same way when
+    the 2026-09-08 Nachtrag was first added).
+    """
+    nachtrag_text = _nachtrag_text()
     ablation_rows = _csv_rows(RERUN_ABLATION_CSV)
 
     doc_run_ids = _run_ids_in_text(nachtrag_text)
@@ -283,9 +295,28 @@ def test_per_source_table_figures_match_per_source_csvs() -> None:
 
 
 def _nachtrag_text() -> str:
+    """The 2026-09-08 Nachtrag section only -- bounded at `EXTRA_POINT_SECTION_MARKER`
+    (M3-05-07) when present, so that later dated section's own run ids/figures are never
+    swept into this section's checks. Without this bound, a whole-document-to-EOF scan would
+    incorrectly flag the M3-05-07 section's disjoint run ids as "extra" relative to
+    `RERUN_ABLATION_CSV` -- the exact failure mode this helper's own docstring precedent
+    (see `test_run_ids_match_ablation_summary_bidirectionally`) already warns about."""
     doc_text = _read(DOC)
     assert NACHTRAG_SECTION_MARKER in doc_text, f"{DOC.name} has no {NACHTRAG_SECTION_MARKER!r} section"
-    return doc_text.split(NACHTRAG_SECTION_MARKER, 1)[1]
+    nachtrag_onward = doc_text.split(NACHTRAG_SECTION_MARKER, 1)[1]
+    if EXTRA_POINT_SECTION_MARKER in nachtrag_onward:
+        nachtrag_onward = nachtrag_onward.split(EXTRA_POINT_SECTION_MARKER, 1)[0]
+    return nachtrag_onward
+
+
+def _extra_point_fix_text() -> str:
+    """M3-05-07's dated methodology-change section -- everything from
+    `EXTRA_POINT_SECTION_MARKER` to the end of the document."""
+    doc_text = _read(DOC)
+    assert EXTRA_POINT_SECTION_MARKER in doc_text, (
+        f"{DOC.name} has no {EXTRA_POINT_SECTION_MARKER!r} section"
+    )
+    return doc_text.split(EXTRA_POINT_SECTION_MARKER, 1)[1]
 
 
 def test_rerun_ablation_table_figures_match_rerun_ablation_summary_csv() -> None:
@@ -366,6 +397,71 @@ def test_nachtrag_records_corpus_fingerprint_and_git_commit() -> None:
     assert commit and commit != "unknown", "git_commit missing/empty in rerun CSV"
     assert fingerprint in nachtrag_text, f"corpus_fingerprint {fingerprint!r} not quoted in the Nachtrag"
     assert commit in nachtrag_text, f"git_commit {commit!r} not quoted in the Nachtrag"
+
+
+# ---------------------------------------------------------------------------
+# M3-05-07: extra-point training-leak fix, dated methodology-change section
+# ---------------------------------------------------------------------------
+
+
+def test_extra_point_fix_run_ids_match_ablation_summary_bidirectionally() -> None:
+    """M3-05-07's dated section's own run-id agreement check, mirroring
+    `test_rerun_run_ids_match_rerun_ablation_summary_bidirectionally` but scoped to
+    `EXTRA_POINT_SECTION_MARKER` onward and `EXTRA_POINT_FIX_ABLATION_CSV`.
+
+    The section deliberately does NOT re-quote the pre-existing champion's run ids as literal
+    hex strings (same precedent as the `## Champion-Entscheidung` section) -- they are not in
+    `EXTRA_POINT_FIX_ABLATION_CSV` (neither candidate was promoted), so quoting them here
+    would fail this exact check.
+    """
+    section_text = _extra_point_fix_text()
+    ablation_rows = _csv_rows(EXTRA_POINT_FIX_ABLATION_CSV)
+
+    doc_run_ids = _run_ids_in_text(section_text)
+    csv_run_ids = {row["run_id"] for row in ablation_rows}
+
+    missing_from_doc = csv_run_ids - doc_run_ids
+    extra_in_doc = doc_run_ids - csv_run_ids
+
+    assert not missing_from_doc, (
+        f"{EXTRA_POINT_FIX_ABLATION_CSV} has run id(s) never quoted in the section: {missing_from_doc}"
+    )
+    assert not extra_in_doc, (
+        f"the section quotes run id(s) not present in {EXTRA_POINT_FIX_ABLATION_CSV}: {extra_in_doc}"
+    )
+
+
+def test_extra_point_fix_table_figures_match_ablation_summary_csv() -> None:
+    """Mirrors `test_rerun_ablation_table_figures_match_rerun_ablation_summary_csv`, scoped
+    to the M3-05-07 section's own before/after table and `EXTRA_POINT_FIX_ABLATION_CSV`."""
+    section_text = _extra_point_fix_text()
+    ablation_rows = _csv_rows(EXTRA_POINT_FIX_ABLATION_CSV)
+    by_run_id = {row["run_id"]: row for row in ablation_rows}
+
+    rows = _find_table(section_text, "Naive Grundrate")
+    header, data_rows = rows[0], rows[1:]
+    assert len(header) == 8, f"unexpected extra-point-fix ablation table header shape: {header}"
+
+    checked = 0
+    for cells in data_rows:
+        _, _, _, _, metric_cell, naive_cell, impr_cell, run_id_cell = cells
+        run_id = run_id_cell.strip("`")
+        assert run_id in by_run_id, (
+            f"run id {run_id!r} in the extra-point-fix table has no "
+            f"{EXTRA_POINT_FIX_ABLATION_CSV} row"
+        )
+        csv_row = by_run_id[run_id]
+
+        _assert_figure_matches(metric_cell, float(csv_row["metric_value"]), f"{run_id} metric_value")
+        _assert_figure_matches(naive_cell, float(csv_row["naive_value"]), f"{run_id} naive_value")
+        _assert_figure_matches(
+            impr_cell, float(csv_row["logloss_improvement"]), f"{run_id} logloss_improvement"
+        )
+        checked += 1
+
+    assert checked == len(ablation_rows), (
+        f"expected {len(ablation_rows)} extra-point-fix ablation rows checked, got {checked}"
+    )
 
 
 # ---------------------------------------------------------------------------
