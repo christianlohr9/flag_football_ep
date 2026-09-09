@@ -608,3 +608,80 @@ Nachtragen der Spots über die Video-Marken (Teil 11) für die Spiele mit Video-
 jetzt anhand der `game_id`-Spalte gelesen, nicht mehr am Dateinamen erkannt — eine Datei darf
 beliebig heißen (auch spiel-übergreifend), und `ffep ifaf-spot-fill-worksheets --collect` übernimmt
 bereits in der Arbeits-Übersicht eingetragene Werte automatisch in die Fill-Datei.
+
+## Nachtrag 2026-09-08 (Teil 12) — das VF ESP–MEX fertig nachgespottet, dabei vier echte
+Reviewer-Feed-Fehler gefunden, ein neuer Korrektur-Mechanismus
+
+Der Projektinhaber hat das Frauen-Viertelfinale ESP–MEX (`ifaf-019ffff1-a8db-...`) vollständig von
+Hand aus dem Broadcast-Video nachgespottet — 71 Zeilen in
+`data/reference/ifaf_spot_fill/ifaf-019ffff1-a8db-73ed-91ff-068fd964194c.csv`. Beim Video-Review
+sind zusätzlich vier eigenständige Reviewer-Feed-Fehler aufgefallen (Sequenzen 600–740), die eine
+Spot-Korrektur allein nicht beheben kann:
+
+1. **Sequenz 610 — eine fehlende Strafe.** Auf dem Feld gab es dort eine eigene Strafe, die der
+   Reviewer-Feed nie als eigenen Datensatz erfasst hat — dadurch verschieben sich alle folgenden
+   Video-Zeiten. **Bewusst nicht erfunden** (dieselbe Regel wie beim fehlenden Extrapunkt aus Teil
+   6/7/8: keine Zeile ohne echte Quelle). Bleibt eine offen dokumentierte Lücke; Sequenz 610 trägt
+   dazu eine eigene Notiz ("x") in der Fill-Datei.
+2. **Sequenzen 670/680 — zwei 3rd-Downs für ESP hintereinander.** Sieht nach einem Fehler aus, ist
+   aber korrekt: der Events-Feed zeigt `DOWN_UPDATE 3` mit zwei `LOS_UPDATE`-Ereignissen (17→18) —
+   ein wiederholter 3rd Down nach einer Strafe. **Nicht angefasst.**
+3. **Sequenz 700/710 — Touchdown und Extrapunkt-Versuch, korrekt schon vorhanden.** 700 ist ESPs
+   Touchdown (`officialScore = TD`, Events-Feed `SCORE` mit 6 Punkten); 710 ist der eigentliche
+   1-Punkt-Versuch (Events-Feed `TRY_DOWN`, aber kein folgendes `SCORE`-Ereignis — der Versuch ist
+   fehlgeschlagen bzw. wurde nicht gewertet). Beides bereits korrekt aus `officialScore` abgeleitet,
+   keine Korrektur nötig; die Fill-Zeile für 710 bleibt mit leerem `ballOn` bestehen (Notiz der
+   Inhaberin: „überflüssiges play“ — der Versuch braucht keine eigene Ballposition).
+4. **Sequenzen 720/730 — falsches Offense-Team.** Der Reviewer-Feed trägt dort `offenseTeamId =
+   w-esp` ein, obwohl sowohl der Down-Verlauf der `/plays`-Datensätze selbst (1st @5, 2nd @12) als
+   auch der Events-Feed (`POSSESSION_CHANGE` auf `w-mex` unmittelbar davor, dieselben LOS-Werte)
+   übereinstimmend zeigen: Mexiko hat den Ball schon. Sequenz 740 trägt bereits korrekt `w-mex`.
+   **Korrigiert** — siehe unten.
+
+### Neuer Mechanismus: `data/reference/ifaf_corrections/`
+
+Für Fehler wie (4) — ein Reviewer-Feed-Feld ist schlicht falsch, nicht bloß leer — gibt es jetzt
+einen zweiten, zu `ifaf_spot_fill/` passenden Mechanismus:
+`data/reference/ifaf_corrections/<anything>.csv`, Spalten `game_id,sequence,field,value,note`,
+erlaubte `field`-Werte `offense_team`/`down`/`half`/`nullified`/`drop_record`. `insert_after` (ein
+komplett fehlender Spielzug einfügen, wie er für Punkt 1 nötig wäre) wird **bewusst nicht
+unterstützt** — dieselbe „nie erfinden“-Regel wie beim Spot-Fill. Volle Dokumentation:
+`data/reference/ifaf_corrections/README.md`. `ifaf.apply_corrections` läuft direkt nach
+`flatten_plays_records`, vor Spot-Fill/Events-Ledger/Yardage-Ableitung; eine `offense_team`-Korrektur
+löst außerdem einen kompletten `drive_id`-Neuaufbau für das betroffene Spiel aus (der Drive-Wechsel
+saß vorher an der falschen Stelle).
+
+Die beiden QF-Korrekturen (720/730 → `offense_team = w-mex`) sind committet in
+`data/reference/ifaf_corrections/ifaf-019ffff1-a8db-73ed-91ff-068fd964194c.csv`.
+
+### Ergebnis nach Spot-Fill + Korrektur
+
+- 69 von 71 Fill-Zeilen angewandt (1 leer/„überflüssig“ = Sequenz 710, bewusst ohne Wert; 1 bereits
+  echt gespottet = Sequenz 210, Fill ignoriert, kein Überschreiben einer echten Position).
+- Ballposition (`yardline_50`) jetzt für 91 von 95 kanonischen Zeilen gesetzt (vorher 22 von 95).
+- `posteam`/`defteam` für 720/730 jetzt `MEX`/`ESP` (vorher `ESP`/`MEX`), `correction_source =
+  "manual"` auf beiden Zeilen.
+- `score_reconstruction` bleibt **pass**: Das Spiel reproduziert weiterhin 27:26 (MEX:ESP) exakt —
+  das Events-Ledger bestätigt diesen Endstand unabhängig von der Offense-Team-Korrektur (die
+  betroffenen Zeilen 720/730 sind selbst keine Scoring-Zeilen). Geprüft: keine der beiden im Spiel
+  ohnehin schon vorhandenen synthetischen Zeilen (fehlende Extrapunkte, Teil 6) hängt an der
+  ESP/MEX-Drive rund um 720–740 — das Events-Ledger fand für jeden echten Touchdown dieses Spiels
+  eine passende reale `/plays`-Zeile, eine Neuplatzierung der synthetischen Zeilen durch die
+  Korrektur war also nicht nötig.
+- `downs_range`/`half_assigned`/`monotonic_drive_ids`/`gapless_play_ids`/`score_reconstruction`:
+  alle **pass**.
+- EPA-Abdeckung (nach `ffep score`, volles Modell): 93 von 95 Zeilen (die 2 fehlenden sind der
+  Anfang der zweiten Halbzeit und die letzte Zeile des Spiels — beides erwartete Kanten-Fälle der
+  EP-Ableitung, nicht durch diese Änderung verursacht).
+
+### Bekannte, nicht behobene Datenanomalie (außerhalb dieses Scopes)
+
+Sequenz 690 (ESP, unvollständiger Pass) zeigt einen abgeleiteten `yards_gained` von −43 — ein
+Artefakt der bestehenden `derive_yardage_columns_plays`-Ableitung, die den Raumgewinn aus der
+Differenz zweier aufeinanderfolgender Ballpositionen berechnet und dabei nicht erkennt, dass
+zwischen 690 und 700 offenbar eine nicht erfasste Spielunterbrechung (Kickoff/Turnover) liegt.
+Vorbestehendes, nicht QF-spezifisches Verhalten der Ableitungsfunktion — hier nur dokumentiert,
+nicht repariert (eine Korrektur würde die Yardage-Ableitung für den gesamten Korpus betreffen, kein
+gezielter Fix für dieses eine Spiel).
+
+Voller technischer Nachtrag mit allen Zahlen: `.planning/phases/01.2-repo-to-pipeline/`.
