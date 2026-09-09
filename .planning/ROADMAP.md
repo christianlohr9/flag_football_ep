@@ -494,7 +494,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - [x] `M3-05-02-PLAN.md` — coach-facing quick win: `docs/mlflow-ui-howto.md` and the first GENERATED model card (`scripts/render_model_card.py` from the live champion + 2026-09-08 CSVs, degrading gracefully where newer metrics are missing) (PROD-02)
   - [ ] `M3-05-03-PLAN.md` — corpus freeze manifest (`ffep freeze-corpus`, `model/freeze.py`) and training lineage (git commit, corpus fingerprint, config hash) plus gate metrics (scalar calibration, per-tier log-loss, no-play share) in the shared `_log_run` path, `ffep train --freeze` citation (PROD-03, PROD-04)
   - [x] `M3-05-04-PLAN.md` — CI on fixtures (`.github/workflows/ci.yml`, no secrets) (PROD-05)
-  - [ ] `M3-05-05-PLAN.md` — platform ADR `docs/adr/0001-modell-plattform.md` (German): single machine now with a migration trigger vs small OTC VM vs Kubernetes/feature store (deliberately out for now), costs, burden, migration path; user signs (PROD-06)
+  - [x] `M3-05-05-PLAN.md` — platform ADR `docs/adr/0001-modell-plattform.md` (German): single machine now with a migration trigger vs small OTC VM vs Kubernetes/feature store (deliberately out for now), costs, burden, migration path; user signs (PROD-06)
   - [ ] `M3-05-06-PLAN.md` — the promotion gate (`model/gate.py`, `[promotion_gate]` in `ffep.toml`, `ffep promote --force --reason` logged as an MLflow tag) (PROD-07)
   - [ ] `M3-05-07-PLAN.md` — the extra-point training-leak fix as a measured methodology change: fresh four-arm LOGO re-run, before/after, through the gate before any promotion (PROD-08)
   - [ ] `M3-05-08-PLAN.md` — regenerate the model card after the leak fix and gate exist (PROD-09)
@@ -531,4 +531,4 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M3-2 EPA-Refinement | 7/8 | Reviewed 2026-09-04; champion promotion decision pending (M3-02-08 task 2) | - |
 | M3-3 Explosiveness & Efficiency | 3/3 | Complete (variant b adopted 2026-09-04, recalibrated on the enlarged corpus) | - |
 | M3-4 Player-Analysis-Report | 7/7 | Complete (handout reviewed 2026-09-04) | - |
-| M3-5 EPA-Modell als Produkt | 2/8 | In progress (02 card+UI, 04 CI done; 03 running; 01 promotion=both pending 03; 05 ADR at user sign-off) | - |
+| M3-5 EPA-Modell als Produkt | 3/9 | In progress (02, 04, 05 done; ADR signed 2026-09-09 option ii staged; 03 finishing; 01 promotion=both next; 09 local compose planned) | - |
