@@ -380,6 +380,71 @@ class TestPlayerEfficiency:
         section, unmapped = player_efficiency(df, empty_mapping, cycle_start_season=2026)
         assert set(unmapped) == {"A", "B"}
 
+    def test_hc_workbook_row_matches_coarse_mapping_key(self) -> None:
+        """A `hc_workbook:{file}:{sheet}` row must resolve against a mapping row keyed
+        by the coarse `hc_workbook` source (the ingest never writes fine-grained rows
+        into `player_mapping.csv`)."""
+        mapping = pl.DataFrame(
+            {
+                "source": ["hc_workbook"],
+                "source_player": ["11"],
+                "canonical_player": ["Player Eleven"],
+            }
+        )
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=2,
+            source="hc_workbook:germany-analytics:sheet1",
+            extras={"thrown_by": ["11", None]},
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2]))
+        section, unmapped = player_efficiency(df, mapping, cycle_start_season=2026)
+        qb_rows = section.table.filter(pl.col("rolle") == "QB")
+        assert qb_rows["spieler"].item() == "Player Eleven"
+        assert list(unmapped) == []
+
+    def test_hc_workbook_unmapped_label_still_flagged(self) -> None:
+        mapping = pl.DataFrame(
+            {
+                "source": ["hc_workbook"],
+                "source_player": ["11"],
+                "canonical_player": ["Player Eleven"],
+            }
+        )
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=2,
+            source="hc_workbook:germany-analytics:sheet1",
+            extras={"thrown_by": ["99", None]},
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2]))
+        section, unmapped = player_efficiency(df, mapping, cycle_start_season=2026)
+        qb_rows = section.table.filter(pl.col("rolle") == "QB")
+        assert "99" in qb_rows["spieler"].to_list()
+        assert "99" in unmapped
+
+    def test_hudl_source_still_requires_exact_match(self) -> None:
+        """A `hc_workbook`-keyed mapping row must not leak into `hudl` rows sharing the
+        same label -- only the fine-grained `hc_workbook:` prefix is coarsened."""
+        mapping = pl.DataFrame(
+            {
+                "source": ["hc_workbook"],
+                "source_player": ["S Nuhse"],
+                "canonical_player": ["Saskia Nuhse"],
+            }
+        )
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=2,
+            source="hudl",
+            extras={"thrown_by": ["S Nuhse", None]},
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2]))
+        section, unmapped = player_efficiency(df, mapping, cycle_start_season=2026)
+        qb_rows = section.table.filter(pl.col("rolle") == "QB")
+        assert qb_rows["spieler"].item() == "S Nuhse"
+        assert "S Nuhse" in unmapped
+
     def test_yac_anteil_sums_to_one(self) -> None:
         df = canonical_plays_with_scores(
             n_games=1,

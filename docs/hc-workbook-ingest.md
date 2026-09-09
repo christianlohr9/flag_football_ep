@@ -255,16 +255,18 @@ die sich ohne Verwechslungsrisiko nicht automatisch auflösen lassen. Die vollst
 weiterhin ausschließlich unter `data/raw/hc_files/unmapped_players_<run_id>.txt` (gitignored) — nie
 committet, nie in diesem Dokument zitiert.
 
-**Bekannter, unabhängiger Report-Bug (nicht Teil dieser Änderung):** `own_team.py`s
-`_canonicalise_players` gruppiert beim Bauen des "Nicht zugeordnete Spielernamen"-Hinweises nach dem
-feingranularen `source`-Wert jeder Zeile (`hc_workbook:<Datei>:<Sheet>`), während jede
-`player_mapping.csv`-Zeile die grobe Quelle `hc_workbook` trägt (bewusst so, siehe unten) — der
-exakte String-Vergleich schlägt für JEDE HC-Zeile fehl, auch für bereits korrekt aufgelöste Namen.
-Deshalb ändert sich die "Nicht zugeordnete Spielernamen"-Zahl im `player-analysis`-Report nicht,
-obwohl die Zuordnung beim Ingest selbst nachweislich greift (`unmapped_players_<run_id>.txt` schrumpft
-von 94 auf 87 Label, und die neu zugeordneten Namen tauchen korrekt gruppiert in den Report-Tabellen
-auf). `own_team.py` ist unter einem anderen Plan explizit als read-only markiert; ein Fix ist hier
-bewusst nicht enthalten.
+**Report-Bug, behoben 2026-09-09:** `own_team.py`s `_canonicalise_players` gruppierte beim Bauen des
+"Nicht zugeordnete Spielernamen"-Hinweises nach dem feingranularen `source`-Wert jeder Zeile
+(`hc_workbook:<Datei>:<Sheet>`), während jede `player_mapping.csv`-Zeile die grobe Quelle
+`hc_workbook` trägt (bewusst so, siehe unten) — der exakte String-Vergleich schlug für JEDE
+HC-Zeile fehl, auch für bereits korrekt aufgelöste Namen. Dadurch änderte sich die "Nicht
+zugeordnete Spielernamen"-Zahl im `player-analysis`-Report nicht, obwohl die Zuordnung beim
+Ingest selbst nachweislich griff (`unmapped_players_<run_id>.txt` schrumpfte von 94 auf 87 Label,
+und die neu zugeordneten Namen tauchten korrekt gruppiert in den Report-Tabellen auf). Fix: eine
+neue `_mapping_source_key`-Helferfunktion in `own_team.py` übersetzt jeden `hc_workbook:`-Präfix
+auf die grobe Mapping-Quelle `hc_workbook`, bevor `map_players` gegen `player_mapping.csv` filtert
+(andere Quellen wie `hudl` bleiben exakt). `player_analysis.py` erbt den Fix über den bestehenden
+Import von `_canonicalise_players`, ohne eigene Änderung.
 
 ## Offene Fragen
 

@@ -26,6 +26,7 @@ import polars as pl
 from flag_football_ep.charts.tendency import render_epa_bars, render_share_bars
 from flag_football_ep.config import Config
 from flag_football_ep.features.mutations import (
+    HC_SOURCE_PREFIX,
     add_ep_variables,
     add_wp_variables,
     estimate_pat_baselines,
@@ -307,13 +308,28 @@ _PLAYER_TABLE_SCHEMA: dict[str, pl.DataType] = {
 }
 
 
+def _mapping_source_key(source: str) -> str:
+    """Translate a row's fine-grained `source` value into the key `player_mapping.csv`
+    keys it under. HC workbook rows carry `hc_workbook:{file}:{sheet}` (see
+    `features.mutations.HC_SOURCE_PREFIX`) but every mapping row for those rows is
+    written under the coarse `hc_workbook` label -- an exact string compare against the
+    fine-grained value matches nothing. Every other source (e.g. `hudl`) still matches
+    the mapping file exactly.
+    """
+    if source.startswith(HC_SOURCE_PREFIX):
+        return HC_SOURCE_PREFIX.rstrip(":")
+    return source
+
+
 def _canonicalise_players(
     df: pl.DataFrame, mapping: pl.DataFrame
 ) -> tuple[pl.DataFrame, list[str]]:
     """Canonicalise `_PLAYER_SOURCE_COLUMNS` in `df` via `map_players`, called once per
-    `source` present in the frame (a mapping row is keyed by `(source, source_player)`).
-    Returns the canonicalised frame (row count and order preserved) and the sorted union of
-    every label left unmapped across sources.
+    `source` present in the frame (a mapping row is keyed by `(source, source_player)`,
+    translated through `_mapping_source_key` so fine-grained HC workbook sources still
+    match the coarse `hc_workbook` mapping rows). Returns the canonicalised frame (row
+    count and order preserved) and the sorted union of every label left unmapped across
+    sources.
     """
     columns = [c for c in _PLAYER_SOURCE_COLUMNS if c in df.columns]
     if df.height == 0 or not columns:
@@ -326,7 +342,7 @@ def _canonicalise_players(
     parts: list[pl.DataFrame] = []
     for src in sorted(indexed["source"].drop_nulls().unique().to_list()):
         subset = indexed.filter(pl.col("source") == src)
-        result = map_players(subset, mapping, src, columns)
+        result = map_players(subset, mapping, _mapping_source_key(src), columns)
         unmapped.update(result.unmapped)
         parts.append(result.frame)
 
