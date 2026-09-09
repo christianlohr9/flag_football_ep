@@ -1419,6 +1419,74 @@ class TestMakeEpModelMutations:
         assert with_recency["Total_W_Scaled"].to_list() != without["Total_W_Scaled"].to_list()
 
 
+class TestMakeEpModelMutationsExtraPointExclusion:
+    """M3-05-07: every `play_type == "extra_point"` row -- successful or failed -- is now
+    excluded from EP training, not just the successful attempts whose `Next_Score_Half`
+    already resolves to a value `drop_nulls()` removes downstream. The exclusion sits
+    immediately before the final `.select()`, AFTER `Drive_Score_Dist_W`/`ScoreDiff_W`/
+    `Total_W`/`Total_W_Scaled` are computed on the full frame (including extra-point rows) --
+    verified by the fix's placement in the source, matching the existing
+    `DegenerateWeightRange` guard's full-corpus contract.
+    """
+
+    def _frame_with_extra_point(
+        self, *, success: int, two_point: int = 0, plays_per_game: int = 12
+    ) -> pl.DataFrame:
+        touchdown = [0] * plays_per_game
+        touchdown[5] = 1  # play_id 6: mid-half touchdown, same shape _multi_drive_ep_frame uses
+        play_type = ["pass"] * plays_per_game
+        one_point = [0] * plays_per_game
+        two_point_list = [0] * plays_per_game
+        down = [((i) % 4) + 1 for i in range(plays_per_game)]
+        play_type[6] = "extra_point"  # play_id 7: immediately follows the touchdown
+        one_point[6] = success
+        two_point_list[6] = two_point
+        down[6] = 0
+        raw = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=plays_per_game,
+            overrides={
+                "touchdown": touchdown,
+                "play_type": play_type,
+                "one_point_conv_success": one_point,
+                "two_point_conv_success": two_point_list,
+                "down": down,
+            },
+        )
+        return prepare_ep_data(raw)
+
+    def test_successful_extra_point_row_excluded_from_ep_training(self):
+        prepared = self._frame_with_extra_point(success=1)
+
+        out = make_ep_model_mutations(prepared, [*_EP_MODEL_COLUMNS, "play_type"])
+
+        assert "extra_point" not in out["play_type"].to_list()
+
+    def test_failed_extra_point_row_also_excluded_from_ep_training(self):
+        # The pre-existing leak this plan closes: a FAILED attempt (neither success flag
+        # set) gets a non-null Next_Score_Half-derived label today and stays in training --
+        # confirm that is still true of the label upstream, then confirm the fix removes the
+        # row anyway regardless of that label.
+        prepared = self._frame_with_extra_point(success=0, two_point=0)
+        extra_point_row = prepared.filter(pl.col("play_type") == "extra_point")
+        assert extra_point_row.height == 1
+
+        out = make_ep_model_mutations(prepared, [*_EP_MODEL_COLUMNS, "play_type"])
+
+        assert "extra_point" not in out["play_type"].to_list()
+
+    def test_non_extra_point_rows_survive_unchanged(self):
+        prepared = self._frame_with_extra_point(success=1)
+        expected_play_ids = set(
+            prepared.filter(pl.col("play_type") != "extra_point")["play_id"].to_list()
+        )
+
+        out = make_ep_model_mutations(prepared, [*_EP_MODEL_COLUMNS, "play_type"])
+
+        assert set(out["play_id"].to_list()) == expected_play_ids
+        assert out.height == len(expected_play_ids)
+
+
 class TestMakeEpModelMutationsHalfSentinel:
     """M3-02 task 2: `make_ep_model_mutations` overwrites `half` to
     `EP_HALF_UNKNOWN_SENTINEL` for hc_workbook-sourced rows, immediately before the final
@@ -1731,6 +1799,98 @@ class TestMakeWpModelMutations:
         winner_game1 = out.filter(pl.col("game_id") == game_ids[1])["Winner"].unique().to_list()
         assert winner_game0 == ["AWAY"]
         assert winner_game1 == ["TIE"]
+
+
+class TestMakeWpModelMutationsExtraPointExclusion:
+    """M3-05-07: every `play_type == "extra_point"` row -- successful or failed -- is now
+    excluded from WP training too, via the same final-`.select()`-site filter as the EP fix.
+    """
+
+    def _wp_frame_with_trailing_extra_point(
+        self, *, success: int, two_point: int = 0, plays_per_game: int = 8
+    ) -> pl.DataFrame:
+        touchdown = [0] * plays_per_game
+        touchdown[-2] = 1  # second-to-last play of the half scores
+        play_type = ["pass"] * plays_per_game
+        one_point = [0] * plays_per_game
+        two_point_list = [0] * plays_per_game
+        down = [((i) % 4) + 1 for i in range(plays_per_game)]
+        play_type[-1] = "extra_point"  # last play of the half -- immediately follows the TD
+        one_point[-1] = success
+        two_point_list[-1] = two_point
+        down[-1] = 0
+        return canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=plays_per_game,
+            overrides={
+                "touchdown": touchdown,
+                "play_type": play_type,
+                "one_point_conv_success": one_point,
+                "two_point_conv_success": two_point_list,
+                "down": down,
+            },
+        )
+
+    def test_successful_extra_point_row_excluded_from_wp_training(self):
+        prepared = prepare_wp_data(self._wp_frame_with_trailing_extra_point(success=1))
+
+        out = make_wp_model_mutations(
+            prepared, ["game_id", "play_id", "play_type", "posteam", "Winner", "label"]
+        )
+
+        assert "extra_point" not in out["play_type"].to_list()
+
+    def test_failed_extra_point_row_also_excluded_from_wp_training(self):
+        # The pre-existing leak this plan closes: a FAILED attempt has no null label in the
+        # WP frame (label comes from Winner, not Next_Score_Half) and stays in training today.
+        prepared = prepare_wp_data(
+            self._wp_frame_with_trailing_extra_point(success=0, two_point=0)
+        )
+        extra_point_row = prepared.filter(pl.col("play_type") == "extra_point")
+        assert extra_point_row.height == 1
+
+        out = make_wp_model_mutations(
+            prepared, ["game_id", "play_id", "play_type", "posteam", "Winner", "label"]
+        )
+
+        assert "extra_point" not in out["play_type"].to_list()
+
+    def test_non_extra_point_rows_survive_unchanged(self):
+        prepared = prepare_wp_data(self._wp_frame_with_trailing_extra_point(success=1))
+        expected_play_ids = set(
+            prepared.filter(pl.col("play_type") != "extra_point")["play_id"].to_list()
+        )
+
+        out = make_wp_model_mutations(
+            prepared, ["game_id", "play_id", "play_type", "posteam", "Winner", "label"]
+        )
+
+        assert set(out["play_id"].to_list()) == expected_play_ids
+        assert out.height == len(expected_play_ids)
+
+    def test_prefiltering_extra_point_before_prepare_wp_data_would_corrupt_clock_features(self):
+        """Regression guard on the fix's placement: `prepare_wp_data`'s synthetic
+        `half_seconds_remaining` is `1200 / max(play_id_half)` per half -- a count that
+        includes the extra-point row. Excluding extra-point rows from the raw corpus BEFORE
+        `prepare_wp_data` runs (instead of only inside `make_wp_model_mutations`'s final
+        `.select()`, where this fix actually lives) would shrink that count and shift every
+        other row's clock features in the same half. Proves the fix's placement matters, not
+        just that extra-point rows end up excluded somehow.
+        """
+        raw = self._wp_frame_with_trailing_extra_point(success=1)
+        correct_order = prepare_wp_data(raw)
+        wrong_order = prepare_wp_data(raw.filter(pl.col("play_type") != "extra_point"))
+
+        # play_id 6: second play of half 2, still present in both frames (not the
+        # extra-point row itself, which is play_id 8 here).
+        correct_value = correct_order.filter(pl.col("play_id") == 6)[
+            "half_seconds_remaining"
+        ].item()
+        wrong_value = wrong_order.filter(pl.col("play_id") == 6)[
+            "half_seconds_remaining"
+        ].item()
+
+        assert correct_value != wrong_value
 
 
 class TestAddCompetitionTierFeatures:
