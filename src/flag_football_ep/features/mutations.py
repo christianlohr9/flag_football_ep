@@ -955,6 +955,19 @@ def make_ep_model_mutations(
     variation in `Drive_Score_Dist` / `score_differential` -- `DegenerateWeightRange` is
     raised instead of silently emitting NaN/inf sample weights (RESEARCH Pitfall 4).
 
+    Excludes every `play_type == "extra_point"` row from the returned `model_data`
+    (M3-05-07), regardless of `one_point_conv_success`/`two_point_conv_success` -- previously
+    only a SUCCESSFUL attempt got a null `Next_Score_Half`-derived `label` and was dropped by
+    the caller's `drop_nulls()`; a FAILED attempt kept a real label and stayed in training.
+    The filter runs immediately before the final `.select()`, AFTER `Drive_Score_Dist_W`/
+    `ScoreDiff_W`/`Total_W`/`Total_W_Scaled` are computed on the full frame -- those weights
+    must see every row, including extra-point ones, matching this function's own
+    `DegenerateWeightRange` full-corpus contract. It must also run after label construction,
+    not on the raw corpus before `prepare_ep_data`: a play immediately preceding a made extra
+    point needs that row present in the sequence for `prepare_ep_data`'s `Next_Score_Half`/
+    `_mark_half_end` derivation (and `prepare_wp_data`'s synthetic clock, for the WP sibling
+    below) to resolve correctly for every OTHER row in the same half.
+
     `recency_weight_column` is the REQ-S1-09 recency-weighting candidate's hook
     (`model/experiments.py::run_recency_candidate`, `add_recency_weight`). When `None`
     (the default), this function behaves exactly as it did before REQ-S1-09 -- production
@@ -1058,6 +1071,7 @@ def make_ep_model_mutations(
     model_data = model_data.filter(
         pl.col("yardline_50").is_not_null(),
         pl.col("yards_to_go").is_not_null(),
+        pl.col("play_type") != "extra_point",
     ).select(list(selected_columns))
     return model_data
 
@@ -1074,6 +1088,13 @@ def make_wp_model_mutations(df: pl.DataFrame, selected_columns: Sequence[str]) -
     could never match `posteam` and would have made every label 0. `Winner`'s backward_fill
     is scoped `.over("game_id")` so a multi-game frame does not leak one game's winner into
     another's rows.
+
+    Excludes every `play_type == "extra_point"` row from the returned `model_data`
+    (M3-05-07), regardless of `one_point_conv_success`/`two_point_conv_success` -- same fix
+    and same placement rationale as `make_ep_model_mutations`'s sibling filter: it runs after
+    `Winner`/`label` are already derived from the full sequence (`prepare_wp_data`'s
+    synthetic `half_seconds_remaining` depends on every play in the half being present when
+    it runs), immediately before the final `.select()`.
     """
     model_data = (
         df.with_columns(
@@ -1100,6 +1121,7 @@ def make_wp_model_mutations(df: pl.DataFrame, selected_columns: Sequence[str]) -
             .then(pl.lit(1))
             .otherwise(pl.lit(0))
         )
+        .filter(pl.col("play_type") != "extra_point")
         .select(list(selected_columns))
     )
     return model_data
