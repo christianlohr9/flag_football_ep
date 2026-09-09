@@ -1,0 +1,3 @@
+game_id,sequence,field,value,note
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,720,offense_team,w-mex,reviewer feed says w-esp; events feed POSSESSION_CHANGE 249 w-mex + down 1 at ballOn 5 and the owner's own spot-fill note ("possession change") both confirm Mexico already has the ball
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,730,offense_team,w-mex,same MEX possession as 720 (events feed down 2 at ballOn 12); sequence 740 already correctly reads w-mex
