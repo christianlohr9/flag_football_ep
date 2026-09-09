@@ -24,12 +24,7 @@ Erledigtes wandert nach unten. Wenn du etwas fertig hast: einfach sagen, ich hak
 4. **GTA-Spot-Check.** Ein paar Clips ansehen. Anleitung: `docs/gta-spotcheck.md`. Dauer etwa eine Stunde.
    Dann sagen „GTA ok“ oder was nicht passt.
 
-## Eine Entscheidung
-
-5. **Repo: öffentlich oder privat, und welche Lizenz?**
-   Heute: öffentlich, GPL-3.0. Frist: 16. November.
-   Vorschlag von Claude: Repo auf privat stellen (Wettbewerbsvorteil), Lizenz auf Apache-2.0 mit deinem Namen in der NOTICE-Datei.
-   Du sagst nur „privat + Apache“ oder etwas anderes.
+5. **Repo auf privat stellen.** Lizenz ist schon auf Apache-2.0 umgestellt, jetzt fehlt nur noch die Sichtbarkeit: `gh repo edit christianlohr9/flag_football_ep --visibility private --accept-visibility-change-consequences` ausführen (oder auf GitHub unter Settings → Danger Zone → Change visibility).
 
 ## Warten auf andere
 
@@ -38,6 +33,7 @@ Erledigtes wandert nach unten. Wenn du etwas fertig hast: einfach sagen, ich hak
 
 ## Erledigt
 
+- Lizenz-Entscheidung „privat + Apache“ umgesetzt: Lizenz von GPL-3.0 auf Apache-2.0 mit Namensnennung umgestellt (2026-09-09). Sichtbarkeit steht noch aus, siehe „Jetzt“ oben.
 - Jona hat den Hackathon schriftlich bestätigt (2026-09-09). Freigabe erledigt.
 - GPS-Export über Titan/Hudl: geht nicht. Thema geschlossen (2026-09-09).
 - Viertelfinale MEX–ESP: Ballpositionen eingetragen (2026-09-08).
