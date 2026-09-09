@@ -219,6 +219,72 @@ def test_run_arm_tags_and_distinct_training_data_hash(tmp_path: Path) -> None:
     assert without_result.oof_snapshot_path != with_result.oof_snapshot_path
 
 
+def test_run_arm_corpus_fingerprint_and_ablation_fingerprint_do_not_collide(
+    tmp_path: Path,
+) -> None:
+    """Regression test for the `MlflowException: Changing param values is not allowed`
+    bug: `model/train.py::_train` (called via `train_fn`) auto-logs its own arm-scoped
+    `corpus_fingerprint`/`git_commit` params on every run since M3-05-03. `run_arm` must
+    never also `log_param` under those same keys with a different value -- it previously did,
+    computing `corpus_fingerprint` over the FULL raw corpus (same value for every arm) while
+    `_train` computes it over just the arm's own frame (differs by arm), which raised for
+    the smaller `without_hc` arm the moment its run tried to log a second, conflicting value
+    under the same key. This test drives both arms (which is what triggered the bug) and
+    asserts the fix's two distinct scopes end up in the two distinct places."""
+    config = _make_config(tmp_path)
+    plays = _mixed_corpus()
+    arms = build_arms(plays)
+    snapshot_dir = tmp_path / "snap"
+    ablation_fingerprint = driver.compute_corpus_fingerprint(plays)
+
+    without_result = run_arm(
+        "ep",
+        "without_hc",
+        arms["without_hc"],
+        config,
+        snapshot_dir,
+        ablation_corpus_fingerprint=ablation_fingerprint,
+    )
+    with_result = run_arm(
+        "ep",
+        "with_hc",
+        arms["with_hc"],
+        config,
+        snapshot_dir,
+        ablation_corpus_fingerprint=ablation_fingerprint,
+    )
+
+    mlflow_store.configure(config)
+    client = mlflow.tracking.MlflowClient()
+    without_run = client.get_run(without_result.run_id)
+    with_run = client.get_run(with_result.run_id)
+
+    # corpus_fingerprint is owned by the training path (model/train.py::_train), scoped to
+    # each run's own arm frame -- without_hc's frame is a strict subset, so its
+    # corpus_fingerprint must differ from with_hc's (which trains on the full frame).
+    assert without_run.data.params["corpus_fingerprint"]
+    assert with_run.data.params["corpus_fingerprint"]
+    assert (
+        without_run.data.params["corpus_fingerprint"] != with_run.data.params["corpus_fingerprint"]
+    )
+    assert without_result.corpus_fingerprint == without_run.data.params["corpus_fingerprint"]
+    assert with_result.corpus_fingerprint == with_run.data.params["corpus_fingerprint"]
+
+    # ablation_corpus_fingerprint is this script's own whole-raw-corpus identifier -- logged
+    # under a distinct key, identical across both arms, and never collides with the
+    # training path's arm-scoped corpus_fingerprint above.
+    assert without_run.data.params["ablation_corpus_fingerprint"] == ablation_fingerprint
+    assert with_run.data.params["ablation_corpus_fingerprint"] == ablation_fingerprint
+    assert without_result.ablation_corpus_fingerprint == ablation_fingerprint
+    assert with_result.ablation_corpus_fingerprint == ablation_fingerprint
+
+    # git_commit does not vary by input frame, so both runs (and both ArmResults) agree.
+    assert without_run.data.params["git_commit"]
+    assert without_run.data.params["git_commit"] == with_run.data.params["git_commit"]
+    assert without_result.git_commit == without_run.data.params["git_commit"]
+    assert with_result.git_commit == with_run.data.params["git_commit"]
+
+
 def test_run_arm_never_sets_champion_alias(tmp_path: Path) -> None:
     config = _make_config(tmp_path)
     plays = _mixed_corpus()
@@ -289,6 +355,18 @@ def test_main_both_models_writes_seven_csvs(tmp_path: Path) -> None:
         without_row = rows.filter(pl.col("arm") == "without_hc").row(0, named=True)
         assert with_row["n_folds"] > without_row["n_folds"]
         assert with_row["training_data_sha256"] != without_row["training_data_sha256"]
+        # Regression coverage for the corpus_fingerprint/git_commit double-log-param
+        # MlflowException: the training-path-owned corpus_fingerprint is scoped per arm
+        # (differs), while the script's own ablation_corpus_fingerprint is the same whole
+        # raw corpus for every arm/model in this one `main()` call (does not differ).
+        assert with_row["corpus_fingerprint"] != without_row["corpus_fingerprint"]
+        assert with_row["ablation_corpus_fingerprint"] == without_row["ablation_corpus_fingerprint"]
+        assert with_row["git_commit"] == without_row["git_commit"]
+    assert ablation_summary["ablation_corpus_fingerprint"].n_unique() == 1
+    # corpus_fingerprint is scoped to the raw arm frame train_ep/train_wp were called with
+    # (before any model-specific exclude_ids/prepare_fn/mutate_fn filtering) -- ep and wp
+    # share the same arm frame, so it varies by arm only, not by model.
+    assert ablation_summary["corpus_fingerprint"].n_unique() == 2
 
     corpus_arms = pl.read_csv(out_dir / "corpus_arms.csv")
     assert corpus_arms.height > 0

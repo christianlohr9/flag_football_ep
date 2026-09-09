@@ -20,6 +20,8 @@ Every training run logs the params that record this protocol:
 | `group_column` | Always `game_id` — the LOGO grouping key. |
 | `n_folds` | The number of distinct games measured (one fold per game after exclusions and null-drops — see `01.3-TRAINING-REPORT.md` §2 for why this is usually smaller than the raw game count). |
 | `training_data_sha256` | SHA-256 over the training frame's Parquet bytes — reproduces exactly which rows a run was trained on. |
+| `git_commit` | The `HEAD` commit that produced this run (`"unknown"` if `git` was unavailable). |
+| `corpus_fingerprint` | SHA-256 over the sorted `(game_id, play_id, source)` key set of the `plays` frame the run was called with, before any exclude/prepare/mutate filtering — differs from `training_data_sha256`'s post-filter scope, and (for a caller like `scripts/hc_corpus_ablation.py` that trains on a corpus subset) from that script's own whole-raw-corpus `ablation_corpus_fingerprint` param, logged separately so the two scopes never collide under one MLflow param key. |
 
 **The shipped model is a separate single refit on every included game**, fit once with the same
 (tuned or fixed) hyperparameters the LOGO loop measured with. The 214+ LOGO fold models

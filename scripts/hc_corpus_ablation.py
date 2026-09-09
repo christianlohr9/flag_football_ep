@@ -103,7 +103,16 @@ class NoHeadCoachRowsError(ValueError):
 @dataclass(frozen=True)
 class ArmResult:
     """One `run_arm` call's bookkeeping -- everything `main` needs to build the CSVs
-    without re-querying MLflow."""
+    without re-querying MLflow.
+
+    `corpus_fingerprint`/`git_commit` are read back from the run's own already-logged MLflow
+    params (`model/train.py::_train` logs both on every run since M3-05-03) rather than
+    logged a second time by this script -- `corpus_fingerprint` is therefore scoped to this
+    arm's own training frame, same as `training_data_sha256`. `ablation_corpus_fingerprint`
+    is this script's own, distinct whole-raw-corpus identifier (see
+    `compute_corpus_fingerprint`'s docstring) -- identical across every arm/model in one
+    script invocation, unlike `corpus_fingerprint`.
+    """
 
     model: str
     arm: str
@@ -122,6 +131,7 @@ class ArmResult:
     oof_snapshot_path: str
     corpus_fingerprint: str = ""
     git_commit: str = ""
+    ablation_corpus_fingerprint: str = ""
 
 
 def compute_corpus_fingerprint(plays: pl.DataFrame) -> str:
@@ -129,18 +139,32 @@ def compute_corpus_fingerprint(plays: pl.DataFrame) -> str:
     ingested corpus (`with_hc`, i.e. `plays.parquet` as loaded, before any arm split or
     per-model null-dropping) -- identifies WHICH rows the whole ablation run saw, independent
     of `training_data_sha256` (which hashes one arm's post-`drop_nulls()` training frame and
-    therefore differs by model/arm on purpose). Logged as an MLflow param on every run
-    alongside `git_commit` so a re-run of this script can be told apart from a re-run against
-    a changed corpus, even when the measured metrics land close together.
+    therefore differs by model/arm on purpose).
+
+    Since M3-05-03, `model/train.py::_train` also computes and MLflow-param-logs a
+    `corpus_fingerprint` on every run -- scoped to whatever frame it was actually called
+    with, which for this script's `without_hc` arm is a strict subset of the full corpus this
+    function hashes here. The two are legitimately different quantities (whole raw corpus vs.
+    this run's own arm frame), so `run_arm` logs this function's result under the distinct
+    `ablation_corpus_fingerprint` param key instead of `corpus_fingerprint` -- reusing
+    `corpus_fingerprint` for both would either silently overwrite the with-hc run's arm-scoped
+    value with this identical one (harmless but misleading) or raise `MlflowException` for
+    the without-hc run, whose arm frame hashes to a different value (the original bug this
+    module's tests regression-guard against). `corpus_fingerprint` stays owned by the training
+    path exclusively; read it back from `run.data.params` if you need the arm-scoped value.
     """
     keys = plays.select("game_id", "play_id", "source").sort(["game_id", "play_id", "source"])
     return hashlib.sha256(keys.write_csv().encode("utf-8")).hexdigest()
 
 
 def git_commit_sha() -> str:
-    """The current `HEAD` commit, logged as an MLflow param alongside `corpus_fingerprint`
-    (same rationale: ties a measured run to the exact code + data pairing that produced it).
-    Falls back to `"unknown"` rather than raising if `git` is unavailable in the runtime
+    """The current `HEAD` commit -- ties a measured run to the exact code + data pairing
+    that produced it. Not logged as its own MLflow param here: `_train` (`model/train.py`,
+    called via `train_ep`/`train_wp`) already logs `git_commit` on every run since M3-05-03,
+    identically for every arm/model in one invocation (unlike `corpus_fingerprint`, `git`
+    HEAD does not vary by input frame), so `run_arm` reads it back from `run.data.params`
+    instead of logging it a second time. Used here only for the printed summary line. Falls
+    back to `"unknown"` rather than raising if `git` is unavailable in the runtime
     environment -- a missing provenance tag must never fail a training run."""
     try:
         result = subprocess.run(
@@ -197,8 +221,7 @@ def run_arm(
     config: Config,
     snapshot_dir: Path,
     *,
-    corpus_fingerprint: str | None = None,
-    git_commit: str | None = None,
+    ablation_corpus_fingerprint: str | None = None,
 ) -> ArmResult:
     """Fit one arm via the matching `train_ep`/`train_wp`, tag the run, and snapshot its
     out-of-fold predictions before the next arm's run overwrites the shared
@@ -207,10 +230,22 @@ def run_arm(
     disk for M3-02-06, per this plan's ordering, so a caller needing the without-arm's
     out-of-fold predictions later must read this snapshot, not the live path).
 
-    `corpus_fingerprint`/`git_commit`, when given, are logged as MLflow params (not just
-    tags) -- provenance for a re-run against a possibly-changed corpus/codebase, distinct
-    from `training_data_sha256` (which hashes this arm's own post-`drop_nulls()` frame, not
-    the raw corpus every arm/model was measured against).
+    `corpus_fingerprint`/`git_commit` are NOT logged here -- `train_fn` (`train_ep`/
+    `train_wp` -> `model/train.py::_train`) already logs both as MLflow params on every run
+    (M3-05-03), scoped to this arm's own `frame`. Logging them again from here, under the
+    same keys, previously raised `MlflowException` for the `without_hc` arm: this script's
+    fingerprint (computed once over the FULL raw corpus in `main`, before the arm split) and
+    `_train`'s fingerprint (computed over just this arm's `frame`) are legitimately different
+    values for `without_hc`, and MLflow forbids changing an already-logged param's value.
+    `ArmResult.corpus_fingerprint`/`.git_commit` below are read back from the run's own
+    logged params instead.
+
+    `ablation_corpus_fingerprint`, when given, is logged as its own distinct MLflow param --
+    provenance for a re-run of this SCRIPT against a possibly-changed corpus/codebase,
+    identical across every arm/model in one invocation, distinct from both
+    `training_data_sha256` (this arm's own post-`drop_nulls()` frame hash) and
+    `corpus_fingerprint` (this arm's own pre-drop_nulls() frame hash, owned by the training
+    path).
 
     Never calls anything in `flag_football_ep.model.registry` -- no alias is ever moved.
     """
@@ -222,10 +257,8 @@ def run_arm(
     client.set_tag(run_id, "corpus_arm", arm_name)
     client.set_tag(run_id, "gsd_phase", "M3-02")
     client.set_tag(run_id, "plan", "M3-02-05")
-    if corpus_fingerprint is not None:
-        client.log_param(run_id, "corpus_fingerprint", corpus_fingerprint)
-    if git_commit is not None:
-        client.log_param(run_id, "git_commit", git_commit)
+    if ablation_corpus_fingerprint is not None:
+        client.log_param(run_id, "ablation_corpus_fingerprint", ablation_corpus_fingerprint)
 
     run = client.get_run(run_id)
     params = run.data.params
@@ -256,8 +289,9 @@ def run_arm(
         logloss_improvement=float(metrics["logloss_improvement"]),
         per_source_metrics_path=str(per_source_path),
         oof_snapshot_path=str(oof_snapshot),
-        corpus_fingerprint=corpus_fingerprint or "",
-        git_commit=git_commit or "",
+        corpus_fingerprint=params.get("corpus_fingerprint", ""),
+        git_commit=params.get("git_commit", ""),
+        ablation_corpus_fingerprint=ablation_corpus_fingerprint or "",
     )
 
 
@@ -467,9 +501,13 @@ def main(argv: list[str] | None = None) -> int:
 
     models = ["ep", "wp"] if args.model == "both" else [args.model]
 
-    corpus_fingerprint = compute_corpus_fingerprint(plays)
+    # Whole raw corpus (pre-arm-split), same across every arm/model below -- see
+    # `compute_corpus_fingerprint`'s docstring for why this is a distinct MLflow param
+    # (`ablation_corpus_fingerprint`) from the training path's own arm-scoped
+    # `corpus_fingerprint`.
+    ablation_corpus_fingerprint = compute_corpus_fingerprint(plays)
     git_commit = git_commit_sha()
-    print(f"corpus_fingerprint={corpus_fingerprint} git_commit={git_commit}")
+    print(f"ablation_corpus_fingerprint={ablation_corpus_fingerprint} git_commit={git_commit}")
 
     snapshot_dir = Path(tempfile.mkdtemp(prefix="hc_corpus_ablation_"))
     all_results: list[ArmResult] = []
@@ -482,8 +520,7 @@ def main(argv: list[str] | None = None) -> int:
                 frame,
                 config,
                 snapshot_dir,
-                corpus_fingerprint=corpus_fingerprint,
-                git_commit=git_commit,
+                ablation_corpus_fingerprint=ablation_corpus_fingerprint,
             )
             all_results.append(result)
             print(
@@ -511,6 +548,7 @@ def main(argv: list[str] | None = None) -> int:
             "logloss_improvement": r.logloss_improvement,
             "corpus_fingerprint": r.corpus_fingerprint,
             "git_commit": r.git_commit,
+            "ablation_corpus_fingerprint": r.ablation_corpus_fingerprint,
         }
         for r in all_results
     ]
