@@ -43,12 +43,12 @@ ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,610,10,"gain of 9 to yardline_50==19, 
 ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,620,5,"gain of 6 to yardline_50==11, penalty with loss of down"
 ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,630,3,
 ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,640,11,"gain of 15 to yardline_50==26, penalty of 10"
-ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,650,36,
-ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,660,37,
-ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,670,42,"penalty, new set of downs"
-ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,680,46,"penalty, new set of downs"
-ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,690,48,touchdown
-ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,700,5,1 point try
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,650,,"unklar: Reviewer-Feed, Live-Feed und Video widersprechen sich (Drive-Zuordnung 650-700); Spot bewusst leer bis Klaerung mit dem Statistiker"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,660,,"unklar: Reviewer-Feed, Live-Feed und Video widersprechen sich (Drive-Zuordnung 650-700); Spot bewusst leer bis Klaerung mit dem Statistiker"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,670,,"penalty, new set of downs; unklar: Reviewer-Feed, Live-Feed und Video widersprechen sich (Drive-Zuordnung 650-700); Spot bewusst leer bis Klaerung mit dem Statistiker"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,680,,"penalty, new set of downs; unklar: Reviewer-Feed, Live-Feed und Video widersprechen sich (Drive-Zuordnung 650-700); Spot bewusst leer bis Klaerung mit dem Statistiker"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,690,,"touchdown; unklar: Reviewer-Feed, Live-Feed und Video widersprechen sich (Drive-Zuordnung 650-700); Spot bewusst leer bis Klaerung mit dem Statistiker"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,700,,"1 point try; unklar: Reviewer-Feed, Live-Feed und Video widersprechen sich (Drive-Zuordnung 650-700); Spot bewusst leer bis Klaerung mit dem Statistiker"
 ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,710,,überflüssiges play siehe anweisungen in claude
 ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,720,5,possession change
 ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,730,11,
