@@ -32,16 +32,17 @@ themselves are measurement-only — they are never exported, registered, or retu
 ffep ingest                          # raw exports -> canonical Parquet
 ffep train --model both              # LOGO-measured EP + WP training runs
 mlflow ui --backend-store-uri sqlite:///$(pwd)/mlruns/mlflow.db   # review in the browser
-ffep promote --model both            # explicit, human-reviewed champion promotion
+ffep promote --model both            # gated champion promotion (see section 3)
 ffep score                           # score the canonical dataset with the champion models
 ```
 
 Open `http://127.0.0.1:5000` after the `mlflow ui` command above. In the `ep_model`/`wp_model`
 experiments, confirm the newest run's `logo_*`/`naive_*`/`logloss_improvement` metrics, the
 `reliability_{ep,wp}.png` artifact, and the `per_source_metrics.md` artifact all look reasonable
-before promoting — this is the review step `ffep promote` exists to gate.
+before promoting — the same review the automated gate below performs mechanically, plus
+whatever judgement doesn't reduce to a number.
 
-## 3. Why promotion is manual
+## 3. Why promotion is gated, not just manual
 
 `ffep score` resolves which model to use through the MLflow model registry's `champion` alias
 (`flag_football_ep.model.registry.resolve_champion`) — it **never** silently falls back to the
@@ -54,12 +55,39 @@ no 'champion' alias set for registered model 'ep_model' in tracking store
 'sqlite:////path/to/mlruns/mlflow.db' -- run `ffep promote` after reviewing a training run
 ```
 
-This is deliberate: CONTEXT's promotion decision requires an explicit `ffep promote`, "used
-after reviewing the training report" — not an implicit newest-run pickup. `ffep promote --model
-<ep|wp|both>` moves the `champion` alias to the most recent FINISHED run of that model's
-experiment (or a specific `--run <run_id>` if you want to pin an older one). A second `promote`
-call with a different run moves the alias without deleting the previous version — nothing in
-the registry is ever destroyed by a re-promotion.
+`ffep promote --model <ep|wp|both>` moves the `champion` alias to the most recent FINISHED run
+of that model's experiment (or a specific `--run <run_id>` if you want to pin an older one). A
+second `promote` call with a different run moves the alias without deleting the previous
+version — nothing in the registry is ever destroyed by a re-promotion.
+
+Since M3-05-06, `promote` runs an automated **promotion gate**
+(`flag_football_ep.model.gate.evaluate_gate`) before moving the alias, and refuses the
+candidate (nonzero exit, printing every check's pass/fail/skip) unless the gate passes. The
+gate reads exclusively from the candidate run's own MLflow metrics — never a CSV — and checks:
+
+1. **Beats the naive baseline:** `logloss_improvement > 0`.
+2. **Beats the current champion:** the candidate's LOGO log-loss (`logo_mlogloss` for EP,
+   `logo_logloss` for WP — resolved per model, never hard-coded to one) is no worse than the
+   champion's plus `champion_epsilon`. If no champion is set yet, this check passes
+   automatically — there is nothing to beat.
+3. **Calibration within tolerance:** every `calibration_max_deviation_<class>` metric on the
+   run is at or under `max_calibration_deviation`.
+4. **No-play share under threshold:** `no_play_share <= max_no_play_share`, if that metric is
+   present on the run.
+
+A check whose required metric is absent (e.g. a run trained before M3-05-03 added
+calibration/no-play metrics) is recorded as **skipped**, never silently treated as a pass — the
+printed output distinguishes `PASS`/`FAIL`/`SKIP` for every check. Thresholds live in
+`ffep.toml`'s `[promotion_gate]` table (`max_calibration_deviation`, `max_no_play_share`,
+`champion_epsilon`) and ship with provisional defaults (`0.15`/`0.02`/`0.0`) pending their first
+real empirical exercise.
+
+The gate is not a replacement for judgement — it is the default path, with an auditable escape
+hatch: `ffep promote --force --reason "..."` bypasses a failing gate, but the reason (and the
+operator, from `$USER`) is tagged onto the promoted run
+(`promotion_override_reason`/`promotion_override_by` via `MlflowClient().set_tag`), not just
+printed to a terminal that can be lost. `--force` with no (or an empty) `--reason` is refused
+before anything runs.
 
 ## 4. Running a feature experiment
 

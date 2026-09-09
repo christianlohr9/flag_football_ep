@@ -35,3 +35,26 @@ Out-of-scope discoveries logged during plan execution, per the executor's scope-
 
 ---
 *Phase: M3-05-epa-plattform*
+
+
+Out-of-scope discoveries logged during plan execution, per the executor's scope-boundary
+rule (only auto-fix issues directly caused by the current task's changes).
+
+## M3-05-06: `test_modellkarte_run_ids_resolve_to_registry_or_csv` fails in this worktree
+
+- **Found during:** M3-05-06 Task 2 verification (running `tests/test_m3_epa_docs.py` as a
+  broader sanity check beyond the plan's own `<verify>` commands).
+- **Issue:** `docs/epa-modellkarte.md` quotes MLflow run ids
+  (`5e8ec9573e774ebaa20c9694c6ae15bb`, `f9cfe5f348244a7f99dd6817785bff6d`) that resolve to
+  neither a committed `ablation_summary.csv` row nor this worktree's live MLflow store
+  (`mlruns/mlflow.db`).
+- **Why out of scope:** Not caused by any file this plan (M3-05-06) touches
+  (`src/flag_football_ep/model/gate.py`, `config.py`, `ffep.toml`, `cli.py`,
+  `tests/test_model_gate.py`, `tests/test_cli_smoke.py`, `docs/model-training.md`). This is
+  an isolated-worktree environment gap: this worktree never ran a real `ffep train`/
+  `ffep promote`, so its local `mlruns/mlflow.db` lacks the runs the model card (written by
+  a different plan/executor, M3-05-02) cites. A sibling executor running on the main tree
+  (per this plan's own briefing) is promoting these exact runs concurrently — once that
+  lands and this worktree merges, the live store should carry them.
+- **Action:** Not fixed here. Flagged for whoever runs the phase-level full-suite check
+  after all worktrees merge back.
