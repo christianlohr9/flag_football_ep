@@ -206,6 +206,33 @@ def test_configure_preserves_a_real_override_across_calls(
     assert mlflow_store.tracking_uri(config) == _REMOTE_URI
 
 
+def test_tracking_uri_ignores_a_differently_set_ambient_local_uri(
+    tmp_path: Path,
+) -> None:
+    """Regression guard for a second, distinct leak this session found via the full CI
+    suite (not caught by the two guards above, which only exercise this module's own
+    `configure()` calls): `mlflow.set_tracking_uri()` writes `MLFLOW_TRACKING_URI` into
+    `os.environ` for ANY call, including one made by unrelated code entirely outside this
+    module (e.g. `tests/test_model_registry.py`'s pre-existing
+    `test_resolve_champion_ignores_a_differently_set_ambient_tracking_uri`, which calls
+    `mlflow.set_tracking_uri` directly to simulate ambient state left by something else).
+    That pre-existing regression contract requires `tracking_uri(config)` to keep resolving
+    to `config`'s own local store regardless -- restricting override recognition to
+    `http(s)://` values (never `sqlite:///`, the shape any such ambient echo takes) satisfies
+    both this module's own feature and that older contract simultaneously.
+    """
+    config = _make_config(tmp_path)
+    other_local_uri = "sqlite:///" + str(tmp_path / "somewhere-else" / "mlflow.db")
+
+    mlflow.set_tracking_uri(other_local_uri)
+    assert os.environ.get(mlflow_store.TRACKING_URI_ENV_VAR) == other_local_uri
+
+    assert mlflow_store.tracking_uri(config) != other_local_uri
+    assert mlflow_store.tracking_uri(config) == "sqlite:///" + str(
+        config.paths.mlruns / "mlflow.db"
+    )
+
+
 # --- ensure_experiment / artifact_location kwarg --------------------------------------------
 
 
