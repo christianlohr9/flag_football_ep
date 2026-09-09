@@ -83,3 +83,9 @@ data/raw/hc_files/
 # same rule as data/raw/hc_files/. Reproducibility via the dated snapshot directories.
 data/raw/ifaf/
 data/raw/ifaf-snapshot-*/
+
+# 2026-09-08: a spot-fill CSV's original as-saved-from-Excel bytes (semicolon
+# delimiter, cp1252/mac_roman encoding, trailing empty column), kept locally
+# for reference only while normalising it to the committed comma/LF/UTF-8
+# convention -- never itself committed (data/reference/ifaf_spot_fill/README.md).
+data/reference/ifaf_spot_fill/*.original-semicolon.csv

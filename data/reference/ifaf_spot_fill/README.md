@@ -101,3 +101,22 @@ als benannter Hinweis in der Ingest-Zusammenfassung, nie stillschweigend.
 Ungültige Zeilen (unbekannte `sequence`, `ballOn` außerhalb 0–50, oder eine Zeile für einen
 Spielzug, der längst eine echte Position hat) brechen den Ingest nie ab — sie erzeugen nur einen
 benannten Hinweis in der Ingest-Zusammenfassung, die betroffene Zeile wird ignoriert.
+
+## Encoding/Trennzeichen-Toleranz (2026-09-08)
+
+Eine in Excel bearbeitete und gespeicherte Datei kommt regelmäßig **Semikolon-getrennt**,
+**nicht als UTF-8** (z. B. `mac_roman` bei einem Export von Excel für Mac) und mit einer
+**leeren Spalte am Zeilenende** zurück (ein trailing Trennzeichen vor dem Zeilenumbruch, z. B.
+`game_id;sequence;ballOn;note;`) — genau das Format, in dem der Projektinhaber die Datei für
+das ESP-MEX-Viertelfinale der Frauen (`ifaf-019ffff1-a8db-...`) gespeichert hatte, inklusive
+eines Umlauts in der Notiz zu Sequenz 710 ("überflüssiges play").
+
+`ifaf.load_spot_fill` erkennt das automatisch: das Trennzeichen wird an der Kopfzeile
+gesniffet (`;` nur wenn dort kein `,` vorkommt), die Bytes werden zuerst als UTF-8 versucht,
+dann als `cp1252`, und — falls das auf ein für `cp1252` typisches Mojibake-Zeichen wie `Ÿ`
+trifft (ein Hinweis, dass die Datei eigentlich `mac_roman` ist, nicht `cp1252`) — als
+`mac_roman` neu decodiert. Jeder Fallback erzeugt einen benannten Hinweis in der
+Ingest-Zusammenfassung, nie einen Fehler. Die im Repo committete Datei selbst ist trotzdem
+immer die normalisierte Form (Komma, LF, UTF-8, exakt vier Spalten) — dieser Toleranz-Layer
+ist ein Sicherheitsnetz für die *nächste* Excel-Bearbeitung, kein Ersatz für die Normalisierung
+vor dem Commit.
