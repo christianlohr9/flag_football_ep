@@ -1,7 +1,7 @@
 # EPA-Update für den Oktober-Sync 2026
 
 Status: am 2026-09-04 geprüft, freigegeben für den Oktober-Sync (keine Textänderungen).
-Champion-Entscheidung: siehe Schlusszeile (Stand) — Beförderung der `with_hc`-Läufe steht als Entscheidung an, bis dahin bleibt der bisherige Champion.
+Champion-Entscheidung: am 2026-09-09 getroffen ("both") — Champion für EP und WP auf die 2026-09-08 `with_hc`-Läufe verschoben (siehe `## Champion-Entscheidung` im Nachtrag unten für Begründung und Run-IDs).
 
 Das hier ist eine reproduzierbare, kalibrierte Neuberechnung deiner EPA/WP-Größen auf einem
 größeren Korpus — **kein neues Modell und keine fancigere Mathematik.** Gleiche Methode wie im
@@ -262,7 +262,8 @@ Jede Zahl in diesem Dokument kommt aus genau einer dieser committeten Dateien:
 `data/reference/hc_sp_tables/*.csv` für deine eigenen Tabellen. `tests/test_m3_epa_docs.py`
 prüft das automatisch bei jedem Testlauf.
 
-Stand: 2026-09-04 (Review abgeschlossen; Champion-Entscheidung offen, siehe Status oben).
+Stand: 2026-09-04 (Review abgeschlossen; Champion-Entscheidung inzwischen getroffen, siehe
+`## Champion-Entscheidung` im Nachtrag unten).
 
 ## Nachtrag: Stand 2026-09-08 nach der IFAF-Korrektur
 
@@ -473,4 +474,47 @@ reproduzierbar bleibt wie am Tag der Freigabe. `tests/test_m3_epa_docs.py` prüf
 Verzeichnisse automatisch bei jedem Testlauf.
 
 Stand: 2026-09-08 (Neumessung nach der IFAF-Korrektur; ersetzt keine Zahl oben, keine
-Champion-Entscheidung in dieser Sektion getroffen).
+Champion-Entscheidung in dieser Messung getroffen -- siehe `## Champion-Entscheidung` unten für
+die inzwischen getroffene Entscheidung).
+
+## Champion-Entscheidung
+
+**Entschieden am 2026-09-09** (Nutzer-Antwort in der Session: "natürlich unter den
+Voraussetzungen 'both'", erneut bestätigt als "both"): **both** -- der `champion`-Alias für
+sowohl `ep_model` als auch `wp_model` wird auf die 2026-09-08 `with_hc`-Läufe verschoben
+(EP `97259da7acaf43f3b2c65e59f7f11694`, WP `2c8c249d295d4ce9a2845800c459c153`), die IFAF zum
+ersten Mal im Training enthalten.
+
+**Begründung:** Beide `with_hc`-Arme vom 2026-09-08 schlagen sowohl ihren jeweiligen
+`without_hc`-Arm als auch die naive Grundrate deutlich (EP: Log-Loss 0,942659 gegen Grundrate
+0,994269; WP: Log-Loss 0,372350 gegen Grundrate 0,691566 -- siehe Tabelle oben unter "Die vier
+Arme, erneut gemessen"). Der bisherige, bis heute lebende EP-Champion lag dagegen selbst unter
+der naiven Grundrate (Log-Loss 1,027657 gegen Grundrate 1,007274, Verbesserung -0,020383, siehe
+`docs/epa-modellkarte.md` vor dieser Beförderung) -- ein klarer Grund, ihn abzulösen. Der
+WP-Nebenbefund weiter oben (WP auf `ifaf` allein, Arm "ohne HC", schlägt zum ersten Mal
+schlechter ab als die naive Grundrate) war bei dieser Entscheidung bekannt und wurde bewusst
+mitberücksichtigt, nicht übersehen -- er betrifft den `without_hc`-Arm, nicht den jetzt
+beförderten `with_hc`-Arm.
+
+**Ausgeführt** (`docs/model-training.md` Abschnitt 3 -- Alias verschoben, keine ältere Version
+gelöscht):
+
+```
+uv run ffep promote --model ep --run 97259da7acaf43f3b2c65e59f7f11694
+uv run ffep promote --model wp --run 2c8c249d295d4ce9a2845800c459c153
+```
+
+**Aufgelöster Champion vor der Beförderung:** die ursprüngliche Phase-1.3-Version für
+`ep_model` und `wp_model` (Version 1 je Modell, Run-IDs siehe
+`.planning/phases/M3-02-epa-refinement/M3-02-RERUN-2026-09-08-SUMMARY.md`, Abschnitt
+"Promotion Candidates" -- hier bewusst nicht erneut zitiert, damit dieser Abschnitt keine
+Run-ID nennt, die nicht in `data/reference/epa_refinement/2026-09-08/ablation_summary.csv`
+steht) -- beide bleiben als ältere Version im Registry erhalten, nur der `champion`-Alias
+wurde verschoben, keine Version wurde gelöscht.
+
+**Aufgelöster Champion nach der Beförderung** (`registry.resolve_champion`, direkt gegen den
+Live-Tracking-Store geprüft): `ep_model` -> `97259da7acaf43f3b2c65e59f7f11694` (Version 5),
+`wp_model` -> `2c8c249d295d4ce9a2845800c459c153` (Version 5).
+
+Stand: 2026-09-09 (Champion-Entscheidung getroffen und ausgeführt; ersetzt keine Zahl im
+Nachtrag oder Hauptbericht oben -- nur der `champion`-Alias hat sich bewegt).
