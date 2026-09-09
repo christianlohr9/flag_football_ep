@@ -42,6 +42,10 @@ experiments, confirm the newest run's `logo_*`/`naive_*`/`logloss_improvement` m
 before promoting — the same review the automated gate below performs mechanically, plus
 whatever judgement doesn't reduce to a number.
 
+Everything above runs against the local sqlite/file store by default. For a containerised
+MLflow platform (Postgres + MinIO, `MLFLOW_TRACKING_URI` opt-in override) that scales beyond
+one laptop, see `docs/mlflow-container-platform.md`.
+
 ## 3. Why promotion is gated, not just manual
 
 `ffep score` resolves which model to use through the MLflow model registry's `champion` alias

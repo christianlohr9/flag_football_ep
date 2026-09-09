@@ -9,6 +9,12 @@ wann") nimm stattdessen [`docs/epa-modellkarte.md`](./epa-modellkarte.md) -- die
 aus genau demselben MLflow-Stand generiert (`scripts/render_model_card.py`), aber coach-lesbar
 aufbereitet.
 
+**Alternative: containerisierter Store.** Die Schritte unten gehen vom lokalen sqlite-Store
+aus (Standard). Läuft stattdessen die docker-compose-Plattform (Postgres + MinIO,
+`MLFLOW_TRACKING_URI` gesetzt), zeigt dieselbe UI unter derselben URL exakt dieselben Daten --
+siehe [`docs/mlflow-container-platform.md`](./mlflow-container-platform.md) für Start/Stopp und
+den Unterschied.
+
 ## Vorbereitung (einmalig, vor dem Sync)
 
 Kein neuer Code, keine neue Konfiguration -- der Befehl steht bereits in
