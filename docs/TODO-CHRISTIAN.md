@@ -5,10 +5,12 @@ Erledigtes wandert nach unten. Wenn du etwas fertig hast: einfach sagen, ich hak
 
 ## Jetzt
 
-1. **Spielerinnen zuordnen (HC-Daten).**
-   Der Roster hat jetzt die 2026er Kader. Alles Eindeutige ist schon übernommen.
-   Es bleiben 87 Einträge. Viele sind nur ein Vorname. Manche sind Gegnerinnen aus Camps.
-   Datei: `data/raw/hc_files/player_mapping_hc_template.csv` (nur noch die offenen Fälle).
+1. **Spielerinnen zuordnen (alle Datenquellen).**
+   Jetzt deckt die Zuordnung auch die alten Spiele und die WM-Daten ab, nicht nur die HC-Tabelle.
+   Alles Eindeutige ist schon übernommen.
+   Es bleiben 46 Einträge offen.
+   Datei: `data/raw/hc_files/player_mapping_template.csv` (nur noch die offenen Fälle).
+   Neue Spalte `source` zeigt, woher der Eintrag kommt. Nicht ändern.
    Spalte `source_player` = sein Eintrag. Nicht ändern.
    Spalte `canonical_player` = voller Name aus `data/reference/roster.csv`.
    Kennst du die Spielerin nicht? Leer lassen. Das ist ok.

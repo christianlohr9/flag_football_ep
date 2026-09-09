@@ -268,6 +268,41 @@ auf die grobe Mapping-Quelle `hc_workbook`, bevor `map_players` gegen `player_ma
 (andere Quellen wie `hudl` bleiben exakt). `player_analysis.py` erbt den Fix über den bestehenden
 Import von `_canonicalise_players`, ohne eigene Änderung.
 
+**Zweites Update, 2026-09-09 (Mapping für alle Quellen, nicht nur `hc_workbook`):** Der obige
+Fix zeigte die Zahl korrekt an, aber der "Nicht zugeordnete Spielernamen"-Hinweis bestand danach
+größtenteils aus zwei Quellen, die das alte Skript nie behandelt hat: `legacy` (die 47
+handgecharteten Spiele) und `ifaf` (die WM-2026-Turnierdaten). Beide brauchen eine eigene
+Zuordnungsregel, weil sie Spieler anders benennen als der HC-Workbook:
+
+- `legacy`: Rückennummer -> Roster-Zeile OHNE `season == "2026"` (der Kader, wie er beim
+  Charten der 47 Spiele wirklich war); Nachname (oft großgeschrieben) -> Nachname-Suffix-Fold
+  über den gesamten Frauen-Roster (Jahrgang egal, ein Nachname bleibt derselbe).
+- `ifaf`: voller Name -> Fold-Vergleich des GESAMTEN Namens (nicht nur Nachname), über den
+  kompletten `roster.csv` (nicht nur Deutschland) — manche `ifaf`-Zeilen im eigenen
+  Offense-Datensatz tragen den Namen der gegnerischen Spielerin (z. B. bei einer
+  Interception), nicht einer deutschen.
+
+Zwei Rückennummern-Label in `legacy` (`"-1"`, `"0"`) sind keine echten Spielerinnen — kein
+Roster-Eintrag nutzt diese Nummer, und Zeilen mit `"0"` haben trotzdem einen echten Namen in
+der Nachbarspalte `qb`. Sie gelten jetzt als dokumentierte Platzhalter ("kein separat
+gecharteter Werfer") und werden VOR jeder Zuordnung entfernt (`null`) statt als offenes Label
+oder gar als eigene Spielerin in der Tabelle zu erscheinen.
+
+`scripts/hc_player_mapping_template.py` wurde durch `scripts/player_mapping_template.py`
+ersetzt: statt einer gitignoreten Rohlisten-Datei liest es jetzt direkt aus dem gescorten
+Korpus (denselben Spalten und derselben Quellen-Übersetzung, die der Report selbst benutzt),
+baut pro Quelle (`hc_workbook`, `legacy`, `ifaf`) eine eigene Vorschlagsliste mit der jeweils
+passenden Regel und schreibt sie in EIN Template
+(`data/raw/hc_files/player_mapping_template.csv`, `source`-Spalte zeigt die Quelle jeder
+Zeile). `--apply-unique` übernimmt jede eindeutige Zuordnung, egal welcher Quelle.
+
+Ergebnis: der `player-analysis`-Report zeigte vorher 77 nicht zugeordnete Label (15
+`hc_workbook`, 50 `legacy`, 12 `ifaf`). Nach `--apply-unique` sind es 46 (15 `hc_workbook`, 31
+`legacy`, 0 `ifaf`) — alle 12 `ifaf`-Label und 17 der 50 `legacy`-Label (7 Rückennummern, 10
+Nachnamen-Schreibweisen) wurden automatisch übernommen, 2 `legacy`-Label als Platzhalter
+ausgeschlossen. Die verbleibenden 46 (15 `hc_workbook`-Vornamen ohne Nachnamen, 31
+`legacy`-Label ohne eindeutigen Roster-Treffer) bleiben im Template für die manuelle Prüfung.
+
 ## Offene Fragen
 
 **Frage 1** (`docs/hc-rueckfragen-2026-09.md`): ist der `Data`-Tab in "Germany Analytics Stats EC
@@ -330,14 +365,15 @@ dupliziert nachweislich ein bereits bekanntes Spiel (siehe `## Duplikate` für d
 werden — ein falscher Eintrag verliert also höchstens die Chance auf eine Zusammenführung, löscht
 aber nie eine Zeile, die nicht wirklich übereinstimmt).
 
-**Eine Zeile zu `data/reference/player_mapping.csv` hinzufügen:** `source` = `hc_workbook`
-(bewusst grob, gilt für alle drei Workbooks), `source_player` = das rohe Label aus
-`unmapped_players_<run_id>.txt`, `canonical_player` = der volle Name aus `roster.csv`. Nur
-eintragen, wenn das Label eindeutig einem einzigen Roster-Eintrag entspricht — niemals die
-gitignorete Rohliste unverändert einfügen. `scripts/hc_player_mapping_template.py` automatisiert
-genau das für die deutsche Frauen-Nationalmannschaft (`team_id == 17`): ohne Flags schreibt es nur
-das gitignorete Vorschlags-Template neu (`data/raw/hc_files/player_mapping_hc_template.csv`);
-`--apply-unique` übernimmt zusätzlich jede eindeutige Zuordnung nach `player_mapping.csv` und
+**Eine Zeile zu `data/reference/player_mapping.csv` hinzufügen:** `source` = `hc_workbook`,
+`legacy` oder `ifaf` je nachdem, woher das Label stammt; `source_player` = das rohe Label;
+`canonical_player` = der volle Name aus `roster.csv`. Nur eintragen, wenn das Label eindeutig
+einem einzigen Roster-Eintrag entspricht — niemals eine Rohliste unverändert einfügen.
+`scripts/player_mapping_template.py` automatisiert genau das, für alle drei Quellen (siehe
+"Zweites Update" unten für die Zuordnungsregel je Quelle): ohne Flags schreibt es nur das
+gitignorete Vorschlags-Template neu (`data/raw/hc_files/player_mapping_template.csv`, bis
+2026-09-09 `player_mapping_hc_template.csv` und nur für `hc_workbook`); `--apply-unique`
+übernimmt zusätzlich jede eindeutige Zuordnung (jeder Quelle) nach `player_mapping.csv` und
 regeneriert danach das Template, sodass nur noch die wirklich offenen Label übrig bleiben. Eine
 bereits vorhandene `(source, source_player)`-Zeile wird nie überschrieben.
 
