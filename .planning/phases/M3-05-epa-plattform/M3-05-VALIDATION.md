@@ -14,7 +14,8 @@ created: 2026-09-08
 > after the plan set was restructured (coach-facing quick win front-loaded to wave 1; freeze
 > manifest and training lineage/calibration/tier/no-play metrics merged into one plan;
 > promotion gate slimmed to gate-only; model-card generation split into a wave-1 first cut and
-> a wave-4 regenerate-only pass).
+> a wave-4 regenerate-only pass). M3-05-09 (containerised platform, ADR point 1, PROD-10)
+> appended 2026-09-09 after the ADR was signed -- see its own rows below.
 
 ---
 
@@ -24,16 +25,16 @@ created: 2026-09-08
 |----------|-------|
 | **Framework** | pytest (existing, uv-managed) |
 | **Config file** | pyproject.toml (`testpaths = ["tests"]`, `addopts = "-q"`) |
-| **Quick run command** | wave 1: `uv run pytest tests/test_m3_epa_docs.py tests/test_model_freeze.py tests/test_model_train.py tests/test_model_evaluate.py -x -q` · wave 2: `uv run pytest tests/test_model_gate.py tests/test_model_registry.py -q` · wave 3: `uv run pytest tests/test_features_mutations.py tests/test_m3_epa_docs.py -x -q` · wave 4: `uv run pytest tests/test_m3_epa_docs.py -x -q` |
+| **Quick run command** | wave 1: `uv run pytest tests/test_m3_epa_docs.py tests/test_model_freeze.py tests/test_model_train.py tests/test_model_evaluate.py -x -q` · wave 2: `uv run pytest tests/test_model_gate.py tests/test_model_registry.py tests/test_mlflow_store.py tests/test_migrate_mlflow_store.py -q` · wave 3: `uv run pytest tests/test_features_mutations.py tests/test_m3_epa_docs.py -x -q` · wave 4: `uv run pytest tests/test_m3_epa_docs.py -x -q` |
 | **Full suite command** | `uv run pytest -q` |
-| **Estimated runtime** | quick commands < 30 s each (all fixture-based); wave 3's real four-arm LOGO re-run (M3-05-07 task 1) is a separate, real-corpus training pass measured in minutes, not part of any quick command — see `docs/model-training.md` §1 for the ~50+ fold cost this project's LOGO protocol already carries |
+| **Estimated runtime** | quick commands < 30 s each (all fixture-based); wave 3's real four-arm LOGO re-run (M3-05-07 task 1) is a separate, real-corpus training pass measured in minutes, not part of any quick command — see `docs/model-training.md` §1 for the ~50+ fold cost this project's LOGO protocol already carries; M3-05-09's real Docker up/migrate/backup-wipe-restore cycle (wave 2) is similarly minutes-scale, not part of the quick command |
 
 ---
 
 ## Sampling Rate
 
 - **After every task commit:** the task's own `<verify><automated>` command (every auto task in
-  this phase's 8 plans has one; the three checkpoint tasks — M3-05-01 T1, M3-05-05 T2,
+  this phase's 9 plans has one; the three checkpoint tasks — M3-05-01 T1, M3-05-05 T2,
   M3-05-07 T2 — have none by design, each immediately followed by an automated-verified task)
 - **After every plan wave:** the wave's quick command above
 - **Before `/gsd:verify-work`:** full suite green (`uv run pytest -q`)
@@ -41,10 +42,11 @@ created: 2026-09-08
   real `mlruns/mlflow.db` for `ffep freeze-corpus`, `ffep train --freeze`, `ffep promote
   [--force --reason]` and `scripts/render_model_card.py` — fixtures alone cannot prove these
   work against the actual production store, which is this phase's whole point (mirrors
-  M3-05-RESEARCH.md's own Sampling Rate note)
-- **Max feedback latency:** 30 seconds for the quick commands; the wave-3 real re-run and any
-  real `ffep freeze-corpus`/model-card generation run are minutes-scale and explicitly excluded
-  from the 30 s budget
+  M3-05-RESEARCH.md's own Sampling Rate note); M3-05-09 adds the analogous live-store smoke
+  check for the containerised platform (real `up`/migrate/backup/wipe/restore)
+- **Max feedback latency:** 30 seconds for the quick commands; the wave-3 real re-run, any real
+  `ffep freeze-corpus`/model-card generation run, and M3-05-09's real Docker/migration/backup
+  cycle are minutes-scale and explicitly excluded from the 30 s budget
 
 ---
 
@@ -65,10 +67,13 @@ created: 2026-09-08
 | M3-05-05 T3 | 1 | PROD-06 | The ADR carries a dated, explicit, signed decision line naming the chosen option, not a placeholder | doc gate | `(grep -q "^Entscheidung getroffen" docs/adr/0001-modell-plattform.md \|\| grep -qi "unterschrieben\|signiert\|freigegeben" docs/adr/0001-modell-plattform.md) && echo OK` — fixed 2026-09-08 to actually fail when neither pattern matches (previous form always exited 0) | n/a | ⬜ |
 | M3-05-06 T1 | 2 | PROD-07 | `evaluate_gate` resolves the correct metric key per model (never hard-coded), treats "no champion yet" and "metric absent on an old run" as pass/skip rather than a silent pass | unit | `uv run pytest tests/test_model_gate.py -x -q` | ❌ Wave 0 (`src/flag_football_ep/model/gate.py`, `tests/test_model_gate.py`) | ⬜ |
 | M3-05-06 T2 | 2 | PROD-07 | `ffep promote` refuses a failing candidate without `--force`, promotes and tags an auditable override with `--force --reason`, and rejects `--force` with an empty reason | unit + CLI smoke | `uv run pytest tests/test_model_registry.py -q && uv run ffep promote --help \| grep -q -- "--force"` | ✅ exists (extended: `cli.py`) | ⬜ |
+| M3-05-09 T1 | 2 | PROD-10 | The containerised MLflow platform (Postgres backend store + MinIO S3-compatible artifact store, `docker-compose.mlflow.yml`) starts with zero secrets committed, and `MLFLOW_TRACKING_URI` alone switches `ffep` between it and the local sqlite store — no other code path changes | unit + real container health check | `uv run pytest tests/test_mlflow_store.py -x -q && docker compose --env-file .env.mlflow -f docker-compose.mlflow.yml config -q && curl -sf http://127.0.0.1:5000/health` | ❌ Wave 0 (`docker-compose.mlflow.yml`, `docker/mlflow/Dockerfile`, `.env.mlflow.example`, `tests/test_mlflow_store.py`) | ⬜ |
+| M3-05-09 T2 | 2 | PROD-10 | Every existing `ep_model`/`wp_model` run (including the 2026-09-08 candidates) and the `champion` alias migrate into the containerised store for real, using only the standard `MlflowClient` API, non-destructively (source store byte-for-byte unchanged) | unit + real migration run | `uv run pytest tests/test_migrate_mlflow_store.py -x -q` plus a real `uv run python scripts/migrate_mlflow_store.py --source sqlite:///$(pwd)/mlruns/mlflow.db --target http://127.0.0.1:5000` followed by `registry.resolve_champion` against the container URI matching the pre-migration source for both models | ❌ Wave 0 (`scripts/migrate_mlflow_store.py`, `tests/test_migrate_mlflow_store.py`) | ⬜ |
+| M3-05-09 T3 | 2 | PROD-10 | A real backup-wipe-restore cycle (`pg_dump` + MinIO mirror, `docker compose down -v`, restore) proves the rollback path works, not just that it is documented; CI stays on the sqlite/file default, completely untouched | real backup/restore cycle + doc check | real `scripts/mlflow_backup.sh` → `docker compose down -v` → `up -d --build` → `scripts/mlflow_restore.sh` cycle, then `registry.resolve_champion` against the container URI still resolves to the pre-wipe run ids; `test -f docs/mlflow-container-platform.md` | ❌ Wave 0 (`scripts/mlflow_backup.sh`, `scripts/mlflow_restore.sh`, `docs/mlflow-container-platform.md`) | ⬜ |
 | M3-05-07 T1 | 3 | PROD-08 | Every `play_type == "extra_point"` row is excluded from EP/WP training regardless of success; label derivation for non-extra-point rows is unaffected (regression guard) | unit | `uv run pytest tests/test_features_mutations.py -x -q -k "extra_point"` | ✅ exists (extended) | ⬜ |
 | M3-05-07 T2 | 3 | PROD-08 | The user decides the promotion outcome after seeing the measured before/after numbers AND the gate's real printed verdict, never a guess about whether it would pass | manual | checkpoint (human-verify) — no automated gate by design; immediately followed by an automated doc gate | n/a | ⬜ |
 | M3-05-07 T3 | 3 | PROD-08 | The document records the methodology change, the gate verdict and the promotion decision with its reason; the promotion decision was executed exactly as chosen; no file outside this plan's own `files_modified` changed | doc gate + integration | `uv run pytest tests/test_m3_epa_docs.py tests/test_features_mutations.py -x -q && test -z "$(git status --porcelain data/ src/ scripts/)"` | ✅ exists (extended) | ⬜ |
-| M3-05-08 T1 | 4 | PROD-09 | The regenerated card reflects the post-M3-05-07 champion (not a stale M3-05-02 snapshot) with no code change beyond a genuine bug fix, if any; doc-guard coverage only grows | doc gate | `uv run pytest tests/test_m3_epa_docs.py -x -q` | ✅ exists (regenerated) | ⬜ |
+| M3-05-08 T1 | 4 | PROD-09 | The regenerated card reflects the post-leak-fix champion (not a stale M3-05-02 snapshot) with no code change beyond a genuine bug fix, if any; doc-guard coverage only grows | doc gate | `uv run pytest tests/test_m3_epa_docs.py -x -q` | ✅ exists (regenerated) | ⬜ |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -94,14 +99,24 @@ Created inside the phase, in this order:
 - `docs/adr/0001-modell-plattform.md` — plan M3-05-05 task 1.
 - `src/flag_football_ep/model/gate.py` — plan M3-05-06 task 1.
 - `tests/test_model_gate.py` — plan M3-05-06 task 1.
+- `docker-compose.mlflow.yml`, `docker/mlflow/Dockerfile`, `.env.mlflow.example` — plan
+  M3-05-09 task 1. The signed ADR's point 1 (Option ii, gestaffelt): containerise the platform
+  locally now.
+- `tests/test_mlflow_store.py` — plan M3-05-09 task 1.
+- `scripts/migrate_mlflow_store.py`, `tests/test_migrate_mlflow_store.py` — plan M3-05-09
+  task 2.
+- `scripts/mlflow_backup.sh`, `scripts/mlflow_restore.sh`, `docs/mlflow-container-platform.md`
+  — plan M3-05-09 task 3.
 - `tests/conftest.py` is NOT touched — owned by phase 01.2 plan 01; every new fixture-based test
-  in this phase (`test_model_freeze.py`, `test_model_gate.py`, extensions to
-  `test_model_train.py`/`test_model_evaluate.py`) reuses its existing `tmp_path`-scoped `Config`
-  fixture and synthetic canonical corpus.
-- Framework install: none. `mlflow`, `xgboost`, `pytest`, `polars` are all existing project
-  dependencies (M3-05-RESEARCH §Standard Stack: no new packages required for Part A hygiene
-  work; `boto3` stays gated behind the ADR's Option ii/iii, never installed by any plan in this
-  set).
+  in this phase (`test_model_freeze.py`, `test_model_gate.py`, `test_mlflow_store.py`,
+  `test_migrate_mlflow_store.py`, extensions to `test_model_train.py`/`test_model_evaluate.py`)
+  reuses its existing `tmp_path`-scoped `Config` fixture and synthetic canonical corpus.
+- Framework install: none for Part A hygiene work. M3-05-09 adds `psycopg2-binary`/`boto3`
+  **inside `docker/mlflow/Dockerfile` only** (the MLflow server's own container image) — verified
+  live this session (`mlflow server --help`, installed 3.15.1) that `--serve-artifacts`
+  (default: on) proxies every artifact request through the server, so the `ffep` client itself
+  needs neither package; `pyproject.toml`/`uv.lock` are unchanged by this phase. Both packages
+  verified `[OK]` via a live `slopcheck scan` against the real PyPI registry this session.
 
 ---
 
@@ -110,7 +125,7 @@ Created inside the phase, in this order:
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|--------------------|
 | Whether the 2026-09-08 with-IFAF candidates or the 2026-09-04 without-IFAF candidates (or neither) become champion | PROD-01 | A real trade-off (IFAF coverage vs. a documented WP per-source regression) only the user can weigh | Plan M3-05-01 task 1: read `M3-02-RERUN-2026-09-08-SUMMARY.md`'s Before/After table, reply `2026-09-08` / `2026-09-04` / `none` |
-| Which platform option (single machine / OTC VM / Kubernetes) to build the multi-team future on | PROD-06 | A multi-year architectural commitment with real cost/effort trade-offs RESEARCH can inform but not decide | Plan M3-05-05 task 2: read the drafted ADR, reply with the chosen option, any wording changes, and confirm signing |
+| Which platform option (single machine / OTC VM / Kubernetes) to build the multi-team future on | PROD-06 | A multi-year architectural commitment with real cost/effort trade-offs RESEARCH can inform but not decide | Plan M3-05-05 task 2: read the drafted ADR, reply with the chosen option, any wording changes, and confirm signing — **resolved 2026-09-09: Option (ii), gestaffelt, signed** |
 | Whether to promote the extra-point-fixed candidates, including any override of a failed gate check | PROD-08 | The gate is a mechanical pre-check, not a replacement for judgement on a genuine methodology change; an override needs a real, stated reason | Plan M3-05-07 task 2: read the measured before/after numbers and the gate's real printed verdict, reply `both`/`ep`/`wp`/`none` plus an override reason if applicable |
 
 ---
@@ -118,10 +133,10 @@ Created inside the phase, in this order:
 ## Validation Sign-Off
 
 - [x] All auto tasks have `<automated>` verify commands (< 30 s each; the wave-3 real four-arm
-      LOGO re-run and any real `ffep freeze-corpus`/model-card generation run are wave-level
-      manual-execution steps inside an auto task's `<action>`, not part of the task's own
-      `<verify>` gate)
-- [x] Sampling continuity: no 3 consecutive tasks without automated verify anywhere in the 8
+      LOGO re-run, any real `ffep freeze-corpus`/model-card generation run, and M3-05-09's real
+      Docker/migration/backup cycle are wave-level manual-execution steps inside an auto task's
+      `<action>`, not part of the task's own `<verify>` gate)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify anywhere in the 9
       plans — every checkpoint task (M3-05-01 T1, M3-05-05 T2, M3-05-07 T2) is immediately
       preceded and followed by an automated-verified task
 - [x] No watch-mode flags
@@ -131,4 +146,4 @@ Created inside the phase, in this order:
       exited 0 regardless of match) is fixed as of 2026-09-08 — the gate now fails when neither
       pattern matches
 
-**Approval:** planned 2026-09-08
+**Approval:** planned 2026-09-08; M3-05-09 appended 2026-09-09 after the ADR was signed.
