@@ -36,7 +36,7 @@ Referenzierter Freeze (`ffep freeze-corpus`-Manifest mit Pro-Quelle-Zeilenzahlen
 
 Ohne ein referenziertes Freeze-Manifest stehen hier keine Pro-Quelle-Zeilenzahlen -- die
 Pro-Quelle-**Log-Loss**-Werte weiter unten unter "Performance" kommen trotzdem direkt aus dem
-jeweiligen MLflow-Lauf, nicht aus einer Schätzung.
+jeweiligen MLflow-Lauf, nicht aus einer Schätzung. Seit M3-05-03 schreibt `ffep freeze-corpus` bei jedem Retrain ein datiertes, fingerabdruck-basiertes Manifest nach `data/reference/corpus_freeze/` -- Champion-Läufe von vor dieser Instrumentierung referenzieren noch keins; jeder künftige Retrain zitiert automatisch das zu diesem Zeitpunkt aktuellste Manifest.
 
 ## Methode
 
@@ -46,8 +46,8 @@ mitgemessen (Reliability-Kurven, Log-Loss gegen eine einfache Grundrate). Kein M
 automatisch "Champion" -- das ist immer eine bewusste, gemeinsam geprüfte Entscheidung
 (`docs/model-training.md` Abschnitt 3).
 
-- **EP** (ep_model): schließt dieser Lauf Extrapunkt-/Zwei-Punkt-Zeilen vollständig vom Training aus? unbekannt für diesen Lauf.
-- **WP** (wp_model): schließt dieser Lauf Extrapunkt-/Zwei-Punkt-Zeilen vollständig vom Training aus? unbekannt für diesen Lauf.
+- **EP** (ep_model): schließt dieser Lauf Extrapunkt-/Zwei-Punkt-Zeilen vollständig vom Training aus? nein -- dieser Champion-Lauf trainierte vor dem Extrapunkt-Ausschluss-Fix (siehe "## Beförderungs-Gate: letzter Stand" unten); jeder künftige Retrain wendet den Fix automatisch an, ohne weiteren Code-Eingriff.
+- **WP** (wp_model): schließt dieser Lauf Extrapunkt-/Zwei-Punkt-Zeilen vollständig vom Training aus? nein -- dieser Champion-Lauf trainierte vor dem Extrapunkt-Ausschluss-Fix (siehe "## Beförderungs-Gate: letzter Stand" unten); jeder künftige Retrain wendet den Fix automatisch an, ohne weiteren Code-Eingriff.
 
 ## Performance gegen die einfache Grundrate
 
@@ -78,6 +78,23 @@ Pro-Tier-Aufschlüsselung: nicht verfügbar für diesen Lauf (kein `per_tier_log
 - **EP:** nicht gemessen für diesen Lauf
 - **WP:** nicht gemessen für diesen Lauf
 
+## Beförderungs-Gate: letzter Stand
+
+Der jüngste reale Beförderungs-Gate-Lauf (2026-09-09) prüfte neue Kandidaten
+nach dem Extrapunkt-Ausschluss-Fix gegen den amtierenden Champion:
+
+| Modell | Kandidat-Run-ID | Log-Loss | Grundrate | Verbesserung | Gate-Verdikt |
+|---|---|---:|---:|---:|---|
+| EP | `efd9fd3dc457431d917fd6ce59788305` | 0,938953 | 0,989134 | 0,050181 | FAIL |
+| WP | `3b7d571c3f004858b87729ef7b92c30c` | 0,373400 | 0,690405 | 0,317005 | FAIL |
+
+**Owner-Entscheidung (2026-09-09):** none -- keine
+Alias-Verschiebung. Der Extrapunkt-Ausschluss-Fix selbst bleibt im Trainingscode
+(unabhängig von dieser Entscheidung) und gilt automatisch für den nächsten echten Retrain.
+Details zu jedem einzelnen Gate-Check (beats_naive/beats_champion/calibration/no_play_share)
+und die vollständige Owner-Begründung stehen im Abschnitt "Methodenänderung:
+Extrapunkt-Ausschluss" in `docs/epa-refinement-2026-10.md`.
+
 ## Bekannte Grenzen
 
 - **Keine echte Spieluhr** in den meisten Quellen -- WP nutzt eine gleichmäßig heruntergezählte,
@@ -99,6 +116,15 @@ Pro-Tier-Aufschlüsselung: nicht verfügbar für diesen Lauf (kein `per_tier_log
 - **Korpus-Fingerabdruck / Commit dieses jeweiligen Laufs:** EP: Fingerabdruck ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd, Commit 82ae8cc88908283094dde036def7a883f1b5214a; WP: Fingerabdruck ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd, Commit 82ae8cc88908283094dde036def7a883f1b5214a. Zum Vergleich, der Korpus-Stand von HEUTE laut `docs/epa-refinement-2026-10.md` (nicht zwingend die Trainingsbasis der obigen Champion-Läufe): Fingerabdruck `ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd`, Commit `82ae8cc88908283094dde036def7a883f1b5214a`.
 - Jede Modellversion bleibt für immer im Registry erhalten -- eine Beförderung ersetzt nie eine
   ältere Version, sie verschiebt nur, welche Version aktuell "Champion" heißt.
+
+## Plattform
+
+Der lokale MLflow-Tracking-Store (`mlruns/mlflow.db`) kann optional in eine containerisierte
+Variante gespiegelt werden (Postgres-Backend-Store, MinIO-S3-Artefakt-Store,
+`docker-compose.mlflow.yml`) -- Betriebsanleitung inkl. Start/Stopp, Migration und
+Backup/Restore: `docs/mlflow-container-platform.md`. Die MLflow-UI (lokal oder
+containerisiert) zeigt registrierte Modelle, Champion-Alias/Version und die Reliability-Kurve
+live -- Schritt-für-Schritt-Anleitung für die Coach-Session: `docs/mlflow-ui-howto.md`.
 
 ## Wie es genutzt wird
 
