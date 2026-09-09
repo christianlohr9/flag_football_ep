@@ -90,3 +90,5 @@ rule (only auto-fix issues directly caused by the current task's changes).
   a threshold for this class -- should `[promotion_gate]`'s `max_calibration_deviation` be
   n-weighted per bin instead of a flat ceiling? Worth a dedicated look before the next real
   gate exercise treats a similar deviation as decisive.
+
+- 2026-09-09: `scripts/migrate_mlflow_store.py` is a non-idempotent full copy; the second re-sync duplicated registry versions in the container mirror (ep 5→12, wp 6→14). Make it idempotent via the `migrated_from_run_id` tag (skip already-migrated runs) before the next sync; the container mirror is not the store of record yet.
