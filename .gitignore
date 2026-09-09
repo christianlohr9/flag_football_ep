@@ -4,6 +4,14 @@ data/samples/
 # secrets never committed (T-1.2-01)
 .env
 
+# docker-compose.mlflow.yml's own secrets file (Postgres/MinIO credentials) -- same policy as
+# .env above; .env.mlflow.example is the only tracked variant (M3-05-09, T-M3-05-20)
+.env.mlflow
+
+# local, unencrypted pg_dump + MinIO-mirror backups of the containerised MLflow store
+# (scripts/mlflow_backup.sh) -- same trust level as mlruns/ above, never committed (M3-05-09)
+/backups/
+
 # new-format Hudl exports carry player names and BLITZ person names, same
 # PII policy as data/samples/ above (T-1.2-02)
 # NOTE: ignore contents (data/raw/hudl/*), not the directory itself — git

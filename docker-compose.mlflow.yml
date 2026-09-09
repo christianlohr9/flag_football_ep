@@ -1,0 +1,95 @@
+## Local containerised MLflow platform (ADR docs/adr/0001-modell-plattform.md, Option (ii)
+## gestaffelt, Punkt 1): MLflow tracking server + Postgres backend store + MinIO S3-compatible
+## artifact store. Runbook: docs/mlflow-container-platform.md.
+##
+## Every command that touches this file must pass --env-file .env.mlflow explicitly -- Compose
+## only auto-loads a literal `.env`, never a differently-named file:
+##
+##   docker compose --env-file .env.mlflow -f docker-compose.mlflow.yml up -d --build
+##
+## Every published port is bound to 127.0.0.1 only -- this stack is not reachable from the
+## network. No MLflow basic-auth is enabled (deliberate scope boundary, see
+## docs/mlflow-container-platform.md's Sicherheitsgrenze section and ADR Anhang A.2).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${MLFLOW_POSTGRES_USER:-mlflow}
+      POSTGRES_PASSWORD: ${MLFLOW_POSTGRES_PASSWORD:?set MLFLOW_POSTGRES_PASSWORD in .env.mlflow -- copy .env.mlflow.example first}
+      POSTGRES_DB: ${MLFLOW_POSTGRES_DB:-mlflow}
+    volumes:
+      - mlflow_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${MLFLOW_POSTGRES_USER:-mlflow} -d ${MLFLOW_POSTGRES_DB:-mlflow}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MLFLOW_MINIO_ROOT_USER:?set MLFLOW_MINIO_ROOT_USER in .env.mlflow}
+      MINIO_ROOT_PASSWORD: ${MLFLOW_MINIO_ROOT_PASSWORD:?set MLFLOW_MINIO_ROOT_PASSWORD in .env.mlflow}
+    volumes:
+      - mlflow_minio_data:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on: ["minio"]
+    environment:
+      MLFLOW_MINIO_ROOT_USER: ${MLFLOW_MINIO_ROOT_USER}
+      MLFLOW_MINIO_ROOT_PASSWORD: ${MLFLOW_MINIO_ROOT_PASSWORD}
+      MLFLOW_ARTIFACT_BUCKET: ${MLFLOW_ARTIFACT_BUCKET:-ffep-mlflow-artifacts}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "until mc alias set local http://minio:9000 \"$$MLFLOW_MINIO_ROOT_USER\" \"$$MLFLOW_MINIO_ROOT_PASSWORD\"; do sleep 1; done && mc mb -p \"local/$$MLFLOW_ARTIFACT_BUCKET\" && echo bucket ready"
+
+  mlflow:
+    build:
+      context: ./docker/mlflow
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MLFLOW_MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MLFLOW_MINIO_ROOT_PASSWORD}
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri postgresql://${MLFLOW_POSTGRES_USER:-mlflow}:${MLFLOW_POSTGRES_PASSWORD}@postgres:5432/${MLFLOW_POSTGRES_DB:-mlflow}
+      --serve-artifacts
+      --artifacts-destination s3://${MLFLOW_ARTIFACT_BUCKET:-ffep-mlflow-artifacts}
+    ports:
+      - "127.0.0.1:5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio-mc:
+    image: minio/mc:latest
+    profiles: ["tools"]
+    environment:
+      MLFLOW_MINIO_ROOT_USER: ${MLFLOW_MINIO_ROOT_USER}
+      MLFLOW_MINIO_ROOT_PASSWORD: ${MLFLOW_MINIO_ROOT_PASSWORD}
+      MLFLOW_ARTIFACT_BUCKET: ${MLFLOW_ARTIFACT_BUCKET:-ffep-mlflow-artifacts}
+    volumes:
+      - ./backups/mlflow:/backups
+    entrypoint: ["/bin/sh", "-c"]
+
+volumes:
+  mlflow_postgres_data:
+  mlflow_minio_data:
