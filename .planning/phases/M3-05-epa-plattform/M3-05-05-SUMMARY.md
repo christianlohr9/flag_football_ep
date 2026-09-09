@@ -134,3 +134,7 @@ stopping here, not simulating a signature.
 ---
 *Phase: M3-05-epa-plattform*
 *Status: PAUSED at checkpoint (Task 2 of 3) — 2026-09-08*
+
+## Checkpoint aufgelöst (2026-09-09)
+
+Der Nutzer hat entschieden: Option (ii), gestaffelt (lokale Containerisierung sofort, OTC-VM beim Migrationsauslöser, Kubernetes/Feature Store zurückgestellt, Multi-Tenant-Scoping jetzt). Eingetragen in `docs/adr/0001-modell-plattform.md` § Entscheidung; Folgeplan `M3-05-09-PLAN.md` (lokale Compose-Umgebung) wird angelegt. Plan 05 damit abgeschlossen.

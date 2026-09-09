@@ -1,7 +1,7 @@
 # ADR 0001 — Modell-Plattform für EP/WP: Single Machine, OTC-VM oder Kubernetes?
 
-**Status:** Entwurf, zur Unterschrift vorgelegt
-**Datum:** 2026-09-08
+**Status:** Entschieden, unterschrieben 2026-09-09 (Option ii, gestaffelt)
+**Datum:** 2026-09-08 (Entwurf), 2026-09-09 (Entscheidung)
 **Betrifft:** `flag_football_ep` EP/WP-Modelle, MLflow-Tracking/Registry, künftige
 Coach-Web-App (BL-02)
 
@@ -141,10 +141,30 @@ nicht unabhängig voneinander — sie werden tendenziell an demselben Skalenpunk
 (Echtzeit-Anforderung oder mehr als ca. 3 Programme mit materiell abweichenden Feature-
 Bedürfnissen), also gemeinsam statt getrennt bewerten.
 
-## Entscheidung (vom Nutzer zu unterschreiben)
+## Entscheidung
 
-*[Ausstehend — wird in Task 3 anhand der Checkpoint-Antwort ausgefüllt. Kein Platzhalter-Text
-über diese Zeile hinaus darf als Entscheidung missverstanden werden.]*
+Entscheidung getroffen und unterschrieben am 2026-09-09 (Projektinhaber, nach Lektüre der
+Optionen, der Empfehlung und des Anhangs A):
+
+**Option (ii), gestaffelt.**
+
+1. **Sofort, lokal:** Containerisierung der Modellplattform mit `docker-compose` — MLflow-Server
+   mit Postgres als Backend und einem S3-kompatiblen Artefaktspeicher (lokal MinIO, später OBS mit
+   denselben Einstellungen). Die `ffep`-Pipeline spricht mit dem Store nur noch über
+   Tracking-/Artefakt-URLs. Ziel: kein „works on my machine“ mehr, ohne Cloud-Kosten.
+2. **Umzug auf eine OTC-VM** (Zielbild A.2) spätestens beim Migrationsauslöser — ein zweiter
+   schreibender Nutzer oder eine Web-App (BL-02), die unabhängig vom Laptop des Inhabers laufen
+   muss —, gern früher, wenn die VM ohnehin gewünscht ist. Der Umzug ist dann Compose-Datei plus
+   Secrets, Backups und Reverse Proxy.
+3. **Kubernetes und Feature Store zurückgestellt** (Zielbild A.3 bleibt als Referenz); erneut zu
+   prüfen, wenn mehrere Programme (U17 bis Seniors, Männer/Frauen) eigene Pipelines und
+   Deployments brauchen.
+4. **Multi-Tenant-Scoping jetzt anlegen:** gemeinsames EP/WP-Modell mit Tier-Kovariate statt
+   Modell je Programm; Programm/Team/Saison als Scoping im kanonischen Korpus; PII-Grenzen je
+   Programm über die Roster-Zuordnung.
+
+Umsetzung: Punkt 1 als eigener Plan der Phase M3-5 (`M3-05-09-PLAN.md`); Punkt 2 als Backlog-Eintrag
+mit dem Auslöser als Bedingung; Punkt 4 fließt in die Planung von BL-02 ein.
 
 ## Quellen
 
