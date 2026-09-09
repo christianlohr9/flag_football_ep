@@ -1,1 +1,73 @@
 game_id,sequence,ballOn,note
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,210,5,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,220,11,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,230,20,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,240,15,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,250,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,260,,penalty
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,270,10,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,280,10,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,290,10,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,300,28,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,310,32,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,320,5,1 point try
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,330,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,340,5,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,350,17,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,360,24,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,370,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,380,5,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,390,5,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,400,5,gain of 13 to yardline_50==18
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,410,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,420,11,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,430,18,interception
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,440,9,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,450,28,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,460,29,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,470,24,penalty
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,480,5,start second half
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,490,9,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,500,19,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,510,10,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,520,10,interception
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,530,45,touchdown
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,540,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,550,13,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,560,26,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,570,33,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,580,43,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,590,43,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,600,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,610,10,"gain of 9 to yardline_50==19, penalty back to 5 [x]"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,620,5,"gain of 6 to yardline_50==11, penalty with loss of down"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,630,3,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,640,11,"gain of 15 to yardline_50==26, penalty of 10"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,650,36,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,660,37,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,670,42,"penalty, new set of downs"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,680,46,"penalty, new set of downs"
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,690,48,touchdown
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,700,5,1 point try
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,710,,überflüssiges play siehe anweisungen in claude
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,720,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,730,11,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,740,21,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,750,21,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,760,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,770,18,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,780,18,touchdown
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,790,5,1 point try
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,800,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,810,12,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,820,19,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,830,29,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,840,29,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,850,35,touchdown
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,860,5,1 point try
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,870,5,possession change
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,880,9,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,890,9,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,900,9,delay of game penalty before snap
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,910,4,
+ifaf-019ffff1-a8db-73ed-91ff-068fd964194c,920,5,possession change
