@@ -161,6 +161,24 @@ class CvSettings:
 
 
 @dataclass(frozen=True)
+class GateThresholds:
+    """Promotion-gate thresholds, resolved from an optional `[promotion_gate]` TOML table.
+
+    M3-05-06: ships with the RESEARCH-proposed starting defaults below, documented in
+    `ffep.toml` as explicitly provisional -- the champion M3-05-01 resolved predates the
+    `calibration_max_deviation_*`/`no_play_share` metrics these thresholds gate, so there is
+    no historical value to calibrate a tolerance against yet; they get their first real
+    empirical exercise in M3-05-07's gated extra-point-fix re-promotion. Same
+    optional-field-with-default convention as `Paths.raw_hc_files`: a pre-M3-05-06
+    `ffep.toml` (missing this table entirely) keeps loading unmodified.
+    """
+
+    max_calibration_deviation: float = 0.15
+    max_no_play_share: float = 0.02
+    champion_epsilon: float = 0.0
+
+
+@dataclass(frozen=True)
 class Config:
     paths: Paths
     reference: ReferenceFiles
@@ -168,6 +186,9 @@ class Config:
     train: TrainSettings
     report: ReportSettings
     cv: CvSettings
+    # M3-05-06: optional, same pre-existing-config-compat rationale as Paths.raw_hc_files --
+    # a config that doesn't declare [promotion_gate] gets the dataclass's own defaults.
+    promotion_gate: GateThresholds = GateThresholds()
 
 
 _PATH_KEYS = (
@@ -353,6 +374,23 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
     cv_table = _table(data, "cv")
     cv = CvSettings(**{key: _key(cv_table, "cv", key) for key in _CV_KEYS})
 
+    # [promotion_gate] is entirely optional (see GateThresholds docstring): a missing table
+    # -- and a present table missing any individual key -- falls back to the dataclass's own
+    # defaults, so a pre-M3-05-06 ffep.toml and every existing test fixture TOML keep loading
+    # unmodified.
+    promotion_gate_table = data.get("promotion_gate", {})
+    promotion_gate = GateThresholds(
+        max_calibration_deviation=promotion_gate_table.get(
+            "max_calibration_deviation", GateThresholds.max_calibration_deviation
+        ),
+        max_no_play_share=promotion_gate_table.get(
+            "max_no_play_share", GateThresholds.max_no_play_share
+        ),
+        champion_epsilon=promotion_gate_table.get(
+            "champion_epsilon", GateThresholds.champion_epsilon
+        ),
+    )
+
     return Config(
         paths=paths,
         reference=reference,
@@ -360,6 +398,7 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
         train=train,
         report=report,
         cv=cv,
+        promotion_gate=promotion_gate,
     )
 
 
