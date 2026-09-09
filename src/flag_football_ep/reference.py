@@ -208,8 +208,9 @@ def load_player_mapping(path: Path) -> pl.DataFrame:
 
     Deliberate divergence from a `source,source_name_or_jersey,canonical_player_id` schema:
     `canonical_player` is the display name the report prints, not an opaque id into
-    `data/reference/roster.csv` (which has no `source` column and is an unverified
-    single-source dump).
+    `data/reference/roster.csv` (which has a `season` column, not a `source` one, and is an
+    unverified single-source-per-row dump -- `season` only records when a row was backfilled
+    from a dated snapshot, e.g. `2026`; it is not a join key).
     """
     df = _read_reference_csv(path, _PLAYER_MAPPING_SCHEMA)
 

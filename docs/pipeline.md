@@ -96,7 +96,14 @@ mistyping a column.
 | `sportapp_games.csv` | `source_game_id,competition,season,note` | `ffep fetch-sportapp` (no `--game-ids`/`--games-file`) reads its game-id list from this file; a missing row means that game is simply never fetched -- no error, just absence. |
 
 `roster.csv` (`data/reference/roster.csv`) is maintained but not yet wired into any loader --
-cross-source player identity mapping is deferred to phase 1.4 per `01.2-CONTEXT.md`.
+cross-source player identity mapping is deferred to phase 1.4 per `01.2-CONTEXT.md`. Columns:
+`team_id,team_name,player_id,player_name,player_jersey,position,club,season` -- `team_id` is a
+per-tournament-roster identity, not a per-nation one (a country can appear under several
+`team_id`s across different tournaments/genders; `roster.csv` has no gender column). `season` is
+empty for every pre-2026 row; a 2026-09 addition backfilled the current rosters of all 16
+women's teams from the IFAF/cpx.studio `players?rostered=true` endpoint (`season=2026`),
+reusing the German women's team's existing `team_id` and skipping any player already present
+under an identical name, so the older rows are untouched and undated (`season` empty) throughout.
 
 Workflow to add a row: open the CSV, append a line matching the schema above, save. No
 regeneration step -- every loader reads the file fresh on each `ffep` invocation.
