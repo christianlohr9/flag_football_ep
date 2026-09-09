@@ -12,6 +12,16 @@ aufgebaut ist, wie es reproduziert wird und unter welchen Regeln es an die Hacka
 geht (D-08/D-09). Der Builder selbst ist `src/flag_football_ep/cv/bundle.py::build_bundle`
 (Plan 02.2-10); die Scoring-Referenz ist `scripts/hackathon/score_tracks.py` (Plan 02.2-10).
 
+## Lizenz des Wertungscodes
+
+Die Delivery-Regeln je Bundle unten (Zweckbindung, keine Weitergabe, Löschung nach dem Event)
+gelten für die Daten- und Modellartefakte in den Archiven — die tragen keine OSS-Lizenz, siehe
+`docs/lizenz-inventur.md ## Modell- und Datenartefakte`, und ändern sich durch das Folgende
+nicht. Der Code, den Teams zur Auswertung brauchen (`scripts/hackathon/score_tracks.py`,
+Schemas und CLI unter `src/flag_football_ep/**`), ist seit 2026-09-09 unter Apache-2.0 mit
+Namensnennung lizenziert (`LICENSE`, `NOTICE`), zuvor GPL-3.0 — Details und Begründung in
+`docs/lizenz-inventur.md ## Entscheidung 2026-09-09`.
+
 ---
 
 ## Dev-Set (öffentlich, fertig)
