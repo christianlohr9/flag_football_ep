@@ -48,6 +48,11 @@ tech-stack:
       alembic migrations on every container start) must be --data-only + truncate-before-load,
       not a full schema+data pg_dump -- a full dump collides with the already-initialised
       target schema and cascades into foreign-key failures on every dependent table"
+    - "MLFLOW_TRACKING_URI override recognition must be restricted to http(s):// values --
+      mlflow.set_tracking_uri() writes that same env var into os.environ as a side effect for
+      ANY call (not just this module's), so a sqlite:/// echo from an unrelated ambient
+      mlflow.set_tracking_uri() call elsewhere in the process can never be misread as an
+      intentional override"
 
 key-files:
   created:
@@ -84,7 +89,7 @@ key-decisions:
 
 requirements-completed: [PROD-10]
 
-duration: ~70min
+duration: ~110min
 completed: 2026-09-09
 ---
 
@@ -94,7 +99,7 @@ completed: 2026-09-09
 
 ## Performance
 
-- **Duration:** ~70 min
+- **Duration:** ~110 min
 - **Tasks:** 3/3 complete
 - **Files modified:** 13 (9 created, 4 modified)
 
@@ -135,6 +140,10 @@ completed: 2026-09-09
 3. **Task 3: Backup/restore round-trip and the runbook** - `c45aaf2` (docs) --
    `scripts/mlflow_backup.sh`, `scripts/mlflow_restore.sh`,
    `docs/mlflow-container-platform.md`, `docs/model-training.md`, `docs/mlflow-ui-howto.md`
+4. **Post-Task-3 fix: restrict override recognition to http(s)://** - `ce7abce` (fix) --
+   `src/flag_football_ep/model/mlflow_store.py`, `tests/test_mlflow_store.py` -- found via
+   the plan-level full CI-equivalent verification command, not by any single task's own
+   `<verify>` block (see Deviation 4 below)
 
 No separate plan-metadata commit for STATE.md/ROADMAP.md -- per this session's explicit
 objective, this worktree executor does not touch those files (parallel-execution mode,
@@ -238,21 +247,85 @@ not silently glossed over.
   `ca30b515...`), confirmed via direct Python calls, not just "no errors printed".
 - **Committed in:** `c45aaf2`
 
+**4. [Rule 1 - Bug] `MLFLOW_TRACKING_URI` override recognition redirected an unrelated, pre-existing "ambient tracking URI" regression contract**
+- **Found during:** post-Task-3 plan-level verification -- running the exact
+  `.github/workflows/ci.yml` command surfaced failures Deviation 1's narrower per-file
+  regression runs did not exercise
+- **Issue:** Deviation 1's fix only guarded THIS module's own `configure()` call from leaking
+  its own local-sqlite URI into `os.environ[MLFLOW_TRACKING_URI]`. It did not account for
+  `mlflow.set_tracking_uri()`'s env-var write-back firing for ANY caller, including code
+  entirely outside this module. This project already has a pre-existing regression contract
+  -- `tests/test_model_registry.py::test_resolve_champion_ignores_a_differently_set_ambient_tracking_uri`,
+  its `test_promote_...` sibling, and `tests/test_model_score.py::
+  test_load_model_sets_tracking_uri_from_config` -- that calls `mlflow.set_tracking_uri(...)`
+  directly to simulate ambient state left by unrelated code, asserting `registry.py`/
+  `score.py` functions must keep resolving against `config`'s own store regardless. That
+  direct call's side effect landed in the exact same `os.environ[MLFLOW_TRACKING_URI]` slot
+  my override reads, so `tracking_uri()` misread it as an intentional override -- breaking
+  those three pre-existing tests, plus (in the full-suite run's shared-process ordering)
+  `tests/test_model_score.py::test_resolve_run_without_id_and_no_champion_promoted_raises_registry_error`
+  via the same cross-config contamination class as Deviation 1.
+- **Fix:** `tracking_uri()` now only recognises the env var as an override when its value is
+  `http://`/`https://` -- the only shape this feature's real use case ever produces (every
+  documented example points at the containerised MLflow *server*; nobody sets
+  `MLFLOW_TRACKING_URI=sqlite:///...` to opt into this feature). A `sqlite:///` echo, whether
+  from this module's own prior local-store `configure()` call or from any unrelated direct
+  `mlflow.set_tracking_uri()` call, can never be misread as intentional override again --
+  structurally, not just via the narrower cleanup-after-the-fact guard Deviation 1 added
+  (which remains, as defense-in-depth).
+- **Files modified:** `src/flag_football_ep/model/mlflow_store.py`,
+  `tests/test_mlflow_store.py` (one new regression test mirroring the pre-existing
+  `test_resolve_champion_ignores_a_differently_set_ambient_tracking_uri` scenario)
+- **Verification:** `uv run pytest tests/test_model_registry.py tests/test_model_score.py
+  tests/test_model_train.py tests/test_migrate_mlflow_store.py -q` -- all green (previously 4
+  failures across `test_model_registry.py`/`test_model_score.py`, plus the 4
+  `test_model_train.py` failures Deviation 1 had already fixed in isolation but which
+  resurfaced in the full-suite run's different test ordering). Full CI-equivalent command
+  re-run after this fix (see Test Result below).
+- **Committed in:** `ce7abce`
+
 ---
 
-**Total deviations:** 3 auto-fixed (all Rule 1 -- bugs discovered via real execution, not
-speculative). **Impact:** All three were necessary for the plan's own stated success criteria
+**Total deviations:** 4 auto-fixed (all Rule 1 -- bugs discovered via real execution, not
+speculative). **Impact:** All four were necessary for the plan's own stated success criteria
 ("a real wipe-and-recover cycle... proving the rollback path works, not just that it is
-documented") to actually be true. No scope creep -- every fix stayed inside the same three
-files the plan already scoped to this task.
+documented" and CI staying green) to actually be true. No scope creep -- every fix stayed
+inside `mlflow_store.py`/the backup-restore scripts, the exact files the plan already scoped
+to Tasks 1 and 3.
+
+## Test Result
+
+Exact `.github/workflows/ci.yml` command, Docker running (the platform stack, per the plan's
+own instruction to leave it up) but `MLFLOW_TRACKING_URI` unset, run in full to completion
+after Deviation 4's fix:
+
+```
+uv run pytest -q --ignore-glob="tests/test_cv_*.py" --ignore=tests/test_m2_baseline_measurement.py --ignore=tests/test_m2_gta_adapter.py -k "not hackathon"
+```
+
+**2 failed** -- both in `tests/test_migration_equivalence.py`
+(`test_wp_model_data_matches_baseline_within_tolerance`,
+`test_ep_model_data_matches_baseline_legacy_subset_within_tolerance`), comparing model-data
+statistics against a frozen baseline. Confirmed via `git log --oneline -- src/flag_football_ep/
+features/mutations.py` that commit `f470974` ("fix(M3-05-07): exclude every extra-point row
+from EP/WP training") -- a sibling plan's commit on this shared branch, not any commit this
+plan made -- is what shifted the corpus statistics away from the frozen baseline; none of this
+plan's four commits touch `mutations.py`, `test_migration_equivalence.py`, or any of that
+test's other imports (`ingest/legacy.py`, `canonical.py`, `reference.py` -- verified via
+`git diff --stat` scoped to each). **Zero MLflow-related failures** -- every test this plan's
+own changes could plausibly affect (`test_mlflow_store.py`, `test_migrate_mlflow_store.py`,
+`test_model_registry.py`, `test_model_score.py`, `test_model_train.py`) passed. Not fixed
+here (out of this plan's file ownership); not newly logged to `deferred-items.md` since it is
+squarely inside the M3-05-07 plan's own scope, already committed on this branch.
 
 ## Issues Encountered
 
 - Extreme CPU contention from concurrent sibling GSD executors on the same machine
   (confirmed via `ps aux` -- multiple `pytest`/`uv run` processes from other worktrees running
   full XGBoost training suites in parallel) made every background test run take substantially
-  longer than normal. Did not affect correctness -- every result reported here was verified
-  directly, not assumed from a timed-out or truncated run.
+  longer than normal (the full CI-equivalent command took 30-45+ min wall clock per run,
+  vs. a normal few minutes). Did not affect correctness -- every result reported here was
+  verified directly against completed output, never assumed from a timed-out or truncated run.
 - `mlflow.get_registry_uri()`/`get_model_version_by_alias` raise (rather than return `None`)
   for a not-yet-registered model name -- `scripts/migrate_mlflow_store.py` handles this with
   a narrow `try`/`except Exception` around `get_registered_model`/`get_model_version_by_alias`
@@ -292,9 +365,10 @@ Sicherheitsgrenze section, matching the plan's threat register.
 - The backup/restore rollback path is proven, not just scripted -- an operator can safely run
   `docker compose down -v` after a `mlflow_backup.sh` run, confident `mlflow_restore.sh`
   brings the registry back exactly.
-- CI (`.github/workflows/ci.yml`) is unaffected: verified full-suite run with Docker running
-  but `MLFLOW_TRACKING_URI` unset stayed on the local sqlite/file store, exactly as every
-  other plan in this phase assumes.
+- CI (`.github/workflows/ci.yml`) is unaffected: the exact CI command run to completion with
+  Docker running but `MLFLOW_TRACKING_URI` unset produced zero MLflow-related failures (see
+  Test Result) -- the local sqlite/file store stays the default, exactly as every other plan
+  in this phase assumes.
 - The local docker-compose configuration is deliberately the same shape ADR Anhang A.2
   describes for the future OTC-VM migration -- when that migration's trigger fires (a second
   write user, or BL-02 needing independent uptime), only the endpoint/credential values
@@ -317,6 +391,7 @@ Commits (`git log --oneline`):
 - `d342d15` -- FOUND
 - `417615d` -- FOUND
 - `c45aaf2` -- FOUND
+- `ce7abce` -- FOUND
 
 Verification re-run:
 - `uv run pytest tests/test_mlflow_store.py tests/test_migrate_mlflow_store.py -q` -- 22
@@ -331,11 +406,22 @@ Verification re-run:
 - Real backup -> `down -v` -> `up -d --build` -> restore cycle: champion aliases resolve
   identically afterward (see Accomplishments)
 - `git diff --quiet pyproject.toml uv.lock` -- clean, no dependency changes
-- `git status --short` -- clean working tree after all three task commits
+- `git status --short` -- clean working tree after all four commits (plan files only)
 - No `.env.mlflow` or `/backups/` content tracked by git (`git ls-files | grep -i
   "\.env\.mlflow$"` and `git ls-files | grep "^backups/"` both empty)
-- Full project regression (`tests/test_model_train.py` + `tests/test_mlflow_store.py` +
-  `tests/test_migrate_mlflow_store.py`, 74 tests) -- all green after the Task 1 fix
+- `uv run pytest tests/test_model_registry.py tests/test_model_score.py
+  tests/test_model_train.py tests/test_migrate_mlflow_store.py -q` -- all green after
+  Deviation 4's fix (previously 4 failures across these files, plus 4 more in
+  `test_model_train.py` re-surfacing from Deviation 1's narrower scope)
+- Exact `.github/workflows/ci.yml` command (`uv run pytest -q
+  --ignore-glob="tests/test_cv_*.py" --ignore=tests/test_m2_baseline_measurement.py
+  --ignore=tests/test_m2_gta_adapter.py -k "not hackathon"`), Docker running but
+  `MLFLOW_TRACKING_URI` unset: first run (pre-Deviation-4) surfaced 11 failures (4 caused by
+  Deviation 4's root cause, 2 pre-existing/out-of-scope and already logged in
+  `deferred-items.md` -- `test_hc_corpus_ablation.py`, two `test_model_score.py` null-feature
+  backfill tests -- and, on inspection, the remaining `test_model_score.py` failures were also
+  Deviation-4-class cross-config contamination); re-run after Deviation 4's fix -- see Test
+  Result line below
 
 ## Self-Check: PASSED
 
