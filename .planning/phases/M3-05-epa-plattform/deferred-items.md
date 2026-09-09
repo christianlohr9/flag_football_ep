@@ -76,3 +76,17 @@ rule (only auto-fix issues directly caused by the current task's changes).
   behavior; this looks like a pre-existing gap in that area, not a regression from M3-05-06.
 - **Action:** Not fixed here -- outside this plan's scope boundary. Flagged for whoever owns
   `score.py`'s null-feature-row backfill behavior next.
+
+## M3-05-07: EP calibration deviation deserves a bin-level look before the next gate exercise
+
+- **Found during:** M3-05-07 Task 2's real M3-05-06 gate check against the extra-point-fixed
+  EP candidate (`efd9fd3dc457431d917fd6ce59788305`) -- `calibration_max_deviation_No_Score_Prob
+  = 0.316` against the `[promotion_gate]` threshold of 0.15, more than double.
+- **Not investigated further here:** owner's checkpoint decision (2026-09-09, "none") took the
+  finding seriously rather than overriding it, but did not ask for a root-cause dig -- out of
+  this plan's own task scope (task 3 records the decision, it does not re-derive the gate).
+- **Follow-up:** is the `No_Score_Prob` calibration bin that drives this deviation sparsely
+  populated (an artifact of few samples in that probability range), or is 0.15 simply too tight
+  a threshold for this class -- should `[promotion_gate]`'s `max_calibration_deviation` be
+  n-weighted per bin instead of a flat ceiling? Worth a dedicated look before the next real
+  gate exercise treats a similar deviation as decisive.

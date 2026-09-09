@@ -518,3 +518,141 @@ Live-Tracking-Store geprüft): `ep_model` -> `97259da7acaf43f3b2c65e59f7f11694` 
 
 Stand: 2026-09-09 (Champion-Entscheidung getroffen und ausgeführt; ersetzt keine Zahl im
 Nachtrag oder Hauptbericht oben -- nur der `champion`-Alias hat sich bewegt).
+
+## Methodenaenderung: Extrapunkt-Ausschluss, Stand 2026-09-09
+
+**Kurz gesagt:** Der Nebenbefund aus dem Nachtrag oben (gescheiterte Extrapunkt-/
+Zwei-Punkt-Versuche blieben entgegen der Annahme im Training) ist jetzt behoben, gemessen und
+durch das Beförderungs-Gate (`## Beförderungs-Gate` unten) geprüft -- **nicht** befördert. Das
+ist eine echte Methodenänderung an der Trainings-Pipeline, keine reine Neumessung: ab jetzt
+schließen `make_ep_model_mutations`/`make_wp_model_mutations`
+(`src/flag_football_ep/features/mutations.py`) jede Zeile mit `play_type = "extra_point"` vom
+Training aus -- erfolgreich oder gescheitert, unabhängig von `one_point_conv_success`/
+`two_point_conv_success`. Vorher bekam nur eine erfolgreiche Zeile ein `label = null` (über
+`Next_Score_Half`) und fiel beim `drop_nulls()` heraus; eine gescheiterte Zeile erbte
+stattdessen das Label des nächsten echten Scores der Halbzeit und blieb im Trainingssatz.
+
+**Betroffene Zeilen:** Der Nachtrag oben schätzte den Umfang auf 537 EP-/1.103
+WP-Trainingszeilen (verteilt über `legacy`, beide `hc_workbook`-Quellen und `ifaf`). Die
+tatsächlich gemessene Differenz zwischen dem 08.09.- und dem 09.09.-Lauf (exakt derselbe
+Korpus, siehe Fingerabdruck unten) liegt etwas höher: **551 EP-/1.117 WP-Zeilen** im Arm "mit
+HC", **220 EP-/451 WP-Zeilen** im Arm "ohne HC". Die frühere Zahl war eine Ad-hoc-Schätzung aus
+der ursprünglichen Nachtrag-Untersuchung; diese hier ist die tatsächlich gemessene Differenz
+aus zwei echten, unmittelbar aufeinanderfolgenden Produktionsläufen auf demselben Korpus und
+ist die maßgebliche Zahl.
+
+### Die vier Arme, mit dem Extrapunkt-Ausschluss neu gemessen (`data/reference/epa_refinement/2026-09-09/ablation_summary.csv`)
+
+| Modell | Arm | Plays | Folds | Metrik | Naive Grundrate | Verbesserung | Run-ID |
+|---|---|---:|---:|---:|---:|---:|---|
+| EP | ohne HC | 17.510 | 231 | 0,950633 | 0,998108 | 0,047475 | `c27b3a82c558497fad5cca958742dcac` |
+| EP | mit HC | 23.543 | 322 | 0,938953 | 0,989134 | 0,050181 | `efd9fd3dc457431d917fd6ce59788305` |
+| WP | ohne HC | 17.527 | 231 | 0,391614 | 0,690829 | 0,299214 | `90a9da207ff5439e94d3f8ca4d30d29d` |
+| WP | mit HC | 23.588 | 322 | 0,373400 | 0,690405 | 0,317005 | `3b7d571c3f004858b87729ef7b92c30c` |
+
+Beide Modelle schlagen die Grundrate auf beiden Armen weiterhin klar. Gegen den 08.09.-Stand
+(gleicher Korpus, unterschiedliche Pipeline):
+
+| | Verbesserung 08.09. | Verbesserung 09.09. | Differenz |
+|---|---:|---:|---:|
+| EP ohne HC | 0,049710 | 0,047475 | -0,002235 |
+| EP mit HC | 0,051610 | 0,050181 | -0,001429 |
+| WP ohne HC | 0,299272 | 0,299214 | -0,000058 |
+| WP mit HC | 0,319215 | 0,317005 | -0,002210 |
+
+EP verbessert sich beim absoluten Log-Loss leicht (weniger verrauschte Zeilen). WP wird auf
+beiden Armen minimal schlechter -- die entfernten Zeilen waren, im Schnitt, für WP eher leicht
+vorherzusagen (ein Extrapunkt folgt fast immer auf ein bereits Winner-bestimmendes Touchdown,
+das Label ist also oft das "naheliegende"). Nichts davon ändert die Kernaussage: beide Modelle
+bleiben klar vor der Grundrate.
+
+**Korpus-Fingerabdruck (beide Daten identisch):**
+`ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd` -- der Rohkorpus hat sich
+zwischen dem 08.09. und dem 09.09. nicht verändert, nur die Mutations-Pipeline. Fix-Commit:
+`f470974e093f2a47aea7c4b066b24d0e80440c70`.
+
+### Beförderungs-Gate (M3-05-06), real geprüft
+
+Beide neuen "mit HC"-Kandidaten oben wurden real gegen das M3-05-06-Gate geprüft
+(`uv run ffep promote --model ep --run ...` / `--model wp --run ...`, ohne `--force`) --
+kein Alias wurde dabei verschoben, ein verweigerter Aufruf befördert nichts.
+
+**EP-Kandidat (`efd9fd3dc457431d917fd6ce59788305`): FAIL**
+```
+ep_model: gate [PASS] beats_naive: logloss_improvement=0.050181 (beats the naive baseline)
+ep_model: gate [PASS] beats_champion: candidate logo_mlogloss=0.938953 vs. champion logo_mlogloss=0.942659 (epsilon=0.0)
+ep_model: gate [FAIL] calibration: exceeds tolerance (0.15): {'calibration_max_deviation_No_Score_Prob': 0.31604071933290234}
+ep_model: gate [PASS] no_play_share: no_play_share=0.017840 (threshold 0.02)
+ep_model: promotion gate FAILED for run efd9fd3dc457431d917fd6ce59788305 -- refusing to promote. Re-run with --force --reason "..." to override.
+```
+(Champion-Run-ID hier bewusst nicht wiederholt -- siehe `## Champion-Entscheidung` oben für die
+exakte ID; unverändert.) EP schlägt sowohl die Grundrate als auch den aktuellen Champion beim
+rohen Log-Loss, scheitert aber an der Kalibrierung: die `No_Score_Prob`-Kalibrierungskurve
+weicht 0,316 vom Idealwert ab (Toleranz 0,15, mehr als das Doppelte) -- ein echter, vom Gate zu
+Recht erkannter Kalibrierungsfehler, kein knapper Grenzfall.
+
+**WP-Kandidat (`3b7d571c3f004858b87729ef7b92c30c`): FAIL**
+```
+wp_model: gate [PASS] beats_naive: logloss_improvement=0.317005 (beats the naive baseline)
+wp_model: gate [FAIL] beats_champion: candidate logo_logloss=0.373400 vs. champion logo_logloss=0.372350 (epsilon=0.0)
+wp_model: gate [PASS] calibration: all calibration_max_deviation_* metrics within tolerance (0.15)
+wp_model: gate [PASS] no_play_share: no_play_share=0.018102 (threshold 0.02)
+wp_model: promotion gate FAILED for run 3b7d571c3f004858b87729ef7b92c30c -- refusing to promote. Re-run with --force --reason "..." to override.
+```
+WP schlägt die Grundrate deutlich, liegt aber minimal hinter dem aktuellen Champion
+(Log-Loss 0,373400 gegen 0,372350, eine Verschlechterung von 0,00105) -- deckt sich mit der
+Vorher/Nachher-Tabelle oben (der Wegfall der geleakten Zeilen hat WPs eigene Verbesserung
+gegenüber der Grundrate auf dem "mit HC"-Arm minimal verkleinert).
+
+### Entscheidung
+
+**Entschieden am 2026-09-09** (Owner-Antwort, verbatim: "none. rauschen passt als
+begründung."): **none** -- keine Beförderung, kein `--force`. Beide Kandidaten bleiben
+registrierte, aber nicht beförderte Modellversionen; der `champion`-Alias bleibt für
+`ep_model` und `wp_model` unverändert auf den 2026-09-08 "mit HC"-Läufen (siehe
+`## Champion-Entscheidung` oben für die exakten Run-IDs -- unverändert von diesem Abschnitt).
+
+**Begründung (Owner):** Der WP-Unterschied (0,00105 Log-Loss gegen den Champion) wird als
+Rauschen eingeordnet, nicht als echte Regression -- passt zur Größenordnung der übrigen
+Vorher/Nachher-Differenzen in der Tabelle oben (alle im Bereich von wenigen Tausendsteln). Der
+EP-Kalibrierungsbefund wird dagegen ernst genommen statt überstimmt: eine Kalibrierungsabweichung
+von 0,316 gegen eine Toleranz von 0,15 ist mehr als das Doppelte des Schwellwerts und kein Fall
+für ein leichtfertiges `--force`.
+
+**Was sich dadurch ändert:** Nichts am aktuell laufenden Champion. Der Extrapunkt-Ausschluss-Fix
+selbst bleibt im Trainingscode (bereits committed, `f470974e093f2a47aea7c4b066b24d0e80440c70`)
+und gilt automatisch für den nächsten echten Retrain -- diese Entscheidung betrifft nur, ob die
+JETZT gemessenen Kandidaten sofort befördert werden, nicht ob der Fix selbst zurückgenommen wird.
+
+**Aufgelöster Champion nach dieser Entscheidung** (`registry.resolve_champion`, direkt gegen
+den Live-Tracking-Store geprüft, unverändert gegenüber vor diesem Abschnitt): `ep_model` und
+`wp_model` zeigen weiterhin auf die 2026-09-08 "mit HC"-Läufe (siehe `## Champion-Entscheidung`
+oben).
+
+**Offener Folgepunkt (nicht in diesem Abschnitt behoben):** die EP-Kalibrierungsabweichung
+verdient eine genauere Betrachtung auf Bin-Ebene (dünn besetzter Bin? ist 0,15 der richtige,
+oder ein n-gewichteter Schwellwert sinnvoller?) -- geloggt in
+`.planning/phases/M3-05-epa-plattform/deferred-items.md`.
+
+### Reproduzierbarkeit (2026-09-09)
+
+```
+ffep freeze-corpus
+uv run python scripts/hc_corpus_ablation.py --model both --out-dir data/reference/epa_refinement/2026-09-09
+```
+
+Jede Zahl in diesem Abschnitt kommt aus genau einer dieser Dateien:
+`data/reference/epa_refinement/2026-09-09/ablation_summary.csv`,
+`data/reference/epa_refinement/2026-09-09/corpus_arms.csv`,
+`data/reference/epa_refinement/2026-09-09/no_play_rows.csv`,
+`data/reference/epa_refinement/2026-09-09/per_source_metrics_ep.csv`,
+`data/reference/epa_refinement/2026-09-09/per_source_metrics_wp.csv`,
+`data/reference/epa_refinement/2026-09-09/per_tier_metrics_ep.csv`,
+`data/reference/epa_refinement/2026-09-09/per_tier_metrics_wp.csv`, plus die Gate-Ausgabe von
+`uv run ffep promote --model ep/wp --run <candidate>` (ohne `--force`, oben wörtlich zitiert
+bis auf die weggelassene Champion-Run-ID). Die 08.09.-CSVs bleiben unverändert liegen.
+`tests/test_m3_epa_docs.py` prüft dieses Verzeichnis automatisch bei jedem Testlauf.
+
+Stand: 2026-09-09 (Methodenänderung gemessen, Gate geprüft, Entscheidung "none" getroffen und
+ausgeführt -- ersetzt keine Zahl im Nachtrag, Hauptbericht oder der Champion-Entscheidung oben;
+der `champion`-Alias hat sich nicht bewegt).
