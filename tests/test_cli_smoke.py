@@ -105,6 +105,10 @@ def test_promote_help() -> None:
 
 
 def test_promote_with_explicit_run_id_makes_it_champion(tmp_path: Path, repo_root: Path) -> None:
+    """`--force --reason` (M3-05-06): this test exercises the champion-alias-setting
+    mechanics, not the promotion gate -- the tiny synthetic corpus's real EP fit has no
+    reason to reliably clear the gate's naive-baseline/calibration thresholds, so the
+    override is used to isolate what this test actually checks."""
     config = tpi._make_config(tmp_path, repo_root)
     toml_path = tpi._write_toml_config(tmp_path, repo_root)
     _write_competition_tier_csv(config)
@@ -113,7 +117,19 @@ def test_promote_with_explicit_run_id_makes_it_champion(tmp_path: Path, repo_roo
     _register_run(config, run_id, "ep")
 
     result = runner.invoke(
-        app, ["promote", "--config", str(toml_path), "--model", "ep", "--run", run_id]
+        app,
+        [
+            "promote",
+            "--config",
+            str(toml_path),
+            "--model",
+            "ep",
+            "--run",
+            run_id,
+            "--force",
+            "--reason",
+            "cli smoke test: champion-alias mechanics, not gate compliance",
+        ],
     )
 
     assert result.exit_code == 0, result.output
@@ -123,6 +139,8 @@ def test_promote_with_explicit_run_id_makes_it_champion(tmp_path: Path, repo_roo
 def test_promote_without_run_promotes_most_recent_finished_run(
     tmp_path: Path, repo_root: Path
 ) -> None:
+    """`--force --reason` (M3-05-06): see
+    `test_promote_with_explicit_run_id_makes_it_champion` above -- same rationale."""
     config = tpi._make_config(tmp_path, repo_root)
     toml_path = tpi._write_toml_config(tmp_path, repo_root)
     _write_competition_tier_csv(config)
@@ -132,7 +150,19 @@ def test_promote_without_run_promotes_most_recent_finished_run(
     latest_run_id = train_ep(plays, config)
     _register_run(config, latest_run_id, "ep")
 
-    result = runner.invoke(app, ["promote", "--config", str(toml_path), "--model", "ep"])
+    result = runner.invoke(
+        app,
+        [
+            "promote",
+            "--config",
+            str(toml_path),
+            "--model",
+            "ep",
+            "--force",
+            "--reason",
+            "cli smoke test: champion-alias mechanics, not gate compliance",
+        ],
+    )
 
     assert result.exit_code == 0, result.output
     assert latest_run_id in result.output

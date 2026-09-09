@@ -533,22 +533,51 @@ def promote(
             "model's experiment"
         ),
     ),
+    force: bool = typer.Option(
+        False,
+        "--force/--no-force",
+        help="Bypass a failing promotion gate; requires --reason",
+    ),
+    reason: Optional[str] = typer.Option(
+        None,
+        "--reason",
+        help=(
+            "Required with --force: why this override is justified. Logged as an MLflow "
+            "tag on the promoted run, not just printed."
+        ),
+    ),
 ) -> None:
-    """Promote a training run to the `champion` alias so `ffep score` resolves it."""
+    """Promote a training run to the `champion` alias so `ffep score` resolves it.
+
+    Refuses a candidate that fails the M3-05-06 promotion gate (beats the naive baseline,
+    beats the current champion, calibration within tolerance, no-play share under
+    threshold) unless `--force --reason "..."` is given -- the gate reads every check from
+    the run's own MLflow metrics, never a CSV. An override is itself recorded as an
+    auditable MLflow tag on the promoted run (`promotion_override_reason`/
+    `promotion_override_by`), never just a CLI echo.
+    """
     if model not in {"ep", "wp", "both"}:
         raise typer.BadParameter("--model must be one of: ep, wp, both")
     if run is not None and model == "both":
         raise typer.BadParameter(
             "--run cannot be combined with --model both (one run id cannot be both models)"
         )
+    if force and not (reason and reason.strip()):
+        raise typer.BadParameter(
+            "--force requires a non-empty --reason -- an override with no written reason "
+            "is not allowed"
+        )
 
     from flag_football_ep.config import load_config
 
     cfg = load_config(config)
 
-    import mlflow
+    import os
 
-    from flag_football_ep.model import mlflow_store, registry
+    import mlflow
+    from mlflow import MlflowClient
+
+    from flag_football_ep.model import gate, mlflow_store, registry
 
     experiments = {"ep": cfg.train.ep_experiment, "wp": cfg.train.wp_experiment}
     prefixes = ["ep", "wp"] if model == "both" else [model]
@@ -573,8 +602,28 @@ def promote(
             run_id = runs[0].info.run_id
 
         name = registry.registered_model_name(prefix)
+
+        if not force:
+            result = gate.evaluate_gate(prefix, run_id, cfg)
+            for check_name, (status, why) in result.checks.items():
+                label = "PASS" if status else ("SKIP" if status is None else "FAIL")
+                typer.echo(f"{name}: gate [{label}] {check_name}: {why}")
+            if not result.passed:
+                typer.echo(
+                    f"{name}: promotion gate FAILED for run {run_id} -- refusing to "
+                    "promote. Re-run with --force --reason \"...\" to override."
+                )
+                raise typer.Exit(code=1)
+
         version = registry.promote(name, run_id, cfg)
         typer.echo(f"{name}: promoted run {run_id} to champion (version {version})")
+
+        if force:
+            mlflow_store.configure(cfg)
+            client = MlflowClient()
+            client.set_tag(run_id, "promotion_override_reason", reason)
+            client.set_tag(run_id, "promotion_override_by", os.environ.get("USER", "unknown"))
+            typer.echo(f"{name}: gate override recorded on run {run_id} (reason tagged)")
 
 
 @app.command()
