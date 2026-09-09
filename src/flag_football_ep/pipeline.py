@@ -332,13 +332,15 @@ def _ingest_ifaf(
     team_mapping: pl.DataFrame,
     tournaments: Sequence[str] | None = None,
     spot_fill_dir: Path | None = None,
+    corrections_dir: Path | None = None,
 ) -> tuple[list[pl.DataFrame], list[str], dict[str, list[str]]]:
     """Dispatch the IFAF/cpx.studio source.
 
-    `spot_fill_dir` (`config.reference.ifaf_spot_fill`) is passed straight
-    through to `ingest_ifaf_snapshots` -- see `ifaf.ingest_snapshots`'s own
-    docstring for what it does. `None` is a no-op, same as leaving the
-    manual spot-fill files empty.
+    `spot_fill_dir` (`config.reference.ifaf_spot_fill`) and `corrections_dir`
+    (`config.reference.ifaf_corrections`) are passed straight through to
+    `ingest_ifaf_snapshots` -- see `ifaf.ingest_snapshots`'s own docstring
+    for what each does. `None` is a no-op for either, same as leaving the
+    manual spot-fill/corrections files empty.
 
     Per-game failure containment now lives inside `ifaf.ingest_snapshots`
     (a malformed play, or any other failure in one game's flatten-through-
@@ -365,7 +367,11 @@ def _ingest_ifaf(
 
     try:
         results = ingest_ifaf_snapshots(
-            ifaf_dir, team_mapping, tournaments=tournaments, spot_fill_dir=spot_fill_dir
+            ifaf_dir,
+            team_mapping,
+            tournaments=tournaments,
+            spot_fill_dir=spot_fill_dir,
+            corrections_dir=corrections_dir,
         )
     except Exception as exc:  # noqa: BLE001
         source_notices.append(
@@ -571,6 +577,7 @@ def run_ingest(
             team_mapping,
             tournaments=config.sources.ifaf.ingest_tournaments or None,
             spot_fill_dir=config.reference.ifaf_spot_fill,
+            corrections_dir=config.reference.ifaf_corrections,
         )
         frames.extend(f)
         notices.extend(n)

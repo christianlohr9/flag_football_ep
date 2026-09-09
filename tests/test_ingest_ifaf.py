@@ -36,6 +36,7 @@ from flag_football_ep.ingest.ifaf import (
     _load_teams_meta,
     _segment_records_by_team,
     align_events_los_states,
+    apply_corrections,
     apply_events_ledger,
     apply_spot_fill,
     diagnose_partial_los_fill,
@@ -50,6 +51,8 @@ from flag_football_ep.ingest.ifaf import (
     flatten_plays_records,
     flatten_unified_plays,
     ingest_snapshots,
+    load_corrections,
+    load_corrections_for_game,
     load_ifaf_final_scores,
     load_plays_snapshot,
     load_snapshot,
@@ -2481,9 +2484,58 @@ def _write_spot_fill_csv_named(fill_dir: Path, filename: str, rows: list[dict]) 
 
 
 def test_load_spot_fill_missing_file_returns_empty_typed_frame(tmp_path):
-    df = load_spot_fill(tmp_path / "does-not-exist.csv")
+    df, notices = load_spot_fill(tmp_path / "does-not-exist.csv")
     assert df.height == 0
     assert df.columns == ["game_id", "sequence", "ballOn", "note"]
+    assert notices == []
+
+
+def test_load_spot_fill_tolerates_semicolon_delimited_cp1252_export(tmp_path):
+    """A German-locale Excel 'CSV (comma)' export routinely comes back
+    semicolon-delimited, non-UTF-8, with a trailing empty column -- must not
+    crash, must surface a notice naming the fallback, not silently mangle
+    the umlaut (2026-09-08, docs/ifaf-wm2026-daten.md Nachtrag)."""
+    path = tmp_path / "fill.csv"
+    raw = (
+        b"game_id;sequence;ballOn;note;\r\n"
+        b"ifaf-g1;710;;\x9fberfl\x9fssiges play;\r\n"
+    )
+    path.write_bytes(raw)
+
+    df, notices = load_spot_fill(path)
+
+    assert df["game_id"].to_list() == ["ifaf-g1"]
+    assert df["sequence"].to_list() == [710.0]
+    assert df["ballOn"].to_list() == [None]
+    assert df["note"].to_list() == ["überflüssiges play"]
+    assert any("decoded as mac_roman" in n for n in notices)
+    assert any("semicolon-delimited" in n for n in notices)
+
+
+def test_load_spot_fill_plain_utf8_comma_file_has_no_fallback_notices(tmp_path):
+    path = tmp_path / "fill.csv"
+    path.write_text("game_id,sequence,ballOn,note\nifaf-g1,10,5,\n", encoding="utf-8")
+
+    df, notices = load_spot_fill(path)
+
+    assert df["ballOn"].to_list() == [5]
+    assert notices == []
+
+
+def test_load_spot_fill_extra_unnamed_column_value_folded_into_note_not_dropped(tmp_path):
+    """A one-off ad-hoc marker in a 5th, unnamed column (the QF's own
+    committed fill file, sequence 610: a bare "x" after a second trailing
+    ";") must never be silently discarded -- folded into `note` with a
+    notice instead (2026-09-08/09)."""
+    path = tmp_path / "fill.csv"
+    path.write_text(
+        "game_id;sequence;ballOn;note;\nifaf-g1;610;10;some note;x\n", encoding="utf-8"
+    )
+
+    df, notices = load_spot_fill(path)
+
+    assert df["note"].to_list() == ["some note [x]"]
+    assert any("extra unnamed column value 'x'" in n for n in notices)
 
 
 def test_apply_spot_fill_noop_when_fill_dir_none():
@@ -2629,6 +2681,27 @@ def test_apply_spot_fill_finds_a_renamed_fill_file_by_game_id_column(tmp_path):
     assert any("fill_ifaf-g1.csv: applied 1 manual ballOn fill" in n for n in notices)
 
 
+def test_apply_spot_fill_ignores_original_semicolon_backup_file(tmp_path):
+    """A `*.original-semicolon.csv` local backup (see
+    data/reference/ifaf_spot_fill/README.md's Encoding addendum) sits next
+    to its already-committed normalised sibling -- it must not be read a
+    second time (would only spam duplicate encoding-fallback notices)."""
+    payload = [_play_record(10, down=1, ball_on=None)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    fill_dir = tmp_path / "ifaf_spot_fill"
+    _write_spot_fill_csv(fill_dir, "ifaf-g1", [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": 15, "note": ""}])
+    _write_spot_fill_csv_named(
+        fill_dir,
+        "ifaf-g1.original-semicolon.csv",
+        [{"game_id": "ifaf-g1", "sequence": 10, "ballOn": 15, "note": ""}],
+    )
+
+    out, notices = apply_spot_fill(df, fill_dir)
+
+    assert out["yardline_50"].to_list() == [15]
+    assert not any("original-semicolon" in n for n in notices)
+
+
 def test_apply_spot_fill_tolerates_one_game_spread_over_several_files(tmp_path):
     payload = [
         _play_record(10, down=1, ball_on=None),
@@ -2712,6 +2785,317 @@ def test_ingest_snapshots_wires_spot_fill_dir_end_to_end(tmp_path):
     assert df["yardline_50"].to_list() == [5, 11]
     assert df["spot_source"].to_list() == [None, "manual"]
     assert notices.missing_context_keys.get("ballOn", 0) == 0
+
+
+# --- load_corrections / apply_corrections (manual reviewer-feed fixes) -----
+
+
+def _write_corrections_csv(corrections_dir: Path, game_id: str, rows: list[dict]) -> Path:
+    return _write_corrections_csv_named(corrections_dir, f"{game_id}.csv", rows)
+
+
+def _write_corrections_csv_named(corrections_dir: Path, filename: str, rows: list[dict]) -> Path:
+    corrections_dir.mkdir(parents=True, exist_ok=True)
+    path = corrections_dir / filename
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["game_id", "sequence", "field", "value", "note"])
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+    return path
+
+
+def test_load_corrections_missing_file_returns_empty_typed_frame(tmp_path):
+    df, notices = load_corrections(tmp_path / "does-not-exist.csv")
+    assert df.height == 0
+    assert df.columns == ["game_id", "sequence", "field", "value", "note"]
+    assert notices == []
+
+
+def test_apply_corrections_noop_when_corrections_dir_none():
+    payload = [_play_record(10, offense="w-usa")]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    out, notices = apply_corrections(df, None)
+    assert out["posteam"].to_list() == ["w-usa"]
+    assert notices == []
+
+
+def test_apply_corrections_noop_when_no_correction_file_for_this_game(tmp_path):
+    payload = [_play_record(10, offense="w-usa")]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    out, notices = apply_corrections(df, tmp_path / "ifaf_corrections")
+    assert out["posteam"].to_list() == ["w-usa"]
+    assert notices == []
+
+
+def test_apply_corrections_offense_team_overwrites_posteam_defteam_and_stamps_source(tmp_path):
+    payload = [
+        _play_record(10, down=1, offense="w-usa"),
+        _play_record(20, down=2, offense="w-usa"),
+        _play_record(30, down=1, offense="w-ger"),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [
+            {"game_id": "ifaf-g1", "sequence": 20, "field": "offense_team", "value": "w-ger", "note": ""},
+        ],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert out["posteam"].to_list() == ["w-usa", "w-ger", "w-ger"]
+    assert out["defteam"].to_list() == ["w-ger", "w-usa", "w-usa"]
+    assert out["correction_source"].to_list() == [None, "manual", None]
+    assert any("applied 1 manual correction" in n for n in notices)
+
+
+def test_apply_corrections_offense_team_recomputes_drive_id(tmp_path):
+    """A corrected offense team can shift a drive boundary -- drive_id must
+    be recomputed, not left at flatten_plays_records' pre-correction value."""
+    payload = [
+        _play_record(10, down=1, offense="w-usa"),
+        _play_record(20, down=2, offense="w-usa"),
+        _play_record(30, down=1, offense="w-usa"),  # really w-ger's drive
+        _play_record(40, down=1, offense="w-ger"),
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["drive_id"].to_list() == [1, 1, 1, 2]  # pre-correction: one long w-usa drive
+
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 30, "field": "offense_team", "value": "w-ger", "note": ""}],
+    )
+
+    out, _ = apply_corrections(df, corrections_dir)
+
+    assert out["posteam"].to_list() == ["w-usa", "w-usa", "w-ger", "w-ger"]
+    assert out["drive_id"].to_list() == [1, 1, 2, 2]
+
+
+def test_apply_corrections_down_and_half_overwrite_verbatim(tmp_path):
+    payload = [_play_record(10, down=1, half=1)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [
+            {"game_id": "ifaf-g1", "sequence": 10, "field": "down", "value": "3", "note": ""},
+            {"game_id": "ifaf-g1", "sequence": 10, "field": "half", "value": "2", "note": ""},
+        ],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert out["down"].to_list() == [3]
+    assert out["half"].to_list() == [2]
+    assert out["correction_source"].to_list() == ["manual"]
+    assert any("applied 2 manual correction" in n for n in notices)
+
+
+def test_apply_corrections_nullified_zeroes_scoring_flags_for_non_extra_point_row(tmp_path):
+    payload = [
+        _play_record(
+            10, down=1, offense="w-usa",
+            events=[_ev("PASS"), _ev("COMPLETE"), _ev("TOUCHDOWN")], official_score="TD",
+        )
+    ]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    assert df["touchdown"].to_list() == [1]
+
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 10, "field": "nullified", "value": "1", "note": "overturned"}],
+    )
+
+    out, _ = apply_corrections(df, corrections_dir)
+
+    assert out["nullified"].to_list() == [1]
+    assert out["play_type"].to_list() == ["no_play"]
+    assert out["touchdown"].to_list() == [0]
+
+
+def test_apply_corrections_drop_record_removes_row_and_renumbers_play_id(tmp_path):
+    payload = [_play_record(10), _play_record(20), _play_record(30)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 20, "field": "drop_record", "value": "1", "note": "never happened"}],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert out.height == 2
+    assert out["source_play_sequence"].to_list() == [10.0, 30.0]
+    assert out["play_id"].to_list() == [1, 2]
+    assert any("applied 1 manual correction" in n for n in notices)
+
+
+def test_apply_corrections_insert_after_is_rejected_not_fabricated(tmp_path):
+    payload = [_play_record(10)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 10, "field": "insert_after", "value": "x", "note": ""}],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert out.height == 1
+    assert any("insert_after' is not supported" in n for n in notices)
+
+
+def test_apply_corrections_unknown_field_is_notice_not_crash(tmp_path):
+    payload = [_play_record(10)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 10, "field": "yards_gained", "value": "7", "note": ""}],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert any("unknown field" in n for n in notices)
+
+
+def test_apply_corrections_unknown_sequence_is_notice_not_crash(tmp_path):
+    payload = [_play_record(10)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 999, "field": "down", "value": "2", "note": ""}],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert any("sequence 999.0 not found" in n for n in notices)
+
+
+def test_apply_corrections_offense_team_not_one_of_this_games_teams_is_notice(tmp_path):
+    payload = [_play_record(10, offense="w-usa")]
+    df = flatten_plays_records(payload, _game_meta_plays(home="w-usa", away="w-ger"), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 10, "field": "offense_team", "value": "w-mex", "note": ""}],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert out["posteam"].to_list() == ["w-usa"]
+    assert any("is not one of this game's own teams" in n for n in notices)
+
+
+def test_apply_corrections_down_out_of_range_is_notice_not_crash(tmp_path):
+    payload = [_play_record(10, down=1)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 10, "field": "down", "value": "9", "note": ""}],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert out["down"].to_list() == [1]
+    assert any("out of range [0, 4]" in n for n in notices)
+
+
+def test_apply_corrections_empty_value_cell_silently_skipped(tmp_path):
+    payload = [_play_record(10, down=1)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir,
+        "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 10, "field": "down", "value": "", "note": ""}],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert out["down"].to_list() == [1]
+    assert notices == []
+
+
+def test_apply_corrections_finds_a_renamed_correction_file_by_game_id_column(tmp_path):
+    payload = [_play_record(10, offense="w-usa")]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv_named(
+        corrections_dir,
+        "session1.csv",
+        [{"game_id": "ifaf-g1", "sequence": 10, "field": "offense_team", "value": "w-ger", "note": ""}],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert out["posteam"].to_list() == ["w-ger"]
+    assert any("session1.csv: applied 1 manual correction" in n for n in notices)
+
+
+def test_apply_corrections_conflicting_duplicate_across_files_is_a_notice_first_wins(tmp_path):
+    payload = [_play_record(10, down=1)]
+    df = flatten_plays_records(payload, _game_meta_plays(), "g1", _empty_player_names())
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv_named(
+        corrections_dir, "a_first.csv",
+        [{"game_id": "ifaf-g1", "sequence": 10, "field": "down", "value": "2", "note": ""}],
+    )
+    _write_corrections_csv_named(
+        corrections_dir, "b_second.csv",
+        [{"game_id": "ifaf-g1", "sequence": 10, "field": "down", "value": "3", "note": ""}],
+    )
+
+    out, notices = apply_corrections(df, corrections_dir)
+
+    assert out["down"].to_list() == [2]
+    assert any(
+        "duplicate correction for game 'ifaf-g1' sequence 10.0 field 'down'" in n
+        and "a_first.csv" in n
+        for n in notices
+    )
+
+
+def test_apply_corrections_runs_before_events_ledger_in_ingest_snapshots(tmp_path):
+    """End-to-end: an offense_team correction must be visible to
+    apply_events_ledger's own team-matching walk (run order, ingest_snapshots)."""
+    reviewer_plays = {
+        "g1": [
+            _play_record(10, down=1, offense="w-usa", ball_on=5),
+            _play_record(20, down=2, offense="w-usa", ball_on=None),
+        ]
+    }
+    raw_dir = _write_snapshot_dir(
+        tmp_path, plays_by_game={}, reviewer_plays_by_game=reviewer_plays, write_unified=False
+    )
+    corrections_dir = tmp_path / "ifaf_corrections"
+    _write_corrections_csv(
+        corrections_dir, "ifaf-g1",
+        [{"game_id": "ifaf-g1", "sequence": 20, "field": "offense_team", "value": "w-ger", "note": ""}],
+    )
+
+    results = ingest_snapshots(raw_dir, _team_mapping(), corrections_dir=corrections_dir)
+
+    gid, df, notices = results[0]
+    assert df["posteam"].to_list() == ["USA", "GER"]
+    assert df["correction_source"].to_list() == [None, "manual"]
 
 
 # --- apply_events_ledger ------------------------------------------------------

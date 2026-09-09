@@ -140,6 +140,17 @@ NULLABLE_EXTRAS: dict[str, pl.DataType] = {
     # overwrites a real spot, so this column and a real `yardline_50` are
     # never both meaningfully set from two different sources of truth.
     "spot_source": pl.Utf8,
+    # Provenance for a manually corrected reviewer-feed field
+    # (docs/ifaf-wm2026-daten.md's corrections how-to, 2026-09-08): `"manual"`
+    # when `ifaf.apply_corrections` overwrote one of a `/plays` record's own
+    # fields (`offense_team`/`down`/`half`/`nullified`) or dropped it
+    # entirely, from `data/reference/ifaf_corrections/<game_id>.csv` (the
+    # project owner's own reviewer-feed error findings -- distinct from
+    # `spot_source`, which only ever fills a *missing* `ballOn`; a
+    # correction overwrites a field the reviewer feed got wrong outright).
+    # Null for every uncorrected row and every non-ifaf row, same convention
+    # as `spot_source`.
+    "correction_source": pl.Utf8,
     # Game-level completeness flag (docs/ifaf-field-mapping.md Nachtrag
     # 2026-09-07, eighth follow-up: user-authorized synthetic touchdown
     # rows): `1` on every row of a game where `apply_events_ledger` had to

@@ -79,6 +79,14 @@ class ReferenceFiles:
     # `ifaf.apply_spot_fill`. Nothing loads it until `pipeline._ingest_ifaf`
     # passes it through as `ingest_snapshots(spot_fill_dir=...)`.
     ifaf_spot_fill: Path = Path("data/reference/ifaf_spot_fill")
+    # 2026-09-08 addendum: optional, same pre-existing-config-compat
+    # rationale as ifaf_spot_fill above. A directory of manual reviewer-feed
+    # field corrections (distinct from a spot fill -- overwrites a field the
+    # reviewer feed got outright wrong, rather than filling a missing one) --
+    # see `data/reference/ifaf_corrections/README.md` and
+    # `ifaf.apply_corrections`. Nothing loads it until `pipeline._ingest_ifaf`
+    # passes it through as `ingest_snapshots(corrections_dir=...)`.
+    ifaf_corrections: Path = Path("data/reference/ifaf_corrections")
 
 
 @dataclass(frozen=True)
@@ -303,6 +311,13 @@ def load_config(path: Path = Path("ffep.toml")) -> Config:
         ifaf_spot_fill=_resolve(
             base_dir,
             reference_table.get("ifaf_spot_fill", "data/reference/ifaf_spot_fill"),
+        ),
+        # Not in _REFERENCE_KEYS/_key() deliberately (see
+        # ReferenceFiles.ifaf_corrections docstring): same pre-existing-config
+        # compat fallback as ifaf_spot_fill above.
+        ifaf_corrections=_resolve(
+            base_dir,
+            reference_table.get("ifaf_corrections", "data/reference/ifaf_corrections"),
         ),
     )
 

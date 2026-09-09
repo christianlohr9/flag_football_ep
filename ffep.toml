@@ -36,6 +36,7 @@ continuity_review = "data/reference/continuity_review.csv"
 hc_games = "data/reference/hc_games.csv"
 hc_splits = "data/reference/hc_splits.csv"
 ifaf_spot_fill = "data/reference/ifaf_spot_fill"
+ifaf_corrections = "data/reference/ifaf_corrections"
 
 [sources.sportapp]
 base_url = "https://main-api-1.sportapp.fi/api/v1/public"

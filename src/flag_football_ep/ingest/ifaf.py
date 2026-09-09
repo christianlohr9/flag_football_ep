@@ -35,6 +35,8 @@ section; the `/plays` primary path has its own action-list vocabulary
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 from collections import Counter
 from dataclasses import dataclass, field
@@ -1394,6 +1396,10 @@ def apply_events_ledger(
             # Never a manual-fill target -- a synthetic row has no raw
             # `source_play_sequence` for a fill file to match against.
             "spot_source": None,
+            # Never a manual-correction target either, same reasoning --
+            # `apply_corrections` runs before this function and matches on
+            # `source_play_sequence`, which a synthetic row never has.
+            "correction_source": None,
             # `None` by default here -- only stamped 1 below, on every row
             # (real and synthetic) of a game that actually got a synthetic
             # *touchdown*. A pure missing-conversion synthetic row (the
@@ -1605,6 +1611,7 @@ _PLAYS_WORKING_SCHEMA: dict[str, pl.DataType] = {
     "official_score": pl.Utf8,
     "score_source": pl.Utf8,
     "spot_source": pl.Utf8,
+    "correction_source": pl.Utf8,
     "plays_incomplete": pl.Int32,
     "_missing_down": pl.Int32,
     "_missing_ballon": pl.Int32,
@@ -2111,6 +2118,13 @@ def flatten_plays_records(
                 # `data/reference/ifaf_spot_fill/<game_id>.csv`); null here
                 # and for every real spot -- see canonical.NULLABLE_EXTRAS.
                 "spot_source": None,
+                # `apply_corrections` is the only place that ever sets this to
+                # `"manual"` (a reviewer-feed field the project owner
+                # hand-corrected from `data/reference/ifaf_corrections/
+                # <game_id>.csv`, e.g. a mislabelled `offenseTeamId`); null
+                # here and for every non-corrected row -- see
+                # canonical.NULLABLE_EXTRAS.
+                "correction_source": None,
                 # `apply_events_ledger` is the only place that ever sets this
                 # to 1 (a whole synthetic-touchdown insertion happened
                 # somewhere in this game); null everywhere else, including
@@ -2200,8 +2214,70 @@ _SPOT_FILL_SCHEMA: dict[str, pl.DataType] = {
     "note": pl.Utf8,
 }
 
+# 2026-09-08 addendum -- tolerant decode/delimiter detection: the project
+# owner edits these fill files in Excel, and an Excel "CSV (comma)" export on
+# a German-locale machine routinely comes back semicolon-delimited (the
+# German decimal-comma locale reassigns the field separator), non-UTF-8, and
+# with a trailing empty column from a trailing separator before the newline
+# (e.g. `game_id;sequence;ballOn;note;`). The QF's own committed fill file
+# hit exactly this shape (`ifaf-019ffff1-...csv`, sequence 710's own umlaut
+# note, "überflüssiges") -- `load_spot_fill` below tolerates it instead of
+# crashing, with a notice, rather than requiring every future Excel export to
+# be hand-normalised before committing.
+#
+# Encoding fallback order: UTF-8 first (the expected, silent-success case
+# for a file already normalised or written by a text editor). On a decode
+# failure, `cp1252` (the far more common single-byte Windows export
+# encoding) is tried next -- but every single byte value has *some* cp1252
+# mapping, so a wrong guess never raises; the QF's own file is actually
+# `mac_roman` (an Excel-for-Mac export), and cp1252-decoding a mac_roman
+# byte lands one of its C1-range umlaut bytes on cp1252's own "smart
+# punctuation" block (`\x80`-`\x9f`) instead -- e.g. byte `0x9F` decodes to
+# `Ÿ` (U+0178) under cp1252 but is really `ü` under mac_roman. `_CP1252_MOJIBAKE_MARKERS`
+# is that block's own character set; a cp1252 decode landing on any of them
+# is treated as a mac_roman file mislabeled cp1252 and re-decoded as such.
+# This is a heuristic, not a certainty -- a genuine cp1252 file that legitimately
+# uses one of these typographic characters (an em dash, a smart quote) would
+# be mis-detected -- but for this project's actual export tooling (Excel on
+# macOS or Windows, German-locale spreadsheets, plain ASCII notes with the
+# occasional German umlaut) the heuristic matches every byte pattern observed
+# in the live corpus and is far better than either silently mangling the
+# umlaut or crashing outright.
+_CP1252_MOJIBAKE_MARKERS: frozenset[str] = frozenset("ƒˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ")
 
-def load_spot_fill(path: Path) -> pl.DataFrame:
+
+def _decode_spot_fill_bytes(data: bytes) -> tuple[str, str | None]:
+    """Decode one fill file's raw bytes, tolerating a non-UTF-8 Excel export.
+
+    Returns `(text, fallback_encoding)` -- `fallback_encoding` is `None` for
+    the silent, expected UTF-8 case (no notice warranted), else the codec
+    name actually used (`"cp1252"` or `"mac_roman"`), for the caller's own
+    notice. See the module constant `_CP1252_MOJIBAKE_MARKERS` above for the
+    mac_roman-vs-cp1252 disambiguation heuristic. Never raises -- every
+    fallback codec here accepts every byte value.
+    """
+    try:
+        return data.decode("utf-8"), None
+    except UnicodeDecodeError:
+        pass
+    cp1252_text = data.decode("cp1252", errors="replace")
+    if any(ch in _CP1252_MOJIBAKE_MARKERS for ch in cp1252_text):
+        return data.decode("mac_roman", errors="replace"), "mac_roman"
+    return cp1252_text, "cp1252"
+
+
+def _sniff_csv_delimiter(text: str) -> str:
+    """`;` when the first line looks like a semicolon-delimited Excel export
+    (contains at least one `;` and no `,` at all), else the standard `,`.
+    Shared by `load_spot_fill` and `load_corrections` -- both fill-style CSVs
+    the project owner may edit in Excel."""
+    first_line = text.splitlines()[0] if text else ""
+    if ";" in first_line and "," not in first_line:
+        return ";"
+    return ","
+
+
+def load_spot_fill(path: Path) -> tuple[pl.DataFrame, list[str]]:
     """Load one fill CSV file, verbatim, no game filtering.
 
     `game_id,sequence,ballOn,note` -- `game_id` is the canonical id (e.g.
@@ -2213,9 +2289,18 @@ def load_spot_fill(path: Path) -> pl.DataFrame:
     when not yet filled in, `note` is free text. See
     `data/reference/ifaf_spot_fill/README.md` for the full convention.
 
-    Returns an empty, correctly-typed frame when `path` does not exist --
-    a missing file is the normal, pre-populated-committed-but-still-
-    header-only case, not an error.
+    Returns an empty, correctly-typed frame and no notices when `path` does
+    not exist -- a missing file is the normal, pre-populated-committed-but-
+    still-header-only case, not an error.
+
+    2026-09-08 addendum: tolerant of a semicolon-delimited, non-UTF-8 Excel
+    export (see `_decode_spot_fill_bytes`/`_sniff_csv_delimiter` above) and
+    of a trailing empty column from a trailing separator before the newline
+    (dropped silently -- it carries no data, unlike an unrecognized *named*
+    column, which `apply_spot_fill`'s row-level validation still ignores
+    harmlessly since only `game_id`/`sequence`/`ballOn`/`note` are ever
+    read). Every notice this produces is prefixed with the file's own name,
+    same convention as `apply_spot_fill`'s own per-row notices.
 
     This is a single-file, unfiltered read. `apply_spot_fill` does not call
     this directly for discovery any more (2026-09-08: fill file names are no
@@ -2225,8 +2310,69 @@ def load_spot_fill(path: Path) -> pl.DataFrame:
     """
     path = Path(path)
     if not path.exists():
-        return pl.DataFrame(schema=dict(_SPOT_FILL_SCHEMA))
-    return pl.read_csv(path, schema_overrides=_SPOT_FILL_SCHEMA)
+        return pl.DataFrame(schema=dict(_SPOT_FILL_SCHEMA)), []
+
+    notices: list[str] = []
+    text, fallback_encoding = _decode_spot_fill_bytes(path.read_bytes())
+    if fallback_encoding is not None:
+        notices.append(
+            f"{path.name}: not valid UTF-8, decoded as {fallback_encoding}"
+        )
+    delimiter = _sniff_csv_delimiter(text)
+    if delimiter != ",":
+        notices.append(
+            f"{path.name}: semicolon-delimited (Excel export), auto-detected"
+        )
+
+    reader = csv.DictReader(io.StringIO(text), delimiter=delimiter)
+    rows: list[dict] = []
+    for raw_row in reader:
+        # A trailing separator before the newline (e.g. "...;note;") produces
+        # one extra, unnamed column under the "" key -- almost always empty
+        # (carries no data, dropped silently), but the QF's own committed
+        # fill file had a genuine one-off ad-hoc marker there (sequence 610,
+        # a bare "x" the owner typed after a second trailing ";" -- a
+        # highlight, not itself a value in a named column). A non-empty
+        # value in that unnamed column is never silently discarded: it is
+        # folded into `note` (never lost) with a notice, same "never drop
+        # data silently" convention every other row-level anomaly here
+        # follows. `None` (the restkey for a row with even more fields than
+        # the header) gets the same treatment.
+        extra = raw_row.pop("", None)
+        restkey_extra = raw_row.pop(None, None)
+        if isinstance(restkey_extra, list):
+            restkey_extra = ", ".join(str(v) for v in restkey_extra if v)
+        game_id = (raw_row.get("game_id") or "").strip() or None
+        seq_raw = (raw_row.get("sequence") or "").strip()
+        ball_raw = (raw_row.get("ballOn") or "").strip()
+        note = raw_row.get("note") or None
+        for label, value in (("", extra), (None, restkey_extra)):
+            if value:
+                notices.append(
+                    f"{path.name}: sequence {seq_raw!r} had an extra unnamed column "
+                    f"value {value!r} -- folded into note, not discarded"
+                )
+                note = f"{note} [{value}]" if note else f"[{value}]"
+        try:
+            sequence = float(seq_raw) if seq_raw else None
+        except ValueError:
+            notices.append(f"{path.name}: unparseable sequence {seq_raw!r}, row ignored")
+            continue
+        try:
+            ball_on = int(ball_raw) if ball_raw else None
+        except ValueError:
+            notices.append(f"{path.name}: unparseable ballOn {ball_raw!r}, row ignored")
+            continue
+        rows.append(
+            {"game_id": game_id, "sequence": sequence, "ballOn": ball_on, "note": note}
+        )
+
+    df = (
+        pl.DataFrame(rows, schema=_SPOT_FILL_SCHEMA)
+        if rows
+        else pl.DataFrame(schema=dict(_SPOT_FILL_SCHEMA))
+    )
+    return df, notices
 
 
 def _spot_fill_csv_paths(fill_dir: Path) -> list[Path]:
@@ -2240,11 +2386,23 @@ def _spot_fill_csv_paths(fill_dir: Path) -> list[Path]:
     an absent/non-directory `fill_dir` returns `[]`, matching the prior
     single-file behavior of degrading a missing fill file to "nothing to
     apply" rather than an error.
+
+    A `*.original-semicolon.csv` file (the as-saved-from-Excel backup kept
+    locally alongside a normalised fill file -- see this same section's
+    module docstring / `data/reference/ifaf_spot_fill/README.md`'s Encoding
+    addendum) is deliberately excluded: it carries the exact same rows as
+    its already-committed, already-discovered normalised sibling, so reading
+    it too would only re-apply the same fills twice (harmlessly deduped by
+    `load_spot_fill_for_game`'s own same-value dedup) while spamming one
+    encoding-fallback notice per game processed -- pure noise, not a second
+    source of truth.
     """
     fill_dir = Path(fill_dir)
     if not fill_dir.is_dir():
         return []
-    return sorted(fill_dir.glob("*.csv"))
+    return sorted(
+        p for p in fill_dir.glob("*.csv") if not p.name.endswith(".original-semicolon.csv")
+    )
 
 
 def load_spot_fill_for_game(fill_dir: Path, game_id: str) -> tuple[list[dict], list[str]]:
@@ -2279,7 +2437,8 @@ def load_spot_fill_for_game(fill_dir: Path, game_id: str) -> tuple[list[dict], l
     rows_out: list[dict] = []
 
     for path in _spot_fill_csv_paths(fill_dir):
-        file_df = load_spot_fill(path)
+        file_df, file_notices = load_spot_fill(path)
+        notices.extend(file_notices)
         if file_df.height == 0:
             continue
         for fgame_id, fseq, fball, fnote in file_df.select(
@@ -2431,6 +2590,472 @@ def apply_spot_fill(df: pl.DataFrame, fill_dir: Path | None) -> tuple[pl.DataFra
         )
         for fname in sorted(applied_by_file):
             notices.append(f"{fname}: applied {applied_by_file[fname]} manual ballOn fill(s)")
+
+    return df, notices
+
+
+# ---------------------------------------------------------------------------
+# Manual reviewer-feed corrections (docs/ifaf-wm2026-daten.md, 2026-09-08):
+# distinct from the spot-fill mechanism above -- a spot fill only ever fills
+# a *missing* `ballOn`; a correction overwrites a field the reviewer feed
+# recorded outright *wrong* (e.g. the ESP-MEX QF's own sequence 720/730,
+# charted with `offenseTeamId = w-esp` when the events feed's own
+# `POSSESSION_CHANGE`/`DOWN_UPDATE`/`LOS_UPDATE` stream -- and the down
+# progression on the /plays records themselves, 1st@5/2nd@12 -- both confirm
+# Mexico already had the ball). These errors recur across the corpus (the
+# project owner, a flag-football domain expert, finds them by cross-checking
+# the reviewer feed against the broadcast video and the events ledger while
+# re-spotting), so this is a small, reusable, PII-free mechanism -- not a
+# QF-specific patch.
+#
+# `data/reference/ifaf_corrections/<anything>.csv` (filename-agnostic, same
+# multi-file/`game_id`-column discovery convention as
+# `data/reference/ifaf_spot_fill/` -- see `_spot_fill_csv_paths`/
+# `load_spot_fill_for_game` above): `game_id,sequence,field,value,note`.
+#
+# Allowed `field` values -- deliberately narrow, each a single reviewer-feed
+# column already present on the `/plays`-primary working frame this runs on:
+#   - `offense_team`: overwrites `posteam` (a raw team id, e.g. `w-mex` --
+#     the same pre-`map_teams` domain `posteam` already carries at this
+#     point in the pipeline) and recomputes `defteam` from it. Any
+#     `offense_team` correction in a call also triggers a full `drive_id`
+#     recompute at the end (see `_recompute_drive_ids` below) -- a corrected
+#     offense team can shift where a drive boundary actually falls, and
+#     `flatten_plays_records`' own `drive_id` was computed before this
+#     correction ever ran to tell it otherwise.
+#   - `down`: overwrites `down` verbatim (int, 0-4 -- same range
+#     `validation.checks.downs_range` enforces).
+#   - `half`: overwrites `half` verbatim (int, 1 or 2 -- same range
+#     `validation.checks.half_assigned` enforces).
+#   - `nullified`: overwrites `nullified`/`_nullified` (0 or 1). Setting it
+#     to 1 also mirrors `flatten_plays_records`' own no-play convention for
+#     a non-extra-point row: `play_type` becomes `"no_play"` and every
+#     scoring/turnover flag is forced to 0 (an extra-point-shaped row, per
+#     that same convention, keeps its own `play_type` and flags).
+#   - `drop_record`: `1` removes the matched record entirely (a record the
+#     reviewer feed charted that never actually happened on the field) --
+#     `play_id` is renumbered gapless 1..N afterward, same convention
+#     `apply_events_ledger` already uses for its own insertions.
+#
+# `insert_after` -- the inverse of `drop_record`, inserting a whole record
+# the reviewer feed never charted at all (e.g. the QF's own missing penalty
+# at sequence 610, which drifts every following video timestamp) -- is
+# explicitly **NOT supported**. A dropped record still has a real anchor (the
+# record itself); an inserted one would need a fabricated `play_id`/
+# `source_play_sequence`/down-and-distance with no reviewed source at all,
+# the same "never invent a play" bar `data/reference/ifaf_spot_fill/README.md`
+# already holds `ballOn` to. A correction row naming `insert_after` is
+# rejected with a notice, same as any other unknown field. Document a gap
+# like this in `docs/ifaf-wm2026-daten.md`'s own Nachtrag instead -- a known,
+# disclosed limitation, never silently fabricated.
+#
+# An empty `value` cell (the not-yet-filled-in state, mirroring the
+# spot-fill worksheet convention) is silently skipped, not a notice -- same
+# as `apply_spot_fill`'s own empty-`ballOn` handling.
+# ---------------------------------------------------------------------------
+
+_CORRECTIONS_SCHEMA: dict[str, pl.DataType] = {
+    "game_id": pl.Utf8,
+    "sequence": pl.Float64,
+    "field": pl.Utf8,
+    "value": pl.Utf8,
+    "note": pl.Utf8,
+}
+
+_CORRECTIONS_ALLOWED_FIELDS: frozenset[str] = frozenset(
+    {"offense_team", "down", "half", "nullified", "drop_record"}
+)
+
+
+def load_corrections(path: Path) -> tuple[pl.DataFrame, list[str]]:
+    """Load one corrections CSV file, verbatim, no game filtering.
+
+    `game_id,sequence,field,value,note` -- same shape and tolerance
+    (filename-agnostic discovery, semicolon/non-UTF-8 Excel export
+    tolerance) as `load_spot_fill` above; see that function's docstring for
+    the encoding/delimiter fallback contract, shared verbatim via
+    `_decode_spot_fill_bytes`/`_sniff_csv_delimiter`. `value` is kept as raw
+    text here -- per-field parsing/validation is `apply_corrections`' job,
+    since each allowed `field` has its own value domain (a team id string, a
+    small int, a 0/1 flag).
+
+    Returns an empty, correctly-typed frame and no notices when `path` does
+    not exist.
+    """
+    path = Path(path)
+    if not path.exists():
+        return pl.DataFrame(schema=dict(_CORRECTIONS_SCHEMA)), []
+
+    notices: list[str] = []
+    text, fallback_encoding = _decode_spot_fill_bytes(path.read_bytes())
+    if fallback_encoding is not None:
+        notices.append(f"{path.name}: not valid UTF-8, decoded as {fallback_encoding}")
+    delimiter = _sniff_csv_delimiter(text)
+    if delimiter != ",":
+        notices.append(f"{path.name}: semicolon-delimited (Excel export), auto-detected")
+
+    reader = csv.DictReader(io.StringIO(text), delimiter=delimiter)
+    rows: list[dict] = []
+    for raw_row in reader:
+        raw_row.pop("", None)
+        raw_row.pop(None, None)
+        game_id = (raw_row.get("game_id") or "").strip() or None
+        seq_raw = (raw_row.get("sequence") or "").strip()
+        field = (raw_row.get("field") or "").strip() or None
+        value = raw_row.get("value")
+        value = value.strip() if value is not None else None
+        note = raw_row.get("note") or None
+        try:
+            sequence = float(seq_raw) if seq_raw else None
+        except ValueError:
+            notices.append(f"{path.name}: unparseable sequence {seq_raw!r}, row ignored")
+            continue
+        rows.append(
+            {
+                "game_id": game_id,
+                "sequence": sequence,
+                "field": field,
+                "value": value,
+                "note": note,
+            }
+        )
+
+    df = (
+        pl.DataFrame(rows, schema=_CORRECTIONS_SCHEMA)
+        if rows
+        else pl.DataFrame(schema=dict(_CORRECTIONS_SCHEMA))
+    )
+    return df, notices
+
+
+def _corrections_csv_paths(corrections_dir: Path) -> list[Path]:
+    """Every `*.csv` correction file directly under `corrections_dir`,
+    sorted by filename -- same discovery convention as
+    `_spot_fill_csv_paths`."""
+    corrections_dir = Path(corrections_dir)
+    if not corrections_dir.is_dir():
+        return []
+    return sorted(corrections_dir.glob("*.csv"))
+
+
+def load_corrections_for_game(
+    corrections_dir: Path, game_id: str
+) -> tuple[list[dict], list[str]]:
+    """Collect every correction row for `game_id` across every `*.csv` file
+    under `corrections_dir` (filename-agnostic, first-file-wins on a
+    conflicting duplicate `(sequence, field)` pair) -- same contract as
+    `load_spot_fill_for_game`, applied to `(sequence, field)` instead of just
+    `sequence` (a game may legitimately carry more than one corrected field
+    for the same record, e.g. both `offense_team` and `down`).
+    """
+    notices: list[str] = []
+    seen: dict[tuple[float, str], tuple[Any, str]] = {}
+    rows_out: list[dict] = []
+
+    for path in _corrections_csv_paths(corrections_dir):
+        file_df, file_notices = load_corrections(path)
+        notices.extend(file_notices)
+        if file_df.height == 0:
+            continue
+        for fgame_id, fseq, ffield, fvalue, fnote in file_df.select(
+            ["game_id", "sequence", "field", "value", "note"]
+        ).rows():
+            if fgame_id is not None and fgame_id != game_id:
+                continue
+            if fseq is None or ffield is None:
+                rows_out.append(
+                    {
+                        "game_id": fgame_id,
+                        "sequence": fseq,
+                        "field": ffield,
+                        "value": fvalue,
+                        "note": fnote,
+                        "source_file": path.name,
+                    }
+                )
+                continue
+            key = (fseq, ffield)
+            prior = seen.get(key)
+            if prior is not None:
+                prior_value, prior_file = prior
+                if fvalue != prior_value:
+                    notices.append(
+                        f"duplicate correction for game {game_id!r} sequence {fseq} "
+                        f"field {ffield!r}: {path.name} has value={fvalue!r}, "
+                        f"{prior_file} already set value={prior_value!r} -- "
+                        f"{prior_file}'s value wins"
+                    )
+                continue
+            seen[key] = (fvalue, path.name)
+            rows_out.append(
+                {
+                    "game_id": fgame_id,
+                    "sequence": fseq,
+                    "field": ffield,
+                    "value": fvalue,
+                    "note": fnote,
+                    "source_file": path.name,
+                }
+            )
+
+    return rows_out, notices
+
+
+def _recompute_drive_ids(posteam: list[str | None]) -> list[int]:
+    """Replay `flatten_plays_records`' own `drive_id` increment rule
+    (increment on an offense-team change between two rows where it is known,
+    a null `posteam` never itself triggering a change) over a -- possibly
+    `offense_team`-corrected -- `posteam` column, in row order."""
+    drive_ids: list[int] = []
+    drive_id = 1
+    prev: str | None = None
+    for pt in posteam:
+        if pt is not None:
+            if prev is not None and pt != prev:
+                drive_id += 1
+            prev = pt
+        drive_ids.append(drive_id)
+    return drive_ids
+
+
+def apply_corrections(
+    df: pl.DataFrame, corrections_dir: Path | None
+) -> tuple[pl.DataFrame, list[str]]:
+    """Apply the project owner's manual reviewer-feed field corrections to
+    this game's `/plays`-primary working frame, matched on the raw record's
+    own `sequence` (this frame's own `source_play_sequence`).
+
+    Must run right after `flatten_plays_records` (needs `posteam`/`defteam`/
+    `home_team`/`away_team`/`down`/`half`/`nullified`/`source_play_sequence`
+    already present) and before `apply_spot_fill`/`apply_events_ledger`/the
+    yardage derivations -- a `drop_record` correction removes a row before
+    anything downstream (a spot fill, a ledger match, a yards-gained
+    derivation) can reference it, and an `offense_team` correction must be
+    visible to `apply_events_ledger`'s own team-matching walk. See
+    `ingest_snapshots`' own call-order docstring.
+
+    A strict no-op when `corrections_dir` is `None` or the game has no
+    correction row anywhere in it -- every existing caller that doesn't pass
+    `corrections_dir` keeps its exact prior behavior.
+
+    See the module section docstring above (`_CORRECTIONS_ALLOWED_FIELDS`)
+    for the allowed-field/value-domain contract. For each row
+    `load_corrections_for_game` returns (in its own merge order): an unknown
+    `field` (including `insert_after`), a `sequence` matching no record, or
+    an out-of-domain `value` each produce a per-row notice and the row is
+    ignored; an empty `value` cell is silently skipped. Otherwise the field
+    is overwritten (or the record dropped, for `drop_record`),
+    `correction_source` is stamped `"manual"` on the corrected row (never on
+    a dropped one), and one "applied N manual correction(s)" notice is
+    emitted per contributing source file.
+
+    Never raises -- an unparseable corrections file surfaces as a notice via
+    `ingest_snapshots`' existing per-game exception containment, same as
+    `apply_spot_fill`.
+    """
+    notices: list[str] = []
+    if corrections_dir is None or df.height == 0:
+        return df, notices
+
+    game_id = df["game_id"][0]
+    home_raw = df["home_team"][0]
+    away_raw = df["away_team"][0]
+    correction_rows, discovery_notices = load_corrections_for_game(corrections_dir, game_id)
+    notices.extend(discovery_notices)
+    if not correction_rows:
+        return df, notices
+
+    seq_to_idx: dict[float, int] = {}
+    for idx, seq in enumerate(df["source_play_sequence"].to_list()):
+        if seq is not None and seq not in seq_to_idx:
+            seq_to_idx[seq] = idx
+
+    posteam = df["posteam"].to_list()
+    defteam = df["defteam"].to_list()
+    down = df["down"].to_list()
+    half = df["half"].to_list()
+    nullified = df["nullified"].to_list()
+    working_nullified = df["_nullified"].to_list()
+    missing_down = df["_missing_down"].to_list()
+    missing_offense = df["_missing_offense"].to_list()
+    play_type = df["play_type"].to_list()
+    complete_pass = df["complete_pass"].to_list()
+    sack = df["sack"].to_list()
+    interception = df["interception"].to_list()
+    safety = df["safety"].to_list()
+    touchdown = df["touchdown"].to_list()
+    def_touchdown = df["def_touchdown"].to_list()
+    one_point = df["one_point_conv_success"].to_list()
+    two_point = df["two_point_conv_success"].to_list()
+    correction_source = df["correction_source"].to_list()
+
+    to_drop: set[int] = set()
+    any_offense_team_correction = False
+    applied_by_file: dict[str, int] = {}
+
+    for row in correction_rows:
+        fseq = row["sequence"]
+        ffield = row["field"]
+        fvalue = row["value"]
+        source_file = row["source_file"]
+
+        if ffield not in _CORRECTIONS_ALLOWED_FIELDS:
+            if ffield == "insert_after":
+                notices.append(
+                    f"{source_file}: field 'insert_after' is not supported (never "
+                    f"fabricates a missing record) -- sequence {fseq}, ignored"
+                )
+            else:
+                notices.append(f"{source_file}: unknown field {ffield!r}, ignored")
+            continue
+        if fseq is None:
+            notices.append(f"{source_file}: field {ffield!r} with no sequence, ignored")
+            continue
+        idx = seq_to_idx.get(fseq)
+        if idx is None:
+            notices.append(
+                f"{source_file}: sequence {fseq} not found in this game's /plays records, "
+                "ignored"
+            )
+            continue
+        if not fvalue:
+            # Not-yet-filled-in cell -- same convention as apply_spot_fill's
+            # own empty ballOn handling.
+            continue
+
+        if ffield == "offense_team":
+            if fvalue not in (home_raw, away_raw):
+                notices.append(
+                    f"{source_file}: sequence {fseq} offense_team={fvalue!r} is not one "
+                    f"of this game's own teams ({home_raw!r}/{away_raw!r}), ignored"
+                )
+                continue
+            posteam[idx] = fvalue
+            defteam[idx] = _other_team(fvalue, home_raw, away_raw)
+            missing_offense[idx] = 0
+            any_offense_team_correction = True
+        elif ffield == "down":
+            try:
+                down_val = int(fvalue)
+            except ValueError:
+                notices.append(
+                    f"{source_file}: sequence {fseq} down={fvalue!r} is not an integer, "
+                    "ignored"
+                )
+                continue
+            if not (0 <= down_val <= 4):
+                notices.append(
+                    f"{source_file}: sequence {fseq} down={fvalue!r} out of range [0, 4], "
+                    "ignored"
+                )
+                continue
+            down[idx] = down_val
+            missing_down[idx] = 0
+        elif ffield == "half":
+            try:
+                half_val = int(fvalue)
+            except ValueError:
+                notices.append(
+                    f"{source_file}: sequence {fseq} half={fvalue!r} is not an integer, "
+                    "ignored"
+                )
+                continue
+            if half_val not in (1, 2):
+                notices.append(
+                    f"{source_file}: sequence {fseq} half={fvalue!r} is not 1 or 2, ignored"
+                )
+                continue
+            half[idx] = half_val
+        elif ffield == "nullified":
+            try:
+                nullified_val = int(fvalue)
+            except ValueError:
+                notices.append(
+                    f"{source_file}: sequence {fseq} nullified={fvalue!r} is not 0/1, ignored"
+                )
+                continue
+            if nullified_val not in (0, 1):
+                notices.append(
+                    f"{source_file}: sequence {fseq} nullified={fvalue!r} is not 0/1, ignored"
+                )
+                continue
+            nullified[idx] = nullified_val
+            working_nullified[idx] = nullified_val
+            if nullified_val == 1 and play_type[idx] != "extra_point":
+                play_type[idx] = "no_play"
+                complete_pass[idx] = 0
+                sack[idx] = 0
+                interception[idx] = 0
+                safety[idx] = 0
+                touchdown[idx] = 0
+                def_touchdown[idx] = 0
+                one_point[idx] = 0
+                two_point[idx] = 0
+        elif ffield == "drop_record":
+            try:
+                drop_val = int(fvalue)
+            except ValueError:
+                notices.append(
+                    f"{source_file}: sequence {fseq} drop_record={fvalue!r} is not 0/1, "
+                    "ignored"
+                )
+                continue
+            if drop_val not in (0, 1):
+                notices.append(
+                    f"{source_file}: sequence {fseq} drop_record={fvalue!r} is not 0/1, "
+                    "ignored"
+                )
+                continue
+            if drop_val == 1:
+                to_drop.add(idx)
+
+        applied_by_file[source_file] = applied_by_file.get(source_file, 0) + 1
+        if idx not in to_drop:
+            correction_source[idx] = "manual"
+
+    if not applied_by_file:
+        return df, notices
+
+    df = df.with_columns(
+        [
+            pl.Series("posteam", posteam, dtype=pl.Utf8),
+            pl.Series("defteam", defteam, dtype=pl.Utf8),
+            pl.Series("down", down, dtype=pl.Int32),
+            pl.Series("half", half, dtype=pl.Int32),
+            pl.Series("nullified", nullified, dtype=pl.Int32),
+            pl.Series("_nullified", working_nullified, dtype=pl.Int32),
+            pl.Series("_missing_down", missing_down, dtype=pl.Int32),
+            pl.Series("_missing_offense", missing_offense, dtype=pl.Int32),
+            pl.Series("play_type", play_type, dtype=pl.Utf8),
+            pl.Series("complete_pass", complete_pass, dtype=pl.Int32),
+            pl.Series("sack", sack, dtype=pl.Int32),
+            pl.Series("interception", interception, dtype=pl.Int32),
+            pl.Series("safety", safety, dtype=pl.Int32),
+            pl.Series("touchdown", touchdown, dtype=pl.Int32),
+            pl.Series("def_touchdown", def_touchdown, dtype=pl.Int32),
+            pl.Series("one_point_conv_success", one_point, dtype=pl.Int32),
+            pl.Series("two_point_conv_success", two_point, dtype=pl.Int32),
+            pl.Series("correction_source", correction_source, dtype=pl.Utf8),
+        ]
+    )
+
+    if to_drop:
+        df = (
+            df.with_row_index("_corrections_row_idx")
+            .filter(~pl.col("_corrections_row_idx").is_in(sorted(to_drop)))
+            .drop("_corrections_row_idx")
+        )
+        df = df.with_columns(pl.int_range(1, df.height + 1).cast(pl.Int32).alias("play_id"))
+
+    if any_offense_team_correction:
+        df = df.with_columns(
+            pl.Series(
+                "drive_id", _recompute_drive_ids(df["posteam"].to_list()), dtype=pl.Int32
+            )
+        )
+
+    for fname in sorted(applied_by_file):
+        notices.append(f"{fname}: applied {applied_by_file[fname]} manual correction(s)")
 
     return df, notices
 
@@ -3069,18 +3694,26 @@ def ingest_snapshots(
     game_ids: Sequence[str] | None = None,
     tournaments: Sequence[str] | None = None,
     spot_fill_dir: Path | None = None,
+    corrections_dir: Path | None = None,
 ) -> list[tuple[str, pl.DataFrame, IngestNotices]]:
     """Parse every IFAF snapshot under `raw_dir` into a canonical frame, one
     game at a time.
 
     `spot_fill_dir` (2026-09-07, `docs/ifaf-wm2026-daten.md`'s spot-fill
     how-to), when given, points at `data/reference/ifaf_spot_fill/` --
-    `apply_spot_fill` runs right after `flatten_plays_records` on the
-    `/plays`-primary path only (the manual re-spotting workflow this
-    supports is scoped to that reviewer feed's own null `ballOn` records;
-    the `unified-plays` fallback path is unaffected). `None` (the default)
-    is a strict no-op, preserving every existing caller's exact prior
-    behavior.
+    `apply_spot_fill` runs right after `flatten_plays_records`/
+    `apply_corrections` on the `/plays`-primary path only (the manual
+    re-spotting workflow this supports is scoped to that reviewer feed's own
+    null `ballOn` records; the `unified-plays` fallback path is unaffected).
+    `None` (the default) is a strict no-op, preserving every existing
+    caller's exact prior behavior.
+
+    `corrections_dir` (2026-09-08, `docs/ifaf-wm2026-daten.md`'s corrections
+    how-to), when given, points at `data/reference/ifaf_corrections/` --
+    `apply_corrections` runs right after `flatten_plays_records`, before
+    `apply_spot_fill`/`apply_events_ledger`/the yardage derivations, on the
+    `/plays`-primary path only, same scoping as `spot_fill_dir`. `None` (the
+    default) is a strict no-op.
 
     **Primary source, per game: `plays_{game_id}.json`** (the `/games/{id}/plays`
     reviewer feed — `flatten_plays_records`). When that snapshot is unusable,
@@ -3191,6 +3824,9 @@ def ingest_snapshots(
             # anywhere in this chain skips only this game, with a notice.
             try:
                 df = flatten_plays_records(plays_records, game_meta, gid, player_names)
+
+                df, corrections_notices = apply_corrections(df, corrections_dir)
+                notices.messages.extend(corrections_notices)
 
                 df, spot_fill_notices = apply_spot_fill(df, spot_fill_dir)
                 notices.messages.extend(spot_fill_notices)
