@@ -227,14 +227,44 @@ Kein weiteres außerhalb des Contract-Vokabulars liegendes Token wurde gefunden.
 
 ## Spielerzuordnung
 
-122 verschiedene, nicht zugeordnete Spieler-Label über alle vier Sheets (33 zahlenförmig — vermutlich
-Rückennummern —, 89 namensförmig). `data/reference/player_mapping.csv` erhielt in diesem Lauf
-**keine neue Zeile**: keines der 89 namensförmigen Label stimmt exakt mit genau einem
-`player_name` in `data/reference/roster.csv` überein, und eine Rückennummer lässt sich ohne
-bekanntes Team (siehe oben — praktisch alle 2.128 HC-Spiele sind provisorisch, `home_team`/
-`away_team` bleiben `null`) nicht eindeutig einem Roster zuordnen. Die vollständige Rohliste liegt
-ausschließlich unter `data/raw/hc_files/unmapped_players_<run_id>.txt` (gitignored) — nie
+**2026-09-09 Update:** `data/reference/roster.csv` enthielt bis dahin nur den Kader der letzten
+Weltmeisterschaft. Die 2026er-Kader aller 16 Frauen-Nationalteams (`https://us.cpx.studio/v1/players
+?rostered=true`) wurden ergänzt — für Deutschland unter derselben `team_id` (17), die die
+bestehenden GER-Frauen-Zeilen schon nutzen (nicht `team_id` 37, das ist der Männer-Kader unter
+demselben `team_name` "Germany"; `roster.csv` hat keine Gender-Spalte). Bereits vorhandene
+Spielerinnen (exakte Übereinstimmung Name+Team) wurden nicht dupliziert; sechs neue Zeilen kamen
+hinzu, zwei davon Spielerinnen, deren 2026er-Namensschreibweise einen zusätzlichen zweiten Vornamen
+gegenüber dem bestehenden Eintrag trägt — beide Zeilen blieben nebeneinander stehen (Details:
+SUMMARY der Ausführung, PII-frei nur als Zeilenzahl hier dokumentiert).
+
+Das frühere Einmal-Skript zur Vorschlagsgenerierung wurde als `scripts/hc_player_mapping_template.py`
+dauerhaft ins Repo übernommen (`--apply-unique` übernimmt jede eindeutige Zuordnung automatisch nach
+`data/reference/player_mapping.csv`, ohne je eine der vom Cheftrainer bereits bestätigten Zeilen zu
+überschreiben). Dabei wurde ein Fold-Bug behoben: großgeschriebene Umlaut-Label aus der Excel
+verglichen sich vorher nie mit dem Roster, weil die Umlaut-Ersetzung vor der Kleinschreibung lief.
+Außerdem filtert das Skript jetzt korrekt auf `team_id == 17` (Frauen) statt auf
+`team_name == "Germany"` (Frauen + Männer gemischt).
+
+Mit dem größeren Roster stieg die Zahl der eindeutigen Vorschläge von 5 auf 7 (vier Rückennummern,
+drei Nachnamen); alle sieben wurden automatisch übernommen. Ein Rückennummer-unabhängiges Label
+(ein Nachname, den zwei Roster-Spielerinnen teilen) bleibt absichtlich mehrdeutig. Der aktuelle, aus
+einem frischen `ffep ingest` erzeugte Rohlisten-Stand liegt bei 87 verschiedenen, nicht zugeordneten
+Spieler-Labels (23 zahlenförmig, 64 namensförmig) über beide Sheets mit echtem Spielerbezug —
+größtenteils einzelne Vornamen ohne Nachnamen oder Nachnamen von Camp-Gegnerinnen anderer Nationen,
+die sich ohne Verwechslungsrisiko nicht automatisch auflösen lassen. Die vollständige Rohliste liegt
+weiterhin ausschließlich unter `data/raw/hc_files/unmapped_players_<run_id>.txt` (gitignored) — nie
 committet, nie in diesem Dokument zitiert.
+
+**Bekannter, unabhängiger Report-Bug (nicht Teil dieser Änderung):** `own_team.py`s
+`_canonicalise_players` gruppiert beim Bauen des "Nicht zugeordnete Spielernamen"-Hinweises nach dem
+feingranularen `source`-Wert jeder Zeile (`hc_workbook:<Datei>:<Sheet>`), während jede
+`player_mapping.csv`-Zeile die grobe Quelle `hc_workbook` trägt (bewusst so, siehe unten) — der
+exakte String-Vergleich schlägt für JEDE HC-Zeile fehl, auch für bereits korrekt aufgelöste Namen.
+Deshalb ändert sich die "Nicht zugeordnete Spielernamen"-Zahl im `player-analysis`-Report nicht,
+obwohl die Zuordnung beim Ingest selbst nachweislich greift (`unmapped_players_<run_id>.txt` schrumpft
+von 94 auf 87 Label, und die neu zugeordneten Namen tauchen korrekt gruppiert in den Report-Tabellen
+auf). `own_team.py` ist unter einem anderen Plan explizit als read-only markiert; ein Fix ist hier
+bewusst nicht enthalten.
 
 ## Offene Fragen
 
@@ -302,7 +332,12 @@ aber nie eine Zeile, die nicht wirklich übereinstimmt).
 (bewusst grob, gilt für alle drei Workbooks), `source_player` = das rohe Label aus
 `unmapped_players_<run_id>.txt`, `canonical_player` = der volle Name aus `roster.csv`. Nur
 eintragen, wenn das Label eindeutig einem einzigen Roster-Eintrag entspricht — niemals die
-gitignorete Rohliste unverändert einfügen.
+gitignorete Rohliste unverändert einfügen. `scripts/hc_player_mapping_template.py` automatisiert
+genau das für die deutsche Frauen-Nationalmannschaft (`team_id == 17`): ohne Flags schreibt es nur
+das gitignorete Vorschlags-Template neu (`data/raw/hc_files/player_mapping_hc_template.csv`);
+`--apply-unique` übernimmt zusätzlich jede eindeutige Zuordnung nach `player_mapping.csv` und
+regeneriert danach das Template, sodass nur noch die wirklich offenen Label übrig bleiben. Eine
+bereits vorhandene `(source, source_player)`-Zeile wird nie überschrieben.
 
 **Nach jeder Änderung:** ein erneuter `ffep ingest --source hc_workbook` (oder `ffep ingest` für
 den vollen Lauf) liest die aktualisierten Referenz-CSVs automatisch ein; keine weitere manuelle
