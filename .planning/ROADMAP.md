@@ -523,7 +523,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
 | 2.4 Player Identity | 0/TBD | Not started (gated) | - |
 | 2.5 Broadcast Footage | 0/TBD | Deferred (stretch) | - |
-| M2-1 Freigabe und Lizenzlage | 1/2 | In progress (plan 01 at signature gate) | - |
+| M2-1 Freigabe und Lizenzlage | 1/2 | HC approval confirmed in writing 2026-09-09 (plan 01 gate cleared); licence decision pending (proposal: private + Apache-2.0) | - |
 | M2-2 Ehrliche Baseline | 2/3 | In progress (plan 03 at BASE-04 gate) | - |
 | M2-3 Labels und Prüfsatz | 0/3 | Not started | - |
 | M2-4 Messvorschrift | 2/3 | In progress (plan 03 at METR-03 wording gate) | - |
