@@ -467,7 +467,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - [x] `M3-02-05-PLAN.md` — EP/WP retraining on the enlarged corpus with the with/without-head-coach ablation (four tagged MLflow runs, no alias moved), the per-source calibration tables, and the measured Timeout / Offsetting Penalties decision (HC-03)
   - [x] `M3-02-06-PLAN.md` — `reports/hc_comparison.py` and `scripts/epa_comparison.py`: his published number, his rows recomputed by us, our non-head-coach rows and the model's out-of-fold expected points per (down, distance, field half) cell, each with its n and an explicit coverage report (HC-03)
   - [x] `M3-02-07-PLAN.md` — the German `docs/epa-refinement-2026-10.md`, two Zusatzfragen appended to `docs/hc-rueckfragen-2026-09.md` without renumbering M3-3's Fragen 4-6, and the doc-versus-CSV drift guard (HC-03)
-  - [ ] `M3-02-08-PLAN.md` — human review of the coach-facing document, the question set and the champion-promotion decision before the October sync, then the reviewed wording and the decision written back (HC-03)
+  - [x] `M3-02-08-PLAN.md` — human review of the coach-facing document, the question set and the champion-promotion decision before the October sync, then the reviewed wording and the decision written back (HC-03)
   - Note (M3-2 planning, 2026-09-03): the `Scoring Probability` team-pair games are deliberately NOT declared this phase — `_stamp_posteam_defteam` nulls `posteam`/`defteam` for every pair-block row until Frage 2 is answered, so they cannot produce an EP or WP label even with the half sentinel. `Copy of Data` (Frage 2) and the EC-2025 workbook (Frage 1) stay excluded for the same reason. Timeout / Offsetting Penalties rows are KEPT for the October run, measured rather than assumed (plan 05), because filtering them would change the frozen 1.3 baseline for every source and confound the ablation.
 - [ ] **Phase M3-3: Explosiveness & Efficiency** - Deep research on explosive-play definitions (NFL 20+/10+ yard conventions, PFF, success rate, EPA-based), propose a threshold-free or calibrated metric replacing ">12 yd and/or positive EPA", implement alongside his Efficiency draft; validated on our data (Requirements: HC-04)
   - **Plans:** 3 plans (waves 1-3; plan 03 is the only non-autonomous one and nothing depends on it)
@@ -490,7 +490,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 
 - [ ] **Phase M3-5: EPA-Modell als Produkt — Reproduzierbarkeit, Beförderungs-Gate, Modellkarte, Plattform-Entscheidung** - Coach-facing transparency (German model card per champion, MLflow UI with a how-to), engineering hygiene (lineage on every run: corpus fingerprint + git commit + config; dated corpus freeze before every retrain; automated promotion gate replacing manual `ffep promote`; CI run of the pipeline on fixtures), and ONE deliberate architecture decision record (`docs/adr/0001-modell-plattform.md`): batch + MLflow on one machine vs. containerised services on OTC vs. Kubernetes, feature store yes/no, multi-tenant data model for U17–Seniors and other programmes, PII/auth boundaries — decided with the user, with costs and a migration path. Context: `.planning/phases/M3-05-epa-plattform/M3-05-CONTEXT.md` (2026-09-08).
   - **Plans:** 9 plans (waves 1-4; plans 01, 05 and 07 end in user checkpoints; quick wins first per CONTEXT; 09 added 2026-09-09 from the signed ADR)
-  - [ ] `M3-05-01-PLAN.md` — champion-promotion checkpoint: the pending M3-02-08 decision (both/wp/none) taken explicitly before any gate is applied (PROD-01)
+  - [x] `M3-05-01-PLAN.md` — champion-promotion checkpoint: the pending M3-02-08 decision (both/wp/none) taken explicitly before any gate is applied (PROD-01)
   - [x] `M3-05-02-PLAN.md` — coach-facing quick win: `docs/mlflow-ui-howto.md` and the first GENERATED model card (`scripts/render_model_card.py` from the live champion + 2026-09-08 CSVs, degrading gracefully where newer metrics are missing) (PROD-02)
   - [x] `M3-05-03-PLAN.md` — corpus freeze manifest (`ffep freeze-corpus`, `model/freeze.py`) and training lineage (git commit, corpus fingerprint, config hash) plus gate metrics (scalar calibration, per-tier log-loss, no-play share) in the shared `_log_run` path, `ffep train --freeze` citation (PROD-03, PROD-04)
   - [x] `M3-05-04-PLAN.md` — CI on fixtures (`.github/workflows/ci.yml`, no secrets) (PROD-05)
@@ -529,7 +529,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M2-4 Messvorschrift | 2/3 | In progress (plan 03 at METR-03 wording gate) | - |
 | M2-5 Einstiegspaket | 0/2 | Not started | - |
 | M3-1 HC-Workbook-Ingest | 4/4 | Complete (HC answers 2026-09-03; signature belongs to M2-1) | 2026-09-03 |
-| M3-2 EPA-Refinement | 7/8 | Reviewed 2026-09-04; champion promotion decision pending (M3-02-08 task 2) | - |
+| M3-2 EPA-Refinement | 8/8 | Complete (champions promoted 2026-09-09 via M3-05-01) | 2026-09-09 | - |
 | M3-3 Explosiveness & Efficiency | 3/3 | Complete (variant b adopted 2026-09-04, recalibrated on the enlarged corpus) | - |
 | M3-4 Player-Analysis-Report | 7/7 | Complete (handout reviewed 2026-09-04) | - |
-| M3-5 EPA-Modell als Produkt | 4/9 | In progress (02, 03, 04, 05 done; 01 promotion=both executing; wave 2: 06 gate + 09 compose next) | - |
+| M3-5 EPA-Modell als Produkt | 5/9 | In progress (01 promoted both 2026-09-09; 06 gate + 09 compose running; 07, 08 pending) | - |
