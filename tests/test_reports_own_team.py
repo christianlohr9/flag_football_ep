@@ -445,6 +445,39 @@ class TestPlayerEfficiency:
         assert qb_rows["spieler"].item() == "S Nuhse"
         assert "S Nuhse" in unmapped
 
+    def test_legacy_sentinel_labels_excluded_from_unmapped_and_from_player_rows(self) -> None:
+        """`"-1"`/`"0"` in a `legacy` row's `thrown_by` are charting sentinels ("no distinct
+        thrower charted"), not player identities -- they must not appear in `unmapped` nor
+        get their own bogus row in the player table."""
+        df = canonical_plays_with_scores(
+            n_games=1,
+            plays_per_game=3,
+            source="legacy",
+            extras={"thrown_by": ["-1", "0", "A"]},
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2, 0.3]))
+        section, unmapped = player_efficiency(df, self._mapping(), cycle_start_season=2026)
+        qb_rows = section.table.filter(pl.col("rolle") == "QB")
+        assert "-1" not in unmapped
+        assert "0" not in unmapped
+        assert "-1" not in qb_rows["spieler"].to_list()
+        assert "0" not in qb_rows["spieler"].to_list()
+        # "A" is still a real (if unmapped) label and must still surface normally.
+        assert "A" in unmapped
+        assert "A" in qb_rows["spieler"].to_list()
+
+    def test_sentinel_allowlist_does_not_apply_to_other_sources(self) -> None:
+        """A jersey `"0"` is a plausible real label for a source with no sentinel entry
+        (only `legacy` has one) -- the allowlist must never apply outside its source key."""
+        df = canonical_plays_with_scores(
+            n_games=1, plays_per_game=2, source="hudl", extras={"thrown_by": ["0", None]}
+        )
+        df = df.with_columns(epa=pl.Series([0.1, 0.2]))
+        section, unmapped = player_efficiency(df, self._mapping(), cycle_start_season=2026)
+        qb_rows = section.table.filter(pl.col("rolle") == "QB")
+        assert "0" in unmapped
+        assert "0" in qb_rows["spieler"].to_list()
+
     def test_yac_anteil_sums_to_one(self) -> None:
         df = canonical_plays_with_scores(
             n_games=1,

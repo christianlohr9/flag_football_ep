@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Sequence
 
 import polars as pl
 
@@ -321,15 +321,60 @@ def _mapping_source_key(source: str) -> str:
     return source
 
 
+# 2026-09-09: `legacy`'s `thrown_by` column charts a jersey number for most rows but a
+# handful carry `"-1"`/`"0"` instead. Neither value ever matches a `roster.csv` jersey for
+# GER (team_id 17) -- no row uses jersey 0 or -1 -- and rows with `thrown_by == "0"` still
+# carry a real name in the sibling `qb` column (see the diagnosis behind this fix), so `"0"`/
+# `"-1"` read as "no distinct thrower charted separately from QB", not an actual player.
+# `legacy.py` does not document this convention explicitly; this allowlist makes the
+# inference visible rather than silently treating a sentinel as a player forever stuck in
+# the "Nicht zugeordnete Spielernamen" warning (and, worse, getting its own bogus row in the
+# per-player EPA table, since an unmapped label is otherwise carried through verbatim).
+# Scoped per (coarse) source key deliberately -- a jersey `"0"` could be a real number for a
+# different, not-yet-seen source, so this must never apply globally.
+_SENTINEL_PLAYER_LABELS_BY_SOURCE_KEY: dict[str, frozenset[str]] = {
+    "legacy": frozenset({"-1", "0"}),
+}
+
+
+def _strip_sentinel_labels(
+    df: pl.DataFrame, source_key: str, columns: Sequence[str]
+) -> pl.DataFrame:
+    """Null out `_SENTINEL_PLAYER_LABELS_BY_SOURCE_KEY[source_key]` values in `columns`.
+
+    A no-op frame (returned as-is) when `source_key` has no sentinel labels registered.
+    Nulling (rather than merely excluding from the unmapped count) also keeps a sentinel
+    out of the per-player EPA rollups -- the same treatment a genuinely null player column
+    already gets, since a sentinel is not a player's play any more than an unattributed one
+    is.
+    """
+    sentinels = _SENTINEL_PLAYER_LABELS_BY_SOURCE_KEY.get(source_key)
+    if not sentinels:
+        return df
+    result = df
+    for col in columns:
+        if col not in result.columns:
+            continue
+        result = result.with_columns(
+            pl.when(pl.col(col).is_in(list(sentinels)))
+            .then(None)
+            .otherwise(pl.col(col))
+            .alias(col)
+        )
+    return result
+
+
 def _canonicalise_players(
     df: pl.DataFrame, mapping: pl.DataFrame
 ) -> tuple[pl.DataFrame, list[str]]:
     """Canonicalise `_PLAYER_SOURCE_COLUMNS` in `df` via `map_players`, called once per
     `source` present in the frame (a mapping row is keyed by `(source, source_player)`,
     translated through `_mapping_source_key` so fine-grained HC workbook sources still
-    match the coarse `hc_workbook` mapping rows). Returns the canonicalised frame (row
-    count and order preserved) and the sorted union of every label left unmapped across
-    sources.
+    match the coarse `hc_workbook` mapping rows). Before mapping, nulls out every
+    `_SENTINEL_PLAYER_LABELS_BY_SOURCE_KEY` value for that source (see
+    `_strip_sentinel_labels`) so a sentinel never appears as an "unmapped" player label.
+    Returns the canonicalised frame (row count and order preserved) and the sorted union of
+    every label left unmapped across sources.
     """
     columns = [c for c in _PLAYER_SOURCE_COLUMNS if c in df.columns]
     if df.height == 0 or not columns:
@@ -342,7 +387,9 @@ def _canonicalise_players(
     parts: list[pl.DataFrame] = []
     for src in sorted(indexed["source"].drop_nulls().unique().to_list()):
         subset = indexed.filter(pl.col("source") == src)
-        result = map_players(subset, mapping, _mapping_source_key(src), columns)
+        key = _mapping_source_key(src)
+        subset = _strip_sentinel_labels(subset, key, columns)
+        result = map_players(subset, mapping, key, columns)
         unmapped.update(result.unmapped)
         parts.append(result.frame)
 
