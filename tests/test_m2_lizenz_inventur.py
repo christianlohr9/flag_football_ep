@@ -9,6 +9,9 @@ names explicitly) and a minimal PII guard.
 
 Stdlib + pytest only, no network, no `cv` extra required, runtime under a
 second.
+
+Own-package license updated 2026-09-09: GPL-3.0 -> Apache-2.0 (owner decision,
+see `docs/lizenz-inventur.md ## Entscheidung 2026-09-09`).
 """
 
 from __future__ import annotations
@@ -113,9 +116,9 @@ def test_own_package_row_present() -> None:
         "## Komponenten has no row for the delivered repository itself "
         "(flag-football-ep)"
     )
-    assert "GPL-3.0" in rows["flag-football-ep"]["lizenz"], (
-        "the flag-football-ep row must state GPL-3.0 (the repository's own "
-        "LICENSE)"
+    assert "Apache-2.0" in rows["flag-football-ep"]["lizenz"], (
+        "the flag-football-ep row must state Apache-2.0 (the repository's "
+        "own LICENSE, owner decision 2026-09-09)"
     )
 
 

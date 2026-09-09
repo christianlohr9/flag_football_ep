@@ -62,6 +62,14 @@ mlruns/                 # local MLflow tracking store (git-ignored)
 See [`docs/pipeline.md`](docs/pipeline.md), [`docs/data-contract.md`](docs/data-contract.md)
 and [`docs/ifaf-field-mapping.md`](docs/ifaf-field-mapping.md) for the details.
 
+## License
+
+Apache License, Version 2.0 with attribution to the original author. See
+[`LICENSE`](LICENSE) for the full text and [`NOTICE`](NOTICE) for the attribution notice.
+Changed from GPL-3.0 on 2026-09-09 (see
+[`docs/lizenz-inventur.md`](docs/lizenz-inventur.md#entscheidung-2026-09-09) for the decision
+and the per-component dependency inventory).
+
 ## Development
 
 ```bash

@@ -14,8 +14,9 @@ zeilenweise aufgeführt. Der `rfdetr[train]`-Unterbaum (`pytorch-lightning`, `to
 
 ## Ergebnis in einem Satz
 
-Kein AGPL-Bestandteil irgendwo in der ausgelieferten Kette. Die einzige nicht-permissive Lizenz
-in der Auslieferung ist die des Repositories selbst, GPL-3.0 (siehe `## Befunde`).
+Kein AGPL-Bestandteil irgendwo in der ausgelieferten Kette. Die Lizenz des Repositories selbst
+war GPL-3.0 und ist seit der Entscheidung vom 2026-09-09 Apache-2.0 (siehe `## Befunde` und
+`## Entscheidung 2026-09-09`).
 
 ## Komponenten
 
@@ -29,7 +30,7 @@ installiert, um Schritt 1 zu ermöglichen.
 | Komponente | Version | Lizenz | Rolle in der Auslieferung | Quelle |
 |---|---|---|---|---|
 | **Eigenes Paket** | | | | |
-| `flag-football-ep` | 0.1.0 | GPL-3.0 | ausgeliefertes Code-Paket (`ffep`-CLI, `src/flag_football_ep/**`), Wertungsskript `scripts/hackathon/score_tracks.py` | LICENSE-Datei |
+| `flag-football-ep` | 0.1.0 | Apache-2.0 | ausgeliefertes Code-Paket (`ffep`-CLI, `src/flag_football_ep/**`), Wertungsskript `scripts/hackathon/score_tracks.py` | LICENSE-Datei |
 | **Kern-Abhängigkeiten (`project.dependencies`)** | | | | |
 | `requests` | 2.32.3 | Apache-2.0 | Installationsabhängigkeit des Kernpakets | importlib.metadata |
 | `pandas` | 2.2.2 | BSD-3-Clause | Installationsabhängigkeit des Kernpakets | importlib.metadata |
@@ -83,14 +84,19 @@ Software-Lizenz in der Kette.
 
 ## Befunde
 
-1. **`LICENSE` dieses Repositories ist GPL-3.0.** Das ist Copyleft: eine Mannschaft, die auf dem
-   ausgelieferten Code aufbaut, erzeugt ein GPL-3.0-Derivat. Es ist nicht AGPL, Netzwerknutzung
-   allein ist also keine Distribution. Aber die Adoptionsfrage des Verbands aus
-   `docs/hackathon-challenge-reid.md ### Technische oder organisatorische Einschränkungen` gilt
-   damit auch für unseren eigenen Code, nicht nur für die Bibliothekswahl der Teams.
-2. **`pyproject.toml` deklariert kein `license`-Feld.** Die gebaute Distributions-Metadatendatei
-   trägt damit keine Lizenzangabe, während `LICENSE` GPL-3.0 sagt. Diese Diskrepanz wird hier nur
-   benannt, nicht behoben: `pyproject.toml` ist in diesem Plan read-only.
+1. **`LICENSE` dieses Repositories war GPL-3.0, ist seit 2026-09-09 Apache-2.0.** Der Befund
+   unten beschreibt den Stand zum Zeitpunkt dieser Inventur (2026-09-01): GPL-3.0 ist Copyleft,
+   eine Mannschaft, die auf dem ausgelieferten Code aufbaut, hätte ein GPL-3.0-Derivat erzeugt.
+   Es war nicht AGPL, Netzwerknutzung allein wäre also keine Distribution gewesen. Die
+   Adoptionsfrage des Verbands aus `docs/hackathon-challenge-reid.md ### Technische oder
+   organisatorische Einschränkungen` galt damit auch für unseren eigenen Code, nicht nur für die
+   Bibliothekswahl der Teams — das war genau der Grund für die Entscheidung, siehe
+   `## Entscheidung 2026-09-09`.
+2. **`pyproject.toml` deklarierte kein `license`-Feld.** Die gebaute Distributions-Metadatendatei
+   trug damit keine Lizenzangabe, während `LICENSE` GPL-3.0 sagte. Zum Zeitpunkt dieser Inventur
+   (2026-09-01) wurde die Diskrepanz nur benannt, nicht behoben (`pyproject.toml` war in Plan
+   M2-01-02 read-only). Behoben mit der Entscheidung vom 2026-09-09: `pyproject.toml` trägt jetzt
+   `license = "Apache-2.0"`.
 3. **Kein AGPL-Bestandteil in der ausgelieferten Kette.** D-02 hat durchgehend gehalten: kein
    Ultralytics, kein boxmot. Alle 29 Zeilen der `## Komponenten`-Tabelle wurden geprüft.
 4. **`mlflow` und `numpy` liefern im `License`-Feld zuerst einen Copyright-Vermerk statt einer
@@ -108,6 +114,92 @@ Software-Lizenz in der Kette.
    (Classifier `License :: OSI Approved :: BSD License` bzw. `License`-Feld-Wert `BSD`). Die
    Inventur übernimmt genau das, was die Paket-Metadaten hergeben, statt eine Klausel-Zahl zu
    erraten.
+
+## Entscheidung 2026-09-09
+
+Der Nutzer hat die in `.planning/todos/pending/2026-09-01-lizenz-des-eigenen-codes-klaeren.md`
+aufgeworfene Entscheidung getroffen (Antwort auf `docs/TODO-CHRISTIAN.md` Punkt 5, wörtlich
+„privat + Apache"): das Repository wird auf GitHub **privat** gestellt, und die Lizenz wechselt
+von GPL-3.0 auf **Apache-2.0 mit Namensnennung** des Urhebers (`christianlohr9`).
+
+**Begründung:** Namensnennung statt Copyleft — der Verband/Hackathon-Teams sollen den Code frei
+weiterverwenden können, ohne selbst unter GPL-3.0 zu geraten (das war genau der in `## Befunde`
+Punkt 1 benannte Adoptions-Konflikt). Der Wettbewerbsvorteil des Projekts (Modelle, Datensätze,
+Methodik) liegt nicht im Quellcode selbst, sondern in den nicht-quelloffenen Modell- und
+Datenartefakten (siehe `## Modell- und Datenartefakte` oben, ohnehin „keine OSS-Lizenz"). Privat
+zu stellen schützt diesen Vorteil (niemand außerhalb des Teams sieht die Historie, Notebooks,
+Zwischenstände), ohne die Lizenzfrage zu berühren — Sichtbarkeit und Lizenz sind zwei getrennte
+Hebel, die hier bewusst zusammen, aber unabhängig voneinander entschieden wurden.
+
+### Abhängigkeitsprüfung vor der Umstellung
+
+Vor der Umstellung wurde `## Komponenten` (oben) und `pyproject.toml` erneut gegen die
+Möglichkeit geprüft, dass eine Laufzeitabhängigkeit GPL/AGPL-lizenziert ist und eine
+Apache-2.0-Lizenzierung dieses Repositories damit falsch wäre:
+
+- Kein Eintrag in `## Komponenten` trägt GPL oder AGPL als Lizenz der Distribution selbst
+  (`## Befunde` Punkt 3, unverändert gültig: kein AGPL-Bestandteil in der ausgelieferten Kette).
+  Alle Kern- und `cv`-Extra-Abhängigkeiten sind Apache-2.0, MIT oder BSD-3-Clause; die
+  `versioning`-Extras (`dvc`, `dvc-s3`) sind Apache-2.0.
+- Einzige Fundstelle mit GPL-Text im `License`-Feld überhaupt ist `## Befunde` Punkt 5: `numpy`s
+  binäres Wheel bündelt kompilierte Laufzeitbibliotheken (`libgfortran`/`libquadmath` unter
+  GPL-3.0-with-GCC-exception, `OpenBLAS`/`LAPACK` unter BSD-3-Clause). Das ist kein Blocker: die
+  GCC Runtime Library Exception existiert genau für diesen Fall — sie erlaubt das Linken/Bündeln
+  mit anders lizenziertem Code ausdrücklich, ohne dass der linkende Code selbst GPL wird. NumPy
+  selbst bleibt BSD-3-Clause (siehe `## Komponenten`); die gebündelten Laufzeitbibliotheken sind
+  kompilierte Artefakte des NumPy-Wheels, kein Code dieses Repositories, und keine Abhängigkeit,
+  die dieses Repository selbst unter GPL stellen würde.
+- **Ergebnis: kein GPL/AGPL-Blocker.** Eine Apache-2.0-Lizenzierung dieses Repositories ist mit
+  der geprüften Abhängigkeitskette vereinbar.
+
+### Umgesetzte Änderungen
+
+- `LICENSE`: vollständiger Apache-2.0-Text (offizielle Fassung, `apache.org/licenses/
+  LICENSE-2.0.txt`), Copyright-Zeile `Copyright 2026 christianlohr9`.
+- `NOTICE`: Projektname, Copyright-Zeile, ein Satz zur Namensnennung bei Weiterverwendung.
+- `pyproject.toml`: `license = "Apache-2.0"` (SPDX-Ausdruck, PEP 639) ergänzt — löst `## Befunde`
+  Punkt 2 auf.
+- `README.md`: neuer Lizenz-Abschnitt, verweist auf `LICENSE`/`NOTICE`.
+- `## Komponenten`-Tabelle oben: Zeile `flag-football-ep` von GPL-3.0 auf Apache-2.0 aktualisiert.
+- `tests/test_m2_lizenz_inventur.py::test_own_package_row_present`: Assertion von GPL-3.0 auf
+  Apache-2.0 aktualisiert (sonst würde die Coverage-Gate ab jetzt fälschlich fehlschlagen).
+
+### Was das für die Hackathon-Bundles bedeutet
+
+Die drei Bundles (`docs/hackathon-bundles.md`) enthalten selbst keinen Quellcode dieses
+Repositories — nur Daten- und Modellartefakte (Clips, Detektionen, Tracks, Crops), die laut
+`## Modell- und Datenartefakte` oben ohnehin „keine OSS-Lizenz" tragen und ausschließlich über
+die Verbandsfreigabe (`docs/capture-legal.md`) und die Delivery-Regeln in
+`docs/hackathon-bundles.md` geregelt sind, nicht über `LICENSE`. Diese Delivery-Regeln ändern
+sich durch den Lizenzwechsel inhaltlich nicht: Zweckbindung, Löschung nach dem Event und das
+Verbot der Weitergabe außerhalb des Event-Kontexts gelten unverändert für die Datenartefakte.
+
+Ein Satz ist trotzdem nötig, weil die Teams zur Auswertung `scripts/hackathon/score_tracks.py`
+und Teile von `src/flag_football_ep/**` (Schemas, CLI) brauchen — das ist der Teil, dessen Lizenz
+sich tatsächlich ändert. Ergänzt in `docs/hackathon-bundles.md` (Abschnitt „Lizenz des
+Wertungscodes"): das Wertungsskript und der `ffep`-Code sind ab 2026-09-09 Apache-2.0 mit
+Namensnennung, unabhängig von den Delivery-Regeln der Datenartefakte.
+
+### Sichtbarkeit umstellen (Aufgabe des Nutzers)
+
+Dieser Plan ändert die Sichtbarkeit **nicht** — das ist bewusst eine Aktion des Repository-Owners,
+keine automatisierte. So geht es:
+
+**Kommandozeile** (GitHub-CLI, `gh` muss beim Nutzer eingeloggt sein):
+
+```
+gh repo edit christianlohr9/flag_football_ep --visibility private --accept-visibility-change-consequences
+```
+
+**Oder über die GitHub-Oberfläche:** Repository öffnen → „Settings" → ganz unten „Danger Zone" →
+„Change repository visibility" → „Change visibility" → „Make private" → Repository-Namen zur
+Bestätigung eintippen.
+
+**Wichtig, unabhängig vom Weg:** Bereits existierende Forks und lokale Klone von anderen
+Personen behalten ihre Kopie unter der alten Lizenz (GPL-3.0) und bleiben öffentlich einsehbar,
+wo immer sie liegen — das ist bei bereits verteilten Versionen nicht rückholbar. Die
+Sichtbarkeits- und Lizenzumstellung wirkt nur auf dieses Repository und auf Kopien, die ab jetzt
+gezogen werden.
 
 ## Nicht ausgeliefert, nur empfohlen
 
