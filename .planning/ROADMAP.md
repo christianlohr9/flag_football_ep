@@ -495,7 +495,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
   - [x] `M3-05-03-PLAN.md` — corpus freeze manifest (`ffep freeze-corpus`, `model/freeze.py`) and training lineage (git commit, corpus fingerprint, config hash) plus gate metrics (scalar calibration, per-tier log-loss, no-play share) in the shared `_log_run` path, `ffep train --freeze` citation (PROD-03, PROD-04)
   - [x] `M3-05-04-PLAN.md` — CI on fixtures (`.github/workflows/ci.yml`, no secrets) (PROD-05)
   - [x] `M3-05-05-PLAN.md` — platform ADR `docs/adr/0001-modell-plattform.md` (German): single machine now with a migration trigger vs small OTC VM vs Kubernetes/feature store (deliberately out for now), costs, burden, migration path; user signs (PROD-06)
-  - [ ] `M3-05-06-PLAN.md` — the promotion gate (`model/gate.py`, `[promotion_gate]` in `ffep.toml`, `ffep promote --force --reason` logged as an MLflow tag) (PROD-07)
+  - [x] `M3-05-06-PLAN.md` — the promotion gate (`model/gate.py`, `[promotion_gate]` in `ffep.toml`, `ffep promote --force --reason` logged as an MLflow tag) (PROD-07)
   - [ ] `M3-05-07-PLAN.md` — the extra-point training-leak fix as a measured methodology change: fresh four-arm LOGO re-run, before/after, through the gate before any promotion (PROD-08)
   - [ ] `M3-05-08-PLAN.md` — regenerate the model card after the leak fix and gate exist (PROD-09)
   - [ ] `M3-05-09-PLAN.md` — local container platform per the signed ADR: docker-compose (MLflow server + Postgres + MinIO), `MLFLOW_TRACKING_URI` override, migration of the existing registry with champion aliases, backup/restore round-trip, runbook (PROD-10)
@@ -532,4 +532,4 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | M3-2 EPA-Refinement | 8/8 | Complete (champions promoted 2026-09-09 via M3-05-01) | 2026-09-09 | - |
 | M3-3 Explosiveness & Efficiency | 3/3 | Complete (variant b adopted 2026-09-04, recalibrated on the enlarged corpus) | - |
 | M3-4 Player-Analysis-Report | 7/7 | Complete (handout reviewed 2026-09-04) | - |
-| M3-5 EPA-Modell als Produkt | 5/9 | In progress (01 promoted both 2026-09-09; 06 gate + 09 compose running; 07, 08 pending) | - |
+| M3-5 EPA-Modell als Produkt | 6/9 | In progress (06 gate merged; 09 compose running; 07 leak fix + 08 card pending) | - |
