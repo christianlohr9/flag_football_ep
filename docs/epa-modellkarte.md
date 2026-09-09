@@ -1,6 +1,6 @@
 # EPA/WP-Modellkarte
 
-**Stand:** 2026-09-08. Automatisch generiert von `scripts/render_model_card.py` aus dem
+**Stand:** 2026-09-09. Automatisch generiert von `scripts/render_model_card.py` aus dem
 MLflow-Registry-Stand und committeten Referenz-CSVs zum Generierungszeitpunkt -- nie von Hand
 eingetragen. Eine Seite, für dich als Head Coach -- keine Spielernamen, keine Personendaten.
 Details, Herleitung und alle committeten Zahlen dahinter stehen in
@@ -26,8 +26,8 @@ kennt nur die Spielsituation, nie, wer sie ausgeführt hat.
 
 | Modell | Champion-Run | Version | Zeilen (n_plays) | LOGO-Folds |
 |---|---|---:|---:|---:|
-| EP | `5e8ec9573e774ebaa20c9694c6ae15bb` | 1 | 16.444 | 214 |
-| WP | `f9cfe5f348244a7f99dd6817785bff6d` | 1 | 16.646 | 214 |
+| EP | `97259da7acaf43f3b2c65e59f7f11694` | 5 | 24.094 | 323 |
+| WP | `2c8c249d295d4ce9a2845800c459c153` | 5 | 24.705 | 323 |
 
 Referenzierter Freeze (`ffep freeze-corpus`-Manifest mit Pro-Quelle-Zeilenzahlen):
 
@@ -53,17 +53,23 @@ automatisch "Champion" -- das ist immer eine bewusste, gemeinsam geprüfte Entsc
 
 | Modell | Log-Loss | Grundrate | Verbesserung | Run-ID |
 |---|---:|---:|---:|---|
-| EP | 1,027657 | 1,007274 | -0,020383 | `5e8ec9573e774ebaa20c9694c6ae15bb` |
-| WP | 0,367263 | 0,691095 | 0,323832 | `f9cfe5f348244a7f99dd6817785bff6d` |
+| EP | 0,942659 | 0,994269 | 0,051610 | `97259da7acaf43f3b2c65e59f7f11694` |
+| WP | 0,372350 | 0,691566 | 0,319215 | `2c8c249d295d4ce9a2845800c459c153` |
 
 ### Pro-Quelle-Aufschlüsselung (aus dem jeweiligen Champion-Lauf selbst)
 
 | Modell | Quelle | Log-Loss |
 |---|---|---:|
-| EP | `legacy` | 1,042995 |
-| EP | `legacy-sportapp` | 1,023679 |
-| WP | `legacy` | 0,343287 |
-| WP | `legacy-sportapp` | 0,373840 |
+| EP | `hc_workbook:offense-analytics-2026-camps-and-competitions:data` | 0,978616 |
+| EP | `hc_workbook:scoring-probability-by-situation-2023-2026:data` | 0,908592 |
+| EP | `ifaf` | 0,881065 |
+| EP | `legacy` | 0,977325 |
+| EP | `legacy-sportapp` | 0,950924 |
+| WP | `hc_workbook:offense-analytics-2026-camps-and-competitions:data` | 0,306335 |
+| WP | `hc_workbook:scoring-probability-by-situation-2023-2026:data` | 0,347864 |
+| WP | `ifaf` | 0,689286 |
+| WP | `legacy` | 0,345898 |
+| WP | `legacy-sportapp` | 0,363386 |
 
 Pro-Tier-Aufschlüsselung: nicht verfügbar für diesen Lauf (kein `per_tier_logloss_*`-Metrik auf einem der Champion-Läufe protokolliert).
 
@@ -88,9 +94,9 @@ Pro-Tier-Aufschlüsselung: nicht verfügbar für diesen Lauf (kein `per_tier_log
 
 ## Versionierung
 
-- **Champion-Alias (aktuell produktiv):** `ep_model` Run `5e8ec9573e774ebaa20c9694c6ae15bb` (Version 1, registriert am 2026-08-21), `wp_model` Run `f9cfe5f348244a7f99dd6817785bff6d` (Version 1, registriert am 2026-08-21).
-- **Warum dieser Champion:** Champion-Entscheidung: siehe Schlusszeile (Stand) — Beförderung der `with_hc`-Läufe steht als Entscheidung an, bis dahin bleibt der bisherige Champion.
-- **Korpus-Fingerabdruck / Commit dieses jeweiligen Laufs:** EP: Fingerabdruck nicht verfügbar für diesen Lauf, Commit nicht verfügbar für diesen Lauf; WP: Fingerabdruck nicht verfügbar für diesen Lauf, Commit nicht verfügbar für diesen Lauf. Zum Vergleich, der Korpus-Stand von HEUTE laut `docs/epa-refinement-2026-10.md` (nicht zwingend die Trainingsbasis der obigen Champion-Läufe): Fingerabdruck `ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd`, Commit `82ae8cc88908283094dde036def7a883f1b5214a`.
+- **Champion-Alias (aktuell produktiv):** `ep_model` Run `97259da7acaf43f3b2c65e59f7f11694` (Version 5, registriert am 2026-09-08), `wp_model` Run `2c8c249d295d4ce9a2845800c459c153` (Version 5, registriert am 2026-09-08).
+- **Warum dieser Champion:** Champion-Entscheidung: am 2026-09-09 getroffen ("both") — Champion für EP und WP auf die 2026-09-08 `with_hc`-Läufe verschoben (siehe `## Champion-Entscheidung` im Nachtrag unten für Begründung und Run-IDs).
+- **Korpus-Fingerabdruck / Commit dieses jeweiligen Laufs:** EP: Fingerabdruck ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd, Commit 82ae8cc88908283094dde036def7a883f1b5214a; WP: Fingerabdruck ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd, Commit 82ae8cc88908283094dde036def7a883f1b5214a. Zum Vergleich, der Korpus-Stand von HEUTE laut `docs/epa-refinement-2026-10.md` (nicht zwingend die Trainingsbasis der obigen Champion-Läufe): Fingerabdruck `ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd`, Commit `82ae8cc88908283094dde036def7a883f1b5214a`.
 - Jede Modellversion bleibt für immer im Registry erhalten -- eine Beförderung ersetzt nie eine
   ältere Version, sie verschiebt nur, welche Version aktuell "Champion" heißt.
 
