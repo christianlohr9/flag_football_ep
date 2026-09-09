@@ -986,6 +986,122 @@ class TestAddEpVariablesCrossGameLeakage:
         assert boundary_row["home_ep_after"].item() is None
 
 
+def _ep_row_with_touchdown_prob(play_id: int, touchdown_prob: float) -> dict:
+    """A `_minimal_ep_frame` row override whose `ExpPts` is exactly `6 * touchdown_prob`
+    (every other probability mass sits on `No_Score_Prob`, which the `ExpPts` formula
+    weights by 0) -- lets a regression test pin a distinct, hand-computable `ep` per row.
+    """
+    return {
+        "play_id": play_id,
+        "Touchdown_Prob": touchdown_prob,
+        "Opp_Touchdown_Prob": 0.0,
+        "Safety_Prob": 0.0,
+        "Opp_Safety_Prob": 0.0,
+        "No_Score_Prob": 1.0 - touchdown_prob,
+    }
+
+
+class TestAddEpVariablesNullProbabilityPropagation:
+    """A null-position row (real corpus: unresolved IFAF spot-fill,
+    `data/reference/ifaf_spot_fill/`) must never contaminate `ep`/`epa` on any other row,
+    and must itself carry a null `ep`/`epa` rather than a value silently backward-filled
+    from a later row's probabilities (2026-09-09 fix)."""
+
+    def _six_play_frame(self, *, null_play_id: int | None) -> pl.DataFrame:
+        touchdown_probs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+        rows = [
+            _ep_row_with_touchdown_prob(play_id, p)
+            for play_id, p in zip(range(1, 7), touchdown_probs)
+        ]
+        if null_play_id is not None:
+            row = rows[null_play_id - 1]
+            for name in EP_PROBABILITY_COLUMNS:
+                row[name] = None
+        return _minimal_ep_frame(rows)
+
+    def test_null_probability_row_has_null_ep_and_epa(self):
+        df = self._six_play_frame(null_play_id=3)
+
+        out = add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
+
+        null_row = out.filter(pl.col("play_id") == 3)
+        assert null_row["ExpPts"].item() is None
+        assert null_row["ep"].item() is None
+        assert null_row["epa"].item() is None
+
+    def test_predecessor_of_null_probability_row_has_null_epa(self):
+        df = self._six_play_frame(null_play_id=3)
+
+        out = add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
+
+        predecessor = out.filter(pl.col("play_id") == 2)
+        # play 2's epa differences play 2's own ep against play 3's ep -- play 3's ep is
+        # null, so play 2's epa must be null, not a value computed against a stale fill.
+        assert predecessor["epa"].item() is None
+
+    def test_rows_away_from_the_null_row_are_bit_identical_with_and_without_it(self):
+        """Regression proof (Rule: fully known rows must not move): scores the same
+        six-play frame with and without play 3's field position being unknown, and
+        asserts every row NOT adjacent to the null row is bit-identical between the two
+        runs -- `ep` on every fully-known row, and `epa` on rows 1, 4, 5 (not 2, which
+        differences against play 3 and is expected to change to null).
+        """
+        baseline = add_ep_variables(
+            self._six_play_frame(null_play_id=None),
+            pat_baselines=PatBaselines.legacy_notebook(),
+        )
+        with_null_row = add_ep_variables(
+            self._six_play_frame(null_play_id=3),
+            pat_baselines=PatBaselines.legacy_notebook(),
+        )
+
+        for play_id in (1, 2, 4, 5, 6):
+            base_ep = baseline.filter(pl.col("play_id") == play_id)["ep"].item()
+            null_ep = with_null_row.filter(pl.col("play_id") == play_id)["ep"].item()
+            assert null_ep == base_ep, f"play_id {play_id} ep changed: {null_ep} != {base_ep}"
+
+        untouched_play_ids = (1, 4, 5, 6)
+        for play_id in untouched_play_ids:
+            base_epa = baseline.filter(pl.col("play_id") == play_id)["epa"].item()
+            null_epa = with_null_row.filter(pl.col("play_id") == play_id)["epa"].item()
+            if base_epa is None:
+                assert null_epa is None, f"play_id {play_id} epa changed: {null_epa} != None"
+            else:
+                assert null_epa == pytest.approx(base_epa), (
+                    f"play_id {play_id} epa changed: {null_epa} != {base_epa}"
+                )
+
+        # play 2 is the one row expected to change: it differences against play 3, whose
+        # probabilities are null in the `with_null_row` run only.
+        base_epa_2 = baseline.filter(pl.col("play_id") == 2)["epa"].item()
+        null_epa_2 = with_null_row.filter(pl.col("play_id") == 2)["epa"].item()
+        assert base_epa_2 is not None
+        assert null_epa_2 is None
+
+    def test_touchdown_with_unknown_start_has_null_epa(self):
+        """A touchdown whose own pre-snap field position is unknown (real corpus: an
+        IFAF spot-fill row where the statistician has not resolved the spot yet) must not
+        get a fabricated `epa` of `6 - <stale ep>` -- the pre-snap `ep` is unknown, so the
+        touchdown's `epa` must be null too."""
+        null_probs = {name: None for name in EP_PROBABILITY_COLUMNS}
+        df = _minimal_ep_frame(
+            [
+                {
+                    "touchdown": 1,
+                    "scoring_play_team": "HOME",
+                    "posteam": "HOME",
+                    "scoring_play": 1,
+                    **null_probs,
+                }
+            ]
+        )
+
+        out = add_ep_variables(df, pat_baselines=PatBaselines.legacy_notebook())
+
+        assert out["ep"].item() is None
+        assert out["epa"].item() is None
+
+
 class TestAddWpVariables:
     def test_home_wp_plus_away_wp_equals_one_every_row(self):
         df = canonical_plays_with_scores(n_games=1, plays_per_game=8)
@@ -1100,6 +1216,68 @@ class TestAddWpVariablesCrossGameLeakage:
         boundary_row = out.filter((pl.col("game_id") == "G1") & (pl.col("play_id") == 2))
         # shift(-1) has no next row within game A -> null, not game B's first-play home_wp.
         assert boundary_row["home_wp_after"].item() is None
+
+
+class TestAddWpVariablesNullProbabilityPropagation:
+    """WP analog of `TestAddEpVariablesNullProbabilityPropagation`: a null-position row's
+    `wp` must never be backward-filled from a later row's model output (2026-09-09 fix)."""
+
+    def _six_play_frame(self, *, null_play_id: int | None) -> pl.DataFrame:
+        wp_values = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+        rows = [
+            {"play_id": play_id, "wp": wp}
+            for play_id, wp in zip(range(1, 7), wp_values)
+        ]
+        if null_play_id is not None:
+            rows[null_play_id - 1]["wp"] = None
+        return _minimal_wp_frame(rows)
+
+    def test_null_wp_row_has_null_home_wp_away_wp_and_wpa(self):
+        df = self._six_play_frame(null_play_id=3)
+
+        out = add_wp_variables(df)
+
+        null_row = out.filter(pl.col("play_id") == 3)
+        assert null_row["home_wp"].item() is None
+        assert null_row["away_wp"].item() is None
+        assert null_row["wpa"].item() is None
+
+    def test_predecessor_of_null_wp_row_has_null_wpa(self):
+        df = self._six_play_frame(null_play_id=3)
+
+        out = add_wp_variables(df)
+
+        predecessor = out.filter(pl.col("play_id") == 2)
+        # play 2's wpa differences play 2's own home_wp against play 3's home_wp -- play
+        # 3's home_wp is null, so play 2's wpa must be null, not a stale-fill value.
+        assert predecessor["wpa"].item() is None
+
+    def test_rows_away_from_the_null_row_are_bit_identical_with_and_without_it(self):
+        baseline = add_wp_variables(self._six_play_frame(null_play_id=None))
+        with_null_row = add_wp_variables(self._six_play_frame(null_play_id=3))
+
+        for play_id in (1, 2, 4, 5, 6):
+            base_wp = baseline.filter(pl.col("play_id") == play_id)["home_wp"].item()
+            null_wp = with_null_row.filter(pl.col("play_id") == play_id)["home_wp"].item()
+            assert null_wp == base_wp, f"play_id {play_id} home_wp changed: {null_wp} != {base_wp}"
+
+        untouched_play_ids = (1, 4, 5, 6)
+        for play_id in untouched_play_ids:
+            base_wpa = baseline.filter(pl.col("play_id") == play_id)["wpa"].item()
+            null_wpa = with_null_row.filter(pl.col("play_id") == play_id)["wpa"].item()
+            if base_wpa is None:
+                assert null_wpa is None, f"play_id {play_id} wpa changed: {null_wpa} != None"
+            else:
+                assert null_wpa == pytest.approx(base_wpa), (
+                    f"play_id {play_id} wpa changed: {null_wpa} != {base_wpa}"
+                )
+
+        # play 2 is the one row expected to change: it differences against play 3, whose
+        # wp is null in the `with_null_row` run only.
+        base_wpa_2 = baseline.filter(pl.col("play_id") == 2)["wpa"].item()
+        null_wpa_2 = with_null_row.filter(pl.col("play_id") == 2)["wpa"].item()
+        assert base_wpa_2 is not None
+        assert null_wpa_2 is None
 
 
 class TestMakeEpModelMutations:

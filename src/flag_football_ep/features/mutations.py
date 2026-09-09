@@ -648,6 +648,19 @@ def add_ep_variables(df: pl.DataFrame, *, pat_baselines: PatBaselines) -> pl.Dat
     its empirically estimated rates; there is no default and no production fallback to a
     hard-coded constant. Pass `PatBaselines.legacy_notebook()` only in tests that pin
     pre-REQ-S1-10 historical `epa` arithmetic.
+
+    Null-propagation rule (fixed 2026-09-09): a row whose EP probability columns are null
+    (`model/score.py::_score_probabilities` leaves them null for any row missing a feature,
+    e.g. an unresolved field position) gets a null `ExpPts`/`ep` -- `ep` is never
+    backward-filled from a later row's model output. `epa` for a row is null whenever
+    either its own `ep` or the next row's `ep` (`home_ep_after`, via `shift(-1)`) is null;
+    this includes the scoring-play branches (a touchdown's `epa` is `6 - ep`/`-6 - ep`, so
+    it is only defined when the pre-snap `ep` is known) and the end-of-half branch (`0 -
+    ep`). Every branch below relies on ordinary null-propagating arithmetic to get this for
+    free -- do not reintroduce a `fill_null`/`backward_fill`/`forward_fill` on `ep` upstream
+    of these branches. A caller that changes which rows get null EP probabilities (e.g. a
+    change to `_score_probabilities` or the feature list) must re-score the corpus with
+    `ffep score` -- this function's output shape depends on that null pattern.
     """
     missing = [c for c in EP_PROBABILITY_COLUMNS if c not in df.columns]
     if missing:
@@ -669,10 +682,16 @@ def add_ep_variables(df: pl.DataFrame, *, pat_baselines: PatBaselines) -> pl.Dat
             ep=pl.col("ExpPts"),
             tmp_posteam=pl.col("posteam"),
         )
-        # Scoped by game_id so a game's trailing null ep/tmp_posteam rows do not inherit the
-        # next game's values (a multi-game frame concatenates games back-to-back).
+        # `ep` is NEVER backward-filled from a later row's ExpPts (fixed 2026-09-09, see
+        # the docstring above): a row with null probabilities (missing field position or
+        # any other feature `_score_probabilities` needed) keeps a null `ep`, so every
+        # arithmetic use of `ep`/`home_ep`/`home_ep_after` below null-propagates instead
+        # of silently adopting a value computed for a different play. `tmp_posteam` is a
+        # copy of `posteam` (always populated in the canonical schema) and is still
+        # backward-filled purely to guard the same trailing-row-at-game-boundary shape the
+        # cross-game-leakage tests pin -- it carries no probability-derived value, so this
+        # fill cannot resurrect a null `ep`.
         .with_columns(
-            ep=pl.col("ep").backward_fill().over("game_id"),
             tmp_posteam=pl.col("tmp_posteam").backward_fill().over("game_id"),
         )
         # Non-scoring plays: home-perspective forward difference in ep.
@@ -822,6 +841,13 @@ def add_wp_variables(df: pl.DataFrame) -> pl.DataFrame:
     `.predict()` output. Computes `home_wp`, `away_wp`, `def_wp`, `wpa`,
     `home_wp_post`/`away_wp_post` and the home/away cumulative WP/WPA totals. Pure: returns
     a new frame, does not mutate `df`.
+
+    Null-propagation rule (fixed 2026-09-09, mirrors `add_ep_variables`): a row whose `wp`
+    is null (missing WP feature, e.g. an unresolved field position) stays null -- `wp` is
+    never backward-filled from a later row's model output. `home_wp`/`away_wp` are
+    therefore null on that row, and `wpa` is null whenever either its own `home_wp` or the
+    next row's `home_wp` (`home_wp_after`, via `shift(-1)`) is null. Do not reintroduce a
+    `fill_null`/`backward_fill`/`forward_fill` on `wp` upstream of these branches.
     """
     if WP_PROBABILITY_COLUMN not in df.columns:
         raise MissingFeatureColumns(
@@ -830,10 +856,15 @@ def add_wp_variables(df: pl.DataFrame) -> pl.DataFrame:
 
     df = (
         df.with_columns(tmp_posteam=pl.col("posteam"))
-        # Scoped by game_id so a game's trailing null wp/tmp_posteam rows do not inherit the
-        # next game's values (a multi-game frame concatenates games back-to-back).
+        # `wp` is NEVER backward-filled from a later row's model output (fixed
+        # 2026-09-09, see the docstring above): a row with null `wp` (missing field
+        # position or any other WP feature) keeps a null `wp`, so `home_wp`/`away_wp`/
+        # `wpa` below null-propagate instead of adopting a value computed for a
+        # different play. `tmp_posteam` is a copy of `posteam` (always populated in the
+        # canonical schema) and is still backward-filled purely to guard the same
+        # trailing-row-at-game-boundary shape the cross-game-leakage tests pin -- it
+        # carries no probability-derived value, so this fill cannot resurrect a null `wp`.
         .with_columns(
-            wp=pl.col("wp").backward_fill().over("game_id"),
             tmp_posteam=pl.col("tmp_posteam").backward_fill().over("game_id"),
         )
         .with_columns(

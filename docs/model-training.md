@@ -122,7 +122,22 @@ The chart plots 1-pt expected points (a horizontal line at the observed 1-pt rat
 rate (`p1 / 2`) and the corpus's own observed 2-point rate (shaded across its CI). See
 `01.3-TRAINING-REPORT.md` §7 for the current measured rates and reading.
 
-## 7. Artifacts and versioning
+## 7. Null field position and EP/WP nulls
+
+A row with an unresolved field position (or any other required EP/WP feature — e.g. an IFAF
+spot-fill entry the statistician has not confirmed yet, `data/reference/ifaf_spot_fill/`) is
+scored with null class probabilities by `model/score.py::_score_probabilities`. `features/
+mutations.py::add_ep_variables`/`add_wp_variables` never backward-fill `ep`/`wp` from a later
+row to paper over that gap (fixed 2026-09-09): `ep`/`wp`/`home_wp`/`away_wp` stay null on that
+row, and `epa`/`wpa` are null both on that row and on its immediate predecessor (whose
+`epa`/`wpa` differences its own EP/WP against the null row's). This applies uniformly, including
+the scoring-play and end-of-half branches — a touchdown whose own pre-snap position is unknown
+gets a null `epa`, never a value computed against a stale filled-in EP. Any change to which rows
+get null probabilities (a `_score_probabilities`/feature-list change, or a spot-fill correction
+landing upstream) requires re-running `ffep score` to refresh `plays_scored.parquet` — nothing
+recomputes it automatically.
+
+## 8. Artifacts and versioning
 
 The **MLflow model registry is the source of truth** (REQ-S1-11): every `ffep train` run
 registers its production refit as a new version of `ep_model`/`wp_model`
@@ -139,7 +154,7 @@ clobbered the way the pre-phase-1.3 notebook workflow did.
 `*_simple.pkl`) as a committed, **archive-only** snapshot — nothing in the current pipeline
 reads from it, and no current code path writes into it.
 
-## 8. Known limitations
+## 9. Known limitations
 
 - **`sportapp` (live sportapp.fi) is absent from the current corpus.** The API key rotation is
   a tracked STATE.md blocker deferred by the user; `ffep fetch-sportapp` fails cleanly with an
