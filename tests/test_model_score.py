@@ -425,12 +425,14 @@ def test_score_module_never_imports_pandas() -> None:
 # These tests deliberately do NOT assert that a null-adjacent row's epa on the mixed frame
 # equals its epa on a fully-complete frame -- that equality does not hold even with the fix.
 # On the fully-complete frame the preceding row's home_ep_after is the null row's OWN
-# prediction; on the mixed (fixed) frame it is the backward-filled value from the following
-# play. Test 2/3 below (EP/WP backfill) are the correct, discriminating form of "the null
-# row's neighbours are computed against the right play": they assert the null row itself
-# inherits the NEXT play's ep/wp via backward_fill, which is only possible if
-# _score_probabilities kept it in chronological position instead of relocating it to the
-# frame's tail. Test 4 is the correct form of "unaffected rows are unchanged".
+# prediction; on the mixed (fixed) frame it is null (ep/wp are never backward-filled across a
+# null-feature row, fixed 2026-09-09 -- see docs/model-training.md #7). Test 2/3 below
+# (EP/WP null propagation) are the correct, discriminating form of "the null row's neighbours
+# are computed against the right play": they assert the null row itself keeps a null ep/wp
+# and that its immediate predecessor (not some other row) is the one that goes null, which is
+# only possible if _score_probabilities kept it in chronological position instead of
+# relocating it to the frame's tail. Test 4 is the correct form of "unaffected rows are
+# unchanged".
 
 
 def test_score_probabilities_returns_rows_in_row_id_order(tmp_path: Path) -> None:
@@ -489,39 +491,70 @@ def _scored_with_null_yardline_50(tmp_path: Path) -> tuple[pl.DataFrame, pl.Data
 
 
 def test_score_plays_backfills_ep_on_null_feature_row_from_next_play(tmp_path: Path) -> None:
-    _baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
+    """`score_plays` never backward-fills `ep`/`epa` across a null-feature row (fixed
+    2026-09-09, see docs/model-training.md #7 and
+    tests/test_features_mutations.py::TestAddEpVariablesNullProbabilityPropagation): the
+    null row's own `ep`/`epa` stay null, its predecessor's `epa` (which differences the
+    predecessor's `ep` against the null row's) goes null too, and every other row in the
+    game is unaffected."""
+    baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
 
     null_row = scored.filter(
         (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3)
     )
-    next_row = scored.filter(
-        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 4)
+    predecessor_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 2)
     )
     assert null_row.height == 1
-    assert next_row.height == 1
+    assert predecessor_row.height == 1
 
-    null_ep = null_row["ep"][0]
-    next_exp_pts = next_row["ExpPts"][0]
-    assert null_ep is not None
-    assert null_ep == pytest.approx(next_exp_pts, abs=1e-9)
+    assert null_row["ep"][0] is None
+    assert null_row["epa"][0] is None
+    assert predecessor_row["epa"][0] is None
+
+    baseline_game = baseline.filter(pl.col("game_id") == target_game_id).sort("play_id")
+    scored_game = scored.filter(pl.col("game_id") == target_game_id).sort("play_id")
+    for play_id in baseline_game["play_id"].to_list():
+        if play_id in (2, 3):
+            continue
+        base_ep = baseline_game.filter(pl.col("play_id") == play_id)["ep"][0]
+        got_ep = scored_game.filter(pl.col("play_id") == play_id)["ep"][0]
+        assert got_ep == pytest.approx(base_ep, abs=1e-9), (
+            f"play_id {play_id} ep changed: {got_ep} != {base_ep}"
+        )
 
 
 def test_score_plays_backfills_wp_on_null_feature_row_from_next_play(tmp_path: Path) -> None:
-    _baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
+    """WP analog of the EP test above: `score_plays` never backward-fills `wp`/`wpa` across
+    a null-feature row -- the null row's own `wp`/`home_wp`/`away_wp`/`wpa` stay null, its
+    predecessor's `wpa` goes null too, and every other row in the game is unaffected."""
+    baseline, scored, target_game_id = _scored_with_null_yardline_50(tmp_path)
 
     null_row = scored.filter(
         (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 3)
     )
-    next_row = scored.filter(
-        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 4)
+    predecessor_row = scored.filter(
+        (pl.col("game_id") == target_game_id) & (pl.col("play_id") == 2)
     )
     assert null_row.height == 1
-    assert next_row.height == 1
+    assert predecessor_row.height == 1
 
-    null_wp = null_row["wp"][0]
-    next_wp = next_row["wp"][0]
-    assert null_wp is not None
-    assert null_wp == pytest.approx(next_wp, abs=1e-9)
+    assert null_row["wp"][0] is None
+    assert null_row["home_wp"][0] is None
+    assert null_row["away_wp"][0] is None
+    assert null_row["wpa"][0] is None
+    assert predecessor_row["wpa"][0] is None
+
+    baseline_game = baseline.filter(pl.col("game_id") == target_game_id).sort("play_id")
+    scored_game = scored.filter(pl.col("game_id") == target_game_id).sort("play_id")
+    for play_id in baseline_game["play_id"].to_list():
+        if play_id in (2, 3):
+            continue
+        base_wp = baseline_game.filter(pl.col("play_id") == play_id)["wp"][0]
+        got_wp = scored_game.filter(pl.col("play_id") == play_id)["wp"][0]
+        assert got_wp == pytest.approx(base_wp, abs=1e-9), (
+            f"play_id {play_id} wp changed: {got_wp} != {base_wp}"
+        )
 
 
 def test_score_plays_unaffected_games_match_fully_complete_scoring(tmp_path: Path) -> None:
