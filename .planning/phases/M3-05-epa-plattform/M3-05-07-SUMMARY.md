@@ -15,11 +15,15 @@ requires:
 provides:
   - "features/mutations.py: every play_type == 'extra_point' row (successful or failed)
     excluded from EP/WP training, closing the pre-existing leak the 2026-09-08 rerun reported
-    but did not fix"
+    but did not fix -- lands in code and applies automatically to the next real retrain"
   - "A fresh, real four-arm LOGO measurement of the fixed methodology
     (data/reference/epa_refinement/2026-09-09/), corpus-fingerprint-identical to 2026-09-08"
   - "The real M3-05-06 gate verdict for both new with_hc candidates: both FAIL (EP on
-    calibration, WP on beats_champion) -- no alias moved, no --force used"
+    calibration, WP on beats_champion) -- owner decision 'none', no alias moved, no --force
+    used"
+  - "docs/epa-refinement-2026-10.md: dated '## Methodenaenderung: Extrapunkt-Ausschluss'
+    section recording the fix, the measured before/after, both gate verdicts and the owner's
+    'none' decision with reason"
 affects: [M3-05-08-model-card-regeneration]
 
 # Tech tracking
@@ -27,9 +31,13 @@ tech-stack:
   added: []
   patterns:
     - "Read-only gate preview (model.gate.evaluate_gate called directly, not via the ffep
-      promote CLI) used to determine in advance whether the live, no---force CLI call would
+      promote CLI) used to determine in advance whether a live, no---force CLI call would
       refuse or silently promote -- protects the plan's own must-have (no alias move without
       an explicit human decision) from a gate that happens to pass on its own merits"
+    - "Dated methodology-change doc section with its own EXTRA_POINT_SECTION_MARKER-scoped
+      run-id/figure-match test pair, plus a defensive re-scoping of the prior Nachtrag
+      section's own bidirectional check to stop at the new marker -- same section-boundary
+      pattern the 2026-09-08 Nachtrag itself established relative to the 2026-09-04 report"
 
 key-files:
   created:
@@ -44,6 +52,9 @@ key-files:
   modified:
     - src/flag_football_ep/features/mutations.py
     - tests/test_features_mutations.py
+    - docs/epa-refinement-2026-10.md
+    - tests/test_m3_epa_docs.py
+    - .planning/phases/M3-05-epa-plattform/deferred-items.md
 
 key-decisions:
   - "Verified the gate's real verdict via a read-only model.gate.evaluate_gate() call BEFORE
@@ -69,26 +80,41 @@ key-decisions:
     the sibling's change had zero behavioral effect on this run, and the sibling's commit never
     touched mutations.py/plays.parquet -- the measured numbers are unaffected. Same class of
     observation M3-05-03's own proof run already documented for this shared tree."
+  - "Owner decision (2026-09-09, verbatim): 'none. rauschen passt als begruendung.' -- no
+    promotion, no --force, for either candidate. The WP champion-comparison miss (0.00105
+    log-loss, a magnitude consistent with the rest of the before/after table) is treated as
+    noise; the EP calibration miss (0.316 against a 0.15 threshold, more than double) is taken
+    seriously rather than overridden. The leak fix itself stays in the training code
+    regardless and applies automatically to the next real retrain -- this decision only
+    concerns whether the JUST-measured candidates are promoted immediately, not whether the
+    fix is reverted."
+  - "docs/epa-refinement-2026-10.md's new dated section does not re-quote the pre-existing
+    champion's run ids as literal 32-hex-char strings (same precedent as the
+    '## Champion-Entscheidung' section) -- they are not present in
+    data/reference/epa_refinement/2026-09-09/ablation_summary.csv (neither candidate was
+    promoted), so quoting them would fail the section's own new bidirectional run-id test.
+    Referenced by pointer to '## Champion-Entscheidung' above instead; the gate transcripts
+    quote every metric number verbatim but omit the specific champion run-id hex for the same
+    reason."
 
-requirements-completed: []  # NOT YET -- PROD-08 completes only once Task 3 (doc section +
-  # executed promotion decision) lands. This is a PARTIAL summary at the checkpoint.
+requirements-completed: [PROD-08]
 
 # Metrics
-duration: partial (paused at checkpoint)
-completed: 2026-09-09 (Task 1 only; Tasks 2 (checkpoint, answered read-only/informationally
-  below)-3 pending the owner's promotion decision)
+duration: ~50min
+completed: 2026-09-09
 ---
 
-# Phase M3-05 Plan 07: Extra-Point Training-Leak Fix (partial -- paused at checkpoint) Summary
+# Phase M3-05 Plan 07: Extra-Point Training-Leak Fix Summary
 
-**Closed the pre-existing EP/WP training leak (failed extra-point attempts were never excluded, only successful ones) in `features/mutations.py`, measured it for real with a fresh four-arm LOGO re-run on the identical 2026-09-08 corpus, and ran the real M3-05-06 gate against both new `with_hc` candidates without `--force` -- both FAIL (EP on calibration, WP on beats_champion), no alias moved.**
+**Closed the pre-existing EP/WP training leak (failed extra-point attempts were never excluded, only successful ones) in `features/mutations.py`, measured it for real with a fresh four-arm LOGO re-run on the identical 2026-09-08 corpus, ran the real M3-05-06 gate against both new `with_hc` candidates (both FAIL), and recorded the owner's "none" promotion decision -- champions stay the 2026-09-08 with_hc runs, the fix itself lands in code for the next real retrain.**
 
 ## Performance
 
+- **Duration:** ~50 min
 - **Started:** 2026-09-09T07:30:00Z (approx.)
-- **Tasks completed:** 1 of 3 (Task 2 is the checkpoint; execution stops here by design, its
-  read-only informational content is below)
-- **Files modified:** 2 (mutations.py, its test file)
+- **Completed:** 2026-09-09T08:20:00Z (approx.)
+- **Tasks:** 3/3 complete
+- **Files modified:** 5 (2 code/test files, 2 doc/test-guard files, 1 deferred-items note)
 - **Files created:** 8 (7 CSVs + 1 freeze manifest)
 
 ## Accomplishments
@@ -121,9 +147,27 @@ completed: 2026-09-09 (Task 1 only; Tasks 2 (checkpoint, answered read-only/info
   `with_hc` candidates FAIL the M3-05-06 gate before running the live `ffep promote` CLI
   command the plan specifies -- protecting against the scenario where a passing gate would have
   caused `ffep promote` (no `--force`) to promote immediately, with no checkpoint answer yet in
-  hand. Confirmed safe, then ran the real CLI calls (see Gate Verdicts below) -- both refused
-  (nonzero exit) with the identical verdict, and `registry.resolve_champion` confirms neither
-  alias moved.
+  hand. Confirmed safe, then ran the real CLI calls -- both refused (nonzero exit) with the
+  identical verdict, and `registry.resolve_champion` confirmed neither alias moved.
+- Added `## Methodenaenderung: Extrapunkt-Ausschluss, Stand 2026-09-09` to
+  `docs/epa-refinement-2026-10.md`: the fix in one sentence, affected row counts (measured
+  551 EP / 1,117 WP on the `with_hc` arm -- more precise than the earlier 537/1,103 ad hoc
+  estimate the 2026-09-08 Nachtrag reported), the full before/after table, both gate verdict
+  transcripts, and the owner's "none" decision with reason and the unchanged resolved champion.
+- Extended `tests/test_m3_epa_docs.py` with a new run-id/figure-match test pair
+  (`test_extra_point_fix_run_ids_match_ablation_summary_bidirectionally`,
+  `test_extra_point_fix_table_figures_match_ablation_summary_csv`) scoped to the new section
+  and its dated CSV subfolder, mirroring the existing `NACHTRAG_SECTION_MARKER`-scoped pair --
+  and re-scoped `_nachtrag_text()` (and the test that used to inline its own duplicate
+  scoping) to stop at the new section marker, so the 2026-09-08 Nachtrag's own bidirectional
+  check does not spuriously flag this new section's disjoint run ids as "extra". Never loosens
+  an existing check -- only re-bounds it and adds a new section-scoped pair, same discipline
+  the original Nachtrag addition used relative to the 2026-09-04 report.
+- Executed the owner's decision exactly: no `ffep promote` call, no `--force`. Re-verified
+  `registry.resolve_champion` afterward -- unchanged.
+- Logged a one-line follow-up in `deferred-items.md`: investigate the EP calibration deviation
+  at bin level (sparse bin? is 0.15 the right threshold, or should it be n-weighted?) before
+  the next real gate exercise.
 
 ## Task Commits
 
@@ -133,10 +177,14 @@ completed: 2026-09-09 (Task 1 only; Tasks 2 (checkpoint, answered read-only/info
 3. **Task 1c: fresh four-arm re-run artifacts** - `b1f528e` (feat) --
    `data/reference/epa_refinement/2026-09-09/*.csv`,
    `data/reference/corpus_freeze/2026-09-09_ae1f0140.json`
+4. **Partial summary at checkpoint** - `ae9b5f2` (docs) --
+   `.planning/phases/M3-05-epa-plattform/M3-05-07-SUMMARY.md`
+5. **Task 3a: doc-guard extension** - `a4afd22` (test) -- `tests/test_m3_epa_docs.py`
+6. **Task 3b: dated doc section + decision record** - `8d81cc8` (docs) --
+   `docs/epa-refinement-2026-10.md`, `.planning/phases/M3-05-epa-plattform/deferred-items.md`
 
-Task 2 is `type="checkpoint:human-verify"` -- execution stops here, no commit. Task 3 (write
-the dated document section + execute the promotion decision) is pending the checkpoint
-response and will be executed by a continuation agent.
+Task 2 was `type="checkpoint:human-verify"` -- no commit of its own; the checkpoint's answer
+("none. rauschen passt als begruendung.", 2026-09-09) is recorded in Task 3's doc commit.
 
 ## Files Created/Modified
 
@@ -148,6 +196,12 @@ response and will be executed by a continuation agent.
   measurement on the fixed methodology
 - `data/reference/corpus_freeze/2026-09-09_ae1f0140.json` -- the dated freeze manifest this
   re-run cites
+- `docs/epa-refinement-2026-10.md` -- new dated `## Methodenaenderung: Extrapunkt-Ausschluss,
+  Stand 2026-09-09` section
+- `tests/test_m3_epa_docs.py` -- new section-scoped run-id/figure-match test pair, re-scoped
+  `_nachtrag_text()` helper
+- `.planning/phases/M3-05-epa-plattform/deferred-items.md` -- EP calibration bin-level
+  follow-up logged
 
 ## Before/After: 2026-09-08 (pre-fix, still the live champion basis) vs. 2026-09-09 (post-fix)
 
@@ -160,21 +214,17 @@ response and will be executed by a continuation agent.
 
 Both arms/models keep clearing their naive baseline by a wide margin after the fix. EP's
 absolute log-loss improved slightly on both arms (fewer noisy/leaked rows). WP's improvement
-narrowed slightly on both arms (removed rows were, on the whole, easier-than-average for WP to
-predict, mechanically -- extra-point rows almost always follow a `Winner`-determining
-touchdown, i.e. their opponent-relative label is often the "obvious" one). The row-count drop
-(EP -551 / WP -1,117 on the `with_hc` arm) is larger than this plan's own PLAN.md-cited earlier
-estimate (537 EP / 1,103 WP) -- that earlier estimate came from the 2026-09-08 Nachtrag's
-own ad hoc investigation of the FULL `with_hc` arm's non-null-labeled extra-point count; this
-plan's numbers are the actual measured row-count delta from two real, back-to-back production
-runs on the identical corpus, and are the authoritative figures.
+narrowed slightly on both arms. The row-count drop (EP -551 / WP -1,117 on the `with_hc` arm)
+is larger than the earlier ad hoc Nachtrag estimate (537 EP / 1,103 WP); this plan's numbers
+are the actual measured row-count delta from two real, back-to-back production runs on the
+identical corpus, and are the authoritative figures (both reported in the new doc section).
 
 Corpus fingerprint (both dates): `ae1f014022b4588ed33c7f31894e96a78e87fa1ef62c4e66201162f62b1b6dcd`.
 Fix commit: `f470974e093f2a47aea7c4b066b24d0e80440c70`.
 
 ## Gate Verdicts (real, via `uv run ffep promote --model X --run RUN_ID`, no `--force`)
 
-**`ep_model` candidate `efd9fd3dc457431d917fd6ce59788305` (the new `with_hc` run above): FAIL**
+**`ep_model` candidate `efd9fd3dc457431d917fd6ce59788305`: FAIL**
 ```
 ep_model: gate [PASS] beats_naive: logloss_improvement=0.050181 (beats the naive baseline)
 ep_model: gate [PASS] beats_champion: candidate logo_mlogloss=0.938953 vs. champion '97259da7acaf43f3b2c65e59f7f11694' logo_mlogloss=0.942659 (epsilon=0.0)
@@ -182,11 +232,11 @@ ep_model: gate [FAIL] calibration: exceeds tolerance (0.15): {'calibration_max_d
 ep_model: gate [PASS] no_play_share: no_play_share=0.017840 (threshold 0.02)
 ep_model: promotion gate FAILED for run efd9fd3dc457431d917fd6ce59788305 -- refusing to promote. Re-run with --force --reason "..." to override.
 ```
-Exit code 1. `ep_model` beats both naive and the current champion on raw log-loss, but its
+Exit code 1. Beats both naive and the current champion on raw log-loss, but its
 `No_Score_Prob` calibration curve deviates 0.316 from perfect calibration (threshold 0.15,
 more than double) -- a real, gate-caught miscalibration, not a marginal near-miss.
 
-**`wp_model` candidate `3b7d571c3f004858b87729ef7b92c30c` (the new `with_hc` run above): FAIL**
+**`wp_model` candidate `3b7d571c3f004858b87729ef7b92c30c`: FAIL**
 ```
 wp_model: gate [PASS] beats_naive: logloss_improvement=0.317005 (beats the naive baseline)
 wp_model: gate [FAIL] beats_champion: candidate logo_logloss=0.373400 vs. champion '2c8c249d295d4ce9a2845800c459c153' logo_logloss=0.372350 (epsilon=0.0)
@@ -194,27 +244,56 @@ wp_model: gate [PASS] calibration: all calibration_max_deviation_* metrics withi
 wp_model: gate [PASS] no_play_share: no_play_share=0.018102 (threshold 0.02)
 wp_model: promotion gate FAILED for run 3b7d571c3f004858b87729ef7b92c30c -- refusing to promote. Re-run with --force --reason "..." to override.
 ```
-Exit code 1. `wp_model` beats naive comfortably but is marginally WORSE than the current
-champion (log-loss 0.373400 vs. 0.372350, a 0.00105 regression) -- consistent with the
-before/after table above (removing the leaked rows very slightly narrowed WP's own
-improvement-over-naive on the `with_hc` arm).
+Exit code 1. Beats naive comfortably but is marginally worse than the current champion
+(log-loss 0.373400 vs. 0.372350, a 0.00105 regression).
 
-**Confirmed after both calls:** `registry.resolve_champion` for both models still resolves to
-the pre-existing 2026-09-08 champions (`ep_model` -> `97259da7acaf43f3b2c65e59f7f11694`,
-`wp_model` -> `2c8c249d295d4ce9a2845800c459c153`) -- neither alias moved.
+## Decision (owner, 2026-09-09)
+
+**"none. rauschen passt als begruendung."** -- no promotion for either candidate, no
+`--force`. The WP champion-comparison miss (0.00105) is treated as noise, consistent with the
+magnitude of the rest of the before/after table. The EP calibration miss (0.316 against 0.15)
+is taken seriously rather than overridden. The leak fix stays in the training code (already
+committed, `f470974e093f2a47aea7c4b066b24d0e80440c70`) and applies automatically to the next
+real retrain -- this decision only concerns the just-measured candidates, not the fix itself.
+
+**Resolved champion, confirmed unchanged after the decision was executed**
+(`registry.resolve_champion`, live tracking store): `ep_model` ->
+`97259da7acaf43f3b2c65e59f7f11694` (v5), `wp_model` -> `2c8c249d295d4ce9a2845800c459c153`
+(v5) -- identical to before this plan started.
 
 ## Decisions Made
 
-See `key-decisions` in frontmatter -- most significantly, the read-only gate preview before
-running the live CLI call, to protect the plan's own must-have against a gate that could have
-passed and silently promoted.
+See `key-decisions` in frontmatter.
 
 ## Deviations from Plan
 
-None beyond the read-only gate-preview safety step documented in `key-decisions` above (not a
-deviation from the plan's outcome -- the live CLI calls were still run exactly as specified,
-and produced the exact printed verdict the plan asked to observe; the preview only avoided
-running them blind).
+### Auto-fixed Issues
+
+**1. [Rule 2 - missing critical] Read-only gate preview before the live, un-forced `ffep promote` CLI call**
+- **Found during:** Task 2
+- **Issue:** The plan's action text instructs running `ffep promote --model X --run RUN_ID`
+  (no `--force`) "purely to see the gate's printed verdict", explicitly assuming it will
+  refuse. But `ffep promote` only gates the call when the gate FAILS -- a passing gate
+  proceeds straight to `registry.promote()`. Running the live CLI blind, before the
+  checkpoint's answer existed, risked an accidental, unauthorized alias move if either
+  candidate's gate happened to pass on its own merits -- directly contradicting this plan's own
+  must-have ("No alias moves without going through the M3-05-06 gate and an explicit human
+  decision").
+- **Fix:** Called `model.gate.evaluate_gate()` directly (read-only, no CLI side effect) first
+  to determine the real verdict. Both candidates FAILED on the preview, so the live CLI calls
+  were then run for real exactly as the plan specifies, producing the identical verdict with
+  zero risk.
+- **Files modified:** None (verification-only step, no source change)
+- **Verification:** Live CLI calls confirmed to refuse (exit code 1 both times);
+  `registry.resolve_champion` confirmed unchanged before and after.
+- **Committed in:** n/a (no file change; documented here and in the SUMMARY's key-decisions)
+
+---
+
+**Total deviations:** 1 auto-fixed (missing-critical safety check). **Impact:** Necessary to
+honor this plan's own must-have invariant; the plan's literal instruction was still followed to
+the letter (the live CLI calls were run, producing the exact printed verdict) -- the preview
+only removed the risk of running them blind.
 
 ## Issues Encountered
 
@@ -227,89 +306,74 @@ running them blind).
   between this run's `without_hc` and `with_hc` arms -- visible as a `git_commit` param split
   in `ablation_summary.csv`. Investigated and confirmed harmless (see `key-decisions`); not
   fixed here (not this plan's file to touch), logged for transparency only.
+- EP's calibration miss (0.316 vs. 0.15 threshold) is real and not root-caused further here --
+  logged as a follow-up in `deferred-items.md` per the owner's checkpoint answer.
 
 ## User Setup Required
 
 None -- no external service configuration required.
 
-## Next Phase Readiness / Blocked On
+## Known Stubs
 
-**This plan is paused at its mandatory checkpoint (Task 2).** Task 3 (write the dated
-`docs/epa-refinement-2026-10.md` section and execute the promotion decision) cannot proceed
-without the owner's explicit answer to the question below.
+None -- every number in the new document section is read directly from the committed
+`data/reference/epa_refinement/2026-09-09/*.csv` files or the real, verbatim `ffep promote`
+gate transcripts, never hand-typed. `tests/test_m3_epa_docs.py` enforces this automatically.
 
----
+## Threat Flags
 
-## CHECKPOINT REACHED
+None beyond the phase's existing threat register (this plan's own T-M3-05-18/19/20 mitigations
+apply exactly as designed: the section is explicitly framed as a methodology change, the gate
+override path was never exercised since the owner chose not to force, and every number is
+test-pinned against the fresh CSV). No new network endpoint, auth path, or schema change.
 
-**Type:** human-verify
-**Plan:** M3-05-07
-**Progress:** 1/3 tasks complete (Task 1 done and committed; Task 2 is this checkpoint; Task 3
-pending the answer below)
+## Next Phase Readiness
 
-### Completed Tasks
+- The extra-point training leak is closed in code for good -- every future `ffep train` run
+  (including whatever eventually supersedes the current champion) inherits the fix
+  automatically, with no further action needed.
+- M3-05-08 (model card regeneration) is unaffected by this plan's outcome: the champion did not
+  change, so the existing card (already regenerated for the 2026-09-08 champions in M3-05-01)
+  remains accurate. No regeneration is required as a direct consequence of this plan.
+- Follow-up flagged, not this plan's scope: `deferred-items.md` now also logs the EP
+  calibration bin-level investigation (sparse bin vs. threshold tuning) for whoever next
+  revisits the `[promotion_gate]` thresholds or re-exercises the gate on a genuine candidate.
+- No blockers. `git status --porcelain data/ src/ scripts/` is clean.
 
-| Task | Name | Commit | Files |
-| ---- | ---- | ------ | ----- |
-| 1a (RED) | Failing coverage for the leak fix | `6335a82` | `tests/test_features_mutations.py` |
-| 1b (GREEN) | The fix | `f470974` | `src/flag_football_ep/features/mutations.py` |
-| 1c | Fresh four-arm re-run artifacts | `b1f528e` | `data/reference/epa_refinement/2026-09-09/*.csv`, `data/reference/corpus_freeze/2026-09-09_ae1f0140.json` |
+## Self-Check
 
-### Current Task
+Files (all `[ -f ]` checked):
+- `data/reference/epa_refinement/2026-09-09/ablation_summary.csv` -- FOUND
+- `data/reference/epa_refinement/2026-09-09/corpus_arms.csv` -- FOUND
+- `data/reference/epa_refinement/2026-09-09/no_play_rows.csv` -- FOUND
+- `data/reference/epa_refinement/2026-09-09/per_source_metrics_ep.csv` -- FOUND
+- `data/reference/epa_refinement/2026-09-09/per_source_metrics_wp.csv` -- FOUND
+- `data/reference/epa_refinement/2026-09-09/per_tier_metrics_ep.csv` -- FOUND
+- `data/reference/epa_refinement/2026-09-09/per_tier_metrics_wp.csv` -- FOUND
+- `data/reference/corpus_freeze/2026-09-09_ae1f0140.json` -- FOUND
+- `src/flag_football_ep/features/mutations.py` -- FOUND (modified)
+- `tests/test_features_mutations.py` -- FOUND (modified)
+- `docs/epa-refinement-2026-10.md` -- FOUND (modified)
+- `tests/test_m3_epa_docs.py` -- FOUND (modified)
+- `.planning/phases/M3-05-epa-plattform/deferred-items.md` -- FOUND (modified)
 
-**Task 2:** Present the measured before/after and the gate result
-**Status:** awaiting decision
-**Blocked by:** requires the owner's explicit promotion choice; a gate FAIL is not itself a
-"no" -- an override with a written reason is a legitimate answer this checkpoint accepts.
+Commits (`git log --oneline`):
+- `6335a82` -- FOUND
+- `f470974` -- FOUND
+- `b1f528e` -- FOUND
+- `ae9b5f2` -- FOUND
+- `a4afd22` -- FOUND
+- `8d81cc8` -- FOUND
 
-### Checkpoint Details
+Verification re-run:
+- `uv run pytest tests/test_features_mutations.py -x -q -k "extra_point"` -- 7 passed
+- `uv run pytest tests/test_m3_epa_docs.py tests/test_features_mutations.py -x -q` -- all
+  passed (17 doc-guard tests including the 2 new ones, plus the full mutations suite)
+- `git status --porcelain data/ src/ scripts/` -- clean
+- `registry.resolve_champion` unchanged: `ep_model` -> `97259da7acaf43f3b2c65e59f7f11694`,
+  `wp_model` -> `2c8c249d295d4ce9a2845800c459c153`
 
-**What was built:** The extra-point training leak (failed PAT/2-point attempts staying in
-EP/WP training) is fixed and committed. A real, fresh four-arm LOGO re-run of the fixed
-methodology exists (`data/reference/epa_refinement/2026-09-09/`), on the exact same corpus as
-2026-09-08 (fingerprint-identical) so the before/after isolates the fix's own effect. The real
-M3-05-06 gate was run against both new `with_hc` candidates (no `--force`) -- see the
-before/after table and the two gate transcripts above.
-
-**Summary of the decision to make:**
-- **EP candidate** (`efd9fd3dc457431d917fd6ce59788305`): beats naive and beats the current
-  champion on raw log-loss (0.938953 vs. 0.942659), but FAILS the gate on calibration
-  (`No_Score_Prob` deviates 0.316 from perfect, threshold 0.15).
-- **WP candidate** (`3b7d571c3f004858b87729ef7b92c30c`): beats naive comfortably, but is
-  marginally WORSE than the current champion on raw log-loss (0.373400 vs. 0.372350) and FAILS
-  the gate on beats_champion.
-- Both candidates are honest, closed-leak measurements of the SAME corpus the current champion
-  was trained on before this fix -- the champion itself was never re-measured with the leak
-  closed, so this is not an apples-to-apples "candidate underperforms" story so much as "the
-  fix's honest numbers don't clear the gate's bar against a champion that still has the leak in
-  it."
-
-**How to verify:** Read the before/after table and both gate transcripts above (already the
-exact `ffep promote` output, not a paraphrase).
-
-### Awaiting
-
-**Your promotion choice: `both` / `ep` / `wp` / `none`.**
-
-If you choose to promote a candidate that FAILED its gate check, you must give a reason for
-`--force --reason "..."` (M3-05-06's auditable override, tagged on the promoted run). Options,
-concretely:
-
-- **`none`** -- leave the 2026-09-08 champions in place; the leak fix lands in code (already
-  committed) but does not change what's live. Simplest, and defensible: neither candidate
-  clears the gate on its own honest merits.
-- **`ep` / `wp` / `both`, un-forced** -- not possible; both candidates FAIL their gate, so an
-  un-forced promotion attempt will refuse exactly as shown above. Only meaningful with a
-  written override reason.
-- **`ep` / `wp` / `both`, forced with a reason** -- e.g. "the leak fix is itself a correctness
-  requirement independent of the gate's marginal metric deltas" (EP's calibration miss is real
-  but the underlying methodology is more honest; WP's champion-comparison miss is a 0.001
-  regression against a champion that still has the leak). This is a real trade-off judgment,
-  not a technicality -- your call.
-
-**Resume signal:** Reply with your promotion choice (`both` / `ep` / `wp` / `none`) and, if
-overriding a failed gate check, the reason text for `--force --reason`.
+## Self-Check: PASSED
 
 ---
 *Phase: M3-05-epa-plattform*
-*Paused at checkpoint: 2026-09-09*
+*Completed: 2026-09-09*
