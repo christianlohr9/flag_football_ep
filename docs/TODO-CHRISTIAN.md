@@ -6,16 +6,13 @@ Erledigtes wandert nach unten. Wenn du etwas fertig hast: einfach sagen, ich hak
 ## Jetzt
 
 1. **Spielerinnen zuordnen (HC-Daten).**
-   Roster auf die aktuellen 2026er-Kader aktualisiert (u.a. Deutschland) und alle eindeutigen
-   Rückennummer-/Nachname-Vorschläge automatisch übernommen (2026-09-09). Rest ist absichtlich
-   offen: fast alles sind einzelne Vornamen ohne Nachnamen oder Nachnamen von Camp-Gegnerinnen
-   anderer Nationen -- die kann ich ohne Verwechslungsrisiko nicht automatisch raten.
-   Datei öffnen: `data/raw/hc_files/player_mapping_hc_template.csv` (frisch, nur noch die
-   offenen Fälle).
-   Spalte `source_player` = so hat der Head Coach die Spielerin in seiner Excel geschrieben (Nummer, Vorname oder Nachname).
-   Spalte `canonical_player` = der volle Name aus dem Roster (`data/reference/roster.csv`, Spalte `player_name`).
-   Wo schon ein Vorschlag steht: prüfen. Wo leer: Namen eintragen. Wenn keine deutsche Spielerin: leer lassen.
-   Dann sagen „Zuordnung fertig“, ich übernehme sie ins Repo.
+   Der Roster hat jetzt die 2026er Kader. Alles Eindeutige ist schon übernommen.
+   Es bleiben 87 Einträge. Viele sind nur ein Vorname. Manche sind Gegnerinnen aus Camps.
+   Datei: `data/raw/hc_files/player_mapping_hc_template.csv` (nur noch die offenen Fälle).
+   Spalte `source_player` = sein Eintrag. Nicht ändern.
+   Spalte `canonical_player` = voller Name aus `data/reference/roster.csv`.
+   Kennst du die Spielerin nicht? Leer lassen. Das ist ok.
+   Fertig? Sag „Zuordnung fertig“.
 
 2. **CVAT-Aufgaben 8, 9, 10 prüfen** (Bilder für die nächste Trainingsrunde).
    Task 8 = Drohne (183 Bilder), Task 9 = GoPro (150 Bilder, nur nahe Bilder, ferne überspringen), Task 10 = TV (101 Bilder).
