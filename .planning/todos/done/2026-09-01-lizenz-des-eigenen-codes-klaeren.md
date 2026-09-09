@@ -27,3 +27,12 @@ relizenzieren. In beiden Fällen gehört ein passendes `license`-Feld in `pyproj
 gebaute Distributions-Metadatendatei nicht länger lizenzlos ist. Das ist eine Entscheidung, keine
 Aufgabe, die dieser Plan treffen darf, und sie sollte vor dem 2026-11-16 (Materialübergabe an die
 Teams) geklärt sein.
+
+---
+
+**Erledigt (2026-09-09):** Nutzer-Entscheidung „privat + Apache" (`docs/TODO-CHRISTIAN.md` Punkt
+5). Repository-Lizenz von GPL-3.0 auf Apache-2.0 mit Namensnennung umgestellt (`LICENSE`, neue
+`NOTICE`-Datei, `pyproject.toml license`-Feld ergänzt), Repository-Sichtbarkeit wird zusätzlich
+auf privat gestellt (Nutzer-Aktion, `gh repo edit ... --visibility private`, noch offen).
+Abhängigkeitsprüfung vor der Umstellung: kein GPL/AGPL-Laufzeitpaket, kein Blocker. Details und
+Begründung: `docs/lizenz-inventur.md ## Entscheidung 2026-09-09`.
