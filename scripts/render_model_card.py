@@ -24,6 +24,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import csv
 import re
 import sys
 from dataclasses import dataclass, field
@@ -53,6 +54,15 @@ _MODEL_LABEL: dict[str, str] = {"ep": "EP", "wp": "WP"}
 _SOURCE_METRIC_PREFIX = "logo_logloss_by_source_"
 _PER_TIER_METRIC_PREFIX = "per_tier_logloss_"
 _CALIBRATION_METRIC_PREFIX = "calibration_max_deviation_"
+
+# M3-05-08: the M3-05-07 extra-point-exclusion methodology-change section in the refinement
+# doc -- read defensively (never assumed present) so this script stays regenerable both before
+# and after that section lands, same discipline as _champion_reason()/_current_corpus_context().
+_METHOD_CHANGE_MARKER = "## Methodenaenderung: Extrapunkt-Ausschluss"
+_CANDIDATE_VERDICT_RE = re.compile(r"\*\*(EP|WP)-Kandidat \(`([0-9a-f]{32})`\): (PASS|FAIL)\*\*")
+_GATE_DECISION_RE = re.compile(
+    r"\*\*Entschieden am (\d{4}-\d{2}-\d{2})\*\*.*?:\s*\*\*(\w+)\*\*\s*--", re.DOTALL
+)
 
 NA_NO_FREEZE = "kein Freeze referenziert"
 NA_UNKNOWN = "unbekannt für diesen Lauf"
@@ -231,6 +241,92 @@ def _current_corpus_context(doc_text: str) -> tuple[str | None, str | None]:
     return fp, commit
 
 
+def _all_ablation_rows() -> dict[str, dict]:
+    """Every row from every `ablation_summary.csv` under EPA_DIR -- the top-level
+    (2026-09-04, undated) file plus every dated subfolder (e.g. `2026-09-08/`, `2026-09-09/`)
+    -- keyed by `run_id`. Globs rather than hard-coding one date, mirroring
+    `tests/test_m3_epa_docs.py::_all_ablation_rows`."""
+    rows_by_run_id: dict[str, dict] = {}
+    candidates = [EPA_DIR / "ablation_summary.csv", *sorted(EPA_DIR.glob("*/ablation_summary.csv"))]
+    for path in candidates:
+        if not path.exists():
+            continue
+        with path.open(encoding="utf-8", newline="") as fh:
+            for row in csv.DictReader(fh):
+                rows_by_run_id[row["run_id"]] = row
+    return rows_by_run_id
+
+
+def _extra_point_fix_status(doc_text: str) -> dict | None:
+    """Pull the dated M3-05-07 extra-point-exclusion methodology section's key facts
+    (per-model candidate verdicts + the owner's promotion decision) straight out of the
+    refinement doc -- never hand-typed here. Returns None if the section is not (yet)
+    present, or if its shape does not match what this parser expects (degrades gracefully
+    rather than rendering a malformed/partial claim)."""
+    idx = doc_text.find(_METHOD_CHANGE_MARKER)
+    if idx == -1:
+        return None
+    section = doc_text[idx:]
+
+    candidates = {
+        m.group(1): (m.group(2), m.group(3)) for m in _CANDIDATE_VERDICT_RE.finditer(section)
+    }
+    decision_match = _GATE_DECISION_RE.search(section)
+    if not candidates or decision_match is None:
+        return None
+
+    return {
+        "candidates": candidates,  # {"EP": (run_id, verdict), "WP": (run_id, verdict)}
+        "decision_date": decision_match.group(1),
+        "decision": decision_match.group(2),
+    }
+
+
+def _render_gate_status(status: dict | None) -> str | None:
+    """Renders the '## Beförderungs-Gate: letzter Stand' section from `status` (see
+    `_extra_point_fix_status`) plus each candidate's own measured figures, read from the
+    committed `data/reference/epa_refinement/*/ablation_summary.csv` row for that run id --
+    never a second, hand-typed copy of a number already measured elsewhere. Returns None
+    (section omitted entirely) if there is no methodology-change section yet, or if a cited
+    candidate run id has no matching CSV row."""
+    if status is None:
+        return None
+
+    rows_by_id = _all_ablation_rows()
+    table_rows = []
+    for label in ("EP", "WP"):
+        if label not in status["candidates"]:
+            continue
+        run_id, verdict = status["candidates"][label]
+        row = rows_by_id.get(run_id)
+        if row is None:
+            continue
+        table_rows.append(
+            f"| {label} | `{run_id}` | {_de(float(row['metric_value']))} | "
+            f"{_de(float(row['naive_value']))} | {_de(float(row['logloss_improvement']))} | "
+            f"{verdict} |"
+        )
+    if not table_rows:
+        return None
+
+    table = "\n".join(table_rows)
+    return f"""## Beförderungs-Gate: letzter Stand
+
+Der jüngste reale Beförderungs-Gate-Lauf ({status['decision_date']}) prüfte neue Kandidaten
+nach dem Extrapunkt-Ausschluss-Fix gegen den amtierenden Champion:
+
+| Modell | Kandidat-Run-ID | Log-Loss | Grundrate | Verbesserung | Gate-Verdikt |
+|---|---|---:|---:|---:|---|
+{table}
+
+**Owner-Entscheidung ({status['decision_date']}):** {status['decision']} -- keine
+Alias-Verschiebung. Der Extrapunkt-Ausschluss-Fix selbst bleibt im Trainingscode
+(unabhängig von dieser Entscheidung) und gilt automatisch für den nächsten echten Retrain.
+Details zu jedem einzelnen Gate-Check (beats_naive/beats_champion/calibration/no_play_share)
+und die vollständige Owner-Begründung stehen im Abschnitt "Methodenänderung:
+Extrapunkt-Ausschluss" in `docs/epa-refinement-2026-10.md`."""
+
+
 # ---------------------------------------------------------------------------
 # Static prose (ported from the hand-written docs/epa-modellkarte.md, 2026-09-08 --
 # unchanged in substance, per plan instruction; the corpus-composition-specific "Tier-Mix"
@@ -278,6 +374,15 @@ verwenden dabei bewusst die Out-of-Fold-Vorhersage (das Modell hat das jeweilige
 gesehen), nicht ein Rescoring mit der finalen Champion-Version -- sonst würde ein Spiel von
 Wissen "profitieren", das zum Zeitpunkt seiner eigenen Messung gar nicht da war."""
 
+_PLATFORM_STATIC = """## Plattform
+
+Der lokale MLflow-Tracking-Store (`mlruns/mlflow.db`) kann optional in eine containerisierte
+Variante gespiegelt werden (Postgres-Backend-Store, MinIO-S3-Artefakt-Store,
+`docker-compose.mlflow.yml`) -- Betriebsanleitung inkl. Start/Stopp, Migration und
+Backup/Restore: `docs/mlflow-container-platform.md`. Die MLflow-UI (lokal oder
+containerisiert) zeigt registrierte Modelle, Champion-Alias/Version und die Reliability-Kurve
+live -- Schritt-für-Schritt-Anleitung für die Coach-Session: `docs/mlflow-ui-howto.md`."""
+
 _NEXT_STEPS_STATIC = """## Nächste Schritte
 
 1. Champion-Entscheidung treffen (Beförderung neuerer, HC-/IFAF-erweiterter Läufe ja/nein) --
@@ -289,19 +394,27 @@ _NEXT_STEPS_STATIC = """## Nächste Schritte
 4. Echte Spieluhr für WP prüfen, sobald mehr Quellen sie liefern."""
 
 
-def _method_extra_point_sentence(snap: ChampionSnapshot) -> str:
+def _method_extra_point_sentence(snap: ChampionSnapshot, methodenaenderung_present: bool) -> str:
     if snap.missing:
         return NA_UNKNOWN
     if snap.extra_point_excluded is not None:
         return snap.extra_point_excluded
+    if methodenaenderung_present:
+        return (
+            "nein -- dieser Champion-Lauf trainierte vor dem Extrapunkt-Ausschluss-Fix "
+            '(siehe "## Beförderungs-Gate: letzter Stand" unten); jeder künftige Retrain '
+            "wendet den Fix automatisch an, ohne weiteren Code-Eingriff"
+        )
     return NA_UNKNOWN
 
 
-def _render_method(snapshots: dict[str, ChampionSnapshot]) -> str:
+def _render_method(
+    snapshots: dict[str, ChampionSnapshot], methodenaenderung_present: bool
+) -> str:
     sentences = "\n".join(
         f"- **{_MODEL_LABEL[prefix]}** ({snap.registered_name}): schließt dieser Lauf "
         f"Extrapunkt-/Zwei-Punkt-Zeilen vollständig vom Training aus? "
-        f"{_method_extra_point_sentence(snap)}."
+        f"{_method_extra_point_sentence(snap, methodenaenderung_present)}."
         for prefix, snap in snapshots.items()
     )
     return f"""## Methode
@@ -328,6 +441,15 @@ def _render_trainingskorpus(snapshots: dict[str, ChampionSnapshot]) -> str:
         f"- **{_MODEL_LABEL[prefix]}:** {snap.freeze_manifest or NA_NO_FREEZE}"
         for prefix, snap in snapshots.items()
     )
+    any_missing_freeze = any(not snap.freeze_manifest for snap in snapshots.values())
+    freeze_note = (
+        " Seit M3-05-03 schreibt `ffep freeze-corpus` bei jedem Retrain ein datiertes, "
+        "fingerabdruck-basiertes Manifest nach `data/reference/corpus_freeze/` -- "
+        "Champion-Läufe von vor dieser Instrumentierung referenzieren noch keins; jeder "
+        "künftige Retrain zitiert automatisch das zu diesem Zeitpunkt aktuellste Manifest."
+        if any_missing_freeze
+        else ""
+    )
     return f"""## Trainingskorpus
 
 | Modell | Champion-Run | Version | Zeilen (n_plays) | LOGO-Folds |
@@ -340,7 +462,7 @@ Referenzierter Freeze (`ffep freeze-corpus`-Manifest mit Pro-Quelle-Zeilenzahlen
 
 Ohne ein referenziertes Freeze-Manifest stehen hier keine Pro-Quelle-Zeilenzahlen -- die
 Pro-Quelle-**Log-Loss**-Werte weiter unten unter "Performance" kommen trotzdem direkt aus dem
-jeweiligen MLflow-Lauf, nicht aus einer Schätzung."""
+jeweiligen MLflow-Lauf, nicht aus einer Schätzung.{freeze_note}"""
 
 
 def _render_performance(snapshots: dict[str, ChampionSnapshot]) -> str:
@@ -462,6 +584,8 @@ def render_card(snapshots: dict[str, ChampionSnapshot], refinement_doc_text: str
     stand = datetime.now(tz=timezone.utc).date().isoformat()
     reason = _champion_reason(refinement_doc_text)
     corpus_fp, corpus_commit = _current_corpus_context(refinement_doc_text)
+    gate_status = _extra_point_fix_status(refinement_doc_text)
+    gate_section = _render_gate_status(gate_status)
 
     header = f"""# EPA/WP-Modellkarte
 
@@ -476,14 +600,21 @@ Details, Herleitung und alle committeten Zahlen dahinter stehen in
         _INTRO_PURPOSE,
         _INTRO_INPUTS,
         _render_trainingskorpus(snapshots),
-        _render_method(snapshots),
+        _render_method(snapshots, gate_status is not None),
         _render_performance(snapshots),
         _render_calibration(snapshots),
-        f"## Bekannte Grenzen\n\n{_KNOWN_LIMITS_STATIC}",
-        _render_versionierung(snapshots, reason, corpus_fp, corpus_commit),
-        _USAGE_STATIC,
-        _NEXT_STEPS_STATIC,
     ]
+    if gate_section:
+        sections.append(gate_section)
+    sections.extend(
+        [
+            f"## Bekannte Grenzen\n\n{_KNOWN_LIMITS_STATIC}",
+            _render_versionierung(snapshots, reason, corpus_fp, corpus_commit),
+            _PLATFORM_STATIC,
+            _USAGE_STATIC,
+            _NEXT_STEPS_STATIC,
+        ]
+    )
     return "\n\n".join(sections) + "\n"
 
 

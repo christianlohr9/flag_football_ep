@@ -634,6 +634,60 @@ def test_modellkarte_performance_figures_match_live_registry_or_csv() -> None:
     )
 
 
+def _modellkarte_gate_status_rows() -> list[list[str]] | None:
+    """The `## Beförderungs-Gate: letzter Stand` table's data rows (header dropped), or
+    `None` if the card has no such section yet -- e.g. before M3-05-07's Methodenaenderung
+    section exists in `docs/epa-refinement-2026-10.md` (this mirrors
+    `scripts/render_model_card.py::_render_gate_status`'s own graceful-omission behavior)."""
+    text = _read(MODELLKARTE)
+    if "## Beförderungs-Gate: letzter Stand" not in text:
+        return None
+    rows = _find_table(text, "Gate-Verdikt")
+    header, data_rows = rows[0], rows[1:]
+    assert len(header) == 6, f"unexpected MODELLKARTE gate-status table header shape: {header}"
+    return data_rows
+
+
+def test_modellkarte_gate_status_run_ids_and_figures_match_extra_point_fix_csv() -> None:
+    """M3-05-08: the regenerated card's '## Beförderungs-Gate: letzter Stand' section quotes
+    the M3-05-07 extra-point-fix candidates' own run ids and figures -- checked against
+    EXTRA_POINT_FIX_ABLATION_CSV the same way the M3-02 sections above check their own
+    tables, reusing `_assert_figure_matches` (never a second tolerance helper). Extends the
+    MODELLKARTE guard's coverage without loosening `test_modellkarte_run_ids_resolve_to_
+    registry_or_csv`/`test_modellkarte_performance_figures_match_live_registry_or_csv` above,
+    which still run unmodified against their own table. Skips gracefully if the card has no
+    such section yet."""
+    data_rows = _modellkarte_gate_status_rows()
+    if data_rows is None:
+        pytest.skip("MODELLKARTE has no '## Beförderungs-Gate' section yet")
+
+    ablation_rows = _csv_rows(EXTRA_POINT_FIX_ABLATION_CSV)
+    by_run_id = {row["run_id"]: row for row in ablation_rows}
+
+    checked = 0
+    for cells in data_rows:
+        _, run_id_cell, metric_cell, naive_cell, impr_cell, verdict_cell = cells
+        run_id = run_id_cell.strip("`")
+        assert run_id in by_run_id, (
+            f"MODELLKARTE gate-status table cites run id {run_id!r} with no "
+            f"{EXTRA_POINT_FIX_ABLATION_CSV} row"
+        )
+        csv_row = by_run_id[run_id]
+        _assert_figure_matches(metric_cell, float(csv_row["metric_value"]), f"{run_id} metric_value")
+        _assert_figure_matches(naive_cell, float(csv_row["naive_value"]), f"{run_id} naive_value")
+        _assert_figure_matches(
+            impr_cell, float(csv_row["logloss_improvement"]), f"{run_id} logloss_improvement"
+        )
+        assert verdict_cell.strip() in ("PASS", "FAIL"), (
+            f"unexpected gate verdict cell in MODELLKARTE: {verdict_cell!r}"
+        )
+        checked += 1
+
+    assert checked == len(data_rows), (
+        f"expected {len(data_rows)} MODELLKARTE gate-status row(s) figure-checked, got {checked}"
+    )
+
+
 # ---------------------------------------------------------------------------
 # PII gate
 # ---------------------------------------------------------------------------
