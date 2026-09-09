@@ -58,3 +58,21 @@ rule (only auto-fix issues directly caused by the current task's changes).
   lands and this worktree merges, the live store should carry them.
 - **Action:** Not fixed here. Flagged for whoever runs the phase-level full-suite check
   after all worktrees merge back.
+
+## M3-05-06: two `test_model_score.py` null-feature-row backfill tests fail
+
+- **Found during:** M3-05-06 Task 2, a broader background regression sweep
+  (`tests/test_config.py tests/test_model_train.py tests/test_model_evaluate.py
+  tests/test_model_freeze.py tests/test_model_score.py -q`) run beyond the plan's own
+  `<verify>` commands.
+- **Issue:** `test_score_plays_backfills_ep_on_null_feature_row_from_next_play` and
+  `test_score_plays_backfills_wp_on_null_feature_row_from_next_play` both fail with
+  `assert None is not None`.
+- **Why out of scope:** `git diff --stat b940c56 HEAD -- src/flag_football_ep/model/score.py`
+  is empty -- this plan's commits never touch `score.py`, and neither test imports or
+  exercises `gate.py`/`config.py`'s `promotion_gate`/`cli.py`'s `promote` changes. The base
+  commit this worktree started from (`b940c56`) already carries a prior fix titled "stop
+  backward-filling ep/wp across null-position rows" (`46c529e`) touching this exact
+  behavior; this looks like a pre-existing gap in that area, not a regression from M3-05-06.
+- **Action:** Not fixed here -- outside this plan's scope boundary. Flagged for whoever owns
+  `score.py`'s null-feature-row backfill behavior next.
