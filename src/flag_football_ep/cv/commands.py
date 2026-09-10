@@ -317,6 +317,24 @@ def train(
     device: Optional[str] = typer.Option(
         None, "--device", help="Override cfg.cv.device"
     ),
+    min_images: Optional[int] = typer.Option(
+        None,
+        "--min-images",
+        help=(
+            "Override the image-count floor validate_coco checks --dataset against "
+            "(default: the Phase-2.1 single-domain band's 250; pass 1500 for the "
+            "Phase-2.2 multi-domain floor)"
+        ),
+    ),
+    max_images: Optional[int] = typer.Option(
+        None,
+        "--max-images",
+        help=(
+            "Override the image-count ceiling validate_coco checks --dataset "
+            "against (default: the Phase-2.1 single-domain band's 600; pass 3000 "
+            "for the Phase-2.2 multi-domain ceiling)"
+        ),
+    ),
     out: Optional[Path] = typer.Option(None, "--out", help="Artifact output directory"),
     register: bool = typer.Option(
         True,
@@ -377,6 +395,8 @@ def train(
         from_artifacts=from_artifacts,
         resume=resume,
         init_weights=init_weights,
+        min_images=min_images,
+        max_images=max_images,
     )
 
     typer.echo(f"run: {result.run_id}")

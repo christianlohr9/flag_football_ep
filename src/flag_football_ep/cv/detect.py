@@ -280,6 +280,8 @@ def _prepare_dataset_layout(
     output_dir: Path,
     *,
     eval_split_path: Path | None = None,
+    min_images: int | None = None,
+    max_images: int | None = None,
 ) -> tuple[Path, str]:
     """Validate `coco_dir` against `manifest` and build the sibling `train/`/`valid/`
     Roboflow-COCO layout `rfdetr` expects (RESEARCH.md Standard Stack -- each split
@@ -292,6 +294,14 @@ def _prepare_dataset_layout(
     fewer frames than the full sampling manifest still validates. Returns
     `(dataset_dir, content_sha256)`.
 
+    `min_images`/`max_images` forward straight to `validate_coco` (`None` preserves
+    its own single-domain Phase-2.1 default `[250, 600]`) -- a Phase-2.2 multi-domain
+    dataset growing past 600 images (dataset v2's 755, for example) needs the wider
+    `[1500, 3000]` band `ffep cv dataset`'s own `--min-images`/`--max-images` already
+    expose (plan 02.2-13); this is the same override threaded into the training path
+    so `train_detector` does not reject a dataset the CLI `dataset` command already
+    accepted.
+
     Raises `dataset.DatasetError` (via `validate_coco`) before any trainer import or
     call when `coco_dir` fails structural validation -- including, when
     `eval_split_path` is given, D-19's guard against a held-out frozen_eval clip
@@ -300,7 +310,13 @@ def _prepare_dataset_layout(
     from flag_football_ep.cv.dataset import DatasetError, validate_coco
 
     manifest = _filter_manifest_to_dataset(manifest, coco_dir)
-    stats = validate_coco(coco_dir, manifest, eval_split_path=eval_split_path)
+    stats = validate_coco(
+        coco_dir,
+        manifest,
+        eval_split_path=eval_split_path,
+        min_images=min_images,
+        max_images=max_images,
+    )
 
     annotation_path = coco_dir / "instances.json"
     data = json.loads(annotation_path.read_text(encoding="utf-8"))
@@ -380,8 +396,17 @@ def train_detector(
     from_artifacts: Path | None = None,
     resume: Path | None = None,
     init_weights: Path | None = None,
+    min_images: int | None = None,
+    max_images: int | None = None,
 ) -> DetectorTrainResult:
     """Fine-tune RF-DETR on the validated COCO dataset at `dataset_dir`.
+
+    `min_images`/`max_images` override the image-count band `validate_coco` checks
+    `dataset_dir` against before training starts (`None` keeps the Phase-2.1
+    single-domain default `[250, 600]`) -- pass the Phase-2.2 multi-domain band
+    (`1500`/`3000`) for any `data/labels/dataset` call whose image count can exceed
+    600, exactly as `ffep cv dataset`'s own `--min-images`/`--max-images` already do
+    for the standalone validation command (plan 02.2-13).
 
     `resume`, when given, is forwarded to `RFDETRSmall.train(resume=...)` as-is
     (rfdetr's own `TrainConfig.resume` field): a path to a full PyTorch Lightning
@@ -468,6 +493,8 @@ def train_detector(
         manifest,
         resolved_output_dir,
         eval_split_path=config.paths.reference / "frozen_eval_clips.csv",
+        min_images=min_images,
+        max_images=max_images,
     )
 
     # Function-local imports: rfdetr/torch are `cv`-extras dependencies, never a

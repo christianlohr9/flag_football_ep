@@ -227,6 +227,8 @@ FUNCTION_CONTRACTS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "from_artifacts",
             "resume",
             "init_weights",
+            "min_images",
+            "max_images",
         ),
     ),
     ("detect", "load_detector", ("config", "run_id")),
