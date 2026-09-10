@@ -237,13 +237,15 @@ def test_generate_worksheets_is_idempotent_and_preserves_typed_values(tmp_path):
     worksheet_path = Path(report["g1"]["worksheet_path"])
     assert worksheet_path.exists()
 
-    # Simulate the owner typing a value in.
-    rows = list(csv.DictReader(worksheet_path.open(encoding="utf-8")))
+    # Simulate the owner typing a value in. The worksheet is written `utf-8-sig` (a BOM, so
+    # Excel on macOS opens the umlauts correctly) -- read it back the same way, exactly as
+    # Excel itself (or any BOM-aware reader) would.
+    rows = list(csv.DictReader(worksheet_path.open(encoding="utf-8-sig")))
     for row in rows:
         if row["sequence"] == "20":
             row["ballOn"] = "11"
             row["note"] = "read off video"
-    with worksheet_path.open("w", encoding="utf-8", newline="") as f:
+    with worksheet_path.open("w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=list(WORKSHEET_COLUMNS), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
@@ -251,7 +253,7 @@ def test_generate_worksheets_is_idempotent_and_preserves_typed_values(tmp_path):
     # Regenerate -- must not clobber the typed-in value.
     generate_worksheets(raw_dir, worksheet_dir, _team_mapping())
 
-    rows_after = list(csv.DictReader(worksheet_path.open(encoding="utf-8")))
+    rows_after = list(csv.DictReader(worksheet_path.open(encoding="utf-8-sig")))
     filled = next(r for r in rows_after if r["sequence"] == "20")
     assert filled["ballOn"] == "11"
     assert filled["note"] == "read off video"
@@ -406,3 +408,89 @@ def test_generate_worksheets_csv_is_comma_lf_no_semicolons(tmp_path):
     assert b"\r\n" not in raw_bytes
     header = raw_bytes.split(b"\n", 1)[0]
     assert b";" not in header
+
+
+# --- Excel round trip (BOM writer, tolerant reader) -------------------------
+
+
+def test_generate_worksheets_writes_utf8_sig_bom(tmp_path):
+    """The worksheet is opened directly in Excel by the project owner -- a
+    leading UTF-8 BOM is required so Excel (macOS or Windows) detects UTF-8
+    instead of guessing wrong on umlauts (garbled as e.g. "NÃ¼hse")."""
+    reviewer_plays = {"g1": [_play_record(10, ball_on=5), _play_record(20, ball_on=None)]}
+    raw_dir = _write_raw_dir(tmp_path, reviewer_plays)
+    worksheet_dir = tmp_path / "worksheets"
+
+    report = generate_worksheets(raw_dir, worksheet_dir, _team_mapping())
+    raw_bytes = Path(report["g1"]["worksheet_path"]).read_bytes()
+
+    assert raw_bytes.startswith(b"\xef\xbb\xbf")
+    assert raw_bytes[3:].startswith(b"game_id,")
+
+
+def test_generate_worksheets_tolerates_excel_resaved_semicolon_mac_roman_crlf(tmp_path):
+    """After the owner types a value in and Excel re-saves the worksheet, the
+    file routinely comes back semicolon-delimited, `mac_roman`-encoded and
+    CRLF-terminated -- regenerating must still find and preserve the typed
+    value (idempotent), same tolerance `ingest.ifaf.load_spot_fill` already
+    has for the committed fill files."""
+    reviewer_plays = {"g1": [_play_record(10, ball_on=5), _play_record(20, ball_on=None)]}
+    raw_dir = _write_raw_dir(tmp_path, reviewer_plays)
+    worksheet_dir = tmp_path / "worksheets"
+
+    report = generate_worksheets(raw_dir, worksheet_dir, _team_mapping())
+    worksheet_path = Path(report["g1"]["worksheet_path"])
+
+    header = ";".join(WORKSHEET_COLUMNS)
+    row10 = ";".join(
+        {
+            "game_id": "ifaf-g1",
+            "sequence": "10",
+            "play_id": "1",
+            "half": "1",
+            "down": "1",
+            "offense_team": "USA",
+            "passer": "",
+            "receiver": "",
+            "result_raw": "",
+            "prev_ballOn": "",
+            "video_url": "",
+            "video_time_s": "",
+            "video_time_mmss": "",
+            "ballOn": "5",
+            "note": "",
+            "spot_status": "real",
+        }.get(col, "")
+        for col in WORKSHEET_COLUMNS
+    )
+    row20 = ";".join(
+        {
+            "game_id": "ifaf-g1",
+            "sequence": "20",
+            "play_id": "2",
+            "half": "1",
+            "down": "1",
+            "offense_team": "USA",
+            "passer": "",
+            "receiver": "",
+            "result_raw": "",
+            "prev_ballOn": "5",
+            "video_url": "",
+            "video_time_s": "",
+            "video_time_mmss": "",
+            "ballOn": "11",
+            "note": "gelesen von Video, überflüssiges Detail",
+            "spot_status": "missing",
+        }.get(col, "")
+        for col in WORKSHEET_COLUMNS
+    )
+    text = "\r\n".join([header, row10, row20]) + "\r\n"
+    worksheet_path.write_bytes(text.encode("mac_roman"))
+
+    # Regenerate -- must not clobber the typed-in value despite the dialect change.
+    generate_worksheets(raw_dir, worksheet_dir, _team_mapping())
+
+    rows_after = list(csv.DictReader(worksheet_path.open(encoding="utf-8-sig")))
+    filled = next(r for r in rows_after if r["sequence"] == "20")
+    assert filled["ballOn"] == "11"
+    assert filled["note"] == "gelesen von Video, überflüssiges Detail"

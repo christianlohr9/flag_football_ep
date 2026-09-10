@@ -41,6 +41,7 @@ from flag_football_ep.ingest.ifaf import (
     flatten_plays_records,
 )
 from flag_football_ep.ingest.ifaf_video_marks import _video_fields
+from flag_football_ep.owner_csv import OWNER_CSV_WRITE_ENCODING, read_owner_csv
 
 WORKSHEET_COLUMNS: tuple[str, ...] = (
     "game_id",
@@ -247,11 +248,17 @@ def build_worksheet_rows(
 
 def _read_existing_csv(path: Path) -> dict[str, dict]:
     """Read an existing worksheet into `{sequence_key: row_dict}` (one file
-    is always scoped to a single game, so `sequence` alone is a unique key)."""
-    if not path.exists():
-        return {}
-    with path.open("r", encoding="utf-8", newline="") as f:
-        return {row.get("sequence", ""): row for row in csv.DictReader(f)}
+    is always scoped to a single game, so `sequence` alone is a unique key).
+
+    Tolerant of a BOM, `;` delimiter, mac_roman/cp1252 encoding and CRLF
+    (`flag_football_ep.owner_csv.read_owner_csv`) -- this is the exact file
+    `_write_worksheet` hands the project owner to open, type into and save
+    in Excel, so a subsequent read of that same file must survive whatever
+    Excel round trip it went through, same "never destroy prior work"
+    contract this function already documents.
+    """
+    rows, _notices = read_owner_csv(path)
+    return {row.get("sequence", ""): row for row in rows}
 
 
 def _write_worksheet(path: Path, rows: list[dict]) -> None:
@@ -259,7 +266,14 @@ def _write_worksheet(path: Path, rows: list[dict]) -> None:
     already typed into the existing file on disk (matched on `sequence`) --
     idempotent, never destroys prior work. A row no longer present in the
     freshly computed set (e.g. the underlying snapshot changed) is dropped,
-    same as every other IFAF ingest recompute-from-source convention."""
+    same as every other IFAF ingest recompute-from-source convention.
+
+    Written `utf-8-sig` (a leading BOM) -- this file is opened directly in
+    Excel by the project owner, and a plain UTF-8 CSV with no BOM is
+    routinely mis-decoded by Excel on macOS (German umlauts render as
+    mojibake, e.g. "Nühse" -> "NÃ¼hse"); the BOM is Excel's own signal to
+    trust UTF-8 instead of guessing.
+    """
     existing = _read_existing_csv(path)
 
     merged: list[dict] = []
@@ -273,7 +287,7 @@ def _write_worksheet(path: Path, rows: list[dict]) -> None:
         merged.append(row)
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as f:
+    with path.open("w", encoding=OWNER_CSV_WRITE_ENCODING, newline="") as f:
         writer = csv.DictWriter(f, fieldnames=list(WORKSHEET_COLUMNS), lineterminator="\n")
         writer.writeheader()
         for row in merged:
