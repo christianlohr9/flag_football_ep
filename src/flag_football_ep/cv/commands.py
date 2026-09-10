@@ -273,7 +273,7 @@ def dataset(
     """Validate a COCO export against its sample manifest and report dataset stats."""
     from flag_football_ep.config import load_config
 
-    load_config(config)
+    cfg = load_config(config)
 
     from flag_football_ep.cv.frames import read_manifest
 
