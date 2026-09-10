@@ -3,16 +3,21 @@
 **Status: Iteration 1 abgeschlossen — Korrektursitzung, Merge und DVC-Versionierung am
 2026-09-02 (Plan 02.2-13), am selben Tag per Korrektur auf Datensatz v1.1 berichtigt
 (D-17-Verstoss, siehe `### Korrektur 2026-09-02` unten), am 2026-09-04 per GoPro-Nachsitzung
-auf Datensatz v1.2 erweitert (siehe `### Nachtrag 2026-09-04` unten). Datensatz v1.2 liegt
-unter `data/labels/dataset/`, DVC-getrackt, 572 Bilder über drei Domänen (Drohne 450,
-TV/Broadcast 100, GoPro/Hinterfeld 22) — jedes Bild tatsächlich von der Nutzerin in CVAT
-gesichtet und/oder korrigiert, per Datei-Diff gegen die Vorlabels verifiziert, nicht nur
-gemeldet. Iteration-1-Detektor auf v1.2 trainiert und per Domäne evaluiert (Plan 02.2-15,
+auf Datensatz v1.2 erweitert (siehe `### Nachtrag 2026-09-04` unten). Iteration 2 am
+2026-09-10 gemergt und validiert (Plan 02.2-17, siehe `## Iteration-2-Merge, Validierung und
+Dataset v2` unten): **Datensatz v2** liegt unter `data/labels/dataset/`, DVC-getrackt, 755
+Bilder über drei Domänen (Drohne 514, TV/Broadcast 184, GoPro/Hinterfeld 57) — jedes Bild
+tatsächlich von der Nutzerin in CVAT gesichtet und per Datei-Diff gegen die Vorlabels
+verifiziert (183 von 434 gepullten Iteration-2-Frames berührt, Rest ausgeschlossen), nicht nur
+gemeldet. **1.500er-Floor nach zwei geplanten AL-Iterationen nicht erreicht** (755/1.500,
+50,3 %) — ehrlich als solcher berichtet, kein Rundungs- oder Umdeutungsversuch. Iteration-1-
+Detektor auf v1.2 trainiert und per Domäne evaluiert (Plan 02.2-15,
 MLflow Run `be854a1adebf4eb4b01d98dc39022ee1`) — Drohne verschlechtert sich gegenüber dem
 Champion auf den eingefrorenen Eval-Clips (`mAP_50_95` -0,0476), GoPro nicht messbar (keine
 Ground Truth für die eingefrorenen Clips), daher **nicht promoviert**, siehe
 `## Iteration-1-Detektor: Training und Per-Domain-Evaluation (Plan 02.2-15)` unten. Noch
-offen: Iteration 2 (Plan 02.2-17) und der echte OTC-OBS-`dvc push` (Plan 02.2-20). Am
+offen: Iteration-2-Detektor-Training/Evaluation (Plan 02.2-18) und der echte OTC-OBS-`dvc
+push` (Plan 02.2-20). Am
 2026-09-04 zusätzlich: Ground-Truth-Sampling + Vorlabel-Push für die eingefrorenen Eval-Clips
 vorbereitet (CVAT-Aufgaben `eval-gt-drone`/`eval-gt-sideline`), geprüft, Held-out-Ergebnis
 bestätigt die Nicht-Promotion (`### Nachtrag 2026-09-04 (abends)`). Ursachen-Diagnose
@@ -1337,3 +1342,132 @@ Ergänzung aus der GoPro-Erfahrung:
 - **Nach der Sichtung:** `ffep cv cvat-pull --task 8|9|10 --out data/labels/al-iteration-2/<domain>-corrected`
   je Aufgabe, dann Merge nach demselben Diff-basierten "berührt vs. unberührt"-Verfahren wie
   Iteration 1/die Nachsitzung (kein Frame ohne bestätigten Datei-Diff als verifiziert gezählt).
+
+## Iteration-2-Merge, Validierung und Dataset v2 (Plan 02.2-17)
+
+**Freigabe (2026-09-10):** Die Nutzerin meldete alle drei Iteration-2-Aufgaben als vollständig
+gesichtet und abgeschlossen (Aufgabe 8 `al-2-drone-1-1`, 183 Frames; Aufgabe 9
+`al-2-sideline-1-1`, 150 GoPro-Frames, Fernfeld-Regel weiterhin bindend; Aufgabe 10
+`al-2-broadcast-1-1`, 101 Frames). Alle drei Aufgaben wurden per `ffep cv cvat-pull --task
+8|9|10 --out data/labels/al-iteration-2/<domain>-corrected` gezogen.
+
+### Diff-Methodik (unverändert gegenüber `### Korrektur 2026-09-02`/`### Nachtrag 2026-09-04:
+GoPro-Nachsitzung`)
+
+Trotz der gemeldeten Vollständigkeit gilt D-17 strikt und ohne Domänen-Ausnahme: nur Frames, die
+sich per Datei-Diff nachweisbar vom Vorlabel unterscheiden ("berührt"), zählen als
+menschlich verifiziert und fliessen in den Datensatz ein. Unberührte Frames (identisch zum
+Vorlabel, Boxenzahl, `category_id` und `bbox`-Koordinaten innerhalb 1,0 px Toleranz) gelten als
+nicht tatsächlich bearbeitet und werden ausgeschlossen — unabhängig davon, ob die Aufgabe in
+CVAT als abgeschlossen markiert wurde, exakt die Lehre aus der D-17-Korrektur vom 2026-09-02, die
+bewusst nicht nur auf die GoPro-Domäne beschränkt bleibt. Ein berührter Frame mit 0 Boxen wäre
+nach derselben Regel wie in Iteration 1 ("0 Boxen = übersprungen, nie echtes Negativ", da jeder
+gezogene AL-Frame aus einem laufenden Spielzug mit Spielerinnen stammt) ebenfalls kein echtes
+Negativ und würde als Fernfeld-Skip behandelt, nicht als bestätigt-leer — trat in dieser Runde in
+keiner Domäne auf (0 Fälle, siehe Tabelle).
+
+### Ergebnis pro Domäne
+
+| Domäne | Gepullt | Berührt (übernommen) | Unberührt (ausgeschlossen) | davon 0-Box-unberührt (Fernfeld-Skip) | Berührt mit 0 Boxen |
+|---|---:|---:|---:|---:|---:|
+| Drohne | 183 | **64** | 119 | 0 | 0 |
+| GoPro/Hinterfeld | 150 | **35** | 115 | 10 | 0 |
+| TV/Broadcast | 101 | **84** | 17 | 0 | 0 |
+| **Summe** | **434** | **183** | **251** | **10** | **0** |
+
+Die 10 unberührten 0-Box-GoPro-Frames sind exakt die 10 Frames, die bereits beim Vorlabeln keine
+Detektion hatten (`### Ausführung: ffep cv active-learn --iteration 2` oben: "10/150 (6,7 %)
+Frames ohne Detektion") — bestätigt per Mengenvergleich, dieselbe Methodik wie in Iteration 1: das
+sind Fernfeld-Frames, nie berührt, kein bewusst bestätigtes Negativ. Für Drohne und TV/Broadcast
+gilt diesmal keine Sonderbehandlung ("alle bleiben, weil durchgesehen") wie ursprünglich (fehl-)
+angenommen für Iteration 1 — nur der Diff entscheidet, für jede Domäne gleich.
+
+Neu hinzugekommene Boxen (nur berührte Frames): Drohne 1093 `player` + 129 `referee`; GoPro/
+Hinterfeld 438 `player` + 76 `referee`; TV/Broadcast 1164 `player` + 113 `referee`.
+
+### Merge in Dataset v2
+
+Die 183 berührten Frames wurden domänen-präfixiert (`<domain>__<dateiname>`) in das wachsende
+Verzeichnis `data/labels/dataset/` kopiert, Bild-/Annotations-IDs fortlaufend an den v1.2-Stand
+angehängt, `manifest.json` um die entsprechenden Frame-Einträge (`clip_number`, `frame_index`,
+`timestamp_s`, `domain`, `split: "train"`) aus den jeweiligen
+`data/labels/al-iteration-2/<domain>/manifest.json`-Ziehungsmanifesten erweitert.
+
+| Kennzahl | v1.2 (vor Iteration 2) | v2 (nach Iteration 2) |
+|---|---:|---:|
+| Bilder gesamt | 572 | **755** |
+| Drohne | 450 | **514** |
+| GoPro/Hinterfeld | 22 | **57** |
+| TV/Broadcast | 100 | **184** |
+| `player`-Boxen | 9444 | **12139** |
+| `referee`-Boxen | 1109 | **1427** |
+
+**Ausschluss-Assertionen (per Skript geprüft):** Puerto Rico (`PUERTORICO`, private Testpartie) 0
+Treffer über alle 755 gemergten Frames — keiner der drei Iteration-2-Sessions bezieht sich auf
+diese Partie. `assert_no_frozen_eval_clips` (D-19-Guard, unconditionally in `validate_coco`
+verdrahtet, Plan 02.2-EVAL-GT) läuft ohne Exception durch `ffep cv dataset` durch — kein
+eingefrorener Eval-Clip ist im Trainingsdatensatz gelandet.
+
+**Validierung** (`ffep cv dataset --coco data/labels/dataset --manifest
+data/labels/dataset/manifest.json --min-images 1 --max-images 3000`): exit 0, 755 Bilder, 12139
+`player` + 1427 `referee` Boxen, 0 Bilder ohne Annotation, `content_sha256`
+`d87dd04cb7ed53cc3436e02596233937971df0edfbcf9cff628192a9d8963dce` (unterscheidet sich von der
+v1.2-Prüfsumme `d4528a9958305c267e6257be26c07466fe78e286d4777108c29d9476003b56b1`).
+
+`boxes_by_domain` (jede Domäne trägt mindestens eine `player`-Box):
+
+| Domäne | `player` | `referee` | Bilder ohne Annotation |
+|---|---:|---:|---:|
+| Drohne | 9046 | 1035 | 0 |
+| GoPro/Hinterfeld | 656 | 133 | 0 |
+| TV/Broadcast | 2437 | 259 | 0 |
+
+**Ehrlicher Stand gegen den 1.500-Floor:** 755 von 1.500 (**50,3 %**) — über die Hälfte des
+kumulativen Zwei-Iterationen-Ziels erreicht, aber **der Floor ist nach zwei geplanten
+AL-Iterationen nicht erreicht**. Grund: die konsequente Anwendung der Diff-basierten
+Berührt-Regel (siehe oben) hält die tatsächlich zählbare Ausbeute deutlich unter der optimistischen
+Projektion aus Plan 02.2-16 (1.006 bei angenommenen ~76 % Verifizierungsquote) — die reale
+domänenübergreifende Quote dieser Runde liegt bei 183/434 = **42,2 %** der gepullten Rohframes
+(Drohne 35,0 %, GoPro/Hinterfeld 23,3 %, TV/Broadcast 83,2 %), spürbar niedriger als Iteration 1s
+eigene 76 % (die allerdings auf der inzwischen korrigierten, zu grosszügigen Drohnen-/
+Broadcast-Annahme "alles gilt als durchgesehen" beruhte). Der GoPro-Rückstand bleibt der grösste
+Einzelposten (57 von 400, 14,3 %) — REQ-S2-03's 1.500er-Floor ist als Ergebnis der beiden
+geplanten AL-Iterationen dieser Phase **nicht erreicht** (755/1.500); ein Schliessen des Floors
+erfordert eine über diese Phase hinausgehende dritte Labeling-Runde oder eine strukturell grössere
+GoPro-Sitzung, beides ausserhalb des in dieser Phase gebundenen Budgets (D-16: zwei
+Wochenend-Iterationen).
+
+### DVC-Versionierung (Plan 02.2-17, Task 3)
+
+`data/labels/dataset/` per `uv run --extra versioning dvc add data/labels/dataset` erneut
+getrackt.
+
+| Kennzahl | Wert |
+|---|---|
+| DVC-MD5 (`.dvc`-Datei, `outs[0].md5`) | `4b1652c97f6ca4e2f0032a6a7e2334a3.dir` |
+| `nfiles` (DVC) | 757 (755 Bilder + `instances.json` + `manifest.json`) |
+| Projekt-`content_sha256` (`dataset_hash()`) | `d87dd04cb7ed53cc3436e02596233937971df0edfbcf9cff628192a9d8963dce` |
+
+`git status --porcelain data/labels` zeigt weiterhin ausschliesslich `data/labels/dataset.dvc`;
+`git check-ignore -q data/labels/dataset` bestätigt weiterhin den Ausschluss der Nutzdaten.
+
+**`dvc push` gegen den echten OTC-OBS-Endpunkt: erneut versucht, wie erwartet fehlgeschlagen**
+(`403 Forbidden` auf `HeadObject`, Platzhalter-Bucket `ffep-datasets-PLACEHOLDER` weiterhin nicht
+bereitgestellt — Plan 02.2-20 ist zum Zeitpunkt dieser Ausführung noch nicht gelaufen, keine
+`02.2-20-SUMMARY.md` vorhanden). `dvc push -r local-fallback` erfolgreich (191 neue Dateien),
+`dvc status -r local-fallback -c data/labels/dataset.dvc` bestätigt danach "Cache and remote
+'local-fallback' are in sync" — derselbe bewährte Rückfall-Mechanismus wie in den Plänen 02.2-13/
+02.2-EVAL-GT.
+
+### Abweichung: `ffep cv dataset` CLI-Bug behoben (`cfg` unassigned)
+
+Beim ersten Validierungsversuch (`ffep cv dataset --coco data/labels/dataset --manifest
+data/labels/dataset/manifest.json --min-images 1 --max-images 3000`) schlug der Befehl mit
+`NameError: name 'cfg' is not defined` fehl: `cv/commands.py`s `dataset`-Befehl rief
+`load_config(config)` auf, ohne das Ergebnis einer Variable zuzuweisen, referenzierte aber wenige
+Zeilen später `cfg.paths.reference` für den seit Plan 02.2-EVAL-GT verdrahteten
+`eval_split_path`-Parameter — ein echter, blockierender Bug (Rule 1), eingeführt, als der
+D-19-Guard unconditionally in den `dataset`-Befehl verdrahtet wurde, aber seither nie über die
+reale Multi-Domänen-CLI ausgeführt (nur über Tests, deren Fixtures den Bug nicht auslösen).
+Behoben mit einer Einzeiler-Zuweisung (`cfg = load_config(config)`); `uv run pytest
+tests/test_cv_dataset.py -x -q` weiterhin grün (27 passed).
