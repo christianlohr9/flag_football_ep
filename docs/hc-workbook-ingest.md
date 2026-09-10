@@ -303,6 +303,24 @@ Nachnamen-Schreibweisen) wurden automatisch übernommen, 2 `legacy`-Label als Pl
 ausgeschlossen. Die verbleibenden 46 (15 `hc_workbook`-Vornamen ohne Nachnamen, 31
 `legacy`-Label ohne eindeutigen Roster-Treffer) bleiben im Template für die manuelle Prüfung.
 
+**Excel-Rundreise, `--apply-filled` (2026-09-10):** Der Cheftrainer trägt seine Vorschläge für
+die verbleibenden Label direkt in `data/raw/hc_files/player_mapping_template.csv` ein — dafür
+öffnet und speichert er die Datei in Excel. Zwei Punkte macht das robust: die Vorlage wird jetzt
+mit UTF-8-BOM geschrieben (`utf-8-sig`), damit Excel auf dem Mac sie beim Öffnen korrekt als
+UTF-8 erkennt statt Umlaute als Mojibake darzustellen (z. B. "Nühse" → "NÃ¼hse"); und
+`player_mapping_template.py --apply-filled` liest die gespeicherte Datei robust ein, egal ob
+Excel sie unverändert zurückgibt oder — wie beim erneuten Speichern üblich — Semikolon-getrennt,
+nicht als UTF-8 (`mac_roman`/`cp1252`) und mit CRLF-Zeilenenden. Jede eingetragene
+`canonical_player`-Zelle wird gegen `roster.csv` validiert: exakte Übereinstimmung wird direkt
+übernommen; bei keiner exakten Übereinstimmung aber genau einem eindeutigen Fold-Treffer
+(Groß-/Kleinschreibung, Umlaute, Leerzeichen) wird die Schreibweise korrigiert und das als
+Korrektur gemeldet; ohne eindeutigen Treffer wird die Zeile gemeldet und übersprungen — nie
+stillschweigend geraten. Wie `--apply-unique` überschreibt `--apply-filled` nie eine bereits
+vorhandene Zeile in `player_mapping.csv` und ist idempotent. Die Lese-/Schreib-Toleranz für
+Excel-Rundreisen (BOM, `;`, `mac_roman`/`cp1252`, CRLF) lebt jetzt zentral in
+`flag_football_ep.owner_csv`, demselben Modul, das schon `ingest.ifaf.load_spot_fill`/
+`load_corrections` benutzen.
+
 ## Offene Fragen
 
 **Frage 1** (`docs/hc-rueckfragen-2026-09.md`): ist der `Data`-Tab in "Germany Analytics Stats EC

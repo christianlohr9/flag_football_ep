@@ -120,3 +120,17 @@ Ingest-Zusammenfassung, nie einen Fehler. Die im Repo committete Datei selbst is
 immer die normalisierte Form (Komma, LF, UTF-8, exakt vier Spalten) — dieser Toleranz-Layer
 ist ein Sicherheitsnetz für die *nächste* Excel-Bearbeitung, kein Ersatz für die Normalisierung
 vor dem Commit.
+
+## BOM (2026-09-10)
+
+Diese Toleranz gilt jetzt auch für eine führende UTF-8-BOM (`EF BB BF`): Excel für macOS
+schreibt beim erneuten Speichern einer als UTF-8 erkannten Datei automatisch eine BOM, und
+ohne diese BOM rät Excel die Kodierung oft falsch — Umlaute erscheinen dann als Mojibake (z. B.
+"Nühse" wird zu "NÃ¼hse" angezeigt). Die BOM wird beim Einlesen automatisch entfernt, bevor die
+erste Spalte (`game_id`) gelesen wird — sonst würde die Kopfzeile fälschlich `"﻿game_id"`
+heißen und jede `game_id`-Zelle stillschweigend leer bleiben. Dateien, die dieses Projekt dem
+Projektinhaber direkt zum Öffnen in Excel gibt (z. B. die Arbeits-Übersichten unter
+`data/raw/ifaf/spot_fill_worksheets/`), werden deshalb jetzt selbst mit BOM geschrieben
+(`utf-8-sig`) — Dateien können direkt in Excel geöffnet und gespeichert werden, ohne dass
+Umlaute verstümmelt werden. Die hier committeten Fill-Dateien selbst bleiben bewusst BOM-frei
+(reine Pipeline-Eingabe, nicht zum direkten Öffnen in Excel gedacht).
