@@ -2522,6 +2522,21 @@ def test_load_spot_fill_plain_utf8_comma_file_has_no_fallback_notices(tmp_path):
     assert notices == []
 
 
+def test_load_spot_fill_tolerates_leading_utf8_bom(tmp_path):
+    """Excel on macOS writes a leading UTF-8 BOM when it re-saves a file it
+    opened as UTF-8 (2026-09-10, owner-facing Excel round trip) -- the BOM
+    must not land on the first column name (`"﻿game_id"`), which would
+    otherwise silently drop every `game_id` cell to null."""
+    path = tmp_path / "fill.csv"
+    path.write_bytes("game_id,sequence,ballOn,note\nifaf-g1,10,5,\n".encode("utf-8-sig"))
+
+    df, notices = load_spot_fill(path)
+
+    assert df["game_id"].to_list() == ["ifaf-g1"]
+    assert df["ballOn"].to_list() == [5]
+    assert notices == []
+
+
 def test_load_spot_fill_extra_unnamed_column_value_folded_into_note_not_dropped(tmp_path):
     """A one-off ad-hoc marker in a 5th, unnamed column (the QF's own
     committed fill file, sequence 610: a bare "x" after a second trailing
@@ -2810,6 +2825,40 @@ def test_load_corrections_missing_file_returns_empty_typed_frame(tmp_path):
     assert df.height == 0
     assert df.columns == ["game_id", "sequence", "field", "value", "note"]
     assert notices == []
+
+
+def test_load_corrections_tolerates_leading_utf8_bom(tmp_path):
+    """Same BOM tolerance as `load_spot_fill` -- both share
+    `flag_football_ep.owner_csv.decode_owner_csv_bytes` (2026-09-10)."""
+    path = tmp_path / "corr.csv"
+    path.write_bytes(
+        "game_id,sequence,field,value,note\nifaf-g1,10,down,2,\n".encode("utf-8-sig")
+    )
+
+    df, notices = load_corrections(path)
+
+    assert df["game_id"].to_list() == ["ifaf-g1"]
+    assert df["value"].to_list() == ["2"]
+    assert notices == []
+
+
+def test_load_corrections_tolerates_semicolon_delimited_mac_roman_export(tmp_path):
+    """`load_corrections` shares its Excel-export tolerance with `load_spot_fill` via
+    `flag_football_ep.owner_csv` -- verify the semicolon/mac_roman/CRLF fallback still
+    works after that refactor (2026-09-10)."""
+    path = tmp_path / "corr.csv"
+    raw = (
+        b"game_id;sequence;field;value;note\r\n"
+        b"ifaf-g1;10;down;2;\x9fberfl\x9fssig\r\n"
+    )
+    path.write_bytes(raw)
+
+    df, notices = load_corrections(path)
+
+    assert df["value"].to_list() == ["2"]
+    assert df["note"].to_list() == ["überflüssig"]
+    assert any("decoded as mac_roman" in n for n in notices)
+    assert any("semicolon-delimited" in n for n in notices)
 
 
 def test_apply_corrections_noop_when_corrections_dir_none():

@@ -54,6 +54,7 @@ from flag_football_ep.canonical import (
     conform_to_canonical,
     make_game_id,
 )
+from flag_football_ep.owner_csv import decode_owner_csv_bytes, sniff_owner_csv_delimiter
 from flag_football_ep.reference import map_teams
 
 _ALL_CANONICAL_DTYPES: dict[str, pl.DataType] = {**CORE_COLUMNS, **NULLABLE_EXTRAS}
@@ -2225,56 +2226,13 @@ _SPOT_FILL_SCHEMA: dict[str, pl.DataType] = {
 # crashing, with a notice, rather than requiring every future Excel export to
 # be hand-normalised before committing.
 #
-# Encoding fallback order: UTF-8 first (the expected, silent-success case
-# for a file already normalised or written by a text editor). On a decode
-# failure, `cp1252` (the far more common single-byte Windows export
-# encoding) is tried next -- but every single byte value has *some* cp1252
-# mapping, so a wrong guess never raises; the QF's own file is actually
-# `mac_roman` (an Excel-for-Mac export), and cp1252-decoding a mac_roman
-# byte lands one of its C1-range umlaut bytes on cp1252's own "smart
-# punctuation" block (`\x80`-`\x9f`) instead -- e.g. byte `0x9F` decodes to
-# `Ÿ` (U+0178) under cp1252 but is really `ü` under mac_roman. `_CP1252_MOJIBAKE_MARKERS`
-# is that block's own character set; a cp1252 decode landing on any of them
-# is treated as a mac_roman file mislabeled cp1252 and re-decoded as such.
-# This is a heuristic, not a certainty -- a genuine cp1252 file that legitimately
-# uses one of these typographic characters (an em dash, a smart quote) would
-# be mis-detected -- but for this project's actual export tooling (Excel on
-# macOS or Windows, German-locale spreadsheets, plain ASCII notes with the
-# occasional German umlaut) the heuristic matches every byte pattern observed
-# in the live corpus and is far better than either silently mangling the
-# umlaut or crashing outright.
-_CP1252_MOJIBAKE_MARKERS: frozenset[str] = frozenset("ƒˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ")
-
-
-def _decode_spot_fill_bytes(data: bytes) -> tuple[str, str | None]:
-    """Decode one fill file's raw bytes, tolerating a non-UTF-8 Excel export.
-
-    Returns `(text, fallback_encoding)` -- `fallback_encoding` is `None` for
-    the silent, expected UTF-8 case (no notice warranted), else the codec
-    name actually used (`"cp1252"` or `"mac_roman"`), for the caller's own
-    notice. See the module constant `_CP1252_MOJIBAKE_MARKERS` above for the
-    mac_roman-vs-cp1252 disambiguation heuristic. Never raises -- every
-    fallback codec here accepts every byte value.
-    """
-    try:
-        return data.decode("utf-8"), None
-    except UnicodeDecodeError:
-        pass
-    cp1252_text = data.decode("cp1252", errors="replace")
-    if any(ch in _CP1252_MOJIBAKE_MARKERS for ch in cp1252_text):
-        return data.decode("mac_roman", errors="replace"), "mac_roman"
-    return cp1252_text, "cp1252"
-
-
-def _sniff_csv_delimiter(text: str) -> str:
-    """`;` when the first line looks like a semicolon-delimited Excel export
-    (contains at least one `;` and no `,` at all), else the standard `,`.
-    Shared by `load_spot_fill` and `load_corrections` -- both fill-style CSVs
-    the project owner may edit in Excel."""
-    first_line = text.splitlines()[0] if text else ""
-    if ";" in first_line and "," not in first_line:
-        return ";"
-    return ","
+# Encoding/delimiter tolerance (BOM, `;`, mac_roman/cp1252, CRLF) is shared with every other
+# owner-edited CSV reader in this project via `flag_football_ep.owner_csv`
+# (`decode_owner_csv_bytes`/`sniff_owner_csv_delimiter`, promoted there 2026-09-10 from this
+# module's own former private `_decode_spot_fill_bytes`/`_sniff_csv_delimiter` -- the QF's own
+# committed fill file, `ifaf-019ffff1-...csv`, hit exactly this shape: semicolon-delimited,
+# mac_roman, with a trailing empty column, including a genuine umlaut in sequence 710's own
+# note, "überflüssiges"). See that module's docstring for the full decode/delimiter contract.
 
 
 def load_spot_fill(path: Path) -> tuple[pl.DataFrame, list[str]]:
@@ -2294,13 +2252,19 @@ def load_spot_fill(path: Path) -> tuple[pl.DataFrame, list[str]]:
     still-header-only case, not an error.
 
     2026-09-08 addendum: tolerant of a semicolon-delimited, non-UTF-8 Excel
-    export (see `_decode_spot_fill_bytes`/`_sniff_csv_delimiter` above) and
-    of a trailing empty column from a trailing separator before the newline
-    (dropped silently -- it carries no data, unlike an unrecognized *named*
-    column, which `apply_spot_fill`'s row-level validation still ignores
-    harmlessly since only `game_id`/`sequence`/`ballOn`/`note` are ever
-    read). Every notice this produces is prefixed with the file's own name,
-    same convention as `apply_spot_fill`'s own per-row notices.
+    export (see `flag_football_ep.owner_csv.decode_owner_csv_bytes`/
+    `sniff_owner_csv_delimiter`) and of a trailing empty column from a
+    trailing separator before the newline (dropped silently -- it carries no
+    data, unlike an unrecognized *named* column, which `apply_spot_fill`'s
+    row-level validation still ignores harmlessly since only
+    `game_id`/`sequence`/`ballOn`/`note` are ever read). Every notice this
+    produces is prefixed with the file's own name, same convention as
+    `apply_spot_fill`'s own per-row notices.
+
+    2026-09-10 addendum: also tolerant of a leading UTF-8 byte-order mark
+    (Excel on macOS writes one when re-saving a file it opened as UTF-8) --
+    stripped before parsing, so `game_id` (the first column) is never
+    mis-read as `"﻿game_id"` and silently discarded.
 
     This is a single-file, unfiltered read. `apply_spot_fill` does not call
     this directly for discovery any more (2026-09-08: fill file names are no
@@ -2313,12 +2277,12 @@ def load_spot_fill(path: Path) -> tuple[pl.DataFrame, list[str]]:
         return pl.DataFrame(schema=dict(_SPOT_FILL_SCHEMA)), []
 
     notices: list[str] = []
-    text, fallback_encoding = _decode_spot_fill_bytes(path.read_bytes())
+    text, fallback_encoding = decode_owner_csv_bytes(path.read_bytes())
     if fallback_encoding is not None:
         notices.append(
             f"{path.name}: not valid UTF-8, decoded as {fallback_encoding}"
         )
-    delimiter = _sniff_csv_delimiter(text)
+    delimiter = sniff_owner_csv_delimiter(text)
     if delimiter != ",":
         notices.append(
             f"{path.name}: semicolon-delimited (Excel export), auto-detected"
@@ -2671,13 +2635,14 @@ def load_corrections(path: Path) -> tuple[pl.DataFrame, list[str]]:
     """Load one corrections CSV file, verbatim, no game filtering.
 
     `game_id,sequence,field,value,note` -- same shape and tolerance
-    (filename-agnostic discovery, semicolon/non-UTF-8 Excel export
+    (filename-agnostic discovery, BOM/semicolon/non-UTF-8 Excel export
     tolerance) as `load_spot_fill` above; see that function's docstring for
     the encoding/delimiter fallback contract, shared verbatim via
-    `_decode_spot_fill_bytes`/`_sniff_csv_delimiter`. `value` is kept as raw
-    text here -- per-field parsing/validation is `apply_corrections`' job,
-    since each allowed `field` has its own value domain (a team id string, a
-    small int, a 0/1 flag).
+    `flag_football_ep.owner_csv.decode_owner_csv_bytes`/
+    `sniff_owner_csv_delimiter`. `value` is kept as raw text here --
+    per-field parsing/validation is `apply_corrections`' job, since each
+    allowed `field` has its own value domain (a team id string, a small int,
+    a 0/1 flag).
 
     Returns an empty, correctly-typed frame and no notices when `path` does
     not exist.
@@ -2687,10 +2652,10 @@ def load_corrections(path: Path) -> tuple[pl.DataFrame, list[str]]:
         return pl.DataFrame(schema=dict(_CORRECTIONS_SCHEMA)), []
 
     notices: list[str] = []
-    text, fallback_encoding = _decode_spot_fill_bytes(path.read_bytes())
+    text, fallback_encoding = decode_owner_csv_bytes(path.read_bytes())
     if fallback_encoding is not None:
         notices.append(f"{path.name}: not valid UTF-8, decoded as {fallback_encoding}")
-    delimiter = _sniff_csv_delimiter(text)
+    delimiter = sniff_owner_csv_delimiter(text)
     if delimiter != ",":
         notices.append(f"{path.name}: semicolon-delimited (Excel export), auto-detected")
 
