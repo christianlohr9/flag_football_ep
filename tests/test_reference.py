@@ -401,6 +401,22 @@ def test_load_player_mapping_missing_file_raises(tmp_path: Path) -> None:
     assert str(missing) in str(exc_info.value)
 
 
+def test_load_player_mapping_tolerates_leading_utf8_bom(tmp_path: Path) -> None:
+    """If the owner ever opens `player_mapping.csv` in Excel and saves it back, Excel
+    on macOS writes a leading UTF-8 BOM -- `pl.read_csv` (underlying `_read_reference_csv`)
+    already strips it, so the first column (`source`) must load exactly as without a BOM,
+    umlauts intact (2026-09-10)."""
+    path = tmp_path / "player_mapping.csv"
+    path.write_bytes(
+        "source,source_player,canonical_player\nhudl,S Nuhse,Saskia Nühse\n".encode("utf-8-sig")
+    )
+
+    df = load_player_mapping(path)
+
+    assert df["source"].to_list() == ["hudl"]
+    assert df["canonical_player"].to_list() == ["Saskia Nühse"]
+
+
 # --- load_group_opponents ------------------------------------------------------
 
 
