@@ -5,19 +5,15 @@ Erledigtes wandert nach unten. Wenn du etwas fertig hast: einfach sagen, ich hak
 
 ## Jetzt
 
-1. **CVAT-Aufgaben 8, 9, 10 prüfen** (Bilder für die nächste Trainingsrunde).
-   Task 8 = Drohne (183 Bilder), Task 9 = GoPro (150 Bilder, nur nahe Bilder, ferne überspringen), Task 10 = TV (101 Bilder).
-   Dann sagen „CVAT fertig“.
-
-2. **Ballpositionen für 4 WM-Spiele** (wie beim Viertelfinale).
+1. **Ballpositionen für 4 WM-Spiele** (wie beim Viertelfinale).
    PAN–BRA (69 Plays), JPN–FRA (4), GER–SLO (1), USA–ESP (1).
    Arbeitsblätter: `data/raw/ifaf/spot_fill_worksheets/`. Werte in `data/reference/ifaf_spot_fill/<Spiel>.csv`.
    Dann sagen „Spots fertig“.
 
-3. **GTA-Spot-Check.** Ein paar Clips ansehen. Anleitung: `docs/gta-spotcheck.md`. Dauer etwa eine Stunde.
+2. **GTA-Spot-Check.** Ein paar Clips ansehen. Anleitung: `docs/gta-spotcheck.md`. Dauer etwa eine Stunde.
    Dann sagen „GTA ok“ oder was nicht passt.
 
-4. **Repo auf privat stellen.** Lizenz ist schon auf Apache-2.0 umgestellt, jetzt fehlt nur noch die Sichtbarkeit: `gh repo edit christianlohr9/flag_football_ep --visibility private --accept-visibility-change-consequences` ausführen (oder auf GitHub unter Settings → Danger Zone → Change visibility).
+3. **Repo auf privat stellen.** Lizenz ist schon auf Apache-2.0 umgestellt, jetzt fehlt nur noch die Sichtbarkeit: `gh repo edit christianlohr9/flag_football_ep --visibility private --accept-visibility-change-consequences` ausführen (oder auf GitHub unter Settings → Danger Zone → Change visibility).
 
 ## Warten auf andere
 
@@ -25,6 +21,8 @@ Erledigtes wandert nach unten. Wenn du etwas fertig hast: einfach sagen, ich hak
 6. **IFAF-Statistiker.** Jona kümmert sich. Fragen stehen in `docs/ifaf-wm2026-daten.md`.
 
 ## Erledigt
+
+- CVAT-Aufgaben 8, 9, 10 geprüft (2026-09-10). Daten werden jetzt zusammengeführt und das Modell neu trainiert.
 
 - Spielerinnen zugeordnet: deine 14 Einträge übernommen, Unbekannte bleiben leer (2026-09-10).
 
