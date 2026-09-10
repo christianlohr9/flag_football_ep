@@ -368,11 +368,11 @@ Plans:
 
 **Wave 10** *(blocked on Wave 9)*
 
-- [ ] 02.2-17-PLAN.md — AL iteration 2: correction weekend, merge, dataset v2 under DVC
+- [x] 02.2-17-PLAN.md — AL iteration 2: correction weekend, merge, dataset v2 under DVC
 
 **Wave 11** *(blocked on Wave 10)*
 
-- [ ] 02.2-18-PLAN.md — AL iteration 2: retrain, three-way per-domain comparison, final labelling verdict
+- [x] 02.2-18-PLAN.md — AL iteration 2: retrain, three-way per-domain comparison, final labelling verdict
 
 **Wave 12** *(blocked on Wave 11)*
 
@@ -519,7 +519,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
 | 2.0 Capture Protocol | 4/4 | Complete    | 2026-08-24 |
 | 2.1 CV Pilot (Gate) | 17/17 | Complete    | 2026-08-31 |
-| 2.2 Dataset Buildout | 16/21 | In progress (AL-2 labelling gate: CVAT 8/9/10; OTC upload staged; 17–20 pending) | - |
+| 2.2 Dataset Buildout | 18/21 | In progress (v2 = 755 frames, iteration-2 not promoted; 19 closing record next, 20 waits for OTC keys, 21 partial) | - |
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
 | 2.4 Player Identity | 0/TBD | Not started (gated) | - |
 | 2.5 Broadcast Footage | 0/TBD | Deferred (stretch) | - |
