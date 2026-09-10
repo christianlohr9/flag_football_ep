@@ -68,6 +68,7 @@ if str(REPO_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from flag_football_ep.config import Config, load_config  # noqa: E402
+from flag_football_ep.owner_csv import OWNER_CSV_WRITE_ENCODING, read_owner_csv  # noqa: E402
 from flag_football_ep.reference import load_player_mapping, map_players  # noqa: E402
 from flag_football_ep.reports.own_team import (  # noqa: E402
     _PLAYER_SOURCE_COLUMNS,
@@ -271,8 +272,15 @@ def build_template_rows(
 
 
 def write_template(rows: list[dict], out_path: Path) -> None:
+    """Write the gitignored template the project owner opens directly in Excel to fill in
+    `canonical_player` (`--apply-filled` below reads it back).
+
+    Written `utf-8-sig` (a leading BOM) -- a plain UTF-8 CSV with no BOM is routinely
+    mis-decoded by Excel on macOS, garbling every umlaut on screen (e.g. "Nühse" ->
+    "NÃ¼hse"); the BOM is Excel's own signal to trust UTF-8 instead of guessing.
+    """
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", newline="", encoding="utf-8") as fh:
+    with out_path.open("w", newline="", encoding=OWNER_CSV_WRITE_ENCODING) as fh:
         writer = csv.DictWriter(fh, fieldnames=_TEMPLATE_FIELDNAMES)
         writer.writeheader()
         writer.writerows(rows)
@@ -307,6 +315,98 @@ def apply_unique(rows: list[dict], player_mapping_path: Path) -> int:
         for r in to_add:
             writer.writerow([r["source"], r["source_player"], r["canonical_player"]])
     return len(to_add)
+
+
+@dataclass(frozen=True)
+class ApplyFilledResult:
+    """Result of `apply_filled`: every label actually added, spelling-corrected, or skipped."""
+
+    added: tuple[tuple[str, str, str], ...]  # (source, source_player, canonical_player)
+    corrected: tuple[tuple[str, str, str, str], ...]  # (source, source_player, typed, matched)
+    skipped: tuple[tuple[str, str, str, tuple[str, ...]], ...]  # (source, source_player, typed, candidates)
+
+
+def apply_filled(template_path: Path, roster: pl.DataFrame, player_mapping_path: Path) -> ApplyFilledResult:
+    """Append the project owner's hand-filled `canonical_player` values from the on-disk
+    template CSV (any source -- `hc_workbook`, `legacy`, `ifaf`) to `player_mapping.csv`.
+
+    Replaces the ad-hoc `apply_filled_template.py` one-off script (2026-09-10). Reads
+    `template_path` tolerantly (BOM/`;`/`mac_roman`/`cp1252`/CRLF via
+    `flag_football_ep.owner_csv.read_owner_csv`) -- the owner may have opened and saved the
+    template in Excel while filling it in, same "never crash on the owner's own Excel export"
+    contract `ingest.ifaf.load_spot_fill`/`load_corrections` already hold. Deliberately reads
+    the file AS SAVED, not a freshly regenerated one -- the caller must call this BEFORE
+    `write_template` regenerates the template, or the owner's typed-in values are gone before
+    this function ever sees them.
+
+    For every row with a non-empty `source`, `source_player` and `canonical_player`:
+    - the typed `canonical_player` matches a `roster` `player_name` value EXACTLY: used
+      verbatim, added.
+    - no exact match, but exactly one `roster` `player_name` FOLDS (case/diacritics/whitespace,
+      `_fold`) to the same key as the typed value: used as the corrected spelling, added, and
+      reported in `corrected` -- a typo is fixed, never silently, always named.
+    - no exact match and zero or more than one fold match: reported in `skipped`, nothing
+      added -- an unresolvable label is never guessed.
+
+    Never overwrites an existing `(source, source_player)` row already in `player_mapping.csv`
+    (same guarantee `apply_unique` gives) -- idempotent: re-running with the same template
+    input adds nothing new, since every previously added `(source, source_player)` pair is
+    already present.
+    """
+    rows, _read_notices = read_owner_csv(template_path)
+
+    names = set(roster["player_name"].to_list())
+    by_fold: dict[str, list[str]] = {}
+    for name in names:
+        by_fold.setdefault(_fold(name), []).append(name)
+
+    existing = (
+        list(csv.DictReader(player_mapping_path.open(encoding="utf-8")))
+        if player_mapping_path.exists()
+        else []
+    )
+    have = {(r["source"], r["source_player"]) for r in existing}
+
+    to_add: list[tuple[str, str, str]] = []
+    corrected: list[tuple[str, str, str, str]] = []
+    skipped: list[tuple[str, str, str, tuple[str, ...]]] = []
+
+    for row in rows:
+        source = (row.get("source") or "").strip()
+        label = (row.get("source_player") or "").strip()
+        typed = (row.get("canonical_player") or "").strip()
+        if not source or not label or not typed:
+            continue
+
+        canon = typed
+        if canon not in names:
+            candidates = sorted(by_fold.get(_fold(canon), []))
+            if len(candidates) == 1:
+                corrected.append((source, label, typed, candidates[0]))
+                canon = candidates[0]
+            else:
+                skipped.append((source, label, typed, tuple(candidates)))
+                continue
+
+        key = (source, label)
+        if key in have:
+            continue
+        have.add(key)
+        to_add.append((source, label, canon))
+
+    if not to_add:
+        return ApplyFilledResult((), tuple(corrected), tuple(skipped))
+
+    text = player_mapping_path.read_text(encoding="utf-8") if player_mapping_path.exists() else ""
+    needs_newline = bool(existing) and not text.endswith("\n")
+    with player_mapping_path.open("a", newline="", encoding="utf-8") as fh:
+        writer = csv.writer(fh, lineterminator="\n")
+        if needs_newline:
+            fh.write("\n")
+        for source, label, canon in to_add:
+            writer.writerow([source, label, canon])
+
+    return ApplyFilledResult(tuple(to_add), tuple(corrected), tuple(skipped))
 
 
 def _print_summary(rows: list[dict], labels_by_source: dict[str, SourceLabels], prefix: str) -> None:
@@ -345,6 +445,15 @@ def main(argv: list[str] | None = None) -> int:
         help="append every unambiguous suggestion (any source) to player_mapping.csv, "
         "then regenerate the template with only the remaining labels",
     )
+    parser.add_argument(
+        "--apply-filled",
+        action="store_true",
+        help="append the owner's hand-filled canonical_player values from the on-disk "
+        "template (any source) to player_mapping.csv, validated against the roster "
+        "(exact match, or a unique fold-match reported as a correction), before "
+        "regenerating the template -- run this BEFORE any regeneration would overwrite "
+        "the owner's edits",
+    )
     args = parser.parse_args(argv)
 
     cfg = load_config(args.config)
@@ -353,6 +462,24 @@ def main(argv: list[str] | None = None) -> int:
     template_path = raw_hc_files / "player_mapping_template.csv"
 
     roster = pl.read_csv(args.roster)
+
+    if args.apply_filled:
+        # Deliberately read the template AS THE OWNER SAVED IT, before this run's own
+        # `write_template` call below would otherwise overwrite it with a freshly
+        # regenerated (unfilled) copy.
+        result = apply_filled(template_path, roster, player_mapping_path)
+        print(f"applied {len(result.added)} owner-filled mapping(s) to {player_mapping_path}")
+        if result.corrected:
+            print(
+                "  spelling auto-corrected to roster: "
+                f"{[(s, l, f'{t!r} -> {m!r}') for s, l, t, m in result.corrected]}"
+            )
+        if result.skipped:
+            print(
+                "  skipped (no unique roster match): "
+                f"{[(s, l, t, cands) for s, l, t, cands in result.skipped]}"
+            )
+
     offense = load_own_team_offense(cfg)
 
     def _build() -> tuple[list[dict], dict[str, SourceLabels]]:

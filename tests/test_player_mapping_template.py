@@ -326,5 +326,175 @@ def test_write_template_round_trips_through_csv(tmp_path: Path) -> None:
         {"source": "legacy", "source_player": "7", "canonical_player": "Ada Beispiel", "match_basis": "jersey", "candidates": ""}
     ]
     tmpl.write_template(rows, out_path)
-    written = list(csv.DictReader(out_path.open(encoding="utf-8")))
+    written = list(csv.DictReader(out_path.open(encoding="utf-8-sig")))
     assert written == rows
+
+
+def test_write_template_writes_utf8_sig_bom(tmp_path: Path) -> None:
+    """The template is opened directly in Excel by the project owner to fill in
+    `canonical_player` -- a leading UTF-8 BOM is required so Excel (macOS or Windows)
+    detects UTF-8 instead of guessing wrong on umlauts."""
+    out_path = tmp_path / "template.csv"
+    rows = [
+        {"source": "legacy", "source_player": "7", "canonical_player": "", "match_basis": "", "candidates": ""}
+    ]
+    tmpl.write_template(rows, out_path)
+    raw = out_path.read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf")
+    assert raw[3:].startswith(b"source,")
+
+
+# --- apply_filled ---------------------------------------------------------------------------
+
+
+def test_apply_filled_exact_match_is_added(tmp_path: Path) -> None:
+    template_path = tmp_path / "template.csv"
+    template_path.write_text(
+        "source,source_player,canonical_player,match_basis,candidates\n"
+        "hc_workbook,Vorname1,Ada Beispiel,,\n",
+        encoding="utf-8",
+    )
+    mapping_path = tmp_path / "player_mapping.csv"
+    mapping_path.write_text("source,source_player,canonical_player\n", encoding="utf-8")
+
+    result = tmpl.apply_filled(template_path, _women_roster(), mapping_path)
+
+    assert result.added == (("hc_workbook", "Vorname1", "Ada Beispiel"),)
+    assert result.corrected == ()
+    assert result.skipped == ()
+    written = list(csv.DictReader(mapping_path.open(encoding="utf-8")))
+    assert written == [
+        {"source": "hc_workbook", "source_player": "Vorname1", "canonical_player": "Ada Beispiel"}
+    ]
+
+
+def test_apply_filled_typo_resolves_via_unique_fold_match_and_is_reported(tmp_path: Path) -> None:
+    """The owner typed a spelling that doesn't exactly match the roster (e.g. missing an
+    umlaut) but folds uniquely to one roster row -- used, and reported as a correction,
+    never silently substituted."""
+    roster = _roster(
+        [{"player_id": 1, "player_name": "Ada Nühse", "player_jersey": 9, "position": "QB"}]
+    )
+    template_path = tmp_path / "template.csv"
+    template_path.write_text(
+        "source,source_player,canonical_player,match_basis,candidates\n"
+        "legacy,9,Ada  Nühse,,\n",  # owner typed an extra space between first/last name
+        encoding="utf-8",
+    )
+    mapping_path = tmp_path / "player_mapping.csv"
+    mapping_path.write_text("source,source_player,canonical_player\n", encoding="utf-8")
+
+    result = tmpl.apply_filled(template_path, roster, mapping_path)
+
+    assert result.added == (("legacy", "9", "Ada Nühse"),)
+    assert result.corrected == (("legacy", "9", "Ada  Nühse", "Ada Nühse"),)
+    assert result.skipped == ()
+
+
+def test_apply_filled_ambiguous_fold_match_is_skipped_and_reported(tmp_path: Path) -> None:
+    """Two distinct roster entries whose spelling collides once folded (case/diacritics) --
+    the owner's typed value must not be guessed between them."""
+    roster = _roster(
+        [
+            {"player_id": 1, "player_name": "Ada Müller", "player_jersey": 9, "position": "DB"},
+            {"player_id": 2, "player_name": "Ada Mueller", "player_jersey": 11, "position": "DB"},
+        ]
+    )
+    template_path = tmp_path / "template.csv"
+    template_path.write_text(
+        "source,source_player,canonical_player,match_basis,candidates\n"
+        "legacy,MUELLER,ada mueller,,\n",
+        encoding="utf-8",
+    )
+    mapping_path = tmp_path / "player_mapping.csv"
+    mapping_path.write_text("source,source_player,canonical_player\n", encoding="utf-8")
+
+    result = tmpl.apply_filled(template_path, roster, mapping_path)
+
+    assert result.added == ()
+    assert result.corrected == ()
+    assert len(result.skipped) == 1
+    assert result.skipped[0][:3] == ("legacy", "MUELLER", "ada mueller")
+    assert set(result.skipped[0][3]) == {"Ada Müller", "Ada Mueller"}
+    written = list(csv.DictReader(mapping_path.open(encoding="utf-8")))
+    assert written == []
+
+
+def test_apply_filled_never_overwrites_existing_row(tmp_path: Path) -> None:
+    template_path = tmp_path / "template.csv"
+    template_path.write_text(
+        "source,source_player,canonical_player,match_basis,candidates\n"
+        "hc_workbook,7,Ada Beispiel,,\n",
+        encoding="utf-8",
+    )
+    mapping_path = tmp_path / "player_mapping.csv"
+    mapping_path.write_text(
+        "source,source_player,canonical_player\nhc_workbook,7,Someone Else\n", encoding="utf-8"
+    )
+
+    result = tmpl.apply_filled(template_path, _women_roster(), mapping_path)
+
+    assert result.added == ()
+    written = list(csv.DictReader(mapping_path.open(encoding="utf-8")))
+    assert written == [
+        {"source": "hc_workbook", "source_player": "7", "canonical_player": "Someone Else"}
+    ]
+
+
+def test_apply_filled_is_idempotent(tmp_path: Path) -> None:
+    template_path = tmp_path / "template.csv"
+    template_path.write_text(
+        "source,source_player,canonical_player,match_basis,candidates\n"
+        "hc_workbook,7,Ada Beispiel,,\n",
+        encoding="utf-8",
+    )
+    mapping_path = tmp_path / "player_mapping.csv"
+    mapping_path.write_text("source,source_player,canonical_player\n", encoding="utf-8")
+
+    first = tmpl.apply_filled(template_path, _women_roster(), mapping_path)
+    assert len(first.added) == 1
+
+    second = tmpl.apply_filled(template_path, _women_roster(), mapping_path)
+    assert second.added == ()
+
+    written = list(csv.DictReader(mapping_path.open(encoding="utf-8")))
+    assert len(written) == 1
+
+
+def test_apply_filled_empty_canonical_player_cell_is_ignored(tmp_path: Path) -> None:
+    template_path = tmp_path / "template.csv"
+    template_path.write_text(
+        "source,source_player,canonical_player,match_basis,candidates\n"
+        "hc_workbook,7,,,\n",
+        encoding="utf-8",
+    )
+    mapping_path = tmp_path / "player_mapping.csv"
+    mapping_path.write_text("source,source_player,canonical_player\n", encoding="utf-8")
+
+    result = tmpl.apply_filled(template_path, _women_roster(), mapping_path)
+
+    assert result.added == ()
+    assert result.corrected == ()
+    assert result.skipped == ()
+
+
+def test_apply_filled_tolerates_bom_semicolon_mac_roman_crlf(tmp_path: Path) -> None:
+    """The template is opened and saved by the owner in Excel -- must tolerate the full
+    round trip (BOM, `;`, mac_roman, CRLF), same as `ingest.ifaf.load_spot_fill`."""
+    roster = _roster(
+        [{"player_id": 1, "player_name": "Ada Nühse", "player_jersey": 9, "position": "QB"}]
+    )
+    template_path = tmp_path / "template.csv"
+    text = (
+        "source;source_player;canonical_player;match_basis;candidates\r\n"
+        "legacy;9;Ada Nühse;;\r\n"
+    )
+    template_path.write_bytes(text.encode("utf-8-sig"))
+    mapping_path = tmp_path / "player_mapping.csv"
+    mapping_path.write_text("source,source_player,canonical_player\n", encoding="utf-8")
+
+    result = tmpl.apply_filled(template_path, roster, mapping_path)
+
+    assert result.added == (("legacy", "9", "Ada Nühse"),)
+    written = list(csv.DictReader(mapping_path.open(encoding="utf-8")))
+    assert written == [{"source": "legacy", "source_player": "9", "canonical_player": "Ada Nühse"}]
