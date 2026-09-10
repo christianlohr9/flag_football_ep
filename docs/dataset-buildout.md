@@ -1,5 +1,19 @@
 # Datensatz-Aufbau — Laufendes Protokoll (Phase 2.2)
 
+**Status (2026-09-10): Beide geplanten AL-Iterationen abgeschlossen und ausgewertet
+(Plan 02.2-18). Iteration-2-Detektor (MLflow `682d62f94eff47b798f8a1ddecceee78`, Datensatz v2,
+755 Bilder) auf der sauberen Held-out-Referenz D UND gegenüber Iteration 1 gemessen: **beide
+evaluierbaren Domänen (Drohne, GoPro/Hinterfeld) verschlechtern sich statt sich zu verbessern**
+— Drohne `mAP_50_95` −0,0805 gegenüber D, GoPro `mAP_50_95` −0,0110 gegenüber D (Richtungen
+nicht deckungsgleich mit `mAP_50`). **Nicht befördert**, `champion`/`hackathon-frozen`
+unverändert bei `87a8a5222f7a472787875e974d089c44`. D-14 (messbare Per-Domain-Verbesserung über
+die AL-Iterationen) ist damit nach beiden geplanten Iterationen **nicht erfüllt**, und der
+1.500-Frame-Floor bleibt mit 755/1.500 (50,3 %) ebenfalls unerreicht — siehe
+`## Iteration-2-Detektor: Training, Drei-Wege-Vergleich und Abschluss-Verdikt (Plan 02.2-18)`
+unten für die vollständige Tabelle, das Abbruchkriterium-Verdikt und das finale
+Labelling-Verdikt. Die folgenden, älteren Statuszeilen dokumentieren den Verlauf bis hierhin
+und bleiben unverändert stehen:**
+
 **Status: Iteration 1 abgeschlossen — Korrektursitzung, Merge und DVC-Versionierung am
 2026-09-02 (Plan 02.2-13), am selben Tag per Korrektur auf Datensatz v1.1 berichtigt
 (D-17-Verstoss, siehe `### Korrektur 2026-09-02` unten), am 2026-09-04 per GoPro-Nachsitzung
@@ -1471,3 +1485,161 @@ D-19-Guard unconditionally in den `dataset`-Befehl verdrahtet wurde, aber seithe
 reale Multi-Domänen-CLI ausgeführt (nur über Tests, deren Fixtures den Bug nicht auslösen).
 Behoben mit einer Einzeiler-Zuweisung (`cfg = load_config(config)`); `uv run pytest
 tests/test_cv_dataset.py -x -q` weiterhin grün (27 passed).
+
+## Iteration-2-Detektor: Training, Drei-Wege-Vergleich und Abschluss-Verdikt (Plan 02.2-18)
+
+### Abweichung: `train_detector` CLI-Bug behoben (Multi-Domänen-Band nicht verdrahtet)
+
+Der erste reale Trainingsversuch gegen Datensatz v2 (755 Bilder) schlug sofort mit
+`DatasetError: ... has 755 images, above the 600-image ceiling` fehl:
+`_prepare_dataset_layout` rief `validate_coco` intern immer ohne `min_images`/`max_images`
+auf — dasselbe Muster wie der in Plan 02.2-13 für den `ffep cv dataset`-Befehl geschlossene
+CLI-Lücke, diesmal aber im Trainingspfad selbst, nie zuvor real ausgeführt, weil Datensatz
+v1.2 (572 Bilder) zufällig innerhalb des alten Einzeldomänen-Bands `[250, 600]` lag. Ein
+echter, blockierender Bug (Rule 3): `train_detector`/`_prepare_dataset_layout` bekamen
+`min_images`/`max_images`-Parameter (Default `None`, bestehendes Verhalten unverändert),
+`ffep cv train` bekam die passenden `--min-images`/`--max-images`-Flags, exakt spiegelbildlich
+zum bestehenden `ffep cv dataset`-Muster. `uv run pytest tests/test_cv_detect_train.py -x -q`
+weiterhin grün (19 passed).
+
+### Training
+
+Gestartet mit denselben Hyperparametern wie Iteration 1 (keine Abweichung), autonom im
+Vordergrund per `nohup` + gebundenen Poll-Blöcken beobachtet (kein manueller Checkpoint,
+D-21-konform: Primärmaschine mit MPS-Fallback, kein CUDA verfügbar):
+
+```bash
+uv run --extra cv ffep cv train --dataset data/labels/dataset --device mps \
+  --min-images 1 --max-images 3000
+```
+
+| Setting | Wert |
+|---|---|
+| `resolution` | 896 |
+| `epochs` | 30 |
+| `batch_size` | 4 |
+| `grad_accum_steps` | 4 |
+| `device` | `mps` |
+| `dataset_content_sha256` | `d87dd04cb7ed53cc3436e02596233937971df0edfbcf9cff628192a9d8963dce` (== Datensatz v2) |
+| `checkpoint_source` | `best_ema_fallback_no_val_split` (wie Iteration 1 — kein `val`-Split in AL-Datensätzen) |
+| `init_weights` | Standard-COCO-Pretrain (kein `--init-weights` übergeben) |
+| `machine` | `MacBook-Pro-2.fritz.box` (Apple M5 Max, 128 GB) |
+| Wandzeit | 2 h 33 min (15:39:45–18:13:17 lokal) |
+| **MLflow Run-ID** | `682d62f94eff47b798f8a1ddecceee78` (`cv_detector_model` Version 6) |
+
+Keine Abweichung von Iteration 1s Einstellungen — derselbe Recipe, andere Datenbasis.
+
+### Drei-Wege-Per-Domain-Vergleich auf der geprüften Held-out-Ground-Truth
+
+Alle Läufe auf identischer, geprüfter Ground Truth gemessen (`data/labels/eval/{drone,sideline}/
+corrected/`, Drohne 90 Bilder/1834 Boxen, GoPro/Hinterfeld 72 Bilder/623 Boxen — keine
+eingefrorenen Broadcast-Eval-Clips existieren, siehe `data/reference/frozen_eval_clips.csv`, daher
+keine Broadcast-Zeile, ein vorbestehender, nicht in diesem Plan zu schliessender Bereichs-Gap).
+Der Phase-2.1-Champion (`87a8a522…`) ist selbst nicht sauber held-out (`### Nachtrag 2026-09-04
+(Diagnose, Korrektur)` oben — 76 seiner eigenen Pilot-Trainingsbilder liegen in denselben 18
+Drohnen-Clips, aus denen die Eval-GT gezogen wurde) und dient hier nur als Kontextzeile, **nicht**
+als Referenz für das Abbruchkriterium. Die sauberen Referenzpunkte sind Ablation D
+(`a6d53662e6fa4df88d10debd1551de6b`, Piloten-Rezept ohne die 18 Eval-Clips) und Iteration 1
+(`be854a1adebf4eb4b01d98dc39022ee1`, Datensatz v1.2):
+
+| Domäne | Lauf | n Bilder | n Boxen | `mAP_50` | `mAP_50_95` | `AP_player` | `AP_referee` |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Drohne | Champion 2.1 (`87a8a522…`, **nicht sauber held-out, nur Kontext**) | 90 | 1834 | 0,9550 | 0,9423 | 0,9520 | 0,9325 |
+| Drohne | **Ablation D (`a6d53662…`, sauberer Champion, Referenz)** | 90 | 1834 | 0,9030 | 0,7847 | 0,8110 | 0,7583 |
+| Drohne | Iteration 1 (`be854a1a…`) | 90 | 1834 | 0,8881 | 0,7073 | 0,7134 | 0,7013 |
+| Drohne | **Iteration 2 (`682d62f9…`)** | 90 | 1834 | 0,8733 | 0,7042 | 0,7176 | 0,6908 |
+| GoPro/Hinterfeld | Champion 2.1 (Zero-Shot, nie auf GoPro trainiert, **nur Kontext**) | 72 | 623 | 0,7971 | 0,7813 | 0,7016 | 0,8610 |
+| GoPro/Hinterfeld | **Ablation D (Drohne-only, Zero-Shot auf GoPro, Referenz)** | 72 | 623 | 0,6255 | 0,5264 | 0,5394 | 0,5135 |
+| GoPro/Hinterfeld | Iteration 1 | 72 | 623 | 0,7248 | 0,5292 | 0,5952 | 0,4633 |
+| GoPro/Hinterfeld | **Iteration 2** | 72 | 623 | 0,6902 | 0,5154 | 0,6024 | 0,4285 |
+
+**Deltas gegenüber der sauberen Referenz D (Abbruchkriterium-Basis, `docs/dataset-plan.md ## 3`:
++0,010 absolut `mAP_50_95` UND `mAP_50` in dieselbe Richtung):**
+
+| Domäne | Vergleich | Δ `mAP_50` | Δ `mAP_50_95` | Schwelle erreicht? |
+|---|---|---:|---:|---|
+| Drohne | Iteration 2 − D | −0,0297 | **−0,0805** | Nein — Rückgang, nicht Verbesserung |
+| Drohne | Iteration 1 − D | −0,0149 | −0,0774 | Nein — Rückgang (zur Einordnung) |
+| Drohne | Iteration 2 − Iteration 1 | −0,0148 | −0,0031 | Nein — auch gegenüber Iteration 1 leichter Rückgang |
+| GoPro/Hinterfeld | Iteration 2 − D | +0,0647 | **−0,0110** | Nein — `mAP_50_95` fällt, `mAP_50` und `mAP_50_95` bewegen sich nicht in dieselbe Richtung |
+| GoPro/Hinterfeld | Iteration 1 − D | +0,0993 | +0,0028 | Nein — `mAP_50_95`-Delta unterhalb der 0,01-Auflösbarkeitsgrenze (`docs/dataset-plan.md ## 3`, "Ehrlicher Vorbehalt") |
+| GoPro/Hinterfeld | Iteration 2 − Iteration 1 | −0,0346 | −0,0138 | Nein — auch gegenüber Iteration 1 Rückgang |
+
+**Vorlabel-Bias-Vorbehalt (unverändert gegenüber `### Nachtrag 2026-09-04 (abends)`):** die
+Eval-Ground-Truth wurde aus den Vorlabels des (kontaminierten) Champions heraus geprüft — 95 % der
+Drohnen-GT-Boxen und 75 % der GoPro-GT-Boxen sind unveränderte Champion-Vorlabels. Das begünstigt
+nicht nur den Champion selbst, sondern auch Ablation D (dasselbe Piloten-Rezept, dieselbe
+Architektur-Startbedingung) gegenüber den AL-Iterationen — die hier gemessene Lücke zwischen D und
+Iteration 2 ist daher eher eine obere als eine untere Schranke des wahren Abstands. Das ändert
+nichts an der Richtung des Befunds (Iteration 2 verbessert sich nicht gegenüber D), macht die
+Grösse der Lücke aber weniger belastbar als die Rohzahlen suggerieren.
+
+### Abbruchkriterium-Verdikt
+
+**Drohne: `nein` — echter, sauber gemessener Rückgang.** Iteration 2 liegt sowohl unter der
+sauberen Referenz D (`mAP_50_95` −0,0805, weit unter der +0,010-Schwelle) als auch unter Iteration
+1 (`mAP_50_95` −0,0031, `mAP_50` −0,0148). Die zusätzlichen 64 Drohnen-Frames aus Iteration 2
+(514 von 900 Floor, Median 4 Frames/Clip) haben die Held-out-Genauigkeit nicht verbessert.
+
+**GoPro/Hinterfeld: `nein` — gemischte Richtung, keine Verbesserung.** Gegenüber D verbessert sich
+`mAP_50` deutlich (+0,0647), aber `mAP_50_95` verschlechtert sich (−0,0110) — die Regel verlangt
+beide Metriken in dieselbe Richtung, das ist hier nicht der Fall. Gegenüber Iteration 1 fällt
+Iteration 2 auf beiden Metriken zurück (`mAP_50` −0,0346, `mAP_50_95` −0,0138).
+
+**Plausible Teilerklärung (nicht abschliessend untersucht, im Sinne der Diagnose-Kultur dieses
+Dokuments festgehalten statt verschwiegen):** der Domänen-Mix des Trainingssatzes verschob sich
+spürbar in Richtung TV/Broadcast (100→184 von 755, 24,4 % statt 17,5 % in v1.2), während der
+einzelne, alle Domänen gemeinsam trainierende Detektor (D-04) keine domänen-spezifischen Köpfe
+hat — ein grösserer Broadcast-Anteil könnte die gelernte Repräsentation von Drohne/GoPro weg
+verschieben, ohne dass dafür eine Broadcast-Eval-Zeile existiert, die den vermuteten Gegenwert
+zeigen würde (kein eingefrorener Broadcast-Eval-Clip, siehe oben). Eine zweite, ebenfalls nicht
+ausgeschlossene Erklärung: die niedrigere Per-Clip-Cap-Diversität dieser Iteration (Median
+4 Drohnen-Frames/Clip statt 12) reduzierte zwar die Korrelation, aber möglicherweise auch die
+Trainingssignal-Redundanz, die dem Modell in Iteration 1 half. Keine dieser Hypothesen wurde in
+diesem Plan durch eine eigene Ablation geprüft — festgehalten als offene Frage, nicht als
+Tatsachenbehauptung.
+
+### Promotion-Entscheidung
+
+**Keine Beförderung.** Die Plan-eigene Regel ("nur befördern, wenn die Drohnen-Domäne sich
+verbessert, ohne eine zweite In-Scope-Domäne zu verschlechtern") scheitert bereits an der ersten
+Bedingung: Drohne verschlechtert sich gegenüber beiden sauberen Referenzen (D und Iteration 1).
+`resolve_champion('cv_detector_model', config)` und `resolve_frozen('cv_detector_model', config)`
+beide erneut geprüft nach dem Trainingslauf: beide weiterhin `87a8a5222f7a472787875e974d089c44`
+(unverändert). Iteration 2 existiert ausschliesslich als `cv_detector_model`-Registry-Version 6,
+nie aliasiert.
+
+### D-14-Erfolgsaussage (phasenweiter Massstab)
+
+**D-14 ("messbare Per-Domain-mAP-Verbesserung gegenüber dem Piloten-Detektor über die
+AL-Iterationen") ist nach beiden geplanten Iterationen nicht erfüllt.** Weder Iteration 1 noch
+Iteration 2 zeigt auf der sauberen Held-out-Referenz D eine auflösbare, in beiden Metriken
+gleichgerichtete Verbesserung in einer der beiden evaluierbaren Domänen (Drohne, GoPro/
+Hinterfeld) — Iteration 2 fällt in beiden Domänen zusätzlich hinter Iteration 1 zurück. Dies ist
+ein ehrlich zu berichtender Negativbefund, keine Umdeutung: mehr Trainingsdaten (572→755 Bilder)
+hat die gemessene Held-out-Genauigkeit dieser Phase nicht verbessert.
+
+### Finales Labelling-Verdikt
+
+REQ-S2-03 sieht zwei AL-Iterationen vor (D-16: ~1 Wochenende Budget je Iteration); beide sind
+jetzt ausgeführt und ausgewertet. Eine dritte Iteration liegt ausserhalb des Umfangs dieser Phase.
+Der ehrliche Gesamtstand:
+
+- **1.500-Frame-Floor: nicht erreicht.** 755/1.500 (50,3 %) nach beiden Iterationen — siehe
+  `## Iteration-2-Merge, Validierung und Dataset v2 (Plan 02.2-17)` oben für die Domänen-Aufteilung
+  und den Grund (strikte, domänen-einheitliche D-17-Berührt-Regel senkt die zählbare Ausbeute
+  deutlich unter die optimistische Projektion aus Plan 02.2-16).
+- **Messbare Verbesserung: nicht erreicht.** Siehe D-14-Aussage oben — auf sauberer Held-out-Basis
+  keine auflösbare Verbesserung in beiden Metriken für irgendeine evaluierbare Domäne, Iteration 2
+  sogar schwächer als Iteration 1.
+- **Konsequenz:** Weiteres Labeln nach demselben AL-Verfahren (Uncertainty-Sampling +
+  Diversitäts-Cap auf dem bestehenden Drohnen-/GoPro-Pool) ist innerhalb dieser Phase nicht
+  gerechtfertigt — weder der Floor noch das Verbesserungskriterium rechtfertigen eine dritte
+  Runde mit derselben Methode, und REQ-S2-03 grenzt die Phase ohnehin auf zwei Iterationen ein.
+  Ein Schliessen des Floors oder eine tatsächliche Verbesserung würde eher eine strukturelle
+  Änderung erfordern (mehr Drohnen-Rohmaterial über DATA-01, eine dedizierte
+  GoPro-Nachsitzung ausserhalb des AL-Zyklus, oder eine Überprüfung des Domänen-Mix-Effekts auf
+  Drohne/GoPro) als eine dritte Runde desselben Verfahrens — ausserhalb des Umfangs dieser Phase,
+  festgehalten für die Phase-2.2-Abschlussdokumentation (Plan 02.2-19).
+- **Champion/hackathon-frozen bleiben unverändert** (`87a8a5222f7a472787875e974d089c44`) — der
+  Hackathon-Benchmark ist von dieser Phase unberührt geblieben.

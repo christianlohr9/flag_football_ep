@@ -488,6 +488,86 @@ für diese Klasse, nicht ein Modellfehler. Die eigentlichen Gate-Kriterien (C-09
 Tracking-Kontinuität, Positionsfehler und Inferenzzeit -- **nicht** mAP; dieser Abschnitt
 ist Kontext für die Gate-Entscheidung (Plan 02.1-17), kein Gate-Kriterium selbst.
 
+## Detector-Training (Multi-Domain, Phase 2.2)
+
+Zwei RF-DETR-Small-Fine-Tunes auf dem wachsenden Multi-Domänen-Datensatz
+(`docs/dataset-buildout.md`), derselbe `train_detector`-Pfad wie oben, jetzt auf drei
+Domänen (Drohne, GoPro/Hinterfeld, TV/Broadcast) statt nur Drohne. Beide Läufe siehe
+`docs/dataset-buildout.md` für die vollständige Ausführungshistorie (Merge-Tabellen,
+Abbruchkriterium-Herleitung, Drei-Wege-Vergleich) -- dieser Abschnitt fasst nur das
+Trainings-/Promotion-Ergebnis zusammen, im selben Format wie `## Detector-Training` oben.
+
+**Maschine:** beide Läufe auf der Primärmaschine (Apple M5 Max, `--device mps`,
+D-21-Fallback -- kein CUDA auf dieser Maschine verfügbar), durchgehender
+Hintergrundlauf statt manueller Chunk-Segmentierung (kein 10-Minuten-Werkzeuglimit mehr
+relevant, da per `nohup` entkoppelt und in gebundenen Poll-Blöcken beobachtet statt
+einem einzelnen blockierenden Kommando).
+
+**Resolved Settings** (identisch für beide Iterationen, keine Abweichung zwischen ihnen):
+
+| Setting | Wert |
+|---|---|
+| `resolution` | 896 |
+| `epochs` | 30 |
+| `batch_size` | 4 |
+| `grad_accum_steps` | 4 |
+| `device` | `mps` |
+| `checkpoint_source` | `best_ema_fallback_no_val_split` (kein `val`-Split in AL-Iterationsdatensätzen -- jeder gemergte Frame trägt `split: "train"`, Evaluierung läuft separat über die eingefrorenen Eval-Clips) |
+| `init_weights` | Standard-COCO-Pretrain (kein `--init-weights`) |
+
+| Iteration | MLflow Run-ID | `cv_detector_model`-Version | `dataset_content_sha256` | Wandzeit |
+|---|---|---:|---|---|
+| 1 (Datensatz v1.2, 572 Bilder) | `be854a1adebf4eb4b01d98dc39022ee1` | 2 | `d4528a9958305c267e6257be26c07466fe78e286d4777108c29d9476003b56b1` | ~2 h 19 min |
+| 2 (Datensatz v2, 755 Bilder) | `682d62f94eff47b798f8a1ddecceee78` | 6 | `d87dd04cb7ed53cc3436e02596233937971df0edfbcf9cff628192a9d8963dce` | 2 h 33 min |
+
+**Per-Domain-Metriken auf der geprüften Held-out-Ground-Truth** (`data/labels/eval/
+{drone,sideline}/corrected/`, Drohne n=90/1834 Boxen, GoPro/Hinterfeld n=72/623 Boxen; kein
+eingefrorener TV/Broadcast-Eval-Clip existiert, daher keine Broadcast-Zeile -- vorbestehender
+Gap, siehe `docs/dataset-buildout.md`):
+
+| Domäne | Lauf | n | `mAP_50` | `mAP_50_95` | `AP_player` | `AP_referee` |
+|---|---|---:|---:|---:|---:|---:|
+| Drohne | Ablation D (sauberer Champion, Referenz) | 90 | 0,9030 | 0,7847 | 0,8110 | 0,7583 |
+| Drohne | Iteration 1 | 90 | 0,8881 | 0,7073 | 0,7134 | 0,7013 |
+| Drohne | Iteration 2 | 90 | 0,8733 | 0,7042 | 0,7176 | 0,6908 |
+| GoPro/Hinterfeld | Ablation D (Zero-Shot, Referenz) | 72 | 0,6255 | 0,5264 | 0,5394 | 0,5135 |
+| GoPro/Hinterfeld | Iteration 1 | 72 | 0,7248 | 0,5292 | 0,5952 | 0,4633 |
+| GoPro/Hinterfeld | Iteration 2 | 72 | 0,6902 | 0,5154 | 0,6024 | 0,4285 |
+
+**Promotion-Entscheidung: keine der beiden Iterationen befördert.** Iteration 1 wurde nach der
+ursprünglichen (später als kontaminiert erkannten) Champion-Messung nicht befördert; nach der
+Korrektur (`docs/dataset-buildout.md` Nachtrag 2026-09-04) bleibt die Nicht-Promotion auch
+gegenüber der sauberen Referenz D richtig (Drohne kein auflösbarer Fortschritt). Iteration 2
+verschlechtert sich messbar gegenüber sowohl D als auch Iteration 1 in beiden evaluierbaren
+Domänen -- die Promotion-Regel ("nur befördern, wenn die Drohnen-Domäne sich verbessert, ohne
+eine zweite Domäne zu verschlechtern") scheitert bereits an der ersten Bedingung.
+`resolve_champion`/`resolve_frozen('cv_detector_model', config)` beide nach jedem Lauf erneut
+geprüft: beide unverändert `87a8a5222f7a472787875e974d089c44` (Version 1, Phase-2.1-Champion).
+
+**Einschränkungen (gilt für beide Multi-Domain-Iterationen, ergänzt die Phase-2.1-Einschränkungen
+oben statt sie zu ersetzen):**
+
+- **Ein einziger Annotator** über beide Phasen hinweg -- keine Inter-Annotator-Agreement-Messung
+  existiert für irgendeinen Teil dieses Datensatzes, Phase 2.1 wie 2.2.
+- **Ein Spiel pro Domäne:** Drohne (Panama-Freundschaftsspiel), GoPro/Hinterfeld (GER-MEX-WM),
+  TV/Broadcast (USA-AUS-WM) -- jede Domäne hat genau eine Session als Datenquelle für Training
+  UND Eval-Ground-Truth.
+  Ein Domänen-Split über Spiele hinweg ist mit diesem Material grundsätzlich nicht möglich.
+- **Clip-Level-, nicht Game-Level-Split:** die eingefrorenen Eval-Clips (`data/reference/
+  frozen_eval_clips.csv`) stammen aus denselben Sessions wie die Trainingsclips derselben
+  Domäne -- der stärkste Split, den dieses Material erlaubt, ist Clip-Disjunktheit innerhalb
+  derselben Aufnahme, nicht Spiel-Disjunktheit. Ein systematischer Bias durch Aufnahmebedingungen
+  (Licht, Kamera-Setup, Team-Trikots) kann durch diesen Split nicht ausgeschlossen werden.
+- **Vorlabel-Bias in der Eval-Ground-Truth:** die geprüfte Eval-GT wurde aus den Vorlabels des
+  (selbst kontaminiert gemessenen) Phase-2.1-Champions heraus korrigiert -- 95 % der Drohnen- und
+  75 % der GoPro-GT-Boxen sind unveränderte Champion-Vorlabels. Das begünstigt systematisch jeden
+  Lauf, der demselben Trainings-Rezept wie der Champion folgt (insbesondere Ablation D), gegenüber
+  den AL-Iterationen -- die gemessenen Lücken zwischen D und den Iterationen sind daher eher obere
+  als untere Schranken.
+- **Kein eingefrorener TV/Broadcast-Eval-Clip:** die Domäne fliesst ins Training ein, hat aber
+  keine per-Domain-Metrik in keiner der beiden Iterationen -- ein vorbestehender Gap aus Plan
+  02.2-06, nicht in dieser Phase geschlossen.
+
 ## Hackathon-Freeze (D-05)
 
 `src/flag_football_ep/cv/freeze.py`, Plan 02.2-07. Macht die Hackathon-Baseline zu einem
