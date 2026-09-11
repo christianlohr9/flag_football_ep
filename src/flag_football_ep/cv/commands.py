@@ -1264,6 +1264,16 @@ def eval_bias(
     out: Optional[Path] = typer.Option(
         None, "--out", help="Override the bias-measurement report output path"
     ),
+    on_field: bool = typer.Option(
+        False,
+        "--on-field",
+        help=(
+            "Restrict every table to boxes whose foot point maps inside the drone "
+            "domain's field polygon (+ margin) via the Phase-2.1 homography; GoPro/"
+            "sideline (no homography) is reported unchanged. Default output path "
+            "becomes eval_bias_test_on_field.json unless --out is given."
+        ),
+    ),
 ) -> None:
     """Measure the verified eval GT's own prelabel bias (2026-09-11 decision): agreement
     between the from-scratch bias-test labels and the existing prelabel-derived eval
@@ -1273,7 +1283,8 @@ def eval_bias(
     cfg = load_config(config)
     resolved_frames_csv = frames_csv or (cfg.paths.labels / "eval" / "bias_test_frames.csv")
     resolved_bias_gt = bias_gt or (cfg.paths.labels / "eval" / "bias_test" / "corrected")
-    out_path = out or (cfg.paths.reports / "eval_bias_test.json")
+    default_out_name = "eval_bias_test_on_field.json" if on_field else "eval_bias_test.json"
+    out_path = out or (cfg.paths.reports / default_out_name)
 
     run_ids: dict[str, str] = {}
     for entry in run:
@@ -1290,15 +1301,22 @@ def eval_bias(
         bias_gt_dir=resolved_bias_gt,
         run_ids=run_ids,
         out_path=out_path,
+        on_field=on_field,
     )
 
     for domain, domain_results in results.items():
         agreement = domain_results["agreement"]
+        on_field_note = domain_results["on_field"]
+        note = (
+            f" on_field=applied(margin={on_field_note['margin_yards']}yd)"
+            if on_field_note["applied"]
+            else (" on_field=not_applicable" if on_field_note["requested"] else "")
+        )
         typer.echo(
             f"{domain}: agreement n_frames={agreement['n_frames']} "
             f"boxes_existing={agreement['n_boxes_existing']} boxes_new={agreement['n_boxes_new']} "
             f"matched={agreement['n_matched']} only_existing={agreement['n_only_existing']} "
-            f"only_new={agreement['n_only_new']}"
+            f"only_new={agreement['n_only_new']}{note}"
         )
         for run_name, run_result in domain_results["models"].items():
             typer.echo(

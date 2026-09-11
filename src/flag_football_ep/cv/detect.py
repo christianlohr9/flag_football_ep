@@ -71,7 +71,7 @@ from flag_football_ep.cv import CvError
 from flag_football_ep.cv.dataset import CLASS_NAMES
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
     import supervision as sv
 
@@ -1080,6 +1080,7 @@ def evaluate_domain_frames(
     *,
     resolution: int,
     sahi: bool,
+    box_filter: Callable[[str, tuple[float, float, float, float]], bool] | None = None,
 ) -> dict:
     """Run `model` over every image in `images` and score the predictions against
     `annotations` with `torchmetrics.detection.MeanAveragePrecision` (the same
@@ -1097,6 +1098,18 @@ def evaluate_domain_frames(
     `AP_player`/`AP_referee` are per-class, IoU-averaged (0.5:0.95) only -- RF-DETR's
     trainer does not expose a separate per-class AP50, and this function does not
     manufacture one with a different library.
+
+    `box_filter`, when given, is called as `box_filter(file_name, (x1, y1, x2, y2))`
+    for every ground-truth box AND every predicted box (both in the SAME pixel-space
+    xyxy shape, applied by this function identically to both sides) -- a box for
+    which it returns `False` is dropped from scoring entirely, on whichever side it
+    came from. `cv.bias.evaluate_bias_test`'s on-field mode (2026-09-11 ad-hoc plan)
+    uses this to restrict the drone domain's mAP comparison to on-field boxes only
+    (an off-field bench/sideline person is a labelling-convention difference, not a
+    detector error -- see `cv/bias.py`'s on-field filter docstring), applying the
+    exact same field-polygon test to ground truth and predictions so neither side is
+    scored against a rule the other side was not also held to. `None` (the default)
+    scores every box, unchanged from this function's pre-on-field-mode behaviour.
 
     Public (not `_`-prefixed) because `cv.bias.evaluate_bias_test` (2026-09-11 ad-hoc
     plan) calls it a second time per domain/model -- once against the existing,
@@ -1133,16 +1146,32 @@ def evaluate_domain_frames(
         else:
             detections = _detect_full_frame(model, frame_rgb, resolution=resolution)
 
-        pred_boxes = torch.as_tensor(detections.xyxy, dtype=torch.float32).reshape(-1, 4)
-        pred_scores = torch.as_tensor(detections.confidence, dtype=torch.float32).reshape(-1)
-        pred_labels = torch.as_tensor(detections.class_id, dtype=torch.int64).reshape(-1)
+        pred_boxes_list: list[list[float]] = []
+        pred_scores_list: list[float] = []
+        pred_labels_list: list[int] = []
+        for xyxy, score, class_id in zip(
+            detections.xyxy.tolist(), detections.confidence.tolist(), detections.class_id.tolist()
+        ):
+            box = (float(xyxy[0]), float(xyxy[1]), float(xyxy[2]), float(xyxy[3]))
+            if box_filter is not None and not box_filter(image["file_name"], box):
+                continue
+            pred_boxes_list.append(list(box))
+            pred_scores_list.append(float(score))
+            pred_labels_list.append(int(class_id))
+
+        pred_boxes = torch.tensor(pred_boxes_list, dtype=torch.float32).reshape(-1, 4)
+        pred_scores = torch.tensor(pred_scores_list, dtype=torch.float32).reshape(-1)
+        pred_labels = torch.tensor(pred_labels_list, dtype=torch.int64).reshape(-1)
 
         gt_anns = anns_by_image_id.get(image["id"], [])
         gt_boxes_list: list[list[float]] = []
         gt_labels_list: list[int] = []
         for ann in gt_anns:
             x, y, w, h = ann["bbox"]
-            gt_boxes_list.append([x, y, x + w, y + h])
+            box = (x, y, x + w, y + h)
+            if box_filter is not None and not box_filter(image["file_name"], box):
+                continue
+            gt_boxes_list.append(list(box))
             gt_labels_list.append(cat_id_to_class_idx[ann["category_id"]])
             n_boxes += 1
 

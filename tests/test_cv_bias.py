@@ -492,6 +492,127 @@ def test_evaluate_bias_test_reports_delta_between_label_sets(
     assert written["drone"]["models"]["D"]["run_id"] == "run-d"
 
 
+def test_evaluate_bias_test_keys_by_domain_and_basename_not_bare_basename(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Real bias-test frames can share a bare basename across domains (e.g. drone clip
+    52 frame 242 and sideline clip 52 frame 242 both produce `"Wide - Clip
+    052_f00242.jpg"`) -- the bias-test export only disambiguates them via the
+    `drone__`/`sideline__` push prefix. This test forces exactly that collision (same
+    clip/frame number in both domains) with deliberately different existing-GT box
+    counts per domain (1 for drone, 3 for sideline) so a keying bug that joined the two
+    domains' frames by bare basename anywhere in the pipeline -- rather than
+    (domain, basename) -- would show up as cross-contaminated totals (e.g. drone
+    reporting 4 existing boxes instead of 1). Every count below must stay scoped to its
+    own domain.
+    """
+    config = _make_config(tmp_path)
+    split_path = config.paths.reference / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            _frozen_eval_row("drone", "sess-drone", 5),
+            _frozen_eval_row("sideline", "sess-sideline", 5),
+        ],
+    )
+    # Same clip number (5) and frame index (10) in both domains -> identical bare
+    # basename "Wide - Clip 005_f00010.jpg" on both sides.
+    _write_eval_gt_coco(
+        config.paths.labels / "eval" / "drone" / "corrected",
+        [(5, 10, [(1, [0.0, 0.0, 10.0, 10.0])])],
+    )
+    _write_eval_gt_coco(
+        config.paths.labels / "eval" / "sideline" / "corrected",
+        [
+            (
+                5,
+                10,
+                [
+                    (1, [0.0, 0.0, 10.0, 10.0]),
+                    (1, [20.0, 20.0, 10.0, 10.0]),
+                    (1, [40.0, 40.0, 10.0, 10.0]),
+                ],
+            )
+        ],
+    )
+
+    frames = bias.select_bias_test_frames(
+        config, n_by_domain={"drone": 1, "sideline": 1}, max_per_clip=1, seed=11,
+    )
+    bias.write_bias_test_frames_csv(frames, config.paths.labels / "eval" / "bias_test_frames.csv")
+
+    push_dir = tmp_path / "push"
+    bias.build_bias_test_coco_package(config, frames, push_dir)
+
+    bias_gt_dir = tmp_path / "data" / "labels" / "eval" / "bias_test" / "corrected"
+    images_dir = bias_gt_dir / "images" / "default"
+    images_dir.mkdir(parents=True)
+    push_images = json.loads((push_dir / "instances.json").read_text())["images"]
+
+    # From-scratch GT: near-identical to each domain's own existing GT (not the
+    # other domain's) -- proves matching stayed within (domain, basename).
+    boxes_by_prefixed_name = {
+        f"drone__{frames[0].file_name if frames[0].domain == 'drone' else frames[1].file_name}": [
+            [0.5, 0.5, 10.0, 10.0]
+        ],
+        f"sideline__{frames[0].file_name if frames[0].domain == 'sideline' else frames[1].file_name}": [
+            [0.5, 0.5, 10.0, 10.0],
+            [20.5, 20.5, 10.0, 10.0],
+            [40.5, 40.5, 10.0, 10.0],
+        ],
+    }
+
+    new_images = []
+    new_annotations = []
+    ann_id = 1
+    for idx, image in enumerate(push_images, start=1):
+        cv2.imwrite(str(images_dir / image["file_name"]), np.zeros((64, 64, 3), dtype=np.uint8))
+        new_images.append({**image, "id": idx})
+        for bbox in boxes_by_prefixed_name[image["file_name"]]:
+            new_annotations.append(
+                {"id": ann_id, "image_id": idx, "category_id": 1, "bbox": bbox}
+            )
+            ann_id += 1
+    (bias_gt_dir / "instances.json").write_text(
+        json.dumps(
+            {
+                "images": new_images,
+                "annotations": new_annotations,
+                "categories": [{"id": 1, "name": "player"}, {"id": 2, "name": "referee"}],
+            }
+        )
+    )
+
+    model = _FakeEvalModel(_detections([[0.0, 0.0, 10.0, 10.0]], [0.9], [0]))
+    monkeypatch.setattr(detect, "load_detector", lambda _config, _run_id: model)
+
+    out_path = tmp_path / "eval_bias_test.json"
+    results = bias.evaluate_bias_test(
+        config,
+        frames_csv_path=config.paths.labels / "eval" / "bias_test_frames.csv",
+        bias_gt_dir=bias_gt_dir,
+        run_ids={"D": "run-d"},
+        out_path=out_path,
+    )
+
+    drone_agreement = results["drone"]["agreement"]
+    sideline_agreement = results["sideline"]["agreement"]
+
+    assert drone_agreement["n_frames"] == 1
+    assert drone_agreement["n_boxes_existing"] == 1
+    assert drone_agreement["n_boxes_new"] == 1
+    assert drone_agreement["n_matched"] == 1
+    assert drone_agreement["n_only_existing"] == 0
+    assert drone_agreement["n_only_new"] == 0
+
+    assert sideline_agreement["n_frames"] == 1
+    assert sideline_agreement["n_boxes_existing"] == 3
+    assert sideline_agreement["n_boxes_new"] == 3
+    assert sideline_agreement["n_matched"] == 3
+    assert sideline_agreement["n_only_existing"] == 0
+    assert sideline_agreement["n_only_new"] == 0
+
+
 def test_evaluate_bias_test_raises_when_bias_gt_not_pulled_yet(tmp_path: Path) -> None:
     config = _make_config(tmp_path)
     _setup_drone_and_sideline_gt(config)
@@ -508,6 +629,182 @@ def test_evaluate_bias_test_raises_when_bias_gt_not_pulled_yet(tmp_path: Path) -
             run_ids={"D": "run-d"},
             out_path=tmp_path / "out.json",
         )
+
+
+# --- on-field-only evaluation mode (--on-field, 2026-09-11) ---------------------------------
+
+
+def _write_identity_calibration(path: Path, hover_position_id: str) -> None:
+    """A homography calibration whose fit points map pixel coordinates onto
+    numerically identical yard coordinates -- `cv2.findHomography` on four such
+    non-collinear correspondences returns (up to floating-point noise) the identity
+    matrix, so a test box at pixel `(x, y)` lands at field coordinate `(x, y)` too,
+    making expected on-/off-field outcomes trivial to reason about without a real
+    drone calibration. `hover_position_id` deliberately never appears in
+    `homography.CLIP_ALIGNMENT_REFERENCE_FRAMES` (a hardcoded module constant this
+    test cannot extend), so `clip_alignment_matrix` falls back to identity too --
+    `composed_transformer_for` needs no real video clip on disk for this test.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows = [
+        "hover_position_id,landmark,source_x_px,source_y_px,target_x_yards,target_y_yards,use_for_fit,notes",
+        f"{hover_position_id},goalline_west_south,0.0,0.0,0.0,0.0,true,",
+        f"{hover_position_id},goalline_east_north,50.0,25.0,50.0,25.0,true,",
+        f"{hover_position_id},midfield_south,25.0,0.0,25.0,0.0,true,",
+        f"{hover_position_id},midfield_north,25.0,25.0,25.0,25.0,true,",
+    ]
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+
+
+def _write_hover_positions(path: Path, rows: list[tuple[int, str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = ["clip_number,hover_position_id"]
+    lines.extend(f"{clip_number},{hover_position_id}" for clip_number, hover_position_id in rows)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def test_build_on_field_filter_returns_none_for_non_drone_domain(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    assert bias._build_on_field_filter(config, "sideline") is None
+
+
+def test_build_on_field_filter_keeps_on_field_and_drops_off_field_boxes(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    _write_identity_calibration(config.reference.homography_calibration, "hp-test")
+    _write_hover_positions(config.reference.hover_positions, [(5, "hp-test")])
+
+    box_filter = bias._build_on_field_filter(config, "drone")
+    assert box_filter is not None
+
+    file_name = "Wide - Clip 005_f00010.jpg"
+    # Foot point (bottom-centre) of an on-field box: (25, 10) yards -- well inside the
+    # field polygon (x in [-10, 60], y in [0, 25] before margin).
+    assert box_filter(file_name, (24.0, 0.0, 26.0, 10.0)) is True
+    # Foot point (105, 110) yards -- far outside even with the +2yd margin.
+    assert box_filter(file_name, (100.0, 100.0, 110.0, 110.0)) is False
+    # Just inside the +2yd margin past the north sideline (y=25): foot y=26.5.
+    assert box_filter(file_name, (24.0, 26.0, 26.0, 26.5)) is True
+    # Just outside the +2yd margin past the north sideline: foot y=28.
+    assert box_filter(file_name, (24.0, 27.5, 26.0, 28.0)) is False
+
+
+def test_build_on_field_filter_raises_for_unresolvable_clip(tmp_path: Path) -> None:
+    config = _make_config(tmp_path)
+    _write_identity_calibration(config.reference.homography_calibration, "hp-test")
+    _write_hover_positions(config.reference.hover_positions, [(5, "hp-test")])
+
+    box_filter = bias._build_on_field_filter(config, "drone")
+    assert box_filter is not None
+
+    with pytest.raises(bias.BiasTestError, match="clip 999"):
+        box_filter("Wide - Clip 999_f00010.jpg", (0.0, 0.0, 10.0, 10.0))
+
+
+def test_evaluate_bias_test_on_field_mode_filters_drone_and_leaves_sideline_unchanged(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = _make_config(tmp_path)
+    _write_identity_calibration(config.reference.homography_calibration, "hp-test")
+    split_path = config.paths.reference / "frozen_eval_clips.csv"
+    _write_frozen_eval_csv(
+        split_path,
+        [
+            _frozen_eval_row("drone", "sess-drone", 5),
+            _frozen_eval_row("sideline", "sess-sideline", 8),
+        ],
+    )
+    _write_hover_positions(config.reference.hover_positions, [(5, "hp-test")])
+
+    # Drone existing GT: one on-field box (foot (25, 10)) and one off-field box (foot
+    # (105, 110), a bench/spectator person far outside the field polygon+margin).
+    _write_eval_gt_coco(
+        config.paths.labels / "eval" / "drone" / "corrected",
+        [(5, 10, [(1, [24.0, 0.0, 2.0, 10.0]), (1, [104.0, 108.0, 2.0, 2.0])])],
+    )
+    # Sideline (GoPro) existing GT: no homography exists for this domain at all, so
+    # on-field mode must report it completely unchanged regardless of box position.
+    _write_eval_gt_coco(
+        config.paths.labels / "eval" / "sideline" / "corrected",
+        [(8, 10, [(1, [0.0, 0.0, 10.0, 10.0]), (1, [500.0, 500.0, 10.0, 10.0])])],
+    )
+
+    frames = bias.select_bias_test_frames(
+        config, n_by_domain={"drone": 1, "sideline": 1}, max_per_clip=1, seed=5,
+    )
+    bias.write_bias_test_frames_csv(frames, config.paths.labels / "eval" / "bias_test_frames.csv")
+
+    push_dir = tmp_path / "push"
+    bias.build_bias_test_coco_package(config, frames, push_dir)
+
+    bias_gt_dir = tmp_path / "data" / "labels" / "eval" / "bias_test" / "corrected"
+    images_dir = bias_gt_dir / "images" / "default"
+    images_dir.mkdir(parents=True)
+    push_images = json.loads((push_dir / "instances.json").read_text())["images"]
+
+    # From-scratch GT: near-identical on-field box only (matches the labelling-
+    # convention finding: the bias-test pass never re-added the off-field person).
+    boxes_by_domain = {
+        "drone": [[24.5, 0.5, 2.0, 10.0]],
+        "sideline": [[0.5, 0.5, 10.0, 10.0], [500.5, 500.5, 10.0, 10.0]],
+    }
+    new_images = []
+    new_annotations = []
+    ann_id = 1
+    for idx, image in enumerate(push_images, start=1):
+        cv2.imwrite(str(images_dir / image["file_name"]), np.zeros((64, 64, 3), dtype=np.uint8))
+        new_images.append({**image, "id": idx})
+        domain = "drone" if image["file_name"].startswith("drone__") else "sideline"
+        for bbox in boxes_by_domain[domain]:
+            new_annotations.append(
+                {"id": ann_id, "image_id": idx, "category_id": 1, "bbox": bbox}
+            )
+            ann_id += 1
+    (bias_gt_dir / "instances.json").write_text(
+        json.dumps(
+            {
+                "images": new_images,
+                "annotations": new_annotations,
+                "categories": [{"id": 1, "name": "player"}, {"id": 2, "name": "referee"}],
+            }
+        )
+    )
+
+    model = _FakeEvalModel(_detections([[24.0, 0.0, 26.0, 10.0]], [0.9], [0]))
+    monkeypatch.setattr(detect, "load_detector", lambda _config, _run_id: model)
+
+    out_path = tmp_path / "eval_bias_test_on_field.json"
+    results = bias.evaluate_bias_test(
+        config,
+        frames_csv_path=config.paths.labels / "eval" / "bias_test_frames.csv",
+        bias_gt_dir=bias_gt_dir,
+        run_ids={"D": "run-d"},
+        out_path=out_path,
+        on_field=True,
+    )
+
+    drone_result = results["drone"]
+    assert drone_result["on_field"] == {
+        "requested": True, "applied": True, "margin_yards": bias._ON_FIELD_MARGIN_YARDS,
+    }
+    # The off-field bench box is dropped from both sides -> only the on-field box
+    # remains on each side, and it matches.
+    assert drone_result["agreement"]["n_boxes_existing"] == 1
+    assert drone_result["agreement"]["n_boxes_new"] == 1
+    assert drone_result["agreement"]["n_matched"] == 1
+    d_drone = drone_result["models"]["D"]
+    assert d_drone["existing_gt"]["n_boxes"] == 1
+    assert d_drone["new_gt"]["n_boxes"] == 1
+
+    sideline_result = results["sideline"]
+    assert sideline_result["on_field"] == {
+        "requested": True, "applied": False, "margin_yards": None,
+    }
+    # GoPro has no homography -- both boxes (including the far-off one) stay.
+    assert sideline_result["agreement"]["n_boxes_existing"] == 2
+    assert sideline_result["agreement"]["n_boxes_new"] == 2
+    d_sideline = sideline_result["models"]["D"]
+    assert d_sideline["existing_gt"]["n_boxes"] == 2
+    assert d_sideline["new_gt"]["n_boxes"] == 2
 
 
 # --- D-19 guard coverage: bias-test frames never enter training -----------------------------

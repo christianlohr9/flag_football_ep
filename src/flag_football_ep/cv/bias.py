@@ -51,6 +51,8 @@ from flag_football_ep.cv import CvError
 from flag_football_ep.cv.dataset import CLASS_NAMES
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from flag_football_ep.config import Config
 
 # Mirrors `dataset.py`/`detect.py`'s own `_IMAGE_SUFFIXES` -- kept as a separate
@@ -82,6 +84,31 @@ _BIAS_TEST_CSV_COLUMNS = ("domain", "session_id", "clip_number", "frame_index", 
 # compatible-but-not-identical boxes" and "two annotators drew essentially the same box".
 _MATCH_IOU_THRESHOLD = 0.5
 _NEAR_IDENTICAL_IOU = 0.95
+
+# The only domain with a homography calibration (`data/reference/
+# homography_calibration.csv`): D-05 scoped the manual per-hover-position field
+# calibration to the drone pilot session only, so GoPro/sideline has no pixel-to-yard
+# mapping at all -- `_build_on_field_filter` returns `None` (a documented no-op) for
+# every other domain. Mirrors `cv/frames.py`'s own `_PRIVATE_TEST_DOMAIN` constant
+# (kept as a separate local constant rather than importing the private module
+# attribute across module boundaries, this module's own established precedent -- see
+# `_IMAGE_SUFFIXES`'s docstring above).
+_ON_FIELD_DOMAIN = "drone"
+
+# Margin (yards) added around the nominal field polygon (the 50-yard pitch plus both
+# end zones, `homography.field_landmarks`) before a projected box counts as
+# "off-field". Sized from the corrected (per-clip SIFT/ECC-aligned) homography's own
+# measured local position error (`docs/homography-calibration.md`'s Gate-Distanzmaß
+# table: p90 0.457 yd, max 1.527 yd across every gate-eligible drone clip) rounded up
+# to the next whole yard -- generous enough that calibration/alignment noise alone
+# never misclassifies a genuinely on-field player standing close to the sideline as
+# off-field, while staying far smaller than the multi-yard gap that separates the
+# painted sideline from the bench/coach/spectator area the from-scratch bias-test
+# labelling pass excluded (this module's own docstring, "off-field persons" finding).
+# The rarer, worse scale-pair outlier (sp-4, ~3.5 yd at a 16-yard reference distance,
+# same doc) is a per-clip tail case, not the general noise floor this margin is tuned
+# against.
+_ON_FIELD_MARGIN_YARDS = 2.0
 
 
 class BiasTestError(CvError, ValueError):
@@ -637,6 +664,123 @@ def compute_agreement_for_domain(
     }
 
 
+def _clip_number_from_file_name(file_name: str) -> int | None:
+    """Parse the clip number out of a frame file name, domain-prefixed or not (e.g.
+    `"drone__Wide - Clip 005_f00292.jpg"` or the existing eval GT's own unprefixed
+    `"Wide - Clip 005_f00292.jpg"`) -- `_CLIP_FRAME_RE` searches anywhere in the
+    string, so an optional `<domain>__` push prefix ahead of it is transparent.
+    `None` when the name does not match the project-wide `"Clip <n>_f<index>"`
+    convention.
+    """
+    match = _CLIP_FRAME_RE.search(file_name)
+    return int(match.group(1)) if match else None
+
+
+def _build_on_field_filter(
+    config: Config, domain: str
+) -> Callable[[str, tuple[float, float, float, float]], bool] | None:
+    """Build a `detect.evaluate_domain_frames`-compatible `box_filter` for the
+    on-field-only evaluation mode (`evaluate_bias_test(on_field=True)`, 2026-09-11):
+    keeps a box only when its bottom-centre (foot) point projects, via the Phase-2.1
+    drone homography (`coordinates.composed_transformer_for` -- the SAME per-hover-
+    position calibration composed with per-clip SIFT/ECC drift correction that
+    `coordinates.add_field_coordinates` already applies to real tracking output, never
+    a second/looser mapping invented for this bias-test-only purpose), inside the
+    field polygon (the 50-yard pitch plus both end zones, `homography.field_landmarks`)
+    plus `_ON_FIELD_MARGIN_YARDS`.
+
+    Returns `None` for every domain other than `_ON_FIELD_DOMAIN` ("drone") -- GoPro/
+    sideline carries no homography calibration at all (D-05 scoped the manual
+    per-hover-position calibration to the drone pilot session only). Callers MUST
+    treat `None` as "no filter, report unchanged for this domain" rather than calling
+    the returned value unconditionally.
+
+    Raises `BiasTestError` naming the offending clip/file when a drone frame's file
+    name does not carry a parseable clip number, or when a drone clip has no
+    `hover_position_id` in `data/reference/hover_positions.csv` -- silently treating
+    an unresolvable clip as "keep everything" would quietly disable the on-field
+    filter for exactly the clips it cannot resolve, without surfacing that anywhere.
+    """
+    if domain != _ON_FIELD_DOMAIN:
+        return None
+
+    import numpy as np
+    import polars as pl
+
+    from flag_football_ep.cv.coordinates import composed_transformer_for
+    from flag_football_ep.cv.homography import field_landmarks, load_calibration
+
+    calibration = load_calibration(config.reference.homography_calibration)
+    hover_df = pl.read_csv(
+        config.reference.hover_positions, columns=["clip_number", "hover_position_id"]
+    )
+    hover_by_clip = {
+        int(row["clip_number"]): row["hover_position_id"] for row in hover_df.iter_rows(named=True)
+    }
+
+    landmarks = field_landmarks(config)
+    xs = [x for x, _ in landmarks.values()]
+    ys = [y for _, y in landmarks.values()]
+    x_min = min(xs) - _ON_FIELD_MARGIN_YARDS
+    x_max = max(xs) + _ON_FIELD_MARGIN_YARDS
+    y_min = min(ys) - _ON_FIELD_MARGIN_YARDS
+    y_max = max(ys) + _ON_FIELD_MARGIN_YARDS
+
+    transformer_cache: dict[int, object] = {}
+
+    def _transformer_for_clip(clip_number: int):
+        if clip_number not in transformer_cache:
+            hover_position_id = hover_by_clip.get(clip_number)
+            if hover_position_id is None:
+                raise BiasTestError(
+                    f"on-field filter: drone clip {clip_number} has no "
+                    f"hover_position_id in {config.reference.hover_positions}"
+                )
+            transformer_cache[clip_number] = composed_transformer_for(
+                hover_position_id, clip_number, calibration, config
+            )
+        return transformer_cache[clip_number]
+
+    def _on_field(file_name: str, xyxy: tuple[float, float, float, float]) -> bool:
+        clip_number = _clip_number_from_file_name(file_name)
+        if clip_number is None:
+            raise BiasTestError(
+                f"on-field filter: {file_name!r} does not match the "
+                "'Clip <n>_f<index>' naming convention -- cannot resolve its clip number"
+            )
+        transformer = _transformer_for_clip(clip_number)
+        x1, y1, x2, y2 = xyxy
+        foot = np.array([[(x1 + x2) / 2.0, y2]], dtype=np.float64)
+        projected_x, projected_y = transformer.transform_points(foot)[0]
+        return bool(x_min <= projected_x <= x_max and y_min <= projected_y <= y_max)
+
+    return _on_field
+
+
+def _filter_annotations_on_field(
+    images: list[dict],
+    annotations: list[dict],
+    box_filter: Callable[[str, tuple[float, float, float, float]], bool],
+) -> list[dict]:
+    """Drop every annotation in `annotations` whose box fails `box_filter` (keyed by
+    its image's `file_name`) -- `evaluate_bias_test`'s on-field mode uses this to
+    restrict `compute_agreement_for_domain`'s agreement table to on-field boxes only,
+    the exact same filter test `detect.evaluate_domain_frames`'s own `box_filter`
+    parameter applies to ground truth and predictions for the mAP table, so neither
+    table is scored against a different on-field definition than the other.
+    """
+    file_name_by_image_id = {image["id"]: image["file_name"] for image in images}
+    kept: list[dict] = []
+    for ann in annotations:
+        file_name = file_name_by_image_id.get(ann["image_id"])
+        if file_name is None:
+            continue
+        x, y, w, h = ann["bbox"]
+        if box_filter(file_name, (x, y, x + w, y + h)):
+            kept.append(ann)
+    return kept
+
+
 def _write_json_atomic(path: Path, data: dict) -> None:
     """`.tmp` sibling + `os.replace`, matching `detect._write_json_atomic`/
     `frames.write_manifest`'s discipline (T-2.1-10).
@@ -661,6 +805,7 @@ def evaluate_bias_test(
     out_path: Path,
     resolution: int | None = None,
     sahi: bool | None = None,
+    on_field: bool = False,
 ) -> dict:
     """The full bias measurement: for every domain in the bias-test frame selection at
     `frames_csv_path`, (a) box-level agreement between the existing eval GT and the
@@ -677,6 +822,21 @@ def evaluate_bias_test(
     (`_write_json_atomic`) and returns it. Raises `BiasTestError` naming the domain
     when either label set has zero images for it (a stale selection or a not-yet-
     pulled bias-test CVAT export).
+
+    `on_field=True` (2026-09-11 on-field-only evaluation mode) restricts every table
+    (the agreement table AND every model's mAP against both GT sets) to boxes whose
+    bottom-centre point maps inside the drone domain's field polygon plus a margin
+    (`_build_on_field_filter`, `_ON_FIELD_MARGIN_YARDS`), applied identically to the
+    existing GT, the from-scratch GT, and every model's own predictions -- the same
+    `box_filter` callable both filters the agreement table's annotations
+    (`_filter_annotations_on_field`) and is threaded into
+    `detect.evaluate_domain_frames`'s own `box_filter` parameter for the mAP tables,
+    so no table applies a looser or stricter on-field rule than any other.
+    GoPro/sideline has no homography calibration at all (D-05 scoped calibration to
+    the drone pilot session only) -- its tables are reported completely unchanged when
+    `on_field=True`. Every domain's result dict carries an `"on_field"` block
+    (`{"requested": on_field, "applied": bool, "margin_yards": float | None}`) so a
+    reader never has to guess which domains the filter actually touched.
     """
     frames = read_bias_test_frames_csv(frames_csv_path)
     domains = sorted({f.domain for f in frames})
@@ -702,9 +862,20 @@ def evaluate_bias_test(
                 f"{bias_gt_dir}?"
             )
 
+        box_filter = _build_on_field_filter(config, domain) if on_field else None
+        applied = box_filter is not None
+
+        agreement_existing_anns = existing_anns
+        agreement_new_anns = new_anns
+        if box_filter is not None:
+            agreement_existing_anns = _filter_annotations_on_field(
+                existing_images, existing_anns, box_filter
+            )
+            agreement_new_anns = _filter_annotations_on_field(new_images, new_anns, box_filter)
+
         agreement = compute_agreement_for_domain(
-            existing_images, existing_anns, existing_cats,
-            new_images, new_anns, new_cats, prefixed_to_original,
+            existing_images, agreement_existing_anns, existing_cats,
+            new_images, agreement_new_anns, new_cats, prefixed_to_original,
         )
 
         model_results: dict[str, dict] = {}
@@ -712,11 +883,11 @@ def evaluate_bias_test(
             model = detect.load_detector(config, run_id)
             existing_metrics = detect.evaluate_domain_frames(
                 config, model, existing_images, existing_anns, existing_cats, existing_paths,
-                resolution=resolved_resolution, sahi=resolved_sahi,
+                resolution=resolved_resolution, sahi=resolved_sahi, box_filter=box_filter,
             )
             new_metrics = detect.evaluate_domain_frames(
                 config, model, new_images, new_anns, new_cats, new_paths,
-                resolution=resolved_resolution, sahi=resolved_sahi,
+                resolution=resolved_resolution, sahi=resolved_sahi, box_filter=box_filter,
             )
             model_results[run_name] = {
                 "run_id": run_id,
@@ -726,7 +897,15 @@ def evaluate_bias_test(
                 "delta_mAP_50_95": new_metrics["mAP_50_95"] - existing_metrics["mAP_50_95"],
             }
 
-        results[domain] = {"agreement": agreement, "models": model_results}
+        results[domain] = {
+            "agreement": agreement,
+            "models": model_results,
+            "on_field": {
+                "requested": on_field,
+                "applied": applied,
+                "margin_yards": _ON_FIELD_MARGIN_YARDS if applied else None,
+            },
+        }
 
     _write_json_atomic(Path(out_path), results)
     return results
