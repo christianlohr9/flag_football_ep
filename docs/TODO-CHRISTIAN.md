@@ -15,6 +15,8 @@ Erledigtes wandert nach unten. Wenn du etwas fertig hast: einfach sagen, ich hak
 
 3. **Repo auf privat stellen.** Lizenz ist schon auf Apache-2.0 umgestellt, jetzt fehlt nur noch die Sichtbarkeit: `gh repo edit christianlohr9/flag_football_ep --visibility private --accept-visibility-change-consequences` ausführen (oder auf GitHub unter Settings → Danger Zone → Change visibility).
 
+4. **CVAT-Aufgabe 11 `eval-bias-test` labeln** (30 Bilder, keine Vorlabels, alles neu zeichnen, etwa eine Stunde) — Anleitung in `docs/dataset-buildout.md` unter „Vorlabel-Bias-Test (Nutzerentscheid 2026-09-11)".
+
 ## Warten auf andere
 
 5. **OTC-Zugangsdaten.** Kommen später. Dann: `docs/hackathon-otc-upload.md`, ein Befehl.

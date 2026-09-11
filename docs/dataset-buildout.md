@@ -1643,3 +1643,110 @@ Der ehrliche Gesamtstand:
   festgehalten für die Phase-2.2-Abschlussdokumentation (Plan 02.2-19).
 - **Champion/hackathon-frozen bleiben unverändert** (`87a8a5222f7a472787875e974d089c44`) — der
   Hackathon-Benchmark ist von dieser Phase unberührt geblieben.
+
+## Vorlabel-Bias-Test (Nutzerentscheid 2026-09-11): Testdesign
+
+**Ausgangslage.** Jeder Drei-Wege-Vergleich in diesem Dokument (`### Nachtrag 2026-09-04
+(abends)`, `## Iteration-2-Detektor: ... (Plan 02.2-18)`) trägt denselben, bislang nur
+qualitativ benannten Vorbehalt: die geprüfte Eval-Ground-Truth unter
+`data/labels/eval/<domain>/corrected/` wurde aus den Vorlabels des Phase-2.1-Champions
+`87a8a5222f7a472787875e974d089c44` heraus geprüft — desselben Laufs, der auf Frames genau dieser
+18 Drohnen-/12 GoPro-Clips trainiert hat. Bei der Drohne blieben 95 % der geprüften Boxen
+unverändert zum Vorlabel, bei GoPro/Hinterfeld 75 %. Das begünstigt jeden champion-ähnlichen Lauf
+(insbesondere Ablation D, `a6d53662…`, dasselbe Piloten-Rezept) messbar gegenüber den
+AL-Iterationen (Iteration 1 `be854a1a…`, Iteration 2 `682d62f9…`), die nie auf diesen Bildern
+vorgelabelt wurden — bislang aber nur als benannter, nicht als gemessener Effekt.
+
+**Testdesign** (`src/flag_football_ep/cv/bias.py`, `ffep cv eval-bias-sample`/`ffep cv eval-bias`):
+30 Frames aus der BEREITS existierenden, bereits geprüften Eval-Ground-Truth — 20 Drohne + 10
+GoPro/Hinterfeld, stratifiziert über Clips (max. 2 Frames je Clip, Round-Robin über eine
+seed-geshuffelte Clip-Reihenfolge, `random.Random(f"{seed}:{domain}:...")`, Seed `20260911`,
+deterministisch reproduzierbar), aufgezeichnet in `data/labels/eval/bias_test_frames.csv`
+(Domäne/Session/Clip/Frame-Index/Dateiname, keine Bilddaten, kein PII). Dieselben 30 Bilder tragen
+damit zwei unabhängige Label-Sätze: den bestehenden, vorlabel-geprüften (`corrected/`) und einen
+zweiten, komplett neuen, den die Nutzerin ohne jede Vorlabel-Anker von Grund auf zeichnet.
+
+**CVAT-Aufgabe** (self-hosted, Loopback, wie jede andere Aufgabe dieses Dokuments): Task-ID **11**,
+Name `eval-bias-test`, **30 Bilder, 0 Vorlabels** — per `client.tasks.retrieve(11)` +
+`retrieve_annotations` real verifiziert (0 Shapes, 0 Tags, 0 Tracks) vor Übergabe an die Nutzerin.
+Dateinamen sind domänenpräfigiert (`drone__...`/`sideline__...`, dasselbe Präfix-Muster wie beim
+Multi-Domänen-Merge in Plan 02.2-13), da sich Clip-Nummern zwischen Drohne und GoPro/Hinterfeld
+überschneiden (z. B. Clip 11/16/36/52 existieren in beiden Domänen). Gleiches Label-Set wie überall
+in dieser Phase: `player`, `referee`.
+
+**Nach der Prüfung durch die Nutzerin** (D-15-Sichtungsdisziplin unverändert: jedes der 30 Bilder
+wird tatsächlich gesehen und gezeichnet, kein Bild bleibt ungeprüft):
+
+```
+ffep cv cvat-pull --task 11 --out data/labels/eval/bias_test/corrected
+
+ffep cv eval-bias \
+  --run D=a6d53662e6fa4df88d10debd1551de6b \
+  --run iteration1=be854a1adebf4eb4b01d98dc39022ee1 \
+  --run iteration2=682d62f94eff47b798f8a1ddecceee78
+```
+
+`ffep cv eval-bias` liefert pro Domäne zwei Dinge: (a) Box-Agreement zwischen den beiden
+Label-Sätzen — Box-Zahl-Differenz, IoU-Matching (Schwelle 0,5 für „dieselbe Box", 0,95 für „praktisch
+unverändert", dieselbe Schwelle wie beim Vorlabel-Diff in `### Nachtrag 2026-09-04 (abends)`),
+Boxen nur auf einer Seite; (b) für jeden der drei Läufe `mAP_50`/`mAP_50_95` gegen BEIDE Label-Sätze
+nebeneinander, `delta_mAP_50`/`delta_mAP_50_95` = neuer Wert minus bestehender Wert. Wiederverwendet
+dieselbe `evaluate_domain_frames`-Scoring-Funktion, die auch `evaluate_per_domain` nutzt — keine
+zweite mAP-Implementierung.
+
+**D-19-Schutz:** die 30 Bias-Test-Frames sind eine echte Teilmenge der bereits eingefrorenen
+`frozen_eval`-Clips (dieselben 18 Drohnen-/12 GoPro-Clips, aus denen die Eval-Ground-Truth selbst
+gezogen wurde) — `dataset.assert_no_frozen_eval_clips`, unverändert und unconditionally in
+`validate_coco`/`train_detector` verdrahtet, deckt sie also automatisch ab, ohne neuen Code. Direkt
+geprüft, nicht nur angenommen: `tests/test_cv_bias.py::test_bias_test_clips_are_covered_by_frozen_eval_guard`
+baut ein Manifest mit einem echten, real gezogenen Bias-Test-Frame und bestätigt, dass die Guard
+ihn zurückweist.
+
+**Was die möglichen Ausgänge bedeuten würden:**
+
+- **Hohe Übereinstimmung** (die meisten Boxen matchen bei IoU ≥ 0,5, Box-Zahlen pro Frame nahezu
+  gleich, `delta_mAP` für alle drei Läufe nahe null): der Vorlabel-Bias-Vorbehalt war real, aber
+  klein — die bisherigen Verdikte (Ablation D bleibt über Iteration 1/2, Iteration 2 nicht
+  befördert) bleiben so gut wie unverändert glaubwürdig, der Vorbehalt kann in künftigen
+  Vergleichen als "gering, gemessen" statt "ungemessen" geführt werden.
+- **Niedrige Übereinstimmung, aber gleichmässig über alle drei Läufe** (deutliche `delta_mAP`
+  für D, Iteration 1 UND Iteration 2 in ähnlicher Grössenordnung): die Eval-Ground-Truth selbst
+  ist als Labeling-Artefakt spürbar von ihrem eigenen Vorlabel geprägt (z. B. systematisch engere
+  oder lockerere Boxen als eine unabhängige zweite Zeichnung), aber der Effekt trifft champion-
+  ähnliche und AL-Läufe gleich — die RELATIVEN Verdikte (welcher Lauf besser ist) bleiben
+  wahrscheinlich stabil, auch wenn die absoluten mAP-Werte aller Läufe auf der bestehenden GT als
+  leicht verzerrt zu lesen sind.
+- **Niedrige Übereinstimmung, ungleichmässig — D profitiert sichtbar mehr von der bestehenden GT
+  als Iteration 1/2** (`delta_mAP` für D deutlich negativer als für Iteration 1/2, d. h. D verliert
+  auf der neuen GT relativ mehr): das bestätigt die eingangs benannte Sorge direkt — Ds
+  gemessener Vorsprung gegenüber Iteration 1/2 in `## Iteration-2-Detektor: ...` wäre dann
+  teilweise derselbe Messartefakt, den die 2026-09-04-Diagnose bereits einmal für den
+  ungereinigten Champion-Vergleich gefunden hat (`### Nachtrag 2026-09-04 (Diagnose, Korrektur)`),
+  diesmal auf der Labeling- statt der Trainingsdaten-Seite. Eine Neubewertung der Stoppregel-
+  Verdikte aus Plan 02.2-18 (bislang: keine Beförderung) wäre dann angezeigt, aber nur mit dem 30-
+  Frame-Befund als zusätzlichem, nicht als ersetzendem Beleg — die 90/72-Bilder-Hauptmessung bleibt
+  die primäre Grundlage, dieser Test liefert die Grössenordnung des Bias, nicht eine neue
+  Hauptmessung.
+- **Niedrige Übereinstimmung, umgekehrt — Iteration 1/2 profitieren mehr als D**: unerwartet
+  gegen die eingangs benannte Hypothese, aber genauso ehrlich zu berichten; würde eine andere
+  Erklärung nahelegen (z. B. dass die AL-Läufe zufällig besser zu den spezifischen 30 Bildern
+  dieser Stichprobe passen) und müsste vor einer Neubewertung an einer grösseren Stichprobe
+  geprüft werden, bevor daraus eine Schlussfolgerung gezogen wird.
+
+Dieser Test ändert für sich genommen keine Champion-/`hackathon-frozen`-Aliasse und keine
+Promotion-Entscheidung — er liefert eine Zahl für einen bislang nur benannten Vorbehalt, die
+nächste Instanz, die eine Stoppregel- oder Promotion-Entscheidung auf dieser Eval-Ground-Truth
+trifft, wertet sie aus.
+
+### Labelling-Anleitung für die Nutzerin (CVAT-Aufgabe 11 `eval-bias-test`)
+
+- 30 Bilder, keine Vorlabels — jedes Bild ist leer, wenn du es öffnest. Das ist Absicht: du sollst
+  ganz neu zeichnen, ohne dich an einer vorhandenen Box zu orientieren.
+- Jede klar erkennbare Person bekommt eine Box. Spielerinnen, Trainerstab, Ersatzspielerinnen,
+  Seitenlinien-Personal: alles `player`. Nur wer gerade als Schiedsrichter aktiv auf dem Feld
+  pfeift: `referee`.
+- Boxen eng um den ganzen sichtbaren Körper, bis zu den Füssen, ohne Schatten.
+- Kein Bild überspringen — ausser es ist wirklich leer (niemand zu sehen). Das kommt bei ein paar
+  GoPro-Bildern vor (Fernfeld), ist dann kein Fehler.
+- Dauer: etwa eine Stunde für alle 30 Bilder.
+- Wenn fertig: kurz Bescheid geben, dann wird die Aufgabe abgeholt und ausgewertet.
