@@ -376,7 +376,7 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11)*
 
-- [ ] 02.2-19-PLAN.md — Publication assessment, dataset card, licence decision and phase closing record
+- [x] 02.2-19-PLAN.md — Publication assessment, dataset card, licence decision and phase closing record
 
 ### Phase 2.3: Tracks to Coaching Metrics
 
@@ -519,7 +519,7 @@ hackathon strand (2.2 / M2) — file sets are disjoint (Strand-1 ingest/model/re
 | 1.4 Coaching Products | 14/14 | Complete    | 2026-08-22 |
 | 2.0 Capture Protocol | 4/4 | Complete    | 2026-08-24 |
 | 2.1 CV Pilot (Gate) | 17/17 | Complete    | 2026-08-31 |
-| 2.2 Dataset Buildout | 18/21 | In progress (v2 = 755 frames, iteration-2 not promoted; 19 closing record next, 20 waits for OTC keys, 21 partial) | - |
+| 2.2 Dataset Buildout | 19/21 | Closing record written 2026-09-11 (v2 = 755 frames; champion = iteration-1; 20 waits for OTC keys; 21 partial: OTC delivery staged) | - |
 | 2.3 Coaching Metrics | 0/TBD | Not started (gated) | - |
 | 2.4 Player Identity | 0/TBD | Not started (gated) | - |
 | 2.5 Broadcast Footage | 0/TBD | Deferred (stretch) | - |
