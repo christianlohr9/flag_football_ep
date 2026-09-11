@@ -204,10 +204,17 @@ Datensatz-Stand (v2) enthält keinen dieser zurückgehaltenen Clips (verifiziert
 
 ## Lizenz
 
-**Noch nicht final entschieden.** Vier Optionen (CC BY-NC 4.0, CC BY 4.0, eine
-Custom-Research-Use-Lizenz, oder eine Verschiebung der Entscheidung auf den
-Veröffentlichungszeitpunkt) sind in `docs/dataset-publication.md ## 4` mit Begründung
-aufgeführt; die getroffene Entscheidung wird dort in `## 7` als datierte Nutzerentscheidung
-nachgetragen und hier gespiegelt, sobald sie vorliegt. Bis dahin gilt: dieser Datensatz ist
-**nicht veröffentlicht** und unterliegt ausschliesslich der projektinternen Nutzung im Rahmen
-der Verbandsfreigabe.
+**Entscheidung des Nutzers (2026-09-11): `defer`** — die Lizenzwahl (CC BY-NC 4.0, CC BY 4.0,
+eine Custom-Research-Use-Lizenz, oder Verschiebung; alle vier Optionen mit Begründung in
+`docs/dataset-publication.md ## 4`) wird bewusst auf den tatsächlichen
+Veröffentlichungszeitpunkt verschoben, nicht jetzt festgeschrieben (volle Begründung und
+Wortlaut: `docs/dataset-publication.md ## 7`).
+
+**Veröffentlichung selbst ist unentschieden, nicht nur die Lizenz.** D-19 legt lediglich den
+frühestmöglichen Zeitpunkt fest (nach dem Hackathon), keine Zusage, dass zu diesem Zeitpunkt
+tatsächlich veröffentlicht wird. Der Nutzer hält das Code-Repository weiterhin privat
+(`docs/lizenz-inventur.md ## Entscheidung 2026-09-09`, eine unabhängige, bereits getroffene
+Entscheidung über den Code, nicht über den Datensatz) — ein Signal in dieselbe Richtung: ob und
+wann dieser Datensatz tatsächlich veröffentlicht wird, bleibt zum Zeitpunkt dieses
+Phasenabschlusses offen. Bis dahin gilt: dieser Datensatz ist **nicht veröffentlicht** und
+unterliegt ausschliesslich der projektinternen Nutzung im Rahmen der Verbandsfreigabe.

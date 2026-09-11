@@ -163,5 +163,30 @@ dieser Phase, hier nur festgehalten, damit nichts vergessen wird):
 
 ## 7. Lizenzentscheidung (nachgetragen nach dem Entscheidungs-Checkpoint)
 
-*Wird nach der Nutzerentscheidung in Task 3 dieses Plans ergänzt — Platzhalter, solange der
-Checkpoint offen ist.*
+**Entscheidung des Nutzers (2026-09-11): `defer` — die Lizenzwahl wird auf den
+Veröffentlichungszeitpunkt verschoben.**
+
+Wörtliche Antwort des Nutzers auf den Checkpoint dieses Plans: "defer, runde1". Keine der vier
+Optionen aus `## 4` (CC BY-NC 4.0, CC BY 4.0, Custom-Research-Use, Verschiebung) wird also
+bereits jetzt festgeschrieben — die Verschiebungsoption selbst wurde gewählt, mit genau den in
+`## 4` benannten Konsequenzen: nichts geht verloren, da Veröffentlichung ohnehin erst nach dem
+Hackathon stattfindet, aber die Entscheidung bleibt im Abschlussprotokoll offen und der
+Lizenzabschnitt der Dataset Card bleibt ein Platzhalter (siehe `docs/dataset-card.md ##
+Lizenz`).
+
+**Zusätzlicher Kontext des Nutzers, hier festgehalten statt nur in der Lizenzfrage verarbeitet:**
+Der Nutzer hält das Code-Repository weiterhin privat (`docs/lizenz-inventur.md ## Entscheidung
+2026-09-09`) — eine unabhängige, bereits getroffene Entscheidung über den Code, nicht über den
+Datensatz (siehe `## 1`/`## 2` oben zur Trennung dieser beiden Fragen). Diese Repo-Privatstellung
+ändert an dieser Lizenzentscheidung nichts, ist aber ein Signal, dass **die eigentliche
+Veröffentlichung des Datensatzes selbst zum jetzigen Zeitpunkt unentschieden bleibt** — nicht
+nur die Lizenz, sondern ob und wann tatsächlich veröffentlicht wird, ist eine offene Frage, die
+über D-19 ("nach dem Hackathon") hinausgeht. D-19 legt lediglich den frühestmöglichen Zeitpunkt
+fest, nicht eine Zusage, dass zu diesem Zeitpunkt tatsächlich veröffentlicht wird. Diese
+Unsicherheit wird ehrlich so im Phase-Abschlussprotokoll (`docs/dataset-buildout.md`) übernommen,
+nicht als bereits entschiedene Veröffentlichung dargestellt.
+
+**Konsequenz für die Checkliste in `## 6`:** bleibt vollständig gültig als Vorbereitung für
+IRGENDEINEN künftigen Veröffentlichungszeitpunkt, unabhängig davon, ob und wann dieser eintritt
+— Schritt 1 ("Lizenzdatei finalisieren") kann erst ausgeführt werden, sobald diese hier
+verschobene Entscheidung tatsächlich getroffen wird.
