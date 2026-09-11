@@ -114,7 +114,14 @@ _NONEMPTY_UNCERTAINTY_EPSILON = 1e-6
 # repeatedly exhausting a few highly-uncertain ones. Private module constant, not part
 # of `select_al_frames`'s frozen public signature (`tests/test_cv_contracts.py`) --
 # free to tune between iterations.
-_MAX_CANDIDATES_PER_CLIP = 6
+#
+# Lowered 6 -> 4 for iteration 3 (AL-3 ad-hoc round, 2026-09-11), per the bias-test
+# conclusion ("more clips, fewer frames per clip") and the explicit owner instruction
+# for this round -- AL-3 draws from many more distinct sessions per domain (up to four
+# for drone) than either prior iteration, so the per-clip cap can shrink further
+# without starving any single session's candidate pool (every AL-3 session has
+# clips * 4 >= its own sub-target, see docs/dataset-buildout.md's Iteration-3 section).
+_MAX_CANDIDATES_PER_CLIP = 4
 
 _MANIFEST_FILENAME = "selection_manifest.json"
 
