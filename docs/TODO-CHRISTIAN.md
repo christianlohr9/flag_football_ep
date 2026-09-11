@@ -22,6 +22,8 @@ Erledigtes wandert nach unten. Wenn du etwas fertig hast: einfach sagen, ich hak
 
 ## Erledigt
 
+- Bias-Test gelabelt und ausgewertet: Runde 1 ist neuer Champion, Lizenz für den Datensatz vertagt (2026-09-11).
+
 - Vorlabel-Bias-Test ausgewertet, Konvention bestätigt: jede sichtbare Person wird gelabelt, fehlende GoPro-Boxen nachgetragen (2026-09-11).
 
 - CVAT-Aufgaben 8, 9, 10 geprüft (2026-09-10). Daten werden jetzt zusammengeführt und das Modell neu trainiert.
