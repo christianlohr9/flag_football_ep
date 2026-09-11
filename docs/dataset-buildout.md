@@ -1871,3 +1871,152 @@ grösstenteils Mess-Bias (Vorlabel-Bias auf der Drohne, Box-Enge-Artefakt bei mA
 kein echter Modell-Rückschritt. Diese Ergebnisse ändern für sich genommen keine Alias-/
 Promotion-Entscheidung (siehe `### Promotion-Entscheidung` oben); eine Neubewertung bleibt einer
 künftigen Planungssitzung überlassen.
+
+## Champion-Beförderung (Nutzerentscheid 2026-09-11, nach dem Vorlabel-Bias-Test)
+
+**Entscheidung des Nutzers:** Iteration 1 (`be854a1adebf4eb4b01d98dc39022ee1`) wird explizit zum
+`champion`-Alias für `cv_detector_model` befördert — eine direkte Nutzerweisung, nicht die
+automatische Anwendung der Plan-02.2-18-Stoppregel (die auf der ursprünglichen, vorlabel-verzerrten
+Messung "nicht befördert" lautete, siehe `### Promotion-Entscheidung` oben). Grundlage ist der
+Vorlabel-Bias-Test vom 2026-09-11 (`## Vorlabel-Bias-Test` oben, `### Kernaussage`): auf
+unverzerrten (on-field-gefilterten) Labels liegt Iteration 1 auf der Drohne praktisch gleichauf mit
+der sauberen Referenz D und klar vor D bei GoPro/Hinterfeld (korrigierte GT: `mAP_50` 0,684 vs.
+0,577) — der ursprünglich gemessene "Rückschritt" war überwiegend Mess-Bias, kein echter
+Modell-Rückschritt.
+
+**Mechanismus:** `ffep cv promote --run be854a1adebf4eb4b01d98dc39022ee1`
+(`cv/commands.py::promote` → `cv/registry.py::promote`), kein anderer Pfad.
+
+**Geprüft: Der M3-05-Beförderungs-Gate (`model/gate.py`, `ffep promote --force --reason ...`) gilt
+NICHT für die CV-Detektor-Registry.** Der Gate-Mechanismus ist laut eigenem Docstring und
+Metrik-Auflösung (`_METRIC_KEY_BY_PREFIX = {"ep": "logo_mlogloss", "wp": "logo_logloss"}`)
+ausschliesslich für die EP/WP-Modellregistry (`model/registry.py::promote`, CLI-Befehl `ffep
+promote`) gebaut — er kennt weder ein `cv`-Metrik-Präfix noch wird er von `cv/registry.py::promote`
+oder `cv/commands.py::promote` importiert (per Quelltextprüfung bestätigt, kein Treffer). Die
+CV-Detektor-Beförderung hat **keinen** Gate-Mechanismus und **kein** `--force`/`--reason`-Flag —
+`ffep cv promote` setzt den Alias direkt, ohne mechanische Vorprüfung. Die Beförderung wurde daher
+**direkt** ausgeführt, kein `--force` nötig, kein Escape-Hatch-Pfad einschlägig. Die Nutzerweisung
+selbst ("owner decision 2026-09-11 after prelabel-bias test") ist hier, nicht in einem Gate-Log,
+die dokumentierte Begründung.
+
+**Vor/Nach-Zustand, per `registry.resolve_champion`/`freeze.resolve_frozen` verifiziert:**
+
+| Alias | Vorher | Nachher |
+|---|---|---|
+| `champion` (`cv_detector_model`) | `87a8a5222f7a472787875e974d089c44` (Phase-2.1-Piloten-Champion, Version 1) | **`be854a1adebf4eb4b01d98dc39022ee1`** (Iteration 1, Version 2) |
+| `hackathon-frozen` (`cv_detector_model`) | `87a8a5222f7a472787875e974d089c44` | `87a8a5222f7a472787875e974d089c44` **(unverändert, wie angewiesen)** |
+
+**Konsequenz:** Der Phase-2.1-Piloten-Lauf (`87a8a522…`) bleibt als Version 1 der Registry
+erhalten (Aliasse werden verschoben, nie gelöscht — `registry.py::promote`s eigene Garantie), ist
+aber ab sofort weder `champion` noch (ohnehin nie) `hackathon-frozen`-Ziel eines neuen Zeigers,
+sondern nur noch über seine Versionsnummer erreichbar. `hackathon-frozen` bleibt bewusst getrennt
+von `champion` (`cv/freeze.py`s Existenzgrund, RESEARCH Pitfall 5) — die drei bereits gebauten und
+gehashten Hackathon-Bundles (`## Auslieferung` in `docs/hackathon-bundles.md`) bleiben exakt auf
+den eingefrorenen Piloten-Detektor gepinnt, unberührt von dieser Beförderung; jeder künftige Aufruf
+ohne explizites `--run`, der `champion` statt `hackathon-frozen` auflöst (z. B. `cv detect`/`cv
+track` ausserhalb der Bundle-Pipeline), lädt ab sofort Iteration 1, nicht mehr den Piloten-Lauf.
+
+## Phase-2.2-Abschlussprotokoll (Plan 02.2-19, Task 3)
+
+**Status: Phase abgeschlossen am 2026-09-11.** Dieser Abschnitt fasst zusammen, was diese Phase
+geliefert hat, was sie ausdrücklich nicht getan hat, und wer die offenen Punkte erbt.
+
+### Gelieferte Artefakte
+
+**Datensatz (DVC-getrackt, `data/labels/dataset.dvc`):**
+
+| Version | Bilder | Drohne | GoPro/Hinterfeld | TV/Broadcast | `content_sha256` | DVC-MD5 |
+|---|---:|---:|---:|---:|---|---|
+| v2 (aktuell) | 755 | 514 | 57 | 184 | `d87dd04cb7ed53cc3436e02596233937971df0edfbcf9cff628192a9d8963dce` | `4b1652c97f6ca4e2f0032a6a7e2334a3.dir` |
+
+Voller Versionsverlauf (v1/v1.1/v1.2/v2) mit Hashes: `docs/dataset-card.md ## Zusammensetzung`.
+Eingefrorene Eval-Ground-Truth separat: `data/labels/eval.dvc`, md5
+`6c093e25816bab6b132ea14da4d44465.dir`, 561 Dateien (Drohne 90 Bilder/1834 Boxen, GoPro/
+Hinterfeld 72 Bilder/676 Boxen nach der Bias-Test-Korrektur, kein Broadcast-Split).
+
+**Detektor-Läufe und Aliasse (MLflow-Registry `cv_detector_model`, 6 registrierte Versionen):**
+
+| Version | MLflow Run-ID | Rolle |
+|---:|---|---|
+| 1 | `87a8a5222f7a472787875e974d089c44` | Phase-2.1-Piloten-Champion, jetzt `hackathon-frozen`, nicht mehr `champion` |
+| **2** | **`be854a1adebf4eb4b01d98dc39022ee1`** | **Iteration 1, jetzt `champion`** (Nutzerentscheid 2026-09-11, siehe oben) |
+| 3 | `702ab0b5baaf422fa0c21e3988daa4a4` | Ablation A (Drohne-only + Val-Split), Diagnose-Lauf, nicht aliasiert |
+| 4 | `689d5f1dc2c2450785be0f1a1bac9491` | Ablation B (Champion-Feintuning), Diagnose-Lauf, nicht aliasiert |
+| 5 | `a6d53662e6fa4df88d10debd1551de6b` | Ablation D (sauberer Champion, Referenzpunkt), nicht aliasiert |
+| 6 | `682d62f94eff47b798f8a1ddecceee78` | Iteration 2, nicht befördert, nicht aliasiert |
+
+**Hackathon-Bundles (drei, alle fertig gebaut und gehasht, `docs/hackathon-bundles.md`):**
+
+| Bundle | Archiv | `content_sha256` | Eingefrorener Detektor-Lauf | Auslieferungsstatus |
+|---|---|---|---|---|
+| Dev-Set | `dev-set_2026-09-07_08a55bd95b06.zip` (~2,10 GB, 61/61 Pilotspiel-Clips) | `08a55bd95b066f8850e36624963a120a416f9072533dd84b5d0419f7885e00c9` | `87a8a5222f7a472787875e974d089c44` (`hackathon-frozen`) | lokal gestaged, OTC-OBS-Upload noch offen (Plan 02.2-20 nie gelaufen) |
+| Test-Set | `test-set_2026-09-07_b455b642b951.zip` (~2,48 GB, 61/61 Puerto-Rico-Clips, privat) | `b455b642b95144598c9c15ee3dc2d84892d687a19b733983790565b3a547c4e5` | `87a8a5222f7a472787875e974d089c44` | lokal gestaged, OTC-OBS-Upload noch offen |
+| Transfer-Set | `transfer-set_2026-09-01_82c955898fe4.zip` (~543 MB, zwei Domänen, keine Pool-/Test-Trennung) | `82c955898fe4fddac50557fac6e11537783b62e19156c1d5819cd5eba853bdc1` | `87a8a5222f7a472787875e974d089c44` | lokal gestaged, OTC-OBS-Upload noch offen |
+
+Alle drei Bundles bleiben bewusst auf den eingefrorenen Piloten-Detektor gepinnt (`hackathon-
+frozen`, unverändert durch die obige Champion-Beförderung) — kein Bundle-Rebuild nötig oder
+durchgeführt als Folge dieser Phase.
+
+**Eval-/Privat-Test-Split, zwei getrennte Tabellen (siehe `docs/hackathon-bundles.md
+## Zwei neue Referenztabellen`):**
+
+- `data/reference/frozen_eval_clips.csv` (61 Zeilen, Pilotspiel) — steuert ausschliesslich den
+  eigenen Detektor-Trainings-/Eval-Split (`role = pool`/`frozen_eval`); ihre `private_test`-Spalte
+  ist seit Plan 02.2-21 als Hackathon-Signal superseded und wird von `cv/bundle.py` nicht mehr
+  gelesen.
+- `data/reference/hackathon_split.csv` (122 Zeilen, 61 Dev + 61 privater Test) — steuert
+  ausschliesslich die Hackathon-Bundles; Dev = Pilotspiel (GER vs. Panama Rojo), Test = das
+  vollständige zweite Drohnenspiel (GER vs. Puerto Rico, `2026-05-16_FRIENDLY-GER-vs-
+  PUERTORICO-DRONE-WIDE`) — seit Plan 02.2-21 durch das SPIEL getrennt (DATA-04), nicht mehr durch
+  eine Clip-Zurückhaltung innerhalb desselben Spiels.
+
+**Dokumentation, die diese Phase produziert hat:** `docs/dataset-plan.md` (Vorab-Fixierung),
+`docs/dataset-buildout.md` (dieses Dokument, laufendes Ausführungsprotokoll), `docs/
+dataset-card.md` (neu, Plan 02.2-19), `docs/dataset-publication.md` (neu, Plan 02.2-19),
+`docs/material-sighting.md`, `docs/hackathon-bundles.md`, `docs/hackathon-otc-upload.md`,
+Ergänzungen in `docs/cv-setup.md`, `docs/capture-legal.md`, `docs/capture-protocol.md`,
+`docs/pilot-gate-decision.md`.
+
+### Champion-Beförderung — Zusammenfassung für dieses Protokoll
+
+Siehe `## Champion-Beförderung` oben für die volle Begründung, den Gate-Befund und die
+Vor/Nach-Verifikation. Kurzfassung: `champion` wechselt von `87a8a522…` (Version 1) zu
+`be854a1a…` (Version 2, Iteration 1) per Nutzerweisung nach dem Vorlabel-Bias-Test;
+`hackathon-frozen` bleibt unverändert bei `87a8a522…`.
+
+### Was diese Phase NICHT getan hat, und wer es erbt
+
+| Offener Punkt | Stand am Phasenende | Erbt es |
+|---|---|---|
+| **1.500-Frame-Floor** | Nicht erreicht (755/1.500, 50,3 %; GoPro/Hinterfeld am schwächsten: 57/400, 14,3 %) | Eine künftige, über diese Phase hinausgehende Labelling-Runde — REQ-S2-03 begrenzt diese Phase auf zwei AL-Iterationen (D-16), eine dritte liegt ausserhalb ihres Umfangs (siehe `### Finales Labelling-Verdikt` oben) |
+| **Dritte, strukturell grössere Drohnen-Runde** | Nicht durchgeführt; nur zwei AL-Iterationen auf demselben Piloten-Spiel-Pool | Eine künftige Phase/Planungssitzung, falls der Floor oder eine echte mAP-Verbesserung angestrebt wird — mehr Rohmaterial über DATA-01, nicht dieselbe Methode wiederholt |
+| **Dedizierte GoPro-Nachsitzung** (ausserhalb des Ad-hoc-Nachlabelns) | GoPro/Hinterfeld bleibt die kleinste Domäne (57 Bilder); alle bisherigen GoPro-Ergänzungen waren Ad-hoc-Sitzungen, keine eigene geplante Runde | Eine künftige Planungssitzung — die Nachtrags-Zielgrösse "~50–80 saubere Frames pro Sitzung" wurde nie in einer eigenen, dedizierten Session ausgeschöpft |
+| **Eval-Ground-Truth ohne Vorlabel-Anker für künftige Runden** | Die bestehende Eval-GT (Drohne 90, GoPro 72 Bilder) trägt einen gemessenen, nicht vollständig quantifizierten Vorlabel-Bias (`## Vorlabel-Bias-Test` oben); nur 30 von 162 Bildern wurden bias-frei nachgeprüft | Jede künftige Runde, die neue Eval-GT zieht oder die bestehende erweitert — Empfehlung: neue Eval-Frames ohne Vorlabel-Anker von Grund auf zeichnen lassen, wie im Bias-Test-Design dieser Phase, nicht nur als Ausnahme |
+| **Gate-Re-Run** (volle 61-Clip-Kontinuitätsprüfung, D-02) | Nicht Teil dieser Phase (Kontext-Entscheidung D-02, `.planning/phases/02.2-dataset-buildout/02.2-CONTEXT.md`) | Ein eigener, kleiner Schritt nach dem Hackathon, ausgelöst durch die im Gate-Dokument festgehaltene Re-Trigger-Klausel |
+| **ReID-Implementierung** | Nicht Teil dieser Phase (bewusst dem Hackathon überlassen, Kontext-Entscheidung) | Der BWI-Hackathon selbst (23.–27.11.2026) |
+| **Tatsächliche Veröffentlichung** (D-19) | Nicht entschieden, auch die Lizenz nicht (Nutzerentscheid `defer`, `docs/dataset-publication.md ## 7`) — offen ist nicht nur WANN, sondern OB überhaupt, solange das Code-Repository privat bleibt (`docs/lizenz-inventur.md`) | Eine künftige Entscheidung des Nutzers, frühestens nach dem Hackathon (D-19 legt nur den frühestmöglichen Zeitpunkt fest) |
+| **Realer OTC-OBS-`dvc push`/Bundle-Upload** | Plan 02.2-20 ist nie gelaufen (keine `02.2-20-SUMMARY.md`); alle Bundles und der Datensatz liegen nur im lokalen `local-fallback`-DVC-Remote | Sobald `OTC_OBS_ACCESS_KEY_ID`/`OTC_OBS_SECRET_ACCESS_KEY` verfügbar sind — Runbook bereits fertig (`docs/hackathon-otc-upload.md`) |
+| **TV/Broadcast-Eval-Split** | Nie eingefroren — TVs Trainingsdomänen-Status blieb über die ganze Phase bedingt (`docs/dataset-plan.md ## 1`/`## 8`) | Eine künftige Entscheidung, ob TV endgültig als Trainingsdomäne bestätigt wird; erst dann ein eigener Eval-Split |
+
+### Bezug zu REQ-S2-03
+
+Die drei Erfolgskriterien dieser Phase, ehrlich bilanziert:
+
+1. **1.500–3.000 verifizierte Frames, model-in-the-loop, zwei AL-Iterationen, Hard-Case-Mining:**
+   zwei AL-Iterationen durchgeführt wie gefordert, Hard-Case-Mining-Strategie angewendet
+   (`docs/dataset-plan.md ## 5`), aber der 1.500-Floor **nicht erreicht** (755, 50,3 %) — ehrlich
+   als Negativbefund berichtet, keine nachträgliche Umdeutung.
+2. **Ein Detektor über alle Domänen, Pro-Domäne-Eval-Splits und -Inferenz-Einstellungen:** erfüllt
+   — ein Detektor (D-04), Pro-Domäne-Eval (`evaluate_per_domain`/`eval-domains`), Pro-Domäne-
+   Inferenz-Einstellungen (`docs/dataset-plan.md ## 4`), nie gepoolte mAP allein berichtet.
+3. **Sauber versioniert (DVC), Veröffentlichungsoption bewertet:** DVC-Versionierung erfüllt
+   (vier Versionen, durchgängige Hash-Rückverfolgbarkeit); Veröffentlichungsoption **bewertet**
+   (`docs/dataset-publication.md`, Plan 02.2-19) — die Bewertung selbst ist das Kriterium, nicht
+   eine abgeschlossene Veröffentlichung, die D-19 ohnehin auf nach dem Hackathon verschiebt.
+
+**Gesamtverdikt:** Kriterium 2 und 3 vollständig erfüllt. Kriterium 1 teilweise — die AL-Methodik
+und das Mining wurden wie geplant ausgeführt, aber die Ziel-Frame-Zahl wurde verfehlt, und die
+gemessene mAP-Verbesserung war (vor der Bias-Korrektur) nicht auflösbar bzw. (nach der
+Bias-Korrektur, `## Vorlabel-Bias-Test`) zwar vorhanden, aber nicht Grundlage einer automatischen
+Beförderung — die tatsächliche Beförderung dieser Phase war eine explizite Nutzerweisung, kein
+automatisches Stoppregel-Ergebnis.
