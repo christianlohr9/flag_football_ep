@@ -27,6 +27,8 @@ ROADMAP_MD = REPO_ROOT / ".planning" / "ROADMAP.md"
 REQUIREMENTS_MD = REPO_ROOT / ".planning" / "REQUIREMENTS.md"
 DATASET_PLAN = REPO_ROOT / "docs" / "dataset-plan.md"
 DATASET_BUILDOUT = REPO_ROOT / "docs" / "dataset-buildout.md"
+DATASET_PUBLICATION = REPO_ROOT / "docs" / "dataset-publication.md"
+DATASET_CARD = REPO_ROOT / "docs" / "dataset-card.md"
 
 NACHTRAG_HEADING = "## Nachtrag 2026-08-31"
 
@@ -194,4 +196,156 @@ def test_hackathon_bundles_no_longer_describes_18_withheld_clips() -> None:
     )
     assert "Die 18 Clips mit `private_test = true`" not in text, (
         "docs/hackathon-bundles.md still describes the test set as 18 withheld pilot clips"
+    )
+
+
+# --- Plan 02.2-19: publication assessment + dataset card ---------------------------------
+#
+# Guards REQ-S2-03's third success criterion ("publication option assessed") and the dataset
+# card's role as the hand-over artifact any future publication/hand-off needs. A later edit
+# cannot silently drop a required section or the pending-licence marker without this file
+# failing loudly.
+
+DATASET_PUBLICATION_SECTIONS = (
+    "## 1. Was veröffentlicht würde",
+    "## 2. Rechtsgrundlage",
+    "## 3. Plattformvergleich",
+    "## 4. Lizenzempfehlung",
+    "## 5. Zeitpunkt",
+    "## 6. Checkliste für den Veröffentlichungszeitpunkt",
+)
+
+DATASET_CARD_SECTIONS = (
+    "## Zweck und beabsichtigte Nutzung",
+    "## Quellen und Aufnahmebedingungen je Domäne",
+    "## Zusammensetzung",
+    "## Split-Methodik",
+    "## Labelling-Konvention",
+    "## Provenienz",
+    "## Bekannte Limitierungen",
+    "## Datenschutz",
+    "## Lizenz",
+)
+
+
+def test_dataset_publication_doc_exists_and_min_length() -> None:
+    assert DATASET_PUBLICATION.exists(), (
+        "docs/dataset-publication.md is missing -- plan 02.2-19 Task 1 must create it"
+    )
+    text = _read(DATASET_PUBLICATION)
+    assert len(text.splitlines()) >= 70, (
+        "docs/dataset-publication.md has fewer than 70 lines"
+    )
+
+
+def test_dataset_publication_has_all_six_sections() -> None:
+    text = _read(DATASET_PUBLICATION)
+    for heading in DATASET_PUBLICATION_SECTIONS:
+        assert heading in text, (
+            f"docs/dataset-publication.md is missing required section {heading!r}"
+        )
+
+
+def test_dataset_publication_names_three_platforms() -> None:
+    text = _read(DATASET_PUBLICATION)
+    section = _section(text, "## 3. Plattformvergleich")
+    for platform in ("HuggingFace Datasets", "Zenodo", "Roboflow Universe"):
+        assert platform in section, (
+            f"docs/dataset-publication.md platform comparison is missing {platform!r}"
+        )
+
+
+def test_dataset_publication_names_three_licence_options_pending_confirmation() -> None:
+    text = _read(DATASET_PUBLICATION)
+    section = _section(text, "## 4. Lizenzempfehlung")
+    for option in ("CC BY-NC 4.0", "CC BY 4.0", "Research-Use-Lizenz"):
+        assert option in section, (
+            f"docs/dataset-publication.md licence section is missing {option!r}"
+        )
+    assert "vorläufig" in section or "vorbehalten" in section, (
+        "docs/dataset-publication.md licence section does not mark the recommendation as "
+        "pending user confirmation"
+    )
+
+
+def test_dataset_publication_cites_capture_legal_and_approval_date() -> None:
+    text = _read(DATASET_PUBLICATION)
+    assert "docs/capture-legal.md" in text, (
+        "docs/dataset-publication.md does not cite docs/capture-legal.md as the legal basis"
+    )
+    assert "2026-08-31" in text, (
+        "docs/dataset-publication.md does not cite the 2026-08-31 federation approval date"
+    )
+
+
+def test_dataset_publication_checklist_has_at_least_five_steps() -> None:
+    text = _read(DATASET_PUBLICATION)
+    section = _section(text, "## 6. Checkliste für den Veröffentlichungszeitpunkt")
+    numbered_steps = re.findall(r"^\d+\.\s", section, re.MULTILINE)
+    assert len(numbered_steps) >= 5, (
+        "docs/dataset-publication.md publication checklist has fewer than 5 numbered steps"
+    )
+
+
+def test_dataset_card_doc_exists_and_min_length() -> None:
+    assert DATASET_CARD.exists(), (
+        "docs/dataset-card.md is missing -- plan 02.2-19 Task 2 must create it"
+    )
+    text = _read(DATASET_CARD)
+    assert len(text.splitlines()) >= 70, (
+        "docs/dataset-card.md has fewer than 70 lines"
+    )
+
+
+def test_dataset_card_has_all_required_sections() -> None:
+    text = _read(DATASET_CARD)
+    for heading in DATASET_CARD_SECTIONS:
+        assert heading in text, (
+            f"docs/dataset-card.md is missing required section {heading!r}"
+        )
+
+
+def test_dataset_card_names_all_four_dataset_versions() -> None:
+    text = _read(DATASET_CARD)
+    for version in ("v1", "v1.1", "v1.2", "v2"):
+        assert version in text, (
+            f"docs/dataset-card.md does not name dataset version {version!r}"
+        )
+
+
+def test_dataset_card_states_clip_level_split_rule_and_reason() -> None:
+    text = _read(DATASET_CARD)
+    section = _section(text, "## Split-Methodik")
+    assert "Clip-level" in section, (
+        "docs/dataset-card.md split section does not state the clip-level rule"
+    )
+    assert "Near-Duplikate" in section, (
+        "docs/dataset-card.md split section does not state the near-duplicate-frames reason"
+    )
+
+
+def test_dataset_card_limitations_name_at_least_four() -> None:
+    text = _read(DATASET_CARD)
+    section = _section(text, "## Bekannte Limitierungen")
+    numbered_items = re.findall(r"^\d+\.\s", section, re.MULTILINE)
+    assert len(numbered_items) >= 4, (
+        "docs/dataset-card.md limitations section names fewer than 4 distinct limitations"
+    )
+
+
+def test_dataset_card_states_eval_gt_provenance_and_bias_caveat() -> None:
+    text = _read(DATASET_CARD)
+    assert "Vorlabel-Bias" in text, (
+        "docs/dataset-card.md does not mention the prelabel-bias caveat for the eval GT"
+    )
+    assert "frozen_eval_clips.csv" in text, (
+        "docs/dataset-card.md does not cite the frozen eval split provenance file"
+    )
+
+
+def test_dataset_card_licence_points_at_publication_assessment() -> None:
+    text = _read(DATASET_CARD)
+    section = _section(text, "## Lizenz")
+    assert "dataset-publication.md" in section, (
+        "docs/dataset-card.md licence section does not point at docs/dataset-publication.md"
     )
