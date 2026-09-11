@@ -139,6 +139,65 @@ def eval_gt_sample(
     typer.echo(f"manifest: {manifest_path} ({len(manifest.frames)} frames)")
 
 
+@cv_app.command(name="eval-bias-sample")
+def eval_bias_sample(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    n_drone: int = typer.Option(20, "--n-drone", help="Bias-test frames to draw from the drone domain"),
+    n_sideline: int = typer.Option(
+        10, "--n-sideline", help="Bias-test frames to draw from the sideline/GoPro domain"
+    ),
+    max_per_clip: int = typer.Option(
+        2, "--max-per-clip", help="Maximum bias-test frames drawn from any one clip"
+    ),
+    seed: int = typer.Option(20260911, "--seed", help="Random seed for the bias-test frame draw"),
+    out_csv: Optional[Path] = typer.Option(
+        None, "--out-csv", help="Override the frame-selection CSV output path"
+    ),
+    out_coco: Optional[Path] = typer.Option(
+        None, "--out-coco", help="Override the zero-annotation push-package output directory"
+    ),
+    split: Optional[Path] = typer.Option(
+        None,
+        "--split",
+        help="Frozen eval-clip split CSV (default: cfg.reference frozen_eval_clips.csv)",
+    ),
+) -> None:
+    """Draw the deterministic bias-test frame subset from the already-verified eval
+    ground truth and build a zero-annotation COCO package for `cvat-push` -- measures
+    the eval GT's own prelabel bias (2026-09-11 decision), never a new frame sample."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    resolved_out_csv = out_csv or (cfg.paths.labels / "eval" / "bias_test_frames.csv")
+    resolved_out_coco = out_coco or (cfg.paths.labels / "eval" / "bias_test" / "push")
+    split_path = split or (cfg.paths.reference / "frozen_eval_clips.csv")
+
+    from flag_football_ep.cv.bias import (
+        build_bias_test_coco_package,
+        select_bias_test_frames,
+        write_bias_test_frames_csv,
+    )
+
+    frames = select_bias_test_frames(
+        cfg,
+        n_by_domain={"drone": n_drone, "sideline": n_sideline},
+        max_per_clip=max_per_clip,
+        seed=seed,
+        eval_split_path=split_path,
+    )
+    csv_path = write_bias_test_frames_csv(frames, resolved_out_csv)
+    coco_path = build_bias_test_coco_package(cfg, frames, resolved_out_coco)
+
+    typer.echo(f"frames: {csv_path} ({len(frames)} frames)")
+    for domain in sorted({f.domain for f in frames}):
+        n_domain = sum(1 for f in frames if f.domain == domain)
+        typer.echo(f"  {domain}: {n_domain} frames")
+    typer.echo(f"push package (0 annotations): {coco_path}")
+    typer.echo(
+        f"next: ffep cv cvat-push --config {config} --coco {coco_path} --name eval-bias-test"
+    )
+
+
 @cv_app.command()
 def prelabel(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
@@ -1186,6 +1245,67 @@ def eval_domains(
 
     for domain_name, domain_metrics in metrics.items():
         typer.echo(f"{domain_name}: {domain_metrics}")
+
+
+@cv_app.command(name="eval-bias")
+def eval_bias(
+    config: Path = typer.Option(DEFAULT_CONFIG, "--config", help="Path to ffep.toml"),
+    frames_csv: Optional[Path] = typer.Option(
+        None, "--frames-csv", help="Bias-test frame selection CSV (default: cfg.labels eval/bias_test_frames.csv)"
+    ),
+    bias_gt: Optional[Path] = typer.Option(
+        None, "--bias-gt", help="Pulled from-scratch bias-test CVAT export (default: cfg.labels eval/bias_test/corrected)"
+    ),
+    run: List[str] = typer.Option(
+        ...,
+        "--run",
+        help="Detector run as name=run_id (repeatable, e.g. --run D=a6d53662... --run iteration1=be854a1a...)",
+    ),
+    out: Optional[Path] = typer.Option(
+        None, "--out", help="Override the bias-measurement report output path"
+    ),
+) -> None:
+    """Measure the verified eval GT's own prelabel bias (2026-09-11 decision): agreement
+    between the from-scratch bias-test labels and the existing prelabel-derived eval
+    GT, plus per-run mAP against both label sets side by side, per domain."""
+    from flag_football_ep.config import load_config
+
+    cfg = load_config(config)
+    resolved_frames_csv = frames_csv or (cfg.paths.labels / "eval" / "bias_test_frames.csv")
+    resolved_bias_gt = bias_gt or (cfg.paths.labels / "eval" / "bias_test" / "corrected")
+    out_path = out or (cfg.paths.reports / "eval_bias_test.json")
+
+    run_ids: dict[str, str] = {}
+    for entry in run:
+        name, sep, run_id = entry.partition("=")
+        if not sep:
+            raise typer.BadParameter(f"--run must be name=run_id, got {entry!r}")
+        run_ids[name] = run_id
+
+    from flag_football_ep.cv.bias import evaluate_bias_test
+
+    results = evaluate_bias_test(
+        cfg,
+        frames_csv_path=resolved_frames_csv,
+        bias_gt_dir=resolved_bias_gt,
+        run_ids=run_ids,
+        out_path=out_path,
+    )
+
+    for domain, domain_results in results.items():
+        agreement = domain_results["agreement"]
+        typer.echo(
+            f"{domain}: agreement n_frames={agreement['n_frames']} "
+            f"boxes_existing={agreement['n_boxes_existing']} boxes_new={agreement['n_boxes_new']} "
+            f"matched={agreement['n_matched']} only_existing={agreement['n_only_existing']} "
+            f"only_new={agreement['n_only_new']}"
+        )
+        for run_name, run_result in domain_results["models"].items():
+            typer.echo(
+                f"  {run_name}: delta_mAP_50={run_result['delta_mAP_50']:.4f} "
+                f"delta_mAP_50_95={run_result['delta_mAP_50_95']:.4f}"
+            )
+    typer.echo(f"report: {out_path}")
 
 
 @cv_app.command()
