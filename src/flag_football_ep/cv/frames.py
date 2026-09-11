@@ -238,19 +238,27 @@ def _probe_fps(clip: Path) -> float:
     return float(raw)
 
 
-# Retry nudge for a seek that lands past the last decodable frame. Variable-frame-rate
-# clips (seen in the 2026-01-03 trainingcamp `sideline` footage, AL-3) report an
-# average `CAP_PROP_FPS` that, multiplied back against the real decoded frame count,
-# can compute a timestamp a few hundredths of a second past the container's own
-# `format.duration` for the very last selected frame -- ffmpeg then seeks past EOF,
-# decodes zero frames, and its downstream image encoder raises a confusing,
-# root-cause-obscuring error (e.g. an mjpeg "non full-range YUV"/"could not open
-# encoder" message that has nothing to do with pixel format) instead of a clear
-# "nothing to seek to" error. One retry nudged backward by this epsilon (well under a
-# single frame's duration at any fps this project uses, so it never changes which
-# real frame gets labeled) resolves the false EOF without masking a genuinely broken
-# clip -- if the retry also fails, the original error is raised unchanged.
-_SEEK_EOF_RETRY_EPSILON_S = 0.1
+# Retry nudges for a seek that lands past the last decodable frame. Variable-frame-rate
+# clips (seen in the 2026-01-03 trainingcamp `sideline` footage and the 2026-03-01
+# GoPro session, AL-3) report an average `CAP_PROP_FPS` that, multiplied back against
+# the real decoded frame count, can compute a timestamp a few hundredths of a second
+# past the container's own `format.duration` for the very last selected frame -- ffmpeg
+# then seeks past EOF and fails one of two ways, both silently wrong if only the exit
+# code is trusted:
+#   1. A non-zero exit with a downstream image-encoder error that has nothing to do
+#      with the real cause (e.g. an mjpeg "non full-range YUV"/"could not open
+#      encoder" message).
+#   2. **Exit code 0** with "Output file is empty, nothing was encoded" on stderr and
+#      no file ever written -- confirmed against real GoPro footage during AL-3: two
+#      requested frames were silently absent from a "successful" extraction run with
+#      no exception raised at all, because `returncode == 0` short-circuited the old
+#      error check entirely. This is why `extract_frames` below checks the file's
+#      actual existence/size, never the exit code alone.
+# Retrying nudged backward by increasing epsilons (each still well under a single
+# frame's duration at any fps this project uses, so it never changes which real frame
+# gets labeled) resolves both failure modes without masking a genuinely broken clip --
+# if every retry still produces no valid file, the last attempt's error is raised.
+_SEEK_EOF_RETRY_EPSILONS_S = (0.1, 0.25, 0.5)
 
 
 def _run_ffmpeg_extract_frame(clip: Path, timestamp: float, out_path: Path) -> subprocess.CompletedProcess:
@@ -273,6 +281,16 @@ def _run_ffmpeg_extract_frame(clip: Path, timestamp: float, out_path: Path) -> s
     )
 
 
+def _extraction_succeeded(result: subprocess.CompletedProcess, out_path: Path) -> bool:
+    """A `_run_ffmpeg_extract_frame` call only really succeeded if it exited zero AND
+    left a real, non-empty file behind -- ffmpeg can exit 0 while writing nothing at
+    all when a seek lands past the last decodable frame (see
+    `_SEEK_EOF_RETRY_EPSILONS_S`'s docstring). Checking the exit code alone is not
+    sufficient.
+    """
+    return result.returncode == 0 and out_path.exists() and out_path.stat().st_size > 0
+
+
 def extract_frames(clip: Path, out_dir: Path, at_seconds: list[float]) -> list[Path]:
     """Extract one still frame per timestamp in `at_seconds` from `clip` into `out_dir`.
 
@@ -280,12 +298,16 @@ def extract_frames(clip: Path, out_dir: Path, at_seconds: list[float]) -> list[P
     (T-2.1-09), one accurate seek per requested timestamp. Each written file is named
     `{clip_stem}_f{frame_index:05d}.jpg` with `frame_index = round(timestamp * fps)`,
     `fps` probed straight from `clip`, so frame indices stay stable and joinable with
-    tracking output later. `out_dir` is created if absent. A failed seek is retried
-    once nudged `_SEEK_EOF_RETRY_EPSILON_S` earlier (see its docstring -- VFR clips can
-    compute a last-frame timestamp a hair past the real duration). A non-zero ffmpeg
-    exit on the retry (or on the very first attempt for `timestamp <
-    _SEEK_EOF_RETRY_EPSILON_S`, where nudging further back is not meaningful) raises
-    `FrameExtractionError` carrying ffmpeg's stderr tail from the last attempt.
+    tracking output later. `out_dir` is created if absent.
+
+    A seek is only considered successful once the output file actually exists with
+    non-zero size (`_extraction_succeeded`) -- a bare `returncode == 0` is not proof a
+    frame was written (see `_SEEK_EOF_RETRY_EPSILONS_S`'s docstring). On failure the
+    seek is retried at progressively larger backward nudges (VFR clips can compute a
+    last-frame timestamp a hair past the real duration). If every attempt still fails,
+    `FrameExtractionError` is raised carrying the last attempt's ffmpeg stderr tail
+    (or a "wrote no bytes" message if ffmpeg itself reported success without writing
+    anything).
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     fps = _probe_fps(clip)
@@ -294,11 +316,23 @@ def extract_frames(clip: Path, out_dir: Path, at_seconds: list[float]) -> list[P
     for timestamp in at_seconds:
         frame_index = round(timestamp * fps)
         out_path = out_dir / f"{clip.stem}_f{frame_index:05d}.jpg"
+
         result = _run_ffmpeg_extract_frame(clip, timestamp, out_path)
-        if result.returncode != 0 and timestamp >= _SEEK_EOF_RETRY_EPSILON_S:
-            nudged = timestamp - _SEEK_EOF_RETRY_EPSILON_S
+        for epsilon in _SEEK_EOF_RETRY_EPSILONS_S:
+            if _extraction_succeeded(result, out_path):
+                break
+            nudged = timestamp - epsilon
+            if nudged < 0.0:
+                continue
             result = _run_ffmpeg_extract_frame(clip, nudged, out_path)
-        if result.returncode != 0:
+
+        if not _extraction_succeeded(result, out_path):
+            if result.returncode == 0:
+                raise FrameExtractionError(
+                    f"ffmpeg exited 0 but wrote no bytes extracting frame at "
+                    f"{timestamp}s from {clip} (even after retries nudged earlier) "
+                    f"-- stderr tail: {result.stderr.strip()[-2000:]}"
+                )
             raise FrameExtractionError(
                 f"ffmpeg exited {result.returncode} extracting frame at {timestamp}s "
                 f"from {clip}: {result.stderr.strip()[-2000:]}"

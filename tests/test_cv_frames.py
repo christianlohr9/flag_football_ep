@@ -283,9 +283,9 @@ def test_extract_frames_retries_nudged_earlier_on_seek_past_eof(
 ) -> None:
     """A VFR clip's last selected frame can compute a timestamp a hair past the
     container's real duration (AL-3, `2026-01-03_TRAININGCAMP-GER-vs-GER-SIDELINE`'s
-    `End Zone - Clip 028.mp4`) -- the first ffmpeg attempt fails (seek past EOF), the
-    retry nudged `_SEEK_EOF_RETRY_EPSILON_S` earlier succeeds, and the caller never
-    sees an error.
+    `End Zone - Clip 028.mp4`) -- the first ffmpeg attempt fails (non-zero exit, seek
+    past EOF), the retry nudged `_SEEK_EOF_RETRY_EPSILONS_S[0]` earlier succeeds, and
+    the caller never sees an error.
     """
     from flag_football_ep.cv import frames as frames_module
 
@@ -311,7 +311,45 @@ def test_extract_frames_retries_nudged_earlier_on_seek_past_eof(
     written = extract_frames(clip, tmp_path / "out", [7.395578835227272])
 
     assert len(calls) == 2
-    assert calls[1] == pytest.approx(calls[0] - frames_module._SEEK_EOF_RETRY_EPSILON_S)
+    assert calls[1] == pytest.approx(calls[0] - frames_module._SEEK_EOF_RETRY_EPSILONS_S[0])
+    assert written[0].read_bytes() == b"fake-jpeg-bytes"
+
+
+def test_extract_frames_retries_on_exit_zero_with_no_bytes_written(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """ffmpeg can exit 0 while writing nothing at all when a seek lands past the last
+    decodable frame (confirmed against real footage during AL-3, the 2026-03-01 GoPro
+    session: `returncode == 0` alone let two silently-missing frames through a
+    "successful" extraction with no exception at all). `extract_frames` must check the
+    file's actual existence/size, not just the exit code, and retry on this failure
+    mode exactly like a non-zero exit.
+    """
+    from flag_football_ep.cv import frames as frames_module
+
+    clip = tmp_path / "clip.mp4"
+    clip.touch()
+    calls: list[float] = []
+
+    def fake_probe_fps(_clip: Path) -> float:
+        return 30.0
+
+    def fake_run(_clip: Path, timestamp: float, out_path: Path):
+        calls.append(timestamp)
+        if len(calls) == 1:
+            # ffmpeg's real silent-failure mode: exit 0, "Output file is empty,
+            # nothing was encoded", and no file written at all.
+            return subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+        out_path.write_bytes(b"fake-jpeg-bytes")
+        return subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(frames_module, "_probe_fps", fake_probe_fps)
+    monkeypatch.setattr(frames_module, "_run_ffmpeg_extract_frame", fake_run)
+
+    written = extract_frames(clip, tmp_path / "out", [8.066220902423469])
+
+    assert len(calls) == 2
+    assert calls[1] == pytest.approx(calls[0] - frames_module._SEEK_EOF_RETRY_EPSILONS_S[0])
     assert written[0].read_bytes() == b"fake-jpeg-bytes"
 
 
@@ -335,6 +373,33 @@ def test_extract_frames_raises_with_original_error_when_retry_also_fails(
     monkeypatch.setattr(frames_module, "_run_ffmpeg_extract_frame", fake_run)
 
     with pytest.raises(FrameExtractionError, match="genuinely broken clip"):
+        extract_frames(clip, tmp_path / "out", [1.0])
+
+
+def test_extract_frames_raises_named_error_when_exit_zero_never_writes_bytes(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """When every attempt (including all retries) exits 0 but never writes a real
+    file, the error must name that specific failure mode rather than silently
+    returning a path to a file that does not exist.
+    """
+    from flag_football_ep.cv import frames as frames_module
+
+    clip = tmp_path / "clip.mp4"
+    clip.touch()
+
+    def fake_probe_fps(_clip: Path) -> float:
+        return 30.0
+
+    def fake_run(_clip: Path, _timestamp: float, _out_path: Path):
+        return subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="", stderr="Output file is empty"
+        )
+
+    monkeypatch.setattr(frames_module, "_probe_fps", fake_probe_fps)
+    monkeypatch.setattr(frames_module, "_run_ffmpeg_extract_frame", fake_run)
+
+    with pytest.raises(FrameExtractionError, match="wrote no bytes"):
         extract_frames(clip, tmp_path / "out", [1.0])
 
 
