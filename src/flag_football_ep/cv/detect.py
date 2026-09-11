@@ -1070,7 +1070,7 @@ def _write_json_atomic(path: Path, data: dict) -> None:
             tmp_path.unlink()
 
 
-def _evaluate_domain_frames(
+def evaluate_domain_frames(
     config: Config,
     model,
     images: list[dict],
@@ -1097,6 +1097,14 @@ def _evaluate_domain_frames(
     `AP_player`/`AP_referee` are per-class, IoU-averaged (0.5:0.95) only -- RF-DETR's
     trainer does not expose a separate per-class AP50, and this function does not
     manufacture one with a different library.
+
+    Public (not `_`-prefixed) because `cv.bias.evaluate_bias_test` (2026-09-11 ad-hoc
+    plan) calls it a second time per domain/model -- once against the existing,
+    prelabel-derived eval GT and once against the from-scratch bias-test GT -- to
+    measure the same detector against two label sets on identical images, rather than
+    duplicating this scoring loop in a second module (the usual small-private-helper
+    duplication precedent this codebase otherwise follows, e.g. `_IMAGE_SUFFIXES`,
+    does not apply once a function this size gains a second real caller).
     """
     import cv2
     import torch
@@ -1210,7 +1218,7 @@ def evaluate_per_domain(config: Config, run_id: str, eval_split_path: Path, out_
                 f"its {len(clip_to_session)} frozen_eval clip(s) -- no corrected COCO "
                 "package under data/labels/<session_id>/corrected/ covers any of them"
             )
-        results[domain] = _evaluate_domain_frames(
+        results[domain] = evaluate_domain_frames(
             config, model, images, annotations, categories, image_paths,
             resolution=resolution, sahi=sahi,
         )

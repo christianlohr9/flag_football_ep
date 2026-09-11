@@ -58,6 +58,16 @@ data/labels/*
 # never merged with data/labels/dataset/.
 !data/labels/eval.dvc
 
+# the prelabel-bias-test frame selection (2026-09-11 ad-hoc plan, clip/frame ids
+# only, no image bytes, no PII) is the one file under data/labels/eval/ small and
+# non-PII enough to track directly rather than via a DVC pointer -- everything
+# else under data/labels/eval/ (frames, corrected/ exports, the bias_test/push
+# and bias_test/corrected image packages) stays ignored exactly like
+# data/labels/* above.
+!data/labels/eval/
+data/labels/eval/*
+!data/labels/eval/bias_test_frames.csv
+
 # hackathon re-identification bundles contain extracted frames and crops of
 # players' faces (PII), same policy as data/video/* and data/labels/* above
 # (Phase 2.2, REQ-S2-03)
