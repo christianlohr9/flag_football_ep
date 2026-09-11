@@ -2020,3 +2020,28 @@ gemessene mAP-Verbesserung war (vor der Bias-Korrektur) nicht auflösbar bzw. (n
 Bias-Korrektur, `## Vorlabel-Bias-Test`) zwar vorhanden, aber nicht Grundlage einer automatischen
 Beförderung — die tatsächliche Beförderung dieser Phase war eine explizite Nutzerweisung, kein
 automatisches Stoppregel-Ergebnis.
+
+### Korrektur 2026-09-11: Ungenutztes Material in `data/video`
+
+Der Hinweis „drittes Drohnenspiel / GoPro-Session nötig“ ist so nicht richtig. Die Inventur
+(`data/reference/video_inventory.csv`) enthält registrierte Sessions, die nie in einen
+AL-Pool gezogen wurden:
+
+| Domäne | Session | Clips | Stand |
+|---|---|---:|---|
+| Drohne | Trainingslager GER–GER (2026-01-03, Wide) | 30 | ungenutzt (Scrimmage, für Detektion voll brauchbar) |
+| Drohne | Panama Rojo (2026-05-16) | 61 | Pool 43 + 18 Eval — ausgeschöpft |
+| Drohne | Puerto Rico (2026-05-16) | 61 | privates Testset, nie Training |
+| GoPro | Freundschaftsspiel GER–MEX (2026-03-01) | 80 | ungenutzt |
+| GoPro | Trainingslager End Zone (2026-01-03) | 30 | ungenutzt |
+| GoPro | WM GER–MEX (2026-08-14) | 60 | Pool 48 + 12 Eval — ausgeschöpft |
+| TV | WM USA–AUS (2026-08-14) | 51 | Pool — ausgeschöpft |
+| TV | WM MEX–ESP (2026-08-14) | 88 | ungenutzt |
+| TV | WM USA–MEX (2024-08-31) | 95 | ungenutzt |
+| TV | zwei komplette Spiele (2026-08-15, GER–USA und USA–AUS) | 2 Dateien | nicht in der Inventur, nicht geschnitten |
+
+Nächster Schritt statt neuer Aufnahmen: eine dritte AL-Runde aus den ungenutzten Sessions
+(mehr Clips, wenige Frames je Clip, Fernfeld-Regel für GoPro). Grob: Drohne +30 Clips,
+GoPro +110 Clips, TV +183 Clips — genug, um den 1.500-Frame-Floor zu erreichen, ohne ein
+weiteres Spiel zu filmen. Ein drittes echtes Drohnen-Spiel bleibt für die Vielfalt wünschenswert,
+ist aber keine Voraussetzung.
