@@ -221,13 +221,13 @@ def test_select_al_frames_never_selects_a_frozen_eval_clip(
     demonstrating that even the most "valuable" candidate in the pool is still
     correctly excluded when it belongs to the frozen clip, not merely absent by luck.
     """
-    session_id = "sess-excl"
-    rows = [tcf._row("data/video/sess-excl/Wide - Clip 001.mp4", session_id=session_id, domain="drone")]
-    tcf._touch(tmp_path, "data/video/sess-excl/Wide - Clip 001.mp4")  # frozen -- never opened
+    session_id = cfg.cv.pilot_session_id
+    rows = [tcf._row(f"data/video/{session_id}/Wide - Clip 001.mp4", session_id=session_id, domain="drone")]
+    tcf._touch(tmp_path, f"data/video/{session_id}/Wide - Clip 001.mp4")  # frozen -- never opened
     rows.append(
-        tcf._row("data/video/sess-excl/Wide - Clip 002.mp4", session_id=session_id, domain="drone")
+        tcf._row(f"data/video/{session_id}/Wide - Clip 002.mp4", session_id=session_id, domain="drone")
     )
-    _write_color_clip(tmp_path / "data/video/sess-excl/Wide - Clip 002.mp4", 4, color=(50, 50, 50))
+    _write_color_clip(tmp_path / f"data/video/{session_id}/Wide - Clip 002.mp4", 4, color=(50, 50, 50))
     tcf._write_inventory(tmp_path, rows)
     tcf._write_hover_positions(tmp_path, {1: "hp-01", 2: "hp-01"})
     _write_frozen_eval_csv(
@@ -339,11 +339,11 @@ def test_select_al_frames_non_excluded_session_still_selects(
     itself is absent) selects exactly as before -- the exclusion check must not
     change behaviour for the common case.
     """
-    session_id = "sess-not-excluded"
-    _write_color_clip(tmp_path / "data/video/sess-not-excluded/Wide - Clip 001.mp4", 4, color=(50, 50, 50))
+    session_id = cfg.cv.pilot_session_id
+    _write_color_clip(tmp_path / f"data/video/{session_id}/Wide - Clip 001.mp4", 4, color=(50, 50, 50))
     tcf._write_inventory(
         tmp_path,
-        [tcf._row("data/video/sess-not-excluded/Wide - Clip 001.mp4", session_id=session_id, domain="drone")],
+        [tcf._row(f"data/video/{session_id}/Wide - Clip 001.mp4", session_id=session_id, domain="drone")],
     )
     tcf._write_hover_positions(tmp_path, {1: "hp-01"})
     _write_frozen_eval_csv(
@@ -391,10 +391,10 @@ def test_select_al_frames_diversity_avoids_collapsing_onto_one_group(
     the implementation uses, not asserted by comment. The actual diversity-grouped
     selection spans all three groups instead.
     """
-    session_id = "sess-multi"
+    session_id = cfg.cv.pilot_session_id
     rows = []
     for n, color in ((1, (10, 10, 10)), (2, (100, 100, 100)), (3, (200, 200, 200))):
-        rel = f"data/video/sess-multi/Wide - Clip {n:03d}.mp4"
+        rel = f"data/video/{session_id}/Wide - Clip {n:03d}.mp4"
         rows.append(tcf._row(rel, session_id=session_id, domain="drone"))
         _write_color_clip(tmp_path / rel, 8, color=color)
     tcf._write_inventory(tmp_path, rows)
@@ -449,10 +449,10 @@ def test_select_al_frames_stratum_share_and_floor(
     since `target` exceeds its own 2-candidate count), and neither group receives
     more than its computed proportional share.
     """
-    session_id = "sess-strata"
+    session_id = cfg.cv.pilot_session_id
     rows = []
     for n, (color, n_frames) in ((1, ((10, 10, 10), 8)), (2, ((200, 200, 200), 2))):
-        rel = f"data/video/sess-strata/Wide - Clip {n:03d}.mp4"
+        rel = f"data/video/{session_id}/Wide - Clip {n:03d}.mp4"
         rows.append(tcf._row(rel, session_id=session_id, domain="drone"))
         _write_color_clip(tmp_path / rel, n_frames, color=color)
     tcf._write_inventory(tmp_path, rows)
@@ -493,8 +493,8 @@ def test_select_al_frames_stratum_share_and_floor(
 def test_select_al_frames_iteration_2_excludes_iteration_1_selection(
     tmp_path: Path, cfg: Config, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    session_id = "sess-iter"
-    rel = "data/video/sess-iter/Wide - Clip 001.mp4"
+    session_id = cfg.cv.pilot_session_id
+    rel = f"data/video/{session_id}/Wide - Clip 001.mp4"
     tcf._write_inventory(tmp_path, [tcf._row(rel, session_id=session_id, domain="drone")])
     _write_color_clip(tmp_path / rel, 12, color=(10, 10, 10))
     tcf._write_hover_positions(tmp_path, {1: "hp-01"})
@@ -536,8 +536,8 @@ def test_select_al_frames_iteration_2_excludes_iteration_1_selection(
 def test_select_al_frames_same_seed_identical_bytes_different_seed_differs(
     tmp_path: Path, cfg: Config, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    session_id = "sess-seed"
-    rel = "data/video/sess-seed/Wide - Clip 001.mp4"
+    session_id = cfg.cv.pilot_session_id
+    rel = f"data/video/{session_id}/Wide - Clip 001.mp4"
     tcf._write_inventory(tmp_path, [tcf._row(rel, session_id=session_id, domain="drone")])
     _write_color_clip(tmp_path / rel, 4, color=(10, 10, 10))
     tcf._write_hover_positions(tmp_path, {1: "hp-01"})
@@ -572,8 +572,8 @@ def test_select_al_frames_same_seed_identical_bytes_different_seed_differs(
 def test_select_al_frames_extracts_selected_frames_and_persists_manifest(
     tmp_path: Path, cfg: Config, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    session_id = "sess-persist"
-    rel = "data/video/sess-persist/Wide - Clip 001.mp4"
+    session_id = cfg.cv.pilot_session_id
+    rel = f"data/video/{session_id}/Wide - Clip 001.mp4"
     tcf._write_inventory(tmp_path, [tcf._row(rel, session_id=session_id, domain="drone")])
     _write_color_clip(tmp_path / rel, 3, color=(10, 10, 10))
     tcf._write_hover_positions(tmp_path, {1: "hp-01"})
@@ -609,8 +609,8 @@ def test_selection_to_frame_manifest_bridges_to_frame_sample_manifest(
     from flag_football_ep.cv.active_learning import selection_to_frame_manifest
     from flag_football_ep.cv.frames import clip_number, clip_paths
 
-    session_id = "sess-bridge"
-    rel = "data/video/sess-bridge/Wide - Clip 001.mp4"
+    session_id = cfg.cv.pilot_session_id
+    rel = f"data/video/{session_id}/Wide - Clip 001.mp4"
     tcf._write_inventory(tmp_path, [tcf._row(rel, session_id=session_id, domain="drone")])
     _write_color_clip(tmp_path / rel, 3, color=(10, 10, 10))
     tcf._write_hover_positions(tmp_path, {1: "hp-01"})

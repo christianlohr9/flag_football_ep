@@ -565,7 +565,7 @@ def _make_eval_session(
 
 
 def test_freeze_eval_clips_stratifies_by_hover_position(tmp_path: Path, cfg: Config) -> None:
-    session_id = "sess-drone"
+    session_id = cfg.cv.pilot_session_id
     _make_eval_session(tmp_path, session_id, 20, domain="drone")
     _write_hover_positions(tmp_path, {n: ("hp-01" if n <= 10 else "hp-02") for n in range(1, 21)})
     out_csv = tmp_path / "frozen_eval_clips.csv"
@@ -584,7 +584,7 @@ def test_freeze_eval_clips_stratifies_by_hover_position(tmp_path: Path, cfg: Con
 
 
 def test_freeze_eval_clips_is_deterministic_for_same_seed(tmp_path: Path, cfg: Config) -> None:
-    session_id = "sess-drone"
+    session_id = cfg.cv.pilot_session_id
     _make_eval_session(tmp_path, session_id, 12, domain="drone")
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
     out_csv = tmp_path / "frozen_eval_clips.csv"
@@ -599,7 +599,7 @@ def test_freeze_eval_clips_is_deterministic_for_same_seed(tmp_path: Path, cfg: C
 
 
 def test_freeze_eval_clips_raises_for_seed_mismatch(tmp_path: Path, cfg: Config) -> None:
-    rows = _make_eval_session(tmp_path, "sess-drone", 12, domain="drone")
+    rows = _make_eval_session(tmp_path, cfg.cv.pilot_session_id, 12, domain="drone")
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
     _make_eval_session(tmp_path, "sess-sideline", 8, domain="sideline", existing_rows=rows)
     _write_sighting_csv(tmp_path, "sess-sideline", {n: "hp-01" for n in range(1, 9)})
@@ -623,7 +623,7 @@ def test_freeze_eval_clips_raises_for_too_few_clips(tmp_path: Path, cfg: Config)
 def test_freeze_eval_clips_pool_and_frozen_eval_partition_domain(
     tmp_path: Path, cfg: Config
 ) -> None:
-    _make_eval_session(tmp_path, "sess-drone", 15, domain="drone")
+    _make_eval_session(tmp_path, cfg.cv.pilot_session_id, 15, domain="drone")
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 16)})
     out_csv = tmp_path / "frozen_eval_clips.csv"
 
@@ -641,7 +641,7 @@ def test_freeze_eval_clips_pool_and_frozen_eval_partition_domain(
 def test_freeze_eval_clips_second_domain_appends_without_touching_first(
     tmp_path: Path, cfg: Config
 ) -> None:
-    rows = _make_eval_session(tmp_path, "sess-drone", 12, domain="drone")
+    rows = _make_eval_session(tmp_path, cfg.cv.pilot_session_id, 12, domain="drone")
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
     _make_eval_session(tmp_path, "sess-sideline", 10, domain="sideline", existing_rows=rows)
     _write_sighting_csv(tmp_path, "sess-sideline", {n: "hp-01" for n in range(1, 11)})
@@ -670,7 +670,7 @@ def test_freeze_eval_clips_second_domain_appends_without_touching_first(
 
 
 def test_freeze_eval_clips_private_test_only_on_drone(tmp_path: Path, cfg: Config) -> None:
-    rows = _make_eval_session(tmp_path, "sess-drone", 12, domain="drone")
+    rows = _make_eval_session(tmp_path, cfg.cv.pilot_session_id, 12, domain="drone")
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
     _make_eval_session(tmp_path, "sess-sideline", 8, domain="sideline", existing_rows=rows)
     _write_sighting_csv(tmp_path, "sess-sideline", {n: "hp-01" for n in range(1, 9)})
@@ -690,7 +690,7 @@ def test_freeze_eval_clips_private_test_only_on_drone(tmp_path: Path, cfg: Confi
 
 
 def test_read_eval_split_round_trips(tmp_path: Path, cfg: Config) -> None:
-    _make_eval_session(tmp_path, "sess-drone", 12, domain="drone")
+    _make_eval_session(tmp_path, cfg.cv.pilot_session_id, 12, domain="drone")
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 13)})
     out_csv = tmp_path / "frozen_eval_clips.csv"
 
@@ -735,7 +735,7 @@ def _make_eval_gt_session(
 
 @pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
 def test_sample_eval_gt_frames_only_samples_frozen_eval_clips(tmp_path: Path, cfg: Config) -> None:
-    session_id = "sess-drone"
+    session_id = cfg.cv.pilot_session_id
     _make_eval_gt_session(tmp_path, session_id, 8)
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 9)})
     split_csv = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
@@ -758,7 +758,7 @@ def test_sample_eval_gt_frames_only_samples_frozen_eval_clips(tmp_path: Path, cf
 
 @pytest.mark.skipif(not FFMPEG_AVAILABLE, reason="ffmpeg/ffprobe not on PATH")
 def test_sample_eval_gt_frames_is_deterministic(tmp_path: Path, cfg: Config) -> None:
-    session_id = "sess-drone"
+    session_id = cfg.cv.pilot_session_id
     _make_eval_gt_session(tmp_path, session_id, 8)
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 9)})
     split_csv = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
@@ -782,7 +782,7 @@ def test_sample_eval_gt_frames_is_deterministic(tmp_path: Path, cfg: Config) -> 
 def test_sample_eval_gt_frames_frame_index_matches_written_filename(
     tmp_path: Path, cfg: Config
 ) -> None:
-    session_id = "sess-drone"
+    session_id = cfg.cv.pilot_session_id
     _make_eval_gt_session(tmp_path, session_id, 8)
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 9)})
     split_csv = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"
@@ -803,7 +803,7 @@ def test_sample_eval_gt_frames_frame_index_matches_written_filename(
 def test_sample_eval_gt_frames_raises_for_domain_without_frozen_eval_clips(
     tmp_path: Path, cfg: Config
 ) -> None:
-    session_id = "sess-drone"
+    session_id = cfg.cv.pilot_session_id
     _make_eval_session(tmp_path, session_id, 8, domain="drone")
     _write_hover_positions(tmp_path, {n: "hp-01" for n in range(1, 9)})
     split_csv = tmp_path / "data" / "reference" / "frozen_eval_clips.csv"

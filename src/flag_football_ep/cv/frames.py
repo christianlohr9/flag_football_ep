@@ -658,14 +658,26 @@ def _read_stratum_ids(
     config: Config, domain: str, session_id: str, clip_numbers: set[int]
 ) -> dict[int, str]:
     """Read `hover_position_id` per clip for `session_id`/`domain` -- the stratum
-    `freeze_eval_clips` allocates the held-out fraction within. The drone domain's
-    strata live in `config.reference.hover_positions` (Plan 02.1-03's file, keyed by
-    `clip_number` alone); every other domain's strata live in the per-session
-    sighting CSV `sighting.py::sight_session` already wrote (Plan 02.2-02), at the
-    same default path `sight_session` itself resolves to for a non-drone domain:
-    `config.paths.reference / f"sighting_{session_id}.csv"`.
+    `freeze_eval_clips` allocates the held-out fraction within. Only the original
+    pilot drone session's strata live in `config.reference.hover_positions`
+    (Plan 02.1-03's file, keyed by `clip_number` alone -- it predates the per-session
+    sighting convention and was never migrated); every other session, drone or not,
+    has its strata in the per-session sighting CSV `sighting.py::sight_session`
+    already wrote (Plan 02.2-02), at the same default path `sight_session` itself
+    resolves to for a non-drone domain: `config.paths.reference /
+    f"sighting_{session_id}.csv"`.
+
+    Checking `domain == _PRIVATE_TEST_DOMAIN` alone (without also checking
+    `session_id`) was a latent bug once a second drone session existed: every
+    additional drone session (`2026-01-03_TRAININGCAMP-GER-vs-GER-DRONE-WIDE`,
+    `2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE`, and AL-iteration-3's three
+    2026-05-17 sessions) was correctly sighted into its own `sighting_<session_id>.csv`
+    (`### Nachtrag 2026-09-02`/`### Nachtrag 2026-09-11` in `docs/material-sighting.md`)
+    but this function would still have looked in the pilot-only `hover_positions.csv`
+    and raised a spurious "missing hover_position_id" error -- never triggered before
+    AL-3 because no prior selection/eval-split call ever named a second drone session.
     """
-    if domain == _PRIVATE_TEST_DOMAIN:
+    if domain == _PRIVATE_TEST_DOMAIN and session_id == config.cv.pilot_session_id:
         path = config.reference.hover_positions
     else:
         path = config.paths.reference / f"sighting_{session_id}.csv"
