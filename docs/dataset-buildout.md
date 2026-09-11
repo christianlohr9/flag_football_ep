@@ -1750,3 +1750,124 @@ trifft, wertet sie aus.
   GoPro-Bildern vor (Fernfeld), ist dann kein Fehler.
 - Dauer: etwa eine Stunde für alle 30 Bilder.
 - Wenn fertig: kurz Bescheid geben, dann wird die Aufgabe abgeholt und ausgewertet.
+
+### Ergebnis (2026-09-11): Vorlabel-Bias-Test ausgewertet
+
+Die Nutzerin hat CVAT-Aufgabe 11 komplett neu gezeichnet (0 Vorlabels, 30 Bilder, 294 Spieler-
+und 69 Schiedsrichter-Boxen). `ffep cv cvat-pull --task 11 --out
+data/labels/eval/bias_test/corrected` + `ffep cv eval-bias` wurden real gegen alle drei Läufe
+ausgeführt.
+
+**Schlüsselung nach `(Domäne, Dateiname)` geprüft.** Drohnen- und GoPro-Frames aus demselben
+Clip/Frame-Index existieren im Push-Paket (z. B. `Wide - Clip 052_f00242.jpg` in beiden
+Domänen) — geprüft, ob `cv/bias.py` das versehentlich über den blossen Dateinamen statt über
+`(Domäne, Dateiname)` zusammenführt: nein. Jede Ladefunktion arbeitet bereits domänen-skopiert
+(`_load_existing_gt_for_domain` liest aus dem domänen-eigenen Verzeichnis
+`data/labels/eval/<domain>/corrected/`, `_load_new_gt_for_domain` filtert das gemeinsame
+Bias-Test-Export auf den vollen `<domain>__`-präfigierten Dateinamen, bevor der Präfix für den
+Vergleich abgeschnitten wird), sodass `compute_agreement_for_domain` je Aufruf nur die Frames
+einer einzigen Domäne sieht. Ein neuer Regressionstest
+(`test_evaluate_bias_test_keys_by_domain_and_basename_not_bare_basename`) erzwingt genau diese
+Kollision (gleiche Clip-/Frame-Nummer in beiden Domänen, absichtlich unterschiedliche Box-Zahlen)
+und bestätigt, dass keine Domäne in die andere durchsickert. **Die vom Koordinator gemeldeten
+Zahlen sind korrekt, kein Fix/erneuter Lauf nötig.**
+
+**Drohne (20 Frames, volles Bild):** 402 bestehende vs. 238 neue Boxen; 234 gematcht (Median-IoU
+0,82), 168 nur bestehend, 4 nur neu. Ein Overlay der „nur bestehend"-Boxen zeigte: das sind
+durchweg Personen ausserhalb des Spielfelds (Bank, Trainerstab, Zuschauer am Rand), normale
+Grösse — die Nutzerin hat beim Von-Grund-auf-Labeln nur Feldspielerinnen/Schiedsrichterinnen
+geboxt, die bestehende (Vorlabel-geprüfte) Ground-Truth boxt dagegen jede sichtbare Person. Für
+Personen AUF dem Feld stimmen beide Label-Sätze in der Anzahl überein und unterscheiden sich nur
+in der Box-Enge (Median-IoU 0,82).
+
+**GoPro/Hinterfeld (10 Frames):** vor Korrektur 90 bestehende vs. 125 neue Boxen; 72 gematcht,
+18 nur bestehend, **53 nur neu** — die bestehende GoPro-Eval-GT übersieht auf diesen 10 Bildern
+viele echte Spielerinnen (Vorlabel-Unterzählung, siehe Korrektur unten).
+
+**mAP absolut, volles Bild, neue (unverzerrte) GT vs. bestehende GT (Drohne):** D 0,814/0,518 vs.
+0,913/0,794; Iteration 1: 0,818/0,527 vs. 0,897/0,703; Iteration 2: 0,786/0,519 vs. 0,869/0,694
+(mAP@50 / mAP@50-95) — Ds Vorsprung auf der bestehenden GT verschwindet auf der neuen, aber die
+Boxen ausserhalb des Feldes verzerren diesen Vergleich noch (siehe „on-field"-Modus unten).
+GoPro auf neuer GT: D 0,423/0,238, Iteration 1 0,517/0,270, Iteration 2 0,449/0,244.
+
+### On-field-Auswertungsmodus (`ffep cv eval-bias --on-field`, Task 2)
+
+Neuer Modus, der Ground-Truth- UND Vorhersage-Boxen auf beiden Label-Sätzen identisch filtert:
+nur Boxen, deren Fusspunkt (Boxmitte unten) per Phase-2.1-Homographie
+(`coordinates.composed_transformer_for` — dieselbe Kalibrierung + Clip-Drift-Korrektur, die auch
+das echte Tracking benutzt) innerhalb des Spielfelds (50-Yard-Feld + beide Endzonen) plus **2,0
+Yards Rand** liegt, zählen noch. Der Rand ist bewusst grosszügig gewählt: die korrigierte
+Homographie hat einen gemessenen lokalen Positionsfehler von p90 = 0,457 Yards, Max 1,527 Yards
+(`docs/homography-calibration.md`s Gate-Distanzmass-Tabelle) — 2,0 Yards rundet das auf, damit
+Kalibrierrauschen keine echte feldnahe Spielerin fälschlich als "off-field" ausschliesst, bleibt
+aber deutlich kleiner als der Abstand zwischen Seitenlinie und Bank-/Zuschauerbereich. Für GoPro
+gibt es keine Homographie (D-05 beschränkte die manuelle Kalibrierung auf den Drohnen-Piloten) —
+der Modus lässt die GoPro-Tabelle unverändert und markiert das explizit im Report
+(`"on_field": {"applied": false}`). Getestet mit synthetischen Fixtures (Box auf dem Feld vs.
+ausserhalb, 4 neue Tests in `tests/test_cv_bias.py`).
+
+**Drohne, on-field (Rand 2,0 Yards):** 316 bestehende vs. 237 neue Boxen (83 nur bestehend, 4 nur
+neu — ein Grossteil, aber nicht alle 168 "nur bestehend"-Boxen liegen tatsächlich ausserhalb des
+Homographie-Feldpolygons; die restlichen 83 sind vermutlich Personen sehr nah an der Seitenlinie,
+die die Nutzerin trotzdem nicht mitgezählt hat). mAP@50-95, bestehende vs. neue GT:
+
+| Lauf | bestehende GT | neue GT (on-field) | Delta mAP@50 | Delta mAP@50-95 |
+|---|---:|---:|---:|---:|
+| D | 0,795 | 0,547 | -0,044 | -0,248 |
+| Iteration 1 | 0,715 | 0,553 | -0,042 | -0,162 |
+| Iteration 2 | 0,708 | 0,544 | -0,052 | -0,163 |
+
+Auf der neuen (unverzerrten, on-field-gefilterten) GT liegen alle drei Läufe praktisch
+gleichauf (mAP@50: D 0,867, Iteration 1 0,871, Iteration 2 0,833; mAP@50-95: D 0,547,
+Iteration 1 0,553, Iteration 2 0,544) — Ds Vorsprung gegenüber den AL-Iterationen aus dem
+Drei-Wege-Vergleich (`## Iteration-2-Detektor: ...`) verschwindet auf der Drohne. Der verbleibende
+Abstand zwischen bestehender und neuer GT (ca. -0,25 bei mAP@50-95, aber nur ca. -0,05 bei
+mAP@50) betrifft alle drei Läufe GLEICH und ist grösstenteils ein Box-Enge-Artefakt: die neue GT
+hat Median-IoU 0,82 gegenüber der bestehenden (praktisch per Definition nah an 1,0, da meist
+Vorlabel-Bestätigung) — bei mAP@50-95 (gemittelt über IoU 0,5 bis 0,95) kostet das punkte, bei
+mAP@50 (lockere Schwelle) kaum. Kein Modell-Unterschied, ein Mess-Artefakt der Box-Zeichengenauigkeit.
+
+### GoPro-Korrektur: 53 fehlende Boxen in die bestehende Eval-GT gemerged
+
+Entscheidung des Koordinators (2026-09-11): die 53 „nur neu"-Boxen auf den 10 GoPro-Bias-Test-
+Bildern sind echte, von der Nutzerin gesehene Spielerinnen, die die bestehende (Vorlabel-
+abgeleitete) GoPro-Eval-GT übersehen hatte — keine Konventionsfrage wie bei der Drohne, sondern
+eine echte Lücke. Gemerged in `data/labels/eval/sideline/corrected/instances.json`: bestehende
+Boxen bleiben, die 53 fehlenden wurden mit neuen Annotation-IDs ergänzt (90 → 143 Boxen auf
+diesen 10 Bildern, 623 → 676 Boxen im gesamten GoPro-Eval-Set). Erneuter Agreement-Lauf auf den
+10 Bias-Test-Bildern bestätigt: `only_new = 0` danach. `data/labels/eval.dvc` per `dvc add
+data/labels/eval` neu erzeugt (`496` → `561` Dateien, neuer md5) und committed — die Bilddaten
+selbst bleiben lokal, nur der DVC-Pointer wandert ins Git.
+
+**`ffep cv eval-domains` erneut gelaufen (D, Iteration 1, Iteration 2) auf der korrigierten
+GoPro-GT, vollständiges Eval-Set (72 GoPro-Bilder, nicht nur die 10 Bias-Test-Bilder):**
+
+| Lauf | mAP@50 | mAP@50-95 | AP Spielerin | AP Schiedsrichterin |
+|---|---:|---:|---:|---:|
+| D | 0,577 | 0,483 | 0,497 | 0,469 |
+| Iteration 1 | 0,684 | 0,495 | 0,554 | 0,437 |
+| Iteration 2 | 0,643 | 0,478 | 0,557 | 0,399 |
+
+Beide AL-Iterationen liegen auf der korrigierten GoPro-GT klar vor D (mAP@50 +0,11/+0,07) — die
+Korrektur bestätigt das schon vor der Korrektur beobachtete Bild, macht es aber verlässlicher
+(vorher fehlten 53 echte Boxen, überwiegend an Stellen, die die AL-Iterationen vermutlich besser
+erkennen als D, da D dort systematisch weniger trainiert wurde).
+
+### Konventions-Entscheidung (Nutzerin, 2026-09-11)
+
+Konvention A bestätigt: „Jede sichtbare Person wird gelabelt" bleibt die bindende Labeling-Regel
+(unverändert seit dem Piloten, siehe `docs/cv-setup.md` und `## Labelling-Anleitung Iteration 1`
+oben) — vollständiger Wortlaut und Begründung in `docs/cv-setup.md`s Nachtrag vom 2026-09-11. Die
+30 Bias-Test-Bilder werden NICHT nachträglich ergänzt; der on-field-Modus oben liefert stattdessen
+den unverzerrten Vergleich.
+
+### Kernaussage
+
+Auf unverzerrten (on-field-gefilterten) Labels hat D keinen Vorsprung mehr gegenüber den
+AL-Iterationen auf der Drohne (praktisch gleichauf). Auf GoPro/Hinterfeld liegen die
+AL-Iterationen klar vor D, sowohl vor als auch nach der GT-Korrektur. Der ursprünglich in
+`## Iteration-2-Detektor: ...` gemessene „Rückschritt" von Iteration 1/2 gegenüber D war
+grösstenteils Mess-Bias (Vorlabel-Bias auf der Drohne, Box-Enge-Artefakt bei mAP@50-95) —
+kein echter Modell-Rückschritt. Diese Ergebnisse ändern für sich genommen keine Alias-/
+Promotion-Entscheidung (siehe `### Promotion-Entscheidung` oben); eine Neubewertung bleibt einer
+künftigen Planungssitzung überlassen.

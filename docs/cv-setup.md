@@ -361,6 +361,23 @@ Ground-Truth-Labeling zur Konsistenz):
   gelegentlich um Bruchteile eines Pixels ausserhalb des Frames (gemessen bis 0.26px auf diesem
   Datensatz) -- ein Rundungsartefakt der Ableitung, kein Labeling-Fehler.
 
+**Nachtrag 2026-09-11 (Konvention bestätigt, Vorlabel-Bias-Test):** Beim Vorlabel-Bias-Test
+(`docs/dataset-buildout.md`, Abschnitt „Vorlabel-Bias-Test") hat die Nutzerin die 30 Bilder ohne
+Vorlabel-Anker von Grund auf neu gezeichnet, dabei aber nur Feldspielerinnen und
+Schiedsrichterinnen geboxt, nicht Personen ausserhalb des Feldes. Grund war ein Missverständnis
+("Ich dachte ich solle nur Feldspielerinnen labeln"), keine bewusste Konventionsänderung.
+Entscheidung: Konvention A bleibt bindend, unverändert zu den Regeln oben:
+
+Jede sichtbare Person wird gelabelt: Spielerinnen, Schiedsrichterinnen, Ersatzspielerinnen,
+Trainer, Zuschauer am Rand. Rahmen um den ganzen sichtbaren Körper inklusive Gliedmaßen.
+Filterung nach Feldposition passiert später.
+
+Die 30 Bias-Test-Bilder werden NICHT nachträglich um die fehlenden Personen ausserhalb des
+Feldes ergänzt — die neue „on-field"-Auswertung (`ffep cv eval-bias --on-field`,
+`docs/dataset-buildout.md`) filtert stattdessen auf beiden Seiten (bestehende und neue
+Ground-Truth, alle Modell-Vorhersagen) per Homographie auf Personen innerhalb der Feldlinien
+und liefert damit den unverzerrten Vergleich, ohne dass die Nutzerin nachlabeln muss.
+
 **Trim auf 304 Frames (Abweichung vom Plan, siehe SUMMARY):** Die Labeling-Sitzung wurde nach
 304 von 404 Frames als vollstaendig markiert und in CVAT gespeichert; die Begruendung des
 Nutzers war Qualitaet vor Quantitaet -- nach 304 sorgfaeltig korrigierten Frames war der
