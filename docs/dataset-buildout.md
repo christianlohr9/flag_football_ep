@@ -1,5 +1,11 @@
 # Datensatz-Aufbau — Laufendes Protokoll (Phase 2.2)
 
+**Status (2026-09-11): Ad-hoc AL-Iteration 3 gezogen, vorgelabelt und als vier CVAT-Aufgaben
+(12/13/14/15) gepusht — 902 rohe Frames über acht Sessions/drei Domänen, `champion` weiterhin
+`be854a1adebf4eb4b01d98dc39022ee1` (Iteration 1). Prüfung durch die Nutzerin steht noch aus, siehe
+`## Iteration 3 (AL-3, Ad-hoc-Runde 2026-09-11)` unten. Die folgenden, älteren Statuszeilen bleiben
+unverändert stehen:**
+
 **Status (2026-09-10): Beide geplanten AL-Iterationen abgeschlossen und ausgewertet
 (Plan 02.2-18). Iteration-2-Detektor (MLflow `682d62f94eff47b798f8a1ddecceee78`, Datensatz v2,
 755 Bilder) auf der sauberen Held-out-Referenz D UND gegenüber Iteration 1 gemessen: **beide
@@ -2045,3 +2051,299 @@ Nächster Schritt statt neuer Aufnahmen: eine dritte AL-Runde aus den ungenutzte
 GoPro +110 Clips, TV +183 Clips — genug, um den 1.500-Frame-Floor zu erreichen, ohne ein
 weiteres Spiel zu filmen. Ein drittes echtes Drohnen-Spiel bleibt für die Vielfalt wünschenswert,
 ist aber keine Voraussetzung.
+
+## Iteration 3 (AL-3, Ad-hoc-Runde 2026-09-11)
+
+**Status: Ziehung, Vorlabel und CVAT-Push abgeschlossen am 2026-09-11 — Prüfung durch die
+Nutzerin steht noch aus.** Dieser Abschnitt setzt die vorige Korrektur direkt um: statt eines
+dritten Drohnenspiels ziehen drei neue 2026-05-17-Drohnensessions plus fünf bereits registrierte,
+bislang ungenutzte Sessions über alle drei Domänen (`docs/material-sighting.md`, Nachtrag
+2026-09-11 für die drei neuen Drohnensessions; Nachtrag 2026-09-02 für die restlichen fünf).
+
+### Warum diese Sessions
+
+Ungenutztes, bereits registriertes Material statt neuer Aufnahmen — der Bestand reicht, um
+substanziell näher an den 1.500-Frame-Floor zu kommen:
+
+| Domäne | Session | `session_id` | Pool-Clips | Grund für "ungenutzt" |
+|---|---|---|---:|---|
+| Drohne | Trainingslager GER–GER (Wide) | `2026-01-03_TRAININGCAMP-GER-vs-GER-DRONE-WIDE` | 30 | registriert 2026-09-02, nie gezogen |
+| Drohne | Panama Azul (neu) | `2026-05-17_FRIENDLY-GER-vs-PANAMA-AZUL-DRONE` | 66 | neu registriert 2026-09-11 |
+| Drohne | Panama Rojo (2026-05-17, neu) | `2026-05-17_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE` | 66 | neu registriert 2026-09-11 |
+| Drohne | Puerto Rico (2026-05-17, neu) | `2026-05-17_FRIENDLY-GER-vs-PUERTORICO-DRONE` | 68 | neu registriert 2026-09-11 |
+| GoPro | Freundschaftsspiel GER–MEX (2026-03-01) | `2026-03-01_FRIENDLY-GER-vs-MEX-GOPRO` | 80 | registriert 2026-09-02, nie gezogen |
+| GoPro | Trainingslager End Zone | `2026-01-03_TRAININGCAMP-GER-vs-GER-SIDELINE` | 30 | registriert 2026-09-02, nie gezogen |
+| TV | WM MEX–ESP | `2026-08-14_WC-MEX-vs-ESP-TV` | 88 | registriert 2026-09-02, nie gezogen |
+| TV | WM USA–MEX (2024) | `2024-08-31_WC-USA-vs-MEX-TV` | 95 | registriert 2026-09-02, nie gezogen |
+
+**Wichtiger Hinweis — Puerto Rico 2026-05-17 ist NICHT das private Hackathon-Testset:** die
+private Testset-Session bleibt `2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE` (anderer Tag,
+eigene `session_id`, unverändert in `data/reference/al_excluded_sessions.csv`, DATA-04). Die hier
+gezogene 2026-05-17-Session gegen Puerto Rico ist ein **anderes, eigenständiges Spiel** — gleiche
+Gegnerin, gleicher Turnierabschnitt, aber ein separates Spiel mit eigenem Clip-/Hash-Bestand — und
+ist deshalb für AL-Training zulässig. Ausführlich dokumentiert in `docs/material-sighting.md
+## Nachtrag 2026-09-11`, damit die Trikot-/Gegner-Ähnlichkeit zwischen beiden Puerto-Rico-Spielen
+niemanden beim Sichten verwirrt.
+
+### Ziel-Ableitung
+
+Die Ziele je Domäne folgen der Vorgabe des Nutzers für diese Runde (Drohne ≈ 450, GoPro ≈ 200,
+TV ≈ 250, insgesamt 900 — bewusst kein exakter Floor-Restbedarf, sondern eine dritte, moderate
+Ziehung, die weiterhin "mehr Clips, wenige Frames je Clip" (Frame-Diversitäts-Konsequenz aus
+`### Nachtrag 2026-09-04 (Diagnose, Korrektur)` oben, seit Iteration 2 gültig) fortschreibt. Da
+jede Domäne diesmal aus **mehreren Sessions** zieht (`select_al_frames`s
+`selection_to_frame_manifest`-Brücke verlangt eine Session pro Aufruf, siehe Abweichungen unten),
+wurde das Domänen-Ziel clip-zahl-proportional auf die einzelnen Sessions verteilt:
+
+| Domäne | Session | Pool-Clips | Anteil | Ziel (angefragt) |
+|---|---|---:|---:|---:|
+| Drohne | Trainingslager | 30 | 30/230 | 59 |
+| Drohne | Panama Azul | 66 | 66/230 | 129 |
+| Drohne | Panama Rojo (0517) | 66 | 66/230 | 129 |
+| Drohne | Puerto Rico (0517) | 68 | 68/230 | 133 |
+| **Drohne Summe** | | **230** | | **450** |
+| GoPro | GER–MEX (0301) | 80 | 80/110 | 145 |
+| GoPro | Trainingslager | 30 | 30/110 | 55 |
+| **GoPro Summe** | | **110** | | **200** |
+| TV | MEX–ESP | 88 | 88/183 | 120 |
+| TV | USA–MEX (2024) | 95 | 95/183 | 130 |
+| **TV Summe** | | **183** | | **250** |
+
+**Per-Clip-Cap auf 4 gesenkt (6 → 4, Vorab-Korrektur dieser Runde):** dieselbe
+Frame-Diversitäts-Logik wie beim Cap-Schritt 12 → 6 vor Iteration 2 — mit bis zu vier Sessions
+pro Domäne diesmal kann der Cap weiter sinken, ohne dass irgendeine einzelne Session unter ihr
+eigenes Ziel fällt (jede Session hat `Pool-Clips × 4 ≥ eigenes Ziel`, siehe Tabelle oben).
+Privates Modul-Konstantum in `active_learning.py`, nicht Teil von `select_al_frames`s
+eingefrorener Signatur.
+
+**Seed:** `20260516` (unverändert seit Iteration 1, aus Nachvollziehbarkeitsgründen
+wiederverwendet).
+
+### Ausführung: `ffep cv active-learn --iteration 3`
+
+Acht Aufrufe, einer je Session (die `selection_to_frame_manifest`-Brücke verlangt eine
+Single-Session-Ziehung pro Aufruf — ein Mehr-Session-Aufruf würde `FrameSampleManifest`s
+`clip_number`-geschlüsseltes `split`-Feld über Sessions hinweg kollidieren lassen, siehe
+Abweichungen):
+
+```bash
+uv run --extra cv ffep cv active-learn --iteration 3 --target 59 --seed 20260516 \
+  --session 2026-01-03_TRAININGCAMP-GER-vs-GER-DRONE-WIDE \
+  --out-dir data/labels/al-iteration-3/drone-trainingcamp
+
+uv run --extra cv ffep cv active-learn --iteration 3 --target 129 --seed 20260516 \
+  --session 2026-05-17_FRIENDLY-GER-vs-PANAMA-AZUL-DRONE \
+  --out-dir data/labels/al-iteration-3/drone-panama-azul
+
+uv run --extra cv ffep cv active-learn --iteration 3 --target 129 --seed 20260516 \
+  --session 2026-05-17_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE \
+  --out-dir data/labels/al-iteration-3/drone-panama-rojo-0517
+
+uv run --extra cv ffep cv active-learn --iteration 3 --target 133 --seed 20260516 \
+  --session 2026-05-17_FRIENDLY-GER-vs-PUERTORICO-DRONE \
+  --out-dir data/labels/al-iteration-3/drone-puertorico-0517
+
+uv run --extra cv ffep cv active-learn --iteration 3 --target 145 --seed 20260516 \
+  --session 2026-03-01_FRIENDLY-GER-vs-MEX-GOPRO \
+  --out-dir data/labels/al-iteration-3/sideline-gopro-mex
+
+uv run --extra cv ffep cv active-learn --iteration 3 --target 55 --seed 20260516 \
+  --session 2026-01-03_TRAININGCAMP-GER-vs-GER-SIDELINE \
+  --out-dir data/labels/al-iteration-3/sideline-trainingcamp
+
+uv run --extra cv ffep cv active-learn --iteration 3 --target 120 --seed 20260516 \
+  --session 2026-08-14_WC-MEX-vs-ESP-TV \
+  --out-dir data/labels/al-iteration-3/broadcast-mex-esp
+
+uv run --extra cv ffep cv active-learn --iteration 3 --target 130 --seed 20260516 \
+  --session 2024-08-31_WC-USA-vs-MEX-TV \
+  --out-dir data/labels/al-iteration-3/broadcast-usa-mex-2024
+```
+
+`select_al_frames`s Iteration-2-Ausschluss-Lookup (`out_dir.parent / "iteration-2" /
+selection_manifest.json`) wurde wie bei Iteration 2 selbst über ein einziges, alle drei
+Iteration-2-Domänen zusammenfassendes Manifest bedient
+(`data/labels/al-iteration-3/iteration-2/selection_manifest.json`, 434 Frames, per
+`write_selection_manifest` aus den drei realen Iteration-2-Manifesten zusammengesetzt) — praktisch
+folgenlos, da keine der acht AL-3-Sessions mit einer Iteration-1/2-Session identisch ist
+(Frame-Schlüssel `(session_id, clip_number, frame_index)` kollidieren nie session-übergreifend).
+
+### Pool-Sicherheit (T-2.2-32) und D-19-Guard
+
+Nach der Ziehung geprüft: `dataset.assert_no_frozen_eval_clips` direkt gegen ein aus allen acht
+Selektionen zusammengesetztes Manifest aufgerufen (902 Frames) — **0 Kollisionen** mit
+`role = frozen_eval`-Clips. Zusätzlich `al_excluded_sessions.csv` gegen alle acht verwendeten
+`session_id`s geprüft — **0 Überschneidung** (die 2026-05-16-Puerto-Rico-Session wurde in keinem
+der acht Aufrufe genannt).
+
+Nebenbefund, keine Korrektur nötig: `select_al_frames`s Frozen-Ausschluss vergleicht `(domain,
+clip_number)` domänenweit, nicht `(domain, session_id, clip_number)` — ein konservatives, absichtlich
+übervorsichtiges Verhalten seit Plan 02.2-21 (siehe `dataset.assert_no_frozen_eval_clips`s
+Docstring, dieselbe Begründung), das für die Drohnen-/GoPro-Domäne einige an sich nutzbare Clips
+zusätzlich ausschliesst, wenn ihre Nummer zufällig mit einer eingefrorenen Piloten-Clip-Nummer
+kollidiert (z. B. Trainingslager-Clip 5, weil Piloten-Clip 5 eingefroren ist). Nicht angetastet in
+dieser Runde — eine Verschärfung auf Session-Ebene würde den unconditional in `validate_coco`
+verdrahteten D-19-Schutz überall im Code ändern, nicht nur hier; ausserhalb des Scopes dieser
+Ad-hoc-Runde. Die Ziel-Erreichung war trotzdem überall möglich (siehe Ergebnis-Tabelle unten).
+
+### Ergebnis pro Session
+
+| Domäne | Session | Ziel | Tatsächlich gezogen | Distinkte Clips (von Pool) | Uncertainty min / median / max |
+|---|---|---:|---:|---:|---|
+| Drohne | Trainingslager | 59 | 60 | 21 (von 30, 9 domänenweit ausgeschlossen) | 0,250 / 0,320 / 0,483 |
+| Drohne | Panama Azul | 129 | 129 | 43 (von 66) | 0,332 / 0,385 / 0,515 |
+| Drohne | Panama Rojo (0517) | 129 | 129 | 43 (von 66) | 0,325 / 0,371 / 0,538 |
+| Drohne | Puerto Rico (0517) | 133 | 133 | 48 (von 68) | 0,329 / 0,399 / 0,575 |
+| **Drohne Summe** | | **450** | **451** | **155** | |
+| GoPro | GER–MEX (0301) | 145 | 146 | 59 (von 80) | 0,493 / 0,762 / 1,000 |
+| GoPro | Trainingslager | 55 | 55 | 18 (von 30, 6 domänenweit ausgeschlossen) | 0,497 / 0,686 / 0,828 |
+| **GoPro Summe** | | **200** | **201** | **77** | |
+| TV | MEX–ESP | 120 | 120 | 61 (von 88) | 0,333 / 0,376 / 0,661 |
+| TV | USA–MEX (2024) | 130 | 130 | 76 (von 95) | 0,412 / 0,473 / 1,000 |
+| **TV Summe** | | **250** | **250** | **137** | |
+| **Gesamt** | | **900** | **902** | **369** | |
+
+Jede Domäne trifft ihr Ziel sehr nahe (Abweichung ≤ 1 Frame je Session ausser der
+Stratum-Floor-Rundung bei zwei Sessions) — anders als Iteration 2 stösst keine Session an den
+Per-Clip-Cap × Pool-Grösse-Deckel, weil die Ziele diesmal bewusst konservativ (≈ 2 Frames/Clip im
+Schnitt) unter der theoretischen Kapazität jeder Session liegen. GoPro/Hinterfeld zeigt erneut die
+höchste Uncertainty (Median 0,76 bzw. 0,69 — deutlich über Drohne/TV), der erwartete
+Domain-Shift-Effekt, unverändert seit Iteration 1/2.
+
+### Vorlabeln mit dem Champion-Detektor
+
+`champion` löst zur Ausführungszeit auf `be854a1adebf4eb4b01d98dc39022ee1` (Iteration 1,
+Nutzerentscheid 2026-09-11 nach dem Vorlabel-Bias-Test, siehe `## Champion-Beförderung` oben) —
+per `--backend finetuned` erzwungen, kein Zero-Shot-Fallback möglich:
+
+```bash
+uv run --extra cv ffep cv prelabel --frames data/labels/al-iteration-3/<session-out-dir> \
+  --out data/labels/al-iteration-3/<session-out-dir>-prelabel --backend finetuned
+```
+
+| Session | Frames | Boxen | Frames ohne Detektion |
+|---|---:|---:|---:|
+| Trainingslager (Drohne) | 60 | 859 | 0/60 |
+| Panama Azul | 129 | 2737 | 0/129 |
+| Panama Rojo (0517) | 129 | 2500 | 0/129 |
+| Puerto Rico (0517) | 133 | 2436 | 0/133 |
+| GER–MEX (GoPro, 0301) | 146 | 810 | 17/146 (11,6 %) |
+| Trainingslager (GoPro) | 55 | 568 | 0/55 |
+| MEX–ESP (TV) | 120 | 1458 | 0/120 |
+| USA–MEX 2024 (TV) | 130 | 2530 | 1/130 |
+
+GoPro/Hinterfeld fällt erneut gegenüber den anderen Domänen ab (17/146 Frames ohne Detektion,
+11,6 %) — konsistent mit dem seit Iteration 1 dokumentierten GoPro-Domain-Shift und dem
+Fernfeld-Anteil dieser Session (siehe Labelling-Anleitung unten).
+
+### Zusammenführen und CVAT-Push je Domäne
+
+Da acht Einzelziehungen vorliegen, aber je Domäne **eine** CVAT-Aufgabe verlangt ist, wurden die
+Vorlabel-COCO-Pakete pro Domäne zu einem gemeinsamen Push-Paket zusammengeführt — Dateinamen mit
+einem kurzen Session-Tag präfigiert (`<tag>__<dateiname>`, z. B. `azul__Wide - Clip 001_f00000.jpg`),
+dieselbe Kollisionsvermeidung wie `bias.py`s domänenübergreifendes `<domain>__`-Präfix (mehrere
+Sessions derselben Domäne teilen sich Clip-Nummern, ein flacher CVAT-Task-Ordner würde sonst
+Dateien überschreiben). Ausgeführt als eigenständiges Merge-Skript (nicht Teil dieses Commits,
+analog zur GoPro-Nah/Mittel/Fern-Analyse in `docs/material-sighting.md`) — reine Bild-/JSON-Kopie
+mit Hardlinks, keine neue Annotations-Logik:
+
+```bash
+uv run --extra cv ffep cv cvat-push --coco data/labels/al-iteration-3/drone-prelabel-combined \
+  --name al-3-drone-1 --max-images 300
+uv run --extra cv ffep cv cvat-push --coco data/labels/al-iteration-3/sideline-prelabel-combined \
+  --name al-3-sideline-1 --max-images 300
+uv run --extra cv ffep cv cvat-push --coco data/labels/al-iteration-3/broadcast-prelabel-combined \
+  --name al-3-broadcast-1 --max-images 300
+```
+
+Drohne überschreitet den 300-Frame-Deckel (451 Bilder) und wurde automatisch in zwei Aufgaben
+gesplittet (`dataset.split_coco_for_task_upload`, dieselbe Mechanik wie Iteration 1s
+Drohnen-Split) — GoPro/Hinterfeld (201) und TV/Broadcast (250) bleiben je eine Aufgabe:
+
+| Aufgabe | Task-ID | Domäne | Frames | Boxen (live via CVAT bestätigt) |
+|---|---:|---|---:|---:|
+| `al-3-drone-1-1` | **12** | Drohne | 300 | 5760 |
+| `al-3-drone-1-2` | **13** | Drohne | 151 | 2772 |
+| `al-3-sideline-1-1` | **14** | GoPro/Hinterfeld | 201 | 1378 |
+| `al-3-broadcast-1-1` | **15** | TV/Broadcast | 250 | 3988 |
+
+Alle vier Aufgaben live über `client.tasks.retrieve` + `get_annotations` verifiziert — Grösse und
+Shape-Zahl stimmen exakt mit den gemergten Vorlabel-Paketen überein (Drohne 5760+2772=8532,
+GoPro/Hinterfeld 1378, TV/Broadcast 3988). Kein Zugangsdatenwert in irgendeiner Ausgabe
+(`secret()`-Auflösung, T-2.2-33).
+
+### Erwarteter Floor-Stand nach dieser Runde (Projektion, vor Verifizierung)
+
+**Wichtig: roh gezogene, noch NICHT geprüfte Frames — D-17 gilt unverändert.** Die berührt/verifiziert-Quote
+schwankte stark zwischen den ersten beiden Iterationen: Iteration 1 verifizierte 572 von 750 rohen
+Frames (76,3 %, nach der ursprünglichen, weniger strengen Korrektur-Zählweise), Iteration 2
+verifizierte 183 von 434 rohen Frames (42,2 %, mit der seit Iteration 2 verbindlichen
+Datei-Diff-Methode — nur echte Bearbeitungen zählen, nicht "als geprüft gemeldet"). Auf dieselbe
+strengere Methode angewendet, ergibt das für AL-3 (902 rohe Frames) eine Spanne statt einer
+Einzelzahl:
+
+| Szenario | Angenommene Quote | Projizierte verifizierte AL-3-Frames | Datensatz nach Merge | Anteil am 1.500er-Floor |
+|---|---:|---:|---:|---:|
+| Konservativ (Iteration-2-Quote) | 42,2 % | ≈ 381 | 755 + 381 = 1136 | 75,7 % |
+| Mittel (Durchschnitt beider Iterationen) | 63,8 % | ≈ 575 | 755 + 575 = 1330 | 88,7 % |
+| Optimistisch (Iteration-1-Quote) | 76,3 % | ≈ 688 | 755 + 688 = 1443 | 96,2 % |
+
+Selbst im optimistischen Fall schliesst diese Runde den Floor nicht mit Sicherheit — die reale
+Zahl steht erst nach der 100-%-Prüfung durch die Nutzerin fest (D-15/D-17), hier bewusst als
+Spanne statt als Einzelwert berichtet, um keine Erwartung vorwegzunehmen, die die Ziehung selbst
+nicht garantieren kann.
+
+### Abweichungen von der Ad-hoc-Ausführung
+
+**1. [Rule 1 - Bug] `_read_stratum_ids` prüfte `domain == "drone"` allein, nicht zusätzlich die
+Session** — jede weitere Drohnensession (Trainingslager, Puerto Rico 2026-05-16, und jetzt die
+drei neuen 2026-05-17-Sessions) hat ihre eigene `sighting_<session_id>.csv` (Plan 02.2-02s
+Konvention), aber die Funktion suchte für JEDE Drohnensession in der geteilten,
+Piloten-only-Datei `hover_positions.csv` — nie zuvor ausgelöst, weil vor AL-3 keine zweite
+Drohnensession je durch `select_al_frames`/`freeze_eval_clips` lief. Fix: zusätzliche Prüfung
+`session_id == config.cv.pilot_session_id`. Commit `4968cdf`.
+
+**2./3. [Rule 1 - Bug] `extract_frames` vertraute ffmpegs Exit-Code allein, ohne die tatsächlich
+geschriebene Datei zu prüfen** — VFR-kodiertes Material (Trainingslager-GoPro-Session,
+2026-03-01-GoPro-Session) kann für den letzten gezogenen Frame eines Clips einen Timestamp knapp
+hinter der von `ffprobe` gemeldeten Clip-Dauer berechnen. Zwei Symptome real beobachtet: (a) ein
+Encoder-Fehler mit Exit-Code ≠ 0 (Trainingslager-Sideline-Clip 028), behoben durch einen
+rückwärts genudgten Retry (Commit `8c62921`); (b) **Exit-Code 0 bei "Output file is empty,
+nothing was encoded"**, ohne dass überhaupt eine Datei entsteht (zwei GoPro-Frames real
+betroffen, keine Exception, das Manifest zeigte beide als erfolgreich gezogen) — die schwerere,
+stille Variante, behoben durch eine echte Existenz-/Grössenprüfung nach jedem Versuch plus
+gestaffelte Retry-Nudges (0,1/0,25/0,5 s). Commit `375f970`. Beide fehlenden GoPro-Frames wurden
+danach mit dem reparierten Code nachgezogen und gegen alle acht Selektionen verifiziert (0
+fehlende/leere Dateien, siehe Selbst-Check der zugehörigen Zusammenfassung).
+
+**4. Per-Clip-Cap 6 → 4 gesenkt** — dokumentiert unter "Ziel-Ableitung" oben, kein Bugfix, sondern
+eine bewusste, angewiesene Fortschreibung der Frame-Diversitäts-Logik für diese Runde. Commit
+`e540eee`.
+
+---
+
+**Total:** 3 Bugfixes (2 davon zusammen ein zweistufiger Fix desselben zugrunde liegenden
+Extraktionsproblems), 1 angewiesene Parameteränderung. Keine architektonische Änderung — der
+domänenweite (statt session-genaue) D-19-Ausschluss wurde bewusst NICHT angetastet (siehe
+"Pool-Sicherheit" oben), um den überall verdrahteten Schutz nicht in dieser Ad-hoc-Runde zu
+verändern.
+
+## Labelling-Anleitung Iteration 3 (AL-3)
+
+Für die Nutzerin, in einfachen Sätzen:
+
+1. Jede sichtbare Person wird geboxt — auch Ersatzspielerinnen, Trainerstab und Personen am
+   Spielfeldrand. Niemand wird ausgelassen.
+2. Nur Personen mit aktiver Schiedsrichterrolle bekommen das Label `referee`. Alle anderen
+   Personen bekommen `player`.
+3. Die Box umschliesst den ganzen sichtbaren Körper, inklusive Arme und Beine.
+4. Die Box-Unterkante liegt an den Füssen, nicht am Schatten.
+5. Drohne und TV/Broadcast: jeder Frame wird geprüft, auch wenn keine Vorlabel-Box vorhanden ist.
+6. GoPro/Hinterfeld (Aufgabe 14): nur Frames mit Spielerinnen im nahen oder mittleren Feldbereich
+   korrigieren. Fernfeld-Frames unverändert lassen — kein Kasten, kein Tag. Das gilt weiterhin,
+   unverändert seit Iteration 1 (`### Nachtrag 2026-09-02` oben).
+7. Ein Frame mit 0 Boxen zählt nicht automatisch als "geprüft" — nur wirklich angeschaute und
+   bestätigte Frames zählen (D-17).
+
+Aufgaben zum Prüfen: 12 (`al-3-drone-1-1`, 300 Bilder), 13 (`al-3-drone-1-2`, 151 Bilder), 14
+(`al-3-sideline-1-1`, 201 Bilder, Fernfeld-Regel beachten), 15 (`al-3-broadcast-1-1`, 250 Bilder).

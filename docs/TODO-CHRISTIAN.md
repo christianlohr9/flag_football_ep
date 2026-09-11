@@ -15,10 +15,12 @@ Erledigtes wandert nach unten. Wenn du etwas fertig hast: einfach sagen, ich hak
 
 3. **Repo auf privat stellen.** Lizenz ist schon auf Apache-2.0 umgestellt, jetzt fehlt nur noch die Sichtbarkeit: `gh repo edit christianlohr9/flag_football_ep --visibility private --accept-visibility-change-consequences` ausführen (oder auf GitHub unter Settings → Danger Zone → Change visibility).
 
+4. **AL-Runde 3 prüfen, vier CVAT-Aufgaben.** Aufgaben 12/13 Drohne (300 + 151 Bilder), 14 GoPro (201 Bilder, Fernfeld überspringen wie bisher), 15 TV/Broadcast (250 Bilder). 902 Bilder insgesamt, grösste Runde bisher — plan für mehr als ein Wochenende, wie bei AL-1/AL-2.
+
 ## Warten auf andere
 
-4. **OTC-Zugangsdaten.** Kommen später. Dann: `docs/hackathon-otc-upload.md`, ein Befehl.
-5. **IFAF-Statistiker.** Jona kümmert sich. Fragen stehen in `docs/ifaf-wm2026-daten.md`.
+5. **OTC-Zugangsdaten.** Kommen später. Dann: `docs/hackathon-otc-upload.md`, ein Befehl.
+6. **IFAF-Statistiker.** Jona kümmert sich. Fragen stehen in `docs/ifaf-wm2026-daten.md`.
 
 ## Erledigt
 
