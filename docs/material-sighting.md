@@ -413,3 +413,74 @@ Drohnen-Spiel") sind mit dieser Registrierung überholt — es sind jetzt zwei e
 hier in `docs/material-sighting.md` verbindlich festgehalten; `docs/material-inventory.md`s
 eigene "Domänen & Bestand"-Tabelle trägt weiterhin den Stand 2026-08-24 als historischen
 Schnappschuss (siehe deren Kopfzeile) und wird von diesem Nachtrag nicht überschrieben.
+
+## Nachtrag 2026-09-11 — Drei neue Drohnen-Sessions (Vorarbeit AL-Iteration 3)
+
+**Einordnung:** Der Nutzer hat drei weitere Drohnen-Sessions unter `data/video/` abgelegt, alle
+vom 2026-05-17 (einen Tag nach dem Piloten-/AL-1-Spieltag 2026-05-16), jeweils reine
+`Wide - Clip NNN.mp4`-Ordner ohne zweiten Hudl-Winkel-Feed (kein `End Zone`-Label wie bei den
+2026-01-03- und 2026-05-16-Drohnenordnern) — jede Session bleibt also eine einzige
+`session_id`, keine Aufteilung nötig. Registriert mit echten `ffprobe`-Metadaten und
+SHA-256-Hashes, alle 200 Zeilen eindeutig gegen sich selbst und den bestehenden 567-Zeilen-Bestand
+(0 Kollisionen geprüft).
+
+| Session | Ordner | `session_id` | Clips | Spielzüge lt. Breakdown |
+|---|---|---|---:|---:|
+| Freundschaftsspiel GER vs Panama Azul | `2026-05-17_Friendly_GERvsPanamaAzul_Drone_9741926` | `2026-05-17_FRIENDLY-GER-vs-PANAMA-AZUL-DRONE` | 66 | 66 |
+| Freundschaftsspiel GER vs Panama Rojo | `2026-05-17_Friendly_GERvsPanamaRojo_Drone_9741927` | `2026-05-17_FRIENDLY-GER-vs-PANAMA-ROJO-DRONE` | 66 | 66 |
+| Freundschaftsspiel GER vs Puerto Rico | `2026-05-17_Friendly_GERvsPuertoRico_Drone_9741928` | `2026-05-17_FRIENDLY-GER-vs-PUERTORICO-DRONE` | 68 | 68 |
+
+Wie bei den 2026-09-02-Sessions gilt: die Ordner enthalten je einen Clip mehr als Videodateien
+(67/67/69 Dateien inkl. `breakdown.xlsx`, 66/66/68 tatsächliche `.mp4`-Clips) — die Registrierung
+liest strikt von der Platte, nicht von der beim Ablegen genannten Zahl.
+
+**Wichtiger Hinweis — Puerto Rico 2026-05-17 ist NICHT die private Hackathon-Testset-Session.**
+Die private Testset-Session (`2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE`,
+`data/reference/al_excluded_sessions.csv`, DATA-04) ist ein anderes Spiel vom Vortag
+(2026-05-16) — gleiche Gegnerin, gleicher Spielort/Turnierabschnitt, aber ein separates
+Spiel mit eigener Clip-Zählung (61/66 Spielzüge) und eigenem Hash-Bestand. Die hier neu
+registrierte 2026-05-17-Session gegen Puerto Rico ist ein **anderes, eigenständiges Spiel** und
+damit für AL-Training zulässig — sie steht **nicht** in `al_excluded_sessions.csv` und wurde dort
+auch nicht ergänzt. Der Vollständigkeit halber: die Trikots/Farben beider Puerto-Rico-Spiele sehen
+sich naturgemäss ähnlich (dieselbe Nationalmannschaft), was beim Sichten von Frames aus beiden
+Sessions nebeneinander leicht zu Verwechslung führen könnte — deshalb hier ausdrücklich
+dokumentiert, nicht weil eine Trennungsregel im Code fehlt (die Trennung läuft über
+`session_id`, nicht über visuelle Ähnlichkeit).
+
+### Sichtung (`ffep cv sight --domain drone`)
+
+Alle drei Sessions gesichtet mit derselben Pipeline wie oben (Korrelationsschwelle 0.05,
+MOG2-Blob-Messung), Ausgabe explizit nach `data/reference/sighting_<session_id>.csv` (wie bei
+allen bislang zusätzlich registrierten Drohnen-Sessions, nicht in die gemeinsame
+`hover_positions.csv` der Pilotensession):
+
+| Session | n Clips | Hover-Positionen | p10 Median | p50 Median | p50-Spanne | Tier |
+|---|---:|---|---:|---:|---|---|
+| Panama Azul | 66 | 2 (hp-01: 1, hp-02: 65) | 15.0 px | 28.0 px | 21.0–48.0 px | 66/66 Brauchbar |
+| Panama Rojo (2026-05-17) | 66 | 1 (hp-01: 66, lückenlos) | 14.0 px | 26.0 px | 21.0–40.0 px | 66/66 Brauchbar |
+| Puerto Rico (2026-05-17) | 68 | 2 (hp-01: 57, hp-02: 11) | 15.0 px | 26.5 px | 22.0–43.0 px | 68/68 Brauchbar |
+
+Alle drei Sessions landen wie jede bisherige Drohnen-Session im 20–40-px-Band
+(`recommend_inference_settings` → `resolution=896`, `sahi=false`) — keine `ffep.toml`-Änderung
+nötig. Panama Azul zeigt eine fast durchgehende `hp-02`-Position mit einem einzelnen `hp-01`-Ausreisser
+(Clip 1, vermutlich eine kurze initiale Kamerapositionierung vor Spielbeginn) statt der sonst
+üblichen zwei klar getrennten Halbzeit-Blöcke; Puerto Rico zeigt das gewohnte Zwei-Block-Muster
+(57/11). Panama Rojo (2026-05-17) bleibt über die gesamte Session bei einer einzigen Position —
+ungewöhnlich für ein volles Spiel, aber kein Sichtungsfehler (siehe `_group_by_framing`s
+Zentroid-Verfahren, dieselbe Methode wie bei jeder anderen Session).
+
+### Ausschluss-Status
+
+- `data/reference/al_excluded_sessions.csv`: unverändert, weiterhin nur die eine Zeile für
+  `2026-05-16_FRIENDLY-GER-vs-PUERTORICO-DRONE-WIDE` (DATA-04, privates Hackathon-Testset). Keine
+  der drei neuen 2026-05-17-Sessions wurde ergänzt — alle drei sind AL-Kandidaten.
+- `data/reference/frozen_eval_clips.csv`: unverändert, 121 Datenzeilen ohne Header
+  (Pilotspiel-Drohne + Pilotspiel-GoPro), keine der drei neuen Sessions taucht dort auf — sie
+  sind vollständig Pool, kein Eval-Split existiert für sie.
+
+### Verwendung
+
+Diese drei Sessions plus die bereits am 2026-09-02 registrierte, bislang ungenutzte
+Trainingslager-Session (`2026-01-03_TRAININGCAMP-GER-vs-GER-DRONE-WIDE`, 30 Clips) bilden den
+Drohnen-Pool für AL-Iteration 3 (`## Korrektur 2026-09-11: Ungenutztes Material in data/video`
+in `docs/dataset-buildout.md`, Ausführung dort unter `## Iteration 3 (AL-3)`).
