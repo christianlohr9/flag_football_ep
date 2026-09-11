@@ -238,6 +238,41 @@ def _probe_fps(clip: Path) -> float:
     return float(raw)
 
 
+# Retry nudge for a seek that lands past the last decodable frame. Variable-frame-rate
+# clips (seen in the 2026-01-03 trainingcamp `sideline` footage, AL-3) report an
+# average `CAP_PROP_FPS` that, multiplied back against the real decoded frame count,
+# can compute a timestamp a few hundredths of a second past the container's own
+# `format.duration` for the very last selected frame -- ffmpeg then seeks past EOF,
+# decodes zero frames, and its downstream image encoder raises a confusing,
+# root-cause-obscuring error (e.g. an mjpeg "non full-range YUV"/"could not open
+# encoder" message that has nothing to do with pixel format) instead of a clear
+# "nothing to seek to" error. One retry nudged backward by this epsilon (well under a
+# single frame's duration at any fps this project uses, so it never changes which
+# real frame gets labeled) resolves the false EOF without masking a genuinely broken
+# clip -- if the retry also fails, the original error is raised unchanged.
+_SEEK_EOF_RETRY_EPSILON_S = 0.1
+
+
+def _run_ffmpeg_extract_frame(clip: Path, timestamp: float, out_path: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-ss",
+            f"{timestamp}",
+            "-i",
+            str(clip),
+            "-frames:v",
+            "1",
+            "-q:v",
+            "2",
+            str(out_path),
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+
 def extract_frames(clip: Path, out_dir: Path, at_seconds: list[float]) -> list[Path]:
     """Extract one still frame per timestamp in `at_seconds` from `clip` into `out_dir`.
 
@@ -245,8 +280,12 @@ def extract_frames(clip: Path, out_dir: Path, at_seconds: list[float]) -> list[P
     (T-2.1-09), one accurate seek per requested timestamp. Each written file is named
     `{clip_stem}_f{frame_index:05d}.jpg` with `frame_index = round(timestamp * fps)`,
     `fps` probed straight from `clip`, so frame indices stay stable and joinable with
-    tracking output later. `out_dir` is created if absent. A non-zero ffmpeg exit
-    raises `FrameExtractionError` carrying ffmpeg's stderr tail.
+    tracking output later. `out_dir` is created if absent. A failed seek is retried
+    once nudged `_SEEK_EOF_RETRY_EPSILON_S` earlier (see its docstring -- VFR clips can
+    compute a last-frame timestamp a hair past the real duration). A non-zero ffmpeg
+    exit on the retry (or on the very first attempt for `timestamp <
+    _SEEK_EOF_RETRY_EPSILON_S`, where nudging further back is not meaningful) raises
+    `FrameExtractionError` carrying ffmpeg's stderr tail from the last attempt.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     fps = _probe_fps(clip)
@@ -255,23 +294,10 @@ def extract_frames(clip: Path, out_dir: Path, at_seconds: list[float]) -> list[P
     for timestamp in at_seconds:
         frame_index = round(timestamp * fps)
         out_path = out_dir / f"{clip.stem}_f{frame_index:05d}.jpg"
-        result = subprocess.run(
-            [
-                "ffmpeg",
-                "-y",
-                "-ss",
-                f"{timestamp}",
-                "-i",
-                str(clip),
-                "-frames:v",
-                "1",
-                "-q:v",
-                "2",
-                str(out_path),
-            ],
-            capture_output=True,
-            text=True,
-        )
+        result = _run_ffmpeg_extract_frame(clip, timestamp, out_path)
+        if result.returncode != 0 and timestamp >= _SEEK_EOF_RETRY_EPSILON_S:
+            nudged = timestamp - _SEEK_EOF_RETRY_EPSILON_S
+            result = _run_ffmpeg_extract_frame(clip, nudged, out_path)
         if result.returncode != 0:
             raise FrameExtractionError(
                 f"ffmpeg exited {result.returncode} extracting frame at {timestamp}s "
